@@ -81,7 +81,7 @@
 
 		<a href="javascript:leftnavExpand('sidebar_Info_open'); leftnavExpand('sidebar_Info_closed');"><img src="${pageContext.request.contextPath}/images/sidebar_expand.gif" border="0" align="right" hspace="10"></a>
 
-		<b>Info</b>
+		<fmt:message key="info" bundle="${restext}"/>
 
 		</td>
 	</tr>
