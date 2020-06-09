@@ -34,13 +34,16 @@ changes to another step._
     1. create database: `sudo -u postgres createdb -e -O clinica -E UTF8 libreclinica`
 1. **copy the \*.war archive** to the webapps folder  
     `cp LibreClinica-1.0.0.war /var/lib/tomcat9/webapps/<context name>.war`  
+    `chown tomcat:tomcat /var/lib/tomcat9/webapps/<context name>.war`  
     *context name is the name that comes usually after the slash  
     e.g. for https://libreclinica.org/libreclinica it is
     /var/lib/tomcat9/webapps/libreclinica.war*
 1. **configure datainfo.properties**  
     Edit /usr/share/tomcat9/libreclinica.config/datainfo.properties to match your requirements.  
     _Detailed instructions on how to configure it properly can be found in the different 
-    sections of the datainfo.properties._
+    sections of the datainfo.properties._  
+    Make sure, that tomcat can read the file by issuing  
+    `chmod o+r /usr/share/tomcat9/libreclinica.config/datainfo.properties`
     
     **relevant keys for your datainfo.properties**  
     For a common installation it should be sufficient to change the following keys:
