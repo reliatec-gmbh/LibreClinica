@@ -7,7 +7,7 @@ that the user you use for the installation is a member of the sudo group. For ru
 mail transfer agent (MTA) to allow LibreClinica to send emails. How to install, configure and run a MTA is not explained
 in this instruction.  
 **This installation instruction is not a complete guide to run a productive LibreClinica instance since it is missing steps
-to secure your server like configuring the firewall or enabling https. But it is sufficant for your system administrator
+to secure your server like configuring the firewall or enabling https. But it is sufficient for your system administrator
 to get you a working copy of LibreClinica.**
 
 _This installation instruction is a blue print for a successfull LibreClinica installation. If you follow these steps
