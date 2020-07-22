@@ -1,5 +1,5 @@
 
-manuals for LibreClinica 0.8.1 pre-release
+manuals for LibreClinica 1.0.0
 
 # LibreClinica manuals {docsify-ignore}
 
