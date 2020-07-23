@@ -15,7 +15,7 @@
             --cover-background-color: white;
       </style>
 
-      <title>LibreClinica - System Requirements</title>
+      <title>LibreClinica</title>
    </head>
    <body>
       <div data-app id="app">Please wait ...</div>
@@ -23,14 +23,18 @@
       <script>
          window.$docsify = {
             name: 'LibreClinica',
-            homepage: 'system_requirements.md',
+            homepage: 'instructions/install_lc-1.0_official.md',
             basePath: '/LibreClinica',
             coverpage: false,
-            loadNavbar: false,
             loadSidebar: false,
+            loadNavbar: false,
+            subMaxLevel: 0,
             themeable: {
                readyTransition: true,
                responsiveTables: true
+            },
+            alias: {
+               '/.*/sidebar.md': '/instructions/sidebar.md'
             }
          }
       </script>
