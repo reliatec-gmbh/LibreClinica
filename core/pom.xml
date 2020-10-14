@@ -72,11 +72,6 @@
 		</dependency>
 		<!-- end servlet tests -->
 		<dependency>
-			<groupId>commons-beanutils</groupId>
-			<artifactId>commons-beanutils</artifactId>
-			<version>1.8.0</version>
-			<scope>runtime</scope>
-		</dependency>
 		<dependency>
 			<groupId>commons-dbcp</groupId>
     		<artifactId>commons-dbcp</artifactId>
