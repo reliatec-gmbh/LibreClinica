@@ -319,11 +319,6 @@
 			<artifactId>hibernate-ehcache</artifactId>
 			<version>5.4.2.Final</version>
 		</dependency>
-		<dependency>
-			<groupId>javassist</groupId>
-			<artifactId>javassist </artifactId>
-			<version>3.8.0.GA</version>
-		</dependency>
 		<!-- LIQUIBASE -->
 		<dependency>
 			<groupId>org.liquibase</groupId>
