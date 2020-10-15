@@ -31,6 +31,7 @@
 
 		<!-- Library Versions -->
 		<spring.version>5.1.4.RELEASE</spring.version>
+		<spring.ws.version>1.5.6</spring.ws.version>
 		<db.test>localhost</db.test>
 		<jackson.version>2.9.8</jackson.version>
 		<saxon.version>8.7</saxon.version>
@@ -145,6 +146,11 @@
 				<version>1.8.0</version>
 			</dependency>
 			<dependency>
+				<groupId>commons-dbcp</groupId>
+				<artifactId>commons-dbcp</artifactId>
+				<version>1.4</version>
+			</dependency>
+			<dependency>
 				<groupId>net.sf.saxon</groupId>
 				<artifactId>saxon</artifactId>
 				<version>${saxon.version}</version>
@@ -206,10 +212,30 @@
 				<version>${spring.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>org.springframework.security</groupId>
+				<artifactId>spring-security-taglibs</artifactId>
+				<version>${spring.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.security</groupId>
+				<artifactId>spring-security-acl</artifactId>
+				<version>${spring.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>org.springframework.ldap</groupId>
 				<artifactId>spring-ldap-core</artifactId>
 				<!-- make sure the version matches the one used by org.springframewok.security:spring-security-ldap -->
 				<version>2.3.2.RELEASE</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.ws</groupId>
+				<artifactId>spring-ws-core-tiger</artifactId>
+				<version>${spring.ws.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.ws</groupId>
+				<artifactId>spring-ws-core</artifactId>
+				<version>${spring.ws.version}</version>
 			</dependency>
 			<dependency>
     			<groupId>net.sf.ehcache</groupId>
@@ -224,9 +250,15 @@
 			   <version>2.2</version>
 			</dependency>
 			<dependency>
+				<groupId>javax.ws.rs</groupId>
+				<artifactId>jsr311-api</artifactId>
+				<!-- make sure the version matches the one used by com.sun.jersey:jersey-server -->
+				<version>1.1.1</version>
+			</dependency>
+			<dependency>
 				<groupId>xml-apis</groupId>
 				<artifactId>xml-apis</artifactId>
-				<!-- make sue the version matches the one used by the batik libs (e.g. org.apache.xmlgraphics:batik-dom) -->
+				<!-- make sure the version matches the one used by the batik libs (e.g. org.apache.xmlgraphics:batik-dom) -->
 				<version>1.3.04</version>
 			</dependency>
 			<!-- HIBERNATE -->
@@ -269,6 +301,11 @@
 				<version>${castor.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>org.codehaus.castor</groupId>
+				<artifactId>castor-xml</artifactId>
+				<version>${castor.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>org.apache.logging.log4j</groupId>
 				<artifactId>log4j-core</artifactId>
 				<version>2.13.3</version>
@@ -283,6 +320,41 @@
 				<groupId>ch.qos.logback</groupId>
 				<artifactId>logback-classic</artifactId>
 				<version>${logback.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>javax.xml.bind</groupId>
+				<artifactId>jaxb-api</artifactId>
+				<scope>compile</scope>
+				<version>2.1</version>
+				<exclusions>
+					<exclusion>
+						<groupId>javax.xml.stream</groupId>
+						<artifactId>stax-api</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>javax.activation</groupId>
+						<artifactId>activation</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>xerces</groupId>
+				<artifactId>xmlParserAPIs</artifactId>
+				<version>2.2.1</version>
+				<scope>test</scope>			
+			</dependency>
+			<dependency>
+				<groupId>jtidy</groupId>
+				<artifactId>jtidy</artifactId>
+				<!-- make sure the version matches the one used by the httpunit -->
+				<version>4aug2000r7-dev</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>javax.servlet</groupId>
+				<artifactId>servlet-api</artifactId>
+				<!-- make sure the version matches the one used by the httpunit -->
+				<version>2.3</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
