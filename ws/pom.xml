@@ -96,6 +96,10 @@
 		
 		<!-- Other Dependencies -->
 		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>javax.xml.soap</groupId>
 			<artifactId>saaj-api</artifactId>
 			<version>1.3</version>

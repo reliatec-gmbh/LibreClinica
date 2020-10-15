@@ -7,7 +7,6 @@
  */
 package org.akaza.openclinica.web.job;
 
-<<<<<<< HEAD
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.Locale;
