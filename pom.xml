@@ -222,6 +222,32 @@
 				<version>${spring.version}</version>
 			</dependency>
 			<dependency>
+			    <groupId>org.springframework.security</groupId>
+			    <artifactId>spring-security-config</artifactId>
+			    <version>${spring.version}</version>
+			    <scope>runtime</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-oxm</artifactId>
+				<version>${spring.version}</version>
+				<scope>runtime</scope>
+			</dependency>
+			<!--
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-web</artifactId>
+				<version>${spring.version}</version>
+				<scope>runtime</scope>
+			</dependency>
+			-->
+			<dependency>
+				<groupId>org.springframework.security.oauth</groupId>
+				<artifactId>spring-security-oauth2</artifactId>
+				<version>2.3.5.RELEASE</version>
+				<scope>runtime</scope>
+			</dependency>
+			<dependency>
 				<groupId>org.springframework.ldap</groupId>
 				<artifactId>spring-ldap-core</artifactId>
 				<!-- make sure the version matches the one used by org.springframewok.security:spring-security-ldap -->
@@ -243,6 +269,13 @@
     			<!--  make sure the version matches the one used by org.hibernate:hibernate-ehcache -->
     			<version>2.10.6</version>
 			</dependency>
+	        <dependency>
+	        	<!--  ehcache-web is used for the compress filter defined in web.xml -->
+	            <groupId>net.sf.ehcache</groupId>
+	            <artifactId>ehcache-web</artifactId>
+	            <version>2.0.4</version>
+	            <scope>runtime</scope>
+	        </dependency>
 			<dependency>
 			   <groupId>javax.persistence</groupId>
 			   <artifactId>javax.persistence-api</artifactId>
@@ -276,6 +309,7 @@
 				<groupId>org.hibernate</groupId>
 				<artifactId>hibernate-ehcache</artifactId>
 				<version>${hibernate.version}</version>
+				<scope>runtime</scope>
 			</dependency>
 			<dependency>
 	    		<groupId>com.mattbertolini</groupId>
@@ -356,6 +390,55 @@
 				<!-- make sure the version matches the one used by the httpunit -->
 				<version>2.3</version>
 			</dependency>
+			<!-- Postgres JDBC driver -->
+			<dependency>
+				<groupId>org.postgresql</groupId>
+				<artifactId>postgresql</artifactId>
+				<version>42.2.5</version>
+				<scope>runtime</scope>
+			</dependency>
+			<dependency>
+				<groupId>antlr</groupId>
+				<artifactId>antlr</artifactId>
+				<version>2.7.6</version>
+				<scope>runtime</scope>
+			</dependency>
+	       <dependency>
+	           <groupId>com.sun.jersey.contribs</groupId>
+	           <artifactId>jersey-spring</artifactId>
+	           <version>1.19.3</version>
+	           <scope>runtime</scope>
+	           <exclusions>
+	               <exclusion>
+	                   <groupId>org.springframework</groupId>
+	                   <artifactId>spring</artifactId>
+	               </exclusion>
+	               <exclusion>
+	                   <groupId>org.springframework</groupId>
+	                   <artifactId>spring-core</artifactId>
+	               </exclusion>
+	               <exclusion>
+	                   <groupId>org.springframework</groupId>
+	                   <artifactId>spring-web</artifactId>
+	               </exclusion>
+	               <exclusion>
+	                   <groupId>org.springframework</groupId>
+	                   <artifactId>spring-beans</artifactId>
+	               </exclusion>
+	               <exclusion>
+	                   <groupId>org.springframework</groupId>
+	                   <artifactId>spring-context</artifactId>
+	               </exclusion>
+	               <exclusion>
+	                   <groupId>org.springframework</groupId>
+	                   <artifactId>spring-aop</artifactId>
+	               </exclusion>
+	               <exclusion>
+	                   <groupId>org.springframework</groupId>
+	                   <artifactId>spring-asm</artifactId>
+	               </exclusion>
+	           </exclusions>
+	       </dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -384,6 +467,11 @@
 		</dependency>
 		<!-- LOGGING -->
 		<dependency>
+			<groupId>org.liquibase</groupId>
+			<artifactId>liquibase-core</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 			<version>1.7.6</version>
@@ -394,12 +482,21 @@
 			<version>1.7.6</version>
 			<scope>test</scope>
 		</dependency>
+		<!--@pgawade 02-DEC-2010 Added jul-to-slf4j-1.5.6.jar to get liquibase
+			logs using SLF4JBridgeHandler -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jul-to-slf4j</artifactId>
+			<version>1.7.6</version>
+			<scope>runtime</scope>
+		</dependency>
+		<!-- potentially replaces jul-to-slf4j 
 		<dependency>
     		<groupId>com.mattbertolini</groupId>
     		<artifactId>liquibase-slf4j</artifactId>
 		</dependency>
+		-->
 		<!-- We have added this to see logging from SpringFramework it uses JCL -->
-		<!--
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>jcl-over-slf4j</artifactId>
@@ -432,13 +529,9 @@
 			<artifactId>spring-security-ldap</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-web</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context-support</artifactId>
-			<version>${spring.version}</version>
+    		<groupId>org.springframework</groupId>
+    		<artifactId>spring-context-support</artifactId>
+    		<version>${spring.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
