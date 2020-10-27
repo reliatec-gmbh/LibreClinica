@@ -20,12 +20,6 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
 
 import java.util.Locale;
 
-// import org.apache.commons.logging.Log;
-// import org.apache.commons.logging.impl.SimpleLog;
-//
-// import org.quartz.*;
-// import org.quartz.impl.jdbcjobstore.*;
-
 /**
  * @author thickerson
  *
