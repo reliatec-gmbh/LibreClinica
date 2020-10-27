@@ -96,6 +96,11 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
+				<groupId>${project.groupId}.odm</groupId>
+				<artifactId>LibreClinica-odm</artifactId>
+				<version>2.2</version>
+			</dependency>
+			<dependency>
 				<groupId>org.jmesa</groupId>
 				<artifactId>jmesa</artifactId>
 				<version>2.4.2-oc</version>
@@ -149,6 +154,21 @@
 				<groupId>commons-dbcp</groupId>
 				<artifactId>commons-dbcp</artifactId>
 				<version>1.4</version>
+			</dependency>
+			<dependency>
+				<groupId>commons-logging</groupId>
+				<artifactId>commons-logging</artifactId>
+				<version>1.0.4</version>
+			</dependency>
+			<dependency>
+				<groupId>commons-logging</groupId>
+				<artifactId>commons-logging-api</artifactId>
+				<version>1.0.4</version>
+			</dependency>
+			<dependency>
+				<groupId>commons-lang</groupId>
+				<artifactId>commons-lang</artifactId>
+				<version>2.3</version>
 			</dependency>
 			<dependency>
 				<groupId>net.sf.saxon</groupId>
@@ -233,19 +253,41 @@
 				<version>${spring.version}</version>
 				<scope>runtime</scope>
 			</dependency>
-			<!--
 			<dependency>
 				<groupId>org.springframework</groupId>
-				<artifactId>spring-web</artifactId>
+				<artifactId>spring-tx</artifactId>
 				<version>${spring.version}</version>
-				<scope>runtime</scope>
 			</dependency>
-			-->
 			<dependency>
 				<groupId>org.springframework.security.oauth</groupId>
 				<artifactId>spring-security-oauth2</artifactId>
 				<version>2.3.5.RELEASE</version>
 				<scope>runtime</scope>
+			</dependency>
+	       <dependency>
+	           <groupId>org.springframework.security</groupId>
+	           <artifactId>spring-security-web</artifactId>
+	           <version>${spring.version}</version>
+	       </dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-context</artifactId>
+				<version>${spring.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-jdbc</artifactId>
+				<version>${spring.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.security</groupId>
+				<artifactId>spring-security-core</artifactId>
+				<version>${spring.version}</version>
+			</dependency>
+			<dependency>
+	    		<groupId>org.springframework</groupId>
+	    		<artifactId>spring-context-support</artifactId>
+	    		<version>${spring.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.ldap</groupId>
@@ -264,6 +306,11 @@
 				<version>${spring.ws.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>org.springframework.ws</groupId>
+				<artifactId>spring-ws-security</artifactId>
+				<version>${spring.ws.version}</version>
+			</dependency>
+			<dependency>
     			<groupId>net.sf.ehcache</groupId>
 				<artifactId>ehcache</artifactId>
     			<!--  make sure the version matches the one used by org.hibernate:hibernate-ehcache -->
@@ -276,6 +323,18 @@
 	            <version>2.0.4</version>
 	            <scope>runtime</scope>
 	        </dependency>
+	        <dependency>
+	        	<groupId>javax.activation</groupId>
+				<artifactId>activation</artifactId>
+				<version>1.1.1</version>
+				<scope>runtime</scope>
+	        </dependency>
+	        <dependency>
+	        	<groupId>javax.activation</groupId>
+				<artifactId>javax.activation-api</artifactId>
+				<version>1.2.0</version>
+				<scope>runtime</scope>
+	        </dependency>
 			<dependency>
 			   <groupId>javax.persistence</groupId>
 			   <artifactId>javax.persistence-api</artifactId>
@@ -287,6 +346,17 @@
 				<artifactId>jsr311-api</artifactId>
 				<!-- make sure the version matches the one used by com.sun.jersey:jersey-server -->
 				<version>1.1.1</version>
+			</dependency>
+			<dependency>
+				<groupId>javax.servlet.jsp</groupId>
+				<artifactId>jsp-api</artifactId>
+				<version>2.0</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>javax.mail</groupId>
+				<artifactId>mail</artifactId>
+				<version>1.4.2</version>
 			</dependency>
 			<dependency>
 				<groupId>xml-apis</groupId>
@@ -338,6 +408,8 @@
 				<groupId>org.codehaus.castor</groupId>
 				<artifactId>castor-xml</artifactId>
 				<version>${castor.version}</version>
+				<exclusions>
+				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.logging.log4j</groupId>
@@ -359,7 +431,7 @@
 				<groupId>javax.xml.bind</groupId>
 				<artifactId>jaxb-api</artifactId>
 				<scope>compile</scope>
-				<version>2.1</version>
+				<version>2.2.12</version>
 				<exclusions>
 					<exclusion>
 						<groupId>javax.xml.stream</groupId>
@@ -439,6 +511,18 @@
 	               </exclusion>
 	           </exclusions>
 	       </dependency>
+	       <dependency>
+				<groupId>javax.xml.stream</groupId>
+				<artifactId>stax-api</artifactId>
+				<!-- make sure the version matches the one used by the spring-ws libs (e.g. spring-ws-core) -->
+				<version>1.0-2</version>
+	       </dependency>
+	       <dependency>
+	       		<groupId>com.sun.xml.wss</groupId>
+  				<artifactId>xws-security</artifactId>
+				<!-- make sure the version matches the one used by the spring-ws-security -->
+  				<version>2.0-FCS</version>
+	       </dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -507,31 +591,22 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-tx</artifactId>
-			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
-			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-jdbc</artifactId>
-			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-core</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-ldap</artifactId>
 		</dependency>
 		<dependency>
     		<groupId>org.springframework</groupId>
     		<artifactId>spring-context-support</artifactId>
-    		<version>${spring.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -765,9 +840,12 @@
 				<plugin>
 			        <groupId>org.apache.maven.plugins</groupId>
 			        <artifactId>maven-dependency-plugin</artifactId>
-			        <version>2.6</version>
+			        <version>3.1.2</version>
 			        <configuration>
 			        	<ignoreNonCompile>true</ignoreNonCompile>
+						<ignoredUsedUndeclaredDependencies>
+							<ignoredUsedUndeclaredDependency>stax:stax-api</ignoredUsedUndeclaredDependency>
+						</ignoredUsedUndeclaredDependencies>
 			        </configuration>
 			      </plugin>
 			</plugins>
