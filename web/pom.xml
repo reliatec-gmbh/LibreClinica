@@ -191,8 +191,6 @@
 		<dependency>
 			<groupId>javax.mail</groupId>
 			<artifactId>mail</artifactId>
-			<version>1.4</version>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>javax.xml.bind</groupId>
