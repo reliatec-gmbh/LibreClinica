@@ -164,13 +164,10 @@
 		<dependency>
 			<groupId>httpunit</groupId>
 			<artifactId>httpunit</artifactId>
-			<version>1.6.1</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>jstl</artifactId>
-			<version>1.1.2</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
@@ -186,29 +183,16 @@
 		<dependency>
 			<groupId>taglibs</groupId>
 			<artifactId>standard</artifactId>
-			<version>1.1.2</version>
-			<scope>runtime</scope>
 		</dependency>
 		<!-- Struts web framework -->
 		<dependency>
 			<groupId>struts</groupId>
 			<artifactId>struts</artifactId>
-			<version>1.2.4</version>
-			<scope>test</scope>
-			<!-- @pgawade 16-NOV-2010 Excluded the antlr library from struts as we need to use that from hibernate -->
-			<exclusions>
-				<exclusion>
-					<artifactId>antlr</artifactId>
-					<groupId>antlr</groupId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 		<!-- Postgres JDBC driver -->
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>42.2.5</version>
-			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>xml-apis</groupId>
