@@ -24,7 +24,7 @@ import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
 
 // Internationalized name and description in Term.getName and
 // Term.getDescription()
-public class SubjectEventStatus extends Term implements Comparable {
+public class SubjectEventStatus extends Term implements Comparable<SubjectEventStatus> {
     // waiting for the db to come in sync with our set of terms...
     public static final SubjectEventStatus INVALID = new SubjectEventStatus(0, "invalid");
 
@@ -125,14 +125,8 @@ public class SubjectEventStatus extends Term implements Comparable {
         return new ArrayList(list);
     }
 
-    public int compareTo(Object o) {
-        if (!this.getClass().equals(o.getClass())) {
-            return 0;
-        }
-
-        SubjectEventStatus arg = (SubjectEventStatus) o;
-
-        return name.compareTo(arg.getName());
+    public int compareTo(SubjectEventStatus o) {
+        return name.compareTo(o.getName());
     }
 
     @SuppressWarnings("unchecked")

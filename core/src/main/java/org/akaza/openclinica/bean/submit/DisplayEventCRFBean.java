@@ -27,7 +27,7 @@ import java.util.Date;
  * @author ssachs
  */
 
-public class DisplayEventCRFBean implements Comparable {
+public class DisplayEventCRFBean implements Comparable<DisplayEventCRFBean> {
 
     protected final static Logger logger = LoggerFactory.getLogger(DisplayEventCRFBean.class.getName());
 
@@ -233,17 +233,9 @@ public class DisplayEventCRFBean implements Comparable {
         // return created.after(nowMinusTwelve);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Comparable#compareTo(java.lang.Object)
-     */
-    public int compareTo(Object o) {
-        if (o == null || !o.getClass().equals(this.getClass())) {
-            return 0;
-        }
 
-        DisplayEventCRFBean decb = (DisplayEventCRFBean) o;
-        return this.eventDefinitionCRF.getOrdinal() - decb.getEventDefinitionCRF().getOrdinal();
+    @Override
+    public int compareTo(DisplayEventCRFBean o) {
+        return this.eventDefinitionCRF.compareTo(getEventDefinitionCRF());
     }
 }

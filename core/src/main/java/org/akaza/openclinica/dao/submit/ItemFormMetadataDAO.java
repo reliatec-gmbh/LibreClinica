@@ -625,7 +625,7 @@ public class ItemFormMetadataDAO<K extends String,V extends ArrayList> extends E
      */
     public EntityBean create(EntityBean eb) throws OpenClinicaException {
         ItemFormMetadataBean ifmb = (ItemFormMetadataBean) eb;
-        HashMap<Integer, Comparable> variables = new HashMap<Integer, Comparable>();
+        HashMap<Integer, Object> variables = new HashMap<>();
 
         int ind = 0;
         int id = getNextPK();
@@ -691,7 +691,7 @@ public class ItemFormMetadataDAO<K extends String,V extends ArrayList> extends E
      */
     public EntityBean update(EntityBean eb) throws OpenClinicaException {
         ItemFormMetadataBean ifmb = (ItemFormMetadataBean) eb;
-        HashMap<Integer, Comparable> variables = new HashMap<Integer, Comparable>();
+        HashMap<Integer, Object> variables = new HashMap<>();
 
         int ind = 0;
 

@@ -13,7 +13,7 @@ import org.akaza.openclinica.core.form.StringUtil;
 /**
  * @author ssachs
  */
-public class ItemFormMetadataBean extends EntityBean implements Comparable {
+public class ItemFormMetadataBean extends EntityBean implements Comparable<ItemFormMetadataBean> {
     //
     private int itemId;
     private int crfVersionId;
@@ -657,11 +657,8 @@ public class ItemFormMetadataBean extends EntityBean implements Comparable {
         this.responseLayout = responseLayout;
     }
 
-    public int compareTo(Object o) {
-        if (o == null || !(o instanceof ItemFormMetadataBean)) {
-            return 1;
-        }
-        int ordinal = ((ItemFormMetadataBean) o).getOrdinal();
+    public int compareTo(ItemFormMetadataBean o) {
+        int ordinal = o.getOrdinal();
         return Integer.valueOf(this.getOrdinal()).compareTo(ordinal);
     }
 

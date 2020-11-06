@@ -18,7 +18,7 @@ import java.util.ArrayList;
 /**
  * @author ssachs
  */
-public class DisplayItemBean implements Comparable {
+public class DisplayItemBean implements Comparable<DisplayItemBean> {
     private ItemDataBean data;
     private ItemBean item;
     private ItemFormMetadataBean metadata;
@@ -243,13 +243,8 @@ public class DisplayItemBean implements Comparable {
      *         this DisplayItemBean's A positive number if o is a
      *         DisplayItemBean with a lesser ordinal than this DisplayItemBean's
      */
-    public int compareTo(Object o) {
-        if (!o.getClass().equals(this.getClass())) {
-            return 0;
-        }
-
-        DisplayItemBean arg = (DisplayItemBean) o;
-        return getMetadata().getOrdinal() - arg.getMetadata().getOrdinal();
+    public int compareTo(DisplayItemBean o) {
+        return getMetadata().getOrdinal() - o.getMetadata().getOrdinal();
     }
 
     /**

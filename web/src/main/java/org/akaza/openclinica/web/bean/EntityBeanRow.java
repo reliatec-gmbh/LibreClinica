@@ -59,7 +59,7 @@ import java.util.Date;
  * @see EntityBeanTable
  * @see UserAccountRow
  */
-public abstract class EntityBeanRow implements Comparable {
+public abstract class EntityBeanRow implements Comparable<EntityBeanRow> {
     /**
      * The object which will be displayed.
      */
@@ -112,7 +112,7 @@ public abstract class EntityBeanRow implements Comparable {
      *
      * @see java.lang.Comparable#compareTo(java.lang.Object)
      */
-    public int compareTo(Object row) {
+    public int compareTo(EntityBeanRow row) {
         if (ascendingSort) {
             return compareColumn(row, sortingColumn);
         } else {

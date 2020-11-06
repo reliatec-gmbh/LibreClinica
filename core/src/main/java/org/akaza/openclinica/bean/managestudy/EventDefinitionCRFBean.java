@@ -19,7 +19,7 @@ import org.akaza.openclinica.domain.SourceDataVerification;
 /**
  * @author jxu
  */
-public class EventDefinitionCRFBean extends AuditableEntityBean implements Comparable {
+public class EventDefinitionCRFBean extends AuditableEntityBean implements Comparable<EventDefinitionCRFBean> {
     private int studyEventDefinitionId = 0;
 
     // issue 3212: the Event CRF is hidden from views in the application
@@ -538,13 +538,8 @@ public class EventDefinitionCRFBean extends AuditableEntityBean implements Compa
      *
      * @see java.lang.Comparable#compareTo(java.lang.Object)
      */
-    public int compareTo(Object o) {
-        if (o == null || !o.getClass().equals(this.getClass())) {
-            return 0;
-        }
-
-        EventDefinitionCRFBean edcb = (EventDefinitionCRFBean) o;
-        return this.ordinal - edcb.ordinal;
+    public int compareTo(EventDefinitionCRFBean o) {
+        return Integer.valueOf(this.ordinal).compareTo(o.ordinal);
     }
 
     public SourceDataVerification getSourceDataVerification() {

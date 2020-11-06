@@ -19,7 +19,7 @@ import org.akaza.openclinica.bean.login.UserAccountBean;
  * @author jxu
  *
  */
-public class DiscrepancyNoteBean extends AuditableEntityBean implements Comparable {
+public class DiscrepancyNoteBean extends AuditableEntityBean implements Comparable<DiscrepancyNoteBean> {
     // discrepancy_note_id serial NOT NULL,
     // description varchar(255),
     // discrepancy_note_type_id numeric,
@@ -548,13 +548,8 @@ public class DiscrepancyNoteBean extends AuditableEntityBean implements Comparab
         this.studySub = studySub;
     }
 
-    public int compareTo(Object o) {
-        if (!o.getClass().equals(this.getClass())) {
-            return 0;
-        }
-
-        DiscrepancyNoteBean discBean2 = (DiscrepancyNoteBean) o;
-        return this.getId() > discBean2.getId() ? 1 : -1;
+    public int compareTo(DiscrepancyNoteBean o) {
+        return Integer.valueOf(this.getId()).compareTo(o.getId());
     }
 
     public UserAccountBean getAssignedUser() {

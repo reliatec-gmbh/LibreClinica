@@ -156,7 +156,7 @@ public class ItemDataDAO extends AuditableEntityDAO {
         }
         idb.setActive(false);
 
-        HashMap<Integer, Comparable> variables = new HashMap<Integer, Comparable>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(idb.getEventCRFId()));
         variables.put(new Integer(2), new Integer(idb.getItemId()));
         variables.put(new Integer(3), new Integer(idb.getStatus().getId()));
@@ -194,7 +194,7 @@ public class ItemDataDAO extends AuditableEntityDAO {
         }
         idb.setActive(false);
 
-        HashMap<Integer, Comparable> variables = new HashMap<Integer, Comparable>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(idb.getStatus().getId()));
         variables.put(new Integer(2), idb.getValue());
         variables.put(new Integer(3), new Integer(idb.getUpdaterId()));
@@ -221,7 +221,7 @@ public class ItemDataDAO extends AuditableEntityDAO {
         }
         idb.setActive(false);
 
-        HashMap<Integer, Comparable> variables = new HashMap<Integer, Comparable>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(idb.getStatus().getId()));
         variables.put(new Integer(2), idb.getValue());
         variables.put(new Integer(3), new Integer(idb.getUpdaterId()));
@@ -241,7 +241,7 @@ public class ItemDataDAO extends AuditableEntityDAO {
     public EntityBean updateStatus(EntityBean eb) {
         ItemDataBean idb = (ItemDataBean) eb;
         idb.setActive(false);
-        HashMap<Integer, Comparable> variables = new HashMap<Integer, Comparable>();
+        HashMap<Integer, Integer> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(idb.getStatus().getId()));
         variables.put(new Integer(2), new Integer(idb.getId()));
         this.execute(digester.getQuery("updateStatus"), variables);
@@ -279,7 +279,7 @@ public class ItemDataDAO extends AuditableEntityDAO {
 
         idb.setActive(false);
 
-        HashMap<Integer, Comparable> variables = new HashMap<Integer, Comparable>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(idb.getStatus().getId()));
         variables.put(new Integer(2), idb.getValue());
         variables.put(new Integer(3), new Integer(idb.getUpdaterId()));
@@ -298,7 +298,7 @@ public class ItemDataDAO extends AuditableEntityDAO {
 
         idb.setActive(false);
 
-        HashMap<Integer, Comparable> variables = new HashMap<Integer, Comparable>();
+        HashMap<Integer, Integer> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(idb.getUpdaterId()));
         variables.put(new Integer(2), new Integer(idb.getId()));
         this.execute(digester.getQuery("updateUser"), variables);
@@ -321,7 +321,7 @@ public class ItemDataDAO extends AuditableEntityDAO {
             idb.setValue(formatPDate(idb.getValue()));
         }
 
-        HashMap<Integer, Comparable> variables = new HashMap<Integer, Comparable>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         int id = getNextPK();
         variables.put(new Integer(1), new Integer(id));
         variables.put(new Integer(2), new Integer(idb.getEventCRFId()));
@@ -352,7 +352,7 @@ public class ItemDataDAO extends AuditableEntityDAO {
             idb.setValue(formatPDate(idb.getValue()));
         }
 
-        HashMap<Integer, Comparable> variables = new HashMap<Integer, Comparable>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         int id = getNextPK();
         variables.put(new Integer(1), new Integer(id));
         variables.put(new Integer(2), new Integer(idb.getEventCRFId()));
@@ -512,7 +512,7 @@ public class ItemDataDAO extends AuditableEntityDAO {
     }
 
     public void delete(int itemDataId) {
-        HashMap<Integer, Comparable> variables = new HashMap<Integer, Comparable>();
+        HashMap<Integer, Integer> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(itemDataId));
 
         this.execute(digester.getQuery("delete"), variables);
@@ -521,7 +521,7 @@ public class ItemDataDAO extends AuditableEntityDAO {
     }
 
     public void deleteDnMap(int itemDataId) {
-        HashMap<Integer, Comparable> variables = new HashMap<Integer, Comparable>();
+        HashMap<Integer, Integer> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(itemDataId));
 
         this.execute(digester.getQuery("deleteDn"), variables);
@@ -616,7 +616,7 @@ public class ItemDataDAO extends AuditableEntityDAO {
     }
 
     public void updateStatusByEventCRF(EventCRFBean eventCRF, Status s) {
-        HashMap<Integer, Comparable> variables = new HashMap<Integer, Comparable>();
+        HashMap<Integer, Integer> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(s.getId()));
         variables.put(new Integer(2), new Integer(eventCRF.getId()));
 
@@ -844,7 +844,7 @@ public class ItemDataDAO extends AuditableEntityDAO {
     }
 
 	public void undelete(int itemDataId, int updaterId) {
-        HashMap<Integer, Comparable> variables = new HashMap<Integer, Comparable>();
+        HashMap<Integer, Integer> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(updaterId));
         variables.put(new Integer(2), new Integer(itemDataId));
 
