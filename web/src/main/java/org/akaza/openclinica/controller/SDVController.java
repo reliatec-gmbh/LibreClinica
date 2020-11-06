@@ -21,7 +21,6 @@ import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.managestudy.StudySubjectDAO;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
-import org.akaza.openclinica.view.StudyInfoPanel;
 import org.akaza.openclinica.web.table.sdv.SDVUtil;
 import org.akaza.openclinica.web.table.sdv.SubjectIdSDVFactory;
 import org.jmesa.facade.TableFacade;

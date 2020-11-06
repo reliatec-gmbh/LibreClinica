@@ -7,7 +7,6 @@
  */
 package org.akaza.openclinica.web.filter.rest;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 

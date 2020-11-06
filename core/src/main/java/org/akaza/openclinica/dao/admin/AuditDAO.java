@@ -13,7 +13,6 @@ import org.akaza.openclinica.bean.core.ApplicationConstants;
 import org.akaza.openclinica.bean.core.EntityBean;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.core.Utils;
-import org.akaza.openclinica.bean.submit.EventCRFBean;
 import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.core.DAODigester;
 import org.akaza.openclinica.dao.core.EntityDAO;

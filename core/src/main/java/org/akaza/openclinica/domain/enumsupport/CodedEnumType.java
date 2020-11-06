@@ -7,7 +7,6 @@
  */
 package org.akaza.openclinica.domain.enumsupport;
 
-import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.type.IntegerType;

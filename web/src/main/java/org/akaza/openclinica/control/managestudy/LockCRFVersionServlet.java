@@ -19,7 +19,6 @@ import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.control.admin.RemoveCRFVersionServlet;
 import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.admin.CRFDAO;
-import org.akaza.openclinica.dao.managestudy.StudySubjectDAO;
 import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;
 import org.akaza.openclinica.dao.submit.CRFVersionDAO;
 import org.akaza.openclinica.dao.submit.EventCRFDAO;

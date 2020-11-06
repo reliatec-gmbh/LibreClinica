@@ -23,7 +23,6 @@ import org.akaza.openclinica.bean.submit.ItemGroupMetadataBean;
 import org.akaza.openclinica.bean.submit.ResponseOptionBean;
 import org.akaza.openclinica.bean.submit.SectionBean;
 import org.akaza.openclinica.control.SpringServletAccess;
-import org.akaza.openclinica.control.core.CoreSecureController;
 import org.akaza.openclinica.core.SessionManager;
 import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;
 import org.akaza.openclinica.dao.submit.ItemDAO;

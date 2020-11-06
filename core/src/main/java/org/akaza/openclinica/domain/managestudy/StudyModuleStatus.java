@@ -14,7 +14,6 @@ import org.akaza.openclinica.domain.AbstractAuditableMutableDomainObject;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import java.util.Date;
 
 /**
  * @author: Shamim

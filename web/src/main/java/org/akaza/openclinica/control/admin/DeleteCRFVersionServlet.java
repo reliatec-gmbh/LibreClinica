@@ -7,7 +7,6 @@
  */
 package org.akaza.openclinica.control.admin;
 
-import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.admin.NewCRFBean;
 import org.akaza.openclinica.bean.submit.CRFVersionBean;
 import org.akaza.openclinica.bean.submit.EventCRFBean;
@@ -25,9 +24,7 @@ import org.akaza.openclinica.dao.managestudy.StudyEventDefinitionDAO;
 import org.akaza.openclinica.dao.managestudy.StudySubjectDAO;
 import org.akaza.openclinica.dao.submit.CRFVersionDAO;
 import org.akaza.openclinica.dao.submit.EventCRFDAO;
-import org.akaza.openclinica.dao.submit.ItemDAO;
 import org.akaza.openclinica.dao.submit.ItemDataDAO;
-import org.akaza.openclinica.domain.datamap.VersioningMap;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 

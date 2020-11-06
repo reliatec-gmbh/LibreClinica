@@ -34,7 +34,6 @@ import org.akaza.openclinica.domain.rule.RuleBean;
 import org.akaza.openclinica.domain.rule.RuleSetBean;
 import org.akaza.openclinica.domain.rule.RuleSetRuleBean;
 import org.akaza.openclinica.domain.rule.RulesPostImportContainer;
-import org.akaza.openclinica.domain.rule.RunOnSchedule;
 import org.akaza.openclinica.domain.rule.action.*;
 import org.akaza.openclinica.domain.rule.expression.Context;
 import org.akaza.openclinica.domain.rule.expression.ExpressionBean;

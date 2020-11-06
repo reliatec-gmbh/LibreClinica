@@ -11,12 +11,6 @@ import org.akaza.openclinica.dao.hibernate.AuthoritiesDao;
 import org.akaza.openclinica.domain.user.AuthoritiesBean;
 import org.akaza.openclinica.templates.HibernateOcDbTestCase;
 import org.hibernate.HibernateException;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
-
-import java.sql.SQLException;
-import java.util.List;
 
 public class AuthoritiesDaoTest extends HibernateOcDbTestCase {
     private static AuthoritiesDao authoritiesDao;

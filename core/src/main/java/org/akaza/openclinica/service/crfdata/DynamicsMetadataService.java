@@ -7,10 +7,7 @@
  */
 package org.akaza.openclinica.service.crfdata;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -20,12 +17,7 @@ import org.akaza.openclinica.bean.core.DataEntryStage;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.bean.managestudy.EventDefinitionCRFBean;
-import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventBean;
-import org.akaza.openclinica.bean.managestudy.StudyGroupBean;
-import org.akaza.openclinica.bean.managestudy.StudyGroupClassBean;
-import org.akaza.openclinica.bean.managestudy.StudySubjectBean;
-import org.akaza.openclinica.bean.rule.expression.ExpressionBean;
 import org.akaza.openclinica.bean.submit.CRFVersionBean;
 import org.akaza.openclinica.bean.submit.DisplayItemBean;
 import org.akaza.openclinica.bean.submit.DisplayItemGroupBean;
@@ -39,13 +31,8 @@ import org.akaza.openclinica.bean.submit.ItemGroupMetadataBean;
 import org.akaza.openclinica.bean.submit.SectionBean;
 import org.akaza.openclinica.dao.hibernate.DynamicsItemFormMetadataDao;
 import org.akaza.openclinica.dao.hibernate.DynamicsItemGroupMetadataDao;
-import org.akaza.openclinica.dao.login.UserAccountDAO;
 import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;
-import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDAO;
-import org.akaza.openclinica.dao.managestudy.StudyGroupClassDAO;
-import org.akaza.openclinica.dao.managestudy.StudyGroupDAO;
-import org.akaza.openclinica.dao.managestudy.StudySubjectDAO;
 import org.akaza.openclinica.dao.submit.EventCRFDAO;
 import org.akaza.openclinica.dao.submit.ItemDAO;
 import org.akaza.openclinica.dao.submit.ItemDataDAO;
@@ -59,27 +46,9 @@ import org.akaza.openclinica.domain.rule.RuleSetBean;
 import org.akaza.openclinica.domain.rule.action.PropertyBean;
 import org.akaza.openclinica.domain.rule.action.StratificationFactorBean;
 import org.akaza.openclinica.exception.OpenClinicaException;
-import org.akaza.openclinica.service.pmanage.Authorization;
 import org.akaza.openclinica.service.rule.expression.ExpressionService;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.collections.map.HashedMap;
-import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.http.converter.FormHttpMessageConverter;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
 
 
 public class DynamicsMetadataService implements MetadataServiceInterface {

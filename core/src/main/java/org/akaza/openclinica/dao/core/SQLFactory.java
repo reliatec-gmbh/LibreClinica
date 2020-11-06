@@ -7,7 +7,6 @@
  */
 package org.akaza.openclinica.dao.core;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;

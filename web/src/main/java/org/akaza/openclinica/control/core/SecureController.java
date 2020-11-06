@@ -92,7 +92,6 @@ import org.akaza.openclinica.service.pmanage.Authorization;
 import org.akaza.openclinica.service.pmanage.ParticipantPortalRegistrar;
 import org.akaza.openclinica.view.BreadcrumbTrail;
 import org.akaza.openclinica.view.Page;
-import org.akaza.openclinica.view.StudyInfoPanel;
 import org.akaza.openclinica.view.StudyInfoPanelLine;
 import org.akaza.openclinica.web.InconsistentStateException;
 import org.akaza.openclinica.web.InsufficientPermissionException;

@@ -9,7 +9,6 @@ package org.akaza.openclinica.control.admin;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Random;
 import java.util.UUID;
 
 import org.akaza.openclinica.bean.core.NumericComparisonOperator;

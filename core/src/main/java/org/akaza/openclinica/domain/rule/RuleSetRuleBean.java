@@ -41,8 +41,6 @@ import org.akaza.openclinica.domain.rule.action.RuleActionRunBean.Phase;
 import org.akaza.openclinica.domain.rule.action.ShowActionBean;
 import org.apache.commons.collections.FactoryUtils;
 import org.apache.commons.collections.list.LazyList;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.GenericGenerator;

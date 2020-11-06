@@ -23,8 +23,6 @@ import org.akaza.openclinica.bean.submit.DisplayEventCRFBean;
 import org.akaza.openclinica.bean.submit.EventCRFBean;
 import org.akaza.openclinica.bean.submit.ItemDataBean;
 import org.akaza.openclinica.bean.submit.ItemFormMetadataBean;
-import org.akaza.openclinica.bean.submit.ItemGroupMetadataBean;
-import org.akaza.openclinica.bean.submit.ResponseSetBean;
 import org.akaza.openclinica.control.SpringServletAccess;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
@@ -43,9 +41,6 @@ import org.akaza.openclinica.dao.submit.EventCRFDAO;
 import org.akaza.openclinica.dao.submit.ItemDataDAO;
 import org.akaza.openclinica.dao.submit.ItemFormMetadataDAO;
 import org.akaza.openclinica.dao.submit.ItemGroupMetadataDAO;
-import org.akaza.openclinica.domain.datamap.DnItemDataMap;
-import org.akaza.openclinica.domain.datamap.DnItemDataMapId;
-import org.akaza.openclinica.domain.rule.action.RuleActionRunLogBean;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 

@@ -10,7 +10,6 @@ package org.akaza.openclinica.web.bean;
 import java.util.ArrayList;
 
 import org.akaza.openclinica.bean.admin.TriggerBean;
-import org.akaza.openclinica.bean.login.UserAccountBean;
 
 /**
  * 

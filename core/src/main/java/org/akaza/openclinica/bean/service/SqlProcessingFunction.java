@@ -13,12 +13,9 @@ import java.io.FileReader;
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
-
-import javax.xml.transform.TransformerConfigurationException;
 
 import org.akaza.openclinica.bean.extract.ExtractPropertyBean;
 import org.akaza.openclinica.core.util.ScriptRunner;

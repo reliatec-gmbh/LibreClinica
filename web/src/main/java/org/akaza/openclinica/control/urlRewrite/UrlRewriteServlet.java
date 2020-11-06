@@ -10,7 +10,6 @@
  */
 package org.akaza.openclinica.control.urlRewrite;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.servlet.ServletException;
@@ -26,7 +25,6 @@ import org.akaza.openclinica.bean.managestudy.StudySubjectBean;
 import org.akaza.openclinica.bean.submit.CRFVersionBean;
 import org.akaza.openclinica.bean.submit.ItemBean;
 import org.akaza.openclinica.bean.submit.ItemGroupBean;
-import org.akaza.openclinica.bean.submit.SectionBean;
 import org.akaza.openclinica.control.core.CoreSecureController;
 import org.akaza.openclinica.control.form.Validator;
 import org.akaza.openclinica.dao.admin.CRFDAO;

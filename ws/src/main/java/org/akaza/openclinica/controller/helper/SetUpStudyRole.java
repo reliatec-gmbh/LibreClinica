@@ -16,9 +16,6 @@ import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.login.StudyUserRoleBean;
 import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.view.StudyInfoPanel;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-
 import javax.servlet.http.HttpSession;
 import javax.sql.DataSource;
 import java.util.ArrayList;

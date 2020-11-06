@@ -7,11 +7,8 @@
  */
 package org.akaza.openclinica.dao.hibernate;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.akaza.openclinica.domain.datamap.IdtView;
-import org.akaza.openclinica.domain.datamap.ItemData;
 import org.akaza.openclinica.domain.datamap.EventDefinitionCrfItemTag;
 
 public class EventDefinitionCrfItemTagDao extends AbstractDomainDao<EventDefinitionCrfItemTag> {

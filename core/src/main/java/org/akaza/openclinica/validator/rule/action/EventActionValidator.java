@@ -11,13 +11,11 @@ import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.ResourceBundle;
 
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
-import org.akaza.openclinica.dao.hibernate.StudyDao;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.domain.rule.AuditableBeanWrapper;
 import org.akaza.openclinica.domain.rule.RuleSetBean;

@@ -58,7 +58,6 @@ import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
 import org.akaza.openclinica.view.BreadcrumbTrail;
 import org.akaza.openclinica.view.Page;
-import org.akaza.openclinica.view.StudyInfoPanel;
 import org.akaza.openclinica.view.StudyInfoPanelLine;
 import org.akaza.openclinica.web.InconsistentStateException;
 import org.akaza.openclinica.web.InsufficientPermissionException;

@@ -8,7 +8,6 @@
 package org.akaza.openclinica.dao.hibernate;
 
 import org.akaza.openclinica.bean.rule.expression.Context;
-import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.type.IntegerType;

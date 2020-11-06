@@ -7,13 +7,10 @@
  */
 package org.akaza.openclinica.control.extract;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;

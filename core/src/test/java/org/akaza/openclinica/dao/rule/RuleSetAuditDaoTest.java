@@ -7,18 +7,12 @@
  */
 package org.akaza.openclinica.dao.rule;
 
-import org.akaza.openclinica.dao.hibernate.AuthoritiesDao;
 import org.akaza.openclinica.dao.hibernate.RuleSetAuditDao;
 import org.akaza.openclinica.dao.hibernate.RuleSetDao;
 import org.akaza.openclinica.domain.rule.RuleSetAuditBean;
 import org.akaza.openclinica.domain.rule.RuleSetBean;
 import org.akaza.openclinica.templates.HibernateOcDbTestCase;
 import org.hibernate.HibernateException;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
-
-import java.sql.SQLException;
 import java.util.List;
 
 public class RuleSetAuditDaoTest extends HibernateOcDbTestCase {

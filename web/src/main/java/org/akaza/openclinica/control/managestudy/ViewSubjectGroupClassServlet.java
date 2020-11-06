@@ -18,7 +18,6 @@ import org.akaza.openclinica.dao.managestudy.StudyGroupClassDAO;
 import org.akaza.openclinica.dao.managestudy.StudyGroupDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.submit.SubjectGroupMapDAO;
-import org.akaza.openclinica.dao.login.UserAccountDAO;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 

@@ -20,7 +20,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import org.akaza.openclinica.domain.AbstractMutableDomainObject;
 import org.akaza.openclinica.domain.DataMapDomainObject;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;

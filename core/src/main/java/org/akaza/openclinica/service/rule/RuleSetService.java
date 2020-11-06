@@ -60,8 +60,6 @@ import org.akaza.openclinica.dao.submit.ItemDataDAO;
 import org.akaza.openclinica.dao.submit.ItemFormMetadataDAO;
 import org.akaza.openclinica.domain.Status;
 import org.akaza.openclinica.domain.crfdata.DynamicsItemFormMetadataBean;
-import org.akaza.openclinica.domain.datamap.StudyEvent;
-import org.akaza.openclinica.domain.datamap.StudyEventDefinition;
 import org.akaza.openclinica.domain.rule.AuditableBeanWrapper;
 import org.akaza.openclinica.domain.rule.RuleBean;
 import org.akaza.openclinica.domain.rule.RuleBulkExecuteContainer;

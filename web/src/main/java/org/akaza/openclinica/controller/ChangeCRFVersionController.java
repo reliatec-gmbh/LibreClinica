@@ -40,7 +40,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.akaza.openclinica.view.StudyInfoPanel;
 import java.sql.Connection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

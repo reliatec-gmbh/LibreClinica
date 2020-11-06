@@ -18,7 +18,6 @@ import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.control.submit.ListDiscNotesForCRFTableFactory;
-import org.akaza.openclinica.control.submit.SubmitDataServlet;
 import org.akaza.openclinica.dao.admin.CRFDAO;
 import org.akaza.openclinica.dao.managestudy.DiscrepancyNoteDAO;
 import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;

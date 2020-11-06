@@ -7,7 +7,6 @@
  */
 package org.akaza.openclinica.control.admin;
 
-import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.control.SpringServletAccess;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;

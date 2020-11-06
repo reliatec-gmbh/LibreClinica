@@ -39,12 +39,9 @@ import org.akaza.openclinica.service.crfdata.DynamicsMetadataService;
 import org.akaza.openclinica.service.rule.expression.ExpressionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.Set;
 

@@ -8,13 +8,10 @@
 package org.akaza.openclinica.dao.core;
 
 import org.quartz.JobPersistenceException;
-import org.quartz.impl.jdbcjobstore.JobStoreTX;
 import org.springframework.scheduling.quartz.LocalDataSourceJobStore;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;

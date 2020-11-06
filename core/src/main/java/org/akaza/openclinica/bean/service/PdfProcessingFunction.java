@@ -10,7 +10,6 @@ package org.akaza.openclinica.bean.service;
 import org.akaza.openclinica.dao.core.CoreResources;
 import org.apache.fop.apps.FOUserAgent;
 import org.apache.fop.apps.Fop;
-import org.apache.fop.apps.FOPException;
 import org.apache.fop.apps.FopFactory;
 import org.apache.fop.apps.FormattingResults;
 import org.apache.fop.apps.MimeConstants;
@@ -22,9 +21,7 @@ import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.OutputStream;
-import java.io.Serializable;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 

@@ -15,7 +15,6 @@
 package org.akaza.openclinica.service.rule.expression;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.regex.Matcher;
@@ -26,9 +25,6 @@ import javax.sql.DataSource;
 import org.akaza.openclinica.bean.managestudy.StudySubjectBean;
 import org.akaza.openclinica.bean.submit.ItemBean;
 import org.akaza.openclinica.bean.submit.ItemGroupBean;
-import org.akaza.openclinica.dao.admin.CRFDAO;
-import org.akaza.openclinica.dao.hibernate.DynamicsItemFormMetadataDao;
-import org.akaza.openclinica.dao.hibernate.StudyEventDefinitionDao;
 import org.akaza.openclinica.dao.managestudy.StudySubjectDAO;
 import org.akaza.openclinica.domain.datamap.StudyEvent;
 import org.akaza.openclinica.domain.datamap.StudyEventDefinition;

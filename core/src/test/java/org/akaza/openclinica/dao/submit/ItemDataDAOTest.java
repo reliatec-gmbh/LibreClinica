@@ -9,12 +9,10 @@ package org.akaza.openclinica.dao.submit;
 
 import java.util.Locale;
 
-import org.akaza.openclinica.bean.core.EntityBean;
 import org.akaza.openclinica.bean.core.ItemDataType;
 import org.akaza.openclinica.bean.submit.ItemDataBean;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
 
-import static org.mockito.Mockito.*;
 import junit.framework.TestCase;
 
 public class ItemDataDAOTest extends TestCase {

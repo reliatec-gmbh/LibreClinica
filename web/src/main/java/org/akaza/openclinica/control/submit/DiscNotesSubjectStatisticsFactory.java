@@ -19,19 +19,12 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.login.StudyUserRoleBean;
 import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
 import org.akaza.openclinica.bean.managestudy.StudyGroupClassBean;
-import org.akaza.openclinica.bean.managestudy.StudySubjectBean;
 import org.akaza.openclinica.control.AbstractTableFactory;
-import org.akaza.openclinica.control.DefaultActionsEditor;
-
-import org.akaza.openclinica.control.submit.ListDiscNotesSubjectTableFactory.StatusFilterMatcher;
-import org.akaza.openclinica.control.submit.ListDiscNotesSubjectTableFactory.SubjectEventStatusFilterMatcher;
-
 import org.akaza.openclinica.dao.managestudy.DiscrepancyNoteDAO;
 import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;
 import org.akaza.openclinica.dao.managestudy.ListDiscNotesSubjectFilter;
@@ -45,8 +38,6 @@ import org.akaza.openclinica.dao.managestudy.StudySubjectDAO;
 import org.akaza.openclinica.dao.submit.EventCRFDAO;
 import org.akaza.openclinica.dao.submit.SubjectDAO;
 import org.akaza.openclinica.dao.submit.SubjectGroupMapDAO;
-import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
-import org.jmesa.core.filter.MatcherKey;
 import org.jmesa.facade.TableFacade;
 import org.jmesa.limit.Filter;
 import org.jmesa.limit.FilterSet;

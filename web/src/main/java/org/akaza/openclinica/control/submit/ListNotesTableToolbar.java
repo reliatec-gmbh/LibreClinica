@@ -10,7 +10,6 @@ package org.akaza.openclinica.control.submit;
 import static java.util.Arrays.sort;
 
 import java.util.Comparator;
-import java.util.Map;
 import java.util.ResourceBundle;
 
 import org.akaza.openclinica.control.DefaultToolbar;
