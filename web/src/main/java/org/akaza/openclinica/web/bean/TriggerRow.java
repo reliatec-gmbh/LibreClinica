@@ -16,7 +16,7 @@ import org.akaza.openclinica.bean.admin.TriggerBean;
  * @author thickerson, dec 2008
  *
  */
-public class TriggerRow extends EntityBeanRow {
+public class TriggerRow extends EntityBeanRow<TriggerBean, TriggerRow> {
 	// columns:
     public static final int COL_TRIGGER_NAME = 0;
     public static final int COL_LAST_FIRED_DATE = 1;
@@ -27,13 +27,13 @@ public class TriggerRow extends EntityBeanRow {
 	public static final int COL_STUDY_NAME = 6;
 	
 	@Override
-	protected int compareColumn(Object row, int sortingColumn) {
+	protected int compareColumn(TriggerRow row, int sortingColumn) {
 		if (!row.getClass().equals(TriggerRow.class)) {
             return 0;
         }
 
-        TriggerBean thisTrigger = (TriggerBean) bean;
-        TriggerBean argTrigger = (TriggerBean) ((TriggerRow) row).bean;
+        TriggerBean thisTrigger = bean;
+        TriggerBean argTrigger = row.bean;
 
         int answer = 0;
         switch (sortingColumn) {
@@ -63,7 +63,7 @@ public class TriggerRow extends EntityBeanRow {
 	}
 
 	@Override
-	public ArrayList generatRowsFromBeans(ArrayList beans) {
+	public ArrayList<TriggerRow> generatRowsFromBeans(ArrayList<TriggerBean> beans) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -74,16 +74,13 @@ public class TriggerRow extends EntityBeanRow {
         return thisTrigger.getFullName() + " " + thisTrigger.getDescription() + " " + thisTrigger.getPeriodToRun() + " " + thisTrigger.getDatasetName();
     }
 	
-	public static ArrayList generateRowsFromBeans(ArrayList beans) {
-        ArrayList answer = new ArrayList();
-
-        Class[] parameters = null;
-        Object[] arguments = null;
-
+	public static ArrayList<TriggerRow> generateRowsFromBeans(ArrayList<TriggerBean> beans) {
+        ArrayList<TriggerRow> answer = new ArrayList<>();
+        
         for (int i = 0; i < beans.size(); i++) {
             try {
                 TriggerRow row = new TriggerRow();
-                row.setBean((TriggerBean) beans.get(i));
+                row.setBean(beans.get(i));
                 answer.add(row);
             } catch (Exception e) {
             }

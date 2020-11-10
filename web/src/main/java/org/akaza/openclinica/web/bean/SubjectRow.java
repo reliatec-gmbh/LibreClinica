@@ -7,9 +7,9 @@
  */
 package org.akaza.openclinica.web.bean;
 
-import org.akaza.openclinica.bean.submit.SubjectBean;
-
 import java.util.ArrayList;
+
+import org.akaza.openclinica.bean.submit.SubjectBean;
 
 /**
  * @author jxu
@@ -17,7 +17,7 @@ import java.util.ArrayList;
  * TODO To change the template for this generated type comment go to Window -
  * Preferences - Java - Code Style - Code Templates
  */
-public class SubjectRow extends EntityBeanRow {
+public class SubjectRow extends EntityBeanRow<SubjectBean, SubjectRow> {
     // columns:
     public static final int COL_NAME = 0;
 
@@ -40,13 +40,13 @@ public class SubjectRow extends EntityBeanRow {
      *      int)
      */
     @Override
-    protected int compareColumn(Object row, int sortingColumn) {
+    protected int compareColumn(SubjectRow row, int sortingColumn) {
         if (!row.getClass().equals(SubjectRow.class)) {
             return 0;
         }
 
-        SubjectBean thisSubject = (SubjectBean) bean;
-        SubjectBean argSubject = (SubjectBean) ((SubjectRow) row).bean;
+        SubjectBean thisSubject = bean;
+        SubjectBean argSubject = row.bean;
 
         int answer = 0;
         switch (sortingColumn) {
@@ -78,7 +78,7 @@ public class SubjectRow extends EntityBeanRow {
 
     @Override
     public String getSearchString() {
-        SubjectBean thisSubject = (SubjectBean) bean;
+        SubjectBean thisSubject = bean;
         return thisSubject.getName();
     }
 
@@ -88,20 +88,17 @@ public class SubjectRow extends EntityBeanRow {
      * @see org.akaza.openclinica.core.EntityBeanRow#generatRowsFromBeans(java.util.ArrayList)
      */
     @Override
-    public ArrayList generatRowsFromBeans(ArrayList beans) {
+    public ArrayList<SubjectRow> generatRowsFromBeans(ArrayList<SubjectBean> beans) {
         return SubjectRow.generateRowsFromBeans(beans);
     }
 
-    public static ArrayList generateRowsFromBeans(ArrayList beans) {
-        ArrayList answer = new ArrayList();
-
-        Class[] parameters = null;
-        Object[] arguments = null;
+    public static ArrayList<SubjectRow> generateRowsFromBeans(ArrayList<SubjectBean> beans) {
+        ArrayList<SubjectRow> answer = new ArrayList<>();
 
         for (int i = 0; i < beans.size(); i++) {
             try {
                 SubjectRow row = new SubjectRow();
-                row.setBean((SubjectBean) beans.get(i));
+                row.setBean(beans.get(i));
                 answer.add(row);
             } catch (Exception e) {
             }

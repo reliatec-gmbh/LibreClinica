@@ -15,7 +15,7 @@ import java.util.ArrayList;
  * @author jxu
  *
  */
-public class StudyEventDefinitionRow extends EntityBeanRow {
+public class StudyEventDefinitionRow extends EntityBeanRow<StudyEventDefinitionBean, StudyEventDefinitionRow> {
     // columns:
     // YW << Currently, for URL .../ListEventDefinition, the following collumn
     // match is wrong
@@ -58,13 +58,13 @@ public class StudyEventDefinitionRow extends EntityBeanRow {
      *      int)
      */
     @Override
-    protected int compareColumn(Object row, int sortingColumn) {
+    protected int compareColumn(StudyEventDefinitionRow row, int sortingColumn) {
         if (!row.getClass().equals(StudyEventDefinitionRow.class)) {
             return 0;
         }
 
-        StudyEventDefinitionBean thisDefinition = (StudyEventDefinitionBean) bean;
-        StudyEventDefinitionBean argDefinition = (StudyEventDefinitionBean) ((StudyEventDefinitionRow) row).bean;
+        StudyEventDefinitionBean thisDefinition = bean;
+        StudyEventDefinitionBean argDefinition = row.bean;
 
         int answer = 0;
         switch (sortingColumn) {
@@ -144,20 +144,17 @@ public class StudyEventDefinitionRow extends EntityBeanRow {
      * @see org.akaza.openclinica.core.EntityBeanRow#generatRowsFromBeans(java.util.ArrayList)
      */
     @Override
-    public ArrayList generatRowsFromBeans(ArrayList beans) {
+    public ArrayList<StudyEventDefinitionRow> generatRowsFromBeans(ArrayList<StudyEventDefinitionBean> beans) {
         return StudyEventDefinitionRow.generateRowsFromBeans(beans);
     }
 
-    public static ArrayList generateRowsFromBeans(ArrayList beans) {
-        ArrayList answer = new ArrayList();
-
-        Class[] parameters = null;
-        Object[] arguments = null;
+    public static ArrayList<StudyEventDefinitionRow> generateRowsFromBeans(ArrayList<StudyEventDefinitionBean> beans) {
+        ArrayList<StudyEventDefinitionRow> answer = new ArrayList<>();
 
         for (int i = 0; i < beans.size(); i++) {
             try {
                 StudyEventDefinitionRow row = new StudyEventDefinitionRow();
-                row.setBean((StudyEventDefinitionBean) beans.get(i));
+                row.setBean(beans.get(i));
                 answer.add(row);
             } catch (Exception e) {
             }

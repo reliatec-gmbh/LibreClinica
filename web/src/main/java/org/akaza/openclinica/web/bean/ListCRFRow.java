@@ -19,7 +19,7 @@ import java.util.ArrayList;
  * @author jxu
  *
  */
-public class ListCRFRow extends EntityBeanRow {
+public class ListCRFRow extends EntityBeanRow<CRFBean, ListCRFRow> {
     // columns:
     public static final int COL_NAME = 0;
 
@@ -50,13 +50,13 @@ public class ListCRFRow extends EntityBeanRow {
      *      int)
      */
     @Override
-    protected int compareColumn(Object row, int sortingColumn) {
+    protected int compareColumn(ListCRFRow row, int sortingColumn) {
         if (!row.getClass().equals(ListCRFRow.class)) {
             return 0;
         }
 
-        CRFBean thisCRF = (CRFBean) bean;
-        CRFBean argCRF = (CRFBean) ((ListCRFRow) row).bean;
+        CRFBean thisCRF = bean;
+        CRFBean argCRF = row.bean;
 
         int answer = 0;
         switch (sortingColumn) {
@@ -85,7 +85,7 @@ public class ListCRFRow extends EntityBeanRow {
 
     @Override
     public String getSearchString() {
-        CRFBean thisCRF = (CRFBean) bean;
+        CRFBean thisCRF = bean;
         return thisCRF.getName();
     }
 
@@ -95,15 +95,12 @@ public class ListCRFRow extends EntityBeanRow {
      * @see org.akaza.openclinica.core.EntityBeanRow#generatRowsFromBeans(java.util.ArrayList)
      */
     @Override
-    public ArrayList generatRowsFromBeans(ArrayList beans) {
+    public ArrayList<ListCRFRow> generatRowsFromBeans(ArrayList<CRFBean> beans) {
         return ListCRFRow.generateRowsFromBeans(beans);
     }
 
-    public static ArrayList generateRowsFromBeans(ArrayList beans) {
-        ArrayList answer = new ArrayList();
-
-        Class[] parameters = null;
-        Object[] arguments = null;
+    public static ArrayList<ListCRFRow> generateRowsFromBeans(ArrayList<CRFBean> beans) {
+        ArrayList<ListCRFRow> answer = new ArrayList<>();
 
         for (int i = 0; i < beans.size(); i++) {
             try {
