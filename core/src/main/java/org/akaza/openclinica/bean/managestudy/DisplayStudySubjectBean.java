@@ -19,7 +19,11 @@ import java.util.ArrayList;
  * Preferences - Java - Code Style - Code Templates
  */
 public class DisplayStudySubjectBean extends AuditableEntityBean {
-    private StudySubjectBean studySubject;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -8981178788935993373L;
+	private StudySubjectBean studySubject;
     private ArrayList<SubjectGroupMapBean> studyGroups;
     private ArrayList<? extends AuditableEntityBean> studyEvents;
 

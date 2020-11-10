@@ -53,6 +53,10 @@ import java.util.Locale;
  */
 public class ChangeStudyServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1371772469011700414L;
+	/**
      * Checks whether the user has the correct privilege
      */
 

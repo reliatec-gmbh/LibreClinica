@@ -66,7 +66,11 @@ import javax.sql.DataSource;
 // TODO: make it possible to input an event crf bean to this servlet rather than
 // an int
 public class TableOfContentsServlet extends SecureController {
-    protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 4245411624469875225L;
+	protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
     public static final String BEAN_DISPLAY = "toc";
 
     // these inputs are used when you get here from a jsp page

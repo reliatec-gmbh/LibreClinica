@@ -13,7 +13,11 @@ import java.util.*;
 // Term.getDescription()
 // Description identifiers are taken from facilityinfo.properties
 public class Role extends Term {
-    public static final Role INVALID = new Role(0, "invalid", "invalid", null);
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8374394924123285829L;
+	public static final Role INVALID = new Role(0, "invalid", "invalid", null);
     public static final Role ADMIN = new Role(1, "admin", "System_Administrator", null);
     public static final Role COORDINATOR = new Role(2, "coordinator", "Study_Coordinator", null);
     public static final Role STUDYDIRECTOR = new Role(3, "director", "Study_Director", null);

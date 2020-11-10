@@ -16,7 +16,11 @@ import java.util.List;
 // Term.getDescription()
 
 public class NumericComparisonOperator extends Term {
-    public static final NumericComparisonOperator EQUALS = new NumericComparisonOperator(1, "equal_to", "equal_to");
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8976624823346368833L;
+	public static final NumericComparisonOperator EQUALS = new NumericComparisonOperator(1, "equal_to", "equal_to");
     public static final NumericComparisonOperator NOT_EQUALS = new NumericComparisonOperator(2, "not_equal_to", "not_equal_to");
     public static final NumericComparisonOperator LESS_THAN = new NumericComparisonOperator(3, "less_than", "less_than");
     public static final NumericComparisonOperator LESS_THAN_OR_EQUAL_TO = new NumericComparisonOperator(4, "less_than_or_equal_to", "less_than_or_equal_to");

@@ -27,7 +27,11 @@ import javax.persistence.Transient;
 @DiscriminatorValue("5")
 public class HideActionBean extends RuleActionBean {
 
-    private String message;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -4176390919215625150L;
+	private String message;
     private List<PropertyBean> properties;
 
     public HideActionBean() {

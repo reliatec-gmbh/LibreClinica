@@ -42,7 +42,11 @@ import java.util.HashMap;
  *          Exp $
  */
 public class UpdateSubStudyServlet extends SecureController {
-    private Logger logger = LoggerFactory.getLogger(getClass().getName());
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -2416194262084852024L;
+	private Logger logger = LoggerFactory.getLogger(getClass().getName());
     public static final String INPUT_START_DATE = "startDate";
     public static final String INPUT_VER_DATE = "protocolDateVerification";
     public static final String INPUT_END_DATE = "endDate";

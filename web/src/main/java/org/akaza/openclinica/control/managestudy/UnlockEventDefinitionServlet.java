@@ -38,6 +38,11 @@ import java.util.Date;
  */
 public class UnlockEventDefinitionServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 2317958647587899326L;
+
+	/**
      *
      */
     @Override

@@ -29,6 +29,11 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
  */
 public class RestoreStudyUserRoleServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1772512586472947684L;
+
+	/**
      * Checks whether the user has the right permission to proceed function
      */
     @Override

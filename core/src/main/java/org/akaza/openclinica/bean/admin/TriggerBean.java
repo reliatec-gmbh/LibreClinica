@@ -15,7 +15,11 @@ import java.util.Date;
 
 public class TriggerBean extends EntityBean {
 
-    private Date previousDate;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 7090842376250011882L;
+	private Date previousDate;
     private Date nextDate;
     private String fullName;
     private String groupName;

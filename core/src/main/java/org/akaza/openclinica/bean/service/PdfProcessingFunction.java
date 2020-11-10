@@ -40,6 +40,10 @@ import javax.xml.transform.sax.SAXResult;
 public class PdfProcessingFunction extends ProcessingFunction  {
 
   
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8414001916556227876L;
 	protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	   
     public PdfProcessingFunction() {

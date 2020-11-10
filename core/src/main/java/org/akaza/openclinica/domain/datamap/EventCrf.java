@@ -42,6 +42,10 @@ import org.hibernate.annotations.Parameter;
 
 public class EventCrf  extends DataMapDomainObject {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 426656938167168391L;
 	private int eventCrfId;
 	private UserAccount userAccount;
 	private CompletionStatus completionStatus;

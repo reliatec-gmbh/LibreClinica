@@ -44,7 +44,12 @@ import java.util.Locale;
  *
  */
 public class CreateStudyServlet extends SecureController {
-    public static final String INPUT_START_DATE = "startDate";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6458728290365303810L;
+
+	public static final String INPUT_START_DATE = "startDate";
 
     public static final String INPUT_END_DATE = "endDate";
 

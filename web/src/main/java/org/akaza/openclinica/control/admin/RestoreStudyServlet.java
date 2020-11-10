@@ -48,6 +48,11 @@ import java.util.Date;
  */
 public class RestoreStudyServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 5773904639367072255L;
+
+	/**
      *
      */
     @Override

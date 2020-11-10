@@ -42,6 +42,10 @@ import org.hibernate.annotations.Type;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class ItemGroup  extends DataMapDomainObject {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6439843682268346154L;
 	private int itemGroupId;
 	private UserAccount userAccount;
 	private Status status;

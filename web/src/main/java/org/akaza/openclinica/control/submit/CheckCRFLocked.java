@@ -19,7 +19,11 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
  * Time: 3:32:44 PM
  */
 public class CheckCRFLocked extends SecureController {
-    @Override
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 4520097023965266054L;
+	@Override
     protected void processRequest() throws Exception {
         int userId;
         String ecId = request.getParameter("ecId");

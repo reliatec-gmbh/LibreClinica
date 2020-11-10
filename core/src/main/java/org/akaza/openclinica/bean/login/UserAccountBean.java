@@ -28,6 +28,11 @@ public class UserAccountBean extends AuditableEntityBean {
      */
 
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 5521122073133301334L;
+
+	/**
      * LDAP/Active Directory users are identified by having this password stored in the database
      */
     public static final String LDAP_PASSWORD = "*";

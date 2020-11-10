@@ -16,7 +16,11 @@ import org.akaza.openclinica.bean.core.EntityBean;
  * Preferences - Java - Code Style - Code Templates
  */
 public class DisplaySubjectBean extends EntityBean {
-    private SubjectBean subject;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 578926067350657106L;
+	private SubjectBean subject;
     private String studySubjectIds;
 
     /**

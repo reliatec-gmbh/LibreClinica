@@ -58,7 +58,11 @@ import java.util.List;
  */
 public class ViewCRFServlet extends SecureController {
 
-    private static String CRF_ID = "crfId";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 9110391473513698480L;
+	private static String CRF_ID = "crfId";
     private static String CRF = "crf";
     private RuleSetServiceInterface ruleSetService;
 

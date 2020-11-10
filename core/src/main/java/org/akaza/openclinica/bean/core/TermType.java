@@ -14,7 +14,11 @@ import java.util.List;
 // Validator accordingly
 
 public class TermType extends Term {
-    public static final TermType ENTITY_ACTION = new TermType(1, "entity_action");
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 5964751175946050538L;
+	public static final TermType ENTITY_ACTION = new TermType(1, "entity_action");
     public static final TermType ROLE = new TermType(2, "role");
     public static final TermType STATUS = new TermType(3, "status");
     public static final TermType USER_TYPE = new TermType(4, "user_type");

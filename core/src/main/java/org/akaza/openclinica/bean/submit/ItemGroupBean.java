@@ -19,7 +19,11 @@ import org.akaza.openclinica.bean.oid.OidGenerator;
  */
 public class ItemGroupBean extends AuditableEntityBean implements Serializable{
 
-    private Integer crfId = 0;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -5562878563981283376L;
+	private Integer crfId = 0;
     private ItemGroupMetadataBean meta = new ItemGroupMetadataBean();
     private ArrayList<ItemGroupMetadataBean> itemGroupMetaBeans = new ArrayList<>();
     private String oid;

@@ -30,7 +30,11 @@ import org.hibernate.annotations.Parameter;
 @GenericGenerator(name = "id-generator", strategy = "native", parameters = { @Parameter(name = "sequence_name", value = "event_definition_crf_item_tag_id_seq") })
 public class EventDefinitionCrfItemTag extends DataMapDomainObject {
 
-    private Integer id;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -5556372188750290925L;
+	private Integer id;
     private String path;
     private int tagId;
     private boolean active;

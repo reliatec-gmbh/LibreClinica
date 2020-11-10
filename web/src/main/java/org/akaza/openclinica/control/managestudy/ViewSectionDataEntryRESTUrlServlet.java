@@ -68,7 +68,11 @@ import org.slf4j.LoggerFactory;
  */
 public class ViewSectionDataEntryRESTUrlServlet extends ViewSectionDataEntryServlet {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ViewSectionDataEntryServlet.class);
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 7756919370009867905L;
+	private static final Logger LOGGER = LoggerFactory.getLogger(ViewSectionDataEntryServlet.class);
 
     @Override
     public void processRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {

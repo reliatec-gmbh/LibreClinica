@@ -15,7 +15,12 @@ import org.jdom.Content;
  * (&lt;textarea> &lt;/textarea>, as opposed to &lt;textarea />).
  */
 public class NbspaceContent extends Content {
-    @Override
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 4100153822124490389L;
+
+	@Override
     public String getValue() {
         return "&nbsp;";
     }

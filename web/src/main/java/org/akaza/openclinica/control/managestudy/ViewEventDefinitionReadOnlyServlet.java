@@ -31,7 +31,12 @@ import java.util.ArrayList;
  *
  */
 public class ViewEventDefinitionReadOnlyServlet extends ViewEventDefinitionServlet {
-    EventDefinitionCrfTagService eventDefinitionCrfTagService = null;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -3513770750134790412L;
+
+	EventDefinitionCrfTagService eventDefinitionCrfTagService = null;
 
     public static String EVENT_ID = "id";
     public static String EVENT_OID = "Oid";

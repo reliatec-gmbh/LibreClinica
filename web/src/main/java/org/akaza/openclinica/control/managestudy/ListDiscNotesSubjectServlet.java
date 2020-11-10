@@ -38,7 +38,11 @@ import java.util.Set;
  * @author Bruce W. Perry, 5/1/08
  */
 public class ListDiscNotesSubjectServlet extends SecureController {
-    public static final String RESOLUTION_STATUS = "resolutionStatus";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8523580243601167003L;
+	public static final String RESOLUTION_STATUS = "resolutionStatus";
     // Include extra path info on the URL, which generates a file name hint in
     // some
     // browser's "save as..." dialog boxes

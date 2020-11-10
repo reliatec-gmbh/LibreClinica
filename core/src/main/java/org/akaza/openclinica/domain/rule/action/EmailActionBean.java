@@ -19,7 +19,11 @@ import javax.persistence.Transient;
 @DiscriminatorValue("2")
 public class EmailActionBean extends RuleActionBean {
 
-    private String message;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 5338034041368758412L;
+	private String message;
     private String to;
 
     public EmailActionBean() {

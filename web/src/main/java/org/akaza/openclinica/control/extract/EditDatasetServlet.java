@@ -36,7 +36,12 @@ import java.util.List;
  */
 public class EditDatasetServlet extends SecureController {
 
-    public static String getLink(int dsId) {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -6853606383296360409L;
+
+	public static String getLink(int dsId) {
         return "EditDataset?dsId=" + dsId;
     }
 

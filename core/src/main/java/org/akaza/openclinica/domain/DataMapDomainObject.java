@@ -13,6 +13,11 @@ import javax.persistence.Transient;
 
 public class DataMapDomainObject implements MutableDomainObject,Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -301662448289660793L;
+
 	@Override
 	public void setId(Integer id) {
 		// TODO Auto-generated method stub

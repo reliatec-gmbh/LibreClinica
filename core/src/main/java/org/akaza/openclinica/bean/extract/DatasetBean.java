@@ -22,7 +22,11 @@ import java.util.HashMap;
  */
 public class DatasetBean extends AuditableEntityBean {
 
-    protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -7781932626540670687L;
+	protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
     private int studyId;
     private String description;
     private String SQLStatement;

@@ -31,7 +31,11 @@ import java.util.Locale;
  */
 public class CreateCRFServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1969636949313597626L;
+	Locale locale;
 
     // < ResourceBundleresword,resexception,respage;
 

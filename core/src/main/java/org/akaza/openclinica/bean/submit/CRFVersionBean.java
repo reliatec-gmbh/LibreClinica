@@ -21,7 +21,11 @@ import java.util.Date;
  */
 public class CRFVersionBean extends AuditableEntityBean {
 
-    private String description = "";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 5514775426871188770L;
+	private String description = "";
     private int crfId = 0;
     private int statusId = 1;
     private String revisionNotes = "";

@@ -44,7 +44,11 @@ import org.hibernate.annotations.Type;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class CrfVersion extends DataMapDomainObject {
 
-    private int crfVersionId;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -2352031421298555377L;
+	private int crfVersionId;
     private UserAccount userAccount;
     private Status status;
     private CrfBean crf;

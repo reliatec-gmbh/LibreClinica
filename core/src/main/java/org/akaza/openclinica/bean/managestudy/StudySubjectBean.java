@@ -20,7 +20,12 @@ import java.util.Date;
  *
  */
 public class StudySubjectBean extends AuditableEntityBean {
-    // STUDY_SUBJECT_ID, LABEL, SUBJECT_ID, STUDY_ID
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8163352308386400707L;
+
+	// STUDY_SUBJECT_ID, LABEL, SUBJECT_ID, STUDY_ID
     // STATUS_ID, DATE_CREATED, OWNER_ID,
     // DATE_UPDATED, UPDATE_ID,secondary_label
     private String label = "";

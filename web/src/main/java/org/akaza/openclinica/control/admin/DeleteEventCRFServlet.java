@@ -52,6 +52,11 @@ import java.util.ArrayList;
  *         TODO To change the template for this generated type comment go to Window - Preferences - Java - Code Style - Code Templates
  */
 public class DeleteEventCRFServlet extends SecureController {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5105738484603763829L;
+
 	public static String STUDY_SUB_ID = "ssId";
 
 	public static String EVENT_CRF_ID = "ecId";

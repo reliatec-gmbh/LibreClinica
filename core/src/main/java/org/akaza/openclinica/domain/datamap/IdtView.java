@@ -21,7 +21,11 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class IdtView extends DataMapDomainObject {
 
-    private int itemDataId;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -4081913676566917528L;
+	private int itemDataId;
     // private Study study;
     private int parentStudyId;
     private int studyId;

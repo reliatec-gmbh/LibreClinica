@@ -55,7 +55,11 @@ import javax.servlet.http.HttpServletResponse;
   * Date: Dec 15, 2009
  */
 public class PrintAllEventCRFServlet extends DataEntryServlet {
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 7977409008074185314L;
+	Locale locale;
 
     /**
      * Checks whether the user has the correct privilege

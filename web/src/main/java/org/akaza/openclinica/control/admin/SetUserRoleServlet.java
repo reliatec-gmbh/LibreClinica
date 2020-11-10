@@ -36,6 +36,11 @@ import java.util.ResourceBundle;
  */
 public class SetUserRoleServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 5226407311524183121L;
+
+	/**
      *
      */
     @Override

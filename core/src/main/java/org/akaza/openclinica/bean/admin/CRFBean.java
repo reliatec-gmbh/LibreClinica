@@ -24,7 +24,11 @@ import java.util.ArrayList;
  * 
  */
 public class CRFBean extends AuditableEntityBean {
-    private int statusId = 1;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -4300013692412200972L;
+	private int statusId = 1;
     private String description = "";
     private ArrayList<CRFVersionBean> versions;// not in DB
     private boolean selected = false; // not in DB

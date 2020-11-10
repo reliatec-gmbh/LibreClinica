@@ -37,7 +37,11 @@ import java.util.StringTokenizer;
  * 
  */
 public class UpdateStudyServlet extends SecureController {
-    public static final String INPUT_START_DATE = "startDate";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6165286395419877159L;
+	public static final String INPUT_START_DATE = "startDate";
     public static final String INPUT_END_DATE = "endDate";
     public static final String INPUT_VER_DATE = "protocolDateVerification";
 

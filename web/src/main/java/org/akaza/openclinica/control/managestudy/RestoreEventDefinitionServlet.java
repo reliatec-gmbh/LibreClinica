@@ -41,7 +41,11 @@ import java.util.Date;
  * Restores a removed study event definition and all its related data
  */
 public class RestoreEventDefinitionServlet extends SecureController {
-    EventDefinitionCrfTagService eventDefinitionCrfTagService = null;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 5199358800249601464L;
+	EventDefinitionCrfTagService eventDefinitionCrfTagService = null;
     /**
      *
      */

@@ -35,7 +35,11 @@ import java.util.Locale;
  * @author jxu
  */
 public class ListCRFServlet extends SecureController {
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8927516138908098452L;
+	Locale locale;
 
     // < ResourceBundle resexception,respage,resword,restext,resworkflow;
     /**

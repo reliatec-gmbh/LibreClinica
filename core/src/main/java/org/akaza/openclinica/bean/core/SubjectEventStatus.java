@@ -25,7 +25,12 @@ import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
 // Internationalized name and description in Term.getName and
 // Term.getDescription()
 public class SubjectEventStatus extends Term implements Comparable<SubjectEventStatus> {
-    // waiting for the db to come in sync with our set of terms...
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6973045455479638953L;
+
+	// waiting for the db to come in sync with our set of terms...
     public static final SubjectEventStatus INVALID = new SubjectEventStatus(0, "invalid");
 
     public static final SubjectEventStatus SCHEDULED = new SubjectEventStatus(1, "scheduled");

@@ -51,7 +51,12 @@ import java.util.List;
  *         parameters of a sub study.
  */
 public class CreateSubStudyServlet extends SecureController {
-    EventDefinitionCrfTagService eventDefinitionCrfTagService = null;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -8890957594406780315L;
+
+	EventDefinitionCrfTagService eventDefinitionCrfTagService = null;
 
     public static final String INPUT_VER_DATE = "protocolDateVerification";
     public static final String INPUT_START_DATE = "startDate";

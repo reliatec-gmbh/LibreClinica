@@ -46,6 +46,11 @@ import java.util.HashMap;
  */
 public class RestoreStudyEventServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8946851546169615629L;
+
+	/**
      *
      */
     @Override

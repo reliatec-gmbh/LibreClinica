@@ -43,6 +43,10 @@ import org.hibernate.annotations.Type;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Study   extends DataMapDomainObject {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1650053070213212481L;
 	private int studyId;
 	private UserAccount userAccount;
 	private StudyType studyType;

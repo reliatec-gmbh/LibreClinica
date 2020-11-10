@@ -37,7 +37,12 @@ import java.util.ArrayList;
  * Preferences - Java - Code Style - Code Templates
  */
 public class DeleteCRFVersionServlet extends SecureController {
-    public static final String VERSION_ID = "verId";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -8472820655058098368L;
+
+	public static final String VERSION_ID = "verId";
 
     public static final String VERSION_TO_DELETE = "version";
 

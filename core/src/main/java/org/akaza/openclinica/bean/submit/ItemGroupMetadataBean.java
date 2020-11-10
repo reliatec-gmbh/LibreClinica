@@ -13,7 +13,11 @@ import org.akaza.openclinica.bean.core.EntityBean;
  * Created by IntelliJ IDEA. User: bruceperry Date: May 10, 2007
  */
 public class ItemGroupMetadataBean extends EntityBean implements Comparable<ItemGroupMetadataBean> {
-    private Integer itemGroupId;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 2219580239376596947L;
+	private Integer itemGroupId;
     private String header;
     private String subheader;
     private String layout;

@@ -36,7 +36,11 @@ import java.util.Set;
  */
 public class ViewImportJobServlet extends SecureController {
 
-    private static String TRIGGER_GROUP = "DEFAULT";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 2743460894593205128L;
+	private static String TRIGGER_GROUP = "DEFAULT";
     private static String SCHEDULER = "schedulerFactoryBean";
     private static String IMPORT_TRIGGER = "importTrigger";
 

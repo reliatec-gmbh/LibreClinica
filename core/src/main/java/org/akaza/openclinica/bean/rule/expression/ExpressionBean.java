@@ -24,7 +24,11 @@ import org.slf4j.LoggerFactory;
  */
 public class ExpressionBean extends AuditableEntityBean {
 
-    protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 7129919422244537163L;
+	protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
     private Context context;
     private String value;
     private String contextName;

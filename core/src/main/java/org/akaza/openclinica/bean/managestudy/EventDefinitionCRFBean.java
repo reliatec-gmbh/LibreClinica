@@ -21,7 +21,12 @@ import org.akaza.openclinica.domain.SourceDataVerification;
  * @author jxu
  */
 public class EventDefinitionCRFBean extends AuditableEntityBean implements Comparable<EventDefinitionCRFBean> {
-    private int studyEventDefinitionId = 0;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 3278920564403336685L;
+
+	private int studyEventDefinitionId = 0;
 
     // issue 3212: the Event CRF is hidden from views in the application
     // when the user is associated with a site, not top-level study

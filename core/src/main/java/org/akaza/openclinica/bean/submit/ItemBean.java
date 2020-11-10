@@ -21,7 +21,12 @@ import java.util.ArrayList;
  * @author thickerson
  */
 public class ItemBean extends AuditableEntityBean implements Comparable<ItemBean> {
-    private String description = "";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -5325159216765727239L;
+
+	private String description = "";
 
     private String units = "";
 

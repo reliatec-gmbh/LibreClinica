@@ -28,7 +28,11 @@ import java.util.Locale;
  */
 public class ManageStudyServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8565601720868647922L;
+	Locale locale;
     public final List<String> INSTRUCTIONS = new ArrayList<String>();
 
     /*

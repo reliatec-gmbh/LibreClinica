@@ -21,7 +21,11 @@ import java.util.List;
 // Internationalized name and description in Term.getName and
 // Term.getDescription()
 public class Privilege extends Term {
-    public static final Privilege ADMIN = new Privilege(1, "admin");
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 613513351441734881L;
+	public static final Privilege ADMIN = new Privilege(1, "admin");
     public static final Privilege STUDYDIRECTOR = new Privilege(2, "director");
     public static final Privilege INVESTIGATOR = new Privilege(3, "investigator");
     public static final Privilege RESEARCHASSISTANT = new Privilege(4, "ra");

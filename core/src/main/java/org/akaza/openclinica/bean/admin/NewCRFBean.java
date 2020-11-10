@@ -40,7 +40,11 @@ import org.slf4j.LoggerFactory;
  */
 public class NewCRFBean extends Object implements java.io.Serializable {
 
-    private DataSource ds;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -944286331687109855L;
+	private DataSource ds;
     private DAODigester digester;
 
     private ArrayList queries = new ArrayList();

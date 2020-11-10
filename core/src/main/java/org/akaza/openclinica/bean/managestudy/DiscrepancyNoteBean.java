@@ -20,7 +20,11 @@ import org.akaza.openclinica.bean.login.UserAccountBean;
  *
  */
 public class DiscrepancyNoteBean extends AuditableEntityBean implements Comparable<DiscrepancyNoteBean> {
-    // discrepancy_note_id serial NOT NULL,
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 761123091715493594L;
+	// discrepancy_note_id serial NOT NULL,
     // description varchar(255),
     // discrepancy_note_type_id numeric,
     // resolution_status_id numeric,

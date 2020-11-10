@@ -35,6 +35,10 @@ public class EventActionBean extends RuleActionBean implements Serializable {
 
 	
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7578520914910137778L;
 	private String oc_oid_reference;
     private List<PropertyBean> properties;
     private RuleActionRunEventBean ruleActionRunEvent;

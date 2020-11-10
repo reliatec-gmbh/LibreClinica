@@ -31,6 +31,10 @@ import org.hibernate.annotations.Parameter;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class StudyParameter  extends DataMapDomainObject {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2608974270233081887L;
 	private int studyParameterId;
 	private String handle;
 	private String name;

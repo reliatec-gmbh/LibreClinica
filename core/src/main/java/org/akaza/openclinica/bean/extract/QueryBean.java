@@ -16,7 +16,12 @@ import org.akaza.openclinica.bean.core.EntityBean;
  * Preferences - Java - Code Style - Code Templates
  */
 public class QueryBean extends EntityBean {
-    public QueryBean() {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -742405937614853940L;
+
+	public QueryBean() {
 
     }
 }

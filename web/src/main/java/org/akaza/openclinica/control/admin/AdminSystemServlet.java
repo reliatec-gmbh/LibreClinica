@@ -27,7 +27,11 @@ import java.util.Locale;
  */
 public class AdminSystemServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -4586499211713524350L;
+	Locale locale;
 
     // < ResourceBundleresword,resexception;
     /*

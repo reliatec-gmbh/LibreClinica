@@ -54,7 +54,12 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
  */
 public class EnterDataForStudyEventServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -3152159894339737423L;
+
+	Locale locale;
     // < ResourceBundleresexception,respage;
 
     public static final String INPUT_EVENT_ID = "eventId";

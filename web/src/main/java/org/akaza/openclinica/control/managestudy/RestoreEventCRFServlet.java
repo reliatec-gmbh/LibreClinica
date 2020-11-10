@@ -44,6 +44,11 @@ import java.util.Date;
  */
 public class RestoreEventCRFServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = -2651073493567393033L;
+
+	/**
      * 
      */
     @Override

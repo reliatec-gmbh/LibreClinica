@@ -46,6 +46,11 @@ import java.util.HashMap;
  */
 public class RemoveStudyEventServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1651245666702474675L;
+
+	/**
      *
      */
     @Override

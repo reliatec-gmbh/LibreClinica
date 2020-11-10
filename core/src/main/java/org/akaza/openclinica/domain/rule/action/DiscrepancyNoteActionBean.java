@@ -18,7 +18,11 @@ import javax.persistence.Transient;
 @DiscriminatorValue("1")
 public class DiscrepancyNoteActionBean extends RuleActionBean {
 
-    private String message;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 4781318146789697164L;
+	private String message;
 
     public DiscrepancyNoteActionBean() {
         setActionType(ActionType.FILE_DISCREPANCY_NOTE);

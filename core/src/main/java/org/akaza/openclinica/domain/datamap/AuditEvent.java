@@ -29,6 +29,10 @@ import org.akaza.openclinica.domain.AbstractMutableDomainObject;
 @Table(name = "audit_event")
 public class AuditEvent extends AbstractMutableDomainObject {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1167137940398154409L;
 	private int auditId;
 	private Date auditDate;
 	private String auditTable;

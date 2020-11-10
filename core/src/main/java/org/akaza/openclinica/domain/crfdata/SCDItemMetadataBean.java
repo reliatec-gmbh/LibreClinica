@@ -32,7 +32,12 @@ import javax.persistence.Transient;
 @Table(name="scd_item_metadata")
 @GenericGenerator(name="id-generator", strategy="native", parameters={ @Parameter(name="sequence", value="scd_item_metadata_id_seq") })
 public class SCDItemMetadataBean extends AbstractMutableDomainObject {
-    @Override
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -2385441981253666960L;
+
+	@Override
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();

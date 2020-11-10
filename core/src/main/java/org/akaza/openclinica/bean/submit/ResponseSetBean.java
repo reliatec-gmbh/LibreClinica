@@ -16,7 +16,12 @@ import java.util.HashMap;
  * @author ssachs
  */
 public class ResponseSetBean extends EntityBean {
-    private int responseTypeId;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 3352438100555481838L;
+
+	private int responseTypeId;
 
     private org.akaza.openclinica.bean.core.ResponseType responseType;
 

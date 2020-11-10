@@ -32,7 +32,11 @@ import org.hibernate.annotations.Parameter;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class CrfVersionMedia extends DataMapDomainObject {
 
-    private int crfVersionMediaId;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6881771163621267155L;
+	private int crfVersionMediaId;
     private CrfVersion crfVersion;
     private String name;
     private String path;

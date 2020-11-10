@@ -29,6 +29,11 @@ import java.util.Date;
  */
 public class RemoveStudyUserRoleServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 9002693250126772488L;
+
+	/**
      * Checks whether the user has the right permission to proceed function
      */
     @Override

@@ -38,7 +38,12 @@ import java.util.Locale;
  */
 public class RemoveFilterServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -2186500665426195476L;
+
+	Locale locale;
     // < ResourceBundleresmessage,restext,resword,resexception;
 
     public static final String PATH = "RemoveFilter";

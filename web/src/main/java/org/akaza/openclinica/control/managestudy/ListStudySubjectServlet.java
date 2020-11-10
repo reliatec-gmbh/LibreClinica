@@ -53,7 +53,11 @@ import javax.sql.DataSource;
  */
 public abstract class ListStudySubjectServlet extends SecureController {
 
-    // Shaoyu Su
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6119891528224678112L;
+	// Shaoyu Su
     Locale locale;
     // BWP Issue 3195, 3330 <<
     public static String SUBJECT_PAGE_NUMBER = "ebl_page";

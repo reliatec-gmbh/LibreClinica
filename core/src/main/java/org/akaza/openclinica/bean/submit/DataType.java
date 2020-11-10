@@ -41,7 +41,11 @@ import java.util.Optional;
  */
 @Deprecated
 public class DataType extends Term {
-    public static final DataType INVALID = new DataType(0, "INVALID", null);
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6282835406766655030L;
+	public static final DataType INVALID = new DataType(0, "INVALID", null);
     public static final DataType BN = new DataType(1, "BN", null);
     public static final DataType ED = new DataType(2, "ED", null);
     public static final DataType TEL = new DataType(3, "TEL", null);

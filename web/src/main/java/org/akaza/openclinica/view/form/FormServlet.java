@@ -32,7 +32,12 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class FormServlet extends HttpServlet {
 
-    @Override
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 7478852107497070710L;
+
+	@Override
     protected void doGet(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
         PrintWriter pw = httpServletResponse.getWriter();
         HorizontalFormBuilder builder = new HorizontalFormBuilder();

@@ -51,7 +51,11 @@ import org.springframework.scheduling.quartz.JobDetailFactoryBean;
  *
  */
 public class CreateJobExportServlet extends SecureController {
-    public static final String PERIOD = "periodToRun";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 459832314197555635L;
+	public static final String PERIOD = "periodToRun";
     public static final String FORMAT_ID = "formatId";
     public static final String DATASET_ID = "dsId";
     public static final String DATE_START_JOB = "job";

@@ -22,7 +22,11 @@ import java.util.HashMap;
  *
  */
 public class MaskingBean extends AuditableEntityBean {
-    public HashMap<String, Boolean> ruleMap;// String property_name -> Boolean value
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6544474789796009270L;
+	public HashMap<String, Boolean> ruleMap;// String property_name -> Boolean value
     public String entityName;
     public int entityId;
     public int studyId;

@@ -35,7 +35,12 @@ import java.util.Locale;
  */
 public class ViewItemDetailServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 2300501836696638829L;
+
+	Locale locale;
     // < ResourceBundle respage;
 
     public static String ITEM_ID = "itemId";

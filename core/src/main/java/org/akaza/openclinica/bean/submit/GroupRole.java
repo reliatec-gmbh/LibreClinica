@@ -19,7 +19,11 @@ import java.util.List;
  */
 @Deprecated
 public class GroupRole extends Term {
-    public static final GroupRole INVALID = new GroupRole(0, "invalid");
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -8639072725087871745L;
+	public static final GroupRole INVALID = new GroupRole(0, "invalid");
     public static final GroupRole PROBAND = new GroupRole(1, "proband");
 
     private static final GroupRole[] members = { PROBAND };

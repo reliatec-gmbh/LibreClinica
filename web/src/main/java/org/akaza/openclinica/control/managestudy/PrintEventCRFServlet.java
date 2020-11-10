@@ -52,7 +52,11 @@ import javax.servlet.http.HttpServletResponse;
  * Time: 9:19:46 AM
  */
 public class PrintEventCRFServlet extends DataEntryServlet {
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -2429929031727045805L;
+	Locale locale;
 
     /**
      * Checks whether the user has the correct privilege

@@ -55,7 +55,11 @@ import java.util.List;
 
 // Internationalized description in Term.getDescription()
 public class NullValue extends Term {
-    public static final NullValue INVALID = new NullValue(0, "invalid", "invalid");
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 5622065318952364131L;
+	public static final NullValue INVALID = new NullValue(0, "invalid", "invalid");
     public static final NullValue NI = new NullValue(1, "NI", "no_information");
     public static final NullValue NA = new NullValue(2, "NA", "not_applicable");
     public static final NullValue UNK = new NullValue(3, "UNK", "unknown");

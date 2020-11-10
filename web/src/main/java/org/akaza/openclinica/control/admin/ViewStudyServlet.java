@@ -33,6 +33,11 @@ import java.util.ArrayList;
  */
 public class ViewStudyServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8704563921353967108L;
+
+	/**
      * Checks whether the user has the correct privilege
      */
     @Override

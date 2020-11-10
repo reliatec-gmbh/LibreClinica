@@ -27,7 +27,11 @@ public class AuditEventBean extends AuditableEntityBean {
     // AUDIT_ID AUDIT_DATE AUDIT_TABLE USER_ID
     // ENTITY_ID REASON_FOR_CHANGE ACTION_MESSAGE
 
-    private Date auditDate;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 2845332018129239636L;
+	private Date auditDate;
     private String auditTable = "";
     private int userId = 0;
     private int entityId = 0;

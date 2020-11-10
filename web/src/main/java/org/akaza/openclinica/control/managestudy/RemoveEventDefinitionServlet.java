@@ -42,7 +42,11 @@ import java.util.Date;
  * Preferences - Java - Code Style - Code Templates
  */
 public class RemoveEventDefinitionServlet extends SecureController {
-    EventDefinitionCrfTagService eventDefinitionCrfTagService = null;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1239348170889370031L;
+	EventDefinitionCrfTagService eventDefinitionCrfTagService = null;
 
     /**
      *

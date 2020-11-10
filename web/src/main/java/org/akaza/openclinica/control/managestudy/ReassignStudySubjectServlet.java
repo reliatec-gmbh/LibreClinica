@@ -35,6 +35,11 @@ import java.util.Date;
  */
 public class ReassignStudySubjectServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1589960233538141490L;
+
+	/**
      *
      */
     @Override

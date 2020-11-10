@@ -36,7 +36,11 @@ import java.util.HashMap;
 
 public class ViewSingleJobServlet extends SecureController {
 
-    // DRY consolidate from other servlet?
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1932976665980885988L;
+	// DRY consolidate from other servlet?
     private static String TRIGGER_GROUP = "DEFAULT";
     private static String TRIGGER_IMPORT_GROUP = "importTrigger";
     private static String SCHEDULER = "schedulerFactoryBean";

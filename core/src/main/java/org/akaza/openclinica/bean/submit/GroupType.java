@@ -23,7 +23,11 @@ import java.util.List;
 // Internationalized name and description in Term.getName and
 // Term.getDescription()
 public class GroupType extends Term {
-    public static final GroupType INVALID = new GroupType(0, "invalid");
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1786119573009877427L;
+	public static final GroupType INVALID = new GroupType(0, "invalid");
     // YW 08-19-2007 << modification is made here to match the updated database
     // table group_class_types
     // although this class has not been used at this time.

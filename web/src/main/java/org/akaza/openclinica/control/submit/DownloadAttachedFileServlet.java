@@ -30,6 +30,11 @@ import javax.servlet.ServletOutputStream;
 public class DownloadAttachedFileServlet extends SecureController {
 
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 3098103596566845378L;
+
+	/**
      * Checks whether the user has the correct privilege
      */
     @Override

@@ -32,7 +32,11 @@ import java.util.List;
  */
 public class RunRuleSetServlet extends SecureController {
 
-    private static String RULESET_ID = "ruleSetId";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1100558170089534106L;
+	private static String RULESET_ID = "ruleSetId";
     private static String RULE_ID = "ruleId";
     private static String RULESET = "ruleSet";
     private static String RULESET_RESULT = "ruleSetResult";

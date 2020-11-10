@@ -20,7 +20,11 @@ import java.util.ResourceBundle;
  */
 public class Term extends EntityBean {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 4380127915595883173L;
+	Locale locale;
     ResourceBundle resterm;
     protected String description;
 

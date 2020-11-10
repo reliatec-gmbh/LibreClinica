@@ -28,7 +28,12 @@ import java.util.*;
  * Servlet for creating a user account.
  */
 public class EditStudyUserRoleServlet extends SecureController {
-    public static final String INPUT_ROLE = "role";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 2676005249787903342L;
+
+	public static final String INPUT_ROLE = "role";
 
     public static final String PATH = "EditStudyUserRole";
     public static final String ARG_STUDY_ID = "studyId";

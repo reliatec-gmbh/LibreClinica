@@ -23,7 +23,12 @@ import java.util.Date;
  *
  */
 public class StudyEventBean extends AuditableEntityBean implements Listener {
-    // STUDY_EVENT_ID STUDY_EVENT_DEFINITION_ID SUBJECT_ID
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -5869857926912602370L;
+
+	// STUDY_EVENT_ID STUDY_EVENT_DEFINITION_ID SUBJECT_ID
     // LOCATION SAMPLE_ORDINAL DATE_START DATE_END
     // OWNER_ID STATUS_ID DATE_CREATED DATE_UPDATED
     // UPDATE_ID

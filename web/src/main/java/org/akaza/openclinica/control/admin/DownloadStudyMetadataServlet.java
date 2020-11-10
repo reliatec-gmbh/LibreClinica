@@ -22,7 +22,11 @@ import java.util.ArrayList;
 
 
 public class DownloadStudyMetadataServlet extends SecureController {
-    public static String STUDY_ID = "studyId";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -6351052799754945293L;
+	public static String STUDY_ID = "studyId";
 
     /**
      * Checks whether the user has the correct privilege

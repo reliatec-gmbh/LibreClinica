@@ -52,7 +52,11 @@ import org.hibernate.annotations.Parameter;
 @Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 public class RuleSetBean extends AbstractAuditableMutableDomainObject implements Serializable{
 
-    private StudyEventDefinitionBean studyEventDefinition;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -8086946540722593926L;
+	private StudyEventDefinitionBean studyEventDefinition;
     private StudyBean study;
     private CRFBean crf;
     private CRFVersionBean crfVersion;

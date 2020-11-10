@@ -33,7 +33,12 @@ import java.util.Locale;
  */
 public class FindStudyEventServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -3575870316292737093L;
+
+	Locale locale;
     // < ResourceBundleresexception,respage;
 
     public static final String INPUT_BROWSEBY = "browseBy";

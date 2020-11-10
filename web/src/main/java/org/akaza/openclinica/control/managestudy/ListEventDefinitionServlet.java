@@ -49,7 +49,11 @@ import java.util.Map;
  */
 public class ListEventDefinitionServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 5997027756299567929L;
+	Locale locale;
 
     // < ResourceBundleresword, resworkflow, respage,resexception;
 

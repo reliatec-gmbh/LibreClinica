@@ -30,7 +30,11 @@ import java.util.Locale;
  */
 public class RestoreDatasetServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -8926372751705002952L;
+	Locale locale;
 
     // < ResourceBundlerespage,resexception,resword;
 

@@ -26,7 +26,11 @@ import java.io.FileReader;
  */
 public class ViewLogMessageServlet extends SecureController {
 
-    private static final String LOG_MESSAGE = "logmsg";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 5409165798175683504L;
+	private static final String LOG_MESSAGE = "logmsg";
     private static final String FILE_NAME = "filename";
     private static final String TRIGGER_NAME = "tname";
     private static final String GROUP_NAME = "gname";

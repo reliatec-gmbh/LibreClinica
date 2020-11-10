@@ -29,7 +29,12 @@ import java.util.ArrayList;
  * Views details of a Subject Group Class
  */
 public class ViewSubjectGroupClassServlet extends SecureController {
-    @Override
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -842052669736496090L;
+
+	@Override
     public void mayProceed() throws InsufficientPermissionException {
         if (ub.isSysAdmin()) {
             return;

@@ -38,6 +38,11 @@ import java.util.List;
  */
 public class RemoveEventCRFServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = -9018141066583773642L;
+
+	/**
      * 
      */
     @Override

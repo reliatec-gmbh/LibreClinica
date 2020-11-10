@@ -35,6 +35,11 @@ import java.util.Date;
  */
 public class RemoveSubjectServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1934219170299408831L;
+
+	/**
      *
      */
     @Override

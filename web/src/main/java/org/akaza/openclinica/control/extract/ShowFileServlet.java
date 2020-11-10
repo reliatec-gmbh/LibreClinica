@@ -39,7 +39,11 @@ import java.util.Locale;
  */
 public class ShowFileServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 4497795033976495218L;
+	Locale locale;
 
     // < ResourceBundlerestext,resword,respage,resexception;
 

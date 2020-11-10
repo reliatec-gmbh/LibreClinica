@@ -52,7 +52,12 @@ import java.util.Locale;
  */
 public class ViewNoteServlet extends SecureController {
 
-    public static final String NOTE_ID = "id";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1787338490197603917L;
+
+	public static final String NOTE_ID = "id";
 
     public static final String DIS_NOTE = "singleNote";
 

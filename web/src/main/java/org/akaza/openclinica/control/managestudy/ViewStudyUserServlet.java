@@ -27,6 +27,11 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
  */
 public class ViewStudyUserServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = -3392123982341988217L;
+
+	/**
      *
      */
     @Override

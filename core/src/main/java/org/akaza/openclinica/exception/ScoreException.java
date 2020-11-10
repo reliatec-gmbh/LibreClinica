@@ -15,7 +15,12 @@ package org.akaza.openclinica.exception;
  *
  */
 public class ScoreException extends OpenClinicaException {
-    public ScoreException(String message, String errorId) {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -4587135032315735800L;
+
+	public ScoreException(String message, String errorId) {
         super(message, errorId);
     }
 }

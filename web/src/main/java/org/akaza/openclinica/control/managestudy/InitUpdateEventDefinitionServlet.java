@@ -42,7 +42,11 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
  *
  */
 public class InitUpdateEventDefinitionServlet extends SecureController {
-    EventDefinitionCrfTagService eventDefinitionCrfTagService = null;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6509924545547268494L;
+	EventDefinitionCrfTagService eventDefinitionCrfTagService = null;
 
     /**
      * Checks whether the user has the correct privilege

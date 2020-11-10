@@ -29,6 +29,11 @@ import java.util.ArrayList;
  */
 public class RemoveSubjectGroupClassServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = -8453920808319615518L;
+
+	/**
      *
      */
     @Override

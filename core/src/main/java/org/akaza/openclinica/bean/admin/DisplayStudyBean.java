@@ -20,7 +20,11 @@ import java.util.ArrayList;
  * relationship
  */
 public class DisplayStudyBean extends AuditableEntityBean {
-    private StudyBean parent;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1647152945517477770L;
+	private StudyBean parent;
     private ArrayList<StudyBean> children;
 
     /**

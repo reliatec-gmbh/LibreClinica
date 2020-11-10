@@ -50,7 +50,11 @@ import java.util.Locale;
  */
 public class CreateFiltersTwoServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -8081287405364144709L;
+	Locale locale;
 
     // < ResourceBundle restext,resword,respage,resexception;
 

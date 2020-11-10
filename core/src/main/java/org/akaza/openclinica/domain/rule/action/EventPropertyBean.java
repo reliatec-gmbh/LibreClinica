@@ -8,7 +8,11 @@
 package org.akaza.openclinica.domain.rule.action;
 
 public class EventPropertyBean extends PropertyBean {
-    private String property;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 163888549294125461L;
+	private String property;
 
 	public String getProperty() {
 		return property;

@@ -35,6 +35,11 @@ import java.util.*;
 public class AddCRFToDefinitionServlet extends SecureController {
 
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 5188093285323751984L;
+
+	/**
      * Checks whether the user has the correct privilege
      */
     @Override

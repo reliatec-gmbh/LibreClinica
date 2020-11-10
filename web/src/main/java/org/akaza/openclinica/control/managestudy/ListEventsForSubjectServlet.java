@@ -47,7 +47,11 @@ import java.util.Locale;
  */
 public class ListEventsForSubjectServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -6801521619122202852L;
+	Locale locale;
 
     // < ResourceBundleresword;
     /*

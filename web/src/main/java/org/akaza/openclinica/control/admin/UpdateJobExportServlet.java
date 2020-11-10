@@ -52,7 +52,12 @@ import org.springframework.scheduling.quartz.JobDetailFactoryBean;
 
 public class UpdateJobExportServlet extends SecureController {
 
-    private static String SCHEDULER = "schedulerFactoryBean";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -7580430892549229113L;
+
+	private static String SCHEDULER = "schedulerFactoryBean";
 
     private StdScheduler scheduler;
     private SimpleTrigger trigger;

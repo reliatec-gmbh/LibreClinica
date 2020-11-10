@@ -39,7 +39,11 @@ import java.util.Locale;
  */
 public class EditSelectedServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 7788585798902319150L;
+	Locale locale;
 
     // < ResourceBundlerespage,resexception;
 

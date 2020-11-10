@@ -30,7 +30,11 @@ import org.hibernate.annotations.Parameter;
 @GenericGenerator(name = "id-generator", strategy = "native", parameters = { @Parameter(name = "sequence_name", value = "item_data_flag_id_seq") })
 public class ItemDataFlag extends DataMapDomainObject {
 
-    private Integer id;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6061962723292154291L;
+	private Integer id;
     private int tagId;
     private String path;
     private int flagWorkflowId;

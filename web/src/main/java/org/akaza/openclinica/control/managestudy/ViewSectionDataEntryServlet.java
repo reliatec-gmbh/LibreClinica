@@ -70,7 +70,12 @@ import org.slf4j.LoggerFactory;
  */
 public class ViewSectionDataEntryServlet extends DataEntryServlet {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ViewSectionDataEntryServlet.class);
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -6248751201879760790L;
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(ViewSectionDataEntryServlet.class);
 
     Locale locale;
     public static String EVENT_CRF_ID = "ecId";

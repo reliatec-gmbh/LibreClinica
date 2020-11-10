@@ -57,6 +57,11 @@ import java.util.List;
 public class ViewStudySubjectAuditLogServlet extends SecureController {
 
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8728898297499873208L;
+
+	/**
      * Checks whether the user has the right permission to proceed function
      */
     @Override

@@ -54,7 +54,11 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
  */
 public class ResolveDiscrepancyServlet extends SecureController {
 
-    private static final String INPUT_NOTE_ID = "noteId";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -8147352696189379536L;
+	private static final String INPUT_NOTE_ID = "noteId";
     private static final String CAN_ADMIN_EDIT = "canAdminEdit";
     private static final String EVENT_CRF_ID = "ecId";
     private static final String STUDY_SUB_ID = "studySubjectId";

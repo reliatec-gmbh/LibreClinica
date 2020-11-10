@@ -26,7 +26,11 @@ import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
  * 
  */
 public class StudyBean extends AuditableEntityBean {
-    private int parentStudyId = 0;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -5132550603753118474L;
+	private int parentStudyId = 0;
     // YW << The original reason to add this is being able to list on
     // userbox.jsp the study name to which a site belong.
     // This property doesn't exist in the database table <Study>, so it might

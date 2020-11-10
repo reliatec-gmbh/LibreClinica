@@ -39,7 +39,11 @@ import org.hibernate.annotations.Type;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class ExpressionBean extends AbstractAuditableMutableDomainObject implements Serializable {
 
-    private Context context;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 4960611544980856580L;
+	private Context context;
     private String value;
     private String contextName;
 

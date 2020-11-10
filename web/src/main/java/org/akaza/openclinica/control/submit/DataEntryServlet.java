@@ -142,7 +142,12 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 public abstract class DataEntryServlet extends CoreSecureController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DataEntryServlet.class);
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -7746736869624506259L;
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(DataEntryServlet.class);
 
     Locale locale;
     // < ResourceBundleresmessage,restext,resexception,respage;

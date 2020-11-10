@@ -32,7 +32,12 @@ import java.io.IOException;
  * Servlet to create a new subject group class
  */
 public class CreateSubjectGroupClassServlet extends SecureController {
-    @Override
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8536912009639036567L;
+
+	@Override
     public void mayProceed() throws InsufficientPermissionException {
         checkStudyLocked(Page.SUBJECT_GROUP_CLASS_LIST_SERVLET, respage.getString("current_study_locked"));
         checkStudyFrozen(Page.SUBJECT_GROUP_CLASS_LIST_SERVLET, respage.getString("current_study_frozen"));

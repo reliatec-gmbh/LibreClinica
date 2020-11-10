@@ -25,6 +25,11 @@ import java.util.ArrayList;
  */
 public class ViewSubjectServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 3921173880398142749L;
+
+	/**
      *
      */
     @Override

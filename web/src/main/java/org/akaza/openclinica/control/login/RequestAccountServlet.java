@@ -37,7 +37,12 @@ import java.util.HashMap;
 public class RequestAccountServlet extends SecureController {
     // private UserAccountBean ubForm = new UserAccountBean();
 
-    @Override
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 3325716744930832723L;
+
+	@Override
     public void mayProceed() throws InsufficientPermissionException {
 
     }

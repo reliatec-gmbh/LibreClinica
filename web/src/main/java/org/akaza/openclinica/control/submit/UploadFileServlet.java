@@ -29,7 +29,11 @@ import java.util.Locale;
 import javax.xml.bind.DatatypeConverter;
 
 public class UploadFileServlet extends SecureController {
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -6240740092034848917L;
+	Locale locale;
     FileUploadHelper uploadHelper = new FileUploadHelper(new FileProperties(CoreResources.getField("crf.file.extensions"),
             CoreResources.getField("crf.file.extensionSettings")));
 

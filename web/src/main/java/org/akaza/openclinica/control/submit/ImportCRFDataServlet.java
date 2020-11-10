@@ -51,7 +51,12 @@ import java.util.Locale;
  */
 public class ImportCRFDataServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 3684565908498452925L;
+
+	Locale locale;
 
     private ImportCRFDataService dataService;
 

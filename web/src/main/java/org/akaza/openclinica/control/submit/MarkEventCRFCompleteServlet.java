@@ -40,7 +40,12 @@ import java.util.Locale;
  */
 public class MarkEventCRFCompleteServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 5285227808110142639L;
+
+	Locale locale;
     // < ResourceBundleresexception,respage,resword;
 
     public static final String INPUT_EVENT_CRF_ID = "eventCRFId";

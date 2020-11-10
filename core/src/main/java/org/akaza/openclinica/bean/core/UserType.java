@@ -16,7 +16,11 @@ import java.util.List;
 
 public class UserType extends Term {
 
-    public static final UserType INVALID = new UserType(0, "invalid");
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8795365475283947302L;
+	public static final UserType INVALID = new UserType(0, "invalid");
     public static final UserType SYSADMIN = new UserType(1, "business_administrator");
     public static final UserType USER = new UserType(2, "user");
     public static final UserType TECHADMIN = new UserType(3, "technical_administrator");

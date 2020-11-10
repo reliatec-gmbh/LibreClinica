@@ -29,6 +29,11 @@ import java.util.ArrayList;
  */
 public class RestoreSubjectGroupClassServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6795017583627598454L;
+
+	/**
      *
      */
     @Override

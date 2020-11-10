@@ -13,7 +13,12 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
 
 public class ViewAllJobsServlet extends SecureController {
 
-    @Override
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1410338683525218806L;
+
+	@Override
     protected void mayProceed() throws InsufficientPermissionException {
         // TODO Auto-generated method stub
         if (ub.isSysAdmin() || ub.isTechAdmin()) {

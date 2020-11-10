@@ -24,6 +24,11 @@ import java.util.ArrayList;
 public class ChangeDefinitionCRFOrdinalServlet extends ChangeOrdinalServlet {
 
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8530927860588404341L;
+
+	/**
      * Override processRequest in super class
      */
     @Override

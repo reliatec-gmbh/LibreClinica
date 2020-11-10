@@ -29,7 +29,11 @@ import java.util.Locale;
  */
 public class ListSiteServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1642268341334659256L;
+	Locale locale;
 
     // < ResourceBundle resword,respage,resexception;
     /**

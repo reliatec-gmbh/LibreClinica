@@ -85,7 +85,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 public abstract class CoreSecureController extends HttpServlet {
 
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CoreSecureController.class);
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -4705456347136667876L;
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(CoreSecureController.class);
 
     protected HashMap errors = new HashMap();
 

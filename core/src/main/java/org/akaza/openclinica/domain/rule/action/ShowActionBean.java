@@ -29,7 +29,11 @@ import javax.persistence.Transient;
 @DiscriminatorValue("3")
 public class ShowActionBean extends RuleActionBean {
 
-    private String message;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 7103590088389720404L;
+	private String message;
     private List<PropertyBean> properties;
     private List<PropertyBean> lazyProperties = LazyList.decorate(new ArrayList<PropertyBean>(), FactoryUtils.instantiateFactory(PropertyBean.class));
 

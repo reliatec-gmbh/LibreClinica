@@ -65,7 +65,12 @@ import org.springframework.scheduling.quartz.JobDetailFactoryBean;
  */
 public class ExportDatasetServlet extends SecureController {
 
-    public static String getLink(int dsId) {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -2054645072944042612L;
+
+	public static String getLink(int dsId) {
         return "ExportDataset?datasetId=" + dsId;
     }
 

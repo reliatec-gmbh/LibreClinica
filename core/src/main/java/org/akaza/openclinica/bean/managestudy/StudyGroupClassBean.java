@@ -17,7 +17,11 @@ import java.util.ArrayList;
  * Object for study group class
  */
 public class StudyGroupClassBean extends AuditableEntityBean {
-    // STUDY_GROUP_ID NAME STUDY_ID OWNER_ID
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6776249940673906418L;
+	// STUDY_GROUP_ID NAME STUDY_ID OWNER_ID
     // DATE_CREATED GROUP_CLASS_TYPE_ID STATUS_ID DATE_UPDATED
     // UPDATE_ID subject_assignment
     private int studyId = 0;

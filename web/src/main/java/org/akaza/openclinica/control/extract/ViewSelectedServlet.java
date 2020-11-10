@@ -36,7 +36,11 @@ import java.util.Locale;
  */
 public class ViewSelectedServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 5458397988268565354L;
+	Locale locale;
 
     // < ResourceBundlerestext,resexception,respage;
 

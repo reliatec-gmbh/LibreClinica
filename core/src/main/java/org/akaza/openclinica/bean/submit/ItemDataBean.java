@@ -19,7 +19,12 @@ import org.akaza.openclinica.bean.core.AuditableEntityBean;
  *
  */
 public class ItemDataBean extends AuditableEntityBean {
-    @Override
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6938730869191048799L;
+
+	@Override
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();

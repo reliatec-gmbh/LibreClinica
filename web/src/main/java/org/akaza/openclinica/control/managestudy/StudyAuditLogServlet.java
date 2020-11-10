@@ -39,7 +39,11 @@ import java.util.Locale;
  */
 public class StudyAuditLogServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 7756195048190348203L;
+	Locale locale;
 
     // <ResourceBundle resword,resexception,respage;
 

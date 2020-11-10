@@ -34,6 +34,11 @@ import java.util.Date;
  */
 public class RestoreCRFVersionServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1391742781117218358L;
+
+	/**
      *
      */
     @Override

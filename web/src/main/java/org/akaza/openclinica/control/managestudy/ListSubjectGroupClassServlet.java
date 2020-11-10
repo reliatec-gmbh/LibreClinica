@@ -34,7 +34,11 @@ import java.util.Locale;
  */
 public class ListSubjectGroupClassServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 4441881774413551129L;
+	Locale locale;
 
     // < ResourceBundleresexception,respage,resword;
 

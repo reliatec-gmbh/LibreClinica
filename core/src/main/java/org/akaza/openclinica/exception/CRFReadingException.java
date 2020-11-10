@@ -12,7 +12,11 @@ package org.akaza.openclinica.exception;
  *
  */
 public class CRFReadingException extends Exception {
-    public String message;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8163759260095010460L;
+	public String message;
 
     public CRFReadingException() {
         message = "";

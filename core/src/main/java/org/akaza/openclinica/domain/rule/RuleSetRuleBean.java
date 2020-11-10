@@ -51,7 +51,11 @@ import org.hibernate.annotations.Parameter;
 @GenericGenerator(name = "id-generator", strategy = "native", parameters = { @Parameter(name = "sequence_name", value = "rule_set_rule_id_seq") })
 public class RuleSetRuleBean extends AbstractAuditableMutableDomainObject implements Serializable {
 
-    RuleSetBean ruleSetBean;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -6577903287786861464L;
+	RuleSetBean ruleSetBean;
     RuleBean ruleBean;
     List<RuleActionBean> actions;
     private List<DiscrepancyNoteActionBean> lazyDiscrepancyNoteActions = LazyList.decorate(new ArrayList<DiscrepancyNoteActionBean>(),

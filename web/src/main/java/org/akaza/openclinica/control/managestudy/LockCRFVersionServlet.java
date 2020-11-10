@@ -27,6 +27,11 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
 
 public class LockCRFVersionServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = -2976788275878626603L;
+
+	/**
     *
     */
    @Override

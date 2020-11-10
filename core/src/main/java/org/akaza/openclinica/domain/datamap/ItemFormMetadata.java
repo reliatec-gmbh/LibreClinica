@@ -35,6 +35,10 @@ import org.hibernate.annotations.Parameter;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class ItemFormMetadata  extends DataMapDomainObject {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -302943640435220046L;
 	private int itemFormMetadataId;
 	private ResponseSet responseSet;
 	private Item item;

@@ -47,7 +47,12 @@ import org.akaza.openclinica.web.SQLInitServlet;
  */
 public class CreateUserAccountServlet extends SecureController {
 
-    // < ResourceBundle restext;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -3015174087186096328L;
+
+	// < ResourceBundle restext;
     Locale locale;
 
     public static final String INPUT_USER_SOURCE = "userSource";

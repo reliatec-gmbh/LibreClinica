@@ -72,7 +72,11 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  * Processes 'view subject' request
  */
 public class ViewStudySubjectServlet extends SecureController {
-    // The study subject has an existing discrepancy note related to their
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 3682444868708787558L;
+	// The study subject has an existing discrepancy note related to their
     // unique identifier; this
     // value will be saved as a request attribute
     public final static String HAS_UNIQUE_ID_NOTE = "hasUniqueIDNote";

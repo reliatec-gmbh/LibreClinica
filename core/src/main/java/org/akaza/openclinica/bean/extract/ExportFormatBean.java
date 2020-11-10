@@ -16,7 +16,11 @@ import org.akaza.openclinica.bean.core.Term;
 
 public class ExportFormatBean extends Term {
 
-    public static final ExportFormatBean TXTFILE = new ExportFormatBean(1, "text/plain");
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -2141960234386639295L;
+	public static final ExportFormatBean TXTFILE = new ExportFormatBean(1, "text/plain");
     public static final ExportFormatBean CSVFILE = new ExportFormatBean(2, "text/plain");
     public static final ExportFormatBean EXCELFILE = new ExportFormatBean(3, "application/vnd.ms-excel");
     // To allow this type, another data type (an addition row) is added

@@ -27,6 +27,10 @@ import org.akaza.openclinica.domain.DataMapDomainObject;
 @Table(name = "group_class_types")
 public class GroupClassTypes  extends DataMapDomainObject {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5315561337629518434L;
 	private int groupClassTypeId;
 	private String name;
 	private String description;

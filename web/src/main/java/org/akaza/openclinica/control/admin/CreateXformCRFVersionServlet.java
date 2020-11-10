@@ -51,7 +51,11 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public class CreateXformCRFVersionServlet extends SecureController {
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -6179543727912996619L;
+	Locale locale;
     FileUploadHelper uploadHelper = new FileUploadHelper();
 
     @Override

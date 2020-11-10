@@ -29,7 +29,11 @@ import java.util.Date;
  */
 public class UpdateCRFServlet extends SecureController {
 
-    private static String CRF = "crf";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 3011663171322499577L;
+	private static String CRF = "crf";
 
     /**
      *

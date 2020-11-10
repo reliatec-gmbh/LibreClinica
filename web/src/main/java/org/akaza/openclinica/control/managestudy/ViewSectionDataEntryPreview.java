@@ -60,7 +60,12 @@ import org.slf4j.LoggerFactory;
  */
 public class ViewSectionDataEntryPreview extends DataEntryServlet {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ViewSectionDataEntryPreview.class);
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -354876433251037369L;
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(ViewSectionDataEntryPreview.class);
 
     public static String SECTION_TITLE = "section_title";
     public static String SECTION_LABEL = "section_label";

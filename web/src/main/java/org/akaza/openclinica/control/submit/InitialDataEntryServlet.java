@@ -40,7 +40,11 @@ import javax.servlet.http.HttpSession;
 @Controller
 @RequestMapping(value="/InitialDataEntry")
 public class InitialDataEntryServlet extends DataEntryServlet {
-    protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1732375993795642636L;
+	protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
     Locale locale;
 
     // < ResourceBundleresexception,respage;

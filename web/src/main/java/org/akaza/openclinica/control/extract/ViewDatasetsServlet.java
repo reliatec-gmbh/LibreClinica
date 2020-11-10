@@ -45,7 +45,11 @@ import java.util.Locale;
  */
 public class ViewDatasetsServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -781606214750305705L;
+	Locale locale;
 
     // < ResourceBundleresword,restext,respage,resexception;
 

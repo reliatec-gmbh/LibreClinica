@@ -28,7 +28,11 @@ import org.akaza.openclinica.core.util.ScriptRunner;
  */
 public class SqlProcessingFunction extends ProcessingFunction implements Serializable {
 
-    private ExtractPropertyBean extractPropertyBean;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8694451077765381245L;
+	private ExtractPropertyBean extractPropertyBean;
     private String databaseUrl;
     private String databaseUsername;
     private String databasePassword;

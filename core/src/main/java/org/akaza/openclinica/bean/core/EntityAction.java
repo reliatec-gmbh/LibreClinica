@@ -16,7 +16,11 @@ import java.util.Optional;
 
 public class EntityAction extends Term {
 
-    public static final EntityAction VIEW = new EntityAction(1, "view");
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -2965559245827075121L;
+	public static final EntityAction VIEW = new EntityAction(1, "view");
     public static final EntityAction EDIT = new EntityAction(2, "edit");
     public static final EntityAction DELETE = new EntityAction(3, "delete");
     public static final EntityAction RESTORE = new EntityAction(4, "restore");

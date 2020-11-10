@@ -37,7 +37,11 @@ import java.util.List;
 
 // Internationalized description in Term.getDescription()
 public class ItemDataType extends Term {
-    public static final ItemDataType INVALID = new ItemDataType(0, "invalid", "Invalid_Type");
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8264124183770114374L;
+	public static final ItemDataType INVALID = new ItemDataType(0, "invalid", "Invalid_Type");
     public static final ItemDataType BL = new ItemDataType(1, "bl", "Boolean");
 
     public static final ItemDataType BN = new ItemDataType(2, "bln", "Boolean_Non_Null");

@@ -35,7 +35,12 @@ import java.util.Date;
  */
 public class RequestPasswordServlet extends SecureController {
 
-    @Override
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -6525408217441592170L;
+
+	@Override
     public void mayProceed() throws InsufficientPermissionException {
 
     }

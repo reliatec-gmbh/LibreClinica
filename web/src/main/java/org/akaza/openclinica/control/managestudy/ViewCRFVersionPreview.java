@@ -24,6 +24,11 @@ import java.util.Map;
  */
 public class ViewCRFVersionPreview extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = -5409675615393802287L;
+
+	/**
      * Checks whether the user has the right permission to proceed function
      */
     @Override

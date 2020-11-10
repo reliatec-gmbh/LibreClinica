@@ -22,7 +22,12 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
  * Sends user message to the administrator
  */
 public class ContactServlet extends SecureController {
-    @Override
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1418512105084748633L;
+
+	@Override
     public void mayProceed() throws InsufficientPermissionException {
 
     }

@@ -25,6 +25,11 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
 public class InitUpdateStudyServlet extends SecureController {
 
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 3086475760520283158L;
+
+	/**
      *
      */
     @Override

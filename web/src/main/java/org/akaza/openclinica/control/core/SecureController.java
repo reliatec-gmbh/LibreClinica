@@ -152,7 +152,11 @@ import org.springframework.security.core.userdetails.UserDetails;
  * @author ssachs
  */
 public abstract class SecureController extends HttpServlet implements SingleThreadModel {
-    protected ServletContext context;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -4534604636525309665L;
+	protected ServletContext context;
     protected SessionManager sm;
     protected static final Logger logger = LoggerFactory.getLogger(SecureController.class);
     protected String logDir;

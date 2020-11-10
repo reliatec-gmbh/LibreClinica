@@ -22,7 +22,12 @@ import java.util.HashMap;
  * @author ssachs
  */
 public class ExtractStudySubjectBean extends EntityBean {
-    private String studyProtocolId;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -3358250864687592664L;
+
+	private String studyProtocolId;
 
     private String siteUniqueIdentifier;
 

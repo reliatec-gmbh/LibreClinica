@@ -32,7 +32,12 @@ import org.akaza.openclinica.web.SQLInitServlet;
  *         Servlet for creating a user account.
  */
 public class EditUserAccountServlet extends SecureController {
-    public static final String INPUT_FIRST_NAME = "firstName";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -6961254006943513921L;
+
+	public static final String INPUT_FIRST_NAME = "firstName";
 
     public static final String INPUT_LAST_NAME = "lastName";
 

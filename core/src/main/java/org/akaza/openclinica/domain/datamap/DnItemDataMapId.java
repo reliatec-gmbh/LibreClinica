@@ -21,6 +21,10 @@ import org.akaza.openclinica.domain.DataMapDomainObject;
 @Embeddable
 public class DnItemDataMapId extends DataMapDomainObject {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5783293287111506411L;
 	private Integer itemDataId;
 	private Integer discrepancyNoteId;
 	private String columnName;

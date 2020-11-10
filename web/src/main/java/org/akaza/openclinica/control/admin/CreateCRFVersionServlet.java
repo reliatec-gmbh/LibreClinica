@@ -64,7 +64,11 @@ import java.util.Set;
  */
 public class CreateCRFVersionServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 2414948228788037586L;
+	Locale locale;
     FileUploadHelper uploadHelper = new FileUploadHelper();
 
     // < ResourceBundleresword,resexception,respage;

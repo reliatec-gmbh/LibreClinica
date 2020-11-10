@@ -14,7 +14,11 @@ import org.akaza.openclinica.core.form.StringUtil;
  * @author ssachs
  */
 public class ItemFormMetadataBean extends EntityBean implements Comparable<ItemFormMetadataBean> {
-    //
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6978568484486189104L;
+	//
     private int itemId;
     private int crfVersionId;
     private String header;

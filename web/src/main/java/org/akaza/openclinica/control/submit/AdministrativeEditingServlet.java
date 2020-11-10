@@ -46,7 +46,12 @@ import org.slf4j.LoggerFactory;
  */
 public class AdministrativeEditingServlet extends DataEntryServlet {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AdministrativeEditingServlet.class);
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 7651056910867103546L;
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(AdministrativeEditingServlet.class);
 
     Locale locale;
 

@@ -37,7 +37,11 @@ import java.util.ArrayList;
  * Preferences - Java - Code Style - Code Templates
  */
 public class ViewSiteServlet extends SecureController {
-    EventDefinitionCrfTagService eventDefinitionCrfTagService = null;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -432895800917682385L;
+	EventDefinitionCrfTagService eventDefinitionCrfTagService = null;
 
     /**
      * Checks whether the user has the correct privilege

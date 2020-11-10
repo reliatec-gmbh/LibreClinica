@@ -40,7 +40,11 @@ import java.util.Set;
 
 public class ListDiscNotesForCRFServlet extends SecureController {
 
-    public static final String DISCREPANCY_NOTE_TYPE = "discrepancyNoteType";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1656492531464029310L;
+	public static final String DISCREPANCY_NOTE_TYPE = "discrepancyNoteType";
     public static final String RESOLUTION_STATUS = "resolutionStatus";
     public static final String FILTER_SUMMARY = "filterSummary";
     Locale locale;

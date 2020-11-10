@@ -34,7 +34,11 @@ import javax.persistence.Transient;
 @GenericGenerator(name = "id-generator", strategy = "native", parameters = { @Parameter(name = "sequence_name", value = "rule_action_run_log_id_seq") })
 public class RuleActionRunLogBean extends AbstractMutableDomainObject {
 
-    ActionType actionType;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 2955745238032042361L;
+	ActionType actionType;
     ItemDataBean itemDataBean;
     String value;
     String ruleOid;

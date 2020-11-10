@@ -35,6 +35,10 @@ import org.hibernate.annotations.Parameter;
 
 public class StudyGroupClass  extends DataMapDomainObject {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5022509064666020099L;
 	private int studyGroupClassId;
 	private UserAccount userAccount;
 	private GroupClassTypes groupClassTypes;

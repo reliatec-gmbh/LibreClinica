@@ -60,7 +60,11 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  * @see org.akaza.openclinica.bean.extract.DownloadDiscrepancyNote
  */
 public class DiscrepancyNoteOutputServlet extends SecureController {
-    // These are the headers that must appear in the HTTP response, when sending a
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8859779310401504675L;
+	// These are the headers that must appear in the HTTP response, when sending a
     // file back to the user
     public static String CONTENT_DISPOSITION_HEADER = "Content-Disposition";
     public static String CONTENT_DISPOSITION_VALUE = "attachment; filename=";

@@ -36,6 +36,10 @@ import org.hibernate.annotations.Parameter;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class StudyGroup  extends DataMapDomainObject {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4718571896793827465L;
 	private int studyGroupId;
 	private StudyGroupClass studyGroupClass;
 	private String name;

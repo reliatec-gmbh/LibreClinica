@@ -40,7 +40,12 @@ import java.util.Locale;
  */
 public class SelectItemsServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1220121192607803424L;
+
+	Locale locale;
     // < ResourceBundlerestext,resexception,respage;
 
     public static String CURRENT_DEF_ID = "currentDefId";

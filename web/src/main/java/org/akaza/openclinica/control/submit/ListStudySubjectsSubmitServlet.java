@@ -22,7 +22,11 @@ import java.util.Locale;
  */
 public class ListStudySubjectsSubmitServlet extends ListStudySubjectServlet {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1445615032857361745L;
+	Locale locale;
 
     // < ResourceBundleresexception,respage;
 

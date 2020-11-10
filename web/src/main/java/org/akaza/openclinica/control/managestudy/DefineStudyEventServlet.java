@@ -48,7 +48,11 @@ import java.util.Map;
  * Defines a new study event
  */
 public class DefineStudyEventServlet extends SecureController {
-    EventDefinitionCrfTagService eventDefinitionCrfTagService = null;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -4421505680553105618L;
+	EventDefinitionCrfTagService eventDefinitionCrfTagService = null;
 
     /**
      * Checks whether the user has the correct privilege

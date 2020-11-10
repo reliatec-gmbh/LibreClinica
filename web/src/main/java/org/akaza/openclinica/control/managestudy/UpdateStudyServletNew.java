@@ -34,7 +34,11 @@ import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
 public class UpdateStudyServletNew extends SecureController {
-    public static final String INPUT_START_DATE = "startDate";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -4014694318178787570L;
+	public static final String INPUT_START_DATE = "startDate";
     public static final String INPUT_END_DATE = "endDate";
     public static final String INPUT_VER_DATE = "protocolDateVerification";
     public static StudyBean study;

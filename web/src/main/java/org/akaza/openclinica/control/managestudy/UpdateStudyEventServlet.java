@@ -67,7 +67,12 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
  *         Performs updating study event action
  */
 public class UpdateStudyEventServlet extends SecureController {
-    public static final String EVENT_ID = "event_id";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -6029524999558420563L;
+
+	public static final String EVENT_ID = "event_id";
 
     public static final String STUDY_SUBJECT_ID = "ss_id";
 

@@ -58,7 +58,12 @@ import org.akaza.openclinica.web.bean.FilterRow;
  *
  */
 public class CreateDatasetServlet extends SecureController {
-    public static final String BEAN_YEARS = "years";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -3072489791090476232L;
+
+	public static final String BEAN_YEARS = "years";
 
     public static final String BEAN_MONTHS = "months";
 

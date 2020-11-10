@@ -21,7 +21,12 @@ import org.akaza.openclinica.bean.core.AuditableEntityBean;
  *
  */
 public class SectionBean extends AuditableEntityBean {
-    private int CRFVersionId;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 3559932641033223424L;
+
+	private int CRFVersionId;
 
     private String label;
 

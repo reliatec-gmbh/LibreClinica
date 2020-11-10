@@ -18,7 +18,11 @@ import java.util.Optional;
 // Internationalized name and description in Term.getName and
 // Term.getDescription()
 public class DataEntryStage extends Term {
-    public static final DataEntryStage INVALID = new DataEntryStage(0, "invalid");
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 9095653305987250682L;
+	public static final DataEntryStage INVALID = new DataEntryStage(0, "invalid");
     public static final DataEntryStage UNCOMPLETED = new DataEntryStage(1, "not_started", "not_started");
     public static final DataEntryStage INITIAL_DATA_ENTRY = new DataEntryStage(2, "initial_data_entry", "data_being_entered");
     public static final DataEntryStage INITIAL_DATA_ENTRY_COMPLETE = new DataEntryStage(3, "initial_data_entry_complete", "initial_data_entry_completed");

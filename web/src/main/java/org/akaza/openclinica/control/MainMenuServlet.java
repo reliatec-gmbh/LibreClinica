@@ -50,7 +50,11 @@ import org.akaza.openclinica.web.table.sdv.SDVUtil;
  */
 public class MainMenuServlet extends SecureController {
 
-    //Shaoyu Su
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -7373300139315967558L;
+	//Shaoyu Su
     Locale locale;
     private StudyEventDefinitionDAO studyEventDefinitionDAO;
 	private SubjectDAO subjectDAO;

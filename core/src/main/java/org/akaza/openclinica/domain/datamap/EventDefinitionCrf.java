@@ -41,6 +41,10 @@ import org.hibernate.annotations.Parameter;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class EventDefinitionCrf extends DataMapDomainObject {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -565599177189139260L;
 	private int eventDefinitionCrfId;
 	private UserAccount userAccount;
 	private StudyEventDefinition studyEventDefinition;

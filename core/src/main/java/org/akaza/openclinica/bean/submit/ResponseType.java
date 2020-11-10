@@ -36,7 +36,12 @@ import java.util.List;
 // Internationalized description in Term.getDescription()
 @Deprecated
 public class ResponseType extends Term {
-    public static final ResponseType TEXT = new ResponseType(1, "text", null);
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 213278797848776832L;
+
+	public static final ResponseType TEXT = new ResponseType(1, "text", null);
 
     public static final ResponseType TEXT_AREA = new ResponseType(2, "text area", null);
 

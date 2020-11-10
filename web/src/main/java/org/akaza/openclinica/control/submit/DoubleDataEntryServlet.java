@@ -50,7 +50,12 @@ import org.slf4j.LoggerFactory;
  */
 public class DoubleDataEntryServlet extends DataEntryServlet {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DoubleDataEntryServlet.class);
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -4921789754184420118L;
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(DoubleDataEntryServlet.class);
 
     Locale locale;
     // < ResourceBundlerespage,restext,resexception,resword;

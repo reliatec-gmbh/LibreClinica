@@ -18,7 +18,12 @@ import org.akaza.openclinica.dao.managestudy.StudyEventDefinitionDAO;
  */
 public class ChangeDefinitionOrdinalServlet extends ChangeOrdinalServlet {
 
-    @Override
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -357106030206216135L;
+
+	@Override
     public void processRequest() throws Exception {
         FormProcessor fp = new FormProcessor(request);
         int current = fp.getInt("current");

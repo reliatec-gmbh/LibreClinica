@@ -20,7 +20,11 @@ import org.akaza.openclinica.view.Page;
  * @author ssachs
  */
 public class InsufficientPermissionException extends OpenClinicaException {
-    private Page goTo; // this is the page the user should be forwarded to
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8925111372701107121L;
+	private Page goTo; // this is the page the user should be forwarded to
 
     public InsufficientPermissionException(Page goTo, String message, String type, String methodName, String className, String errorid) {
         super(message, type, methodName, className, errorid);

@@ -22,7 +22,11 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
 import java.util.ArrayList;
 
 public class ViewUserAccountServlet extends SecureController {
-    public static final String PATH = "ViewUserAccount";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 2096237550544873731L;
+	public static final String PATH = "ViewUserAccount";
     public static final String ARG_USER_ID = "userId";
 
     public static String getLink(int userId) {

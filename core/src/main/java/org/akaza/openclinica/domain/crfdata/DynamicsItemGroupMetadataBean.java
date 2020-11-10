@@ -21,7 +21,11 @@ import javax.persistence.Table;
 @GenericGenerator(name = "id-generator", strategy = "native", parameters = { @Parameter(name = "sequence_name", value = "dyn_item_group_metadata_id_seq") })
 public class DynamicsItemGroupMetadataBean extends AbstractMutableDomainObject {
 
-    private boolean showGroup;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -576573696261855557L;
+	private boolean showGroup;
     private int eventCrfId;
     private int itemGroupMetadataId;
     private int itemGroupId;

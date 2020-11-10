@@ -53,7 +53,11 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  * @author jxu
  */
 public class ViewNotesServlet extends SecureController {
-    public static final String PRINT = "print";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6196337101804576598L;
+	public static final String PRINT = "print";
     public static final String RESOLUTION_STATUS = "resolutionStatus";
     public static final String TYPE = "discNoteType";
     public static final String WIN_LOCATION = "window_location";

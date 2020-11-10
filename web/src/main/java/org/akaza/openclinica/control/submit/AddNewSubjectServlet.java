@@ -69,7 +69,12 @@ import org.slf4j.LoggerFactory;
  */
 public class AddNewSubjectServlet extends SecureController {
 
-    protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8547182499466284586L;
+
+	protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
 
     // Shaoyu Su
     private final Object simpleLockObj = new Object();

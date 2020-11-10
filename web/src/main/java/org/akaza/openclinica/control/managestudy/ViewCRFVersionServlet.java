@@ -30,6 +30,11 @@ import java.util.ArrayList;
  */
 public class ViewCRFVersionServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = -920947631341814197L;
+
+	/**
      * Checks whether the user has the right permission to proceed function
      */
     @Override

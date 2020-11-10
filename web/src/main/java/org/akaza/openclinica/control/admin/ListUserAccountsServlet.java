@@ -25,7 +25,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 public class ListUserAccountsServlet extends SecureController {
-    public static final String PATH = "ListUserAccounts";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -7298014383987992477L;
+	public static final String PATH = "ListUserAccounts";
     public static final String ARG_MESSAGE = "message";
 
     @Override

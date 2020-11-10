@@ -31,6 +31,11 @@ import java.util.Date;
  */
 public class SetStudyUserRoleServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 7607566814278848612L;
+
+	/**
      *
      */
     @Override

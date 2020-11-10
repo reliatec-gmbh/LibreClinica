@@ -41,7 +41,11 @@ import java.util.List;
  */
 public class ApplyFilterServlet extends SecureController {
 
-    public static final String BEAN_YEARS = "years";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -194005692268217488L;
+	public static final String BEAN_YEARS = "years";
     public static final String BEAN_MONTHS = "months";
     public static final String BEAN_FILTER = "filter";
     public static final String DETAILS_URL = "ApplyFilter?action=details";

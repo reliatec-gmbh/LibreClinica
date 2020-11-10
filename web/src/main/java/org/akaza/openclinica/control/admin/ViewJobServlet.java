@@ -41,7 +41,11 @@ import java.util.Set;
 public class ViewJobServlet extends SecureController {
 
    
-    private static String SCHEDULER = "schedulerFactoryBean";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1226529718566575419L;
+	private static String SCHEDULER = "schedulerFactoryBean";
     private static String EXPORT_TRIGGER = "exportTrigger";
 
     private SchedulerFactoryBean schedulerFactoryBean;

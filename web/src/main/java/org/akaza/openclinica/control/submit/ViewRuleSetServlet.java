@@ -36,7 +36,11 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
  */
 public class ViewRuleSetServlet extends SecureController {
 
-    private static String RULESET_ID = "ruleSetId";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -3381275907708644897L;
+	private static String RULESET_ID = "ruleSetId";
     private static String RULESET = "ruleSet";
     private static String TARGET = "target";
     private static String RULE_OID = "ruleOid";

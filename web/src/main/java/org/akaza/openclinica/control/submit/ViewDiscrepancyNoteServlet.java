@@ -64,7 +64,12 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
  */
 public class ViewDiscrepancyNoteServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 2458456258172053818L;
+
+	Locale locale;
     // < ResourceBundleresexception,respage;
 
     public static final String ENTITY_ID = "id";

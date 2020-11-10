@@ -30,7 +30,11 @@ import org.akaza.openclinica.web.bean.EntityBeanTable;
  */
 public class ListStudyServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1660543632636179574L;
+	Locale locale;
 
     // < ResourceBundle resword,restext,respage,resexception;
 

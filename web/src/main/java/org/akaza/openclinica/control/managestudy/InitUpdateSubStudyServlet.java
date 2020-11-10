@@ -41,7 +41,11 @@ import java.util.ArrayList;
  *          jxu $
  */
 public class InitUpdateSubStudyServlet extends SecureController {
-    EventDefinitionCrfTagService eventDefinitionCrfTagService = null;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1348293062808929660L;
+	EventDefinitionCrfTagService eventDefinitionCrfTagService = null;
 
     /**
      *

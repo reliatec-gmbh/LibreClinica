@@ -58,7 +58,12 @@ import javax.servlet.http.HttpSession;
  */
 public class CreateOneDiscrepancyNoteServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 221434442858789449L;
+
+	Locale locale;
     // < ResourceBundleresexception,respage;
 
     //public static final String DIS_TYPES = "discrepancyTypes";

@@ -27,7 +27,12 @@ import org.slf4j.LoggerFactory;
 // Term.getDescription()
 public class ResolutionStatus extends Term {
 
-    protected static final Logger logger = LoggerFactory.getLogger(ResolutionStatus.class.getName());
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1667893627441880526L;
+
+	protected static final Logger logger = LoggerFactory.getLogger(ResolutionStatus.class.getName());
 
     public static final ResolutionStatus INVALID = new ResolutionStatus(0, "invalid", null, null);
 

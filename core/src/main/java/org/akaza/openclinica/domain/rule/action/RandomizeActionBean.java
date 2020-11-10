@@ -28,7 +28,11 @@ import javax.persistence.Transient;
 @DiscriminatorValue("8")
 public class RandomizeActionBean extends RuleActionBean {
 
-    private List<PropertyBean> properties;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8873774452920678216L;
+	private List<PropertyBean> properties;
     private List<StratificationFactorBean> stratificationFactors;
       
     

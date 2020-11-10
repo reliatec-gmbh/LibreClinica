@@ -24,7 +24,12 @@ import java.util.Locale;
  */
 public class ExecuteCrossEditCheckServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 2793554479273114466L;
+
+	Locale locale;
 
     public static final String DIS_TYPES = "discrepancyTypes";
     public static final String RES_STATUSES = "resolutionStatuses";

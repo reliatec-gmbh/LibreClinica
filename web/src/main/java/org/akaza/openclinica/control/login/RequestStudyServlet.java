@@ -31,7 +31,12 @@ import java.util.HashMap;
  * Preferences - Java - Code Style - Code Templates
  */
 public class RequestStudyServlet extends SecureController {
-    @Override
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6545051529086620572L;
+
+	@Override
     public void mayProceed() throws InsufficientPermissionException {
 
     }

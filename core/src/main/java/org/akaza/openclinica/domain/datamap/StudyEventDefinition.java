@@ -42,6 +42,10 @@ import org.hibernate.annotations.Type;
 
 public class StudyEventDefinition  extends DataMapDomainObject {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8228007886538850127L;
 	private int studyEventDefinitionId;
 	private UserAccount userAccount;
 	private Study study;

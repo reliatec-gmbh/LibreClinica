@@ -30,7 +30,12 @@ import java.util.ArrayList;
  */
 public class TechAdminServlet extends SecureController {
 
-    /*
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -3448676041589534973L;
+
+	/*
      * (non-Javadoc)
      *
      * @see org.akaza.openclinica.control.core.SecureController#processRequest()

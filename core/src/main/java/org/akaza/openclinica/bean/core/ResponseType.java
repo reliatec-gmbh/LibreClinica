@@ -14,7 +14,11 @@ import java.util.List;
  * @author ssachs
  */
 public class ResponseType extends Term {
-    public static final ResponseType INVALID = new ResponseType(0, "invalid");
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -8263048078467888215L;
+	public static final ResponseType INVALID = new ResponseType(0, "invalid");
     public static final ResponseType TEXT = new ResponseType(1, "text");
 
     public static final ResponseType TEXTAREA = new ResponseType(2, "textarea");

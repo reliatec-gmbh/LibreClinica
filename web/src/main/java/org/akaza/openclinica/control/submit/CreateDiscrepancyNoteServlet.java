@@ -76,7 +76,12 @@ import org.apache.commons.lang.StringUtils;
  */
 public class CreateDiscrepancyNoteServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 4691058657903088336L;
+
+	Locale locale;
     // < ResourceBundleresexception,respage;
 
     public static final String DIS_TYPES = "discrepancyTypes";

@@ -15,7 +15,11 @@ import org.akaza.openclinica.bean.submit.EventCRFBean;
  *
  */
 public class DisplayEventDefinitionCRFBean extends AuditableEntityBean {
-    private EventDefinitionCRFBean edc;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -6451406000935867787L;
+	private EventDefinitionCRFBean edc;
     private EventCRFBean eventCRF;
     private boolean completedEventCRFs;
 

@@ -37,7 +37,12 @@ import java.util.List;
  */
 public class EditFilterServlet extends SecureController {
 
-    public static String getLink(int filterId) {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 4863574561291316253L;
+
+	public static String getLink(int filterId) {
         return "EditFilter?filterId=" + filterId;
     }
 

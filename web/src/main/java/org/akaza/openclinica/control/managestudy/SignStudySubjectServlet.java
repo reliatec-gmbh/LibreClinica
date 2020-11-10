@@ -70,6 +70,11 @@ import org.akaza.openclinica.web.bean.EntityBeanTable;
  */
 public class SignStudySubjectServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = -4280235447806067251L;
+
+	/**
      * Checks whether the user has the right permission to proceed function
      */
     @Override

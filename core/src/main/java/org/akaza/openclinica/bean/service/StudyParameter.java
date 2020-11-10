@@ -10,7 +10,11 @@ package org.akaza.openclinica.bean.service;
 import org.akaza.openclinica.bean.core.AuditableEntityBean;
 
 public class StudyParameter extends AuditableEntityBean {
-    /*
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -7096080349901603940L;
+	/*
      * study_parameter_id serial NOT NULL, handle varchar(50), name varchar(50),
      * description varchar(255), default_value varchar(50), inheritable bool
      * DEFAULT true, overridable bool,

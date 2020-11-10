@@ -40,6 +40,11 @@ import java.util.Date;
  */
 public class RemoveCRFServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 465061097921399839L;
+
+	/**
      *
      */
     @Override

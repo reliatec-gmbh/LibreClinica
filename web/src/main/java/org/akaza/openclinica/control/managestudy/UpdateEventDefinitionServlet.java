@@ -49,7 +49,11 @@ import java.util.List;
  * Preferences - Java - Code Style - Code Templates
  */
 public class UpdateEventDefinitionServlet extends SecureController {
-    EventDefinitionCrfTagService eventDefinitionCrfTagService = null;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 4633747509604281670L;
+	EventDefinitionCrfTagService eventDefinitionCrfTagService = null;
     private Logger logger = LoggerFactory.getLogger(getClass().getName());
 
     /**

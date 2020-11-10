@@ -47,7 +47,11 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class UrlRewriteServlet extends CoreSecureController {
-    protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -7919321979958561234L;
+	protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
 
 
 

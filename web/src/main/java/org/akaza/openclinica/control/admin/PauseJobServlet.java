@@ -31,7 +31,11 @@ import org.quartz.impl.StdScheduler;
  */
 public class PauseJobServlet extends SecureController {
 
-    private static String SCHEDULER = "schedulerFactoryBean";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8523570823252127703L;
+	private static String SCHEDULER = "schedulerFactoryBean";
     private static String groupName = "DEFAULT";
     private static String groupImportName = "importTrigger";
     private StdScheduler scheduler;

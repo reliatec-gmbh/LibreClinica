@@ -30,7 +30,12 @@ import java.util.Locale;
  */
 public class AuditLogUserServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -6177899330139423029L;
+
+	Locale locale;
     // < ResourceBundleresword,resexception;
 
     public static final String ARG_USERID = "userLogId";

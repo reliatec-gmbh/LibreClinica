@@ -41,6 +41,10 @@ import org.hibernate.annotations.Type;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Item  extends DataMapDomainObject{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 502216204306186588L;
 	private int itemId;
 	private UserAccount userAccount;
 	private ItemReferenceType itemReferenceType;

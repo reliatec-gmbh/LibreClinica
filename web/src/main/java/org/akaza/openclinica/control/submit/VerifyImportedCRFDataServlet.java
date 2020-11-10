@@ -57,7 +57,11 @@ import org.akaza.openclinica.web.job.ImportSpringJob;
  */
 public class VerifyImportedCRFDataServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1843157148541450797L;
+	Locale locale;
 
     /**
      *

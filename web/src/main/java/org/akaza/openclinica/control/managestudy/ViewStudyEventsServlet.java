@@ -41,7 +41,12 @@ import java.util.Locale;
  */
 public class ViewStudyEventsServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 4508482824320959374L;
+
+	Locale locale;
     // < ResourceBundlerestext;
 
     public static final String INPUT_STARTDATE = "startDate";

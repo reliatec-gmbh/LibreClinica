@@ -17,7 +17,11 @@ import java.util.Map;
 // Term.getDescription()
 
 public class Status extends Term implements Comparable<Status> {
-    // waiting for the db to come in sync with our set of terms...
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -5659497816528109135L;
+	// waiting for the db to come in sync with our set of terms...
     public static final Status INVALID = new Status(0, "invalid");
     public static final Status AVAILABLE = new Status(1, "available");
     public static final Status UNAVAILABLE = new Status(2, "unavailable");

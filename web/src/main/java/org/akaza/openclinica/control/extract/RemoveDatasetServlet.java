@@ -33,7 +33,11 @@ import java.util.Locale;
  */
 public class RemoveDatasetServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8166102276555940407L;
+	Locale locale;
 
     // < ResourceBundle resmessage,restext,respage,resexception,resword;
 

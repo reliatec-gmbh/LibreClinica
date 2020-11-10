@@ -23,7 +23,12 @@ import java.util.List;
 // Internationalized name and description in Term.getName and
 // Term.getDescription()
 public class PwdChallengeQuestion extends Term {
-    public static final PwdChallengeQuestion MAIDEN_NAME = new PwdChallengeQuestion(1, "Mother_Maiden_Name");
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -3257460938361987325L;
+
+	public static final PwdChallengeQuestion MAIDEN_NAME = new PwdChallengeQuestion(1, "Mother_Maiden_Name");
 
     public static final PwdChallengeQuestion FARORITE_PET = new PwdChallengeQuestion(2, "Favorite_Pet");
 

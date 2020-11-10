@@ -27,6 +27,11 @@ import java.util.ArrayList;
  */
 public class RestoreCRFFromDefinitionServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 5416925373611296853L;
+
+	/**
      * Checks whether the user has the correct privilege
      */
     @Override

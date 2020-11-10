@@ -56,7 +56,12 @@ import javax.sql.DataSource;
 
 public class CreateNewStudyEventServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -2900729097178000327L;
+
+	Locale locale;
     // < ResourceBundlerestext,respage,resexception;
 
     public static final String INPUT_STUDY_EVENT_DEFINITION = "studyEventDefinition";

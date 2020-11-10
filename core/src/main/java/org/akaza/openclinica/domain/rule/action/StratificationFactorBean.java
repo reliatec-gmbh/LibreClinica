@@ -26,7 +26,11 @@ import javax.persistence.Transient;
 @GenericGenerator(name = "id-generator", strategy = "native", parameters = { @Parameter(name = "sequence_name", value = "rule_action_stratification_factor_id_seq") })
 public class StratificationFactorBean extends AbstractMutableDomainObject {
     
-    private ExpressionBean stratificationFactor;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -6898389581122903687L;
+	private ExpressionBean stratificationFactor;
     private RuleActionBean ruleActionBean;
     private String expressionAsString;
     

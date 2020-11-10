@@ -32,6 +32,11 @@ import java.util.HashMap;
 public class ListStudyUserServlet extends SecureController {
 
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = -2575908192455735571L;
+
+	/**
      *
      */
     @Override

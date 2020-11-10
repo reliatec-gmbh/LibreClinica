@@ -20,7 +20,12 @@ import java.util.Optional;
 // Term.getDescription()
 public class DiscrepancyNoteType extends Term {
 
-    public static final DiscrepancyNoteType INVALID = new DiscrepancyNoteType(0, "Invalid", null);
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -4221511046697392582L;
+
+	public static final DiscrepancyNoteType INVALID = new DiscrepancyNoteType(0, "Invalid", null);
 
     public static final DiscrepancyNoteType FAILEDVAL = new DiscrepancyNoteType(1, "Failed_Validation_Check", null);
 

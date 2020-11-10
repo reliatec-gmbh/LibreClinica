@@ -35,6 +35,11 @@ import javax.sql.DataSource;
  */
 public class ViewTableOfContentServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8099405927721278164L;
+
+	/**
      * Checks whether the user has the correct privilege
      */
     @Override

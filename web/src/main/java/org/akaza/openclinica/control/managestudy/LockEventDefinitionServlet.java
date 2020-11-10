@@ -39,6 +39,11 @@ import java.util.Date;
  */
 public class LockEventDefinitionServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = -8131833006641776062L;
+
+	/**
      *
      */
     @Override

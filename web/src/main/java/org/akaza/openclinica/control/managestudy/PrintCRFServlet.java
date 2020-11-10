@@ -55,7 +55,11 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class PrintCRFServlet extends DataEntryServlet {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8875803680439989682L;
+	Locale locale;
 
     // < ResourceBundlerespage,resexception;
 

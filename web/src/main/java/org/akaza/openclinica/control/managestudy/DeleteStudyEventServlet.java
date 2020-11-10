@@ -30,7 +30,13 @@ import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 
 public class DeleteStudyEventServlet extends SecureController{
-    @Override
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 2156394172493768917L;
+
+
+	@Override
     public void mayProceed() throws InsufficientPermissionException {
         checkStudyLocked(Page.LIST_STUDY_SUBJECTS, respage.getString("current_study_locked"));
         checkStudyFrozen(Page.LIST_STUDY_SUBJECTS, respage.getString("current_study_frozen"));

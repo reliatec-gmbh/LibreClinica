@@ -38,7 +38,11 @@ import java.util.Set;
 
 public class UpdateJobImportServlet extends SecureController {
 
-    private static String SCHEDULER = "schedulerFactoryBean";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 4553819902500848985L;
+	private static String SCHEDULER = "schedulerFactoryBean";
     private static String TRIGGER_IMPORT_GROUP = "importTrigger";
     private StdScheduler scheduler;
     private SimpleTrigger trigger;

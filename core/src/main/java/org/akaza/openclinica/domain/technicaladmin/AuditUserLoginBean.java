@@ -39,7 +39,11 @@ import javax.persistence.Transient;
 @GenericGenerator(name = "id-generator", strategy = "native", parameters = { @Parameter(name = "sequence_name", value = "audit_user_login_id_seq") })
 public class AuditUserLoginBean extends AbstractMutableDomainObject {
 
-    private String userName;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -6869782911927241691L;
+	private String userName;
     private UserAccountBean userAccount;
     private Date loginAttemptDate;
     private LoginStatus loginStatus;

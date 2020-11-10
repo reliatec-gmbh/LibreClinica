@@ -29,7 +29,11 @@ import java.util.Locale;
  */
 public class AccessFileServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1156240929496275776L;
+	Locale locale;
 
     // < ResourceBundlerestext,respage,resexception;
 

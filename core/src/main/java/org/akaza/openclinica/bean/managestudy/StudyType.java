@@ -18,7 +18,12 @@ import java.util.List;
 
 public class StudyType extends Term {
 
-    public static final StudyType INVALID = new StudyType(0, "");
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 9061803693706806754L;
+
+	public static final StudyType INVALID = new StudyType(0, "");
 
     public static final StudyType GENETIC = new StudyType(1, "genetic");
 

@@ -21,7 +21,11 @@ import java.util.Optional;
 // Internationalized name and description in Term.getName and
 // Term.getDescription()
 public class GroupClassType extends Term {
-    public static final GroupClassType INVALID = new GroupClassType(0, "invalid");
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 7593727578100651577L;
+	public static final GroupClassType INVALID = new GroupClassType(0, "invalid");
     public static final GroupClassType ARM = new GroupClassType(1, "Arm");
 
     public static final GroupClassType FAMILY = new GroupClassType(2, "Family/Pedigree");

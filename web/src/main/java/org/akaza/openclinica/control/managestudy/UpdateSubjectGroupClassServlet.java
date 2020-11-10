@@ -33,7 +33,12 @@ import java.util.Date;
  * Preferences - Java - Code Style - Code Templates
  */
 public class UpdateSubjectGroupClassServlet extends SecureController {
-    @Override
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 5281504073599016675L;
+
+	@Override
     public void mayProceed() throws InsufficientPermissionException {
         checkStudyLocked(Page.SUBJECT_GROUP_CLASS_LIST_SERVLET, respage.getString("current_study_locked"));
         if (ub.isSysAdmin()) {

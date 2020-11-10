@@ -18,7 +18,11 @@ import org.akaza.openclinica.bean.core.AuditableEntityBean;
  */
 
 public class FilterBean extends AuditableEntityBean {
-    private String description;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -5087332538903484795L;
+	private String description;
     private String SQLStatement;
     private String explanation;
 

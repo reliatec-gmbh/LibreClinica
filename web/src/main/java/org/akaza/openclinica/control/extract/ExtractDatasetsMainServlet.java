@@ -32,7 +32,11 @@ import java.util.HashMap;
  */
 public class ExtractDatasetsMainServlet extends SecureController {
 
-    public static final String PATH = "ExtractDatasetsMain";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 2082156531727906660L;
+	public static final String PATH = "ExtractDatasetsMain";
     public static final String ARG_USER_ID = "userId";
 
     public static String getLink(int userId) {

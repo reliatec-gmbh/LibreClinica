@@ -17,7 +17,12 @@ import java.util.ArrayList;
 
 public class ViewItemAuditLogServlet extends SecureController {
 
-    public void mayProceed() throws InsufficientPermissionException {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 4681699989521984006L;
+
+	public void mayProceed() throws InsufficientPermissionException {
         if (ub.isSysAdmin()) {
             return;
         }

@@ -35,7 +35,11 @@ import org.hibernate.annotations.Parameter;
 @GenericGenerator(name = "id-generator", strategy = "native", parameters = { @Parameter(name = "sequence_name", value = "usage_statistics_data_id_seq") })
 public class LogUsageStatsBean extends AbstractMutableDomainObject {
 
-    private String param_key;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6034640864536057154L;
+	private String param_key;
     private String param_value;
     private Timestamp update_timestamp;
 
