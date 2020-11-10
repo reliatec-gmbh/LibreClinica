@@ -10,6 +10,7 @@ package org.akaza.openclinica.bean.core;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Type safe enumeration of study group types
@@ -31,7 +32,7 @@ public class GroupClassType extends Term {
 
     private static final GroupClassType[] members = { ARM, FAMILY, DEMOGRAPHIC, OTHER };
 
-    public static final List list = Arrays.asList(members);
+    public static final List<GroupClassType> list = Arrays.asList(members);
 
     private GroupClassType(int id, String name) {
         super(id, name);
@@ -45,13 +46,14 @@ public class GroupClassType extends Term {
     }
 
     public static GroupClassType get(int id) {
-        Term t = Term.get(id, list);
-
-        if (!t.isActive()) {
-            return INVALID;
-        } else {
-            return (GroupClassType) t;
-        }
+    	Optional<GroupClassType> optional = list.stream().filter(t -> new Term(id, "").equals(t)).findFirst();
+    	GroupClassType result = optional.orElse(new GroupClassType());
+    	
+    	if(!result.isActive()) {
+    		return INVALID;
+    	} else {
+    		return result;
+    	}
     }
 
     public static boolean findByName(String name) {
@@ -74,8 +76,8 @@ public class GroupClassType extends Term {
         return GroupClassType.INVALID;
     }
 
-    public static ArrayList toArrayList() {
-        return new ArrayList(list);
+    public static ArrayList<GroupClassType> toArrayList() {
+        return new ArrayList<GroupClassType>(list);
     }
 
 }

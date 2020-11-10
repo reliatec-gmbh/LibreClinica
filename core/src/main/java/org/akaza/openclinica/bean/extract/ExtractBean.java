@@ -1096,7 +1096,7 @@ public class ExtractBean {
 
                 eventCRF.setCrfVersion(crfVersion);
 
-                ArrayList events = new ArrayList();
+                ArrayList<EventCRFBean> events = new ArrayList();
                 events.add(eventCRF);
                 // logger.info("///adding an event CRF..."
                 // + eventCRF.getInterviewerName());
@@ -1199,7 +1199,7 @@ public class ExtractBean {
 
         eventCRF.setCrfVersion(crfVersion);
         // logger.info();
-        ArrayList events = new ArrayList();
+        ArrayList<EventCRFBean> events = new ArrayList();
         events.add(eventCRF);
         // logger.info("///adding an event CRF..."
         // + eventCRF.getInterviewerName());

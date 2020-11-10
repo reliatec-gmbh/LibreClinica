@@ -9,8 +9,6 @@ package org.akaza.openclinica.bean.extract;
 
 import org.akaza.openclinica.bean.core.AuditableEntityBean;
 
-import java.util.ArrayList;
-
 /**
  * FilterBean.java, meant to take the place of Query Bean.
  *
@@ -22,7 +20,6 @@ import java.util.ArrayList;
 public class FilterBean extends AuditableEntityBean {
     private String description;
     private String SQLStatement;
-    private ArrayList filterDataObjects;
     private String explanation;
 
     public String getDescription() {
@@ -39,14 +36,6 @@ public class FilterBean extends AuditableEntityBean {
 
     public void setSQLStatement(String statement) {
         SQLStatement = statement;
-    }
-
-    public ArrayList getFilterDataObjects() {
-        return filterDataObjects;
-    }
-
-    public void setFilterDataObjects(ArrayList filterDataObjects) {
-        this.filterDataObjects = filterDataObjects;
     }
 
     public String getExplanation() {

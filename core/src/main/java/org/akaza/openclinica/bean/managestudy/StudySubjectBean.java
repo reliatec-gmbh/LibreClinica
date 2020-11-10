@@ -10,6 +10,7 @@ package org.akaza.openclinica.bean.managestudy;
 import org.akaza.openclinica.bean.core.AuditableEntityBean;
 import org.akaza.openclinica.bean.oid.OidGenerator;
 import org.akaza.openclinica.bean.oid.StudySubjectOidGenerator;
+import org.akaza.openclinica.bean.submit.SubjectGroupMapBean;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -53,7 +54,7 @@ public class StudySubjectBean extends AuditableEntityBean {
      * An array of the groups this subject belongs to. Each element is a
      * StudyGroupMapBean object. Not in the database.
      */
-    private ArrayList studyGroupMaps;
+    private ArrayList<SubjectGroupMapBean> studyGroupMaps;
     
     private Date eventStartDate;//not in DB, for adding subject from subject matrix
     
@@ -66,7 +67,7 @@ public class StudySubjectBean extends AuditableEntityBean {
     private String time_zone;
     	
 	public StudySubjectBean() {
-        studyGroupMaps = new ArrayList();
+        studyGroupMaps = new ArrayList<>();
     }
 
 	public String getOid() {
@@ -219,7 +220,7 @@ public class StudySubjectBean extends AuditableEntityBean {
     /**
      * @return Returns the studyGroupMaps.
      */
-    public ArrayList getStudyGroupMaps() {
+    public ArrayList<SubjectGroupMapBean> getStudyGroupMaps() {
         return studyGroupMaps;
     }
 
@@ -227,7 +228,7 @@ public class StudySubjectBean extends AuditableEntityBean {
      * @param studyGroupMaps
      *            The studyGroupMaps to set.
      */
-    public void setStudyGroupMaps(ArrayList studyGroupMaps) {
+    public void setStudyGroupMaps(ArrayList<SubjectGroupMapBean> studyGroupMaps) {
         this.studyGroupMaps = studyGroupMaps;
     }
 

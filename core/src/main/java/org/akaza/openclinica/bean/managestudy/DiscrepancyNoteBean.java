@@ -40,7 +40,7 @@ public class DiscrepancyNoteBean extends AuditableEntityBean implements Comparab
     private String column = "";// not in DB
     private int entityId = 0;
     private String field = "";
-    private ArrayList children = new ArrayList();// not in DB
+    private ArrayList<DiscrepancyNoteBean> children = new ArrayList<>();// not in DB
     private int studyId = 0;
     // added by BWP; 5/09/08;
     private int eventCRFId = 0;
@@ -143,7 +143,7 @@ public class DiscrepancyNoteBean extends AuditableEntityBean implements Comparab
     	activated = true;
         disType = DiscrepancyNoteType.QUERY;
         resStatus = ResolutionStatus.OPEN;
-        children = new ArrayList();
+        children = new ArrayList<>();
         lastUpdator = new UserAccountBean();
     }
 
@@ -225,7 +225,7 @@ public class DiscrepancyNoteBean extends AuditableEntityBean implements Comparab
     /**
      * @return Returns the children.
      */
-    public ArrayList getChildren() {
+    public ArrayList<DiscrepancyNoteBean> getChildren() {
         return children;
     }
 
@@ -233,7 +233,7 @@ public class DiscrepancyNoteBean extends AuditableEntityBean implements Comparab
      * @param children
      *            The children to set.
      */
-    public void setChildren(ArrayList children) {
+    public void setChildren(ArrayList<DiscrepancyNoteBean> children) {
         this.children = children;
     }
 

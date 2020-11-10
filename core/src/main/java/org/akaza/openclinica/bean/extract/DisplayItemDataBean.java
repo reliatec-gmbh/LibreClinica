@@ -24,8 +24,8 @@ public class DisplayItemDataBean {
     private String subjectStatus;
     private String subjectAgeAtEvent;
     private String subjectSecondaryId;
-    private ArrayList eventValues = new ArrayList();
-    private ArrayList itemValues = new ArrayList();
+    private ArrayList<String> eventValues = new ArrayList<>();
+    private ArrayList<String> itemValues = new ArrayList<>();
     // private ArrayList groupNames = new ArrayList();
     // was a hashmap with class id as the key, tbh
     private HashMap groupNames = new HashMap();
@@ -41,7 +41,7 @@ public class DisplayItemDataBean {
     /**
      * @return Returns the eventValues.
      */
-    public ArrayList getEventValues() {
+    public ArrayList<String> getEventValues() {
         return eventValues;
     }
 
@@ -49,7 +49,7 @@ public class DisplayItemDataBean {
      * @param eventValues
      *            The eventValues to set.
      */
-    public void setEventValues(ArrayList eventValues) {
+    public void setEventValues(ArrayList<String> eventValues) {
         this.eventValues = eventValues;
     }
 
@@ -86,7 +86,7 @@ public class DisplayItemDataBean {
     /**
      * @return Returns the itemValues.
      */
-    public ArrayList getItemValues() {
+    public ArrayList<String> getItemValues() {
         return itemValues;
     }
 
@@ -94,7 +94,7 @@ public class DisplayItemDataBean {
      * @param itemValues
      *            The itemValues to set.
      */
-    public void setItemValues(ArrayList itemValues) {
+    public void setItemValues(ArrayList<String> itemValues) {
         this.itemValues = itemValues;
     }
 

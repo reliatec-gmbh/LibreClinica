@@ -26,7 +26,7 @@ public class StudyGroupClassBean extends AuditableEntityBean {
     private String groupClassTypeName = ""; // not in db
     private String subjectAssignment = "";
 
-    private ArrayList studyGroups = new ArrayList();// not in DB
+    private ArrayList<StudyGroupBean> studyGroups = new ArrayList<>();// not in DB
     private int studyGroupId = 0;// not in DB, indicates which group a
     // subject is in
     private String groupNotes = "";// not in DB
@@ -119,7 +119,7 @@ public class StudyGroupClassBean extends AuditableEntityBean {
     /**
      * @return Returns the studyGroups.
      */
-    public ArrayList getStudyGroups() {
+    public ArrayList<StudyGroupBean> getStudyGroups() {
         return studyGroups;
     }
 
@@ -127,7 +127,7 @@ public class StudyGroupClassBean extends AuditableEntityBean {
      * @param studyGroups
      *            The studyGroups to set.
      */
-    public void setStudyGroups(ArrayList studyGroups) {
+    public void setStudyGroups(ArrayList<StudyGroupBean> studyGroups) {
         this.studyGroups = studyGroups;
     }
 

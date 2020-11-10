@@ -10,6 +10,7 @@ package org.akaza.openclinica.bean.core;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Jun Xu
@@ -41,7 +42,7 @@ public class DiscrepancyNoteType extends Term {
 
     public static final List<DiscrepancyNoteType> list = Arrays.asList(members);
 
-    private List privileges;
+    private List<Privilege> privileges;
 
     private DiscrepancyNoteType(int id, String name, Privilege[] myPrivs) {
         super(id, name);
@@ -56,7 +57,8 @@ public class DiscrepancyNoteType extends Term {
     }
 
     public static DiscrepancyNoteType get(int id) {
-        return (DiscrepancyNoteType) Term.get(id, list);
+    	Optional<DiscrepancyNoteType> result = list.stream().filter(t -> new Term(id, "").equals(t)).findFirst();
+    	return result.orElse(new DiscrepancyNoteType());
     }
 
     public static DiscrepancyNoteType getByName(String name) {
@@ -70,7 +72,7 @@ public class DiscrepancyNoteType extends Term {
     }
 
     public boolean hasPrivilege(Privilege p) {
-        Iterator it = privileges.iterator();
+        Iterator<Privilege> it = privileges.iterator();
 
         while (it.hasNext()) {
             Privilege myPriv = (Privilege) it.next();

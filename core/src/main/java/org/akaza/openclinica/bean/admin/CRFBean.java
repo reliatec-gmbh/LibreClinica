@@ -11,6 +11,7 @@ package org.akaza.openclinica.bean.admin;
 import org.akaza.openclinica.bean.core.AuditableEntityBean;
 import org.akaza.openclinica.bean.oid.CrfOidGenerator;
 import org.akaza.openclinica.bean.oid.OidGenerator;
+import org.akaza.openclinica.bean.submit.CRFVersionBean;
 
 import java.util.ArrayList;
 
@@ -25,7 +26,7 @@ import java.util.ArrayList;
 public class CRFBean extends AuditableEntityBean {
     private int statusId = 1;
     private String description = "";
-    private ArrayList versions;// not in DB
+    private ArrayList<CRFVersionBean> versions;// not in DB
     private boolean selected = false; // not in DB
 
     private String oid;
@@ -34,7 +35,7 @@ public class CRFBean extends AuditableEntityBean {
 
     public CRFBean() {
         this.oidGenerator = new CrfOidGenerator();
-        versions = new ArrayList();
+        versions = new ArrayList<>();
     }
 
     /**
@@ -70,7 +71,7 @@ public class CRFBean extends AuditableEntityBean {
     /**
      * @return Returns the versions.
      */
-    public ArrayList getVersions() {
+    public ArrayList<CRFVersionBean> getVersions() {
         return versions;
     }
 
@@ -78,7 +79,7 @@ public class CRFBean extends AuditableEntityBean {
      * @param versions
      *            The versions to set.
      */
-    public void setVersions(ArrayList versions) {
+    public void setVersions(ArrayList<CRFVersionBean> versions) {
         this.versions = versions;
     }
 

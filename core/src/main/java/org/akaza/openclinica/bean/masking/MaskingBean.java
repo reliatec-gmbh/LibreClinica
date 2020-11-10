@@ -22,21 +22,21 @@ import java.util.HashMap;
  *
  */
 public class MaskingBean extends AuditableEntityBean {
-    public HashMap ruleMap;// String property_name -> Boolean value
+    public HashMap<String, Boolean> ruleMap;// String property_name -> Boolean value
     public String entityName;
     public int entityId;
     public int studyId;
     public int roleId;
 
     public MaskingBean() {
-        ruleMap = new HashMap();
+        ruleMap = new HashMap<>();
     }
 
-    public HashMap getRuleMap() {
+    public HashMap<String, Boolean> getRuleMap() {
         return this.ruleMap;
     }
 
-    public void setRuleMap(HashMap ruleMap) {
+    public void setRuleMap(HashMap<String, Boolean> ruleMap) {
         this.ruleMap = ruleMap;
     }
 

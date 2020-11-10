@@ -137,7 +137,7 @@ public class ItemBean extends AuditableEntityBean implements Comparable<ItemBean
 
     private ItemFormMetadataBean itemMeta;// not in DB, for display
 
-    private ArrayList itemMetas;// not in DB, one item can have multiple meta
+    private ArrayList<ItemFormMetadataBean> itemMetas;// not in DB, one item can have multiple meta
     private ArrayList<ItemDataBean>  itemDataElements;
 
     private boolean selected = false; // not in DB, used for creating dataset
@@ -156,7 +156,7 @@ public class ItemBean extends AuditableEntityBean implements Comparable<ItemBean
 
     public ItemBean() {
         dataType = ItemDataType.ST;
-        itemMetas = new ArrayList();
+        itemMetas = new ArrayList<>();
         
         this.oidGenerator = new ItemOidGenerator();
     }
@@ -285,7 +285,7 @@ public class ItemBean extends AuditableEntityBean implements Comparable<ItemBean
     /**
      * @return Returns the itemMetas.
      */
-    public ArrayList getItemMetas() {
+    public ArrayList<ItemFormMetadataBean> getItemMetas() {
         return itemMetas;
     }
 
@@ -293,7 +293,7 @@ public class ItemBean extends AuditableEntityBean implements Comparable<ItemBean
      * @param itemMetas
      *            The itemMetas to set.
      */
-    public void setItemMetas(ArrayList itemMetas) {
+    public void setItemMetas(ArrayList<ItemFormMetadataBean> itemMetas) {
         this.itemMetas = itemMetas;
     }
     /**

@@ -24,14 +24,14 @@ public class ResponseSetBean extends EntityBean {
      * A set of options to display to the user. The elements are
      * ResponseOptionBean objects.
      */
-    private ArrayList options;
+    private ArrayList<ResponseOptionBean> options;
 
     /**
      * A HashMap which tells us, for a given value, what is the index in the
      * options array where the option with that value is stored? The keys are
      * values, the values are Integer objects.
      */
-    private HashMap optionIndexesByValue;
+    private HashMap<String, Integer> optionIndexesByValue;
 
     /**
      * Contains the value of the item if the item is a text input. Not in the
@@ -42,8 +42,8 @@ public class ResponseSetBean extends EntityBean {
     public ResponseSetBean() {
         super();
         setResponseType(org.akaza.openclinica.bean.core.ResponseType.TEXT);
-        options = new ArrayList();
-        optionIndexesByValue = new HashMap();
+        options = new ArrayList<>();
+        optionIndexesByValue = new HashMap<>();
     }
 
     /**
@@ -64,7 +64,7 @@ public class ResponseSetBean extends EntityBean {
     /**
      * @return Returns the options.
      */
-    public ArrayList getOptions() {
+    public ArrayList<ResponseOptionBean> getOptions() {
         return options;
     }
 
@@ -191,8 +191,8 @@ public class ResponseSetBean extends EntityBean {
             }
         }
     }
-    public ArrayList removeSelection(){
-        ArrayList list = new ArrayList();
+    public ArrayList<ResponseOptionBean> removeSelection(){
+        ArrayList<ResponseOptionBean> list = new ArrayList<>();
         for(int i = 0; i < options.size(); i++){
             ResponseOptionBean rob = (ResponseOptionBean) options.get(i);
             if(rob.isSelected()){

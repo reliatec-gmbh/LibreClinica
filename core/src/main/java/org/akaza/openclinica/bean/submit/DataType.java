@@ -7,12 +7,14 @@
  */
 package org.akaza.openclinica.bean.submit;
 
+import org.akaza.openclinica.bean.core.DatasetItemStatus;
 import org.akaza.openclinica.bean.core.Privilege;
 import org.akaza.openclinica.bean.core.Term;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * BL - Boolean
@@ -50,7 +52,7 @@ public class DataType extends Term {
 
     private static final DataType[] members = { BN, ED, TEL, ST, INT, REAL, SET };
 
-    public static final List list = Arrays.asList(members);
+    public static final List<DataType> list = Arrays.asList(members);
 
     private List privileges;
 
@@ -66,7 +68,8 @@ public class DataType extends Term {
     }
 
     public static DataType get(int id) {
-        return (DataType) Term.get(id, list);
+    	Optional<DataType> result = list.stream().filter(t -> new Term(id, "").equals(t)).findFirst();
+    	return result.orElse(new DataType());
     }
 
     public static DataType getByName(String name) {
@@ -89,8 +92,8 @@ public class DataType extends Term {
         return false;
     }
 
-    public static ArrayList toArrayList() {
-        return new ArrayList(list);
+    public static ArrayList<DataType> toArrayList() {
+        return new ArrayList<DataType>(list);
     }
 
     @Override

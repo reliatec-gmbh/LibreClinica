@@ -70,19 +70,11 @@ public class Term extends EntityBean {
         return id;
     }
 
-    public static boolean contains(int id, List list) {
-        Term t = new Term(id, "");
-
-        for (int i = 0; i < list.size(); i++) {
-            Term temp = (Term) list.get(i);
-            if (temp.equals(t)) {
-                return true;
-            }
-        }
-        return false;
+    public static boolean contains(int id, List<? extends Term> list) {
+    	return list.stream().anyMatch(t -> new Term(id, "").equals(t));
     }
 
-    public static Term get(int id, List list) {
+    public static Term get(int id, List<Term> list) {
         Term t = new Term(id, "");
 
         for (int i = 0; i < list.size(); i++) {

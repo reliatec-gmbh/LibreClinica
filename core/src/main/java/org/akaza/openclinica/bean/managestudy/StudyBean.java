@@ -16,6 +16,7 @@ import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.oid.OidGenerator;
 import org.akaza.openclinica.bean.oid.StudyOidGenerator;
 import org.akaza.openclinica.bean.service.StudyParameterConfig;
+import org.akaza.openclinica.bean.service.StudyParamsConfig;
 import org.akaza.openclinica.domain.datamap.StudyEnvEnum;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
 
@@ -105,12 +106,12 @@ public class StudyBean extends AuditableEntityBean {
 
     private StudyParameterConfig studyParameterConfig = new StudyParameterConfig();
 
-    private ArrayList studyParameters = new ArrayList();
+    private ArrayList<StudyParamsConfig> studyParameters = new ArrayList<>();
 
     /**
      * @return Returns the studyParameters.
      */
-    public ArrayList getStudyParameters() {
+    public ArrayList<StudyParamsConfig> getStudyParameters() {
         return studyParameters;
     }
 
@@ -118,7 +119,7 @@ public class StudyBean extends AuditableEntityBean {
      * @param studyParameters
      *            The studyParameters to set.
      */
-    public void setStudyParameters(ArrayList studyParameters) {
+    public void setStudyParameters(ArrayList<StudyParamsConfig> studyParameters) {
         this.studyParameters = studyParameters;
     }
 

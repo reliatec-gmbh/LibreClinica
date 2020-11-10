@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 @Deprecated
-public class SPSSReportBean extends ReportBean {
+public class SPSSReportBean extends ReportBean<DisplayItemHeaderBean> {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
     private final static int FIRSTCASE = 2;
@@ -57,12 +57,12 @@ public class SPSSReportBean extends ReportBean {
         { "A", "A", "ADATE10", "ADATE10", "A", "A", "A", "A", "A", "ADATE10", "ADATE10", "A", "F8.0", "ADATE10", "A", "A", "A" };
 
     // hold validated variable name
-    private final ArrayList itemNames = new ArrayList();
+    private final ArrayList<String> itemNames = new ArrayList<>();
     // YW >>
 
-    public static final List list = Arrays.asList(builtin);
+    public static final List<String> list = Arrays.asList(builtin);
 
-    public HashMap descriptions = new HashMap();
+    public HashMap<String, String> descriptions = new HashMap<>();
 
     private boolean gender = false;// whether exporting gender
 

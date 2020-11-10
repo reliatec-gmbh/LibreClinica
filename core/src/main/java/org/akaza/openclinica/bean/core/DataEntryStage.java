@@ -10,6 +10,7 @@ package org.akaza.openclinica.bean.core;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author ssachs
@@ -81,11 +82,12 @@ public class DataEntryStage extends Term {
     }
 
     public static DataEntryStage get(int id) {
-        return (DataEntryStage) Term.get(id, list);
+    	Optional<DataEntryStage> result = list.stream().filter(t -> new Term(id, "").equals(t)).findFirst();
+    	return result.orElse(new DataEntryStage());
     }
 
-    public static ArrayList toArrayList() {
-        return new ArrayList(list);
+    public static ArrayList<DataEntryStage> toArrayList() {
+        return new ArrayList<DataEntryStage>(list);
     }
 
     public String getNameRaw() {

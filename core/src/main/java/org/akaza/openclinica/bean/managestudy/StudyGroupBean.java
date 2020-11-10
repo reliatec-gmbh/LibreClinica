@@ -7,9 +7,10 @@
  */
 package org.akaza.openclinica.bean.managestudy;
 
-import org.akaza.openclinica.bean.core.AuditableEntityBean;
-
 import java.util.ArrayList;
+
+import org.akaza.openclinica.bean.core.AuditableEntityBean;
+import org.akaza.openclinica.bean.submit.SubjectGroupMapBean;
 
 /**
  * @author jxu
@@ -23,12 +24,12 @@ public class StudyGroupBean extends AuditableEntityBean {
     // UPDATE_ID
     private String description = "";
     private int studyGroupClassId;
-    private ArrayList subjectMaps = new ArrayList(); // not in DB
+    private ArrayList<SubjectGroupMapBean> subjectMaps = new ArrayList<>(); // not in DB
 
     /**
      * @return Returns the subjectMaps.
      */
-    public ArrayList getSubjectMaps() {
+    public ArrayList<SubjectGroupMapBean> getSubjectMaps() {
         return subjectMaps;
     }
 
@@ -36,7 +37,7 @@ public class StudyGroupBean extends AuditableEntityBean {
      * @param subjectMaps
      *            The subjectMaps to set.
      */
-    public void setSubjectMaps(ArrayList subjectMaps) {
+    public void setSubjectMaps(ArrayList<SubjectGroupMapBean> subjectMaps) {
         this.subjectMaps = subjectMaps;
     }
 
