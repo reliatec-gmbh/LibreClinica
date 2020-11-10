@@ -182,12 +182,7 @@ public class SignStudySubjectServlet extends SecureController {
 
     public static boolean signSubjectEvents(StudySubjectBean studySub, DataSource ds, UserAccountBean ub) {
         boolean updated = true;
-        // StudyEventDefinitionDAO seddao = new StudyEventDefinitionDAO(ds);
         StudyEventDAO sedao = new StudyEventDAO(ds);
-        EventCRFDAO ecdao = new EventCRFDAO(ds);
-        EventDefinitionCRFDAO edcdao = new EventDefinitionCRFDAO(ds);
-        // StudySubjectDAO ssdao = new StudySubjectDAO(ds);
-        DiscrepancyNoteDAO discDao = new DiscrepancyNoteDAO(ds);
         ArrayList studyEvents = sedao.findAllByStudySubject(studySub);
         for (int l = 0; l < studyEvents.size(); l++) {
             try {
@@ -304,10 +299,6 @@ public class SignStudySubjectServlet extends SecureController {
         // find study events
         StudyEventDAO sedao = new StudyEventDAO(sm.getDataSource());
         StudyEventDefinitionDAO seddao = new StudyEventDefinitionDAO(sm.getDataSource());
-        EventDefinitionCRFDAO edcdao = new EventDefinitionCRFDAO(sm.getDataSource());
-
-        // find all eventcrfs for each event
-        EventCRFDAO ecdao = new EventCRFDAO(sm.getDataSource());
 
         ArrayList<DisplayStudyEventBean> displayEvents = getDisplayStudyEventsForStudySubject(study, studySub, sm.getDataSource(), ub, currentRole);
 

@@ -194,24 +194,11 @@ public class ViewBuilderPrintDecorator {
 
         List<DisplayItemGroupBean> newGroupBeans = new ArrayList<DisplayItemGroupBean>();
 
-        // the ordinal of the first group table that is being broken up into
-        // multiple columns
-        // we then have to change the ordinals of all of the group beans that
-        // follow this one.
-        // See below
-        int startOrdinal = 0;
-        int i = 0;
         for (DisplayItemGroupBean existingDisplayBean : groupBeans) {
             // If the group table has more than three columns and does not have
             // a name of "ungrouped" then break the bean up into single column
             // beans
             if (existingDisplayBean.getItems().size() > 3 && !BeanFactory.UNGROUPED.equalsIgnoreCase(existingDisplayBean.getItemGroupBean().getName())) {
-                
-                startOrdinal = existingDisplayBean.getOrdinal();
-                // increment the ordinals of the other beans to make up for this
-                // one
-//                this.incrementDisplayBeanOrdinals(groupBeans, startOrdinal, existingDisplayBean.getItems().size() - 1);
-
                 newGroupBeans.addAll(splitUpGroupBeanIntoSingleColumns(existingDisplayBean));
             } else {
                 // otherwise, add the existing bean to the List

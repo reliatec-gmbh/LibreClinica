@@ -21,7 +21,6 @@ public class SubHeaderWidget extends BaseWidget {
 	private ItemFormMetadataBean itemMetaData = null;
 	private ItemGroupBean itemGroup = null;
 	private CRFVersionBean version = null;
-	private String appearance = null;
 	private String expression;
 
 	public SubHeaderWidget(CRFVersionBean version, ItemBean item, ItemFormMetadataBean itemMetaData, ItemGroupBean itemGroup,
@@ -30,7 +29,6 @@ public class SubHeaderWidget extends BaseWidget {
 		this.itemMetaData = itemMetaData;
 		this.itemGroup = itemGroup;
 		this.version = version;
-		this.appearance = appearance;
 		this.expression = expression;
 	}
 

@@ -86,9 +86,6 @@ public class StudyStatisticsTableFactory extends AbstractTableFactory {
             tableFacade.setTotalRows(totalRows);
         }
 
-        int rowStart = limit.getRowSelect().getRowStart();
-        int rowEnd = limit.getRowSelect().getRowEnd();
-
         // Get number of subjects enrolled at a specific study or site
         Integer countofStudySubjectsAtStudy = studySubjectDao.getCountofStudySubjectsAtStudy(currentStudy);
         Integer expectedTotalEnrollment = currentStudy.getExpectedTotalEnrollment();

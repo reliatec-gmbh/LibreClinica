@@ -91,7 +91,6 @@ public class UserAccount extends DataMapDomainObject {
 	private boolean enableApiKey;
 	private String apiKey;
 	
-	private List userRoleAccesses ;
 	private List<Item> items;
 	private List<Section> sections ;
 	private List<ItemGroup> itemGroups;
@@ -103,19 +102,12 @@ public class UserAccount extends DataMapDomainObject {
 	private List<StudyGroupClass> studyGroupClasses;
 	private List<StudyEventDefinition> studyEventDefinitions ;
 	private List<Subject> subjects;
-	private List<SubjectGroupMap> subjectGroupMaps;
-	private List<AuditUserLoginBean> auditUserLogins;
 	private List<DiscrepancyNote> discrepancyNotesForOwnerId;
-	private List<StudyUserRole> studyUserRoles ;
-	private List decisionConditions;
 	private List<ItemData> itemDatas ;
-	private List filters ;
 	private List<Study> studies ;
-	private List datasets;
 	private List<EventCrf> eventCrfs ;
 	private List<StudyEvent> studyEvents ;
 	private List<CrfVersion> crfVersions;
-	private Integer version;
 
 	public UserAccount() {
 	}

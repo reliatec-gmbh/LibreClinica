@@ -12,13 +12,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.attribute.FileOwnerAttributeView;
-import java.nio.file.attribute.UserPrincipal;
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -33,7 +27,6 @@ import java.util.ResourceBundle;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.naming.Context;
-import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -57,11 +50,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ldap.core.ContextSource;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -79,13 +70,7 @@ public class SystemController {
     @Autowired
     private JavaMailSenderImpl mailSender;
 
-    @Autowired
-    private ContextSource contextSource;
-
-    private SpringSecurityLdapTemplate ldapTemplate;
-
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
-    private HttpSession session;
 
     @RequestMapping(value = "/systemstatus", method = RequestMethod.POST)
     public ResponseEntity<HashMap> getSystemStatus() throws Exception {
@@ -111,7 +96,6 @@ public class SystemController {
             System.out.format("%s=%s%n", envName, env.get(envName));
         }
 
-        DatabaseMetaData metaData = dataSource.getConnection().getMetaData();
         try {
             UserAccountDAO udao = new UserAccountDAO(dataSource);
             UserAccountBean uBean = (UserAccountBean) udao.findByPK(1);
@@ -326,8 +310,6 @@ public class SystemController {
         ResourceBundleProvider.updateLocale(new Locale("en_US"));
         HashMap<String, Object> map = new HashMap<>();
 
-        ResourceBundle resLicense = ResourceBundleProvider.getLicensingBundle();
-
         HashMap<String, Object> extractMap = new HashMap<>();
         ArrayList<ExtractPropertyBean> extracts = CoreResources.getExtractProperties();
         int n = 0;
@@ -462,7 +444,6 @@ public class SystemController {
     @RequestMapping(value = "/modules", method = RequestMethod.GET)
     public ResponseEntity<ArrayList<HashMap<String, Object>>> getAllModules(HttpServletRequest request) throws Exception {
         ResourceBundleProvider.updateLocale(new Locale("en_US"));
-        HashMap<String, Object> map = new HashMap<>();
         ArrayList<HashMap<String, Object>> studyListMap = new ArrayList();
 
         HttpSession session = request.getSession();
@@ -971,10 +952,6 @@ public class SystemController {
             hashMap.put("Read Access", getReadAccess(file));
             hashMap.put("Write Access", getWriteAccess(file));
 
-            Path path = Paths.get(file.getCanonicalPath());
-            FileOwnerAttributeView ownerAttributeView = Files.getFileAttributeView(path, FileOwnerAttributeView.class);
-            UserPrincipal owner = ownerAttributeView.getOwner();
-
             // hashMap.put("ownership", owner.getName());
             hashMap.put("Folder Name", file.getName());
             listOfHashMaps.add(hashMap);
@@ -995,10 +972,6 @@ public class SystemController {
                 hashMap = new HashMap<String, Object>();
                 hashMap.put("Read Access", getReadAccess(file));
                 hashMap.put("Write Access", getWriteAccess(file));
-
-                Path path = Paths.get(file.getCanonicalPath());
-                FileOwnerAttributeView ownerAttributeView = Files.getFileAttributeView(path, FileOwnerAttributeView.class);
-                UserPrincipal owner = ownerAttributeView.getOwner();
 
                 // hashMap.put("ownership", owner.getName());
                 hashMap.put("Folder Name", file.getName());
@@ -1127,10 +1100,6 @@ public class SystemController {
         StudyParameterValueDAO spvdao = new StudyParameterValueDAO(dataSource);
         StudyParameterValueBean pStatus = spvdao.findByHandleAndStudy(studyBean.getId(), value);
         return pStatus;
-    }
-
-    public void getRandomizeMod() {
-        StudyParameterValueDAO spvdao = new StudyParameterValueDAO(dataSource);
     }
 
     public HashMap<String, Object> getParticipateModule(StudyBean studyBean) {
@@ -1336,9 +1305,8 @@ public class SystemController {
         env.put(Context.SECURITY_PRINCIPAL, username); // replace with user DN
         env.put(Context.SECURITY_CREDENTIALS, password);
 
-        DirContext ctx = null;
         try {
-            ctx = new InitialDirContext(env);
+            new InitialDirContext(env);
             result = "ACTIVE";
         } catch (Exception e) {
             result = "INACTIVE";

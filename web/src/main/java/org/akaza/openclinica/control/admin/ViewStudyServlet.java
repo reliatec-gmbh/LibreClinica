@@ -77,7 +77,6 @@ public class ViewStudyServlet extends SecureController {
             study = scs.setParametersForStudy(study);
 
             StudyParameterValueDAO spvdao = new StudyParameterValueDAO(sm.getDataSource());
-            String randomizationStatusInOC = spvdao.findByHandleAndStudy(study.getId(), "randomization").getValue();
             String participantStatusInOC = spvdao.findByHandleAndStudy(study.getId(), "participantPortal").getValue();
             if(participantStatusInOC=="") participantStatusInOC="disabled";
             // Randomization is removed from LibreClinica
@@ -95,18 +94,14 @@ public class ViewStudyServlet extends SecureController {
             request.setAttribute("studyToView", study);
             if ("yes".equalsIgnoreCase(viewFullRecords)) {
                 UserAccountDAO udao = new UserAccountDAO(sm.getDataSource());
-                StudySubjectDAO ssdao = new StudySubjectDAO(sm.getDataSource());
                 ArrayList sites = new ArrayList();
                 ArrayList userRoles = new ArrayList();
-                ArrayList subjects = new ArrayList();
                 if (this.currentStudy.getParentStudyId() > 0 && this.currentRole.getRole().getId() > 3) {
                     sites.add(this.currentStudy);
                     userRoles = udao.findAllUsersByStudy(currentStudy.getId());
-                    subjects = ssdao.findAllByStudy(currentStudy);
                 } else {
                     sites = (ArrayList) sdao.findAllByParent(studyId);
                     userRoles = udao.findAllUsersByStudy(studyId);
-                    subjects = ssdao.findAllByStudy(study);
                 }
 
                 // find all subjects in the study, include ones in sites

@@ -90,8 +90,6 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
 
     private UserAccountBean ub = null;
 
-    private String versionName = null;
-
     private int crfId = 0;
 
     private String crfName = "";
@@ -101,8 +99,6 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
     private boolean isRepeating = false;
 
     private final HashMap itemGroups = new HashMap();
-
-    private final HashMap itemsToGrouplabels = new HashMap();
 
     private Locale locale;
 
@@ -122,13 +118,11 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
 
         this.fs = new POIFSFileSystem(parseStream);
         this.ub = ub;
-        this.versionName = versionName;
         this.locale = locale;
         this.studyId = studyId;
         HSSFWorkbook wb = new HSSFWorkbook(fs);
         int numSheets = wb.getNumberOfSheets();
         for (int j = 0; j < numSheets; j++) {
-            HSSFSheet sheet = wb.getSheetAt(j);// sheetIndex);
             String sheetName = wb.getSheetName(j);
             if (sheetName.equalsIgnoreCase("groups")) {
                 isRepeating = true;
@@ -162,13 +156,10 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
         // ArrayList groupItemMapQueries = new ArrayList();
         ArrayList errors = new ArrayList();
        // ArrayList repeats = new ArrayList();
-        HashMap tableNames = new HashMap();
         HashMap items = new HashMap();
         SpreadSheetItemUtil item_from_row = null;
         String pVersion = "";
-        String pVerDesc = "";
         int parentId = 0;
-        int dataTypeId = 5;// default is ST(String) type
         HashMap itemCheck = ncrf.getItemNames();
         HashMap GroupCheck = ncrf.getItemGroupNames();
         HashMap openQueries = new LinkedHashMap();
@@ -181,7 +172,6 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
         ArrayList<String> itemOids = new ArrayList<String>();
 
         CRFDAO cdao = new CRFDAO(ds);
-        CRFBean crf = (CRFBean) cdao.findByPK(crfId);
         ItemDAO idao = new ItemDAO(ds);
         CRFVersionDAO cvdao = new CRFVersionDAO(ds);
         ItemGroupDAO itemGroupDao = new ItemGroupDAO(ds);
@@ -189,13 +179,11 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
         HashMap<String, String> allItems = (HashMap<String, String>)sheetContainer.getAllItems();
         //HashMap<String, String> allItems = new HashMap<String, String>();
         Map<String, String[]> controlValues = new HashMap<String, String[]>();
-        int maxItemFormMetadataId = new ItemFormMetadataDAO(ds).findMaxId();
         OnChangeSheetValidator instantValidator = new OnChangeSheetValidator(sheetContainer, resPageMsg);
 
 
         int validSheetNum = 0;
         for (int j = 0; j < numSheets; j++) {
-            HSSFSheet sheet = wb.getSheetAt(j);// sheetIndex);
             String sheetName = wb.getSheetName(j);
             if (sheetName.equalsIgnoreCase("CRF") || sheetName.equalsIgnoreCase("Sections") || sheetName.equalsIgnoreCase("Items")) {
                 validSheetNum++;
@@ -224,7 +212,6 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                  * be data, tbh, 7/28
                  */
                 int numRows = sheet.getPhysicalNumberOfRows();
-                int lastNumRow = sheet.getLastRowNum();
                 // logger.debug("PhysicalNumberOfRows" +
                 // sheet.getPhysicalNumberOfRows());
                 // great minds apparently think alike...tbh, commented out
@@ -2346,7 +2333,6 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
 
                     queries.add(sql);
                     pVersion = version;
-                    pVerDesc = versionDesc;
                 }
 
                 versionIdString = "(SELECT CRF_VERSION_ID FROM CRF_VERSION WHERE NAME ='" + pVersion + "' AND CRF_ID=" + crfId + ")";

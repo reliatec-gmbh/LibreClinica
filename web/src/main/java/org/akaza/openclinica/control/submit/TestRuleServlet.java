@@ -85,7 +85,6 @@ public class TestRuleServlet extends SecureController {
     private final String TARGET = "target";
     private final String RULE = "rule";
     private final String RULE_SET_RULE_ID = "ruleSetRuleId";
-    private final String RULE_SET_ID = "ruleSetId";
 
     void putDummyActionInSession() {
         ArrayList<RuleActionBean> actions = new ArrayList<RuleActionBean>();
@@ -314,7 +313,6 @@ public class TestRuleServlet extends SecureController {
                 entry.setValue(fp.getString(entry.getKey()));
               if(entry.getKey().startsWith(ExpressionService.STUDY_EVENT_OID_START_KEY)&&(entry.getKey().endsWith(ExpressionService.STATUS)||entry.getKey().endsWith(ExpressionService.STARTDATE)))
               {
-            	  StudyEventDefinitionBean sed = getExpressionService().getStudyEventDefinitionFromExpressionForEvents(entry.getKey(), currentStudy);
             	  if(entry.getKey().endsWith(ExpressionService.STATUS)){
             		  //TODO add the logic for status
             	  }

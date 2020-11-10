@@ -552,7 +552,6 @@ public class TableOfContentsServlet extends SecureController {
      * @return A text link to the Table of Contents servlet for the bean.
      */
     public static String getLink(EventCRFBean ecb) {
-        DataEntryStage stage = ecb.getStage();
         String answer = Page.TABLE_OF_CONTENTS_SERVLET.getFileName();
 
         answer = Page.TABLE_OF_CONTENTS_SERVLET.getFileName();
@@ -648,7 +647,6 @@ public class TableOfContentsServlet extends SecureController {
         StudyEventBean seb = (StudyEventBean) sedao.findByPK(ecb.getStudyEventId());
         answer.setStudyEvent(seb);
 
-        SectionDAO sdao = new SectionDAO(ds);
         ArrayList sections = getSections(ecb, ds);
         answer.setSections(sections);
 

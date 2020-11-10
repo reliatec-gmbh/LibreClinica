@@ -162,7 +162,6 @@ public class UpdateSubjectGroupClassServlet extends SecureController {
     private void submitGroup() throws OpenClinicaException {
         StudyGroupClassBean group = (StudyGroupClassBean) session.getAttribute("group");
         ArrayList studyGroups = (ArrayList) session.getAttribute("studyGroups");
-        ArrayList newStudyGroups = (ArrayList) session.getAttribute("newStudyGroups");
         StudyGroupClassDAO sgcdao = new StudyGroupClassDAO(sm.getDataSource());
         group.setUpdater(ub);
         group.setUpdatedDate(new Date());

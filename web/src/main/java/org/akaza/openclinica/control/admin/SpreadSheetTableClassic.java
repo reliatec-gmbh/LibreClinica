@@ -70,8 +70,6 @@ public class SpreadSheetTableClassic implements SpreadSheetTable {// extends
 
     private UserAccountBean ub = null;
 
-    private String versionName = null;
-
     private int crfId = 0;
 
     private String crfName = "";
@@ -95,7 +93,6 @@ public class SpreadSheetTableClassic implements SpreadSheetTable {// extends
         // super();
         this.fs = new POIFSFileSystem(parseStream);
         this.ub = ub;
-        this.versionName = versionName;
         this.locale = locale;
         this.studyId = studyId;
     }
@@ -121,12 +118,9 @@ public class SpreadSheetTableClassic implements SpreadSheetTable {// extends
         ArrayList queries = new ArrayList();
         ArrayList errors = new ArrayList();
         ArrayList repeats = new ArrayList();
-        HashMap tableNames = new HashMap();
         HashMap items = new HashMap();
         String pVersion = "";
-        String pVerDesc = "";
         int parentId = 0;
-        int dataTypeId = 5;// default is ST(String) type
         HashMap itemCheck = ncrf.getItemNames();
         HashMap GroupCheck = ncrf.getItemGroupNames();
         HashMap openQueries = new LinkedHashMap();
@@ -141,16 +135,13 @@ public class SpreadSheetTableClassic implements SpreadSheetTable {// extends
         ArrayList<String> itemOids = new ArrayList<String>();
 
         CRFDAO cdao = new CRFDAO(ds);
-        CRFBean crf = (CRFBean) cdao.findByPK(crfId);
 
-        ItemDataDAO iddao = new ItemDataDAO(ds);
         ItemDAO idao = new ItemDAO(ds);
         CRFVersionDAO cvdao = new CRFVersionDAO(ds);
         ItemGroupDAO itemGroupDao = new ItemGroupDAO(ds);
 
         int validSheetNum = 0;
         for (int j = 0; j < numSheets; j++) {
-            HSSFSheet sheet = wb.getSheetAt(j);// sheetIndex);
             String sheetName = wb.getSheetName(j);
             if (sheetName.equalsIgnoreCase("CRF") || sheetName.equalsIgnoreCase("Sections") || sheetName.equalsIgnoreCase("Items")) {
                 validSheetNum++;
@@ -177,7 +168,6 @@ public class SpreadSheetTableClassic implements SpreadSheetTable {// extends
                  * be data, tbh, 7/28
                  */
                 int numRows = sheet.getPhysicalNumberOfRows();
-                int lastNumRow = sheet.getLastRowNum();
                 // logger.info("PhysicalNumberOfRows" +
                 // sheet.getPhysicalNumberOfRows());
                 logger.info("PhysicalNumberOfRows" + sheet.getPhysicalNumberOfRows());
@@ -547,7 +537,6 @@ public class SpreadSheetTableClassic implements SpreadSheetTable {// extends
                                     + err);
                                 htmlErrors.put(j + "," + k + ",15", resPageMsg.getString("INVALID_FIELD"));
                             }
-                            String group = "Ungrouped";
                             for (String v : variables) {
                                 if (!allItems.containsKey(v)) {
                                     errors.add(resPageMsg.getString("item") + v + resPageMsg.getString("must_listed_before_item") + itemName
@@ -636,7 +625,7 @@ public class SpreadSheetTableClassic implements SpreadSheetTable {// extends
                                             String st = s != null && s.length() > 0 ? s.trim() : "";
                                             if (st.length() > 0) {
                                                 try {
-                                                    Double I = Double.parseDouble(s.trim());
+                                                    Double.parseDouble(s.trim());
                                                 } catch (Exception e) {
                                                     wrongType = true;
                                                 }
@@ -1409,7 +1398,6 @@ public class SpreadSheetTableClassic implements SpreadSheetTable {// extends
                         logger.info("====================" + s);
                     }
                     pVersion = version;
-                    pVerDesc = versionDesc;
                 }
 
                 versionIdString = "(SELECT CRF_VERSION_ID FROM CRF_VERSION WHERE NAME ='" + pVersion + "' AND CRF_ID=" + crfId + ")";

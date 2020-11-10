@@ -21,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class StudyEventDao extends AbstractDomainDao<StudyEvent> implements ApplicationEventPublisherAware{
 
 	private ApplicationEventPublisher eventPublisher;
-	private StudyEventChangeDetails changeDetails;
 
 	public Class<StudyEvent> domainClass(){
 		return StudyEvent.class;
@@ -103,10 +102,6 @@ public class StudyEventDao extends AbstractDomainDao<StudyEvent> implements Appl
 	public void setApplicationEventPublisher(
 			ApplicationEventPublisher applicationEventPublisher) {
  this.eventPublisher = applicationEventPublisher;
-	}
-
-	public void setChangeDetails(StudyEventChangeDetails changeDetails) {
-		this.changeDetails = changeDetails;
 	}
 	
 	@Transactional

@@ -41,6 +41,7 @@ import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
 import org.akaza.openclinica.service.pmanage.Authorization;
 import org.akaza.openclinica.service.pmanage.ParticipantPortalRegistrar;
 import org.akaza.openclinica.service.rule.RuleSetServiceInterface;
+import org.akaza.openclinica.view.StudyInfoPanel;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
@@ -83,20 +84,16 @@ public class StudyModuleController {
     @Qualifier("dataSource")
     private BasicDataSource dataSource;
 
-    private EventDefinitionCRFDAO eventDefinitionCRFDao;
     private StudyEventDefinitionDAO studyEventDefinitionDao;
     private CRFDAO crfDao;
     private StudyGroupClassDAO studyGroupClassDao;
     private StudyDAO studyDao;
     private UserAccountDAO userDao;
-    private org.akaza.openclinica.dao.rule.RuleDAO ruleDao;
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
     public static final String REG_MESSAGE = "regMessages";
     public static ResourceBundle respage;
     @Autowired
     CoreResources coreResources;
-    @Autowired
-    private JavaMailSenderImpl mailSender;
 
     public StudyModuleController() {
 
@@ -259,13 +256,11 @@ public class StudyModuleController {
 
         StudyBean currentStudy = (StudyBean) request.getSession().getAttribute("study");
 
-        eventDefinitionCRFDao = new EventDefinitionCRFDAO(dataSource);
         studyEventDefinitionDao = new StudyEventDefinitionDAO(dataSource);
         crfDao = new CRFDAO(dataSource);
         studyGroupClassDao = new StudyGroupClassDAO(dataSource);
         studyDao = new StudyDAO(dataSource);
         userDao = new UserAccountDAO(dataSource);
-        ruleDao = new RuleDAO(dataSource);
 
         StudyModuleStatus sms = studyModuleStatusDao.findByStudyId(currentStudy.getId());
         if (sms == null) {

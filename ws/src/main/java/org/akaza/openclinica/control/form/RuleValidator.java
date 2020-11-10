@@ -31,11 +31,9 @@ import javax.servlet.http.HttpServletRequest;
  * @author ssachs
  */
 public class RuleValidator extends Validator {
-    private FormDiscrepancyNotes notes;
 
     public RuleValidator(HttpServletRequest request, FormDiscrepancyNotes notes) {
         super(request);
-        this.notes = notes;
     }
 
     public RuleValidator(HttpServletRequest request) {

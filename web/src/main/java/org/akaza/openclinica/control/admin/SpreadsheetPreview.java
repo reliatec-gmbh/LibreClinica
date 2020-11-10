@@ -191,23 +191,6 @@ public final class SpreadsheetPreview implements Preview {
         return "";
     }
 
-    public static void main(String[] args) throws IOException {
-
-        // Simple3.xls , Cancer_History5.xls , Can3.xls
-        POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(new File("/Users/bruceperry/work/OpenClinica-Cancer-Demo-Study/Cancer_History5.xls")));
-        HSSFWorkbook wb = new HSSFWorkbook(fs);
-        SpreadsheetPreview prev = new SpreadsheetPreview();
-        // createSectionsMap createItemsMap
-        Map map = prev.createItemsOrSectionMap(wb, "sections");
-        Map.Entry me;
-        Map.Entry me2;
-        for (Iterator iter = map.entrySet().iterator(); iter.hasNext();) {
-            me = (Map.Entry) iter.next();
-            Map mp = (Map) me.getValue();
-            // logger.info(me.getKey() + ": " + me.getValue());
-        }
-    }
-
     /*
      * This method searches for a sheet named "Sections" in an Excel Spreadsheet
      * object, then creates a HashMap containing that sheet's data. The HashMap

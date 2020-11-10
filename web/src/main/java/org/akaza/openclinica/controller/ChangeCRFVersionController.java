@@ -29,6 +29,7 @@ import org.akaza.openclinica.dao.submit.EventCRFDAO;
 import org.akaza.openclinica.dao.submit.ItemDAO;
 import org.akaza.openclinica.dao.submit.ItemGroupMetadataDAO;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
+import org.akaza.openclinica.view.StudyInfoPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

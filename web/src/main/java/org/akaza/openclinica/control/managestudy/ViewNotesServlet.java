@@ -100,7 +100,6 @@ public class ViewNotesServlet extends SecureController {
         session.setAttribute("subjectId", oneSubjectId);
         // >>
 
-        int resolutionStatusSubj = fp.getInt(RESOLUTION_STATUS);
         int discNoteType = 0;
         try {
             discNoteType = Integer.parseInt(request.getParameter("type"));
@@ -119,10 +118,8 @@ public class ViewNotesServlet extends SecureController {
 
         // Do we only want to view the notes for 1 subject?
         String viewForOne = fp.getString("viewForOne");
-        boolean isForOneSubjectsNotes = "y".equalsIgnoreCase(viewForOne);
 
         DiscrepancyNoteDAO dndao = new DiscrepancyNoteDAO(sm.getDataSource());
-        StudyDAO studyDAO = new StudyDAO(sm.getDataSource());
         dndao.setFetchMapping(true);
 
         int resolutionStatus = 0;

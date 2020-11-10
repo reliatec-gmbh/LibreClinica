@@ -75,10 +75,9 @@ import org.jmesa.view.html.component.HtmlColumn;
 import org.jmesa.view.html.component.HtmlRow;
 import org.jmesa.view.html.component.HtmlTable;
 import org.jmesa.view.html.editor.HtmlCellEditor;
-import org.jmesa.web.WebContext;
-import org.springframework.validation.BindingResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.validation.BindingResult;
 
 /**
  * A utility class that implements the details of the Source Data Verification (SDV) Jmesa tables.
@@ -88,8 +87,6 @@ public class SDVUtil {
     private static final Logger logger= LoggerFactory.getLogger(SDVUtil.class);
 
     private final static String VIEW_ICON_FORSUBJECT_PREFIX = "<a onmouseup=\"javascript:setImage('bt_View1','images/bt_View.gif');\" onmousedown=\"javascript:setImage('bt_View1','images/bt_View_d.gif');\" href=\"ViewStudySubject?id=";
-    private final static String VIEW_ICON_FORSUBJECT_SUFFIX = "\"><img hspace=\"6\" border=\"0\" align=\"left\" title=\"View\" alt=\"View\" src=\"../images/bt_View.gif\" name=\"bt_View1\"/></a>";
-    private final static String ICON_FORCRFSTATUS_PREFIX = "<img hspace='2' border='0'  title='Event CRF Status' alt='Event CRF Status' src='../images/icon_";
 
     private final static String ICON_FORCRFSTATUS_SUFFIX = ".gif'/>";
     public final static String CHECKBOX_NAME = "sdvCheck_";
@@ -175,7 +172,6 @@ public class SDVUtil {
             return eventCRFDAO.countEventCRFsByStudySubject(studySubjectId, studyId, studyId);
         }
 
-        int count = 0;
         // Filter for study subject label
         StudySubjectDAO studySubjectDAO = new StudySubjectDAO(dataSource);
         StudySubjectBean studySubjectBean = new StudySubjectBean();
@@ -234,7 +230,6 @@ public class SDVUtil {
         Limit limit = tableFacade.getLimit();
 
         EventCRFSDVFilter eventCRFSDVFilter = getEventCRFSDVFilter(limit, studyId);
-        WebContext context = tableFacade.getWebContext();
 
         String restore = request.getAttribute(limit.getId() + "_restore") + "";
         if (!limit.isComplete()) {
@@ -271,12 +266,6 @@ public class SDVUtil {
          * 
          * tableFacade.setItems(items);
          */
-    }
-
-    private void updateLimitRowSelect(TableFacade tableFacade, HttpServletRequest request) {
-        Limit limit = tableFacade.getLimit();
-        String p = request.getParameter(limit.getId() + "_p_");
-        int pn = p != null && p.length() > 0 ? Integer.parseInt(p) : 1;
     }
 
     public int getTotalRowCount(EventCRFSDVFilter eventCRFSDVFilter, Integer studyId) {
@@ -400,14 +389,9 @@ public class SDVUtil {
             int studySubjectId, HttpServletRequest request) {
 
         EventCRFDAO eventCRFDAO = new EventCRFDAO(dataSource);
-        StudyEventDAO studyEventDAO = new StudyEventDAO(dataSource);
         List<EventCRFBean> eventCRFBeans = new ArrayList<EventCRFBean>();
 
         String label = "";
-        String eventName = "";
-        String eventDate = "";
-        String sdvStatus = "";
-        String crfStatus = "";
 
         if (filterSet.getFilter("studySubjectId") != null) {
 
@@ -415,35 +399,11 @@ public class SDVUtil {
             eventCRFBeans = eventCRFDAO.getEventCRFsByStudySubjectLabelLimit(label, studyId, studyId, rowEnd - rowStart, rowStart);
 
         } else if (filterSet.getFilter("eventName") != null) {
-
-            eventName = filterSet.getFilter("eventName").getValue().trim();
-            // eventCRFBeans = eventCRFDAO.getEventCRFsByEventNameLimit(eventName,
-            // rowEnd-rowStart,rowStart);
-
         } else if (filterSet.getFilter("eventDate") != null) {
-
-            eventDate = filterSet.getFilter("eventDate").getValue().trim();
-            // eventCRFBeans = eventCRFDAO.getEventCRFsByEventDateLimit(studyId,eventDate,
-            // rowEnd-rowStart,rowStart);
-
         } else if (filterSet.getFilter("crfStatus") != null) {
-
-            crfStatus = filterSet.getFilter("crfStatus").getValue().trim();
-            // Get the study event for the event crf
-            // eventCRFBeans = eventCRFDAO.getEventCRFsByCRFStatus(studyId,
-            // SubjectEventStatus.getSubjectEventStatusIdByName(crfStatus),
-            // rowEnd-rowStart,rowStart);
-
         } else if (filterSet.getFilter("sdvStatusActions") != null) {
-
-            sdvStatus = filterSet.getFilter("sdvStatusActions").getValue().trim();
-            // eventCRFBeans = eventCRFDAO.getEventCRFsByStudySDV(studyId,
-            // ("complete".equalsIgnoreCase(sdvStatus)),
-            // rowEnd-rowStart,rowStart);
-
         } else {
             eventCRFBeans = eventCRFDAO.getEventCRFsByStudySubjectLimit(studySubjectId, studyId, studyId, rowEnd - rowStart, rowStart);
-
         }
 
         return getSubjectRows(eventCRFBeans, request);
@@ -974,7 +934,6 @@ public class SDVUtil {
             tempSDVBean.setSecondaryId(studySubjectBean.getSecondaryLabel());
 
             String statusName = studySubjectBean.getStatus().getName();
-            int statusId = studySubjectBean.getStatus().getId();
 
             if (statusName != null) {
                 tempSDVBean.setStudySubjectStatus(statusName);
@@ -1044,7 +1003,6 @@ public class SDVUtil {
 
         StringBuilder builder = new StringBuilder(html.toString()).append(getIconForCrfStatusPrefix());
 
-        String imgName = "";
         StringBuilder input = new StringBuilder("<input type=\"hidden\" statusId=\"");
         input.append(statusId).append("\" />");
 
@@ -1389,7 +1347,7 @@ public class SDVUtil {
         StudySubjectDAO studySubjectDAO = new StudySubjectDAO(dataSource);
         StudyEventDAO studyEventDAO = new StudyEventDAO(dataSource);
         boolean studySub = true, studyEventDef = true, studyEventStatus = true, eventCRFStatusBool = true, eventcrfSDVStatus = true, eventCRFNameBool = true,
-                upDatedDateBool = true, sdvRequirementBool = true;
+                upDatedDateBool = true;
 
         for (EventCRFBean eventCBean : eventCRFBeans) {
             // filter study subject

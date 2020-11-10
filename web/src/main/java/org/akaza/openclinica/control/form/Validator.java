@@ -1213,7 +1213,7 @@ break;
             return true;
         }
         try {
-            float f = Float.parseFloat(fieldValue);
+            Float.parseFloat(fieldValue);
         } catch (Exception e) {
             return false;
         }
@@ -1259,7 +1259,6 @@ break;
         sdf.setLenient(false);
         try {
             java.util.Date date = sdf.parse(fieldValue);
-            String s = date.toString();
             return isYearNotFourDigits(date);
         } catch (ParseException fe) {
             return false;
@@ -1453,12 +1452,6 @@ break;
         // Excepts the blank Mantis Issue: 7703.
         if (fieldValue.equals("")) {
             return true;
-        }
-
-        try {
-            int i = Integer.parseInt(fieldValue);
-        } catch (Exception e) {
-            return false;
         }
 
         return true;
@@ -1933,7 +1926,6 @@ break;
             // fname(arg1,...,argn)
         }
 
-        int numGroups = funcMatcher.groupCount();
         // note that numGroups must be > 1
         fname = funcMatcher.group(1);
         args = new ArrayList();
@@ -1968,7 +1960,7 @@ break;
         for (int i = 0; i < args.size(); i++) {
             int ord = i + 1;
             try {
-                float f = Float.parseFloat((String) args.get(i));
+                Float.parseFloat((String) args.get(i));
             } catch (Exception e) {
                 throw new Exception(resexception.getString("validation_column_invalid_function") + ": " + resexception.getString("argument") + ord + " "
                     + resexception.getString("is_not_a_number"));

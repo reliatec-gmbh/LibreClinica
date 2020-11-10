@@ -1154,7 +1154,7 @@ public class Validator {
         }
 
         try {
-            float f = Float.parseFloat(fieldValue);
+            Float.parseFloat(fieldValue);
         } catch (Exception e) {
             return false;
         }
@@ -1200,7 +1200,6 @@ public class Validator {
         sdf.setLenient(false);
         try {
             java.util.Date date = sdf.parse(fieldValue);
-            String s = date.toString();
             return isYearNotFourDigits(date);
         } catch (ParseException fe) {
             return false;
@@ -1389,7 +1388,7 @@ public class Validator {
             return false;
         }
         try {
-            int i = Integer.parseInt(fieldValue);
+            Integer.parseInt(fieldValue);
         } catch (Exception e) {
             return false;
         }
@@ -1839,8 +1838,6 @@ public class Validator {
             // fname(arg1,...,argn)
         }
 
-        int numGroups = funcMatcher.groupCount();
-        // note that numGroups must be > 1
         fname = funcMatcher.group(1);
         args = new ArrayList();
         for (int i = 2; i <= funcMatcher.groupCount(); i++) {
@@ -1874,7 +1871,7 @@ public class Validator {
         for (int i = 0; i < args.size(); i++) {
             int ord = i + 1;
             try {
-                float f = Float.parseFloat((String) args.get(i));
+                Float.parseFloat((String) args.get(i));
             } catch (Exception e) {
                 throw new Exception(resexception.getString("validation_column_invalid_function") + ": " + resexception.getString("argument") + ord + " "
                     + resexception.getString("is_not_a_number"));

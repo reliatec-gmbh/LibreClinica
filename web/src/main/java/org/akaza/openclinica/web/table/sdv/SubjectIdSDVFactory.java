@@ -258,7 +258,6 @@ public class SubjectIdSDVFactory extends AbstractTableFactory {
         SubjectAggregateContainer row = new SubjectAggregateContainer();
         EventCRFDAO eventCRFDAO = new EventCRFDAO(dataSource);
         StudyDAO studyDAO = new StudyDAO(dataSource);
-        StudySubjectDAO studySubjectDAO = new StudySubjectDAO(dataSource);
         StudyGroupDAO studyGroupDAO = new StudyGroupDAO(dataSource);
 
         row.setStudySubjectId(studySubjectBean.getLabel());
@@ -377,7 +376,6 @@ public class SubjectIdSDVFactory extends AbstractTableFactory {
         Integer numberOfSDVdEventCRFs = 0;
         Integer areEventCRFsSDVd = eventCRFBeans.size() > 0 ? 0 : -1;
         Boolean partialOrHundred = false;
-        Integer shouldDisplaySDVButton = 0;
 
         for (EventCRFBean eventBean : eventCRFBeans) {
             studyEventBean = (StudyEventBean) studyEventDAO.findByPK(eventBean.getStudyEventId());

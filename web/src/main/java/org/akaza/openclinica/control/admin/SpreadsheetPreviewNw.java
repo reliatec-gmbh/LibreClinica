@@ -281,7 +281,6 @@ public final class SpreadsheetPreviewNw implements Preview {
         Map.Entry me;
         for (Iterator iter = map.entrySet().iterator(); iter.hasNext();) {
             me = (Map.Entry) iter.next();
-            Map mp = (Map) me.getValue();
             logger.debug(me.getKey() + ": " + me.getValue());
         }
 

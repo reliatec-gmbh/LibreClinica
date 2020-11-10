@@ -41,7 +41,6 @@ public class SubjectGroupMap extends DataMapDomainObject {
 	private UserAccount userAccount;
 	private StudySubject studySubject;
 	private StudyGroupClass studyGroupClass;
-	private Status status;
 	private StudyGroup studyGroup;
 	private Date dateCreated;
 	private Date dateUpdated;

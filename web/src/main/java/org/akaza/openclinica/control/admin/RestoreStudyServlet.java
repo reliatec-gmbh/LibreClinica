@@ -169,7 +169,6 @@ public class RestoreStudyServlet extends SecureController {
                 }
 
                 // restore all study_group
-                StudyGroupDAO sgdao = new StudyGroupDAO(sm.getDataSource());
                 StudyGroupClassDAO sgcdao = new StudyGroupClassDAO(sm.getDataSource());
                 SubjectGroupMapDAO sgmdao = new SubjectGroupMapDAO(sm.getDataSource());
                 ArrayList groups = sgcdao.findAllByStudy(study);

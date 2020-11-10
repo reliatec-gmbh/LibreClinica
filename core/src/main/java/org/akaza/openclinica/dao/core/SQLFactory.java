@@ -98,8 +98,6 @@ public class SQLFactory {
 
     private static Hashtable digesters = new Hashtable();
 
-    private final String dbName = "";
-
     /**
      * A handle to the unique SQLFactory instance.
      */
@@ -266,9 +264,7 @@ public class SQLFactory {
                     String path = getPropertiesDir();
                     newDaoDigester.setInputStream(new FileInputStream(path + DAOFileName));
                 } else {
-                    String path = CoreResources.PROPERTIES_DIR;
                     newDaoDigester.setInputStream(resourceLoader.getResource("classpath:properties/" + DAOFileName).getInputStream());
-                    //newDaoDigester.setInputStream(new FileInputStream(path + DAOFileName));
                 }
                 try {
                     newDaoDigester.run();

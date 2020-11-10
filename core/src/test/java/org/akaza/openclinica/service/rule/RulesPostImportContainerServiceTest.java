@@ -45,26 +45,15 @@ public class RulesPostImportContainerServiceTest extends TestCase {
         assertEquals(0, container.getValidRuleSetDefs().size());
     }
     **/
-    
-    public void testCreateObj(){
-    	RulesPostImportContainerService service = new RulesPostImportContainerService(null);
-  //  	service.runValidationInList("SE_REG2.STARTDATE","SE_REG.STARTDATE",null,prepareContainer());    // Commented out this line due to failing when running unit test
-    	
-    }
 
     private  ArrayList<RuleSetBean> prepareContainer() {
-        RulesPostImportContainer container = new RulesPostImportContainer();
         ArrayList<RuleSetBean> ruleSets = new ArrayList<RuleSetBean>();
-        ArrayList<RuleBean> ruleDefs = new ArrayList<RuleBean>();
 
         RuleBean rule = createRuleBean();
         RuleSetBean ruleSet = getRuleSet(rule.getOid(),"SE_REG.STARTDATE","SE_REG3");
         RuleSetBean ruleSet2 = getRuleSet(rule.getOid(),"SE_REG3.STARTDATE","SE_REG2");
         ruleSets.add(ruleSet);
         ruleSets.add(ruleSet2);
-        //ruleDefs.add(rule);
-        //container.setRuleSets(ruleSets);
-        //container.setRuleDefs(ruleDefs);
         return ruleSets;
 
     }

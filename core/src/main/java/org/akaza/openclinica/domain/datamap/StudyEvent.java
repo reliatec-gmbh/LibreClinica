@@ -64,7 +64,6 @@ public class StudyEvent extends DataMapDomainObject  {
 	private Boolean endTimeFlag;
 	private List<DnStudyEventMap> dnStudyEventMaps ;
 	private List<EventCrf> eventCrfs ;
-	private Integer sedOrdinal;
 	
 	public StudyEvent() {
 	}

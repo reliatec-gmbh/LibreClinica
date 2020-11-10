@@ -42,7 +42,6 @@ public class StudyParameter  extends DataMapDomainObject {
 	private String defaultValue;
 	private Boolean inheritable;
 	private Boolean overridable;
-	private Set studyParameterValues = new HashSet(0);
 
 	public StudyParameter() {
 	}
@@ -61,7 +60,6 @@ public class StudyParameter  extends DataMapDomainObject {
 		this.defaultValue = defaultValue;
 		this.inheritable = inheritable;
 		this.overridable = overridable;
-		this.studyParameterValues = studyParameterValues;
 	}
 
 	@Id

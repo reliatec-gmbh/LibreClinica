@@ -233,18 +233,14 @@ public class UrlRewriteServlet extends CoreSecureController {
                     StudyDAO stdao = new StudyDAO(getDataSource());
                     StudySubjectDAO ssubdao = new StudySubjectDAO(getDataSource());
                     StudyEventDefinitionDAO sedefdao = new StudyEventDefinitionDAO(getDataSource());
-                    CRFDAO crfdao = new CRFDAO(getDataSource());
                     CRFVersionDAO crfvdao = new CRFVersionDAO(getDataSource());
-                    ItemDAO idao = new ItemDAO(getDataSource());
                     ItemGroupDAO igdao = new ItemGroupDAO(getDataSource());
                     StudyEventDAO sedao = new StudyEventDAO(getDataSource());
 
                     StudyBean study = null;
                     StudySubjectBean subject = null;
                     StudyEventDefinitionBean sed = null;
-                    CRFBean c = null;
                     CRFVersionBean cv = null;
-                    ItemBean item = null;
                     ItemGroupBean ig = null;
                     StudyEventBean studyEvent = null;
 

@@ -87,9 +87,6 @@ public class ViewRuleAssignmentRow extends EntityBeanRow {
     public static ArrayList generateRowsFromBeans(ArrayList<RuleSetBean> beans) {
         ArrayList answer = new ArrayList();
 
-        Class[] parameters = null;
-        Object[] arguments = null;
-
         for (int i = 0; i < beans.size(); i++) {
             try {
                 ViewRuleAssignmentRow row = new ViewRuleAssignmentRow();

@@ -55,8 +55,6 @@ public class ViewCRFVersionServlet extends SecureController {
     public void processRequest() throws Exception {
 
         CRFVersionDAO cvdao = new CRFVersionDAO(sm.getDataSource());
-        ItemDAO idao = new ItemDAO(sm.getDataSource());
-        ItemFormMetadataDAO ifmdao = new ItemFormMetadataDAO(sm.getDataSource());
         FormProcessor fp = new FormProcessor(request);
         // checks which module the requests are from
         String module = fp.getString(MODULE);

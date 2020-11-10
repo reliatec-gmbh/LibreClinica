@@ -36,7 +36,6 @@ public class StudyEventBeanListener implements Observer,ApplicationContextAware 
 
 	private static ApplicationContext cntxt;
 	private static RuleSetDao ruleSetDao;
-	private static RuleSetService ruleSetService;
 	
 	
 	public static synchronized RuleSetDao getRuleSetDao() {

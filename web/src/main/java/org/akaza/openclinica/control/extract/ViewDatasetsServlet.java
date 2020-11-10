@@ -70,10 +70,7 @@ public class ViewDatasetsServlet extends SecureController {
         session.removeAttribute("newDataset");
         // YW >>
         if (StringUtil.isBlank(action)) {
-            // YW 08-2008 << 2529 fix
-            StudyEventDAO sedao = new StudyEventDAO(sm.getDataSource());
             StudyEventDefinitionDAO seddao = new StudyEventDefinitionDAO(sm.getDataSource());
-            EventCRFDAO ecdao = new EventCRFDAO(sm.getDataSource());
             StudyBean studyWithEventDefinitions = currentStudy;
             if (currentStudy.getParentStudyId() > 0) {
                 studyWithEventDefinitions = new StudyBean();

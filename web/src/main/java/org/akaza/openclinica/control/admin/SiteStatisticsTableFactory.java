@@ -90,9 +90,6 @@ public class SiteStatisticsTableFactory extends AbstractTableFactory {
             tableFacade.setTotalRows(totalRows);
         }
 
-        int rowStart = limit.getRowSelect().getRowStart();
-        int rowEnd = limit.getRowSelect().getRowEnd();
-
         for (StudyBean studyBean : studies) {
             // Get number of subjects enrolled at a specific study or site
             Integer countofStudySubjectsAtStudyOrSite = studySubjectDao.getCountofStudySubjectsAtStudyOrSite(studyBean);

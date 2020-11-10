@@ -71,7 +71,7 @@ public class RunRuleSetServlet extends SecureController {
             List<RuleSetBean> ruleSets = new ArrayList<RuleSetBean>();
             ruleSets.add(ruleSetBean);
             if (dryRun != null && dryRun.equals("no")) {
-                List<RuleSetBasedViewContainer> resultOfRunningRules = getRuleSetService().runRulesInBulk(ruleSets, false, currentStudy, ub ,false);
+                getRuleSetService().runRulesInBulk(ruleSets, false, currentStudy, ub ,false);
                 addPageMessage(respage.getString("actions_successfully_taken"));
                 forwardPage(Page.LIST_RULE_SETS_SERVLET);
 

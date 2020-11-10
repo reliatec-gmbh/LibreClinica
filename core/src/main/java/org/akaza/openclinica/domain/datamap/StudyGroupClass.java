@@ -10,6 +10,7 @@ package org.akaza.openclinica.domain.datamap;
 // Generated Jul 31, 2013 2:03:33 PM by Hibernate Tools 3.4.0.CR1
 
 import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -21,7 +22,6 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.akaza.openclinica.domain.DataMapDomainObject;
-import org.akaza.openclinica.domain.Status;
 import org.akaza.openclinica.domain.user.UserAccount;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
@@ -42,7 +42,6 @@ public class StudyGroupClass  extends DataMapDomainObject {
 	private int studyGroupClassId;
 	private UserAccount userAccount;
 	private GroupClassTypes groupClassTypes;
-	private Status status;
 	private String name;
 	private Integer studyId;
 	private Date dateCreated;

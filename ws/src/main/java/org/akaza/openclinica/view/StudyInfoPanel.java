@@ -798,7 +798,6 @@ public class StudyInfoPanel {
         // Iterator keyIt = eventlist.keySet().iterator();
         // logger.info("how many events =" + eventlist.size());
 
-        int count = 0;
         for (Iterator keyIt = eventlist.keySet().iterator(); keyIt.hasNext();) {
             StudyEventDefinitionBean sed = (StudyEventDefinitionBean) keyIt.next();
             displayData.add(new StudyInfoPanelLine("Definition", sed.getName(), true, false));
@@ -815,7 +814,6 @@ public class StudyInfoPanel {
                 }
                 ordinal_crf++;
             }
-            count++;
         }
         // logger.info("how many definitions =" + count);
         return displayData;

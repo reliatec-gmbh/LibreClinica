@@ -23,7 +23,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.akaza.openclinica.bean.extract.DatasetBean;
 import org.akaza.openclinica.bean.extract.ExtractPropertyBean;
 import org.akaza.openclinica.bean.login.UserAccountBean;
-import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.control.SpringServletAccess;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
@@ -31,7 +30,6 @@ import org.akaza.openclinica.control.form.Validator;
 import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.core.CoreResources;
 import org.akaza.openclinica.dao.extract.DatasetDAO;
-import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.service.extract.ExtractUtils;
 import org.akaza.openclinica.service.extract.XsltTriggerService;
@@ -39,7 +37,6 @@ import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.akaza.openclinica.web.SQLInitServlet;
 import org.akaza.openclinica.web.job.ExampleSpringJob;
-import org.akaza.openclinica.web.job.TriggerService;
 import org.quartz.JobDataMap;
 import org.quartz.JobKey;
 import org.quartz.SchedulerException;
@@ -60,7 +57,6 @@ public class UpdateJobExportServlet extends SecureController {
 	private static String SCHEDULER = "schedulerFactoryBean";
 
     private StdScheduler scheduler;
-    private SimpleTrigger trigger;
     private JobDataMap dataMap;
     public static final String PERIOD = "periodToRun";
     public static final String FORMAT_ID = "formatId";
@@ -107,7 +103,6 @@ public class UpdateJobExportServlet extends SecureController {
         dataMap = trigger.getJobDataMap();
         String contactEmail = dataMap.getString(ExampleSpringJob.EMAIL);
         int dsId = dataMap.getInt(XsltTriggerService.DATASET_ID);
-        int userId = dataMap.getInt(XsltTriggerService.USER_ID);
         String period = dataMap.getString(XsltTriggerService.PERIOD);
         int exportFormatId = dataMap.getInt(XsltTriggerService.EXPORT_FORMAT_ID);
 
@@ -142,7 +137,6 @@ public class UpdateJobExportServlet extends SecureController {
     @Override
     protected void processRequest() throws Exception {
         FormProcessor fp = new FormProcessor(request);
-        TriggerService triggerService = new TriggerService();
         String action = fp.getString("action");
         String triggerName = fp.getString("tname");
         scheduler = getScheduler();
@@ -167,8 +161,6 @@ public class UpdateJobExportServlet extends SecureController {
                 forwardPage(Page.UPDATE_JOB_EXPORT);
             } else {
                 // change trigger, update in database
-                StudyDAO studyDAO = new StudyDAO(sm.getDataSource());
-                StudyBean study = (StudyBean) studyDAO.findByPK(sm.getUserBean().getActiveStudyId());
                 DatasetDAO datasetDao = new DatasetDAO(sm.getDataSource());
                 CoreResources cr =  new CoreResources();
                 UserAccountBean userBean = (UserAccountBean) request.getSession().getAttribute("userBean");
@@ -185,7 +177,6 @@ public class UpdateJobExportServlet extends SecureController {
                 DatasetBean dsBean = (DatasetBean)datasetDao.findByPK(new Integer(datasetId).intValue());
                 String[] files = epBean.getFileName();
                 String exportFileName;
-                int fileSize = files.length;
                 int  cnt = 0;
                 dsBean.setName(dsBean.getName().replaceAll(" ", "_"));
                 String[] exportFiles= epBean.getExportFileName();
@@ -257,7 +248,7 @@ public class UpdateJobExportServlet extends SecureController {
                 try {
                     // scheduler.unscheduleJob(triggerName, "DEFAULT");
                     scheduler.deleteJob(new JobKey(triggerName, XsltTriggerService.TRIGGER_GROUP_NAME));
-                    Date dataStart = scheduler.scheduleJob(jobDetailBean.getObject(), trigger);
+                    scheduler.scheduleJob(jobDetailBean.getObject(), trigger);
                     // Date dateStart = scheduler.rescheduleJob(triggerName,
                     // "DEFAULT", trigger);
                     // scheduler.rescheduleJob(triggerName, groupName,

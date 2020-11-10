@@ -266,7 +266,6 @@ public class StudySubjectEndpoint {
         StudyEventDefinitionDAO studyEventDefinitionDao = new StudyEventDefinitionDAO(dataSource);
         EventsType eventsType = new EventsType();
         List<StudyEventBean> events = eventDao.findAllByStudySubject(studySubject);
-        StudyEventDefinitionBean eb=null;
         for (StudyEventBean studyEventBean : events) {
         	 StudyEventDefinitionBean sed = (StudyEventDefinitionBean) studyEventDefinitionDao.findByPK(studyEventBean.getStudyEventDefinitionId());
         	 studyEventBean.setStudyEventDefinition(sed);

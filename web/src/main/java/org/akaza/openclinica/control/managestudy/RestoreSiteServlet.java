@@ -88,10 +88,6 @@ public class RestoreSiteServlet extends SecureController {
         StudySubjectDAO ssdao = new StudySubjectDAO(sm.getDataSource());
         ArrayList subjects = ssdao.findAllByStudy(study);
 
-        // find all events
-        StudyEventDefinitionDAO sefdao = new StudyEventDefinitionDAO(sm.getDataSource());
-        ArrayList definitions = sefdao.findAllByStudy(study);
-
         String action = request.getParameter("action");
         if (StringUtil.isBlank(idString)) {
             addPageMessage(respage.getString("please_choose_a_site_to_restore"));
@@ -182,7 +178,6 @@ public class RestoreSiteServlet extends SecureController {
                 }
 
                 // restore all events with subjects
-                EventDefinitionCRFDAO edcdao = new EventDefinitionCRFDAO(sm.getDataSource());
                 StudyEventDAO sedao = new StudyEventDAO(sm.getDataSource());
                 for (int i = 0; i < subjects.size(); i++) {
                     StudySubjectBean subject = (StudySubjectBean) subjects.get(i);

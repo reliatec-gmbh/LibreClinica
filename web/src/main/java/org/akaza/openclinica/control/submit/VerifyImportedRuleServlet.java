@@ -44,7 +44,6 @@ public class VerifyImportedRuleServlet extends SecureController {
     public void processRequest() throws Exception {
 
         String action = request.getParameter("action");
-        FormProcessor fp = new FormProcessor(request);
 
         // checks which module the requests are from
         /*

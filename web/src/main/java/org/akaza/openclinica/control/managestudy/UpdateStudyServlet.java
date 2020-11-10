@@ -70,7 +70,6 @@ public class UpdateStudyServlet extends SecureController {
         panel.setIconInfoShown(true);
         panel.setManageSubject(false);
 
-        StudyDAO sdao = new StudyDAO(sm.getDataSource());
         StudyBean study = (StudyBean) session.getAttribute("newStudy");
 
         if (study == null) {

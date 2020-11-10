@@ -38,8 +38,6 @@ public class TriggerService {
     public static final String STUDY_OID = "study_oid";
     public static final String DIRECTORY = "filePathDir";
 
-    private static String IMPORT_TRIGGER = "importTrigger";
-
     public String generateSummaryStatsMessage(SummaryStatsBean ssBean, ResourceBundle respage, HashMap<String, String> validationMsgs) {
         // TODO i18n
         StringBuffer sb = new StringBuffer();

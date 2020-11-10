@@ -129,8 +129,7 @@ public class ViewCRFServlet extends SecureController {
                 request.setAttribute("studiesTableHTML", studyHtml);
                 //>>
             }
-             Collection<TableColumnHolder> items = populate(crf, versions);
-            request.setAttribute(CRF, crf);
+             request.setAttribute(CRF, crf);
             forwardPage(Page.VIEW_CRF);
 
         }
@@ -141,8 +140,7 @@ public class ViewCRFServlet extends SecureController {
 		
 		//get all items with group / version info from db 
 		 ItemDAO idao = new ItemDAO(sm.getDataSource());
-		 int check_group_count = 0;
-		 StringBuffer item_messages = null; String temp_buffer=null; //use for first record in the group
+		 String temp_buffer=null; //use for first record in the group
 		 ArrayList< ItemGroupCrvVersionUtil> results = new ArrayList< ItemGroupCrvVersionUtil>();
 		 ItemGroupCrvVersionUtil cur_item = null;
 		 StringBuffer error_message = null;

@@ -31,7 +31,6 @@ public class StudyEventTransferValidator implements Validator {
     StudyEventDefinitionDAO studyEventDefinitionDAO;
     BaseVSValidatorImplementation helper;
     private StudyParameterValueDAO studyParameterValueDAO;
-    private static String TRUE ="true";    
     private static String REQUIRED ="required";
     public StudyEventTransferValidator(DataSource dataSource) {
 

@@ -7,6 +7,13 @@
  */
 package org.akaza.openclinica.control.managestudy;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.StringTokenizer;
+
 import org.akaza.openclinica.bean.core.NumericComparisonOperator;
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.core.Status;
@@ -24,14 +31,6 @@ import org.akaza.openclinica.dao.service.StudyParameterValueDAO;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.apache.commons.lang.StringUtils;
-import org.akaza.openclinica.dao.core.CoreResources;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.StringTokenizer;
 
 public class UpdateStudyServletNew extends SecureController {
     /**
@@ -42,7 +41,6 @@ public class UpdateStudyServletNew extends SecureController {
     public static final String INPUT_END_DATE = "endDate";
     public static final String INPUT_VER_DATE = "protocolDateVerification";
     public static StudyBean study;
-    private CoreResources core;
 
     /**
      *

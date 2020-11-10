@@ -201,7 +201,6 @@ public class SubjectDAO extends AuditableEntityDAO {
     }
 
     public Integer getCountWithFilter(ListSubjectFilter filter, StudyBean currentStudy) {
-        StudySubjectBean studySubjectBean = new StudySubjectBean();
         setTypesExpected();
 
         HashMap variables = new HashMap();

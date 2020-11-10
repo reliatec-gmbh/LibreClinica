@@ -99,7 +99,6 @@ public class ScheduledJobController {
 
         List<JobExecutionContext> listCurrentJobs = new ArrayList<JobExecutionContext>();
         listCurrentJobs = scheduler.getCurrentlyExecutingJobs();
-        Iterator<JobExecutionContext> itCurrentJobs = listCurrentJobs.iterator();
         List<JobKey> currentJobList = listCurrentJobs.stream().map(job -> job.getTrigger().getJobKey()).collect(Collectors.toList());
         
         List<String> triggerGroups =  scheduler.getTriggerGroupNames();

@@ -365,7 +365,7 @@ public class StudyController {
 			sub.setStudyId(sBean.getId());
 			sub.setStatus(Status.AVAILABLE);
 			sub.setOwner(ownerUserAccount);
-			StudyUserRoleBean surb = createRole(ownerUserAccount, sub);
+			createRole(ownerUserAccount, sub);
 
 			ResourceBundle resterm = org.akaza.openclinica.i18n.util.ResourceBundleProvider.getTermsBundle();
 
@@ -377,7 +377,7 @@ public class StudyController {
 				sub.setOwner(ownerUserAccount);
 				udao = new UserAccountDAO(dataSource);
 				UserAccountBean assignedUserBean = (UserAccountBean) udao.findByUserName(userRole.getUsername());
-				surb = createRole(assignedUserBean, sub);
+				createRole(assignedUserBean, sub);
 			}
             ResponseSuccessStudyDTO responseSuccess = new ResponseSuccessStudyDTO();
             responseSuccess.setMessage(studyDTO.getMessage());
@@ -685,7 +685,7 @@ public class StudyController {
 				sub.setOwner(ownerUserAccount);
 				udao = new UserAccountDAO(dataSource);
 				UserAccountBean assignedUserBean = (UserAccountBean) udao.findByUserName(userRole.getUsername());
-				StudyUserRoleBean surb = createRole(assignedUserBean, sub);
+				createRole(assignedUserBean, sub);
 			}
             ResponseSuccessSiteDTO responseSuccess = new ResponseSuccessSiteDTO();
             responseSuccess.setMessage(siteDTO.getMessage());
@@ -939,8 +939,7 @@ public class StudyController {
 			String secondaryProId, UserAccountBean owner, int parentStudyId) {
 
 		StudyBean study = new StudyBean();
-		ResourceBundle resadmin = org.akaza.openclinica.i18n.util.ResourceBundleProvider.getAdminBundle();
-
+		
 		study.setDatePlannedStart(startDate);
 		study.setProtocolDateVerification(protocolDateVerification);
 		study.setSecondaryIdentifier(secondaryProId);

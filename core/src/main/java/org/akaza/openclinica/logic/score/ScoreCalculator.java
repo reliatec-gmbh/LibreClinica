@@ -186,7 +186,6 @@ public class ScoreCalculator {
             return "";
         }
         String value = "";
-        NumberFormat nf = NumberFormat.getInstance();
         Parser parser = new Parser(items, itemdata);
 
         ItemBean ib = displayItem.getItem();
@@ -261,7 +260,6 @@ public class ScoreCalculator {
         ItemDAO idao = new ItemDAO(sm.getDataSource());
         ItemDataDAO iddao = new ItemDataDAO(sm.getDataSource());
 
-        NumberFormat nf = NumberFormat.getInstance();
         Parser parser = new Parser(items, itemdata);
         try {
             // for calculation type
@@ -385,7 +383,6 @@ public class ScoreCalculator {
 
     protected boolean writeToDB(ItemBean ib, ItemFormMetadataBean ifm, ItemDataBean idb, String exp, String value, StringBuffer err) {
         ItemDataDAO iddao = new ItemDataDAO(sm.getDataSource());
-        NumberFormat nf = NumberFormat.getInstance();
 
         if (idb == null) {
             idb = new ItemDataBean();

@@ -396,7 +396,6 @@ public class SPSSReportBean extends ReportBean<DisplayItemHeaderBean> {
     // and get rid of first line of *spss.sps file
     // YW >>
     public StringBuffer getDataFile() {
-        long mytime = System.currentTimeMillis();
         StringBuffer answer = new StringBuffer();
 
         // YW << use validated variable names which match .sps file
@@ -485,21 +484,9 @@ public class SPSSReportBean extends ReportBean<DisplayItemHeaderBean> {
         return types;
     }
 
-    private boolean isDataColumnText(int col) {
-        for (int i = FIRSTCASE_IND; i < data.size(); i++) {
-            String entry = getDataColumnEntry(col, i);
-            try {
-                float f = Float.parseFloat(entry);
-            } catch (Exception e) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     private boolean isValueText(String value) {
         try {
-            float f = Float.parseFloat(value);
+            Float.parseFloat(value);
         } catch (Exception e) {
             return true;
         }

@@ -41,15 +41,9 @@ import org.springframework.context.ApplicationContext;
  * @author Jun Xu
  */
 public class SessionManager {
-    private Connection con;
-
     private UserAccountBean ub;
 
-    private String logFileName;
-
     private OracleDataSource ods;
-
-    private Level logLevel;
 
     private DataSource ds;
 
@@ -94,8 +88,6 @@ public class SessionManager {
     public void setupUser(UserAccountBean userFromSession, String userName) {
         if (userFromSession == null || StringUtil.isBlank(userFromSession.getName())) {
             // create a new user account bean form database
-            SQLFactory factory = SQLFactory.getInstance();
-
             uDAO = new UserAccountDAO(ds);
             if (userName == null) {
                 userName = "";
@@ -144,10 +136,6 @@ public class SessionManager {
 
     public UserAccountBean getUserBean() {
         return ub;
-    }
-
-    public void setConnection(Connection con) {
-        this.con = con;
     }
 
     public void setUserBean(UserAccountBean user) {

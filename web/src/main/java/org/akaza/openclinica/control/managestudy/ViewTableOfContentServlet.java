@@ -73,7 +73,6 @@ public class ViewTableOfContentServlet extends SecureController {
     public static DisplayTableOfContentsBean getDisplayBean(DataSource ds, int crfVersionId) {
         DisplayTableOfContentsBean answer = new DisplayTableOfContentsBean();
 
-        SectionDAO sdao = new SectionDAO(ds);
         ArrayList sections = getSections(crfVersionId, ds);
         answer.setSections(sections);
 

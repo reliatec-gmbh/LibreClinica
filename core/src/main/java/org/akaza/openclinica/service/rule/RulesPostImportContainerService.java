@@ -83,7 +83,6 @@ public class RulesPostImportContainerService {
     private StudyBean currentStudy;
     private UserAccountBean userAccount;
 
-    private RunOnSchedule runOnSchedule;
     private ExpressionService expressionService;
     private InsertActionValidator insertActionValidator;
     private EventActionValidator eventActionValidator;
@@ -613,7 +612,6 @@ public class RulesPostImportContainerService {
 	}
 
 	public boolean isEventTypeRepeating(String event) {
-		boolean isRepeating = false;
 		StudyEventDefinitionDAO seddao = new StudyEventDefinitionDAO(ds);
 		StudyEventDefinitionBean studyEventDefinition = (StudyEventDefinitionBean) seddao.findByOid(event);
 		return studyEventDefinition.isRepeating();
@@ -694,7 +692,6 @@ public class RulesPostImportContainerService {
 		String targetStudyEventDefOid = (String) target.get("targetStudyEventDefOid");
 		String targetStudyEventRepeatNumber = (String) target.get("targetStudyEventRepeatNumber");
 		String destinationStudyEventDefOid = (String) destination.get("destinationStudyEventDefOid");
-		String destinationStudyEventRepeatNumber = (String) destination.get("destinationStudyEventRepeatNumber");
 		String destinationProperty = (String) destination.get("destinationProperty");
 
 		if (targetProperty.equals(destinationProperty) && targetStudyEventRepeatNumber.equals("ALL") && targetStudyEventDefOid.equals(destinationStudyEventDefOid)) {

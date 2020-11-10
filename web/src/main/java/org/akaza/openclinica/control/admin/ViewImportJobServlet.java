@@ -40,11 +40,9 @@ public class ViewImportJobServlet extends SecureController {
 	 * 
 	 */
 	private static final long serialVersionUID = 2743460894593205128L;
-	private static String TRIGGER_GROUP = "DEFAULT";
     private static String SCHEDULER = "schedulerFactoryBean";
     private static String IMPORT_TRIGGER = "importTrigger";
 
-    private SchedulerFactoryBean schedulerFactoryBean;
     private StdScheduler scheduler;
 
     @Override
@@ -106,9 +104,7 @@ public class ViewImportJobServlet extends SecureController {
 
             if (trigger.getJobDataMap().size() > 0) {
                 dataMap = trigger.getJobDataMap();
-                triggerBean.setStudyName(dataMap.getString(ExampleSpringJob.STUDY_NAME));
-                String oid = dataMap.getString("study_oid");
-               
+                triggerBean.setStudyName(dataMap.getString(ExampleSpringJob.STUDY_NAME));               
             }
 
             // this next bit of code looks to see if the trigger is paused

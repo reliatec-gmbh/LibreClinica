@@ -21,6 +21,7 @@ import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.managestudy.StudySubjectDAO;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
+import org.akaza.openclinica.view.StudyInfoPanel;
 import org.akaza.openclinica.web.table.sdv.SDVUtil;
 import org.akaza.openclinica.web.table.sdv.SubjectIdSDVFactory;
 import org.jmesa.facade.TableFacade;
@@ -225,9 +226,6 @@ public class SDVController {
     public ModelMap viewAllSubjectFormHandler(HttpServletRequest request, HttpServletResponse response, @RequestParam("studyId") int studyId) {
 
         ModelMap gridMap = new ModelMap();
-        StudyDAO studyDAO = new StudyDAO(dataSource);
-        // StudyEventDAO studyEventDAO = new StudyEventDAO(dataSource);
-        StudyBean studyBean = (StudyBean) studyDAO.findByPK(studyId);
         String pattern = "MM/dd/yyyy";
         SimpleDateFormat sdf = new SimpleDateFormat(pattern);
 
@@ -241,26 +239,8 @@ public class SDVController {
 
         dataBinder.registerCustomEditor(java.util.Date.class, new CustomDateEditor(sdf, true));
         dataBinder.bind(request);
-        BindingResult bindingResult = dataBinder.getBindingResult();
-        //  eventCRFBeans = sdvUtil.filterEventCRFs(eventCRFBeans,bindingResult);
-
-        //set up request attributes for sidebar
-        //Not necessary when using old page design...
-        // setUpSidebar(request);
-
+        
         request.setAttribute("studyId", studyId);
-        //We need a study subject id for the first tab; take it somewhat arbitrarily from the first study event bean
-
-        /* int studySubjectId = 0;
-
-        StudyEventBean studyBeanUrl = studyEventBeans.get(0);
-        if(studyBeanUrl != null) {
-            studySubjectId= studyBeanUrl.getStudySubjectId();
-        }
-        request.setAttribute("studySubjectId",studySubjectId);*/
-
-        //set up the elements for the view's filter box
-        /*sdvUtil.prepareSDVSelectElements(request,studyBean);*/
 
         ArrayList<String> pageMessages = (ArrayList<String>) request.getAttribute("pageMessages");
         if (pageMessages == null) {
@@ -510,10 +490,6 @@ public class SDVController {
     Create a JMesa-based table for showing the event CRFs.
     */
     private String renderSubjectsTable(List<EventCRFBean> eventCRFBeans, int studySubjectId, HttpServletRequest request) {
-
-        StudySubjectDAO studySubjectDAO = new StudySubjectDAO(dataSource);
-        StudySubjectBean subjectBean = (StudySubjectBean) studySubjectDAO.findByPK(studySubjectId);
-
         Collection<SubjectSDVContainer> items = sdvUtil.getSubjectRows(eventCRFBeans, request);
 
         //The number of items represents the total number of returned rows

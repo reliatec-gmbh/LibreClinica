@@ -62,7 +62,6 @@ EventDefinitionCrfTagService eventDefinitionCrfTagService = null;
     public void processRequest() throws Exception {
 
         StudyEventDefinitionDAO sdao = new StudyEventDefinitionDAO(sm.getDataSource());
-        StudyDAO studyDao = new StudyDAO(sm.getDataSource());
         FormProcessor fp = new FormProcessor(request);
         int defId = fp.getInt("id", true);
 

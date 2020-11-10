@@ -511,7 +511,6 @@ public class ViewSectionDataEntryPreview extends DataEntryServlet {
      */
     @Override
     protected DisplayItemBean validateDisplayItemBean(DiscrepancyValidator v, DisplayItemBean dib, String inputName, HttpServletRequest request) {
-        ItemBean ib = dib.getItem();
         org.akaza.openclinica.bean.core.ResponseType rt = dib.getMetadata().getResponseSet().getResponseType();
 
         // note that this step sets us up both for

@@ -109,7 +109,6 @@ public class ViewPersistanceHandler {
         List<ItemDataBean> innerDataBeanList = new ArrayList<ItemDataBean>();
         int tracker = 0;
         List<Integer> listOrdinal = new ArrayList<Integer>();
-        int currentOrdinal = 0;
         int tempOrdinal;
         // Populate the SortedMap with ordinal --> List of ItemDataBeans
         for (ItemDataBean itemDataBean : dataBeans) {

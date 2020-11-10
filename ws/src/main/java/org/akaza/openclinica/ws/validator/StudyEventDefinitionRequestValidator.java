@@ -44,22 +44,18 @@ public class StudyEventDefinitionRequestValidator implements Validator {
             e.reject("studyEventDefinitionRequestValidator.invalid_study_identifier");
             return;
         }
-        StudyBean study;int study_id = -1;
+        StudyBean study;
         if (studyEventDefinitionRequestBean.getStudyUniqueId() != null ) {
 	        study = helper.verifyStudy(getStudyDAO(), studyEventDefinitionRequestBean.getStudyUniqueId(),
 	        		null, e);
 	        if ( study == null){ return; }
-	        study_id = study.getId();
         }
-        StudyBean site;int site_id = -1;
+        StudyBean site;
         if ( studyEventDefinitionRequestBean.getSiteUniqueId() != null) {
         	site = helper.verifySite(getStudyDAO(), studyEventDefinitionRequestBean.getStudyUniqueId(),
         			studyEventDefinitionRequestBean.getSiteUniqueId(), null, e);
         	if (site == null){return;}
-        	site_id = site.getId();
-        }
-        boolean isRoleVerified = helper.verifyRole(studyEventDefinitionRequestBean.getUser(), study_id, site_id,  e);
-        
+        }        
         
 //        //verify study ID
 //        if (studyEventDefinitionRequestBean.getStudyUniqueId() != null ) {

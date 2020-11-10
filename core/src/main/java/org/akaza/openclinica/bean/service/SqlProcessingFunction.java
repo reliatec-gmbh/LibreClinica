@@ -169,7 +169,6 @@ public class SqlProcessingFunction extends ProcessingFunction implements Seriali
      * string with all the SQL statements to be executed on the datamart.
      */
     private String[] getFileContents(File sqlFile) throws Exception {
-        String value = "";
         StringBuffer sb = new StringBuffer();
         int bufSize = 1024;
         BufferedReader br = new BufferedReader(new FileReader(sqlFile));

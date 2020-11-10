@@ -63,7 +63,6 @@ public class StudySubject  extends DataMapDomainObject {
 	private List<DnStudySubjectMap> dnStudySubjectMaps;
 	private List<StudyEvent> studyEvents ;
 	private List<EventCrf> eventCrfs;
-	private List<StudyEventDefinition> studyEventDefinitions;
 	
 	public StudySubject() {
 	}
