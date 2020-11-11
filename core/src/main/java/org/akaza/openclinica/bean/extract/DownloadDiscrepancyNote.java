@@ -57,18 +57,7 @@ public class DownloadDiscrepancyNote implements DownLoadBean{
         RESOLUTION_STATUS_MAP.put(5,"Not Applicable");
     }
 
-    //Does the user want the first line of the CSV to be column headers
-    private final boolean firstColumnHeaderLine;
-    //A list of DiscrepancyNoteBeans to be downloaded together
-    private final List<DiscrepancyNoteBean> discrepancyBeanList =
-      new ArrayList<DiscrepancyNoteBean>();
-
     public DownloadDiscrepancyNote() {
-        this.firstColumnHeaderLine = false;
-    }
-
-    public DownloadDiscrepancyNote(boolean firstColumnHeaderLine) {
-        this.firstColumnHeaderLine = firstColumnHeaderLine;
     }
 
     public void downLoad(EntityBean bean,

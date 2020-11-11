@@ -30,8 +30,6 @@ public class GroupRole extends Term {
 
     public static final List list = Arrays.asList(members);
 
-    private List privileges;
-
     private GroupRole(int id, String name) {
         super(id, name);
     }

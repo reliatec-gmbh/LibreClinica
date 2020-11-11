@@ -51,17 +51,13 @@ public class CctsSubjectEndpoint {
     private final String SUCCESS_MESSAGE = "success";
     private String dateFormat;
 
-    private final SubjectServiceInterface subjectService;
-    private final CctsService cctsService;
-
     /**
      * Constructor
      * @param subjectService
      * @param cctsService
      */
     public CctsSubjectEndpoint(SubjectServiceInterface subjectService, CctsService cctsService) {
-        this.subjectService = subjectService;
-        this.cctsService = cctsService;
+    	// TODO arguments not used
     }
 
     /**
@@ -75,8 +71,6 @@ public class CctsSubjectEndpoint {
     @PayloadRoot(localPart = "commitRequest", namespace = NAMESPACE_URI_V1)
     public Source createSubject(@XPathParam("//s:gridId") String gridId, @XPathParam("//s:subject") NodeList subject,
             @XPathParam("//s:study/@oid") String studyOid) throws Exception {
-        Element subjectElement = (Element) (subject.item(0));
-        SubjectTransferBean subjectTranferBean = unMarshallToSubjectTransfer(gridId, subjectElement, studyOid);
         // TODO: Add Logic
         logger.debug("In CreateSubject");
         return new DOMSource(mapConfirmation(SUCCESS_MESSAGE));
@@ -93,8 +87,6 @@ public class CctsSubjectEndpoint {
     @PayloadRoot(localPart = "rollbackRequest", namespace = NAMESPACE_URI_V1)
     public Source rollBackSubject(@XPathParam("//s:gridId") String gridId, @XPathParam("//s:subject") NodeList subject,
             @XPathParam("//s:study/@oid") String studyOid) throws Exception {
-        Element subjectElement = (Element) (subject.item(0));
-        SubjectTransferBean subjectTranferBean = unMarshallToSubjectTransfer(gridId, subjectElement, studyOid);
         // TODO: Add Logic 
         return new DOMSource(mapConfirmation(SUCCESS_MESSAGE));
     }
@@ -111,7 +103,6 @@ public class CctsSubjectEndpoint {
 
         Element personIdElement = DomUtils.getChildElementByTagName(subjectElement, "personId");
         Element studySubjectIdElement = DomUtils.getChildElementByTagName(subjectElement, "studySubjectId");
-        Element secondaryIdElement = DomUtils.getChildElementByTagName(subjectElement, "secondaryId");
         Element enrollmentDateElement = DomUtils.getChildElementByTagName(subjectElement, "enrollmentDate");
         Element genderElement = DomUtils.getChildElementByTagName(subjectElement, "gender");
         Element dateOfBirthElement = DomUtils.getChildElementByTagName(subjectElement, "dateOfBirth");
@@ -119,7 +110,6 @@ public class CctsSubjectEndpoint {
         String personIdValue = DomUtils.getTextValue(personIdElement);
         String studySubjectIdValue = DomUtils.getTextValue(studySubjectIdElement);
         String genderValue = DomUtils.getTextValue(genderElement);
-        String secondaryIdValue = DomUtils.getTextValue(secondaryIdElement);
         String enrollmentDateValue = DomUtils.getTextValue(enrollmentDateElement);
         String dateOfBirthValue = DomUtils.getTextValue(dateOfBirthElement);
 
@@ -171,14 +161,7 @@ public class CctsSubjectEndpoint {
      * @return UserAccountBean
      */
     private UserAccountBean getUserAccount() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String username = null;
-        if (principal instanceof UserDetails) {
-            username = ((UserDetails) principal).getUsername();
-        } else {
-            username = principal.toString();
-        }
-        // TODO: Call UserAccountDao.findByUserName()
+    	// TODO empty method
         return null;
     }
 

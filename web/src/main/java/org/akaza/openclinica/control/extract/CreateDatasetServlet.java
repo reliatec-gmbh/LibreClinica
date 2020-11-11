@@ -161,9 +161,7 @@ public class CreateDatasetServlet extends SecureController {
             if ("begin".equalsIgnoreCase(action)) {
                 // step 2 -- select study events/crfs
 
-                StudyEventDAO sedao = new StudyEventDAO(sm.getDataSource());
                 StudyEventDefinitionDAO seddao = new StudyEventDefinitionDAO(sm.getDataSource());
-                EventCRFDAO ecdao = new EventCRFDAO(sm.getDataSource());
                 StudyBean studyWithEventDefinitions = currentStudy;
                 if (currentStudy.getParentStudyId() > 0) {
                     studyWithEventDefinitions = new StudyBean();
@@ -212,7 +210,6 @@ public class CreateDatasetServlet extends SecureController {
 
             } else if ("beginsubmit".equalsIgnoreCase(action)) {
                 String saveItems = fp.getString(SAVE_BUTTON);
-                String saveContinue = fp.getString(SAVE_CONTINUE_BUTTON);
                 DatasetBean db = (DatasetBean) session.getAttribute("newDataset");
                 if (db == null) {
                     db = new DatasetBean();
@@ -274,9 +271,6 @@ public class CreateDatasetServlet extends SecureController {
                 }
 
             } else if ("scopesubmit".equalsIgnoreCase(action)) {
-                ArrayList months = getMonths();
-                ArrayList years = getYears();
-
                 int firstMonth = fp.getInt("firstmonth");
                 int firstYear = fp.getInt("firstyear");
                 int lastMonth = fp.getInt("lastmonth");
@@ -546,11 +540,6 @@ public class CreateDatasetServlet extends SecureController {
         if (crfId == -1) {
             // submit from 'view selected item' page
             allItems = (ArrayList) session.getAttribute("allSelectedItems");
-            // need to add 'view selected groups' here as well, tbh
-            ArrayList allGroups = (ArrayList) session.getAttribute("allSelectedGroups");
-            //db.getItemIds().clear();
-            //db.getItemMap().clear();
-            //db.getItemDefCrf().clear();
         } else if (crfId > 0) {// user chose a CRF and submitted items
             // remove all old items first, since user submitted again
             // so user can de-select items
@@ -925,7 +914,6 @@ public class CreateDatasetServlet extends SecureController {
     }
 
     private void getGroupAttr(FormProcessor fp, DatasetBean db) {
-        String group = fp.getString(GROUP_INFORMATION);
         ArrayList allSelectedGroups = new ArrayList();
         // allSelectedGroups = (ArrayList)
         // session.getAttribute("allSelectedGroups");
@@ -1043,7 +1031,6 @@ public class CreateDatasetServlet extends SecureController {
         Iterator it = events.keySet().iterator();
         while (it.hasNext()) {
             StudyEventDefinitionBean sed = (StudyEventDefinitionBean) it.next();
-            ArrayList<ItemBean> sedItems = new ArrayList<ItemBean>();
             ArrayList crfs = (ArrayList) crfdao.findAllActiveByDefinition(sed);
             for (int i = 0; i < crfs.size(); i++) {
                 CRFBean crf = (CRFBean) crfs.get(i);

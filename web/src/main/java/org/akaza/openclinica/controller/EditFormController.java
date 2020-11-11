@@ -87,9 +87,6 @@ public class EditFormController {
     private CrfVersionDao crfVersionDao;
 
     @Autowired
-    private SectionDao sectionDao;
-
-    @Autowired
     private StudyEventDao studyEventDao;
 
     @Autowired
@@ -237,7 +234,6 @@ public class EditFormController {
             // Get max repeat in item data
             int maxGroupRepeat = itemDataDao.getMaxGroupRepeat(eventCrf.getEventCrfId(), items.get(0).getItemId());
             // loop thru each repeat creating items in instance
-            String repeatGroupMin = itemGroupMetadata.getRepeatNumber().toString();
             Boolean isrepeating = itemGroupMetadata.isRepeatingGroup();
 
             // TODO: Test empty group here (no items). make sure doesn't get nullpointer exception

@@ -155,8 +155,6 @@ public class ListCRFServlet extends SecureController {
         table.setQuery("ListCRF", new HashMap());
         table.addLink(resword.getString("blank_CRF_template"), "DownloadVersionSpreadSheet?template=1");
         // YW << add "Enterprise CRF Catalog" link
-        String crfCatalogField = "crfCatalog";
-//        table.addLink(resword.getString("openclinica_CRF_catalog"), SQLInitServlet.getEnterpriseField(crfCatalogField));
         // YW >>
         // TODO add i18n links to the above, tbh
         table.addLink(resword.getString("create_a_new_CRF"), "CreateCRFVersion?module=" + module);

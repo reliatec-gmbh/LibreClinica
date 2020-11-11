@@ -64,17 +64,6 @@ public class DoubleDataEntryServlet extends DataEntryServlet {
     public static final String DDE_ENTERED = "ddeEntered";
     public static final String DDE_PROGESS = "doubleDataProgress";
 
-    private boolean userIsOwnerAndLessThanTwelveHoursHavePassed(HttpServletRequest request) {
-        UserAccountBean ub =(UserAccountBean) request.getSession().getAttribute(USER_BEAN_NAME);
-        StudyUserRoleBean  currentRole = (StudyUserRoleBean) request.getSession().getAttribute("userRole");
-        EventCRFBean ecb = (EventCRFBean)request.getAttribute(INPUT_EVENT_CRF);
-
-        boolean userIsOwner = ub.getId() == ecb.getOwnerId();
-        boolean lessThanTwelveHoursHavePassed = !DisplayEventCRFBean.initialDataEntryCompletedMoreThanTwelveHoursAgo(ecb);
-
-        return userIsOwner && lessThanTwelveHoursHavePassed;
-    }
-
     /*
      * (non-Javadoc)
      *
@@ -84,22 +73,8 @@ public class DoubleDataEntryServlet extends DataEntryServlet {
     protected void mayProceed(HttpServletRequest request, HttpServletResponse response) throws InsufficientPermissionException {
         checkStudyLocked(Page.LIST_STUDY_SUBJECTS, respage.getString("current_study_locked"), request, response);
         checkStudyFrozen(Page.LIST_STUDY_SUBJECTS, respage.getString("current_study_frozen"), request, response);
-        UserAccountBean ub =(UserAccountBean) request.getSession().getAttribute(USER_BEAN_NAME);
-        StudyUserRoleBean  currentRole = (StudyUserRoleBean) request.getSession().getAttribute("userRole");
         HttpSession session = request.getSession();
         locale = LocaleResolver.getLocale(request);
-
-
-        // < respage =
-        // ResourceBundle.getBundle("org.akaza.openclinica.i18n.page_messages",
-        // locale);
-        // < restext =
-        // ResourceBundle.getBundle("org.akaza.openclinica.i18n.notes",locale);
-        // <
-        // resexception=ResourceBundle.getBundle(
-        // "org.akaza.openclinica.i18n.exceptions",locale);
-        // < resword =
-        // ResourceBundle.getBundle("org.akaza.openclinica.i18n.words",locale);
 
         getInputBeans(request);
         EventCRFBean ecb = (EventCRFBean)request.getAttribute(INPUT_EVENT_CRF);
@@ -170,8 +145,6 @@ public class DoubleDataEntryServlet extends DataEntryServlet {
         // Now update the session attribute
         doubleDataProgress.setSectionVisited(eventCRFId, tabNumber, true);
         mySession.setAttribute("doubleDataProgress", doubleDataProgress);
-        // StudyEventStatus status =
-        Role r = currentRole.getRole();
         session.setAttribute("mayProcessUploading", "true");
 
         //        if (!SubmitDataServlet.maySubmitData(ub, currentRole)) {
@@ -431,18 +404,11 @@ public class DoubleDataEntryServlet extends DataEntryServlet {
         org.akaza.openclinica.bean.core.ResponseType rt = dib.getMetadata().getResponseSet().getResponseType();
         ItemDataDAO iddao = new ItemDataDAO(getDataSource());
         boolean isSingleItem = false;
-        HttpSession session = request.getSession();
         if (StringUtil.isBlank(inputName)) {// for single items
             inputName = getInputName(dib);
             isSingleItem = true;
         }
         EventCRFBean ecb = (EventCRFBean)request.getAttribute(INPUT_EVENT_CRF);
-
-        // we only give warning to user if data entered in DDE is different from
-        // IDE when the first
-        // time user hits 'save'
-        int keyId = ecb.getId();
-        Integer validationCount = (Integer) session.getAttribute(COUNT_VALIDATE + keyId);
 
         ItemDataBean valueToCompare = new ItemDataBean();
         if (isSingleItem) {
@@ -594,25 +560,11 @@ public class DoubleDataEntryServlet extends DataEntryServlet {
     protected DisplayItemBean validateDisplayItemBean(DiscrepancyValidator v, DisplayItemBean dib, String inputName, RuleValidator rv,
             HashMap<String, ArrayList<String>> groupOrdinalPLusItemOid, Boolean fireRuleValidation, ArrayList<String> messages, HttpServletRequest request) {
 
-        org.akaza.openclinica.bean.core.ResponseType rt = dib.getMetadata().getResponseSet().getResponseType();
-        EventCRFBean ecb = (EventCRFBean)request.getAttribute(INPUT_EVENT_CRF);
-
         boolean isSingleItem = false;
         if (StringUtil.isBlank(inputName)) {// for single items
             inputName = getInputName(dib);
             isSingleItem = true;
         }
-        // we only give warning to user if data entered in DDE is different from
-        // IDE when the first
-        // time user hits 'save'
-        int keyId = ecb.getId();
-        Integer validationCount = (Integer) request.getSession().getAttribute(COUNT_VALIDATE + keyId);
-
-        ItemDataBean valueToCompare = dib.getData();
-        if (!isSingleItem) {
-            valueToCompare = dib.getDbData();
-        }
-
         if (isSingleItem) {
             dib = loadFormValue(dib, request);
         }
@@ -630,9 +582,6 @@ public class DoubleDataEntryServlet extends DataEntryServlet {
             List<DisplayItemGroupBean> formGroups, RuleValidator rv, HashMap<String, ArrayList<String>> groupOrdinalPLusItemOid, HttpServletRequest request, HttpServletResponse response) {
         EventCRFBean ecb = (EventCRFBean)request.getAttribute(INPUT_EVENT_CRF);
         EventDefinitionCRFBean edcb = (EventDefinitionCRFBean)request.getAttribute(EVENT_DEF_CRF_BEAN);
-        // logger.info("===got this far");
-        int keyId = ecb.getId();
-        Integer validationCount = (Integer) request.getSession().getAttribute(COUNT_VALIDATE + keyId);
 
         formGroups = loadFormValueForItemGroup(digb, digbs, formGroups, edcb.getId(), request);
         LOGGER

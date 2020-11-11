@@ -74,7 +74,6 @@ public class PdfProcessingFunction extends ProcessingFunction  {
             // where fo is the transformed file
             
             File procExportDirectory;
-            File oldFiles[] = null;
          
             if(this.getExportFileName()!=null && this.getLocation()!=null)
             {

@@ -277,7 +277,6 @@ public class ChangeCRFVersionController {
 	       
         try{
         	ItemDAO item_dao = new ItemDAO(dataSource);
-        	ItemDataBean d_bean = null;
         	//get metadata to find repeat group or not
 	        ItemGroupMetadataDAO dao_item_form_mdata = new ItemGroupMetadataDAO(dataSource);
 	        List<ItemGroupMetadataBean> beans_item_form_mdata = dao_item_form_mdata.findByCrfVersion( crfVersionId);

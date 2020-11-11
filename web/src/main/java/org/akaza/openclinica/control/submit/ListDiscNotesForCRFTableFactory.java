@@ -682,18 +682,12 @@ public class ListDiscNotesForCRFTableFactory extends AbstractTableFactory {
 
         SubjectEventStatus subjectEventStatus;
         StudyEventBean studyEvent;
-        StudySubjectBean studySubjectBean;
         List<DisplayBean> events;
-        SubjectBean subject;
-        StudyEventDefinitionBean studyEventDefinition;
 
         @SuppressWarnings("unchecked")
         public Object getValue(Object item, String property, int rowcount) {
 
             events = (List<DisplayBean>) ((HashMap<Object, Object>) item).get("events");
-            studySubjectBean = (StudySubjectBean) ((HashMap<Object, Object>) item).get("studySubject");
-            subject = (SubjectBean) ((HashMap<Object, Object>) item).get("subject");
-            studyEventDefinition = selectedStudyEventDefinition;
             List<StudyEventBean> studyEvents;
 
             StringBuilder url = new StringBuilder();
@@ -738,23 +732,13 @@ public class ListDiscNotesForCRFTableFactory extends AbstractTableFactory {
 
     private class EventCrfCellEditor implements CellEditor {
 
-        SubjectEventStatus subjectEventStatus;
         DataEntryStage dataEntryStage;
         StudyEventBean studyEvent;
-        StudySubjectBean studySubjectBean;
         List<DisplayBean> events;
-        SubjectBean subject;
-        CRFBean crf;
-        EventCRFBean eventCrf;
-        EventDefinitionCRFBean eventDefintionCrf;
-        StudyEventDefinitionBean studyEventDefinition;
 
         @SuppressWarnings("unchecked")
         public Object getValue(Object item, String property, int rowcount) {
             events = (List<DisplayBean>) ((HashMap<Object, Object>) item).get("events");
-            studySubjectBean = (StudySubjectBean) ((HashMap<Object, Object>) item).get("studySubject");
-            subject = (SubjectBean) ((HashMap<Object, Object>) item).get("subject");
-            studyEventDefinition = selectedStudyEventDefinition;
             List<StudyEventBean> studyEvents;
             HashMap<ResolutionStatus, Integer> discCounts;
 
@@ -763,11 +747,7 @@ public class ListDiscNotesForCRFTableFactory extends AbstractTableFactory {
 
                 DisplayBean display = events.get(i);
                 dataEntryStage = (DataEntryStage) display.getProps().get(property);
-                crf = (CRFBean) display.getProps().get(property + "_crf");
-                eventDefintionCrf = (EventDefinitionCRFBean) display.getProps().get(property + "_eventDefinitionCrf");
-                eventCrf = (EventCRFBean) display.getProps().get(property + "_eventCrf");
                 discCounts = (HashMap<ResolutionStatus, Integer>) display.getProps().get(property + "_discCounts");
-                subjectEventStatus = (SubjectEventStatus) display.getProps().get("event.status");
                 studyEvent = (StudyEventBean) display.getProps().get("event");
                 studyEvents = new ArrayList<StudyEventBean>();
                 if (studyEvent != null) {

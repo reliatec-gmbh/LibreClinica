@@ -72,15 +72,6 @@ public class ItemDataDAO extends AuditableEntityDAO {
         this.formatDates = formatDates;
     }
 
-    public Collection findMinMaxDates() {
-        ArrayList al = new ArrayList();
-        ArrayList alist = this.select(digester.getQuery("findMinMaxDates"));
-        // al =
-        return al;
-    }
-
-    // private DAODigester digester;
-
     private void setQueryNames() {
         getCurrentPKName = "getCurrentPK";
         getNextPKName = "getNextPK";
@@ -628,7 +619,6 @@ public class ItemDataDAO extends AuditableEntityDAO {
 
     public ItemDataBean findByItemIdAndEventCRFId(int itemId, int eventCRFId) {
         setTypesExpected();
-        ItemDataBean answer = new ItemDataBean();
 
         HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
         variables.put(new Integer(1), new Integer(itemId));
@@ -646,7 +636,6 @@ public class ItemDataDAO extends AuditableEntityDAO {
     // YW, 1-25-2008, for repeating item
     public ItemDataBean findByItemIdAndEventCRFIdAndOrdinal(int itemId, int eventCRFId, int ordinal) {
         setTypesExpected();
-        ItemDataBean answer = new ItemDataBean();
 
         HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
         variables.put(new Integer(1), new Integer(itemId));
@@ -664,7 +653,6 @@ public class ItemDataDAO extends AuditableEntityDAO {
 
     public ItemDataBean findByItemIdAndEventCRFIdAndOrdinalRaw(int itemId, int eventCRFId, int ordinal) {
         setTypesExpected();
-        ItemDataBean answer = new ItemDataBean();
 
         HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
         variables.put(new Integer(1), new Integer(itemId));

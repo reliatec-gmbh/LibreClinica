@@ -68,8 +68,6 @@ public class DataEntryStage extends Term {
 
     public static final List<DataEntryStage> list = Arrays.asList(members);
 
-    private List privileges;
-
     private DataEntryStage(int id, String name) {
         super(id, name);
     }

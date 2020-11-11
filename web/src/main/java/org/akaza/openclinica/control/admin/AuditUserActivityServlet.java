@@ -54,7 +54,6 @@ public class AuditUserActivityServlet extends SecureController {
 
     @Override
     protected void processRequest() throws Exception {
-        FormProcessor fp = new FormProcessor(request);
         AuditUserLoginTableFactory factory = new AuditUserLoginTableFactory();
         factory.setAuditUserLoginDao(getAuditUserLoginDao());
         String auditUserLoginHtml = factory.createTable(request, response).render();

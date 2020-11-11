@@ -83,12 +83,7 @@ public class DeleteStudyEventServlet extends SecureController{
 
             String action = request.getParameter("action");
             if ("confirm".equalsIgnoreCase(action)) {
-
-                EventDefinitionCRFDAO edcdao = new EventDefinitionCRFDAO(sm.getDataSource());
                 // find all crfs in the definition
-                ArrayList eventDefinitionCRFs = (ArrayList) edcdao.findAllByEventDefinitionId(study, sed.getId());
-
-                EventCRFDAO ecdao = new EventCRFDAO(sm.getDataSource());
                 // construct info needed on view study event page
                 DisplayStudyEventBean de = new DisplayStudyEventBean();
                 de.setStudyEvent(event);

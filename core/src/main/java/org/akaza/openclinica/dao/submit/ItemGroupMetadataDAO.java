@@ -265,7 +265,6 @@ public class ItemGroupMetadataDAO<K extends String,V extends ArrayList> extends 
         clearSignals();
 
         ArrayList results = new ArrayList();
-        V  value;
         K key;
         ResultSet rs = null;
         Connection con = null;
@@ -313,7 +312,6 @@ public class ItemGroupMetadataDAO<K extends String,V extends ArrayList> extends 
 
     }
 	   public List<ItemGroupMetadataBean> findByCrfVersion(Integer crfVersionId) {
-        ItemGroupMetadataBean eb = new ItemGroupMetadataBean();
         this.setTypesExpected();
         HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
         variables.put(1, crfVersionId);

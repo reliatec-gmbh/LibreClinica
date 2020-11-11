@@ -103,7 +103,6 @@ public class ImportCRFDataServlet extends SecureController {
         String action = request.getParameter("action");
         CRFVersionBean version = (CRFVersionBean) session.getAttribute("version");
 
-        File xsdFile = new File(SpringServletAccess.getPropertiesDir(context) + "ODM1-3-0.xsd");
         File xsdFile2 = new File(SpringServletAccess.getPropertiesDir(context) + "ODM1-2-1.xsd");
 
         if (StringUtil.isBlank(action)) {

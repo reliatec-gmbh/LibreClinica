@@ -85,10 +85,6 @@ public class DefineStudyEventServlet extends SecureController {
      */
     @Override
     public void processRequest() throws Exception {
-        FormProcessor fpr = new FormProcessor(request);
-        // logger.info("actionName*******" + fpr.getString("actionName"));
-        // logger.info("pageNum*******" + fpr.getString("pageNum"));
-
         String actionName = request.getParameter("actionName");
         ArrayList crfsWithVersion = (ArrayList) session.getAttribute("crfsWithVersion");
         if (crfsWithVersion == null) {
@@ -207,10 +203,6 @@ public class DefineStudyEventServlet extends SecureController {
 
         if (errors.isEmpty()) {
             logger.debug("no errors in the first section");
-            // logger.debug("actionName*******" + fp.getString("actionName"));
-            //debugger.debug("pageNum*******" + fp.getString("pageNum"));
-            CRFVersionDAO vdao = new CRFVersionDAO(sm.getDataSource());
-            ArrayList crfArray = new ArrayList();
             /*
              * The tmpCRFIdMap will hold all the selected CRFs in the session
              * when the user is navigating through the list. This has been done

@@ -95,7 +95,6 @@ public class CreateJobImportServlet extends SecureController {
         // find all the form items and re-populate them if necessary
         FormProcessor fp2 = new FormProcessor(request);
 
-        UserAccountDAO udao = new UserAccountDAO(sm.getDataSource());
         StudyDAO sdao = new StudyDAO(sm.getDataSource());
 
         // ArrayList studies = udao.findStudyByUser(ub.getName(), (ArrayList)

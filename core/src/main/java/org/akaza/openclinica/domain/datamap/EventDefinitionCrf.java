@@ -66,7 +66,6 @@ public class EventDefinitionCrf extends DataMapDomainObject {
 	private Integer sourceDataVerificationCode;
 	private String selectedVersionIds;
 	private Integer parentId;
-	private Set datasetCrfVersionMaps = new HashSet(0);
 	private Boolean paricipantForm;
 	private Boolean allowAnonymousSubmission;
 	private String submissionUrl;
@@ -104,7 +103,6 @@ public class EventDefinitionCrf extends DataMapDomainObject {
 		this.sourceDataVerificationCode = sourceDataVerificationCode;
 		this.selectedVersionIds = selectedVersionIds;
 		this.parentId = parentId;
-		this.datasetCrfVersionMaps = datasetCrfVersionMaps;
 	}
 
 	@Id

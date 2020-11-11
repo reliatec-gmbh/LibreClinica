@@ -159,7 +159,6 @@ public class ListDiscNotesForCRFServlet extends SecureController {
         request.setAttribute(MODULE, module);
 
         int definitionId = fp.getInt("defId");
-        int tabId = fp.getInt("tab");
         if (definitionId <= 0) {
             addPageMessage(respage.getString("please_choose_an_ED_ta_to_vies_details"));
             forwardPage(Page.LIST_SUBJECT_DISC_NOTE_SERVLET);

@@ -111,7 +111,6 @@ public class ExportExcelStudySubjectAuditLogServlet extends SecureController {
 
         StudyEventDAO sedao = new StudyEventDAO(sm.getDataSource());
         StudyEventDefinitionDAO seddao = new StudyEventDefinitionDAO(sm.getDataSource());
-        EventDefinitionCRFDAO edcdao = new EventDefinitionCRFDAO(sm.getDataSource());
         EventCRFDAO ecdao = new EventCRFDAO(sm.getDataSource());
         StudyDAO studydao = new StudyDAO(sm.getDataSource());
         CRFDAO cdao = new CRFDAO(sm.getDataSource());
@@ -125,7 +124,6 @@ public class ExportExcelStudySubjectAuditLogServlet extends SecureController {
         ArrayList allDeletedEventCRFs = new ArrayList();
         ArrayList allEventCRFs = new ArrayList();
         ArrayList allEventCRFItems = new ArrayList();
-        String attachedFilePath = Utils.getAttachedFilePath(currentStudy);
 
         FormProcessor fp = new FormProcessor(request);
 

@@ -167,10 +167,6 @@ public class OpenRosaServices {
             @QueryParam("formID") String crfOID, @RequestHeader("Authorization") String authorization, @Context ServletContext context) throws Exception {
         if (!mayProceedPreview(studyOID))
             return null;
-
-        StudyDAO sdao = new StudyDAO(getDataSource());
-        StudyBean study = sdao.findByOid(studyOID);
-
         CRFDAO cdao = new CRFDAO(getDataSource());
         Collection<CRFBean> crfs = cdao.findAll();
 
@@ -261,7 +257,6 @@ public class OpenRosaServices {
         CrfVersionMediaDao mediaDao = (CrfVersionMediaDao) SpringServletAccess.getApplicationContext(context).getBean("crfVersionMediaDao");
 
         CRFVersionBean crfVersion = cVersionDao.findByOid(crfOID);
-        List<MediaFile> mediaFiles = new ArrayList<MediaFile>();
         Manifest manifest = new Manifest();
 
         List<CrfVersionMedia> mediaList = mediaDao.findByCrfVersionId(crfVersion.getId());
@@ -482,7 +477,6 @@ public class OpenRosaServices {
         if (!mayProceedSubmission(studyOID, ssBean))
             return null;
 
-        HashMap<String, String> urlCache = (HashMap<String, String>) context.getAttribute("pformURLCache");
         context.getAttribute("subjectContextCache");
         if (ssoid == null) {
             return "<error>studySubjectOID is null :(</error>";
@@ -496,8 +490,7 @@ public class OpenRosaServices {
             ArrayList<CRFVersionBean> crfs = versionDAO.findDefCRFVersionsByStudyEvent(nextEvent.getStudyEventDefinitionId());
             PFormCache cache = PFormCache.getInstance(context);
             for (CRFVersionBean crfVersion : crfs) {
-                String enketoURL = cache.getPFormURL(studyOID, crfVersion.getOid());
-                String contextHash = cache.putSubjectContext(ssoid, String.valueOf(nextEvent.getStudyEventDefinitionId()),
+                cache.putSubjectContext(ssoid, String.valueOf(nextEvent.getStudyEventDefinitionId()),
                         String.valueOf(nextEvent.getSampleOrdinal()), crfVersion.getOid());
             }
         } catch (Exception e) {

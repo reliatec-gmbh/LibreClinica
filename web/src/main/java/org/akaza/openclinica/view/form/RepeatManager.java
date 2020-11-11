@@ -71,7 +71,6 @@ public class RepeatManager {
         }
         for (Element input : inputs) {
             // do not include input type="hidden"
-            boolean isHidden;
             Attribute attribute = input.getAttribute("type");
             if (attribute == null || attribute.getValue() == null || !attribute.getValue().equalsIgnoreCase("hidden")) {
                 if (input.getAttribute("name") != null) {

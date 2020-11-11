@@ -1009,12 +1009,10 @@ public class OdmExtractDAO extends DatasetDAO {
         String sectionIds = ",";
         while (it.hasNext()) {
             HashMap row = (HashMap) it.next();
-            Integer cId = (Integer) row.get("crf_id");
             Integer cvId = (Integer) row.get("crf_version_id");
             igId = (Integer) row.get("item_group_id");
             Integer itId = (Integer) row.get("item_id");
             Integer rsId = (Integer) row.get("response_set_id");
-            String cvOID = (String) row.get("crf_version_oid");
             String igOID = (String) row.get("item_group_oid");
             String itOID = (String) row.get("item_oid");
             String igName = (String) row.get("item_group_name");
@@ -1290,9 +1288,6 @@ public class OdmExtractDAO extends DatasetDAO {
             Iterator iter = al.iterator();
             while (iter.hasNext()) {
                 HashMap row = (HashMap) iter.next();
-                Integer cId = (Integer) row.get("crf_id");
-                Integer cvId = (Integer) row.get("crf_version_id");
-                Integer itId = (Integer) row.get("item_id");
                 String cvOID = (String) row.get("cv_oid");
                 String itOID = (String) row.get("item_oid");
                 if (itDefCVs.containsKey(itOID)) {
@@ -1370,9 +1365,6 @@ public class OdmExtractDAO extends DatasetDAO {
             Iterator iter = al.iterator();
             while (iter.hasNext()) {
                 HashMap row = (HashMap) iter.next();
-                Integer cId = (Integer) row.get("crf_id");
-                Integer cvId = (Integer) row.get("crf_version_id");
-                Integer itId = (Integer) row.get("item_id");
                 String cvOID = (String) row.get("cv_oid");
                 String itOID = (String) row.get("item_oid");
                 if (itDefCVs.containsKey(itOID)) {
@@ -1449,7 +1441,6 @@ public class OdmExtractDAO extends DatasetDAO {
         logger.debug("getStudyEventAndFormMetaOC1_3SQl= " + this.getStudyEventAndFormMetaOC1_3Sql(parentStudyId, studyId, isIncludedSite));
         ArrayList rows = this.select(this.getStudyEventAndFormMetaOC1_3Sql(parentStudyId, studyId, isIncludedSite));
         Iterator iter = rows.iterator();
-        String sedOIDs = "";
         while (iter.hasNext()) {
             HashMap row = (HashMap) iter.next();
             Integer cvId = (Integer) row.get("crf_version_id");
@@ -1699,11 +1690,6 @@ private void fetchItemGroupMetaData(MetaDataVersionBean metadata,String cvIds, S
 {
 	  ArrayList rows = select(this.getItemDataMaxLengths(cvIds));
       Iterator it = rows.iterator();
-      HashMap maxLengths = null;
-//	while (it.hasNext()) {
-//          HashMap row = (HashMap) it.next();
-//          maxLengths.put((Integer) row.get("item_id"), (Integer) row.get("max_length"));
-//      }
 
       this.setItemGroupAndItemMetaWithUnitTypesExpected();
       rows.clear();
@@ -1734,12 +1720,10 @@ private void fetchItemGroupMetaData(MetaDataVersionBean metadata,String cvIds, S
       String sectionIds = ",";
       while (it.hasNext()) {
           HashMap row = (HashMap) it.next();
-          Integer cId = (Integer) row.get("crf_id");
           Integer cvId = (Integer) row.get("crf_version_id");
           igId = (Integer) row.get("item_group_id");
           Integer itId = (Integer) row.get("item_id");
           Integer rsId = (Integer) row.get("response_set_id");
-          String cvOID = (String) row.get("crf_version_oid");
           String igOID = (String) row.get("item_group_oid");
           String itOID = (String) row.get("item_oid");
           String igName = (String) row.get("item_group_name");
@@ -1773,7 +1757,6 @@ private void fetchItemGroupMetaData(MetaDataVersionBean metadata,String cvIds, S
               // now update to new cvId
               cvprev = cvId;
               FormDefBean formDef = new FormDefBean();
-              HashMap cvIdPoses = null;
 //			if (cvIdPoses.containsKey(cvId)) {
 //                  int p = (Integer) cvIdPoses.get(cvId);
 //                  formDef = metadata.getFormDefs().get(p);
@@ -2024,7 +2007,6 @@ private void fetchItemGroupMetaData(MetaDataVersionBean metadata,String cvIds, S
     }
 
     public void getAdminData(StudyBean study, DatasetBean dataset, OdmAdminDataBean data, String odmVersion) {
-        String dbName = CoreResources.getDBName();
         this.setStudyUsersTypesExpected();
         ArrayList rows = this.select(this.getStudyUsersSql(study.getId() + ""));
         Iterator it = rows.iterator();
@@ -2210,9 +2192,6 @@ private void fetchItemGroupMetaData(MetaDataVersionBean metadata,String cvIds, S
             // ClinicalDataUnit.getNullValueMap();
 
             HashMap<String, String> nullValueCVs = this.getNullValueCVs(study);
-            HashSet<Integer> itemDataIds = new HashSet<Integer>();
-            String yearMonthFormat = StringUtil.parseDateFormat(ResourceBundleProvider.getFormatBundle(locale).getString("date_format_year_month"));
-            String yearFormat = StringUtil.parseDateFormat(ResourceBundleProvider.getFormatBundle(locale).getString("date_format_year"));
             while (iter.hasNext()) {
                 JobTerminationMonitor.check();
                 HashMap row = (HashMap) iter.next();
@@ -2353,23 +2332,6 @@ private void fetchItemGroupMetaData(MetaDataVersionBean metadata,String cvIds, S
         }
     }
 
-    
-    
-    public void getClinicalData(StudyBean study,OdmClinicalDataBean data,String odmVersion,String studySubjectIds,String odmType){
-    	
-    	String dbName = CoreResources.getDBName();
-        String subprev = "";
-        HashMap<String, Integer> sepos = new HashMap<String, Integer>();
-        String seprev = "";
-        String formprev = "";
-        HashMap<String, Integer> igpos = new HashMap<String, Integer>();
-        String igprev = "";
-        String oidPos = "";
-        HashMap<Integer, String> oidPoses = new HashMap<Integer, String>();
-        HashMap<Integer, String> idataOidPoses = new HashMap<Integer, String>();
-        String studyIds = study.getId() + "";
-        
-    }
     protected void setErasedScoreItemDataValues(OdmClinicalDataBean data, String itemIds, String itemDataIds, HashMap<Integer,String> idataOidPoses, String odmVersion) {
         this.setErasedScoreItemDataIdsTypesExpected();
         ArrayList<Integer> rows = this.select(this.getErasedScoreItemDataIdsSql(itemIds, itemDataIds));

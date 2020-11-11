@@ -317,7 +317,6 @@ public class FormProcessor {
     }
 
     public Date getDate(String fieldName, boolean searchAttributes) {
-        Date answer;
         String fieldValue = getString(fieldName, searchAttributes);
 
         return getDateFromString(fieldValue);
@@ -440,9 +439,6 @@ public class FormProcessor {
      *            field.
      */
     public void addPresetValue(String fieldName, EntityBean value) {
-        int id = value.getId();
-        // Integer fieldValue = new Integer(id);
-        // presetValues.put(fieldName, fieldValue);
         presetValues.put(fieldName, value);
     }
 

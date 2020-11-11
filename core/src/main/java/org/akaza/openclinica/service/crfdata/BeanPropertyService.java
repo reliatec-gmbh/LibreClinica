@@ -40,7 +40,6 @@ import org.slf4j.LoggerFactory;
 
 public class BeanPropertyService{
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
-    private final String ESCAPED_SEPERATOR = "\\.";
     private DynamicsItemFormMetadataDao dynamicsItemFormMetadataDao;
     private DynamicsItemGroupMetadataDao dynamicsItemGroupMetadataDao;
     DataSource ds;

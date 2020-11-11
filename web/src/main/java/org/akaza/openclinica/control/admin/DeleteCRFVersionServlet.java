@@ -69,7 +69,6 @@ public class DeleteCRFVersionServlet extends SecureController {
             forwardPage(Page.CRF_LIST_SERVLET);
         } else {
             CRFVersionDAO cvdao = new CRFVersionDAO(sm.getDataSource());
-            CRFDAO cdao = new CRFDAO(sm.getDataSource());
             EventDefinitionCRFDAO edcdao = new EventDefinitionCRFDAO(sm.getDataSource());
             StudyEventDefinitionDAO sedDao = new StudyEventDefinitionDAO(sm.getDataSource());
             StudyEventDAO seDao = new StudyEventDAO(sm.getDataSource());

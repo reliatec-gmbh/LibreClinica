@@ -7,6 +7,9 @@
  */
 package org.akaza.openclinica.control.managestudy;
 
+import java.util.ArrayList;
+import java.util.Date;
+
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.extract.DatasetBean;
@@ -22,10 +25,8 @@ import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.extract.DatasetDAO;
 import org.akaza.openclinica.dao.login.UserAccountDAO;
-import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDAO;
-import org.akaza.openclinica.dao.managestudy.StudyEventDefinitionDAO;
 import org.akaza.openclinica.dao.managestudy.StudyGroupDAO;
 import org.akaza.openclinica.dao.managestudy.StudySubjectDAO;
 import org.akaza.openclinica.dao.submit.EventCRFDAO;
@@ -33,9 +34,6 @@ import org.akaza.openclinica.dao.submit.ItemDataDAO;
 import org.akaza.openclinica.dao.submit.SubjectGroupMapDAO;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
-
-import java.util.ArrayList;
-import java.util.Date;
 
 /**
  * @author jxu
@@ -91,10 +89,6 @@ public class RemoveSiteServlet extends SecureController {
         StudySubjectDAO ssdao = new StudySubjectDAO(sm.getDataSource());
         ArrayList subjects = ssdao.findAllByStudy(study);
 
-        // find all events
-        StudyEventDefinitionDAO sefdao = new StudyEventDefinitionDAO(sm.getDataSource());
-        ArrayList definitions = sefdao.findAllByStudy(study);
-
         String action = request.getParameter("action");
         if (StringUtil.isBlank(idString)) {
             addPageMessage(respage.getString("please_choose_a_site_to_remove"));
@@ -140,12 +134,6 @@ public class RemoveSiteServlet extends SecureController {
                 }
                 // YW 06-18-2007 >>
 
-                // remove all subjects
-                for (int i = 0; i < subjects.size(); i++) {
-                    StudySubjectBean subject = (StudySubjectBean) subjects.get(i);
-
-                }
-
                 // remove all study_group
                 StudyGroupDAO sgdao = new StudyGroupDAO(sm.getDataSource());
                 SubjectGroupMapDAO sgmdao = new SubjectGroupMapDAO(sm.getDataSource());
@@ -172,7 +160,6 @@ public class RemoveSiteServlet extends SecureController {
                 }
 
                 // remove all events
-                EventDefinitionCRFDAO edcdao = new EventDefinitionCRFDAO(sm.getDataSource());
                 StudyEventDAO sedao = new StudyEventDAO(sm.getDataSource());
                 for (int i = 0; i < subjects.size(); i++) {
                     StudySubjectBean subject = (StudySubjectBean) subjects.get(i);

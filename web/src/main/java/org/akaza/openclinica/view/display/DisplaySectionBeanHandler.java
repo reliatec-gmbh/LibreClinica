@@ -35,7 +35,6 @@ import javax.servlet.ServletContext;
  * class is used by PrintCRFServlet and PrintDataEntryServlet.
  */
 public class DisplaySectionBeanHandler {
-    private boolean hasStoredData = false;
     private int crfVersionId;
     private int eventCRFId;
     private List<DisplaySectionBean> displaySectionBeans;
@@ -43,7 +42,6 @@ public class DisplaySectionBeanHandler {
     private DataSource dataSource;
 
     public DisplaySectionBeanHandler(boolean dataEntry) {
-        this.hasStoredData = dataEntry;
     }
 
     public DisplaySectionBeanHandler(boolean dataEntry, DataSource dataSource, ServletContext context) {
@@ -83,17 +81,13 @@ public class DisplaySectionBeanHandler {
      */
     public List<DisplaySectionBean> getDisplaySectionBeans() {
         FormBeanUtil formBeanUtil;
-        ViewPersistanceHandler persistanceHandler;
         ArrayList<SectionBean> allCrfSections;
         // DAO classes for getting item definitions
         SectionDAO sectionDao;
-        CRFVersionDAO crfVersionDao;
 
         if (displaySectionBeans == null) {
             displaySectionBeans = new ArrayList<DisplaySectionBean>();
             formBeanUtil = new FormBeanUtil();
-            if (hasStoredData)
-                persistanceHandler = new ViewPersistanceHandler();
 
             // We need a CRF version id to populate the form display
             if (this.crfVersionId == 0) {

@@ -24,7 +24,6 @@ public class EqualityOpNode extends ExpressionNode {
     Operator op; // The operator.
     ExpressionNode left; // The expression for its left operand.
     ExpressionNode right; // The expression for its right operand.
-    private final String STARTDATE =".STARTDATE";
     private final String STATUS =".STATUS";
 
     EqualityOpNode(Operator op, ExpressionNode left, ExpressionNode right) {

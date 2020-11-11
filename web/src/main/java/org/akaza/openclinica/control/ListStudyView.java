@@ -61,9 +61,7 @@ public class ListStudyView  extends DefaultView{
 	     * Setting the group cell editor.
 	     */
 	    private void setCustomCellEditors(){
-	    	List<Column> columns = getTable().getRow().getColumns();
-	    	getTable().setCaption("Subject Enrollment");
-	     
+	    	getTable().setCaption("Subject Enrollment");	     
 	    }
 	        private String customHeader(){
 	        		

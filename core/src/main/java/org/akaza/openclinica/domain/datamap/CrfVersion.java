@@ -61,12 +61,10 @@ public class CrfVersion extends DataMapDomainObject {
     private String ocOid;
     private String xform;
     private String xformName;
-    private Set filterCrfVersionMaps = new HashSet(0);
     private List<VersioningMap> versioningMaps;
     private List<EventCrf> eventCrfs;
     private List<Section> sections;
     private List<EventDefinitionCrf> eventDefinitionCrfs;
-    private Set decisionConditions = new HashSet(0);
     private Set<ItemGroupMetadata> itemGroupMetadatas;
 
     public CrfVersion() {
@@ -95,12 +93,10 @@ public class CrfVersion extends DataMapDomainObject {
         this.ocOid = ocOid;
         this.xform = xform;
         this.xformName = xformName;
-        this.filterCrfVersionMaps = filterCrfVersionMaps;
         this.versioningMaps = versioningMaps;
         this.eventCrfs = eventCrfs;
         this.sections = sections;
         this.eventDefinitionCrfs = eventDefinitionCrfs;
-        this.decisionConditions = decisionConditions;
         this.itemGroupMetadatas = itemGroupMetadatas;
     }
 

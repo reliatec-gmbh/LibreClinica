@@ -121,7 +121,6 @@ public class InitialDataEntryServlet extends DataEntryServlet {
     protected DisplayItemBean validateDisplayItemBean(DiscrepancyValidator v, DisplayItemBean dib, String inputName, RuleValidator rv,
             HashMap<String, ArrayList<String>> groupOrdinalPLusItemOid, Boolean fireRuleValidation, ArrayList<String> messages, HttpServletRequest request) {
 
-        ItemBean ib = dib.getItem();
         org.akaza.openclinica.bean.core.ResponseType rt = dib.getMetadata().getResponseSet().getResponseType();
 
         // note that this step sets us up both for
@@ -198,8 +197,6 @@ public class InitialDataEntryServlet extends DataEntryServlet {
      */
     @Override
     protected DisplayItemBean validateDisplayItemBean(DiscrepancyValidator v, DisplayItemBean dib, String inputName, HttpServletRequest request) {
-
-        ItemBean ib = dib.getItem();
         org.akaza.openclinica.bean.core.ResponseType rt = dib.getMetadata().getResponseSet().getResponseType();
 
         // note that this step sets us up both for

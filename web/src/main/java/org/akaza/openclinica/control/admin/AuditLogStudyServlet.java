@@ -77,23 +77,16 @@ public class AuditLogStudyServlet extends SecureController {
      */
     @Override
     protected void processRequest() throws Exception {
-        int studyId = currentStudy.getId();
 
         StudySubjectDAO subdao = new StudySubjectDAO(sm.getDataSource());
         SubjectDAO sdao = new SubjectDAO(sm.getDataSource());
         AuditDAO adao = new AuditDAO(sm.getDataSource());
 
-        FormProcessor fp = new FormProcessor(request);
-
         StudyEventDAO sedao = new StudyEventDAO(sm.getDataSource());
         StudyEventDefinitionDAO seddao = new StudyEventDefinitionDAO(sm.getDataSource());
-        EventDefinitionCRFDAO edcdao = new EventDefinitionCRFDAO(sm.getDataSource());
         EventCRFDAO ecdao = new EventCRFDAO(sm.getDataSource());
         StudyDAO studydao = new StudyDAO(sm.getDataSource());
-        CRFDAO cdao = new CRFDAO(sm.getDataSource());
-        CRFVersionDAO cvdao = new CRFVersionDAO(sm.getDataSource());
 
-        HashMap eventCRFAuditsHashMap = new HashMap();
         HashMap eventsHashMap = new HashMap();
         HashMap studySubjectAuditsHashMap = new HashMap();
         HashMap subjectHashMap = new HashMap();
@@ -104,7 +97,6 @@ public class AuditLogStudyServlet extends SecureController {
 
         for (int ss = 0; ss < studySubjects.size(); ss++) {
             ArrayList studySubjectAudits = new ArrayList();
-            ArrayList eventCRFAudits = new ArrayList();
 
             StudySubjectBean studySubject = (StudySubjectBean) studySubjects.get(ss);
             // request.setAttribute("studySub"+ss, studySubject);

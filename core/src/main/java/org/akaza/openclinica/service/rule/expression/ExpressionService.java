@@ -92,19 +92,6 @@ public class ExpressionService {
     Pattern[] ruleActionPattern;
     ExpressionObjectWrapper expressionWrapper;
 
-    private ItemDAO itemDao;
-    private StudyEventDefinitionDAO studyEventDefinitionDao;
-    private EventDefinitionCRFDAO eventDefinitionCRFDao;
-    private DynamicsItemFormMetadataDao dynamicsItemFormMetadataDao;
-    private ItemGroupMetadataDAO itemGroupMetadataDao;
-    private EventCRFDAO eventCRFDao;
-    private ItemGroupDAO itemGroupDao;
-    private CRFDAO crfDao;
-    private CRFVersionDAO crfVersionDao;
-    private ItemDataDAO itemDataDao;
-    private StudyEventDAO studyEventDao;
-    private StudySubjectDAO studySubjectDao;
-    private ItemFormMetadataDAO itemFormMetadataDao;
     public final static String STARTDATE = ".STARTDATE";
     public final static String STATUS = ".STATUS";
     public static final String STUDY_EVENT_OID_START_KEY = "SE_";
@@ -1365,10 +1352,6 @@ public class ExpressionService {
     }
 
     public String isExpressionValid(String oid, RuleSetBean ruleSet) {
-
-        StudyEventDefinitionBean studyEventDefinition = getStudyEventDefinitionFromExpression(ruleSet.getTarget()
-                .getValue());
-
         String[] theOid = oid.split(ESCAPED_SEPERATOR);
         if (theOid.length == 3) {
             ItemGroupBean itemGroup = getItemGroupDao().findByOid(theOid[0]);

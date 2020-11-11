@@ -74,7 +74,6 @@ public class DiscrepancyNoteController {
 		String noteType = map.get("NoteType");
 		String resolutionStatus = map.get("Status");
 		String assignedUser = map.get("AssignedUser");
-		String owner = map.get("Owner");
 		String description = map.get("Description");
 		String detailedNotes = map.get("DetailedNote");
 		String dn_id = map.get("DN_Id");

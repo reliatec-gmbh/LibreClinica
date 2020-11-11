@@ -732,8 +732,7 @@ public class ListEventsForSubjectTableFactory extends AbstractTableFactory {
     }
 
     private class EventCrfCellEditor implements CellEditor {
-
-        SubjectEventStatus subjectEventStatus;  
+  
         DataEntryStage dataEntryStage;
         StudyEventBean studyEvent;
         StudySubjectBean studySubjectBean;
@@ -760,7 +759,6 @@ public class ListEventsForSubjectTableFactory extends AbstractTableFactory {
                 crf = (CRFBean) display.getProps().get(property + "_crf");
                 eventDefintionCrf = (EventDefinitionCRFBean) display.getProps().get(property + "_eventDefinitionCrf");
                 eventCrf = (EventCRFBean) display.getProps().get(property + "_eventCrf");
-                subjectEventStatus = (SubjectEventStatus) display.getProps().get("event.status");
                 studyEvent = (StudyEventBean) display.getProps().get("event");
                 studyEvents = new ArrayList<StudyEventBean>();
                

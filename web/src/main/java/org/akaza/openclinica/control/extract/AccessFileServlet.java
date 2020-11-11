@@ -41,8 +41,6 @@ public class AccessFileServlet extends SecureController {
         return "AccessFile?fileId=" + fId;
     }
 
-    private static String WEB_DIR = "/WEB-INF/datasets/";
-
     @Override
     public void processRequest() throws Exception {
         FormProcessor fp = new FormProcessor(request);

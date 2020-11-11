@@ -34,7 +34,7 @@ public class StudyEventDefinitionBean extends AuditableEntityBean implements Com
     private int studyId;// fk for study table
 
     // TODO is either CRFBean or EventdefinitionCRFBean, fix this
-    private ArrayList<AuditableEntityBean> crfs = new ArrayList<>();
+    private ArrayList<? extends AuditableEntityBean> crfs = new ArrayList<>();
 
     private int crfNum = 0; // number of crfs, not in DB
 
@@ -91,7 +91,7 @@ public class StudyEventDefinitionBean extends AuditableEntityBean implements Com
     /**
      * @return Returns the crfs.
      */
-    public ArrayList<AuditableEntityBean> getCrfs() {
+    public ArrayList<? extends AuditableEntityBean> getCrfs() {
         return crfs;
     }
 
@@ -99,7 +99,7 @@ public class StudyEventDefinitionBean extends AuditableEntityBean implements Com
      * @param crfs
      *            The crfs to set.
      */
-    public void setCrfs(ArrayList<AuditableEntityBean> crfs) {
+    public void setCrfs(ArrayList<? extends AuditableEntityBean> crfs) {
         this.crfs = crfs;
     }
 

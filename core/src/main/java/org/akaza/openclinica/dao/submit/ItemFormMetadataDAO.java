@@ -81,7 +81,6 @@ public class ItemFormMetadataDAO<K extends String,V extends ArrayList> extends E
 
         this.setTypesExpected();
 
-        HashMap variables = new HashMap();
         Iterator it = ints.iterator();
         while (it.hasNext()) {
             Integer newInt = (Integer) it.next();
@@ -435,7 +434,6 @@ public class ItemFormMetadataDAO<K extends String,V extends ArrayList> extends E
 
     public ArrayList<ItemFormMetadataBean> findAllByCRFVersionIdAndResponseTypeId(int crfVersionId, int responseTypeId) throws OpenClinicaException {
      //Caching purpose
-        V  value;
         K key;
 
 
@@ -447,7 +445,6 @@ public class ItemFormMetadataDAO<K extends String,V extends ArrayList> extends E
         variables.put(new Integer(1), new Integer(crfVersionId));
         variables.put(new Integer(2), new Integer(responseTypeId));
         ArrayList alist;
-        PreparedStatementFactory psf = new PreparedStatementFactory(variables);
 
         String sql = digester.getQuery("findAllByCRFVersionIdAndResponseTypeId");
 
@@ -1022,7 +1019,6 @@ public class ItemFormMetadataDAO<K extends String,V extends ArrayList> extends E
         clearSignals();
 
         ArrayList results = new ArrayList();
-        V  value;
         K key;
         ResultSet rs = null;
         Connection con = null;

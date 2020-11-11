@@ -178,13 +178,6 @@ public class EnterDataForStudyEventServlet extends SecureController {
         EventCRFDAO ecdao = new EventCRFDAO(sm.getDataSource());
         ArrayList<EventCRFBean> eventCRFs = ecdao.findAllByStudyEvent(seb);
         ArrayList<Boolean> doRuleSetsExist = new ArrayList<Boolean>();
-        RuleSetDAO ruleSetDao = new RuleSetDAO(sm.getDataSource());
-
-        for (EventCRFBean eventCrfBean : eventCRFs) {
-            // Boolean result = ruleSetDao.findByEventCrf(eventCrfBean) != null
-            // ? Boolean.TRUE : Boolean.FALSE;
-            // doRuleSetsExist.add(result);
-        }
 
         EventDefinitionCRFDAO edcdao = new EventDefinitionCRFDAO(sm.getDataSource());
         ArrayList eventDefinitionCRFs = (ArrayList) edcdao.findAllActiveByEventDefinitionId(study, seb.getStudyEventDefinitionId());
@@ -347,7 +340,6 @@ public class EnterDataForStudyEventServlet extends SecureController {
         UserAccountDAO userAccountDAO = new UserAccountDAO(sm.getDataSource());
         UserAccountBean userAccountBean;
         EventCRFBean eventCRFBean;
-        EventDefinitionCRFBean eventDefinitionCRFBean;
 
         for (DisplayEventDefinitionCRFBean dedcBean : displayEventDefinitionCRFBeans) {
 
@@ -489,20 +481,16 @@ public class EnterDataForStudyEventServlet extends SecureController {
             logger.debug("found subj event status: " + status.getName() + " cb status: " + cb.getStatus().getName() + " cvb status: "
                 + cvb.getStatus().getName());
             // below added tbh 092007
-            boolean invalidate = false;
             if (status.isLocked()) {
                 ecb.setStage(DataEntryStage.LOCKED);
             } else if (status.isInvalid()) {
                 ecb.setStage(DataEntryStage.LOCKED);
-                // invalidate = true;
             } else if (!cb.getStatus().equals(Status.AVAILABLE)) {
                 logger.debug("got to the CB version of the logic");
                 ecb.setStage(DataEntryStage.LOCKED);
-                // invalidate= true;
             } else if (!cvb.getStatus().equals(Status.AVAILABLE)) {
                 logger.debug("got to the CVB version of the logic");
                 ecb.setStage(DataEntryStage.LOCKED);
-                // invalidate = true;
             }
             logger.debug("found ecb stage of " + ecb.getStage().getName());
 

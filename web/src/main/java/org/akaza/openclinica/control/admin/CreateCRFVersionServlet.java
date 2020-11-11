@@ -136,7 +136,6 @@ public class CreateCRFVersionServlet extends SecureController {
                 tempFile = uploadFile(theDir, version);
             } catch (CRFReadingException crfException) {
                 Validator.addError(errors, "excel_file", crfException.getMessage());
-                String msg = crfException.getMessage();
                 request.setAttribute("formMessages", errors);
                 forwardPage(Page.CREATE_CRF_VERSION);
                 return;
@@ -287,12 +286,10 @@ public class CreateCRFVersionServlet extends SecureController {
 
                     logger.debug("CRF-ID [" + version.getCrfId() + "]");
                     int crfVersionId = 0;
-                    String versionOID = null;
                     if (version.getCrfId() != 0) {
                         crfvbeans = cvdao.findAllByCRFId(version.getCrfId());
                         CRFVersionBean cvbean = (CRFVersionBean) crfvbeans.get(crfvbeans.size() - 1);
                         crfVersionId = cvbean.getId();
-                        versionOID = cvbean.getOid();
                         for (Iterator iter = crfvbeans.iterator(); iter.hasNext();) {
                             cvbean = (CRFVersionBean) iter.next();
                             if (crfVersionId < cvbean.getId()) {

@@ -43,8 +43,6 @@ public class GroupType extends Term {
 
     public static final List list = Arrays.asList(members);
 
-    private List privileges;
-
     private GroupType(int id, String name) {
         super(id, name);
     }

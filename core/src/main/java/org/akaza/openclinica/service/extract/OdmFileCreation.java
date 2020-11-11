@@ -141,8 +141,7 @@ public class OdmFileCreation {
         int fId =
             createFileK(ODMXMLFileName, generalFileDir, metaReport.getXmlOutput().toString(), datasetBean, sysTimeEnd, ExportFormatBean.XMLFILE, false, zipped, deleteOld, userBean);
         if (!"".equals(generalFileDirCopy)) {
-            int fId2 =
-                createFileK(ODMXMLFileName, generalFileDirCopy, metaReport.getXmlOutput().toString(), datasetBean, sysTimeEnd, ExportFormatBean.XMLFILE,
+            createFileK(ODMXMLFileName, generalFileDirCopy, metaReport.getXmlOutput().toString(), datasetBean, sysTimeEnd, ExportFormatBean.XMLFILE,
                         false, zipped, deleteOld, userBean);
         }
         //////////////////////////////////////////
@@ -160,8 +159,7 @@ public class OdmFileCreation {
         fId =
             createFileK(ODMXMLFileName, generalFileDir, adminReport.getXmlOutput().toString(), datasetBean, sysTimeEnd, ExportFormatBean.XMLFILE, false, zipped, deleteOld, userBean);
         if (!"".equals(generalFileDirCopy)) {
-            int fId2 =
-                createFileK(ODMXMLFileName, generalFileDirCopy, adminReport.getXmlOutput().toString(), datasetBean, sysTimeEnd, ExportFormatBean.XMLFILE,
+            createFileK(ODMXMLFileName, generalFileDirCopy, adminReport.getXmlOutput().toString(), datasetBean, sysTimeEnd, ExportFormatBean.XMLFILE,
                         false, zipped, deleteOld, userBean);
         }
 
@@ -226,7 +224,7 @@ public class OdmFileCreation {
                 fId = createFileK(ODMXMLFileName, generalFileDir, report.getXmlOutput().toString(), datasetBean, sysTimeEnd, ExportFormatBean.XMLFILE,
                                     false, zipped, deleteOld, userBean);
                 if (!"".equals(generalFileDirCopy)) {
-                    int fId2 = createFileK(ODMXMLFileName, generalFileDirCopy, report.getXmlOutput().toString(), datasetBean, sysTimeEnd,
+                    createFileK(ODMXMLFileName, generalFileDirCopy, report.getXmlOutput().toString(), datasetBean, sysTimeEnd,
                                 ExportFormatBean.XMLFILE, false, zipped, deleteOld, userBean);
                 }
             }
@@ -235,7 +233,7 @@ public class OdmFileCreation {
         sysTimeEnd = System.currentTimeMillis() - sysTimeBegin;
         fId = createFileK(ODMXMLFileName, generalFileDir, "</ODM>", datasetBean, sysTimeEnd, ExportFormatBean.XMLFILE, saveToDB, zipped, deleteOld, userBean);
         if (!"".equals(generalFileDirCopy)) {
-            int fId2 = createFileK(ODMXMLFileName, generalFileDirCopy, "</ODM>", datasetBean, sysTimeEnd, ExportFormatBean.XMLFILE, false, zipped, deleteOld, userBean);
+            createFileK(ODMXMLFileName, generalFileDirCopy, "</ODM>", datasetBean, sysTimeEnd, ExportFormatBean.XMLFILE, false, zipped, deleteOld, userBean);
         }
 
         //////////////////////////////////////////

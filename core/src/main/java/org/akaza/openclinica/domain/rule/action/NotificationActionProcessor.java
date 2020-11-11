@@ -185,7 +185,6 @@ public class NotificationActionProcessor implements ActionProcessor, Runnable {
 		emailSubject = emailSubject.replaceAll("\\$\\{event.name}", eventName);
 		emailSubject = emailSubject.replaceAll("\\$\\{study.name}", studyName);
 
-		ParticipantDTO pDTO = null;
 		StudyBean studyBean = getStudyBean(studyId);
 		String[] listOfEmails = emailList.split(",");
 		StudySubjectBean ssBean = (StudySubjectBean) ssdao.findByPK(studySubjectBeanId);

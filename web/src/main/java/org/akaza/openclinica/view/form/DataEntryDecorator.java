@@ -28,7 +28,6 @@ public class DataEntryDecorator {
         // the span element that contains the input element
         Element spanElement;
         String[] arrayOfValues = new String[] {};
-        int count = 0;
         // Handles lone Strings, or Strings separated by commas
         if (dbValue != null && dbValue.length() > 0) {
             synchronized (inputGenerator) {
@@ -91,7 +90,6 @@ public class DataEntryDecorator {
         }
 
         // Do not use the default value if there is a valid database value
-        boolean hasData = dbValue != null && dbValue.length() > 0;
         for (Object responseOptBean : options) {
 
             spanElement = new Element("span");

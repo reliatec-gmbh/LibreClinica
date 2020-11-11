@@ -26,7 +26,6 @@ import org.akaza.openclinica.bean.core.ResolutionStatus;
 import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.bean.managestudy.DiscrepancyNoteBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
-import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
 import org.akaza.openclinica.bean.managestudy.StudySubjectBean;
 import org.akaza.openclinica.control.AbstractTableFactory;
 import org.akaza.openclinica.control.DefaultActionsEditor;
@@ -63,13 +62,8 @@ import org.jmesa.view.component.Row;
 import org.jmesa.view.editor.CellEditor;
 import org.jmesa.view.editor.DateCellEditor;
 import org.jmesa.view.html.HtmlBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ListNotesTableFactory extends AbstractTableFactory {
-
-    private static final Logger LOG = LoggerFactory.getLogger(ListNotesTableFactory.class.getName());
-
     private AuditUserLoginDao auditUserLoginDao;
     private StudySubjectDAO studySubjectDao;
     private UserAccountDAO userAccountDao;
@@ -88,7 +82,6 @@ public class ListNotesTableFactory extends AbstractTableFactory {
     private ResourceBundle resword;
     private ResourceBundle resformat;
     private List<DiscrepancyNoteBean> allNotes = new ArrayList<DiscrepancyNoteBean>();
-    private ArrayList<StudyEventDefinitionBean> studyEventDefinitions;
     private String module;
     private Integer resolutionStatus;
     private Integer discNoteType;
@@ -443,7 +436,6 @@ public class ListNotesTableFactory extends AbstractTableFactory {
         @Override
         @SuppressWarnings("unchecked")
         public Object getValue(Object item, String property, int rowcount) {
-            String value = "";
             DiscrepancyNoteBean dnb = (DiscrepancyNoteBean) ((HashMap<Object, Object>) item).get("discrepancyNoteBean");
             HtmlBuilder builder = new HtmlBuilder();
             //for "view" as action
@@ -477,7 +469,6 @@ public class ListNotesTableFactory extends AbstractTableFactory {
             if (studySubjectId != null) {
                 StringBuilder url = new StringBuilder();
                 url.append(downloadNotesLinkBuilder(studySubjectBean));
-                value = url.toString();
             }
 
 

@@ -42,7 +42,6 @@ public class ChangeDefinitionCRFOrdinalServlet extends ChangeOrdinalServlet {
         int definitionId = fp.getInt("id");
         EventDefinitionCRFDAO edcdao = new EventDefinitionCRFDAO(sm.getDataSource());
         increase(current, previous, currOrdinal, prevOrdinal, definitionId, edcdao);
-        StudyDAO sdao = new StudyDAO(sm.getDataSource());
         int siteId = fp.getInt("siteId");
         if (siteId > 0) {
             request.setAttribute("idToSort", new Integer(definitionId).toString());
@@ -96,7 +95,6 @@ public class ChangeDefinitionCRFOrdinalServlet extends ChangeOrdinalServlet {
      */
     private void fixDuplicates(int definitionId, EventDefinitionCRFDAO dao) {
         ArrayList list = dao.findAllByEventDefinitionId(definitionId);
-        int prevOrdinal = 0;
         boolean incrementNextOrdinal = false;
         for (int i =0; i < list.size(); i++) {
             EventDefinitionCRFBean edc = (EventDefinitionCRFBean) list.get(i);

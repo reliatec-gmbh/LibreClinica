@@ -124,7 +124,6 @@ public class PrintHorizontalFormBuilder extends DefaultFormBuilder {
 
             // Does this particular section have to be reconfigured for printing
             // in IE browsers?
-            boolean changeHTMLForIE = false;
             if (reconfigureView) {
 //                changeHTMLForIE = builderUtil.hasThreePlusColumns(displaySecBean);
             }
@@ -503,7 +502,6 @@ public class PrintHorizontalFormBuilder extends DefaultFormBuilder {
 
             // Does this particular section have to be reconfigured for printing
             // in IE browsers?
-            boolean changeHTMLForIE = false;
             if (reconfigureView) {
 //                changeHTMLForIE = builderUtil.hasThreePlusColumns(displaySecBean);
             }

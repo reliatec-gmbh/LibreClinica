@@ -131,7 +131,6 @@ public class ImportRuleServlet extends SecureController {
         int duplicateRuleSetDefs = rulesContainer.getDuplicateRuleSetDefs().size();
         int invalidRuleSetDefs = rulesContainer.getInValidRuleSetDefs().size();
 
-        int validRuleDefs = rulesContainer.getValidRuleDefs().size();
         int duplicateRuleDefs = rulesContainer.getDuplicateRuleDefs().size();
         int invalidRuleDefs = rulesContainer.getInValidRuleDefs().size();
 

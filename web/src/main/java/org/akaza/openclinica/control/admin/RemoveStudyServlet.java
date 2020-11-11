@@ -169,7 +169,6 @@ public class RemoveStudyServlet extends SecureController {
                 // changed by jxu on 08-31-06, to fix the problem of no study_id
                 // in study_group table
                 StudyGroupClassDAO sgcdao = new StudyGroupClassDAO(sm.getDataSource());
-                StudyGroupDAO sgdao = new StudyGroupDAO(sm.getDataSource());
                 SubjectGroupMapDAO sgmdao = new SubjectGroupMapDAO(sm.getDataSource());
 
                 // YW 09-27-2007, enable status updating for StudyGroupClassBean

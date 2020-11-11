@@ -141,7 +141,6 @@ public class CreateJobExportServlet extends SecureController {
         // TODO multi stage servlet which will create export jobs
         // will accept, create, and return the ViewJob servlet
         FormProcessor fp = new FormProcessor(request);
-        TriggerService triggerService = new TriggerService();
         scheduler = getScheduler();
         String action = fp.getString("action");
         ExtractUtils extractUtils = new ExtractUtils();
@@ -169,7 +168,6 @@ public class CreateJobExportServlet extends SecureController {
             } else {
                 logger.info("found no validation errors, continuing");
 
-                StudyDAO studyDAO = new StudyDAO(sm.getDataSource());
                 DatasetDAO datasetDao = new DatasetDAO(sm.getDataSource());
 
                 UserAccountBean userBean = (UserAccountBean) request.getSession().getAttribute("userBean");
@@ -189,7 +187,6 @@ public class CreateJobExportServlet extends SecureController {
                 // set the job in motion
                 String[] files = epBean.getFileName();
                 String exportFileName;
-                int fileSize = files.length;
                 int  cnt = 0;
                 dsBean.setName(dsBean.getName().replaceAll(" ", "_"));
                 String[] exportFiles= epBean.getExportFileName();

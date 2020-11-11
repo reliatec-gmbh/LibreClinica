@@ -102,7 +102,6 @@ public class ExtractController {
         // set the job in motion
         String[] files = epBean.getFileName();
         String exportFileName;
-        int fileSize = files.length;
         int  cnt = 0;
         JobDetailFactoryBean jobDetailBean = new JobDetailFactoryBean();
         SimpleTrigger simpleTrigger = null;

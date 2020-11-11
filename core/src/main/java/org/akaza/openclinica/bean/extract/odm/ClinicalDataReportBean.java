@@ -340,7 +340,6 @@ public class ClinicalDataReportBean extends OdmXmlReportBean {
     protected void addOneAuditLog(AuditLogBean audit, String currentIndent) {
         if (audit != null) {
             StringBuffer xml = this.getXmlOutput();
-            String indent = this.getIndent();
             String nls = System.getProperty("line.separator");
             String i = audit.getOid();
             String u = audit.getUserId();

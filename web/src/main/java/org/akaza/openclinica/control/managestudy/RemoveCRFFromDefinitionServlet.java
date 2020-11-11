@@ -52,7 +52,6 @@ public class RemoveCRFFromDefinitionServlet extends SecureController {
     public void processRequest() throws Exception {
         ArrayList edcs = (ArrayList) session.getAttribute("eventDefinitionCRFs");
         ArrayList updatedEdcs = new ArrayList();
-        String crfName = "";
 
         StudyEventDefinitionBean sed = (StudyEventDefinitionBean) session.getAttribute("definition");
         StudyParameterValueDAO spvdao = new StudyParameterValueDAO(sm.getDataSource());    
@@ -73,7 +72,6 @@ public class RemoveCRFFromDefinitionServlet extends SecureController {
                     EventDefinitionCRFBean edc = (EventDefinitionCRFBean) edcs.get(i);
                     if (edc.getCrfId() == id) {
                         edc.setStatus(Status.DELETED);
-                        crfName = edc.getCrfName();
                     }
                     if (edc.getId() > 0 || !edc.getStatus().equals(Status.DELETED)) {
                         updatedEdcs.add(edc);

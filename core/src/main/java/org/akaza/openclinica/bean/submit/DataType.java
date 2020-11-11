@@ -58,8 +58,6 @@ public class DataType extends Term {
 
     public static final List<DataType> list = Arrays.asList(members);
 
-    private List privileges;
-
     private DataType(int id, String name, Privilege[] myPrivs) {
         super(id, name);
     }

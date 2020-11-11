@@ -106,7 +106,6 @@ public class ExtractBean {
      */
     // an array of subjects and study_subject
     private final ArrayList subjects;
-    private ArrayList subjectsnostudy;
     private ArrayList hBASE_EVENTSIDE;
     private ArrayList hBASE_ITEMGROUPSIDE;
     private ArrayList aBASE_ITEMDATAID;
@@ -177,8 +176,6 @@ public class ExtractBean {
 
     private CRFBean currentCRF;
 
-    private int crfIndex = -1;
-
     private int maxItemDataBeanOrdinal = 0;
 
     private StudyEventDefinitionBean currentDef;
@@ -186,10 +183,6 @@ public class ExtractBean {
     private int sedIndex = -1;
 
     private ItemBean currentItem;
-
-    private int itemIndex = -1;
-
-    private final boolean defChanged = false;
 
     // Added By Hamid
     // EventCRFBean eventCRF = new EventCRFBean();
@@ -444,7 +437,6 @@ public class ExtractBean {
             // 03/08
             // int numSEDCRFs = getSEDNumCRFs(i);
             for (int j = 1; j <= numSamples; j++) {
-                int numSEDCRFs = getSEDNumCRFs(i);
                 if (dataset.isShowCRFcompletionDate()) {
                     // logger.info();
                     String crfCompletionDate = getColumnLabel(i, j, "CompletionDate", numSamples);
@@ -1793,8 +1785,6 @@ public class ExtractBean {
             logger.info("found exception");
             currentCRF = (CRFBean) currentDef.getCrfs().get(0);
         }
-        crfIndex = crfInd;
-
     }
 
     // private String getSEDCRFName(int sedInd, int crfInd) {
@@ -1890,8 +1880,6 @@ public class ExtractBean {
 
         ArrayList items = getColumns(currentDef, currentCRF);
         currentItem = (ItemBean) items.get(itemInd - 1);
-        itemIndex = itemInd;
-
     }
 
     private String getItemName(int sedInd, int crfInd, int itemInd) {

@@ -58,9 +58,7 @@ public class ResponseType extends Term {
     private static final ResponseType[] members = { TEXT, TEXT_AREA, SINGLE_SELECT, MULTI_SELECT, CHECKBOX, RADIOBUTTON, FILE };
 
     public static final List list = Arrays.asList(members);
-
-    private List privileges;
-
+    
     private ResponseType(int id, String name, Privilege[] myPrivs) {
         super(id, name);
     }

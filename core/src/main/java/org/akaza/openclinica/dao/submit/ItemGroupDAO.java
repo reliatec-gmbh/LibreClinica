@@ -289,7 +289,6 @@ public class ItemGroupDAO<K extends String,V extends ArrayList> extends Auditabl
     }
 
     public List<ItemGroupBean> findGroupByCRFVersionID(int Id) {
-        ItemGroupBean itemGroup = new ItemGroupBean();
         this.unsetTypeExpected();
         setTypesExpected();
 
@@ -476,7 +475,6 @@ public class ItemGroupDAO<K extends String,V extends ArrayList> extends Auditabl
         clearSignals();
 
         ArrayList results = new ArrayList();
-        V  value;
         K key;
         ResultSet rs = null;
         Connection con = null;

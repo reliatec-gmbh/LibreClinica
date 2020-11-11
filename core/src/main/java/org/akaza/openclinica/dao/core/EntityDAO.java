@@ -285,7 +285,6 @@ public abstract class EntityDAO<K extends String, V extends ArrayList> implement
         clearSignals();
 
         ArrayList results = new ArrayList();
-        V value;
         K key;
         ResultSet rs = null;
         Connection con = null;
@@ -1395,11 +1394,7 @@ public abstract class EntityDAO<K extends String, V extends ArrayList> implement
      * @param rs
      * @return
      */
-    public boolean processBASE_ITEMGROUPSIDERecords(ResultSet rs, ExtractBean eb) {// throws
-        // SQLException
-
-        int cnt = 0;
-
+    public boolean processBASE_ITEMGROUPSIDERecords(ResultSet rs, ExtractBean eb) {
         /**
          * fields are: SELECT itemdataid, itemdataordinal, item_group_metadata.item_group_id , item_group.name,
          * itemdesc, itemname, itemvalue, itemunits,
@@ -1589,9 +1584,7 @@ public abstract class EntityDAO<K extends String, V extends ArrayList> implement
      * @param rs
      * @return
      */
-    public boolean processBASE_EVENTSIDERecords(ResultSet rs, ExtractBean eb) {// throws
-        // SQLException
-
+    public boolean processBASE_EVENTSIDERecords(ResultSet rs, ExtractBean eb) {
         /**
          * fields are: SELECT
          *
@@ -1606,8 +1599,7 @@ public abstract class EntityDAO<K extends String, V extends ArrayList> implement
          * //ids itemid, crfversionid, eventcrfid, studyeventid
          *
          */
-
-        int cnt = 0;
+    	
         try {
             while (rs.next()) {
 

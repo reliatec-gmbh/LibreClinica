@@ -90,10 +90,8 @@ public class PrintAllEventCRFServlet extends DataEntryServlet {
         // The PrintDataEntry servlet handles this parameter
         boolean isSubmitted = false;
         StudyEventDefinitionDAO sedao = new StudyEventDefinitionDAO(sm.getDataSource());
-        EventDefinitionCRFDAO edao = new EventDefinitionCRFDAO(sm.getDataSource());
         EventDefinitionCRFDAO edcdao = new EventDefinitionCRFDAO(sm.getDataSource());
 
-        StudyDAO studyDao = new StudyDAO(sm.getDataSource());
         StudyBean currentStudy = (StudyBean) request.getSession().getAttribute("study");
 
         ArrayList<StudyEventDefinitionBean> seds = new ArrayList<StudyEventDefinitionBean>();
@@ -317,7 +315,6 @@ public class PrintAllEventCRFServlet extends DataEntryServlet {
      */
     @Override
     protected DisplayItemBean validateDisplayItemBean(DiscrepancyValidator v, DisplayItemBean dib, String inputName, HttpServletRequest request) {
-        ItemBean ib = dib.getItem();
         org.akaza.openclinica.bean.core.ResponseType rt = dib.getMetadata().getResponseSet().getResponseType();
 
         // note that this step sets us up both for

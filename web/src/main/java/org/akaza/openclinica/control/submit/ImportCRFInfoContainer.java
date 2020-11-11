@@ -51,8 +51,6 @@ public class ImportCRFInfoContainer {
     public ImportCRFInfoContainer(ODMContainer odmContainer, DataSource ds) {
         importCRFList = new ArrayList<ImportCRFInfo>();
 
-        ArrayList<EventCRFBean> eventCRFBeans = new ArrayList<EventCRFBean>();
-        ArrayList<Integer> eventCRFBeanIds = new ArrayList<Integer>();
         EventCRFDAO eventCrfDAO = new EventCRFDAO(ds);
         StudySubjectDAO studySubjectDAO = new StudySubjectDAO(ds);
         StudyEventDefinitionDAO studyEventDefinitionDAO = new StudyEventDefinitionDAO(ds);

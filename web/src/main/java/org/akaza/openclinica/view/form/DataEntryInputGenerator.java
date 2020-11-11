@@ -47,7 +47,6 @@ public class DataEntryInputGenerator implements InputGenerator {
     }
     public static Map<String, String> NULL_VALUES_LONGVERSION = Collections.unmodifiableMap(NULL_VALUES_INITVERSION);
 
-    private static final Logger logger = LoggerFactory.getLogger("org.akaza.openclinica.view.form.DataEntryInputGenerator");
     public static String ONCHANGE_TEXT_INPUT =
         "this.className='changedField';setImage('DataStatus_top','images/icon_UnsavedData.gif');setImage('DataStatus_bottom','images/icon_UnsavedData.gif');";
     // for radio buttons only; to deal with an IE/repetition model bug
@@ -206,7 +205,6 @@ public class DataEntryInputGenerator implements InputGenerator {
         }
         int count = 0;
         // Do not use the default value if there is a valid database value
-        boolean hasData = dbValue != null && dbValue.length() > 0;
         for (Object responseOptBean : options) {
             ++count;
             isFirstInGroup = count == 1;

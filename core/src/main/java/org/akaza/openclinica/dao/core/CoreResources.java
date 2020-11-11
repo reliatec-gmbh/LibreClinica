@@ -86,16 +86,7 @@ public class CoreResources implements ResourceLoaderAware {
     }
 
     public void reportUrl() {
-        String contHome = System.getProperty("catalina.home");
-        Properties pros = System.getProperties();
-        Enumeration proEnum = pros.propertyNames();
-        for (; proEnum.hasMoreElements();) {
-            // Get property name
-            String propName = (String) proEnum.nextElement();
-
-            // Get property value
-            String propValue = (String) pros.get(propName);
-        }
+    	// TODO empty method
     }
 
     public Properties getPropValues(Properties prop, String propFileName) throws IOException {
@@ -497,7 +488,6 @@ public class CoreResources implements ResourceLoaderAware {
     }
 
     private void copyImportRulesFiles() throws IOException {
-        ByteArrayInputStream listSrcFiles[] = new ByteArrayInputStream[3];
         ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(resourceLoader);
         String[] fileNames = { "rules.xsd", "rules_template.xml", "rules_template_with_notes.xml" };
         Resource[] resources = null;
@@ -529,7 +519,6 @@ public class CoreResources implements ResourceLoaderAware {
 
     private void copyConfig() throws IOException {
         ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(resourceLoader);
-        Resource[] resources = null;
         FileOutputStream out = null;
         Resource resource1 = null;
         Resource resource2 = null;
@@ -622,7 +611,6 @@ public class CoreResources implements ResourceLoaderAware {
 
     private void copyODMMappingXMLtoResources(ResourceLoader resourceLoader) {
         ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(resourceLoader);
-        String[] fileNames = { "cd_odm_mapping.xml" };
         Resource[] resources;
         try {
             resources = resolver.getResources("classpath*:properties/cd_odm_mapping.xml");
@@ -839,23 +827,9 @@ public class CoreResources implements ResourceLoaderAware {
         return getFile(fileName, "filePath");
     }
 
-    public File getFile(String fileName, String relDirectory) {
-        try {
-
-            InputStream inputStream = getInputStream(fileName);
-
-            File f = new File(getField("filePath") + relDirectory + fileName);
-
-            /*
-             * OutputStream outputStream = new FileOutputStream(f); byte buf[] = new byte[1024]; int len; try { while
-             * ((len = inputStream.read(buf)) > 0) outputStream.write(buf, 0, len); } finally { outputStream.close();
-             * inputStream.close(); }
-             */
-            return f;
-
-        } catch (IOException e) {
-            throw new OpenClinicaSystemException(e.getMessage(), e.fillInStackTrace());
-        }
+	public File getFile(String fileName, String relDirectory) {
+		File f = new File(getField("filePath") + relDirectory + fileName);
+		return f;
     }
 
     public void setPROPERTIES_DIR() {
@@ -882,19 +856,7 @@ public class CoreResources implements ResourceLoaderAware {
      *          location during application initialization
      */
     public void setODM_MAPPING_DIR() {
-        String resource = "classpath:datainfo.properties";
-
-        Resource scr = resourceLoader.getResource(resource);
-        String absolutePath = null;
-        try {
-
-            absolutePath = scr.getFile().getAbsolutePath();
-
-            ODM_MAPPING_DIR = getField("filePath");
-            // System.out.println("ODM_MAPPING_DIR: " + ODM_MAPPING_DIR);
-        } catch (IOException e) {
-            throw new OpenClinicaSystemException(e.getMessage(), e.fillInStackTrace());
-        }
+        ODM_MAPPING_DIR = getField("filePath");
     }
 
     public static String getDBName() {
@@ -955,15 +917,12 @@ public class CoreResources implements ResourceLoaderAware {
      *
      */
     public ExtractPropertyBean findExtractPropertyBeanById(int id, String datasetId) {
-        boolean notDone = true;
         ArrayList<ExtractPropertyBean> epBeans = findExtractProperties();
         ExtractPropertyBean returnBean = null;
         for (ExtractPropertyBean epbean : epBeans) {
 
             if (epbean.getId() == id) {
                 epbean.setDatasetId(datasetId);
-                notDone = false;
-                // returnBean = epbean;
                 return epbean;
             }
 

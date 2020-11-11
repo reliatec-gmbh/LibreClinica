@@ -109,9 +109,6 @@ public class ImportSpringJob extends QuartzJobBean {
     public static final String STUDY_OID = "study_oid";
     public static final String DEST_DIR = "Event_CRF_Data";
 
-    // below is the directory where we copy the files to, our target
-    private static final String IMPORT_DIR = SQLInitServlet.getField("filePath") + DIR_PATH + File.separator; // +
-
     public static final String IMPORT_DIR_2 = SQLInitServlet.getField("filePath") + DEST_DIR + File.separator;
 
     private DataSource dataSource;

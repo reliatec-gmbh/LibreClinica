@@ -173,18 +173,11 @@ public class CrfBusinessLogicHelper {
      * @return
      */
     public boolean markCRFComplete(EventCRFBean ecb, UserAccountBean ub, boolean inTransaction) throws Exception {
-        DataEntryStage stage = ecb.getStage();
         EventCRFDAO eventCrfDao = new EventCRFDAO(ds);
         ItemDataDAO itemDataDao = new ItemDataDAO(ds);
         StudyDAO sdao = new StudyDAO(ds);
-        StudySubjectDAO ssdao = new StudySubjectDAO(ds);
         StudyBean study = sdao.findByStudySubjectId(ecb.getStudySubjectId());
         EventDefinitionCRFBean edcb = getEventDefinitionCrfByStudyEventAndCrfVersion(ecb, study);
-
-        // StudyEventDAO studyEventDao = new StudyEventDAO(ds);
-        // StudyEventBean studyEventBean = (StudyEventBean)
-        // studyEventDao.findByPK(ecb.getStudyEventId());
-        // Status studyEventStatus = studyEventBean.getStatus();
 
         StudyEventDefinitionDAO studyEventDefinitionDao = new StudyEventDefinitionDAO(ds);
         StudyEventDefinitionBean sedBean = (StudyEventDefinitionBean) studyEventDefinitionDao.findByPK(edcb.getStudyEventDefinitionId());

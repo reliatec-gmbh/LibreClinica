@@ -39,23 +39,6 @@ public class DownloadAttachedFileServlet extends SecureController {
      */
     @Override
     public void mayProceed() throws InsufficientPermissionException {
-        Locale locale = LocaleResolver.getLocale(request);
-        FormProcessor fp = new FormProcessor(request);
-/*        int eventCRFId = fp.getInt("eventCRFId");
-        EventCRFDAO edao = new EventCRFDAO(sm.getDataSource());
-
-        if (eventCRFId > 0) {
-            if (!entityIncluded(eventCRFId, ub.getName(), edao, sm.getDataSource())) {
-                request.setAttribute("downloadStatus", "false");
-                addPageMessage(respage.getString("you_not_have_permission_download_attached_file"));
-                throw new InsufficientPermissionException(Page.DOWNLOAD_ATTACHED_FILE, resexception.getString("no_permission"), "1");
-            }
-        } else {
-            request.setAttribute("downloadStatus", "false");
-            addPageMessage(respage.getString("you_not_have_permission_download_attached_file"));
-            throw new InsufficientPermissionException(Page.DOWNLOAD_ATTACHED_FILE, resexception.getString("no_permission"), "1");
-        }*/
-
         if (ub.isSysAdmin()) {
             return;
         }

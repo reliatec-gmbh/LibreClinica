@@ -7,6 +7,8 @@
  */
 package org.akaza.openclinica.control.login;
 
+import java.util.Date;
+
 import org.akaza.openclinica.bean.login.PwdChallengeQuestion;
 import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.control.SpringServletAccess;
@@ -22,9 +24,6 @@ import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.akaza.openclinica.web.SQLInitServlet;
 import org.akaza.openclinica.web.filter.OpenClinicaJdbcService;
-
-import java.util.Calendar;
-import java.util.Date;
 
 /**
  * @author jxu
@@ -120,10 +119,6 @@ public class RequestPasswordServlet extends SecureController {
                         ((OpenClinicaJdbcService) SpringServletAccess.getApplicationContext(context).getBean("ocUserDetailsService"));
                     String newDigestPass = sm.encrytPassword(newPass, ocService.loadUserByUsername(ubForm.getName()));
                     ubDB.setPasswd(newDigestPass);
-
-                    // passwdtimestamp should be null ,fix
-                    // PrepareStatementFactory
-                    Calendar cal = Calendar.getInstance();
 
                     //Date date = local_df.parse("01/01/1900");
                     //cal.setTime(date);

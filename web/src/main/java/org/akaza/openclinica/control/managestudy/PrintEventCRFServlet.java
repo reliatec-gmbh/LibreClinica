@@ -134,9 +134,6 @@ public class PrintEventCRFServlet extends DataEntryServlet {
                 request.setAttribute("isInternetExplorer", "true");
             }
 
-            int eventDefinitionCRFId = fp.getInt("eventDefinitionCRFId");
-            // EventDefinitionCRFDao findByStudyEventIdAndCRFVersionId(int
-            // studyEventId, int crfVersionId)
             SectionDAO sdao = new SectionDAO(getDataSource());
             CRFVersionDAO crfVersionDAO = new CRFVersionDAO(getDataSource());
             CRFDAO crfDao = new CRFDAO(getDataSource());
@@ -325,7 +322,6 @@ public class PrintEventCRFServlet extends DataEntryServlet {
      */
     @Override
     protected DisplayItemBean validateDisplayItemBean(DiscrepancyValidator v, DisplayItemBean dib, String inputName, HttpServletRequest request) {
-        ItemBean ib = dib.getItem();
         org.akaza.openclinica.bean.core.ResponseType rt = dib.getMetadata().getResponseSet().getResponseType();
 
         // note that this step sets us up both for

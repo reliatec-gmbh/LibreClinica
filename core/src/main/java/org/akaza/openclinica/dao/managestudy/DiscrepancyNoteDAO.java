@@ -243,7 +243,6 @@ public class DiscrepancyNoteDAO extends AuditableEntityDAO {
     }
 
     public Integer getSubjectDNCountWithFilter(ListNotesFilter filter, Integer currentStudyId) {
-        DiscrepancyNoteBean discrepancyNoteBean = new DiscrepancyNoteBean();
         setTypesExpected();
 
         HashMap variables = new HashMap();
@@ -264,7 +263,6 @@ public class DiscrepancyNoteDAO extends AuditableEntityDAO {
     }
 
     public Integer getStudySubjectDNCountWithFilter(ListNotesFilter filter, Integer currentStudyId) {
-        DiscrepancyNoteBean discrepancyNoteBean = new DiscrepancyNoteBean();
         setTypesExpected();
 
         HashMap variables = new HashMap();
@@ -285,7 +283,6 @@ public class DiscrepancyNoteDAO extends AuditableEntityDAO {
     }
 
     public Integer getStudyEventDNCountWithFilter(ListNotesFilter filter, Integer currentStudyId) {
-        DiscrepancyNoteBean discrepancyNoteBean = new DiscrepancyNoteBean();
         setTypesExpected();
 
         HashMap variables = new HashMap();
@@ -306,7 +303,6 @@ public class DiscrepancyNoteDAO extends AuditableEntityDAO {
     }
 
     public Integer getEventCrfDNCountWithFilter(ListNotesFilter filter, Integer currentStudyId) {
-        DiscrepancyNoteBean discrepancyNoteBean = new DiscrepancyNoteBean();
         setTypesExpected();
 
         HashMap variables = new HashMap();
@@ -327,7 +323,6 @@ public class DiscrepancyNoteDAO extends AuditableEntityDAO {
     }
 
     public Integer getItemDataDNCountWithFilter(ListNotesFilter filter, Integer currentStudyId) {
-        DiscrepancyNoteBean discrepancyNoteBean = new DiscrepancyNoteBean();
         setTypesExpected();
 
         HashMap variables = new HashMap();

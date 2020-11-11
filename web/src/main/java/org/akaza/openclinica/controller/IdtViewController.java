@@ -180,7 +180,6 @@ public class IdtViewController {
     public void saveOrUpdateEventCrfFlag(int tagId, String eventCrfPath, UserAccount ua) {
         EventCrfFlag eventCrfFlag = null;
         EventCrfFlagWorkflow eventCrfFlagWorkflow = null;
-        String workflowStatus = "";
         ArrayList<ItemDataFlag> itemDataFlags = (ArrayList<ItemDataFlag>) getItemDataFlagDao().findAllByEventCrfPath(tagId, eventCrfPath);
         eventCrfFlag = getEventCrfFlagDao().findByEventCrfPath(tagId, eventCrfPath);
 

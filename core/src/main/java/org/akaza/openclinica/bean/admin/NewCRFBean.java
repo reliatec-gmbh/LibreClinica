@@ -421,7 +421,7 @@ public class NewCRFBean extends Object implements java.io.Serializable {
                 if (rs.next()) {
                     // do nothing on purpose? no, we check to see if it was null
                     // first
-                    int test = rs.getInt(1);
+                    rs.getInt(1);
                     if (rs.wasNull()) {
 
                         String sql2 = digester.getQuery("updateDefaultVersion");

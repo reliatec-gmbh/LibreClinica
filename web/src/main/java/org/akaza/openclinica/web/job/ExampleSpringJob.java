@@ -8,7 +8,6 @@
 package org.akaza.openclinica.web.job;
 
 import java.io.File;
-import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -47,15 +46,6 @@ import org.springframework.scheduling.quartz.JobDetailFactoryBean;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 
 public class ExampleSpringJob extends QuartzJobBean {
-
-    // example code here
-    private String message;
-
-    // example code here
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
 
     // variables to pull out
@@ -80,7 +70,6 @@ public class ExampleSpringJob extends QuartzJobBean {
     private DataSource dataSource;
     private GenerateExtractFileService generateFileService;
     private UserAccountBean userBean;
-    private JobDetailFactoryBean jobDetailBean;
     private CoreResources coreResources;
     private RuleSetRuleDao ruleSetRuleDao;
 
@@ -205,7 +194,6 @@ public class ExampleSpringJob extends QuartzJobBean {
                 logger.debug("-- found extract bean ");
 
                 ExtractBean eb = generateFileService.generateExtractBean(datasetBean, activeStudy, parentStudy);
-                MessageFormat mf = new MessageFormat("");
                 StringBuffer message = new StringBuffer();
                 StringBuffer auditMessage = new StringBuffer();
                 // use resource bundle page messages to generate the email, tbh
@@ -385,10 +373,7 @@ public class ExampleSpringJob extends QuartzJobBean {
         for (Iterator it = fileName.entrySet().iterator(); it.hasNext();) {
             java.util.Map.Entry entry = (java.util.Map.Entry) it.next();
             Object key = entry.getKey();
-            Object value = entry.getValue();
             fileNameStr = (String) key;
-            Integer fileID = (Integer) value;
-            // fId = fileID.intValue();
         }
         return fileNameStr;
     }
@@ -398,7 +383,6 @@ public class ExampleSpringJob extends QuartzJobBean {
         Integer fileID = new Integer(0);
         for (Iterator it = fileName.entrySet().iterator(); it.hasNext();) {
             java.util.Map.Entry entry = (java.util.Map.Entry) it.next();
-            Object key = entry.getKey();
             Object value = entry.getValue();
             // fileNameStr = (String) key;
             fileID = (Integer) value;

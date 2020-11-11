@@ -179,9 +179,6 @@ public class DeleteEventCRFServlet extends SecureController {
 					}
 					iddao = new ItemDataDAO(sm.getDataSource());
 					ifmdao = new ItemFormMetadataDAO(sm.getDataSource());
-					ItemDataBean idBean = (ItemDataBean) iddao.findByPK(itemdata.getId());
-
-					ItemFormMetadataBean ifmBean = ifmdao.findByItemIdAndCRFVersionId(idBean.getItemId(), crfVersionId);
 
 					// Updating Dn_item_data_map actovated column into false for the existing DNs
 					ArrayList<DiscrepancyNoteBean> dnBeans = getDnDao().findExistingNotesForItemData(itemdata.getId());

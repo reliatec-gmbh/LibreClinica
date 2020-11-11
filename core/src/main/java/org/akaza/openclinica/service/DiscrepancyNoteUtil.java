@@ -464,7 +464,6 @@ public class DiscrepancyNoteUtil {
         // what is the purpose of this data member?
         discrepancyNoteDAO.setFetchMapping(true);
 
-        EventCRFDAO ecdao = new EventCRFDAO(dataSource);
         ArrayList itemDataNotes = discrepancyNoteDAO.findAllItemDataByStudy(currentStudy);
 
         ArrayList subjectNotes = discrepancyNoteDAO.findAllSubjectByStudy(currentStudy);
@@ -525,7 +524,6 @@ public class DiscrepancyNoteUtil {
         // what is the purpose of this data member?
         discrepancyNoteDAO.setFetchMapping(true);
 
-        EventCRFDAO ecdao = new EventCRFDAO(dataSource);
         ArrayList itemDataNotes = discrepancyNoteDAO.findAllItemDataByStudy(currentStudy);
 
         ArrayList subjectNotes = discrepancyNoteDAO.findAllSubjectByStudy(currentStudy);
@@ -585,35 +583,9 @@ public class DiscrepancyNoteUtil {
         boolean filterforDiscNoteType = discNoteType >= 1 && discNoteType <= 4;
 
         DiscrepancyNoteDAO discrepancyNoteDAO = new DiscrepancyNoteDAO(dataSource);
-        StudyDAO studyDAO = new StudyDAO(dataSource);
         // what is the purpose of this data member?
-        discrepancyNoteDAO.setFetchMapping(true);
-        int parentStudyId = currentStudy.getParentStudyId();
-        Set<String> hiddenCrfNames = new TreeSet<String>();
-        if (parentStudyId > 0) {
-            hiddenCrfNames = new EventDefinitionCRFDAO(dataSource).findHiddenCrfNamesBySite(currentStudy);
-        }
+        discrepancyNoteDAO.setFetchMapping(true);        
         allDiscNotes = discrepancyNoteDAO.findAllDiscrepancyNotesDataByStudy(currentStudy);
-
-        // ArrayList eventCRFNotes =
-        // discrepancyNoteDAO.findAllEventCRFByStudy(currentStudy);
-
-        // BWP 3167 Get all disc note for parent study as well>>
-        //        ArrayList parentItemDataNotes = null;
-        //        StudyBean parentStudy = null;
-        //        if (parentStudyId > 0) {
-        //            parentStudy = (StudyBean) studyDAO.findByPK(parentStudyId);
-        //            parentItemDataNotes = discrepancyNoteDAO.findAllItemDataByStudy(parentStudy, hiddenCrfNames);
-        //            itemDataNotes.addAll(parentItemDataNotes);
-        //        }
-        //
-        //        allDiscNotes.addAll(itemDataNotes);
-        // make sure that any "parent" notes have the last resolution status of
-        // any
-        // of their child notes
-        //if (updateStatusOfParents) {
-        //    updateStatusOfParents(allDiscNotes, dataSource, currentStudy);
-        //}
 
         if (filterDiscNotes) {
             // filter for the resolution status
@@ -1394,7 +1366,6 @@ public class DiscrepancyNoteUtil {
             return treeSet;
         }
 
-        StudyEventBean studyEventBean = null;
         List<DisplayEventCRFBean> displayEventCRFBeans = null;
         List<EventCRFBean> eventCRFBeans = null;
 
@@ -1473,9 +1444,7 @@ public class DiscrepancyNoteUtil {
         }
 
         List<DiscrepancyNoteBean> childDiscBeans = new ArrayList<DiscrepancyNoteBean>();
-        List<DiscrepancyNoteBean> eventCRFChildDiscBeans = new ArrayList<DiscrepancyNoteBean>();
 
-        DiscrepancyNoteDAO discrepancyNoteDAO = new DiscrepancyNoteDAO(dataSource);
         DiscrepancyNoteThread tempDNThread = null;
         int resolutionStatusId = 0;
 

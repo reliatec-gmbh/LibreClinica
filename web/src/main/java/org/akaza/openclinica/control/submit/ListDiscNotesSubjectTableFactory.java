@@ -79,7 +79,6 @@ public class ListDiscNotesSubjectTableFactory extends AbstractTableFactory {
     private StudyBean studyBean;
     private String[] columnNames = new String[] {};
     private ArrayList<StudyEventDefinitionBean> studyEventDefinitions;
-    private ArrayList<StudyGroupClassBean> studyGroupClasses;
     private StudyUserRoleBean currentRole;
     private UserAccountBean currentUser;
     private ResourceBundle resword;
@@ -609,10 +608,8 @@ public class ListDiscNotesSubjectTableFactory extends AbstractTableFactory {
     private class StudyEventDefinitionMapCellEditor implements CellEditor {
 
         StudyEventDefinitionBean studyEventDefinition;
-        StudySubjectBean studySubjectBean;
         SubjectEventStatus subjectEventStatus;
         List<StudyEventBean> studyEvents;
-        SubjectBean subject;
         HashMap<ResolutionStatus, Integer> discCounts;
 
         private String getCount() {
@@ -625,8 +622,6 @@ public class ListDiscNotesSubjectTableFactory extends AbstractTableFactory {
             studyEvents = (List<StudyEventBean>) ((HashMap<Object, Object>) item).get(property + "_studyEvents");
             studyEventDefinition = (StudyEventDefinitionBean) ((HashMap<Object, Object>) item).get(property + "_object");
             subjectEventStatus = SubjectEventStatus.get((Integer) ((HashMap<Object, Object>) item).get(property));
-            subject = (SubjectBean) ((HashMap<Object, Object>) item).get("subject");
-            studySubjectBean = (StudySubjectBean) ((HashMap<Object, Object>) item).get("studySubject");
             discCounts = (HashMap<ResolutionStatus, Integer>) ((HashMap<Object, Object>) item).get(property + "_discCounts");
 
             StringBuilder url = new StringBuilder();
@@ -790,16 +785,11 @@ public class ListDiscNotesSubjectTableFactory extends AbstractTableFactory {
         String tableHeaderRowLeftStyleClass = "table_header_row_left";
         String add_another_occurrence = resword.getString("add_another_occurrence");
         String click_for_more_options = resword.getString("click_for_more_options");
-        String schedule = resword.getString("schedule");
-        String view = resword.getString("view")+"/"+resword.getString("enter_data");
-        String edit = resword.getString("edit");
-        String remove = resword.getString("remove");
         String occurrence_x_of = resword.getString("ocurrence");
         String subjectText = resword.getString("subject");
         String eventText = resword.getString("event");
         String status = resword.getString("status");
 
-        StudyEventBean defaultEvent = studyEvents.get(0);
         String studySubjectLabel = studySubject.getLabel();
         Status eventSysStatus = studySubject.getStatus();
         Integer studyEventsSize = studyEvents.size();
@@ -992,7 +982,6 @@ public class ListDiscNotesSubjectTableFactory extends AbstractTableFactory {
         String status = resword.getString("status");
 
         SubjectEventStatus eventStatus = studyEvents.size() == 0 ? SubjectEventStatus.NOT_SCHEDULED : studyEvents.get(0).getSubjectEventStatus();
-        String studyEventName = studyEvents.size() == 0 ? "" : studyEvents.get(0).getName();
         String studyEventId = studyEvents.size() == 0 ? "" : String.valueOf(studyEvents.get(0).getId());
         Status eventSysStatus = studySubject.getStatus();
         String studySubjectLabel = studySubject.getLabel();

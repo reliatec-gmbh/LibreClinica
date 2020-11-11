@@ -37,7 +37,6 @@ public class ItemDataFlag extends DataMapDomainObject {
 	private Integer id;
     private int tagId;
     private String path;
-    private int flagWorkflowId;
     private ItemDataFlagWorkflow ItemDataFlagWorkflow;
     private UserAccount userAccount;
     private Date dateCreated;

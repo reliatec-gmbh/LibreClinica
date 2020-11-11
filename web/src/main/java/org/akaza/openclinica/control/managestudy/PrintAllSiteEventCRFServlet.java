@@ -89,7 +89,6 @@ public class PrintAllSiteEventCRFServlet extends DataEntryServlet {
         SectionBean sb = (SectionBean)request.getAttribute(SECTION_BEAN);
 
         StudyEventDefinitionDAO sedao = new StudyEventDefinitionDAO(getDataSource());
-        EventDefinitionCRFDAO edao = new EventDefinitionCRFDAO(getDataSource());
         EventDefinitionCRFDAO edcdao = new EventDefinitionCRFDAO(getDataSource());
         ArrayList<SectionBean> allSectionBeans;
         StudyDAO studyDao = new StudyDAO(getDataSource());
@@ -326,7 +325,6 @@ public class PrintAllSiteEventCRFServlet extends DataEntryServlet {
      */
     @Override
     protected DisplayItemBean validateDisplayItemBean(DiscrepancyValidator v, DisplayItemBean dib, String inputName, HttpServletRequest request) {
-        ItemBean ib = dib.getItem();
         org.akaza.openclinica.bean.core.ResponseType rt = dib.getMetadata().getResponseSet().getResponseType();
 
         // note that this step sets us up both for

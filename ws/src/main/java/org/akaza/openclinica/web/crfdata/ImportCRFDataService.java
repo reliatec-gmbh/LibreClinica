@@ -273,9 +273,7 @@ public class ImportCRFDataService {
             for (StudyEventDataBean studyEventDataBean : studyEventDataBeans) {
                 ArrayList<FormDataBean> formDataBeans = studyEventDataBean.getFormData();
                 // this would be the place to add more stats
-                for (FormDataBean formDataBean : formDataBeans) {
-                    countEventCRFs += 1;
-                }
+                countEventCRFs += formDataBeans.size();
             }
         }
 
@@ -306,7 +304,6 @@ public class ImportCRFDataService {
         StudySubjectDAO studySubjectDAO = new StudySubjectDAO(ds);
         StudyEventDefinitionDAO sedDao = new StudyEventDefinitionDAO(ds);
         HashMap<String, ItemDataBean> blankCheck = new HashMap<String, ItemDataBean>();
-        String hardValidatorErrorMsgs = "";
 
         ArrayList<SubjectDataBean> subjectDataBeans = odmContainer.getCrfDataPostImportContainer().getSubjectData();
         int totalEventCRFCount = 0;
@@ -482,7 +479,6 @@ public class ImportCRFDataService {
                                                 // displayItemBean.setMetadata(metadataBean);
                                                 // set event def crf?
                                                 displayItemBean.setEventDefinitionCRF(eventDefinitionCRF);
-                                                String eventCRFRepeatKey = studyEventDataBean.getStudyEventRepeatKey();
                                                 // if you do indeed leave off this in the XML it will pass but return
                                                 // 'null'
                                                 // tbh
@@ -521,8 +517,6 @@ public class ImportCRFDataService {
                         for (Object errorKey : hardValidator.keySet()) {
                             logger.debug(errorKey.toString() + " -- " + hardValidator.get(errorKey));
                             hardValidationErrors.put(errorKey.toString(), hardValidator.get(errorKey));
-                            // updating here 'statically' tbh 06/2008
-                            hardValidatorErrorMsgs += hardValidator.get(errorKey) + "<br/><br/>";
                         }
 
                         String studyEventId = studyEvent.getId() + "";
@@ -534,7 +528,6 @@ public class ImportCRFDataService {
                                 + hardValidator.size());
                         // check if we need to overwrite
                         DataEntryStage dataEntryStage = eventCRFBean.getStage();
-                        Status eventCRFStatus = eventCRFBean.getStatus();
                         boolean overwrite = false;
                         // tbh >>
                         // //JN: Commenting out the following 2 lines, coz the prompt should come in the cases on
@@ -600,8 +593,6 @@ public class ImportCRFDataService {
      * purpose: returns false if any of the forms/EventCRFs fail the UpsertOnBean rules.
      */
     public boolean eventCRFStatusesValid(ODMContainer odmContainer, UserAccountBean ub) {
-        ArrayList<EventCRFBean> eventCRFBeans = new ArrayList<EventCRFBean>();
-        ArrayList<Integer> eventCRFBeanIds = new ArrayList<Integer>();
         EventCRFDAO eventCrfDAO = new EventCRFDAO(ds);
         StudySubjectDAO studySubjectDAO = new StudySubjectDAO(ds);
         StudyEventDefinitionDAO studyEventDefinitionDAO = new StudyEventDefinitionDAO(ds);
@@ -663,7 +654,6 @@ public class ImportCRFDataService {
                         // below to prevent duplicates
 
                         for (EventCRFBean ecb : eventCrfBeans) {
-                            Integer ecbId = new Integer(ecb.getId());
                             if (!(ecb.getStage().equals(DataEntryStage.INITIAL_DATA_ENTRY) && upsert.isDataEntryStarted())
                                     && !(ecb.getStage().equals(DataEntryStage.DOUBLE_DATA_ENTRY_COMPLETE) && upsert.isDataEntryComplete()))
                                 return false;
@@ -738,7 +728,7 @@ public class ImportCRFDataService {
             // what if it's a number? should be only numbers
             else if (displayItemBean.getItem().getDataType().equals(ItemDataType.INTEGER)) {
                 try {
-                    Integer testInt = new Integer(displayItemBean.getData().getValue());
+                    new Integer(displayItemBean.getData().getValue());
                     int width = Validator.parseWidth(widthDecimal);
                     if (width > 0 && displayItemBean.getData().getValue().length() > width) {
                         hardv.put(itemOid, "This value exceeds required width=" + width);
@@ -754,7 +744,7 @@ public class ImportCRFDataService {
             // what if it's a float? should be only numbers
             else if (displayItemBean.getItem().getDataType().equals(ItemDataType.REAL)) {
                 try {
-                    Float testFloat = new Float(displayItemBean.getData().getValue());
+                    new Float(displayItemBean.getData().getValue());
                     int width = Validator.parseWidth(widthDecimal);
                     if (width > 0 && displayItemBean.getData().getValue().length() > width) {
                         hardv.put(itemOid, "This value exceeds required width=" + width);

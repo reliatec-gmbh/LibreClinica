@@ -45,7 +45,6 @@ public class OCServletContextListener implements ServletContextListener {
 	@Override
     public void contextInitialized(ServletContextEvent event) {
         logger.debug("OCServletContextListener -> contextInitialized");
-		 CoreResources cr = (CoreResources) SpringServletAccess.getApplicationContext(event.getServletContext()).getBean("coreResources");
 
         // @pgawade 25-March-2011 changes for sending usage statistics from
         // OpenClinica instance

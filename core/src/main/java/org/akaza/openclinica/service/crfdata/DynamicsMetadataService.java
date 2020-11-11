@@ -57,15 +57,6 @@ public class DynamicsMetadataService implements MetadataServiceInterface {
     private DynamicsItemFormMetadataDao dynamicsItemFormMetadataDao;
     private DynamicsItemGroupMetadataDao dynamicsItemGroupMetadataDao;
     DataSource ds;
-    private EventCRFDAO eventCRFDAO;
-    private ItemDataDAO itemDataDAO;
-    private ItemDAO itemDAO;
-    private ItemGroupDAO itemGroupDAO;
-    private SectionDAO sectionDAO;
-    // private CRFVersionDAO crfVersionDAO;
-    private ItemFormMetadataDAO itemFormMetadataDAO;
-    private ItemGroupMetadataDAO itemGroupMetadataDAO;
-    private StudyEventDAO studyEventDAO;
     private EventDefinitionCRFDAO eventDefinitionCRFDAO;
     private ExpressionService expressionService;
     
@@ -272,11 +263,6 @@ public class DynamicsMetadataService implements MetadataServiceInterface {
     public void show(Integer itemDataId, List<PropertyBean> properties, RuleSetBean ruleSet) {
         ItemDataBean itemDataBeanA = (ItemDataBean) getItemDataDAO().findByPK(itemDataId);
         EventCRFBean eventCrfBeanA = (EventCRFBean) getEventCRFDAO().findByPK(itemDataBeanA.getEventCRFId());
-        StudyEventBean studyEventBeanA = (StudyEventBean) getStudyEventDAO().findByPK(eventCrfBeanA.getStudyEventId());
-        ItemGroupMetadataBean itemGroupMetadataBeanA =
-            (ItemGroupMetadataBean) getItemGroupMetadataDAO().findByItemAndCrfVersion(itemDataBeanA.getItemId(), eventCrfBeanA.getCRFVersionId());
-        Boolean isGroupARepeating = isGroupRepeating(itemGroupMetadataBeanA);
-        String itemGroupAOrdinal = getExpressionService().getGroupOrdninalCurated(ruleSet.getTarget().getValue());
 
         for (PropertyBean propertyBean : properties) {
             String oid = propertyBean.getOid();
@@ -414,7 +400,6 @@ public class DynamicsMetadataService implements MetadataServiceInterface {
             ItemGroupBean itemGroupBeanB, ItemGroupMetadataBean itemGroupMetadataBeanB, EventCRFBean eventCrfBeanB, UserAccountBean ub) {
 
         ItemDataBean theOidBasedItemData = null;
-        int size = getItemDataDAO().getGroupSize(itemBeanB.getId(), eventCrfBeanB.getId());
         int maxOrdinal = getItemDataDAO().getMaxOrdinalForGroupByItemAndEventCrf(itemBeanB.getId(), eventCrfBeanB);
         List<ItemBean> items = getItemDAO().findAllItemsByGroupId(itemGroupBeanB.getId(), eventCrfBeanB.getCRFVersionId());
         if (1 + maxOrdinal > itemGroupMetadataBeanB.getRepeatMax()) {

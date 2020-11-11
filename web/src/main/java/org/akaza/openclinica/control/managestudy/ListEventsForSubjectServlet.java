@@ -122,7 +122,6 @@ public class ListEventsForSubjectServlet extends SecureController {
         SubjectGroupMapDAO sgmdao = new SubjectGroupMapDAO(sm.getDataSource());
         StudyGroupClassDAO sgcdao = new StudyGroupClassDAO(sm.getDataSource());
 
-        EventCRFDAO ecdao = new EventCRFDAO(sm.getDataSource());
         EventDefinitionCRFDAO edcdao = new EventDefinitionCRFDAO(sm.getDataSource());
         CRFDAO crfdao = new CRFDAO(sm.getDataSource());
 
@@ -131,7 +130,6 @@ public class ListEventsForSubjectServlet extends SecureController {
 
         // information for the event tabs
         ArrayList allDefs = seddao.findAllActiveByStudy(currentStudy);
-        boolean isASite = false;
 
         if (currentStudy.getParentStudyId() > 0) {
 
@@ -187,9 +185,6 @@ public class ListEventsForSubjectServlet extends SecureController {
 
             }
 
-            // find all eventcrfs for each event, for each event tab
-            ArrayList displaySubjectEvents = new ArrayList();
-
             ArrayList<DisplayStudyEventBean> displayEvents = new ArrayList<DisplayStudyEventBean>();
             ArrayList events = sedao.findAllByStudySubjectAndDefinition(studySub, sed);
 
@@ -206,7 +201,6 @@ public class ListEventsForSubjectServlet extends SecureController {
                 displayEvents.add(dseb);
             }
 
-            ArrayList al = new ArrayList();
             for (int k = 0; k < displayEvents.size(); k++) {
                 DisplayStudyEventBean dseb = displayEvents.get(k);
                 ArrayList eventCRFs = dseb.getDisplayEventCRFs();

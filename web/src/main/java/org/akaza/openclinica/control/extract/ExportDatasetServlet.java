@@ -78,8 +78,7 @@ public class ExportDatasetServlet extends SecureController {
 
     private static String SCHEDULER = "schedulerFactoryBean";
     private static final String DATASET_DIR = SQLInitServlet.getField("filePath") + "datasets" + File.separator;
-
-    private static String WEB_DIR = "/WEB-INF/datasets/";
+    
     // may not use the above, security issue
     public File SASFile;
     public String SASFilePath;
@@ -180,8 +179,7 @@ public class ExportDatasetServlet extends SecureController {
             String pattern = "yyyy" + File.separator + "MM" + File.separator + "dd" + File.separator + "HHmmssSSS" + File.separator;
             SimpleDateFormat sdfDir = new SimpleDateFormat(pattern);
             String generalFileDir = DATASET_DIR + db.getId() + File.separator + sdfDir.format(new java.util.Date());
-            String fileName = "";
-
+            
             db.setName(db.getName().replaceAll(" ", "_"));
             Page finalTarget = Page.GENERATE_DATASET;
             finalTarget = Page.EXPORT_DATA_CUSTOM;
@@ -204,8 +202,6 @@ public class ExportDatasetServlet extends SecureController {
                 logger.info("created sas file");
                 request.setAttribute("generate", generalFileDir + SASFileName);
                 finalTarget.setFileName(generalFileDir + SASFileName);
-                fileName = SASFileName;
-                // won't work since page creator is private
             } else if ("odm".equalsIgnoreCase(action)) {
                 String odmVersion = fp.getString("odmVersion");
                 String ODMXMLFileName = "";
@@ -221,7 +217,6 @@ public class ExportDatasetServlet extends SecureController {
                     Integer fileID = (Integer) value;
                     fId = fileID.intValue();
                 }
-                fileName = ODMXMLFileName;
                 request.setAttribute("generate", generalFileDir + ODMXMLFileName);
                 logger.debug("+++ set the following: " + generalFileDir + ODMXMLFileName);
                 // >> tbh #xslt working group
@@ -277,7 +272,6 @@ public class ExportDatasetServlet extends SecureController {
                     Integer fileID = (Integer) value;
                     fId = fileID.intValue();
                 }
-                fileName = TXTFileName;
                 request.setAttribute("generate", generalFileDir + TXTFileName);
                 // finalTarget.setFileName(generalFileDir+TXTFileName);
                 logger.debug("+++ set the following: " + generalFileDir + TXTFileName);
@@ -347,7 +341,6 @@ public class ExportDatasetServlet extends SecureController {
                 // logger.info("found data set: "+generateReport);
                 String CSVFileName = db.getName() + "_comma.txt";
                 fId = generateFileService.createFile(CSVFileName, generalFileDir, answer.toString(), db, sysTimeEnd, ExportFormatBean.CSVFILE, true, ub);
-                fileName = CSVFileName;
                 logger.info("just created csv file");
                 request.setAttribute("generate", generalFileDir + CSVFileName);
                 // finalTarget.setFileName(generalFileDir+CSVFileName);
@@ -356,7 +349,6 @@ public class ExportDatasetServlet extends SecureController {
                 // ExtractBean.XLS_FORMAT,
                 // currentStudy,
                 // parentStudy);
-                long sysTimeEnd = System.currentTimeMillis() - sysTimeBegin;
                 // TODO this will change and point to a created excel
                 // spreadsheet, tbh
                 String excelFileName = db.getName() + "_excel.xls";
@@ -376,11 +368,6 @@ public class ExportDatasetServlet extends SecureController {
                 response.setHeader("Content-Disposition", "attachment; filename=" + db.getName() + "_excel.xls");
                 request.setAttribute("generate", generalFileDir + excelFileName);
                 logger.info("set 'generate' to :" + generalFileDir + excelFileName);
-                fileName = excelFileName;
-                // excelReport.write(stream);
-                // stream.flush();
-                // stream.close();
-                // finalTarget.setFileName(WEB_DIR+db.getId()+"/"+excelFileName);
             }
             // request.setAttribute("generate",generateReport);
             // TODO might not set the above to request and instead aim the
@@ -516,7 +503,6 @@ public class ExportDatasetServlet extends SecureController {
         logger.info("just set dataset to request");
         request.setAttribute("extractProperties", CoreResources.getExtractProperties());
         // find out if there are any files here:
-        File currentDir = new File(DATASET_DIR + db.getId() + File.separator);
 
         //JN: Commenting out this, as its creating directories without any reason. TODO: Check why was this added.
        // if (!currentDir.isDirectory()) {
@@ -570,7 +556,6 @@ public class ExportDatasetServlet extends SecureController {
 
         request.setAttribute("table", table);
         // for the side info bar
-        TabReportBean answer = new TabReportBean();
 
         resetPanel();
         panel.setStudyInfoShown(false);

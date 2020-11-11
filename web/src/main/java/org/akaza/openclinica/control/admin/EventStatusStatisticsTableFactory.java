@@ -92,9 +92,6 @@ public class EventStatusStatisticsTableFactory extends AbstractTableFactory {
             tableFacade.setTotalRows(totalRows);
         }
 
-        int rowStart = limit.getRowSelect().getRowStart();
-        int rowEnd = limit.getRowSelect().getRowEnd();
-
         for (SubjectEventStatus subjectEventStatus : subjectEventStatuses) {
 
             Integer totalEventsByEventStatus = studyEventDao.getCountofEventsBasedOnEventStatus(currentStudy, subjectEventStatus);

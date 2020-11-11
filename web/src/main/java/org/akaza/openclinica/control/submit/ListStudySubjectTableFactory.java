@@ -580,7 +580,6 @@ public class ListStudySubjectTableFactory extends AbstractTableFactory {
     public class SubjectEventStatusFilterMatcher implements FilterMatcher {
         public boolean evaluate(Object itemValue, String filterValue) {
             String item = StringUtils.lowerCase(SubjectEventStatus.getSubjectEventStatusName((Integer) itemValue));
-            String filter = StringUtils.lowerCase(String.valueOf(filterValue));// .trim().replace(" ", "_");
             if (filterValue.equals(resterms.getString(item))) {
                 return true;
             }
@@ -954,16 +953,11 @@ public class ListStudySubjectTableFactory extends AbstractTableFactory {
         String tableHeaderRowLeftStyleClass = "table_header_row_left";
         String add_another_occurrence = resword.getString("add_another_occurrence");
         String click_for_more_options = resword.getString("click_for_more_options");
-        String schedule = resword.getString("schedule");
-        String view = resword.getString("view") + "/" + resword.getString("enter_data");
-        String edit = resword.getString("edit");
-        String remove = resword.getString("remove");
         String occurrence_x_of = resword.getString("ocurrence");
         String subjectText = resword.getString("subject");
         String eventText = resword.getString("event");
         String status = resword.getString("status");
 
-        StudyEventBean defaultEvent = studyEvents.get(0);
         String studySubjectLabel = studySubject.getLabel();
         Status eventSysStatus = studySubject.getStatus();
         Integer studyEventsSize = studyEvents.size();
@@ -1156,7 +1150,6 @@ public class ListStudySubjectTableFactory extends AbstractTableFactory {
         String status = resword.getString("status");
 
         SubjectEventStatus eventStatus = studyEvents.size() == 0 ? SubjectEventStatus.NOT_SCHEDULED : studyEvents.get(0).getSubjectEventStatus();
-        String studyEventName = studyEvents.size() == 0 ? "" : studyEvents.get(0).getName();
         String studyEventId = studyEvents.size() == 0 ? "" : String.valueOf(studyEvents.get(0).getId());
         Status eventSysStatus = studySubject.getStatus();
         String studySubjectLabel = studySubject.getLabel();

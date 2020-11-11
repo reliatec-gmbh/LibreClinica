@@ -36,7 +36,6 @@ public class PauseJobServlet extends SecureController {
 	 */
 	private static final long serialVersionUID = 8523570823252127703L;
 	private static String SCHEDULER = "schedulerFactoryBean";
-    private static String groupName = "DEFAULT";
     private static String groupImportName = "importTrigger";
     private StdScheduler scheduler;
 
@@ -79,7 +78,6 @@ public class PauseJobServlet extends SecureController {
         String deleteMe = fp.getString("del");
         scheduler = getScheduler();
         TriggerKey triggerKey = new TriggerKey(triggerName, finalGroupName);
-        Trigger trigger = scheduler.getTrigger(triggerKey);
         try {
              if (("y".equals(deleteMe)) && (ub.isSysAdmin())) {
                 scheduler.deleteJob(JobKey.jobKey(triggerName, finalGroupName));

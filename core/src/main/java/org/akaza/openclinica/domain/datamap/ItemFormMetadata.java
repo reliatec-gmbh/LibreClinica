@@ -8,7 +8,6 @@
 // default package
 // Generated Jul 31, 2013 2:03:33 PM by Hibernate Tools 3.4.0.CR1
 package org.akaza.openclinica.domain.datamap;
-import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -62,8 +61,6 @@ public class ItemFormMetadata  extends DataMapDomainObject {
 	private String responseLayout;
 	private String widthDecimal;
 	private Boolean showItem;
-	private Set scdItemMetadatasForControlItemFormMetadataId = new HashSet(0);
-	private Set scdItemMetadatasForScdItemFormMetadataId = new HashSet(0);
 
 	public ItemFormMetadata() {
 	}
@@ -110,8 +107,6 @@ public class ItemFormMetadata  extends DataMapDomainObject {
 		this.responseLayout = responseLayout;
 		this.widthDecimal = widthDecimal;
 		this.showItem = showItem;
-		this.scdItemMetadatasForControlItemFormMetadataId = scdItemMetadatasForControlItemFormMetadataId;
-		this.scdItemMetadatasForScdItemFormMetadataId = scdItemMetadatasForScdItemFormMetadataId;
 	}
 
 	@Id

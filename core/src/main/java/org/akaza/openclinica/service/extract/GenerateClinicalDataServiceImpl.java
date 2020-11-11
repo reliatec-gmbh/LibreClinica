@@ -890,9 +890,6 @@ public class GenerateClinicalDataServiceImpl implements GenerateClinicalDataServ
 		// This piece of code identifies if the study subject is assigned to study level or site level. If the study subject assigned to site  is pulled from study level this will get the site OID correctly displayed. 
 		if(!studySubjectOID.equals(INDICATE_ALL))
 		{
-		
-
-			StudySubjectDao ssdao =getStudySubjectDao();
 			StudySubject ss = (StudySubject) getStudySubjectDao().findByColumnName(
 						studySubjectOID, "ocOid");
 		studyOID = ss.getStudy().getOc_oid();

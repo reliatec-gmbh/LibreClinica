@@ -119,10 +119,6 @@ public class ListDiscNotesSubjectServlet extends SecureController {
         }
         locale = LocaleResolver.getLocale(request);
 
-        StudyBean sbean = (StudyBean) session.getAttribute("study");
-        //List<DiscrepancyNoteBean> allDiscNotes = discNoteUtil.getThreadedDNotesForStudy(sbean, resolutionStatusIds, sm.getDataSource(), discNoteType, true);
-
-        //Map stats = discNoteUtil.generateDiscNoteSummary(allDiscNotes);
         Map stats = discNoteUtil.generateDiscNoteSummaryRefactored(sm.getDataSource(), currentStudy, resolutionStatusIds, discNoteType);
         request.setAttribute("summaryMap", stats);
         Set mapKeys = stats.keySet();
@@ -138,7 +134,6 @@ public class ListDiscNotesSubjectServlet extends SecureController {
         SubjectGroupMapDAO sgmdao = new SubjectGroupMapDAO(sm.getDataSource());
         StudyGroupClassDAO sgcdao = new StudyGroupClassDAO(sm.getDataSource());
         StudyGroupDAO sgdao = new StudyGroupDAO(sm.getDataSource());
-        StudySubjectDAO ssdao = new StudySubjectDAO(sm.getDataSource());
         EventCRFDAO edao = new EventCRFDAO(sm.getDataSource());
         EventDefinitionCRFDAO eddao = new EventDefinitionCRFDAO(sm.getDataSource());
         SubjectDAO subdao = new SubjectDAO(sm.getDataSource());

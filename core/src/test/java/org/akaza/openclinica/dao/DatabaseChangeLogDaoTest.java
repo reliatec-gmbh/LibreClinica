@@ -13,9 +13,6 @@ import org.akaza.openclinica.templates.HibernateOcDbTestCase;
 
 public class DatabaseChangeLogDaoTest extends HibernateOcDbTestCase {
 
-    private final Integer POSTGRES_COUNT = 833;
-    private final Integer ORACLE_COUNT = 833;
-
     public DatabaseChangeLogDaoTest() {
         super();
     }

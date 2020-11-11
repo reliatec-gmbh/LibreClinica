@@ -232,7 +232,6 @@ public class MetaDataReportBean extends OdmXmlReportBean {
         SymbolBean symbol = unit.getSymbol();
         StringBuffer xml = this.getXmlOutput();
         String indent = this.getIndent();
-        ArrayList<TranslatedTextBean> texts = symbol.getTranslatedText();
         xml.append(currentIndent + "<Symbol>");
         xml.append(nls);
         for (TranslatedTextBean text : symbol.getTranslatedText()) {

@@ -173,29 +173,11 @@ public class CrfBusinessLogicHelper {
      * @return
      */
     public boolean markCRFComplete(EventCRFBean ecb, UserAccountBean ub) throws Exception {
-        // locale = LocaleResolver.getLocale(request);
-        // < respage =
-        // ResourceBundle.getBundle("org.akaza.openclinica.i18n.page_messages",
-        // locale);
-        // < restext =
-        // ResourceBundle.getBundle("org.akaza.openclinica.i18n.notes",locale);
-        // <
-        // resexception=ResourceBundle.getBundle(
-        // "org.akaza.openclinica.i18n.exceptions",locale);
-        // getEventCRFBean();
-        // getEventDefinitionCRFBean();
-        DataEntryStage stage = ecb.getStage();
         EventCRFDAO eventCrfDao = new EventCRFDAO(ds);
         ItemDataDAO itemDataDao = new ItemDataDAO(ds);
         StudyDAO sdao = new StudyDAO(ds);
-        StudySubjectDAO ssdao = new StudySubjectDAO(ds);
         StudyBean study = sdao.findByStudySubjectId(ecb.getStudySubjectId());
         EventDefinitionCRFBean edcb = getEventDefinitionCrfByStudyEventAndCrfVersion(ecb, study);
-
-        // StudyEventDAO studyEventDao = new StudyEventDAO(ds);
-        // StudyEventBean studyEventBean = (StudyEventBean)
-        // studyEventDao.findByPK(ecb.getStudyEventId());
-        // Status studyEventStatus = studyEventBean.getStatus();
 
         StudyEventDefinitionDAO studyEventDefinitionDao = new StudyEventDefinitionDAO(ds);
         StudyEventDefinitionBean sedBean = (StudyEventDefinitionBean) studyEventDefinitionDao.findByPK(edcb.getStudyEventDefinitionId());

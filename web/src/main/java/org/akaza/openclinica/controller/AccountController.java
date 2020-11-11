@@ -217,9 +217,6 @@ public class AccountController {
 
     public Boolean isCRCHasAccessToStudySubject(String studyOid, String crcUserName, String studySubjectId) {
         uDTO = null;
-        StudyBean parentStudy = getParentStudy(studyOid);
-        Integer pStudyId = parentStudy.getId();
-        String oid = parentStudy.getOid();
 
         if (isStudySubjecAndCRCRolesMatch(studySubjectId, crcUserName, studyOid))
             return true;
@@ -548,7 +545,6 @@ public class AccountController {
         uDTO = null;
 
         StudyBean parentStudy = getParentStudy(map.get("studyOid"));
-        String oid = parentStudy.getOid();
 
         String studySubjectId = map.get("studySubjectId");
         String timeZone = map.get("timeZone");
@@ -853,7 +849,6 @@ public class AccountController {
         // crc is study studySubject is study , pass
 
         StudyBean parentStudy = getParentStudy(studyOid);
-        Integer studyIdFromStudyOid = parentStudy.getId();
         StudySubjectBean studySubjectBean = getStudySubject(studySubjectId, parentStudy);
         Integer studyIdFromStudySubjectId = studySubjectBean.getStudyId();
 
@@ -985,7 +980,6 @@ public class AccountController {
         HashMap<String, String> mapValues = buildParticipantUserName(studySubjectBean);
         String pUserName = mapValues.get("pUserName"); // Participant User Name
         String studySubjectOid = mapValues.get("studySubjectOid");
-        Integer pStudyId = Integer.valueOf(mapValues.get("pStudyId"));
 
         // Participant user account create (if does not exist in user table) or Update(if exist in user table)
         uBean = buildUserAccount(oid, studySubjectOid, fName, lName, mobile, accessCode, ownerUserAccount, pUserName, email);

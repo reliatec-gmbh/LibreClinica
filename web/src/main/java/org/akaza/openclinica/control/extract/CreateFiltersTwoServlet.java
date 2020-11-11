@@ -119,7 +119,6 @@ public class CreateFiltersTwoServlet extends SecureController {
             // get the crf id, return to a new page with sections
             // and parameters attached, tbh
             FormProcessor fp = new FormProcessor(request);
-            HashMap errors = new HashMap();
             int crfId = fp.getInt("crfId");
             if (crfId > 0) {
                 CRFVersionDAO cvDAO = new CRFVersionDAO(sm.getDataSource());

@@ -99,7 +99,6 @@ public class ListEventDefinitionServlet extends SecureController {
     public void processRequest() throws Exception {
 
         StudyEventDefinitionDAO edao = new StudyEventDefinitionDAO(sm.getDataSource());
-        UserAccountDAO sdao = new UserAccountDAO(sm.getDataSource());
         EventDefinitionCRFDAO edcdao = new EventDefinitionCRFDAO(sm.getDataSource());
         CRFDAO crfDao = new CRFDAO(sm.getDataSource());
         CRFVersionDAO crfVersionDao = new CRFVersionDAO(sm.getDataSource());
@@ -108,8 +107,6 @@ public class ListEventDefinitionServlet extends SecureController {
         // request.setAttribute("seds", seds);
 
         StudyEventDAO sedao = new StudyEventDAO(sm.getDataSource());
-        EventCRFDAO ecdao = new EventCRFDAO(sm.getDataSource());
-        ItemDataDAO iddao = new ItemDataDAO(sm.getDataSource());
         for (int i = 0; i < seds.size(); i++) {
             StudyEventDefinitionBean sed = (StudyEventDefinitionBean) seds.get(i);
             Collection eventDefinitionCRFlist = edcdao.findAllParentsByDefinition(sed.getId());

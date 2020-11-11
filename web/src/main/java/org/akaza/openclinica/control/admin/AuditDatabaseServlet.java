@@ -66,7 +66,6 @@ public class AuditDatabaseServlet extends SecureController {
 
     @Override
     protected void processRequest() throws Exception {
-        FormProcessor fp = new FormProcessor(request);
         String auditDatabaseHtml = renderAuditDatabaseTable(getDatabaseChangeLogDao().findAll());
         request.setAttribute("auditDatabaseHtml", auditDatabaseHtml);
         forwardPage(Page.AUDIT_DATABASE);

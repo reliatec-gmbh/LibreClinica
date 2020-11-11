@@ -270,7 +270,6 @@ public class CreateOneDiscrepancyNoteServlet extends SecureController {
                     dn = getNoteInfo(dn);
 
                     // generate message here
-                    EmailEngine em = new EmailEngine(EmailEngine.getSMTPHost());
                     UserAccountDAO userAccountDAO = new UserAccountDAO(sm.getDataSource());
                     ItemDAO itemDAO = new ItemDAO(sm.getDataSource());
                     ItemDataDAO iddao = new ItemDataDAO(sm.getDataSource());

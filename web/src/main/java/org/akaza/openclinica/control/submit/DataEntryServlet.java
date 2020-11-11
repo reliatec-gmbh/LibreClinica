@@ -316,8 +316,6 @@ public abstract class DataEntryServlet extends CoreSecureController {
         ItemDataDAO iddao = new ItemDataDAO(getDataSource(),locale);
         HttpSession session = request.getSession();
         StudyBean currentStudy =    (StudyBean) session.getAttribute("study");
-        StudyUserRoleBean  currentRole = (StudyUserRoleBean) session.getAttribute("userRole");
-        SectionDAO sdao =  new SectionDAO(getDataSource());
         /**
          * Determines whether the form was submitted. Calculated once in processRequest. The reason we don't use the normal means to determine if the form was
          * submitted (ie FormProcessor.isSubmitted) is because when we use forwardPage, Java confuses the inputs from the just-processed form with the inputs for
@@ -917,9 +915,7 @@ public abstract class DataEntryServlet extends CoreSecureController {
                     DisplayItemBean dib = diwg.getSingleItem();
                     // dib = (DisplayItemBean) allItems.get(i);
                     if (validate) {
-                        String itemName = getInputName(dib);
-                        dib = validateDisplayItemBean(v, dib, "", ruleValidator, groupOrdinalPLusItemOid, false, null, request);//
-                        // / dib = validateDisplayItemBean(v, dib, "");// this
+                        dib = validateDisplayItemBean(v, dib, "", ruleValidator, groupOrdinalPLusItemOid, false, null, request);
                     }
                     ArrayList children = dib.getChildren();
                     for (int j = 0; j < children.size(); j++) {
@@ -1008,7 +1004,6 @@ public abstract class DataEntryServlet extends CoreSecureController {
                     }
 
                     List<DisplayItemGroupBean> dgbs = diwb.getItemGroups();
-                    int groupsize = dgbs.size();
                     HashMap<Integer, Integer> maxOrdinals = new HashMap<Integer, Integer>();
                     boolean first = true;
                     for (int j = 0; j < dgbs.size(); j++) {
@@ -1328,7 +1323,6 @@ public abstract class DataEntryServlet extends CoreSecureController {
                                 // item and the display group ...
                                 // logger.debug("comparing " +
                                 // testFormName + " and " + formName2);
-                                int existingNotes = dndao.findNumExistingNotesForItem(idb.getId());
                                 if (testFormName.equals(formName2)) {
                                     formName = formName2;
                                     this.setReasonForChangeError(  ecb,item_bean,idb, formName, error, request);
@@ -3109,7 +3103,6 @@ public abstract class DataEntryServlet extends CoreSecureController {
 
     //validate simple-conditional-display item to be changed from shown to hidden
     protected void validateShownSCDToBeHiddenSingle(DiscrepancyValidator v, DisplayItemBean dib) {
-        ItemFormMetadataBean ifmb = dib.getMetadata();
         String value = dib.getData().getValue();
         boolean hasDN = dib.getDiscrepancyNotes() != null && dib.getDiscrepancyNotes().size()>0 ? true : false;
         if(value != null && value.length()>0 && !dib.getIsSCDtoBeShown() && !hasDN) {
@@ -3221,7 +3214,6 @@ public abstract class DataEntryServlet extends CoreSecureController {
     protected boolean writeToDB(ItemDataBean itemData, DisplayItemBean dib, ItemDataDAO iddao, int ordinal, HttpServletRequest request) {
         ItemDataBean idb = itemData;
         UserAccountBean ub =(UserAccountBean) request.getSession().getAttribute(USER_BEAN_NAME);
-        StudyBean currentStudy =    (StudyBean)  request.getSession().getAttribute("study");
         EventCRFBean ecb = (EventCRFBean)request.getAttribute(INPUT_EVENT_CRF);
         idb.setItemId(dib.getItem().getId());
         idb.setEventCRFId(ecb.getId());
@@ -3455,10 +3447,6 @@ public abstract class DataEntryServlet extends CoreSecureController {
         CRFBean cb = (CRFBean) cdao.findByPK(cvb.getCrfId());
         section.setCrf(cb);
 
-        EventDefinitionCRFDAO edcdao = new EventDefinitionCRFDAO(getDataSource());
-        // EventDefinitionCRFBean edcb =
-        // edcdao.findByStudyEventIdAndCRFVersionId(study,
-        // ecb.getStudyEventId(), cvb.getId());
         section.setEventDefinitionCRF(edcb);
 
         // setup DAO's here to avoid creating too many objects

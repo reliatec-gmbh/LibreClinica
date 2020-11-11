@@ -65,18 +65,14 @@ public class DiscNotesSubjectStatisticsFactory extends AbstractTableFactory{
     private DiscrepancyNoteDAO discrepancyNoteDAO;
     private StudyBean studyBean;
 
-    private ArrayList<StudyEventDefinitionBean> studyEventDefinitions;
-    private ArrayList<StudyGroupClassBean> studyGroupClasses;
     private StudyUserRoleBean currentRole;
     private UserAccountBean currentUser;
     private ResourceBundle resword;
-    private ResourceBundle resformat;
     private ResourceBundle resterm;
     private String module;
     private Integer resolutionStatus;
     private Integer discNoteType;
     private Boolean studyHasDiscNotes;
-    private Set<Integer> resolutionStatusIds;
     private Map<Object,Map> discrepancyMap;
 
 	@Override
@@ -120,39 +116,15 @@ public class DiscNotesSubjectStatisticsFactory extends AbstractTableFactory{
 	    }
 	@Override
 	public void setDataAndLimitVariables(TableFacade tableFacade) {
-        StudyBean study = this.getStudyBean();
         Limit limit = tableFacade.getLimit();
 
-        ListDiscNotesSubjectFilter subjectFilter = getSubjectFilter(limit);
-       // subjectFilter.addFilter("dn.discrepancy_note_type_id", this.discNoteType);
-        StringBuffer constraints = new StringBuffer();
-        /*  if (this.discNoteType > 0 && this.discNoteType < 10) {
-            constraints.append(" and dn.discrepancy_note_type_id=" + this.discNoteType);
-        }
-        if (this.resolutionStatusIds != null && this.resolutionStatusIds.size() > 0) {
-            String s = " and (";
-            for (Integer resolutionStatusId : this.resolutionStatusIds) {
-                s += "dn.resolution_status_id = " + resolutionStatusId + " or ";
-            }
-            s = s.substring(0, s.length() - 3) + " )";
-            subjectFilter.addFilter("dn.resolution_status_id", s);
-            constraints.append(s);
-        }
-*/
         if (!limit.isComplete()) {
-//            int totalRows = getStudySubjectDAO().getCountWithFilter(subjectFilter, study);
             tableFacade.setTotalRows(6);
         }
 
-
-        int rowStart = limit.getRowSelect().getRowStart();
-        int rowEnd = 6;
-
-        ListDiscNotesSubjectSort subjectSort = getSubjectSort(limit);
         HashMap<Object,Map> items = (HashMap<Object,Map>) getDiscrepancyMap();
 
         Collection<HashMap<Object, Object>> theItems = new ArrayList<HashMap<Object, Object>>();
-        Collection<HashMap<Object, Object>> theItemsKeys = new ArrayList<HashMap<Object, Object>>();
         Collection<HashMap<Object, Object>> theItemsVals = new ArrayList<HashMap<Object, Object>>();
         Iterator keyIt = null;
         if(items.values().iterator().hasNext())
@@ -160,65 +132,25 @@ public class DiscNotesSubjectStatisticsFactory extends AbstractTableFactory{
         HashMap<Object, Object> theItem = new HashMap();
 
    	 Set theKeys  = items.keySet();
-   
    	 
-   	 
-   	 List<Object> existingKey = new ArrayList();
    	Iterator theKeysItr = theKeys.iterator();
    	while(keyIt.hasNext())   
    	{
-     	 String key = "",val = "";	
-
-	       key = keyIt.next().toString();
-	     //  val=keyIt.ne.toString();
-//	if(!existingKey.contains(key))
-//		{
-//		existingKey.add(key);
-//		break;
-//		}
-//	else
-//	{
-//		key = keyIt.next().toString();
-//		// val=firstVals.get(key).toString();
-//		existingKey.add( key);
-//		break;
-//	}
- 	
-   		
+     	String key = keyIt.next().toString();	
    		for(Map<String,String[]> firstVals:items.values())
-        {
-        	
-   			
-   			
-   			
-   			
+        {	
    			theItem = new HashMap();
             Iterator it = firstVals.values().iterator();
         	// keyIt = firstVals.keySet().iterator();
-            String label = (String)theKeysItr.next();
-        	
-          	
- 
-              
-          
+            String label = (String)theKeysItr.next();         
                while(it.hasNext())
-                    {
-                	    
+                    {                	    
                 	theItem.put("_", key);
-                	theItem.put(label, it.next());
-                	
+                	theItem.put(label, it.next());                	
                     }
-                	
-                
            	 theItems.add(theItem);
-  
-        }
-        
-
-       
+        }       
         theItemsVals.addAll(theItems);
-  
-		
 		tableFacade.setItems(theItemsVals);
 	}
 	}

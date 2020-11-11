@@ -61,7 +61,6 @@ public class FormBeanUtil {
     public static final String UNGROUPED = "Ungrouped";
     public static final String ADMIN_EDIT = "administrativeEditing";
     private static DynamicsMetadataService itemMetadataService;
-    private ServletContext context;
 
     private static DynamicsMetadataService getItemMetadataService(ServletContext context) {
         itemMetadataService =
@@ -367,7 +366,6 @@ public class FormBeanUtil {
         // Add any null values to checks or radios
         String responseName;
         List<ResponseOptionBean> respOptions;
-        ResponseOptionBean respBean;
         boolean hasNullValues = nullValuesList != null && !nullValuesList.isEmpty();
 
         // Only include Items that belong to the associated section
@@ -1106,7 +1104,6 @@ public class FormBeanUtil {
         ItemGroupMetadataBean metaBean = new ItemGroupMetadataBean();
 
         metaBean.setName(UNGROUPED);
-        List<DisplayItemBean> items;
         // Now cycle through the groupMapping and create default groups or
         // DisplayItemGroupBeans, in order, for
         // the orphaned items.
@@ -1283,7 +1280,6 @@ public class FormBeanUtil {
         // get all items associated with a section id, then split them up into
         // grouped
         // and non-grouped items
-        List<ItemBean> allItems = itemDao.findAllParentsBySectionId(sectionId);
         // Get a List of FormGroupBeans for each group associated with
         // this crfVersionId.
         // List<ItemGroupBean> arrList =
