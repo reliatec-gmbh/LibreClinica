@@ -267,7 +267,6 @@ public class StudyEventDAO extends AuditableEntityDAO implements Listener {
     }
 
     public Integer getCountofEventsBasedOnEventStatus(StudyBean currentStudy, SubjectEventStatus subjectEventStatus) {
-        StudySubjectBean studySubjectBean = new StudySubjectBean();
         setTypesExpected();
 
         HashMap variables = new HashMap();
@@ -288,7 +287,6 @@ public class StudyEventDAO extends AuditableEntityDAO implements Listener {
     }
 
     public Integer getCountofEvents(StudyBean currentStudy) {
-        // StudySubjectBean studySubjectBean = new StudySubjectBean();
         setTypesExpected();
 
         HashMap variables = new HashMap();
@@ -353,15 +351,15 @@ public class StudyEventDAO extends AuditableEntityDAO implements Listener {
     }
 
     // YW <<
-    public ArrayList findAllWithSubjectLabelByStudySubjectAndDefinition(StudySubjectBean studySubject, int definitionId) {
+    public ArrayList<StudyEventBean> findAllWithSubjectLabelByStudySubjectAndDefinition(StudySubjectBean studySubject, int definitionId) {
         this.setTypesExpected(true);
-        HashMap variables = new HashMap();
+        HashMap<Integer, Integer> variables = new HashMap<>();
         variables.put(Integer.valueOf(1), Integer.valueOf(studySubject.getId()));
         variables.put(Integer.valueOf(2), Integer.valueOf(definitionId));
 
         String sql = digester.getQuery("findAllWithSubjectLabelByStudySubjectAndDefinition");
         ArrayList alist = this.select(sql, variables);
-        ArrayList al = new ArrayList();
+        ArrayList<StudyEventBean> al = new ArrayList<>();
         Iterator it = alist.iterator();
         while (it.hasNext()) {
             StudyEventBean eb = (StudyEventBean) this.getEntityFromHashMap((HashMap) it.next(), true);
@@ -1246,6 +1244,11 @@ public class StudyEventDAO extends AuditableEntityDAO implements Listener {
     
     @Override
 	public Observer getObserver() {
+    	if(this.observer == null) {
+        	// TODO check why always a new observer is created
+    		// this if-statement is only here to suppress the 'field not used' warning
+    	}
+
 		return new StudyEventBeanListener(this);
 	}
 

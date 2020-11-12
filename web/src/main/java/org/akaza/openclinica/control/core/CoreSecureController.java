@@ -38,7 +38,9 @@ import org.akaza.openclinica.bean.extract.ArchivedDatasetFileBean;
 import org.akaza.openclinica.bean.login.StudyUserRoleBean;
 import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
+import org.akaza.openclinica.bean.managestudy.StudyGroupBean;
 import org.akaza.openclinica.bean.managestudy.StudyGroupClassBean;
+import org.akaza.openclinica.bean.service.StudyParamsConfig;
 import org.akaza.openclinica.bean.submit.EventCRFBean;
 import org.akaza.openclinica.control.SpringServletAccess;
 import org.akaza.openclinica.core.CRFLocker;
@@ -58,6 +60,7 @@ import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
 import org.akaza.openclinica.view.BreadcrumbTrail;
 import org.akaza.openclinica.view.Page;
+import org.akaza.openclinica.view.StudyInfoPanel;
 import org.akaza.openclinica.view.StudyInfoPanelLine;
 import org.akaza.openclinica.web.InconsistentStateException;
 import org.akaza.openclinica.web.InsufficientPermissionException;
@@ -198,8 +201,7 @@ public abstract class CoreSecureController extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        ServletContext context = getServletContext();
-        // DATASET_HOME_DIR = context.getInitParameter("datasetHomeDir");
+    	// TODO empty method
     }
 
     /**
@@ -242,7 +244,6 @@ public abstract class CoreSecureController extends HttpServlet {
                 Trigger.TriggerState triggerState = getScheduler(request).getTriggerState(new TriggerKey(jobName, groupName));
                 LOGGER.debug("found state: " + triggerState);
                 org.quartz.JobDetail details = getScheduler(request).getJobDetail(new JobKey(jobName, groupName));
-                List contexts = getScheduler(request).getCurrentlyExecutingJobs();
                 org.quartz.JobDataMap dataMap = details.getJobDataMap();
                 String failMessage = dataMap.getString("failMessage");
                 if (triggerState == TriggerState.NONE) {
@@ -383,7 +384,7 @@ public abstract class CoreSecureController extends HttpServlet {
                     StudyParameterValueDAO spvdao = new StudyParameterValueDAO(getDataSource());
                     currentStudy = (StudyBean) sdao.findByPK(ub.getActiveStudyId());
 
-                    ArrayList studyParameters = spvdao.findParamConfigByStudy(currentStudy);
+                    ArrayList<StudyParamsConfig> studyParameters = spvdao.findParamConfigByStudy(currentStudy);
 
                     currentStudy.setStudyParameters(studyParameters);
 
@@ -629,7 +630,6 @@ public abstract class CoreSecureController extends HttpServlet {
         if (request.getAttribute(POP_UP_URL) == null) {
             request.setAttribute(POP_UP_URL, "");
         }
-        HttpSession session = request.getSession();
 
         try {
             // Added 01/19/2005 for breadcrumbs, tbh
@@ -897,7 +897,7 @@ public abstract class CoreSecureController extends HttpServlet {
 
         for (int i = 0; i < studyGroupClasses.size(); i++) {
             StudyGroupClassBean sgc = (StudyGroupClassBean) studyGroupClasses.get(i);
-            ArrayList groups = studyGroupDAO.findAllByGroupClass(sgc);
+            ArrayList<StudyGroupBean> groups = studyGroupDAO.findAllByGroupClass(sgc);
             sgc.setStudyGroups(groups);
         }
 

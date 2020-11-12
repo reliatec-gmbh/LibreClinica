@@ -15,6 +15,7 @@ import org.akaza.openclinica.bean.managestudy.DisplayStudySubjectBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
+import org.akaza.openclinica.bean.managestudy.StudyGroupBean;
 import org.akaza.openclinica.bean.managestudy.StudyGroupClassBean;
 import org.akaza.openclinica.bean.managestudy.StudySubjectBean;
 import org.akaza.openclinica.bean.service.StudyParameterValueBean;
@@ -121,7 +122,6 @@ public abstract class ListStudySubjectServlet extends SecureController {
         SubjectGroupMapDAO sgmdao = new SubjectGroupMapDAO(sm.getDataSource());
         StudyGroupClassDAO sgcdao = new StudyGroupClassDAO(sm.getDataSource());
         StudyGroupDAO sgdao = new StudyGroupDAO(sm.getDataSource());
-        StudySubjectDAO ssdao = new StudySubjectDAO(sm.getDataSource());
 
         // YW << update study parameters of current study.
         // "collectDob" and "genderRequired" are set as the same as the parent
@@ -159,7 +159,7 @@ public abstract class ListStudySubjectServlet extends SecureController {
         // for all the study groups for each group class
         for (int i = 0; i < studyGroupClasses.size(); i++) {
             StudyGroupClassBean sgc = (StudyGroupClassBean) studyGroupClasses.get(i);
-            ArrayList groups = sgdao.findAllByGroupClass(sgc);
+            ArrayList<StudyGroupBean> groups = sgdao.findAllByGroupClass(sgc);
             sgc.setStudyGroups(groups);
         }
         request.setAttribute("studyGroupClasses", studyGroupClasses);
@@ -250,7 +250,6 @@ public abstract class ListStudySubjectServlet extends SecureController {
             int currDefId = 0;
             ArrayList finalEvents = new ArrayList();
             int repeatingNum = 1;
-            int count = 0;
             StudyEventBean event = new StudyEventBean();
 
             // begin looping through subject events
@@ -264,8 +263,6 @@ public abstract class ListStudySubjectServlet extends SecureController {
                     }
                     finalEvents.add(se); // add current event to final
                     event = se;
-                    count++;
-                    // logger.info("event id? "+event.getId());
                 } else {// repeating event
                     repeatingNum++;
                     event.getRepeatEvents().add(se);
@@ -410,7 +407,6 @@ public abstract class ListStudySubjectServlet extends SecureController {
     public static DisplayStudyEventBean getDisplayStudyEventsForStudySubject(StudySubjectBean studySub, StudyEventBean event, DataSource ds,
             UserAccountBean ub, StudyUserRoleBean currentRole, StudyBean study) {
         StudyEventDefinitionDAO seddao = new StudyEventDefinitionDAO(ds);
-        StudyEventDAO sedao = new StudyEventDAO(ds);
         EventCRFDAO ecdao = new EventCRFDAO(ds);
         EventDefinitionCRFDAO edcdao = new EventDefinitionCRFDAO(ds);
 

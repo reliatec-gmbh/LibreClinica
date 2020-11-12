@@ -108,7 +108,7 @@ public class CreateSubStudyServlet extends SecureController {
 
                 List<StudyParamsConfig> parentConfigs = currentStudy.getStudyParameters();
                 // logger.info("parentConfigs size:" + parentConfigs.size());
-                ArrayList configs = new ArrayList();
+                ArrayList<StudyParamsConfig> configs = new ArrayList<>();
 
                 for (StudyParamsConfig scg : parentConfigs) {
                     // StudyParamsConfig scg = (StudyParamsConfig)
@@ -406,7 +406,6 @@ public class CreateSubStudyServlet extends SecureController {
      * 
      */
     private void submitStudy() throws IOException {
-        FormProcessor fp = new FormProcessor(request);
         StudyDAO sdao = new StudyDAO(sm.getDataSource());
         StudyBean study = (StudyBean) session.getAttribute("newStudy");
 
@@ -496,7 +495,7 @@ public class CreateSubStudyServlet extends SecureController {
             request.setAttribute("participateFormStatus",participateFormStatus );
 
          //   EventDefinitionCRFDAO edcdao = new EventDefinitionCRFDAO(sm.getDataSource());
-            ArrayList<EventDefinitionCRFBean> edcs = sed.getCrfs();
+            ArrayList<EventDefinitionCRFBean> edcs = (ArrayList<EventDefinitionCRFBean>) sed.getCrfs();
             
             int start = 0;
             for (EventDefinitionCRFBean edcBean : edcs) {
@@ -512,10 +511,7 @@ public class CreateSubStudyServlet extends SecureController {
                     String electronicSignature = fp.getString("electronicSignature" + order);
                     String hideCRF = fp.getString("hideCRF" + order);
                     int sdvId = fp.getInt("sdvOption" + order);
-                    String participantForm = fp.getString("participantForm"+order);
-                    String allowAnonymousSubmission = fp.getString("allowAnonymousSubmission" + order);
                     String submissionUrl = fp.getString("submissionUrl" + order);
-                    String offline = fp.getString("offline" + order);
 
                     ArrayList<String> selectedVersionIdList = fp.getStringArray("versionSelection" + order);
                     int selectedVersionIdListSize = selectedVersionIdList.size();
@@ -706,11 +702,9 @@ public class CreateSubStudyServlet extends SecureController {
     }
 
     private void submitSiteEventDefinitions(StudyBean site) throws MalformedURLException {
-        FormProcessor fp = new FormProcessor(request);
         StudyParameterValueDAO spvdao = new StudyParameterValueDAO(sm.getDataSource());    
 
         ArrayList<StudyEventDefinitionBean> seds = new ArrayList<StudyEventDefinitionBean>();
-        CRFVersionDAO cvdao = new CRFVersionDAO(sm.getDataSource());
         seds = (ArrayList<StudyEventDefinitionBean>) session.getAttribute("definitions");
         HashMap<String, Boolean> changes = (HashMap<String, Boolean>) session.getAttribute("changed");
         for (StudyEventDefinitionBean sed : seds) {
@@ -719,7 +713,7 @@ public class CreateSubStudyServlet extends SecureController {
             if (participateFormStatus.equals("enabled")) 	baseUrl();
 
             EventDefinitionCRFDAO edcdao = new EventDefinitionCRFDAO(sm.getDataSource());
-            ArrayList<EventDefinitionCRFBean> edcs = sed.getCrfs();
+            ArrayList<EventDefinitionCRFBean> edcs = (ArrayList<EventDefinitionCRFBean>)sed.getCrfs();
             for (EventDefinitionCRFBean edcBean : edcs) {
            
 
@@ -753,7 +747,6 @@ public class CreateSubStudyServlet extends SecureController {
         CRFDAO cdao = new CRFDAO(sm.getDataSource());
         StudyBean parentStudy = (StudyBean) new StudyDAO(sm.getDataSource()).findByPK(site.getParentStudyId());
         seds = sedDao.findAllByStudy(parentStudy);
-        int start = 0;
         for (StudyEventDefinitionBean sed : seds) {
             String participateFormStatus = spvdao.findByHandleAndStudy(sed.getStudyId(), "participantPortal").getValue();
             if (participateFormStatus.equals("enabled")) 	baseUrl();
@@ -799,7 +792,6 @@ public class CreateSubStudyServlet extends SecureController {
                     }
                     edcBean.setSelectedVersionIdList(idList);
                     defCrfs.add(edcBean);
-                    ++start;
                 }
             }
             logger.debug("definitionCrfs size=" + defCrfs.size() + " total size=" + edcs.size());

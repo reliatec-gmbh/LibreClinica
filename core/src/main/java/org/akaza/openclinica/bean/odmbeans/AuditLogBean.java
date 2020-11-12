@@ -35,9 +35,8 @@ public class AuditLogBean extends ElementOIDBean {
     private String name="";
     private String valueType="";
 
-    public int compareTo(Object o) {
-        AuditLogBean b = (AuditLogBean) o;
-        return this.getDatetimeStamp().compareTo(b.getDatetimeStamp());
+    public int compareTo(AuditLogBean o) {
+        return this.getDatetimeStamp().compareTo(o.getDatetimeStamp());
     }
     
     public String getUserId() {

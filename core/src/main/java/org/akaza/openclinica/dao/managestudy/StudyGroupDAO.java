@@ -90,8 +90,8 @@ public class StudyGroupDAO extends AuditableEntityDAO {
         return al;
     }
 
-    public ArrayList findAllByGroupClass(StudyGroupClassBean group) {
-        ArrayList answer = new ArrayList();
+    public ArrayList<StudyGroupBean> findAllByGroupClass(StudyGroupClassBean group) {
+        ArrayList<StudyGroupBean> answer = new ArrayList();
         this.setTypesExpected();
 
         HashMap variables = new HashMap();

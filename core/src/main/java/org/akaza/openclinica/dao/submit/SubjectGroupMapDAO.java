@@ -239,17 +239,17 @@ public class SubjectGroupMapDAO extends AuditableEntityDAO {
         return sb;
     }
 
-    public ArrayList findAllByStudyGroupClassAndGroup(int studyGroupClassId, int studyGroupId) {
+    public ArrayList<SubjectGroupMapBean> findAllByStudyGroupClassAndGroup(int studyGroupClassId, int studyGroupId) {
         setTypesExpected();
         this.setTypeExpected(11, TypeNames.STRING);
-        HashMap variables = new HashMap();
+        HashMap<Integer, Integer> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(studyGroupClassId));
         variables.put(new Integer(2), new Integer(studyGroupId));
-        ArrayList alist = this.select(digester.getQuery("findAllByStudyGroupClassAndGroup"), variables);
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
+        ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findAllByStudyGroupClassAndGroup"), variables);
+        ArrayList<SubjectGroupMapBean> al = new ArrayList<>();
+        Iterator<HashMap<String, Object>> it = alist.iterator();
         while (it.hasNext()) {
-            HashMap hm = (HashMap) it.next();
+            HashMap<String, Object> hm = it.next();
             SubjectGroupMapBean eb = (SubjectGroupMapBean) this.getEntityFromHashMap(hm);
             eb.setSubjectLabel(((String) hm.get("label")));
             al.add(eb);

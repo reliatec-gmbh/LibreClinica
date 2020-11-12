@@ -321,7 +321,7 @@ public class ViewStudyEventsServlet extends SecureController {
     private ArrayList genEventsForPrint(FormProcessor fp, ArrayList definitions, Date startDate, Date endDate, int sedId, int definitionId, int statusId) {
         StudyEventDAO sedao = new StudyEventDAO(sm.getDataSource());
         EventCRFDAO ecdao = new EventCRFDAO(sm.getDataSource());
-        ArrayList allEvents = new ArrayList();
+        ArrayList<ViewEventDefinitionBean> allEvents = new ArrayList<>();
         definitions = findDefinitionById(definitions, definitionId);
         // YW <<
         StudySubjectDAO ssdao = new StudySubjectDAO(sm.getDataSource());
@@ -334,10 +334,10 @@ public class ViewStudyEventsServlet extends SecureController {
             ved.setDefinition(sed);
 
             // YW <<
-            ArrayList events = new ArrayList();
+            ArrayList<StudyEventBean> events = new ArrayList<>();
             for (int s = 0; s < studySubjects.size(); ++s) {
                 StudySubjectBean ssb = (StudySubjectBean) studySubjects.get(s);
-                ArrayList evts = sedao.findAllWithSubjectLabelByStudySubjectAndDefinition(ssb, sed.getId());
+                ArrayList<StudyEventBean> evts = sedao.findAllWithSubjectLabelByStudySubjectAndDefinition(ssb, sed.getId());
 
                 for (int v = 0; v < evts.size(); ++v) {
                     events.add(evts.get(v));
@@ -354,7 +354,7 @@ public class ViewStudyEventsServlet extends SecureController {
             Date lastCompletionDate = null;
             // find the first firstStartDateForScheduled
             for (int k = 0; k < events.size(); k++) {
-                StudyEventBean se = (StudyEventBean) events.get(k);
+                StudyEventBean se = events.get(k);
                 if (se.getSubjectEventStatus().equals(SubjectEventStatus.SCHEDULED)) {
                     firstStartDateForScheduled = se.getDateStarted();
                     break;
@@ -363,7 +363,7 @@ public class ViewStudyEventsServlet extends SecureController {
             }
             // find the first lastCompletionDate
             for (int k = 0; k < events.size(); k++) {
-                StudyEventBean se = (StudyEventBean) events.get(k);
+                StudyEventBean se = events.get(k);
                 if (se.getSubjectEventStatus().equals(SubjectEventStatus.COMPLETED)) {
                     lastCompletionDate = se.getDateEnded();
                     break;
@@ -371,7 +371,7 @@ public class ViewStudyEventsServlet extends SecureController {
             }
 
             for (int j = 0; j < events.size(); j++) {
-                StudyEventBean se = (StudyEventBean) events.get(j);
+                StudyEventBean se = events.get(j);
                 if (se.getSubjectEventStatus().equals(SubjectEventStatus.SCHEDULED)) {
                     subjectScheduled++;
                     if (se.getDateStarted().before(new Date())) {

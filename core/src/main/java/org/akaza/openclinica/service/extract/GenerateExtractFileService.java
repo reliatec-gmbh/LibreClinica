@@ -38,11 +38,11 @@ import org.akaza.openclinica.bean.extract.TabReportBean;
 import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.submit.ItemBean;
+import org.akaza.openclinica.bean.submit.ItemFormMetadataBean;
 import org.akaza.openclinica.dao.core.CoreResources;
 import org.akaza.openclinica.dao.extract.ArchivedDatasetFileDAO;
 import org.akaza.openclinica.dao.extract.DatasetDAO;
 import org.akaza.openclinica.dao.hibernate.RuleSetRuleDao;
-import org.akaza.openclinica.dao.submit.ItemDAO;
 import org.akaza.openclinica.dao.submit.ItemFormMetadataDAO;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
 import org.slf4j.Logger;
@@ -54,24 +54,17 @@ public class GenerateExtractFileService {
     private final DataSource ds;
     private HttpServletRequest request;
     public static ResourceBundle resword;
-    private final CoreResources coreResources;
 
-    private static File files[]=null;
     private static List<File> oldFiles = new LinkedList<File>();
-    private final RuleSetRuleDao ruleSetRuleDao;
 
     public GenerateExtractFileService(DataSource ds, HttpServletRequest request, CoreResources coreResources,
             RuleSetRuleDao ruleSetRuleDao) {
         this.ds = ds;
         this.request = request;
-        this.coreResources = coreResources;
-        this.ruleSetRuleDao = ruleSetRuleDao;
     }
 
     public GenerateExtractFileService(DataSource ds, CoreResources coreResources,RuleSetRuleDao ruleSetRuleDao) {
-        this.ds = ds;
-        this.coreResources = coreResources;
-        this.ruleSetRuleDao = ruleSetRuleDao;
+        this(ds, null, coreResources, ruleSetRuleDao);
     }
 
     public void setUpResourceBundles() {
@@ -105,7 +98,7 @@ public class GenerateExtractFileService {
 
         int fId = this.createFile(TXTFileName, generalFileDir, answer.toString(), datasetBean, sysTimeEnd, ExportFormatBean.TXTFILE, true, userBean);
         if (!"".equals(generalFileDirCopy)) {
-            int fId2 = this.createFile(TXTFileName, generalFileDirCopy, answer.toString(), datasetBean, sysTimeEnd, ExportFormatBean.TXTFILE, false, userBean);
+            this.createFile(TXTFileName, generalFileDirCopy, answer.toString(), datasetBean, sysTimeEnd, ExportFormatBean.TXTFILE, false, userBean);
         }
         logger.info("created txt file");
         // return TXTFileName;
@@ -190,13 +183,12 @@ public class GenerateExtractFileService {
         // itemMetadata
 
         // set up response sets for each item here
-        ItemDAO itemdao = new ItemDAO(ds);
         ItemFormMetadataDAO imfdao = new ItemFormMetadataDAO(ds);
-        ArrayList items = answer.getItems();
+        ArrayList<DisplayItemHeaderBean> items = answer.getItems();
         for (int i = 0; i < items.size(); i++) {
             DisplayItemHeaderBean dih = (DisplayItemHeaderBean) items.get(i);
             ItemBean item = dih.getItem();
-            ArrayList metas = imfdao.findAllByItemId(item.getId());
+            ArrayList<ItemFormMetadataBean> metas = imfdao.findAllByItemId(item.getId());
             // for (int h = 0; h < metas.size(); h++) {
             // ItemFormMetadataBean ifmb = (ItemFormMetadataBean)
             // metas.get(h);
@@ -243,7 +235,7 @@ public class GenerateExtractFileService {
         // put into zip files
         int fId = this.createFile(ZIPFileName, titles, generalFileDir, generatedReports, db, sysTimeEnd, ExportFormatBean.TXTFILE, true, userBean);
         if (!"".equals(generalFileDirCopy)) {
-            int fId2 = this.createFile(ZIPFileName, titles, generalFileDirCopy, generatedReports, db, sysTimeEnd, ExportFormatBean.TXTFILE, false, userBean);
+            this.createFile(ZIPFileName, titles, generalFileDirCopy, generatedReports, db, sysTimeEnd, ExportFormatBean.TXTFILE, false, userBean);
         }
         // return DDLFileName;
         HashMap answerMap = new HashMap<String, Integer>();
@@ -596,8 +588,6 @@ public class GenerateExtractFileService {
 
     public void zipFile(String name, String dir) throws IOException
     {
-        //if (zipped) {
-        String zipFileName = null;
         File complete = new File(dir);
         if (!complete.isDirectory()) {
             complete.mkdirs();

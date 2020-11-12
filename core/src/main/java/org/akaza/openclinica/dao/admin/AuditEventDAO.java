@@ -173,7 +173,6 @@ public class AuditEventDAO extends AuditableEntityDAO {
     public Object getColumnNameFromHashMap(HashMap hm) {
         AuditEventBean eb = new AuditEventBean();
 
-        eb.setUpdateCount(((Integer) hm.get("count")).intValue());
         eb.setColumnName((String) hm.get("column_name"));
         return eb;
     }
@@ -274,7 +273,7 @@ public class AuditEventDAO extends AuditableEntityDAO {
         auditEvent.setReasonForChange("");
         // need to set type_id either (success) or (failure), tbh
         // use custom SQL here?
-        AuditEventBean new_aeb = (AuditEventBean) create(auditEvent);
+        create(auditEvent);
     }
 
     public void createRowForUserAccount(UserAccountBean uab, String reasonForChange, String actionMessage) {
@@ -287,7 +286,7 @@ public class AuditEventDAO extends AuditableEntityDAO {
         aeb.setAuditTable("__user_account");
         aeb.setReasonForChange(reasonForChange);
         aeb.setActionMessage(actionMessage);
-        AuditEventBean new_aeb = (AuditEventBean) create(aeb);
+        create(aeb);
 
     }
 
@@ -311,7 +310,7 @@ public class AuditEventDAO extends AuditableEntityDAO {
         // 
         auditEventBean.setReasonForChange(reasonForChange);
         auditEventBean.setActionMessage(actionMessage);
-        AuditEventBean newAeb = (AuditEventBean) create(auditEventBean);
+        create(auditEventBean);
     }
 
     public void createRowForExtractDataJobSuccess(TriggerBean triggerBean) {
@@ -502,7 +501,7 @@ public class AuditEventDAO extends AuditableEntityDAO {
                 AuditEventHashMap.put(new Integer(eb.getId()), eb);
                 // logger.warn("Put into hashmap: "+eb.getId());
             } else {
-                HashMap changes = ebCheck.getChanges();
+                HashMap<String, String> changes = ebCheck.getChanges();
                 changes.put(eb.getColumnName(), eb.getNewValue());
                 ebCheck.setChanges(changes);
                 AuditEventHashMap.put(new Integer(eb.getId()), ebCheck);
@@ -568,7 +567,7 @@ public class AuditEventDAO extends AuditableEntityDAO {
                 AuditEventHashMap.put(new Integer(eb.getId()), eb);
                 logger.warn("Put into hashmap: " + eb.getId());
             } else {
-                HashMap changes = ebCheck.getChanges();
+                HashMap<String, String> changes = ebCheck.getChanges();
                 changes.put(eb.getColumnName(), eb.getNewValue());
                 ebCheck.setChanges(changes);
                 AuditEventHashMap.put(new Integer(eb.getId()), ebCheck);

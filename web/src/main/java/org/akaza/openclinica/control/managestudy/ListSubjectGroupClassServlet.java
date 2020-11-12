@@ -9,6 +9,7 @@ package org.akaza.openclinica.control.managestudy;
 
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
+import org.akaza.openclinica.bean.managestudy.StudyGroupBean;
 import org.akaza.openclinica.bean.managestudy.StudyGroupClassBean;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
@@ -86,12 +87,11 @@ public class ListSubjectGroupClassServlet extends SecureController {
             groups = sgcdao.findAllByStudy(currentStudy);
         }
         // YW >>
-        String isReadOnly = request.getParameter("read");
 
         StudyGroupDAO sgdao = new StudyGroupDAO(sm.getDataSource());
         for (int i = 0; i < groups.size(); i++) {
             StudyGroupClassBean group = (StudyGroupClassBean) groups.get(i);
-            ArrayList studyGroups = sgdao.findAllByGroupClass(group);
+            ArrayList<StudyGroupBean> studyGroups = sgdao.findAllByGroupClass(group);
             group.setStudyGroups(studyGroups);
 
         }

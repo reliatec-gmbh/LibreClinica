@@ -217,7 +217,7 @@ public class StudyParameterValueDAO extends AuditableEntityDAO {
         return al;
     }
 
-    public ArrayList findParamConfigByStudy(StudyBean study) {
+    public ArrayList<StudyParamsConfig> findParamConfigByStudy(StudyBean study) {
         this.unsetTypeExpected();
         this.setTypeExpected(1, TypeNames.INT);
         this.setTypeExpected(2, TypeNames.INT);

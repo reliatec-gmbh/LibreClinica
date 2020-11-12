@@ -12,6 +12,7 @@ import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.login.StudyUserRoleBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.service.StudyParameterValueBean;
+import org.akaza.openclinica.bean.service.StudyParamsConfig;
 import org.akaza.openclinica.control.SpringServletAccess;
 import org.akaza.openclinica.control.admin.EventStatusStatisticsTableFactory;
 import org.akaza.openclinica.control.admin.SiteStatisticsTableFactory;
@@ -161,7 +162,6 @@ public class ChangeStudyServlet extends SecureController {
     }
 
     private void changeStudy() throws Exception {
-        Validator v = new Validator(request);
         FormProcessor fp = new FormProcessor(request);
         int studyId = fp.getInt("studyId");
         int prevStudyId = currentStudy.getId();
@@ -172,7 +172,7 @@ public class ChangeStudyServlet extends SecureController {
         // reset study parameters -jxu 02/09/2007
         StudyParameterValueDAO spvdao = new StudyParameterValueDAO(sm.getDataSource());
 
-        ArrayList studyParameters = spvdao.findParamConfigByStudy(current);
+        ArrayList<StudyParamsConfig> studyParameters = spvdao.findParamConfigByStudy(current);
         current.setStudyParameters(studyParameters);
         int parentStudyId = currentStudy.getParentStudyId()>0?currentStudy.getParentStudyId():currentStudy.getId();
         StudyParameterValueBean parentSPV = spvdao.findByHandleAndStudy(parentStudyId, "subjectIdGeneration");

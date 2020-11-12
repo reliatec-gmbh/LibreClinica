@@ -305,7 +305,7 @@ public class EventCRFDAO<K extends String, V extends ArrayList> extends Auditabl
     }
 
     public ArrayList findAllByStudyEvent(StudyEventBean studyEvent) {
-        HashMap variables = new HashMap();
+        HashMap<Integer, Integer> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(studyEvent.getId()));
 
         return executeFindAllQuery("findAllByStudyEvent", variables);

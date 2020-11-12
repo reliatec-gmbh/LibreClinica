@@ -204,7 +204,7 @@ public class UpdateStudyEventServlet extends SecureController {
         boolean removeSign = false;
         // DiscrepancyNoteDAO discDao = new
         // DiscrepancyNoteDAO(sm.getDataSource());
-        ArrayList eventCrfs = studyEvent.getEventCRFs();
+        ArrayList<EventCRFBean> eventCrfs = studyEvent.getEventCRFs();
         for (int i = 0; i < eventCrfs.size(); i++) {
             EventCRFBean ecrf = (EventCRFBean) eventCrfs.get(i);
             EventDefinitionCRFBean edcBean = edcdao.findByStudyEventIdAndCRFVersionId(studyBean, studyEventId, ecrf.getCRFVersionId());
@@ -415,8 +415,6 @@ public class UpdateStudyEventServlet extends SecureController {
 
                 ecdao = new EventCRFDAO(sm.getDataSource());
                 eventCRFs = ecdao.findAllByStudyEvent(studyEvent);
-                ArrayList<Boolean> doRuleSetsExist = new ArrayList<Boolean>();
-                RuleSetDAO ruleSetDao = new RuleSetDAO(sm.getDataSource());
 
                 StudyBean study = (StudyBean) sdao.findByPK(ssb.getStudyId());
                 ArrayList eventDefinitionCRFs = (ArrayList) edcdao.findAllActiveByEventDefinitionId(study, studyEvent.getStudyEventDefinitionId());
@@ -482,7 +480,7 @@ public class UpdateStudyEventServlet extends SecureController {
                 logger.debug("update study event...");
                 studyEvent.setUpdater(ub);
                 studyEvent.setUpdatedDate(new Date());
-                StudyEventBean updatedStudyEvent = (StudyEventBean) sedao.update(studyEvent);
+                sedao.update(studyEvent);
 
 
                 // save discrepancy notes into DB
@@ -554,8 +552,6 @@ public class UpdateStudyEventServlet extends SecureController {
                 // prepare to figure out what the display should look like
                 EventCRFDAO ecdao = new EventCRFDAO(sm.getDataSource());
                 ArrayList<EventCRFBean> eventCRFs = ecdao.findAllByStudyEvent(studyEvent);
-                ArrayList<Boolean> doRuleSetsExist = new ArrayList<Boolean>();
-                RuleSetDAO ruleSetDao = new RuleSetDAO(sm.getDataSource());
 
                 StudyBean study = (StudyBean) sdao.findByPK(ssb.getStudyId());
                 ArrayList eventDefinitionCRFs = (ArrayList) edcdao.findAllActiveByEventDefinitionId(study, studyEvent.getStudyEventDefinitionId());

@@ -12,6 +12,7 @@ import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.extract.DatasetBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
+import org.akaza.openclinica.bean.managestudy.StudyGroupBean;
 import org.akaza.openclinica.bean.managestudy.StudyGroupClassBean;
 import org.akaza.openclinica.bean.submit.ItemBean;
 import org.akaza.openclinica.bean.submit.ItemFormMetadataBean;
@@ -88,7 +89,7 @@ public class SelectItemsServlet extends SecureController {
 
             for (int i = 0; i < sgclasses.size(); i++) {
                 StudyGroupClassBean sgclass = (StudyGroupClassBean) sgclasses.get(i);
-                ArrayList studyGroups = sgdao.findAllByGroupClass(sgclass);
+                ArrayList<StudyGroupBean> studyGroups = sgdao.findAllByGroupClass(sgclass);
                 sgclass.setStudyGroups(studyGroups);
                 // hmm, set it back into the array list? tbh
             }

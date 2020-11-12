@@ -78,7 +78,7 @@ public class RemoveSubjectGroupClassServlet extends SecureController {
 
                 for (int i = 0; i < groups.size(); i++) {
                     StudyGroupBean sg = (StudyGroupBean) groups.get(i);
-                    ArrayList subjectMaps = sgmdao.findAllByStudyGroupClassAndGroup(sgcb.getId(), sg.getId());
+                    ArrayList<SubjectGroupMapBean> subjectMaps = sgmdao.findAllByStudyGroupClassAndGroup(sgcb.getId(), sg.getId());
                     sg.setSubjectMaps(subjectMaps);
 
                 }

@@ -126,7 +126,7 @@ public class InitUpdateEventDefinitionServlet extends SecureController {
             ArrayList newEventDefinitionCRFs = new ArrayList();
             for (int i = 0; i < eventDefinitionCRFs.size(); i++) {
                 EventDefinitionCRFBean edc = (EventDefinitionCRFBean) eventDefinitionCRFs.get(i);
-                ArrayList versions = (ArrayList) cvdao.findAllActiveByCRF(edc.getCrfId());
+                ArrayList<CRFVersionBean> versions = (ArrayList<CRFVersionBean>) cvdao.findAllActiveByCRF(edc.getCrfId());
                 edc.setVersions(versions);
                 CRFBean crf = (CRFBean) cdao.findByPK(edc.getCrfId());
                 edc.setCrfName(crf.getName());

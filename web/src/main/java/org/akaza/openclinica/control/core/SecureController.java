@@ -54,8 +54,10 @@ import org.akaza.openclinica.bean.managestudy.EventDefinitionCRFBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
+import org.akaza.openclinica.bean.managestudy.StudyGroupBean;
 import org.akaza.openclinica.bean.managestudy.StudyGroupClassBean;
 import org.akaza.openclinica.bean.managestudy.StudySubjectBean;
+import org.akaza.openclinica.bean.service.StudyParamsConfig;
 import org.akaza.openclinica.bean.submit.EventCRFBean;
 import org.akaza.openclinica.bean.submit.ItemBean;
 import org.akaza.openclinica.bean.submit.ItemDataBean;
@@ -92,6 +94,7 @@ import org.akaza.openclinica.service.pmanage.Authorization;
 import org.akaza.openclinica.service.pmanage.ParticipantPortalRegistrar;
 import org.akaza.openclinica.view.BreadcrumbTrail;
 import org.akaza.openclinica.view.Page;
+import org.akaza.openclinica.view.StudyInfoPanel;
 import org.akaza.openclinica.view.StudyInfoPanelLine;
 import org.akaza.openclinica.web.InconsistentStateException;
 import org.akaza.openclinica.web.InsufficientPermissionException;
@@ -295,7 +298,6 @@ public abstract class SecureController extends HttpServlet implements SingleThre
             if (jobName != null && groupName != null) {
                 TriggerState state = getScheduler(request).getTriggerState(new TriggerKey(jobName, groupName));
                 org.quartz.JobDetail details = getScheduler(request).getJobDetail(new JobKey(jobName, groupName));
-                List contexts = getScheduler(request).getCurrentlyExecutingJobs();
                 // will we get the above, even if its completed running?
                 // ProcessingResultType message = null;
                 // for (int i = 0; i < contexts.size(); i++) {
@@ -436,7 +438,7 @@ public abstract class SecureController extends HttpServlet implements SingleThre
                     StudyParameterValueDAO spvdao = new StudyParameterValueDAO(sm.getDataSource());
                     currentStudy = (StudyBean) sdao.findByPK(ub.getActiveStudyId());
 
-                    ArrayList studyParameters = spvdao.findParamConfigByStudy(currentStudy);
+                    ArrayList<StudyParamsConfig> studyParameters = spvdao.findParamConfigByStudy(currentStudy);
 
                     currentStudy.setStudyParameters(studyParameters);
 
@@ -602,7 +604,6 @@ public abstract class SecureController extends HttpServlet implements SingleThre
             forwardPage(ipe.getGoTo());
         } catch (OutOfMemoryError ome) {
             logger.error("Memory full in the process: ", ome);
-            long heapSize = Runtime.getRuntime().totalMemory();
             session.setAttribute("ome", "yes");
         } catch (Exception e) {
             logger.error("Process is throwing exception: ", e);
@@ -682,7 +683,6 @@ public abstract class SecureController extends HttpServlet implements SingleThre
         try {
             // Added 01/19/2005 for breadcrumbs, tbh
             if (checkTrail) {
-                BreadcrumbTrail bt = new BreadcrumbTrail();
                 if (session != null) {// added bu jxu, fixed bug for log out
                 /*    ArrayList trail = (ArrayList) session.getAttribute("trail");
                     if (trail == null) {
@@ -911,7 +911,7 @@ public abstract class SecureController extends HttpServlet implements SingleThre
 
         for (int i = 0; i < studyGroupClasses.size(); i++) {
             StudyGroupClassBean sgc = (StudyGroupClassBean) studyGroupClasses.get(i);
-            ArrayList groups = studyGroupDAO.findAllByGroupClass(sgc);
+            ArrayList<StudyGroupBean> groups = studyGroupDAO.findAllByGroupClass(sgc);
             sgc.setStudyGroups(groups);
         }
 

@@ -25,6 +25,7 @@ import org.akaza.openclinica.bean.managestudy.DiscrepancyNoteBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
+import org.akaza.openclinica.bean.managestudy.StudyGroupBean;
 import org.akaza.openclinica.bean.managestudy.StudyGroupClassBean;
 import org.akaza.openclinica.bean.managestudy.StudySubjectBean;
 import org.akaza.openclinica.bean.service.StudyParameterValueBean;
@@ -296,7 +297,6 @@ public class AddNewSubjectServlet extends SecureController {
             String uniqueIdentifier = fp.getString(INPUT_UNIQUE_IDENTIFIER);// global
             // Id
             SubjectBean subjectWithSameId = new SubjectBean();
-            SubjectBean subjectWithSameIdInParent = new SubjectBean();
             boolean showExistingRecord = false;
             if (!uniqueIdentifier.equals("")) {
                 boolean subjectWithSameIdInCurrentStudyTree = false;
@@ -749,8 +749,6 @@ public class AddNewSubjectServlet extends SecureController {
                     SubjectGroupMapDAO sgmdao = new SubjectGroupMapDAO(sm.getDataSource());
                     for (int i = 0; i < classes.size(); i++) {
                         StudyGroupClassBean group = (StudyGroupClassBean) classes.get(i);
-                        int studyGroupId = group.getStudyGroupId();
-                        String notes = group.getGroupNotes();
                         SubjectGroupMapBean map = new SubjectGroupMapBean();
                         map.setNotes(group.getGroupNotes());
                         map.setStatus(Status.AVAILABLE);
@@ -806,7 +804,6 @@ public class AddNewSubjectServlet extends SecureController {
 
                 String submitEvent = fp.getString(SUBMIT_EVENT_BUTTON);
                 String submitEnroll = fp.getString(SUBMIT_ENROLL_BUTTON);
-                String submitDone = fp.getString(SUBMIT_DONE_BUTTON);
 
                 session.removeAttribute(FORM_DISCREPANCY_NOTES_NAME);
                 if (!StringUtil.isBlank(submitEvent)) {
@@ -948,7 +945,7 @@ public class AddNewSubjectServlet extends SecureController {
 
         for (int i = 0; i < classes.size(); i++) {
             StudyGroupClassBean group = (StudyGroupClassBean) classes.get(i);
-            ArrayList studyGroups = sgdao.findAllByGroupClass(group);
+            ArrayList<StudyGroupBean> studyGroups = sgdao.findAllByGroupClass(group);
             group.setStudyGroups(studyGroups);
         }
 

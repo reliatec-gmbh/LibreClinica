@@ -102,7 +102,6 @@ public class ViewStudySubjectAuditLogServlet extends SecureController {
 
         StudyEventDAO sedao = new StudyEventDAO(sm.getDataSource());
         StudyEventDefinitionDAO seddao = new StudyEventDefinitionDAO(sm.getDataSource());
-        EventDefinitionCRFDAO edcdao = new EventDefinitionCRFDAO(sm.getDataSource());
         EventCRFDAO ecdao = new EventCRFDAO(sm.getDataSource());
         StudyDAO studydao = new StudyDAO(sm.getDataSource());
         CRFDAO cdao = new CRFDAO(sm.getDataSource());
@@ -201,7 +200,7 @@ public class ViewStudySubjectAuditLogServlet extends SecureController {
                 StudyEventBean studyEvent = (StudyEventBean) events.get(i);
                 studyEventAudits.addAll(adao.findStudyEventAuditEvents(studyEvent.getId()));
 
-                ArrayList eventCRFs = studyEvent.getEventCRFs();
+                ArrayList<EventCRFBean> eventCRFs = studyEvent.getEventCRFs();
                 for (int j = 0; j < eventCRFs.size(); j++) {
                     // Link CRF and CRF Versions
                     EventCRFBean eventCRF = (EventCRFBean) eventCRFs.get(j);

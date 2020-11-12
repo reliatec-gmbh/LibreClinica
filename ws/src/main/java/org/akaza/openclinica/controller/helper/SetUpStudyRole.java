@@ -11,6 +11,7 @@ import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.service.StudyParameterValueDAO;
 import org.akaza.openclinica.dao.service.StudyConfigService;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
+import org.akaza.openclinica.bean.service.StudyParamsConfig;
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.login.StudyUserRoleBean;
@@ -58,7 +59,7 @@ public class SetUpStudyRole {
             StudyParameterValueDAO spvdao = new StudyParameterValueDAO(dataSource);
             currentStudy = (StudyBean) sdao.findByPK(userAccountBean.getActiveStudyId());
 
-            ArrayList studyParameters = spvdao.findParamConfigByStudy(currentStudy);
+            ArrayList<StudyParamsConfig> studyParameters = spvdao.findParamConfigByStudy(currentStudy);
 
             currentStudy.setStudyParameters(studyParameters);
 

@@ -72,8 +72,6 @@ public class DiscrepancyNoteOutputServlet extends SecureController {
     /* Handle the HTTP Get or Post request. */
     @Override
     protected void processRequest() throws Exception {
-
-        FormProcessor fp = new FormProcessor(request);
         // the fileName contains any subject id and study unique protocol id;
         // see: chooseDownloadFormat.jsp
         String fileName = request.getParameter("fileName");
@@ -97,8 +95,6 @@ public class DiscrepancyNoteOutputServlet extends SecureController {
         }*/
         // possibly for a later implementation: int definitionId = fp.getInt("defId");
         //here subjectId actually is study_subject_id !!!
-        int subjectId = fp.getInt("subjectId");
-        int discNoteType = fp.getInt("discNoteType");
 
         DownloadDiscrepancyNote downLoader = new DownloadDiscrepancyNote();
         if ("csv".equalsIgnoreCase(format)) {
@@ -120,7 +116,6 @@ public class DiscrepancyNoteOutputServlet extends SecureController {
         // In this case we want to include all the discrepancy notes, despite the res status or
         // type filtering, because we don't want to filter out parents, thus leaving out a child note
         // that might match the desired res status
-        ListNotesFilter listNotesFilter = new ListNotesFilter();
 
         ViewNotesService viewNotesService = (ViewNotesService) WebApplicationContextUtils.getWebApplicationContext(
         		getServletContext()).getBean("viewNotesService");
@@ -144,7 +139,6 @@ public class DiscrepancyNoteOutputServlet extends SecureController {
         // Do the filtering for type or status here
         DiscrepancyNoteUtil discNoteUtil = new DiscrepancyNoteUtil();
 
-        Set<Integer> resolutionStatusIds = emptySet();
         List<DiscrepancyNoteThread> discrepancyNoteThreads =
             discNoteUtil.createThreads(allDiscNotes, sm.getDataSource(), studyBean);
 
@@ -282,8 +276,8 @@ public class DiscrepancyNoteOutputServlet extends SecureController {
             DiscrepancyNoteBean dnb = noteRows.get(i);
             dnb.setCreatedDateString(dnb.getCreatedDate()==null?"":sdf.format(dnb.getCreatedDate()));
             if (dnb.getParentDnId() == 0) {
-                ArrayList children = dndao.findAllByStudyAndParent(currentStudy, dnb.getId());
-                children = children == null? new ArrayList():children;
+                ArrayList<DiscrepancyNoteBean> children = dndao.findAllByStudyAndParent(currentStudy, dnb.getId());
+                children = children == null? new ArrayList<>():children;
                 dnb.setNumChildren(children.size());
                 dnb.setChildren(children);
                 int lastDnId = dnb.getId();

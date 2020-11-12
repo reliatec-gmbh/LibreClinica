@@ -11,6 +11,7 @@ import org.akaza.openclinica.bean.core.GroupClassType;
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.managestudy.StudyGroupBean;
 import org.akaza.openclinica.bean.managestudy.StudyGroupClassBean;
+import org.akaza.openclinica.bean.submit.SubjectGroupMapBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
@@ -49,7 +50,6 @@ public class ViewSubjectGroupClassServlet extends SecureController {
 
     @Override
     public void processRequest() throws Exception {
-        String action = request.getParameter("action");
         FormProcessor fp = new FormProcessor(request);
         int classId = fp.getInt("id");
 
@@ -77,7 +77,7 @@ public class ViewSubjectGroupClassServlet extends SecureController {
 
             for (int i = 0; i < groups.size(); i++) {
                 StudyGroupBean sg = (StudyGroupBean) groups.get(i);
-                ArrayList subjectMaps = sgmdao.findAllByStudyGroupClassAndGroup(sgcb.getId(), sg.getId());
+                ArrayList<SubjectGroupMapBean> subjectMaps = sgmdao.findAllByStudyGroupClassAndGroup(sgcb.getId(), sg.getId());
                 sg.setSubjectMaps(subjectMaps);
                 // YW<<
                 studyGroups.add(sg);

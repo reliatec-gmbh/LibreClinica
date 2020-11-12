@@ -19,6 +19,7 @@ import org.akaza.openclinica.bean.extract.odm.FullReportBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.odmbeans.ODMBean;
 import org.akaza.openclinica.bean.odmbeans.OdmClinicalDataBean;
+import org.akaza.openclinica.bean.service.StudyParamsConfig;
 import org.akaza.openclinica.dao.core.CoreResources;
 import org.akaza.openclinica.dao.hibernate.RuleSetRuleDao;
 import org.akaza.openclinica.dao.hibernate.StudyDao;
@@ -37,8 +38,6 @@ public class MetadataCollectorResource {
 
     private static final int INDENT_LEVEL = 2;
 	private DataSource dataSource;
-	
-	private StudyDAO studyDao;
 	
 private RuleSetRuleDao ruleSetRuleDao;	
 
@@ -84,12 +83,6 @@ public void setRuleSetRuleDao(RuleSetRuleDao ruleSetRuleDao) {
 
 	public StudyDAO getStudyDao() {
 		return new StudyDAO(dataSource);
-	}
-
-
-
-	public void setStudyDao(StudyDAO studyDao) {
-		this.studyDao = studyDao;
 	}
 
 
@@ -248,8 +241,7 @@ public void setRuleSetRuleDao(RuleSetRuleDao ruleSetRuleDao) {
 	}
 	private StudyBean populateStudyBean(StudyBean studyBean) {
 		 StudyParameterValueDAO spvdao = new StudyParameterValueDAO(this.dataSource);
-		  @SuppressWarnings("rawtypes")
-		ArrayList studyParameters = spvdao.findParamConfigByStudy(studyBean);
+		ArrayList<StudyParamsConfig> studyParameters = spvdao.findParamConfigByStudy(studyBean);
 
 		  studyBean.setStudyParameters(studyParameters);
 		  StudyConfigService scs = new StudyConfigService(this.dataSource);

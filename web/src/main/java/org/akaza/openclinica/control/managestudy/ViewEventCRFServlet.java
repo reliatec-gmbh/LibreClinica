@@ -78,7 +78,7 @@ public class ViewEventCRFServlet extends SecureController {
                 SectionBean section = (SectionBean) sections.get(j);
                 ArrayList itemData = iddao.findAllByEventCRFId(eventCRFId);
 
-                ArrayList displayItemData = new ArrayList();
+                ArrayList<DisplayItemBean> displayItemData = new ArrayList();
                 for (int i = 0; i < itemData.size(); i++) {
                     ItemDataBean id = (ItemDataBean) itemData.get(i);
                     DisplayItemBean dib = new DisplayItemBean();

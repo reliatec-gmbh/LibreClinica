@@ -11,6 +11,7 @@ import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.service.StudyParameter;
 import org.akaza.openclinica.bean.service.StudyParameterConfig;
 import org.akaza.openclinica.bean.service.StudyParameterValueBean;
+import org.akaza.openclinica.bean.service.StudyParamsConfig;
 import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.slf4j.Logger;
@@ -152,7 +153,7 @@ public class StudyConfigService {
 
     public StudyBean setParameterValuesForStudy(StudyBean study) {
         StudyParameterValueDAO spvdao = new StudyParameterValueDAO(ds);
-        ArrayList theParameters = spvdao.findParamConfigByStudy(study);
+        ArrayList<StudyParamsConfig> theParameters = spvdao.findParamConfigByStudy(study);
         study.setStudyParameters(theParameters);
 
         ArrayList parameters = spvdao.findAllParameterValuesByStudy(study);

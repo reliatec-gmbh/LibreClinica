@@ -310,8 +310,6 @@ public class UpdateSubStudyServlet extends SecureController {
 
         ArrayList<StudyEventDefinitionBean> seds = new ArrayList<StudyEventDefinitionBean>();
         
-        ArrayList<EventDefinitionCRFBean> defCrfs = new ArrayList<EventDefinitionCRFBean>();
-        StudyEventDefinitionDAO sedDao = new StudyEventDefinitionDAO(sm.getDataSource());
         CRFVersionDAO cvdao = new CRFVersionDAO(sm.getDataSource());
 
         StudyBean parentStudyBean;
@@ -327,7 +325,6 @@ public class UpdateSubStudyServlet extends SecureController {
         ArrayList <EventDefinitionCRFBean> toBeCreatedEventDefBean = new ArrayList<>();
         ArrayList <EventDefinitionCRFBean> toBeUpdatedEventDefBean = new ArrayList<>();
         ArrayList <EventDefinitionCRFBean> edcsInSession = new ArrayList<EventDefinitionCRFBean>();
-        boolean changestate = false;
         seds = (ArrayList<StudyEventDefinitionBean>) session.getAttribute("definitions");
 
         StudyParameterValueDAO spvdao = new StudyParameterValueDAO(sm.getDataSource());    
@@ -339,7 +336,7 @@ public class UpdateSubStudyServlet extends SecureController {
         for (StudyEventDefinitionBean sed : seds) {
         	
 
-            ArrayList<EventDefinitionCRFBean> edcs = sed.getCrfs();
+            ArrayList<EventDefinitionCRFBean> edcs = (ArrayList<EventDefinitionCRFBean>) sed.getCrfs();
             int start = 0;
             for (EventDefinitionCRFBean edcBean : edcs) {
 
@@ -353,11 +350,7 @@ public class UpdateSubStudyServlet extends SecureController {
                     String electronicSignature = fp.getString("electronicSignature" + order);
                     String hideCRF = fp.getString("hideCRF" + order);
 
-                    String participantForm = fp.getString("participantForm"+order);
-                    String allowAnonymousSubmission = fp.getString("allowAnonymousSubmission" + order);
                     String submissionUrl = fp.getString("submissionUrl" + order);
-                    String offline = fp.getString("offline" + order);
-
                     
                     int sdvId = fp.getInt("sdvOption" + order);
                     ArrayList<String> selectedVersionIdList = fp.getStringArray("versionSelection" + order);
@@ -369,7 +362,6 @@ public class UpdateSubStudyServlet extends SecureController {
                         }
                         selectedVersionIds = selectedVersionIds.substring(0, selectedVersionIds.length() - 1);
                     }
-                    String sdvOption = fp.getString("sdvOption" + order);
 
                     boolean changed = false;
                    

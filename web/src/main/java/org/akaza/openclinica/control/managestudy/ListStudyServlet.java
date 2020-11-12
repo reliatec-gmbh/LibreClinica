@@ -9,6 +9,7 @@ package org.akaza.openclinica.control.managestudy;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Locale;
 
@@ -72,7 +73,7 @@ public class ListStudyServlet extends SecureController {
 
         for (int i = 0; i < parents.size(); i++) {
             StudyBean parent = (StudyBean) parents.get(i);
-            ArrayList children = (ArrayList) sdao.findAllByParent(parent.getId());
+            ArrayList<StudyBean> children = new ArrayList<StudyBean>(sdao.findAllByParent(parent.getId()));
             DisplayStudyBean displayStudy = new DisplayStudyBean();
             displayStudy.setParent(parent);
             displayStudy.setChildren(children);

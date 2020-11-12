@@ -144,12 +144,7 @@ public class ViewSelectedServlet extends SecureController {
         for (int i = 0; i < itemDefCrfs.size(); i++) {
             ItemBean item = (ItemBean) itemDefCrfs.get(i);
             item.setSelected(true);
-            ArrayList metas = imfdao.findAllByItemId(item.getId());
-            for (int h = 0; h < metas.size(); h++) {
-                ItemFormMetadataBean ifmb = (ItemFormMetadataBean) metas.get(h);
-                // logger.info("group name found:
-                // "+ifmb.getGroupLabel());
-            }
+            ArrayList<ItemFormMetadataBean> metas = imfdao.findAllByItemId(item.getId());
             item.setItemMetas(metas);
             items.add(item);
         }

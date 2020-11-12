@@ -69,7 +69,6 @@ public class UpdateStudySubjectServlet extends SecureController {
     @Override
     public void processRequest() throws Exception {
         FormDiscrepancyNotes discNotes = null;
-        SubjectDAO sdao = new SubjectDAO(sm.getDataSource());
         StudySubjectDAO subdao = new StudySubjectDAO(sm.getDataSource());
         FormProcessor fp = new FormProcessor(request);
 
@@ -122,7 +121,7 @@ public class UpdateStudySubjectServlet extends SecureController {
                 // YW >>
                 for (int i = 0; i < classes.size(); i++) {
                     StudyGroupClassBean group = (StudyGroupClassBean) classes.get(i);
-                    ArrayList studyGroups = sgdao.findAllByGroupClass(group);
+                    ArrayList<StudyGroupBean> studyGroups = sgdao.findAllByGroupClass(group);
                     group.setStudyGroups(studyGroups);
                     SubjectGroupMapBean gMap = (SubjectGroupMapBean) gMaps.get(new Integer(group.getId()));
                     if (gMap != null) {
