@@ -87,38 +87,6 @@ public class MarkEventCRFCompleteServlet extends SecureController {
         return dataList.isEmpty();
     }
 
-    private boolean isEachSectionReviewedOnce() {
-        SectionDAO sdao = new SectionDAO(sm.getDataSource());
-
-        DataEntryStage stage = ecb.getStage();
-
-        ArrayList sections = sdao.findAllByCRFVersionId(ecb.getCRFVersionId());
-        HashMap numItemsHM = sdao.getNumItemsBySectionId();
-        HashMap numItemsPendingHM = sdao.getNumItemsPendingBySectionId(ecb);
-        HashMap numItemsCompletedHM = sdao.getNumItemsCompletedBySectionId(ecb);
-
-        for (int i = 0; i < sections.size(); i++) {
-            SectionBean sb = (SectionBean) sections.get(i);
-            Integer key = new Integer(sb.getId());
-
-            int numItems = TableOfContentsServlet.getIntById(numItemsHM, key);
-            int numItemsPending = TableOfContentsServlet.getIntById(numItemsPendingHM, key);
-            int numItemsCompleted = TableOfContentsServlet.getIntById(numItemsCompletedHM, key);
-
-            if (stage.equals(DataEntryStage.INITIAL_DATA_ENTRY) && edcb.isDoubleEntry()) {
-                if (numItemsPending == 0 && numItems > 0) {
-                    return false;
-                }
-            } else {
-                if (numItemsCompleted == 0 && numItems > 0) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
-
     private void getEventDefinitionCRFBean() {
         edcdao = new EventDefinitionCRFDAO(sm.getDataSource());
         edcb = edcdao.findForStudyByStudyEventIdAndCRFVersionId(ecb.getStudyEventId(), ecb.getCRFVersionId());

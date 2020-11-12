@@ -381,17 +381,6 @@ public class ViewRuleAssignmentTableFactory extends AbstractTableFactory {
         this.itemFormMetadataDAO = itemFormMetadataDAO;
     }
 
-    private class AvailableDroplistFilterEditor extends DroplistFilterEditor {
-        @Override
-        protected List<Option> getOptions() {
-            List<Option> options = new ArrayList<Option>();
-            for (LoginStatus loginStatus : LoginStatus.values()) {
-                options.add(new Option(loginStatus.name(), loginStatus.toString()));
-            }
-            return options;
-        }
-    }
-
     private class AvailableFilterMatcher implements FilterMatcher {
         public boolean evaluate(Object itemValue, String filterValue) {
 
@@ -926,18 +915,6 @@ public class ViewRuleAssignmentTableFactory extends AbstractTableFactory {
         actionLink.img().name("bt_Download").src("images/bt_Download.gif").border("0").alt("Download XML").title("Download XML").append("hspace=\"2\"").end()
                 .aEnd();
         actionLink.append("&nbsp;&nbsp;&nbsp;");
-        return actionLink.toString();
-
-    }
-
-    private String executeLinkBuilder(Integer ruleSetId) {
-        HtmlBuilder actionLink = new HtmlBuilder();
-        actionLink.a().href("RunRuleSet?ruleSetId=" + ruleSetId);
-        actionLink.append("onMouseDown=\"javascript:setImage('bt_run','images/bt_ExexuteRules.gif');\"");
-        actionLink.append("onMouseUp=\"javascript:setImage('bt_run','images/bt_ExexuteRules.gif');\"").close();
-        actionLink.img().name("Run").src("images/bt_ExexuteRules.gif").border("0").alt("Run").title("Run").append("hspace=\"2\"").end().aEnd();
-        actionLink.append("&nbsp;&nbsp;&nbsp;");
-  
         return actionLink.toString();
 
     }

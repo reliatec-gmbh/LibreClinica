@@ -339,24 +339,6 @@ public class ListStudySubjectTableFactory extends AbstractTableFactory {
         return false;
     }
 
-    private void getColumnNames() {
-        ArrayList<String> columnNamesList = new ArrayList<String>();
-        columnNamesList.add("label");
-        columnNamesList.add("status");
-        columnNamesList.add("enrolledAt");
-        columnNamesList.add("oid");
-        columnNamesList.add("subject.charGender");
-        columnNamesList.add("secondaryLabel");
-        for (StudyGroupClassBean studyGroupClass : getStudyGroupClasses()) {
-            columnNamesList.add("sgc_" + studyGroupClass.getId());
-        }
-        for (StudyEventDefinitionBean studyEventDefinition : getStudyEventDefinitions()) {
-            columnNamesList.add("sed_" + studyEventDefinition.getId());
-        }
-        columnNamesList.add("actions");
-        columnNames = columnNamesList.toArray(columnNames);
-    }
-
     private void getColumnNamesMap() {
         ArrayList<String> columnNamesList = new ArrayList<String>();
         columnNamesList.add("studySubject.label");
@@ -667,47 +649,6 @@ public class ListStudySubjectTableFactory extends AbstractTableFactory {
             groupName = (String) ((HashMap<Object, Object>) item).get("grpName_sgc_" + studyGroupClass.getId());
             return logic();
         }
-    }
-
-    private class StudyEventDefinitionCellEditor implements CellEditor {
-
-        StudyEventDefinitionBean studyEventDefinition;
-        StudySubjectBean studySubjectBean;
-        SubjectEventStatus subjectEventStatus;
-        List<StudyEventBean> studyEvents;
-
-        public StudyEventDefinitionCellEditor(StudyEventDefinitionBean studyEventDefinition) {
-            this.studyEventDefinition = studyEventDefinition;
-        }
-
-        @SuppressWarnings("unchecked")
-        private void logic() {
-            studyEvents = getStudyEventDAO().findAllByStudySubjectAndDefinition(studySubjectBean, studyEventDefinition);
-            if (studyEvents.size() < 1) {
-                subjectEventStatus = SubjectEventStatus.NOT_SCHEDULED;
-            } else {
-                subjectEventStatus = studyEvents.get(studyEvents.size() - 1).getSubjectEventStatus();
-
-            }
-        }
-
-        private String getCount() {
-            return studyEvents.size() < 2 ? "" : "&nbsp;&nbsp;&nbsp;x" + String.valueOf(studyEvents.size() + "");
-        }
-
-        public Object getValue(Object item, String property, int rowcount) {
-
-            studySubjectBean = (StudySubjectBean) ((HashMap<Object, Object>) item).get("studySubject");
-
-            logic();
-
-            StringBuilder url = new StringBuilder();
-            url.append("<img src='" + imageIconPaths.get(subjectEventStatus.getId()) + "' border='0' style='position: relative; left: 7px;'>");
-            url.append(getCount());
-
-            return url.toString();
-        }
-
     }
 
     private class StudyEventDefinitionMapCellEditor implements CellEditor {

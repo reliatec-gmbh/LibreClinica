@@ -84,55 +84,6 @@ public class CrfEndpoint {
     }
 
     /**
-     * Create Response
-     * 
-     * @param confirmation
-     * @return
-     * @throws Exception
-     */
-    private Element mapConfirmation(String confirmation) throws Exception {
-        DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
-        DocumentBuilder docBuilder = dbfac.newDocumentBuilder();
-        Document document = docBuilder.newDocument();
-
-        Element responseElement = document.createElementNS(NAMESPACE_URI_V1, "commitResponse");
-        Element resultElement = document.createElementNS(NAMESPACE_URI_V1, "result");
-        resultElement.setTextContent(confirmation);
-        responseElement.appendChild(resultElement);
-        return responseElement;
-
-    }
-
-    /**
-     * Helper Method to resolve dates
-     * 
-     * @param dateAsString
-     * @return
-     * @throws ParseException
-     */
-    private Date getDate(String dateAsString) throws ParseException {
-        SimpleDateFormat sdf = new SimpleDateFormat(getDateFormat());
-        return sdf.parse(dateAsString);
-    }
-
-    /**
-     * Helper Method to get the user account
-     * 
-     * @return UserAccountBean
-     */
-    private UserAccountBean getUserAccount() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String username = null;
-        if (principal instanceof UserDetails) {
-            username = ((UserDetails) principal).getUsername();
-        } else {
-            username = principal.toString();
-        }
-        UserAccountDAO userAccountDao = new UserAccountDAO(dataSource);
-        return (UserAccountBean) userAccountDao.findByUserName(username);
-    }
-
-    /**
      * @return
      */
     public String getDateFormat() {

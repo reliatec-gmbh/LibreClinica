@@ -149,20 +149,6 @@ public class RemoveSubjectServlet extends SecureController {
 
     }
 
-    /**
-     * Send email to administrator
-     *
-     * @param request
-     * @param response
-     */
-    private void sendEmail(String emailBody) throws Exception {
-
-        logger.info("Sending email...");
-        // to admin
-        sendEmail(ub.getEmail().trim(), "Remove Subject from System", emailBody, false);
-        logger.info("Sending email done..");
-    }
-
     @Override
     protected String getAdminServlet() {
         return SecureController.ADMIN_SERVLET_CODE;

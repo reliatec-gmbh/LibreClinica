@@ -92,41 +92,6 @@ public class CctsSubjectEndpoint {
     }
 
     /**
-     * UnMarshall SubjectTransferBean, aka create SubjectTransferBean from XML
-     * @param gridId
-     * @param subjectElement
-     * @param studyOidValue
-     * @return
-     * @throws ParseException
-     */
-    private SubjectTransferBean unMarshallToSubjectTransfer(String gridId, Element subjectElement, String studyOidValue) throws ParseException {
-
-        Element personIdElement = DomUtils.getChildElementByTagName(subjectElement, "personId");
-        Element studySubjectIdElement = DomUtils.getChildElementByTagName(subjectElement, "studySubjectId");
-        Element enrollmentDateElement = DomUtils.getChildElementByTagName(subjectElement, "enrollmentDate");
-        Element genderElement = DomUtils.getChildElementByTagName(subjectElement, "gender");
-        Element dateOfBirthElement = DomUtils.getChildElementByTagName(subjectElement, "dateOfBirth");
-
-        String personIdValue = DomUtils.getTextValue(personIdElement);
-        String studySubjectIdValue = DomUtils.getTextValue(studySubjectIdElement);
-        String genderValue = DomUtils.getTextValue(genderElement);
-        String enrollmentDateValue = DomUtils.getTextValue(enrollmentDateElement);
-        String dateOfBirthValue = DomUtils.getTextValue(dateOfBirthElement);
-
-        SubjectTransferBean subjectTransferBean = new SubjectTransferBean();
-
-        subjectTransferBean.setStudyOid(studyOidValue);
-        subjectTransferBean.setPersonId(personIdValue);
-        subjectTransferBean.setStudySubjectId(studySubjectIdValue);
-        subjectTransferBean.setGender(genderValue.toCharArray()[0]);
-        subjectTransferBean.setDateOfBirth(getDate(dateOfBirthValue));
-        //subjectTransferBean.setSecondaryId(secondaryIdValue);
-        subjectTransferBean.setEnrollmentDate(getDate(enrollmentDateValue));
-        return subjectTransferBean;
-
-    }
-
-    /**
      * Create Response 
      * @param confirmation
      * @return
@@ -143,26 +108,6 @@ public class CctsSubjectEndpoint {
         responseElement.appendChild(resultElement);
         return responseElement;
 
-    }
-
-    /**
-     * Helper Method to resolve dates
-     * @param dateAsString
-     * @return
-     * @throws ParseException
-     */
-    private Date getDate(String dateAsString) throws ParseException {
-        SimpleDateFormat sdf = new SimpleDateFormat(getDateFormat());
-        return sdf.parse(dateAsString);
-    }
-
-    /**
-     * Helper Method to get the user account
-     * @return UserAccountBean
-     */
-    private UserAccountBean getUserAccount() {
-    	// TODO empty method
-        return null;
     }
 
     /**

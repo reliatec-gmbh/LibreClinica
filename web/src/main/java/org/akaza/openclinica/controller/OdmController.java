@@ -407,41 +407,6 @@ public class OdmController {
         return formData;
     }
 
-    /**
-     * Currently not used, but keep here for future unit test
-     *
-     * @param clazz
-     * @param odm
-     * @return
-     * @throws Exception
-     */
-    private String generateXmlFromObj(Class clazz, ODM odm) throws Exception {
-
-        JAXBContext context = JAXBContext.newInstance(clazz);
-
-        Marshaller m = context.createMarshaller();
-        StringWriter w = new StringWriter();
-
-        m.marshal(odm, w);
-        return w.toString();
-    }
-
-    @SuppressWarnings("unchecked")
-    private void sortList(ArrayList<EventDefinitionCRFBean> edcBeans) {
-
-        Collections.sort(edcBeans, new Comparator() {
-
-            public int compare(Object o1, Object o2) {
-
-                Integer x1 = ((EventDefinitionCRFBean) o1).getOrdinal();
-                Integer x2 = ((EventDefinitionCRFBean) o2).getOrdinal();
-                int sComp = x1.compareTo(x2);
-
-                return sComp;
-            }
-        });
-    }
-
     private StudyBean getStudy(String oid) {
         sdao = new StudyDAO(dataSource);
         StudyBean studyBean = (StudyBean) sdao.findByOid(oid);

@@ -337,36 +337,6 @@ public class DynamicsMetadataService implements MetadataServiceInterface {
         return itemGroupMetadataBean.getRepeatNum() > 1 || itemGroupMetadataBean.getRepeatMax() > 1;
     }
 
-    @Deprecated
-    private void oneToManyOld(ItemDataBean itemDataBeanA, EventCRFBean eventCrfBeanA, ItemGroupMetadataBean itemGroupMetadataBeanA, ItemBean itemBeanB,
-            ItemGroupBean itemGroupBeanB, ItemGroupMetadataBean itemGroupMetadataBeanB, EventCRFBean eventCrfBeanB, UserAccountBean ub, String value) {
-
-        //List<ItemDataBean> itemDataBeans = new ArrayList<ItemDataBean>();
-        Integer size = getItemDataDAO().getGroupSize(itemBeanB.getId(), eventCrfBeanB.getId());
-        int maxOrdinal = getItemDataDAO().getMaxOrdinalForGroupByItemAndEventCrf(itemBeanB.getId(), eventCrfBeanB);
-        if (size > 0 || maxOrdinal > 0) {
-            List<ItemDataBean> itemDataBeans = getItemDataDAO().findAllByEventCRFIdAndItemId(eventCrfBeanB.getId(), itemBeanB.getId());
-            for (ItemDataBean oidBasedItemData : itemDataBeans) {
-                oidBasedItemData.setValue(value);
-                getItemDataDAO().updateValue(oidBasedItemData, "yyyy-MM-dd");
-            }
-        } else {
-            List<ItemBean> items = getItemDAO().findAllItemsByGroupId(itemGroupBeanB.getId(), eventCrfBeanB.getCRFVersionId());
-            for (int ordinal = 1 + maxOrdinal; ordinal <= itemGroupMetadataBeanB.getRepeatNum() + maxOrdinal; ordinal++) {
-                for (ItemBean itemBeanX : items) {
-                    ItemDataBean oidBasedItemData = getItemData(itemBeanX, eventCrfBeanB, ordinal);
-                    if (oidBasedItemData.getId() == 0) {
-                        oidBasedItemData = createItemData(oidBasedItemData, itemBeanX, ordinal, eventCrfBeanB, ub);
-                    }
-                    if (itemBeanX.getId() == itemBeanB.getId()) {
-                        oidBasedItemData.setValue(value);
-                        getItemDataDAO().updateValue(oidBasedItemData, "yyyy-MM-dd");
-                    }
-                }
-            }
-        }
-    }
-
     private ItemDataBean oneToIndexedMany(ItemDataBean itemDataBeanA, EventCRFBean eventCrfBeanA, ItemGroupMetadataBean itemGroupMetadataBeanA,
             ItemBean itemBeanB, ItemGroupBean itemGroupBeanB, ItemGroupMetadataBean itemGroupMetadataBeanB, EventCRFBean eventCrfBeanB, UserAccountBean ub,
             int index) {

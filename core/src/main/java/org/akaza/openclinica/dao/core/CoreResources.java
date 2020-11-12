@@ -558,57 +558,6 @@ public class CoreResources implements ResourceLoaderAware {
          */
     }
 
-    /**
-     * @deprecated. ByteArrayInputStream keeps the whole file in memory needlessly. Use Commons IO's
-     *              {@link IOUtils#copy(java.io.InputStream, java.io.OutputStream)} instead.
-     */
-    @Deprecated
-    private void copyFiles(ByteArrayInputStream fis, File dest) {
-        FileOutputStream fos = null;
-        byte[] buffer = new byte[512]; // Buffer 4K at a time (you can change this).
-        int bytesRead;
-        logger.debug("fis?" + fis);
-        try {
-            fos = new FileOutputStream(dest);
-            while ((bytesRead = fis.read(buffer)) >= 0) {
-                fos.write(buffer, 0, bytesRead);
-            }
-        } catch (IOException ioe) {// error while copying files
-            OpenClinicaSystemException oe = new OpenClinicaSystemException("Unable to copy file: " + fis + "to" + dest.getAbsolutePath() + "."
-                    + dest.getAbsolutePath() + ".");
-            oe.initCause(ioe);
-            oe.setStackTrace(ioe.getStackTrace());
-            throw oe;
-        } finally { // Ensure that the files are closed (if they were open).
-            if (fis != null) {
-                try {
-                    fis.close();
-                } catch (IOException ioe) {
-                    OpenClinicaSystemException oe = new OpenClinicaSystemException("Unable to copy file: " + fis + "to" + dest.getAbsolutePath() + "."
-                            + dest.getAbsolutePath() + ".");
-                    oe.initCause(ioe);
-                    oe.setStackTrace(ioe.getStackTrace());
-                    logger.debug(ioe.getMessage());
-                    throw oe;
-
-                }
-            }
-            if (fos != null) {
-                try {
-                    fos.close();
-                } catch (IOException ioe) {
-                    OpenClinicaSystemException oe = new OpenClinicaSystemException("Unable to copy file: " + fis + "to" + dest.getAbsolutePath() + "."
-                            + dest.getAbsolutePath() + ".");
-                    oe.initCause(ioe);
-                    oe.setStackTrace(ioe.getStackTrace());
-                    logger.debug(ioe.getMessage());
-                    throw oe;
-
-                }
-            }
-        }
-    }
-
     private void copyODMMappingXMLtoResources(ResourceLoader resourceLoader) {
         ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(resourceLoader);
         Resource[] resources;

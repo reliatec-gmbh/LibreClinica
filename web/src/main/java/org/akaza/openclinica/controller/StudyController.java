@@ -994,12 +994,6 @@ public class StudyController {
 
 	}
 
-	private UserAccountBean getUserAccount(String userName) {
-		udao = new UserAccountDAO(dataSource);
-		UserAccountBean userAccountBean = (UserAccountBean) udao.findByUserName(userName);
-		return userAccountBean;
-	}
-
 	private StudyBean getStudyByUniqId(String uniqueId) {
 		sdao = new StudyDAO(dataSource);
 		StudyBean studyBean = (StudyBean) sdao.findByUniqueIdentifier(uniqueId);

@@ -698,24 +698,6 @@ public class DownloadDiscrepancyNote implements DownLoadBean{
         return new Cell(para);
     }
 
-    private Paragraph createThreadHeader(DiscrepancyNoteThread discNoteThread){
-        String content ="";
-        int size = discNoteThread.getLinkedNoteList().size();
-        int counter=0;
-        for(DiscrepancyNoteBean discBean : discNoteThread.getLinkedNoteList()){
-            ++counter;
-            content += discBean.getEntityName()+"; "+
-              RESOLUTION_STATUS_MAP.get(discBean.getResolutionStatusId());
-            if(size > 1 && counter != size) {
-                content +=" --->";
-            }
-
-        }
-        Paragraph para = new Paragraph(content,
-          new Font(Font.HELVETICA, 16, Font.BOLD, new Color(0, 0, 0)));
-        return para;
-    }
-
     private Table createTableFromBean(DiscrepancyNoteBean discBean) throws
       BadElementException {
 

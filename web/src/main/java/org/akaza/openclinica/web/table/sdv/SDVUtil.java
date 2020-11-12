@@ -143,10 +143,6 @@ public class SDVUtil {
         return new NoEscapeHtmlCellEditor();
     }
 
-    private String getDateFormat() {
-        return resformat.getString("date_format_string");
-    }
-
     public int setDataAndLimitVariablesSubjects(TableFacade tableFacade, int studyId, int studySubjectId, HttpServletRequest request) {
         Limit limit = tableFacade.getLimit();
         FilterSet filterSet = limit.getFilterSet();

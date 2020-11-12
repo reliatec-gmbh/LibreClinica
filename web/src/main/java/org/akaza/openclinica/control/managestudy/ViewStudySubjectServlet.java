@@ -703,20 +703,4 @@ public class ViewStudySubjectServlet extends SecureController {
         }
 
     }
-
-    private void addDiscrepancyNotesFromChildStudies(List<DiscrepancyNoteBean> discBeans, int parentStudyId, int subjectId, int studySubId, StudyDAO studyDAO,
-            DiscrepancyNoteDAO discrepancyNoteDAO) {
-
-        if (discBeans == null || discBeans.isEmpty() || studyDAO == null || discrepancyNoteDAO == null) {
-            return;
-        }
-        ArrayList<StudyBean> childStudies = (ArrayList) studyDAO.findAllByParent(parentStudyId);
-
-        for (StudyBean studyBean : childStudies) {
-            discBeans.addAll(discrepancyNoteDAO.findAllSubjectByStudyAndId(studyBean, subjectId));
-            discBeans.addAll(discrepancyNoteDAO.findAllStudySubjectByStudyAndId(studyBean, studySubId));
-        }
-
-    }
-
 }

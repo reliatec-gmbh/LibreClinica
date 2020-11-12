@@ -199,12 +199,6 @@ public class RuleSetRuleDAO extends AuditableEntityDAO {
         return ruleSetRuleBean;
     }
 
-    private void createRuleSetRules(RuleSetBean ruleSetBean) {
-        if (ruleSetBean.getId() > 0) {
-
-        }
-    }
-
     public Object getEntityFromHashMap(HashMap hm) {
         RuleSetRuleBean ruleSetRuleBean = new RuleSetRuleBean();
         this.setEntityAuditInformation(ruleSetRuleBean, hm);

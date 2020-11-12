@@ -129,12 +129,6 @@ public class UserAccountDAO extends AuditableEntityDAO {
         this.setTypeExpected(8, TypeNames.STRING);
     }
 
-    private void setPasswordTypesExpected() {
-    	// assume getting list of old passwords
-    	this.unsetTypeExpected();
-    	this.setTypeExpected(1, TypeNames.STRING);
-    }
-
     @Override
     public EntityBean update(EntityBean eb) {
         UserAccountBean uab = (UserAccountBean) eb;

@@ -473,31 +473,6 @@ public class ExpressionService {
         return value;
     }
 
-    private String getValueFromDbOrForm(String fullExpression, Map<Integer, ItemBean> itemBeansI) {
-        List<ItemDataBean> itemDatas = getItemDatas(fullExpression);
-        fullExpression = fixGroupOrdinal(fullExpression, expressionWrapper.getRuleSet().getTarget().getValue(),
-                itemDatas, expressionWrapper.getEventCrf());
-        checkSyntax(fullExpression);
-        String valueFromForm = null;
-        if (items == null) {
-            valueFromForm = getValueFromForm(fullExpression);
-        } else {
-            valueFromForm = getValueFromForm(fullExpression, items);
-        }
-        String valueFromDb = null;
-        if (itemBeansI == null) {
-            valueFromDb = getValueFromDb(fullExpression, itemDatas);
-        } else {
-            valueFromDb = getValueFromDb(fullExpression, itemDatas, itemBeansI);
-        }
-        logger.debug("valueFromForm : {} , valueFromDb : {}", valueFromForm, valueFromDb);
-        if (valueFromForm == null && valueFromDb == null) {
-            throw new OpenClinicaSystemException("OCRERR_0017", new Object[] { fullExpression,
-                    expressionWrapper.getRuleSet().getTarget().getValue() });
-        }
-        return valueFromForm == null ? valueFromDb : valueFromForm;
-    }
-
     public boolean checkIfExpressionIsForScheduling(String expression) {
         if (expression.toUpperCase().startsWith("SE_")
                 && (expression.toUpperCase().endsWith(this.STARTDATE) || expression.toUpperCase().endsWith(this.STATUS))) {

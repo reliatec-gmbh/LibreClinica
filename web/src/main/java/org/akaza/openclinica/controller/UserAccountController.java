@@ -277,43 +277,9 @@ public class UserAccountController {
 		udao.create(userAccountBean);
 	}
 
-	private StudyBean getParentStudy(String studyOid) {
-		StudyBean study = getStudy(studyOid);
-		if (study.getParentStudyId() == 0) {
-			return study;
-		} else {
-			StudyBean parentStudy = (StudyBean) sdao.findByPK(study.getParentStudyId());
-			return parentStudy;
-		}
-
-	}
-
-	private StudyBean getParentStudy(Integer studyId) {
-		StudyBean study = getStudy(studyId);
-		if (study.getParentStudyId() == 0) {
-			return study;
-		} else {
-			StudyBean parentStudy = (StudyBean) sdao.findByPK(study.getParentStudyId());
-			return parentStudy;
-		}
-
-	}
-
 	private StudyBean getStudyByName(String name) {
 		sdao = new StudyDAO(dataSource);
 		StudyBean studyBean = (StudyBean) sdao.findByName(name);
-		return studyBean;
-	}
-
-	private StudyBean getStudy(String oid) {
-		sdao = new StudyDAO(dataSource);
-		StudyBean studyBean = (StudyBean) sdao.findByOid(oid);
-		return studyBean;
-	}
-
-	private StudyBean getStudy(Integer id) {
-		sdao = new StudyDAO(dataSource);
-		StudyBean studyBean = (StudyBean) sdao.findByPK(id);
 		return studyBean;
 	}
 
@@ -328,21 +294,9 @@ public class UserAccountController {
 		return createdUserAccountBean;
 	}
 
-	private ArrayList<UserAccountBean> getUserAccountByStudy(String userName, ArrayList allStudies) {
-		udao = new UserAccountDAO(dataSource);
-		ArrayList<UserAccountBean> userAccountBeans = udao.findStudyByUser(userName, allStudies);
-		return userAccountBeans;
-	}
-
 	private UserAccountBean getUserAccount(String userName) {
 		udao = new UserAccountDAO(dataSource);
 		UserAccountBean userAccountBean = (UserAccountBean) udao.findByUserName(userName);
-		return userAccountBean;
-	}
-
-	private UserAccountBean getUserAccountByApiKey(String apiKey) {
-		udao = new UserAccountDAO(dataSource);
-		UserAccountBean userAccountBean = (UserAccountBean) udao.findByApiKey(apiKey);
 		return userAccountBean;
 	}
 

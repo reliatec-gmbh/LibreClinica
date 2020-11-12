@@ -185,24 +185,6 @@ public class RestoreEventDefinitionServlet extends SecureController {
 
     }
 
-    /**
-     * Send email to director and administrator
-     *
-     * @param request
-     * @param response
-     */
-    private void sendEmail(String emailBody) throws Exception {
-
-        logger.info("Sending email...");
-        // to study director
-        boolean emailSent = sendEmail(ub.getEmail().trim(), respage.getString("restore_SED"), emailBody, false);
-        // to admin
-        if (emailSent) {
-            sendEmail(EmailEngine.getAdminEmail(), respage.getString("restore_SED"), emailBody, false);
-        }
-        logger.info("Sending email done..");
-    }
-
     public EventDefinitionCrfTagService getEventDefinitionCrfTagService() {
         eventDefinitionCrfTagService=
          this.eventDefinitionCrfTagService != null ? eventDefinitionCrfTagService : (EventDefinitionCrfTagService) SpringServletAccess.getApplicationContext(context).getBean("eventDefinitionCrfTagService");

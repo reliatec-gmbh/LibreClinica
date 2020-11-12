@@ -649,12 +649,6 @@ public class AccountController {
         return createdUserAccountBean;
     }
 
-    private ArrayList<UserAccountBean> getUserAccountByStudy(String userName, ArrayList allStudies) {
-        UserAccountDAO udao = new UserAccountDAO(dataSource);
-        ArrayList<UserAccountBean> userAccountBeans = udao.findStudyByUser(userName, allStudies);
-        return userAccountBeans;
-    }
-
     private UserAccountBean getUserAccount(String userName) {
         UserAccountDAO udao = new UserAccountDAO(dataSource);
         UserAccountBean userAccountBean = (UserAccountBean) udao.findByUserName(userName);
@@ -688,12 +682,6 @@ public class AccountController {
     private StudySubjectBean getStudySubject(String label, StudyBean study) {
         StudySubjectDAO ssdao = new StudySubjectDAO(dataSource);
         StudySubjectBean studySubjectBean = (StudySubjectBean) ssdao.findByLabelAndStudy(label, study);
-        return studySubjectBean;
-    }
-
-    private StudySubjectBean getStudySubject(String oid) {
-        StudySubjectDAO ssdao = new StudySubjectDAO(dataSource);
-        StudySubjectBean studySubjectBean = (StudySubjectBean) ssdao.findByOid(oid);
         return studySubjectBean;
     }
 

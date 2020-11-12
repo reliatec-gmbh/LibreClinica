@@ -163,31 +163,4 @@ public class SqlProcessingFunction extends ProcessingFunction implements Seriali
     public void setDatabaseType(String databaseType) {
         this.databaseType = databaseType;
     }
-
-    /*
-     * getFileContents(sqlFile): pulls out all the contents and assembles a
-     * string with all the SQL statements to be executed on the datamart.
-     */
-    private String[] getFileContents(File sqlFile) throws Exception {
-        StringBuffer sb = new StringBuffer();
-        int bufSize = 1024;
-        BufferedReader br = new BufferedReader(new FileReader(sqlFile));
-        char[] buffer = new char[bufSize];
-        int amt = 0;
-        while ((amt = br.read(buffer)) >= 0) {
-            // value = value.concat(buffer);
-            sb.append(buffer, 0, amt);
-        }
-        br.close();
-        // sending sql statement by sql statement for error checking, tbh
-        // since we have plpsql functions we need to ignore semis that are
-        // included
-        // in quotes
-
-        // return sb.toString().split(";[^as \'.*\']");
-        // JN: Changing this to use tokenizer
-        // String[] ret = new String[1];
-        String[] ret = sb.toString().split(";");
-        return ret;
-    }
 }

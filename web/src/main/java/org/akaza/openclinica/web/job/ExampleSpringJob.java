@@ -391,17 +391,4 @@ public class ExampleSpringJob extends QuartzJobBean {
         return fileID.intValue();
     }
 
-    private DataSource getDataSource(Scheduler scheduler) {
-        try {
-            ApplicationContext context = (ApplicationContext) scheduler.getContext().get("applicationContext");// dataMap
-            // : (BasicDataSource) context.getBean("dataSource");
-            dataSource = this.dataSource != null ? dataSource : (DataSource) context.getBean("dataSource"); // basicDataSource
-
-        } catch (Exception e) {
-            logger.error("Error while accessing application context: ", e);
-        }
-
-        return dataSource;
-    }
-
 }

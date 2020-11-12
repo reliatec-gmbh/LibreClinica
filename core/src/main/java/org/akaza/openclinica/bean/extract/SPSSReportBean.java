@@ -519,17 +519,4 @@ public class SPSSReportBean extends ReportBean<DisplayItemHeaderBean> {
         }
         return -1;
     }
-
-    // private String getDescription(String itemName) {
-    // for (int i = 0; i < list.size(); i++) {
-    // String attribute = (String) list.get(i);
-    private String getDescription(String itemName, String[] attributes) {
-        for (int i = 0; i < attributes.length; ++i) {
-            if (itemName != null & itemName.startsWith(attributes[i])) {
-                return (String) descriptions.get(attributes[i]);
-            }
-        }
-        return "";
-    }
-
 }

@@ -62,26 +62,6 @@ public class RuleDAO extends AuditableEntityDAO {
         setQueryNames();
     }
 
-    private StudyEventDefinitionDAO getStudyEventDefinitionDao() {
-        return this.studyEventDefinitionDao != null ? this.studyEventDefinitionDao : new StudyEventDefinitionDAO(ds);
-    }
-
-    private RuleSetDAO getRuleSetDao() {
-        return this.ruleSetDao != null ? this.ruleSetDao : new RuleSetDAO(ds);
-    }
-
-    private EventCRFDAO getEventCrfDao() {
-        return this.eventCrfDao != null ? this.eventCrfDao : new EventCRFDAO(ds);
-    }
-
-    private CRFVersionDAO getCrfVersionDao() {
-        return this.crfVersionDao != null ? this.crfVersionDao : new CRFVersionDAO(ds);
-    }
-
-    private ItemDataDAO getItemDataDao() {
-        return this.itemDataDao != null ? this.itemDataDao : new ItemDataDAO(ds);
-    }
-
     private ExpressionDAO getExpressionDao() {
         return this.expressionDao != null ? this.expressionDao : new ExpressionDAO(ds);
     }

@@ -332,40 +332,6 @@ public class SubjectIdSDVFactory extends AbstractTableFactory {
 
     }
 
-    private int getNumberCompletedEventCRFs(List<EventCRFBean> eventCRFBeans) {
-
-        StudyEventDAO studyEventDAO = new StudyEventDAO(dataSource);
-        StudyEventBean studyEventBean = null;
-        int counter = 0;
-        int statusId = 0;
-
-        for (EventCRFBean eventBean : eventCRFBeans) {
-
-            studyEventBean = (StudyEventBean) studyEventDAO.findByPK(eventBean.getStudyEventId());
-            statusId = studyEventBean.getSubjectEventStatus().getId();
-            if (statusId == 4) {
-                counter++;
-            }
-
-        }
-        return counter;
-    }
-
-    private int getNumberSDVdEventCRFs(List<EventCRFBean> eventCRFBeans) {
-
-        int counter = 0;
-
-        for (EventCRFBean eventBean : eventCRFBeans) {
-
-            if (eventBean.isSdvStatus()) {
-                counter++;
-            }
-
-        }
-        return counter;
-
-    }
-
     private HashMap<String, Integer> getEventCRFStats(List<EventCRFBean> eventCRFBeans, StudySubjectBean studySubject) {
 
         StudyEventDAO studyEventDAO = new StudyEventDAO(dataSource);

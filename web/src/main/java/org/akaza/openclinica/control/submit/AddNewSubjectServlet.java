@@ -853,25 +853,6 @@ public class AddNewSubjectServlet extends SecureController {
     }
 
     
-    private List<RuleSetBean> createRuleSet(StudySubjectBean ssub,
-			StudyEventDefinitionBean sed) {
-    	
-    	return getRuleSetDao().findAllByStudyEventDef(sed);
-    	
-    	
-	}
-    private RuleSetService getRuleSetService() {
-        return (RuleSetService) SpringServletAccess.getApplicationContext(context).getBean("ruleSetService");
-    }
-
-    
-    private RuleSetDao getRuleSetDao() {
-       return (RuleSetDao) SpringServletAccess.getApplicationContext(context).getBean("ruleSetDao");
-        
-    }
-
-    
-    
     protected void createStudyEvent(FormProcessor fp, StudySubjectBean s) {
         int studyEventDefinitionId = fp.getInt("studyEventDefinition");
         String location = fp.getString("location");

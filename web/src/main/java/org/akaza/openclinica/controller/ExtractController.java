@@ -193,14 +193,6 @@ public class ExtractController {
         return map;
     }
 
-    /**
-     * @deprecated Use {@link #setAllProps(ExtractPropertyBean,DatasetBean,SimpleDateFormat,ExtractUtils)} instead
-     */
-    @Deprecated
-    private ExtractPropertyBean setAllProps(ExtractPropertyBean epBean,DatasetBean dsBean,SimpleDateFormat sdfDir) {
-        return setAllProps(epBean, dsBean, sdfDir,new ExtractUtils());
-    }
-
     private ExtractPropertyBean setAllProps(ExtractPropertyBean epBean,DatasetBean dsBean,SimpleDateFormat sdfDir, ExtractUtils extractUtils) {
 
 
@@ -228,33 +220,6 @@ public class ExtractController {
      * @param endFilePath
      * @param dsBean
      * @param sdfDir
-     * @return
-     * @deprecated Use {@link #resolveVars(String,DatasetBean,SimpleDateFormat,String, ExtractUtils)} instead
-     */
-    @Deprecated
-    private String resolveVars(String endFilePath,DatasetBean dsBean,SimpleDateFormat sdfDir){
-        return resolveVars(endFilePath, dsBean, sdfDir, SQLInitServlet.getField("filePath"),new ExtractUtils());
-    }
-
-    /**
-     * Returns the datetime based on pattern :"yyyy-MM-dd-HHmmssSSS", typically for resolving file name
-     * @param endFilePath
-     * @param dsBean
-     * @param sdfDir
-     * @param filePath TODO
-     * @return
-     * @deprecated Use {@link #resolveVars(String,DatasetBean,SimpleDateFormat,String,ExtractUtils)} instead
-     */
-    @Deprecated
-    private String resolveVars(String endFilePath,DatasetBean dsBean,SimpleDateFormat sdfDir, String filePath){
-        return resolveVars(endFilePath, dsBean, sdfDir, filePath, new ExtractUtils());
-    }
-
-    /**
-     * Returns the datetime based on pattern :"yyyy-MM-dd-HHmmssSSS", typically for resolving file name
-     * @param endFilePath
-     * @param dsBean
-     * @param sdfDir
      * @param filePath TODO
      * @param extractUtils TODO
      * @return
@@ -263,50 +228,12 @@ public class ExtractController {
         return extractUtils.resolveVars(endFilePath, dsBean, sdfDir, filePath);
 
    }
-    private void setUpSidebar(HttpServletRequest request) {
-        if (sidebarInit.getAlertsBoxSetup() == SidebarEnumConstants.OPENALERTS) {
-            request.setAttribute("alertsBoxSetup", true);
-        }
-
-        if (sidebarInit.getInfoBoxSetup() == SidebarEnumConstants.OPENINFO) {
-            request.setAttribute("infoBoxSetup", true);
-        }
-        if (sidebarInit.getInstructionsBoxSetup() == SidebarEnumConstants.OPENINSTRUCTIONS) {
-            request.setAttribute("instructionsBoxSetup", true);
-        }
-
-        if (!(sidebarInit.getEnableIconsBoxSetup() == SidebarEnumConstants.DISABLEICONS)) {
-            request.setAttribute("enableIconsBoxSetup", true);
-        }
-    }
-
     public SidebarInit getSidebarInit() {
         return sidebarInit;
     }
 
     public void setSidebarInit(SidebarInit sidebarInit) {
         this.sidebarInit = sidebarInit;
-    }
-
-    private String resolveExportFilePath(String  epBeanFileName) {
-        // String retMe = "";
-        //String epBeanFileName = epBean.getExportFileName();
-        // important that this goes first, tbh
-        if (epBeanFileName.contains("$datetime")) {
-            String dateTimeFilePattern = "yyyy-MM-dd-HHmmssSSS";
-            SimpleDateFormat sdfDir = new SimpleDateFormat(dateTimeFilePattern);
-            epBeanFileName = epBeanFileName.replace("$datetime", sdfDir.format(new java.util.Date()));
-        } else if (epBeanFileName.contains("$date")) {
-            String dateFilePattern = "yyyy-MM-dd";
-            SimpleDateFormat sdfDir = new SimpleDateFormat(dateFilePattern);
-            epBeanFileName = epBeanFileName.replace("$date", sdfDir.format(new java.util.Date()));
-            // sdfDir.format(new java.util.Date())
-            // retMe = epBean.getFileLocation() + File.separator + epBean.getExportFileName() + "." + epBean.getPostProcessing().getFileType();
-        } else {
-            // retMe = epBean.getFileLocation() + File.separator + epBean.getExportFileName() + "." + epBean.getPostProcessing().getFileType();
-        }
-        return epBeanFileName;// + "." + epBean.getPostProcessing().getFileType();// not really the case - might be text to pdf
-        // return retMe;
     }
 
     private boolean mayProceed(HttpServletRequest request) {

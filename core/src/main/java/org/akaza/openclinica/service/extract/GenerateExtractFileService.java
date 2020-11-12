@@ -107,15 +107,6 @@ public class GenerateExtractFileService {
         return answerMap;
     }
 
-    private Integer getStudySubjectNumber(String studySubjectNumber){
-        try{
-        Integer value = Integer.valueOf(studySubjectNumber);
-        return value > 0 ? value : 99;
-        }catch (NumberFormatException e) {
-            return 99;
-        }
-    }
-
     /**
      * createODMFile, added by tbh, 09/2010 - note that this is created to be backwards-compatible with previous versions of OpenClinica-web.
      * i.e. we remove the boolean zipped variable.
@@ -456,19 +447,6 @@ public class GenerateExtractFileService {
                 }
         }
         return fbFinal.getId();
-    }
-
-    private void deleteOldFiles(List oldFiles2) {
-
-            //File[] files = complete.listFiles();
-
-            Iterator<File> fileIt = oldFiles2.iterator();
-            while(fileIt.hasNext())
-            {
-                fileIt.next().delete();
-            }
-
-
     }
 
     public int createFile(String name, String dir, String content, DatasetBean datasetBean, long time,

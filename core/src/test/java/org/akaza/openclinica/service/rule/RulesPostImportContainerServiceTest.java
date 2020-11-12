@@ -7,14 +7,14 @@
  */
 package org.akaza.openclinica.service.rule;
 
-import org.akaza.openclinica.domain.rule.RuleBean;
-import org.akaza.openclinica.domain.rule.RuleSetBean;
-import org.akaza.openclinica.domain.rule.RuleSetRuleBean;
-import org.akaza.openclinica.domain.rule.RulesPostImportContainer;
-import org.akaza.openclinica.domain.rule.action.EventActionBean;
-import org.akaza.openclinica.domain.rule.expression.Context;
-import org.akaza.openclinica.domain.rule.expression.ExpressionBean;
-import java.util.ArrayList;
+//import org.akaza.openclinica.domain.rule.RuleBean;
+//import org.akaza.openclinica.domain.rule.RuleSetBean;
+//import org.akaza.openclinica.domain.rule.RuleSetRuleBean;
+//import org.akaza.openclinica.domain.rule.RulesPostImportContainer;
+//import org.akaza.openclinica.domain.rule.action.EventActionBean;
+//import org.akaza.openclinica.domain.rule.expression.Context;
+//import org.akaza.openclinica.domain.rule.expression.ExpressionBean;
+//import java.util.ArrayList;
 
 import junit.framework.TestCase;
 
@@ -44,7 +44,6 @@ public class RulesPostImportContainerServiceTest extends TestCase {
         assertEquals(0, container.getInValidRuleSetDefs().size());
         assertEquals(0, container.getValidRuleSetDefs().size());
     }
-    **/
 
     private  ArrayList<RuleSetBean> prepareContainer() {
         ArrayList<RuleSetBean> ruleSets = new ArrayList<RuleSetBean>();
@@ -97,5 +96,6 @@ public class RulesPostImportContainerServiceTest extends TestCase {
         expression.setContext(context);
         expression.setValue(value);
         return expression;
-    }
+    }    
+    */
 }

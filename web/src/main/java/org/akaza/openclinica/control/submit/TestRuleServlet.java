@@ -249,11 +249,7 @@ public class TestRuleServlet extends SecureController {
             break;
         }
     }
-
-    private void itemDataTypeToValidatorIdMultiSelect(String key, ItemBean item, Validator v, ResponseSetBean responseSet) {
-        v.addValidation(key, Validator.IN_RESPONSE_SET_COMMA_SEPERATED, responseSet);
-    }
-
+    
     private void populateTooltip(HashMap<String, String> testVariablesAndValues) {
 
         if (testVariablesAndValues != null) {
@@ -492,24 +488,9 @@ else
         return ruleSetDao;
     }
 
-    private ItemDAO getItemDAO() {
-        itemDAO = this.itemDAO != null ? itemDAO : new ItemDAO(sm.getDataSource());
-        return itemDAO;
-    }
-
     private ItemFormMetadataDAO getItemFormMetadataDAO() {
         itemFormMetadataDAO = this.itemFormMetadataDAO != null ? itemFormMetadataDAO : new ItemFormMetadataDAO(sm.getDataSource());
         return itemFormMetadataDAO;
-    }
-
-    private RulesPostImportContainerService getRulesPostImportContainerService() {
-        rulesPostImportContainerService =
-            this.rulesPostImportContainerService != null ? rulesPostImportContainerService : (RulesPostImportContainerService) SpringServletAccess
-                    .getApplicationContext(context).getBean("rulesPostImportContainerService");
-        rulesPostImportContainerService.setCurrentStudy(currentStudy);
-        rulesPostImportContainerService.setRespage(respage);
-        rulesPostImportContainerService.setUserAccount(ub);
-        return rulesPostImportContainerService;
     }
 
     private ExpressionService getExpressionService() {

@@ -743,23 +743,6 @@ public class CreateNewStudyEventServlet extends SecureController {
     private String getInputEndHalf() {
         return fp.getString(INPUT_ENDDATE_PREFIX + "Half");
     }
-    // YW >>
-    private List<RuleSetBean> createRuleSet(StudySubjectBean ssub,
-			StudyEventDefinitionBean sed) {
-    	
-    	return getRuleSetDao().findAllByStudyEventDef(sed);
-    	
-    	
-	}
-    private RuleSetService getRuleSetService() {
-        return (RuleSetService) SpringServletAccess.getApplicationContext(context).getBean("ruleSetService");
-    }
-
-    
-    private RuleSetDao getRuleSetDao() {
-       return (RuleSetDao) SpringServletAccess.getApplicationContext(context).getBean("ruleSetDao");
-        
-    }
 
 
 }

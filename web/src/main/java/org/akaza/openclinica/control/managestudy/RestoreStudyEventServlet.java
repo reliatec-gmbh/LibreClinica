@@ -232,21 +232,4 @@ public class RestoreStudyEventServlet extends SecureController {
 
         return answer;
     }
-
-    /**
-     * Send email to director and administrator
-     *
-     * @param request
-     * @param response
-     */
-    private void sendEmail(String emailBody) throws Exception {
-
-        logger.info("Sending email...");
-        // to study director
-        sendEmail(ub.getEmail().trim(), respage.getString("restore_event_to_study"), emailBody, false);
-        // to admin
-        sendEmail(EmailEngine.getAdminEmail(), respage.getString("restore_event_to_study"), emailBody, false, false);
-        logger.info("Sending email done..");
-    }
-
 }

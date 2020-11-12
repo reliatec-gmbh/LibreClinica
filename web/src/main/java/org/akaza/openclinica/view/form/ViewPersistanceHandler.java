@@ -188,16 +188,6 @@ public class ViewPersistanceHandler {
         return rowMap;
     }
 
-    private boolean listContainsDisplayItem(List<DisplayItemBean> beanList, DisplayItemBean singleBean) {
-
-        for (DisplayItemBean disBean : beanList) {
-            if (singleBean.getItem().getId() == disBean.getItem().getId()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public List<ItemDataBean> getItemDataBeans() {
         return itemDataBeans;
     }

@@ -196,42 +196,4 @@ public class ListEventDefinitionServlet extends SecureController {
         }
     }
 
-    /**
-     * Checked whether a definition is available to be locked
-     *
-     * @param sed
-     * @return
-     */
-    private boolean isLockable(StudyEventDefinitionBean sed, StudyEventDAO sedao, EventCRFDAO ecdao, ItemDataDAO iddao) {
-
-        // checks study event
-        ArrayList events = (ArrayList) sedao.findAllByDefinition(sed.getId());
-        for (int j = 0; j < events.size(); j++) {
-            StudyEventBean event = (StudyEventBean) events.get(j);
-            if (!(event.getStatus().equals(Status.AVAILABLE) || event.getStatus().equals(Status.DELETED))) {
-                return false;
-            }
-
-            ArrayList eventCRFs = ecdao.findAllByStudyEvent(event);
-
-            for (int k = 0; k < eventCRFs.size(); k++) {
-                EventCRFBean eventCRF = (EventCRFBean) eventCRFs.get(k);
-                if (!(eventCRF.getStatus().equals(Status.UNAVAILABLE) || eventCRF.getStatus().equals(Status.DELETED))) {
-                    return false;
-                }
-
-                ArrayList itemDatas = iddao.findAllByEventCRFId(eventCRF.getId());
-                for (int a = 0; a < itemDatas.size(); a++) {
-                    ItemDataBean item = (ItemDataBean) itemDatas.get(a);
-                    if (!(item.getStatus().equals(Status.UNAVAILABLE) || item.getStatus().equals(Status.DELETED))) {
-                        return false;
-                    }
-
-                }
-            }
-        }
-
-        return true;
-    }
-
 }

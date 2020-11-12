@@ -139,15 +139,6 @@ public class OpenRosaXmlGenerator {
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    private ArrayList<ItemGroupBean> getItemGroupBeans(SectionBean section) throws Exception {
-        ArrayList<ItemGroupBean> itemGroupBeans = null;
-
-        igdao = new ItemGroupDAO(dataSource);
-        itemGroupBeans = (ArrayList<ItemGroupBean>) igdao.findGroupBySectionId(section.getId());
-        return itemGroupBeans;
-    }
-
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     private ArrayList<ItemGroupBean> getItemGroupBeansByCrfVersion(CRFVersionBean crfVersion) throws Exception {
         ArrayList<ItemGroupBean> itemGroupBeans = null;
 
@@ -165,25 +156,12 @@ public class OpenRosaXmlGenerator {
         return itemGroupBean.get(0);
     }
 
-    private SectionBean getSectionBean(Integer ID) {
-        sdao = new SectionDAO(dataSource);
-        SectionBean sBean = (SectionBean) sdao.findByPK(ID);
-        return sBean;
-    }
-
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private ItemBean getItemBean(String itemOid) {
         ArrayList<ItemBean> itemBean = null;
         idao = new ItemDAO(dataSource);
         itemBean = (ArrayList<ItemBean>) idao.findByOid(itemOid);
         return itemBean.get(0);
-    }
-
-    private ItemBean getItemBean(int itemId) {
-        ItemBean itemBean = null;
-        idao = new ItemDAO(dataSource);
-        itemBean = (ItemBean) idao.findByPK(itemId);
-        return itemBean;
     }
 
     @SuppressWarnings({ "unused", "rawtypes" })
@@ -527,28 +505,6 @@ public class OpenRosaXmlGenerator {
         DOMSource source = new DOMSource(doc);
         transformer.transform(source, result);
         return writer.toString();
-
-    }
-
-    /**
-     * To Set Default Values for Item Fields
-     * 
-     * @param item
-     * @param crfVersion
-     * @param question
-     * @throws Exception
-     */
-    private void setDefaultElement(ItemBean item, CRFVersionBean crfVersion, Element question) throws Exception {
-        Integer responseTypeId = getItemFormMetadata(item, crfVersion).getResponseSet().getResponseTypeId();
-
-        if (responseTypeId == 3 || responseTypeId == 7) {
-            String defaultValue = getItemFormMetadata(item, crfVersion).getDefaultValue();
-            defaultValue = defaultValue.replace(" ", "");
-            defaultValue = defaultValue.replace(",", " ");
-            question.setTextContent(defaultValue);
-        } else {
-            question.setTextContent(getItemFormMetadata(item, crfVersion).getDefaultValue());
-        }
 
     }
 

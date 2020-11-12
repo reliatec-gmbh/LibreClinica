@@ -51,15 +51,6 @@ public abstract class OcDbTestCase extends DataSourceBasedDBTestCase {
 
     }
 
-    private void setUpContext() {
-        // Loading the applicationContext under test/resources first allows
-        // test.properties to be loaded first.Hence we can
-        // use different settings.
-        context =
-            new ClassPathXmlApplicationContext(
-                    new String[] { "classpath*:applicationContext*.xml", "classpath*:org/akaza/openclinica/applicationContext*.xml", });
-    }
-
     @Override
     protected IDataSet getDataSet() throws Exception {
         return new FlatXmlDataSet(OcDbTestCase.class.getResourceAsStream(getTestDataFilePath()));

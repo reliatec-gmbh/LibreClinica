@@ -199,24 +199,6 @@ public class RemoveEventDefinitionServlet extends SecureController {
         }
 
     }
-
-    /**
-     * Send email to director and administrator
-     *
-     * @param request
-     * @param response
-     */
-    private void sendEmail(String emailBody) throws Exception {
-
-        logger.info("Sending email...");
-        // to study director
-        boolean messageSent = sendEmail(ub.getEmail().trim(), respage.getString("remove_SED"), emailBody, false);
-        // to admin
-        if (messageSent) {
-            sendEmail(EmailEngine.getAdminEmail(), respage.getString("remove_SED"), emailBody, false);
-        }
-        logger.info("Sending email done..");
-    }
     
     public EventDefinitionCrfTagService getEventDefinitionCrfTagService() {
         eventDefinitionCrfTagService=

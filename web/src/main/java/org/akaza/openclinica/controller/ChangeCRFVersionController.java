@@ -578,23 +578,6 @@ public class ChangeCRFVersionController {
         throw ex;
     }
 
-    private void setUpSidebar(HttpServletRequest request) {
-        if (sidebarInit.getAlertsBoxSetup() == SidebarEnumConstants.OPENALERTS) {
-            request.setAttribute("alertsBoxSetup", true);
-        }
-
-        if (sidebarInit.getInfoBoxSetup() == SidebarEnumConstants.OPENINFO) {
-            request.setAttribute("infoBoxSetup", true);
-        }
-        if (sidebarInit.getInstructionsBoxSetup() == SidebarEnumConstants.OPENINSTRUCTIONS) {
-            request.setAttribute("instructionsBoxSetup", true);
-        }
-
-        if (sidebarInit.getEnableIconsBoxSetup() == SidebarEnumConstants.DISABLEICONS) {
-            request.setAttribute("enableIconsBoxSetup", false);
-        }
-      
-    }
     //to be depricated in aquamarine
     private boolean mayProceed(HttpServletRequest request) {
 

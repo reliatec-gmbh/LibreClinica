@@ -248,12 +248,6 @@ public class StudyAuditLogTableFactory extends AbstractTableFactory {
         }
     }
 
-    private String formatDate(Date date) {
-        String format = resformat.getString("date_format_string");
-        SimpleDateFormat sdf = new SimpleDateFormat(format);
-        return sdf.format(date);
-    }
-
     private String getDateFormat() {
         return resformat.getString("date_format_string");
     }

@@ -341,12 +341,6 @@ public class ListSubjectTableFactory extends AbstractTableFactory {
 		return builder.toString();
 	}
 
-	private String formatDate(Date date) {
-		String format = resformat.getString("date_format_string");
-		SimpleDateFormat sdf = new SimpleDateFormat(format);
-		return sdf.format(date);
-	}
-
 	private String getDateFormat() {
 		return resformat.getString("date_format_string");
 	}

@@ -226,18 +226,4 @@ public class RemoveStudyEventServlet extends SecureController {
 
         return answer;
     }
-
-    /**
-     * Send email to director and administrator
-     *
-     */
-    private void sendEmail(String emailBody) throws Exception {
-
-        logger.info("Sending email...");
-        // to study director
-        sendEmail(ub.getEmail().trim(), respage.getString("remove_event_from_study"), emailBody, false);
-        sendEmail(EmailEngine.getAdminEmail(), respage.getString("remove_event_from_study"), emailBody, false, false);
-        logger.info("Sending email done..");
-    }
-
 }

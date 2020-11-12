@@ -68,10 +68,6 @@ public class RuleSetRuleAuditDAO extends EntityDAO {
         return answer;
     }
 
-    private RuleSetDAO getRuleSetDao() {
-        return this.ruleSetDao != null ? this.ruleSetDao : new RuleSetDAO(ds);
-    }
-
     private RuleSetRuleDAO getRuleSetRuleDao() {
         return this.ruleSetRuleDao != null ? this.ruleSetRuleDao : new RuleSetRuleDAO(ds);
     }

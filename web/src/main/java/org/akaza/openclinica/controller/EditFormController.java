@@ -295,17 +295,6 @@ public class EditFormController {
         return instance;
     }
 
-    private StudyBean getParentStudy(Integer studyId) {
-        StudyBean study = getStudy(studyId);
-        if (study.getParentStudyId() == 0) {
-            return study;
-        } else {
-            StudyBean parentStudy = (StudyBean) sdao.findByPK(study.getParentStudyId());
-            return parentStudy;
-        }
-
-    }
-
     private StudyBean getParentStudy(String studyOid) {
         StudyBean study = getStudy(studyOid);
         if (study.getParentStudyId() == 0) {
@@ -317,28 +306,10 @@ public class EditFormController {
 
     }
 
-    private StudyBean getStudy(Integer id) {
-        sdao = new StudyDAO(dataSource);
-        StudyBean studyBean = (StudyBean) sdao.findByPK(id);
-        return studyBean;
-    }
-
     private StudyBean getStudy(String oid) {
         sdao = new StudyDAO(dataSource);
         StudyBean studyBean = (StudyBean) sdao.findByOid(oid);
         return studyBean;
-    }
-
-    private String fetchEditUrl(String studyOID, CRFVersionBean crfVersion, int studyEventDefinitionId) throws Exception {
-        StudyBean parentStudyBean = getParentStudy(studyOID);
-        PFormCache cache = PFormCache.getInstance(context);
-        String enketoURL = cache.getPFormURL(parentStudyBean.getOid(), crfVersion.getOid());
-        String contextHash = cache.putAnonymousFormContext(studyOID, crfVersion.getOid(), studyEventDefinitionId);
-
-        String url = enketoURL + "&" + FORM_CONTEXT + "=" + contextHash;
-        logger.debug("Enketo URL for " + crfVersion.getName() + "= " + url);
-        return url;
-
     }
 
     private boolean mayProceed(String studyOid) throws Exception {

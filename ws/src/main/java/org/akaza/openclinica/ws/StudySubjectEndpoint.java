@@ -431,19 +431,6 @@ public class StudySubjectEndpoint {
         //}
     }
 
-    /**
-     * @param subjectTransferBean
-     * @return
-     */
-    private boolean doesSubjectExist(SubjectTransferBean subjectTransferBean) {
-        // TODO: Implement this
-        StudySubjectDAO ssdao = new StudySubjectDAO(dataSource);
-        StudyDAO studyDao = new StudyDAO(dataSource);
-        StudyBean studyBean = studyDao.findByUniqueIdentifier(subjectTransferBean.getStudy().getIdentifier());
-        StudySubjectBean ssbean = ssdao.findByLabelAndStudy(subjectTransferBean.getStudySubjectId(), studyBean);
-        return ssbean.getId() > 0 ? true : false;
-    }
-
     private String createSubject(SubjectTransferBean subjectTransfer) {
         SubjectBean subject = new SubjectBean();
         subject.setUniqueIdentifier(subjectTransfer.getPersonId());

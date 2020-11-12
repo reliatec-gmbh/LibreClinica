@@ -73,41 +73,6 @@ public class ViewRuleAssignmentTableToolbar extends DefaultToolbar {
         }
     }
 
-    private class XmlExportItem extends AbstractItem {
-
-        String theRuleSetRuleIds = "";
-
-        public XmlExportItem(List<Integer> ruleSetRuleIds) {
-            if (ruleSetRuleIds.size() > 0) {
-                theRuleSetRuleIds += String.valueOf(ruleSetRuleIds.get(0));
-                for (int i = 1; i < ruleSetRuleIds.size(); i++) {
-                    theRuleSetRuleIds += "," + String.valueOf(ruleSetRuleIds.get(i));
-                }
-
-            }
-        }
-
-        @Override
-        public String disabled() {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-        @Override
-        public String enabled() {
-
-            HtmlBuilder actionLink = new HtmlBuilder();
-            actionLink.a().href("DownloadRuleSetXml?ruleSetRuleIds=" + theRuleSetRuleIds);
-            actionLink.append("onMouseDown=\"javascript:setImage('bt_Download','images/bt_Download_d.gif');\"");
-            actionLink.append("onMouseUp=\"javascript:setImage('bt_Download','images/bt_Download.gif');\"").close();
-            actionLink.img().name("Download").src("images/bt_Download.gif").border("0").alt("Download").title("Download").end().aEnd();
-            actionLink.append("&nbsp;&nbsp;&nbsp;");
-            return actionLink.toString();
-
-        }
-
-    }
-
     private class ShowMoreItem extends AbstractItem {
 
         @Override

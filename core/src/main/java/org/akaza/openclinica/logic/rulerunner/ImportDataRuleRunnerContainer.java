@@ -174,16 +174,6 @@ public class ImportDataRuleRunnerContainer {
         return ruleSets;
     }
 
-    private Set<String> collectTargetItemOids(List<RuleSetBean> ruleSets) {
-        Set<String> itemOids = new HashSet<String>();
-        if(ruleSets != null) {
-            for(RuleSetBean ruleSetBean : ruleSets) {
-                itemOids.add(ruleSetBean.getItem().getOid());
-            }
-        }
-        return itemOids;
-    }
-
     private boolean isRepeatIGForSure(DataSource ds, Integer crfVersionId,  String itemGroupOid, Integer igOrdinal, Integer itemId) {
         boolean isRepeatForSure = igOrdinal != null && igOrdinal > 1 ? true : false;
         if(!isRepeatForSure) {

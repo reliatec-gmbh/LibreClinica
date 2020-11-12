@@ -225,23 +225,6 @@ public class IdtViewController {
         return studyBean;
     }
 
-    private StudyBean getStudy(Integer id) {
-        sdao = new StudyDAO(dataSource);
-        StudyBean studyBean = (StudyBean) sdao.findByPK(id);
-        return studyBean;
-    }
-
-    private StudyBean getParentStudy(Integer studyId) {
-        StudyBean study = getStudy(studyId);
-        if (study.getParentStudyId() == 0) {
-            return study;
-        } else {
-            StudyBean parentStudy = (StudyBean) sdao.findByPK(study.getParentStudyId());
-            return parentStudy;
-        }
-
-    }
-
     private StudyBean getParentStudy(String studyOid) {
         StudyBean study = getStudy(studyOid);
         if (study.getParentStudyId() == 0) {

@@ -94,24 +94,6 @@ public abstract class HibernateOcDbTestCase extends DataSourceBasedDBTestCase {
         
     }
 
-    private void setUpContext() {
-        // Loading the applicationContext under test/resources first allows
-        // test.properties to be loaded first.Hence we can
-        // use different settings.
-       /* context =
-            new ClassPathXmlApplicationContext(
-                    new String[] { "classpath*:applicationContext-core-s*.xml", "classpath*:org/akaza/openclinica/applicationContext-core-db.xml",
-                        "classpath*:org/akaza/openclinica/applicationContext-core-email.xml",
-                        "classpath*:org/akaza/openclinica/applicationContext-core-hibernate.xml",
-                        "classpath*:org/akaza/openclinica/applicationContext-core-scheduler.xml",
-                        "classpath*:org/akaza/openclinica/applicationContext-core-service.xml",
-                       " classpath*:org/akaza/openclinica/applicationContext-core-timer.xml",
-                        "classpath*:org/akaza/openclinica/applicationContext-security.xml" });
-        transactionManager = (PlatformTransactionManager) context.getBean("transactionManager");
-        transactionManager.getTransaction(new DefaultTransactionDefinition());*/
-        
-    }
-
     @Override
     protected IDataSet getDataSet() throws Exception {
         return new FlatXmlDataSet(HibernateOcDbTestCase.class.getResourceAsStream(getTestDataFilePath()));

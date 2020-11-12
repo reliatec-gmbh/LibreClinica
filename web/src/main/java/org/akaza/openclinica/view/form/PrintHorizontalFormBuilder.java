@@ -797,24 +797,6 @@ public class PrintHorizontalFormBuilder extends DefaultFormBuilder {
         }
         return webPageBuilder.toString();
     }
-    
-    
-    
-    
-
-    
-    // JN: So this displayFormGroups is being sent in a weird format, the list with values in currentDisplayItems
-    // does not have the repeatnumber since metadata info is wrong, hence this weird way of going through the list.
-    //Perhaps the better way is to fix the list itself, however the method is DisplaySectionBeanHandler.getDisplaySectionBeans is being used at several places and seems to be right,
-    //there could be a issue with eventcrf which was never handled correctly hence this shortcut
-    private int getRepeatFromPrevMeta(List<DisplayItemGroupBean> displayFormGroups) {
-
-        if(displayFormGroups.size()>0)
-        return displayFormGroups.get(0).getGroupMetaBean().getRepeatNum();
-        else
-            return 0;
-
-    }
 
     private Element createTableWithData(List<Element> rows, ArrayList headerList, ArrayList subHeaderList, int rep) {
         Element table = createTable();

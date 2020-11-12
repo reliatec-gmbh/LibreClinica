@@ -44,11 +44,6 @@ public class ItemFormMetadataDAO<K extends String,V extends ArrayList> extends E
 
 
 
-    private void setQueryNames() {
-        getCurrentPKName = "getCurrentPK";
-        getNextPKName = "getNextPK";
-    }
-
     public ItemFormMetadataDAO(DataSource ds) {
         super(ds);
       //  setCache(new EhCacheWrapper("ItemFormMetadataDAO",R);

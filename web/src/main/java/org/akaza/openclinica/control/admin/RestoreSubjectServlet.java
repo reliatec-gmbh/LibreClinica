@@ -149,20 +149,6 @@ public class RestoreSubjectServlet extends SecureController {
 
     }
 
-    /**
-     * Send email to administrator
-     *
-     * @param request
-     * @param response
-     */
-    private void sendEmail(String emailBody) throws Exception {
-
-        logger.info("Sending email...");
-        // to admin
-        sendEmail(ub.getEmail().trim(), respage.getString("restore_subject_to_system"), emailBody, false);
-        logger.info("Sending email done..");
-    }
-
     @Override
     protected String getAdminServlet() {
         if (ub.isSysAdmin()) {

@@ -110,48 +110,10 @@ public class DiscrepancyNoteController {
 		return new ResponseEntity(httpStatus);
 	}
 
-	private StudyBean getParentStudy(Integer studyId) {
-		StudyBean study = getStudy(studyId);
-		if (study.getParentStudyId() == 0) {
-			return study;
-		} else {
-			StudyBean parentStudy = (StudyBean) sdao.findByPK(study.getParentStudyId());
-			return parentStudy;
-		}
-
-	}
-
-	private StudyBean getParentStudy(String studyOid) {
-		StudyBean study = getStudy(studyOid);
-		if (study.getParentStudyId() == 0) {
-			return study;
-		} else {
-			StudyBean parentStudy = (StudyBean) sdao.findByPK(study.getParentStudyId());
-			return parentStudy;
-		}
-
-	}
-
 	private StudyBean getStudy(Integer id) {
 		sdao = new StudyDAO(dataSource);
 		StudyBean studyBean = (StudyBean) sdao.findByPK(id);
 		return studyBean;
-	}
-
-	private StudyBean getStudy(String oid) {
-		sdao = new StudyDAO(dataSource);
-		StudyBean studyBean = (StudyBean) sdao.findByOid(oid);
-		return studyBean;
-	}
-
-	private Date getDate(String dateInString) throws ParseException {
-		SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy");
-		Date date = formatter.parse(dateInString);
-
-		logger.debug("{}", date);
-		logger.debug("{}", formatter.format(date));
-
-		return date;
 	}
 
 	public void saveFieldNotes(String description, String detailedNotes, int entityId, String entityType, StudyBean sb, UserAccountBean ownerBean, UserAccountBean assignedUserBean,

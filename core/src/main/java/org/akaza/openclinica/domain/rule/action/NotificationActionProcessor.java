@@ -136,28 +136,6 @@ public class NotificationActionProcessor implements ActionProcessor, Runnable {
         BulkEmailSenderService.addMimeMessage(preparator);
     }
 	
-	private void sendEmail(RuleActionBean ruleAction, ParticipantDTO pDTO) throws OpenClinicaSystemException {
-
-		logger.info("Sending email...");
-		try {
-			MimeMessage mimeMessage = mailSender.createMimeMessage();
-			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage);
-			helper.setFrom(EmailEngine.getAdminEmail());
-			helper.setTo(pDTO.getEmailAccount());
-			helper.setSubject(pDTO.getEmailSubject());
-			helper.setText(pDTO.getMessage());
-
-			mailSender.send(mimeMessage);
-			logger.debug("Email sent successfully on {}", new Date());
-		} catch (MailException me) {
-			logger.error("Email could not be sent");
-			throw new OpenClinicaSystemException(me.getMessage());
-		} catch (MessagingException me) {
-			logger.error("Email could not be sent");
-			throw new OpenClinicaSystemException(me.getMessage());
-		}
-	}
-
 	@Override
 	public RuleActionBean execute(RuleRunnerMode ruleRunnerMode, ExecutionMode executionMode, RuleActionBean ruleAction, ItemDataBean itemDataBean, String itemData, StudyBean currentStudy,
 			UserAccountBean ub, Object... arguments) {
@@ -355,11 +333,6 @@ public class NotificationActionProcessor implements ActionProcessor, Runnable {
 
 	public RuleSetService getRuleSetService() {
 		return ruleSetService;
-	}
-
-	private List<RuleSetBean> createRuleSet(Integer studyEventDefId) {
-		return getRuleSetDao().findAllByStudyEventDefIdWhereItemIsNull(studyEventDefId);
-
 	}
 
 	public RuleSetDao getRuleSetDao() {
