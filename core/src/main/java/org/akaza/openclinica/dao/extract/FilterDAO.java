@@ -84,7 +84,7 @@ public class FilterDAO extends AuditableEntityDAO {
         // filterid
         variables.put(new Integer(5), new Integer(fb.getUpdaterId()));
         variables.put(new Integer(6), new Integer(fb.getId()));
-        this.execute(digester.getQuery("update"), variables, nullVars);
+        this.executeUpdate(digester.getQuery("update"), variables, nullVars);
         return fb;
     }
 
@@ -103,7 +103,7 @@ public class FilterDAO extends AuditableEntityDAO {
         variables.put(new Integer(6), new Integer(fb.getOwner().getId()));
         // changed from get owner id, tbh
 
-        this.execute(digester.getQuery("create"), variables);
+        this.executeUpdate(digester.getQuery("create"), variables);
 
         fb.setId(id);
         return fb;

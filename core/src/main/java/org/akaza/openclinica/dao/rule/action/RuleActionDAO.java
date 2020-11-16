@@ -99,7 +99,7 @@ public class RuleActionDAO extends AuditableEntityDAO {
         HashMap nullVars = new HashMap();
         variables.put(new Integer(1), ruleBean.getName());
 
-        this.execute(digester.getQuery("update"), variables, nullVars);
+        this.executeUpdate(digester.getQuery("update"), variables, nullVars);
 
         if (isQuerySuccessful()) {
             ruleBean.setActive(true);
@@ -109,8 +109,8 @@ public class RuleActionDAO extends AuditableEntityDAO {
     }
 
     public EntityBean create(EntityBean eb) {
-        HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
-        HashMap<Integer, Object> nullVars = new HashMap<Integer, Object>();
+        HashMap<Integer, Object> variables = new HashMap<>();
+        HashMap<Integer, Integer> nullVars = new HashMap<>();
 
         RuleActionBean ruleAction = null;
 
@@ -125,7 +125,7 @@ public class RuleActionDAO extends AuditableEntityDAO {
             variables.put(new Integer(5), new Integer(dnActionBean.getOwnerId()));
             variables.put(new Integer(6), new Integer(Status.AVAILABLE.getId()));
 
-            executeWithPK(digester.getQuery("create_dn"), variables, nullVars);
+            executeUpdateWithPK(digester.getQuery("create_dn"), variables, nullVars);
             if (isQuerySuccessful()) {
                 dnActionBean.setId(getLatestPK());
             }
@@ -145,7 +145,7 @@ public class RuleActionDAO extends AuditableEntityDAO {
             variables.put(new Integer(6), new Integer(emailActionBean.getOwnerId()));
             variables.put(new Integer(7), new Integer(Status.AVAILABLE.getId()));
 
-            executeWithPK(digester.getQuery("create_email"), variables, nullVars);
+            executeUpdateWithPK(digester.getQuery("create_email"), variables, nullVars);
             if (isQuerySuccessful()) {
                 emailActionBean.setId(getLatestPK());
             }

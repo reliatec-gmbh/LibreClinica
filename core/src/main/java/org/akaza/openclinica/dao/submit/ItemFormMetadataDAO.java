@@ -35,7 +35,7 @@ import javax.sql.DataSource;
 /**
  * @author ssachs
  */
-public class ItemFormMetadataDAO<K extends String,V extends ArrayList> extends EntityDAO {
+public class ItemFormMetadataDAO extends EntityDAO {
 
     @Override
     protected void setDigesterName() {
@@ -281,11 +281,11 @@ public class ItemFormMetadataDAO<K extends String,V extends ArrayList> extends E
         this.unsetTypeExpected();
         this.setTypeExpected(1, TypeNames.INT);
 
-        HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(crfVersionId));
         String sql = digester.getQuery("findAllCountHiddenByCRFVersionId");
 
-        ArrayList rows = select(sql, variables);
+        ArrayList rows = select(sql, variables, true);
 
         if (rows.size() > 0) {
             HashMap row = (HashMap) rows.get(0);
@@ -330,11 +330,11 @@ public class ItemFormMetadataDAO<K extends String,V extends ArrayList> extends E
         this.unsetTypeExpected();
         this.setTypeExpected(1, TypeNames.INT);
 
-        HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(eventCrfId));
         String sql = digester.getQuery("findAllCountHiddenButShownByEventCrfId");
 
-        ArrayList rows = select(sql, variables);
+        ArrayList rows = select(sql, variables, true);
 
         if (rows.size() > 0) {
             HashMap row = (HashMap) rows.get(0);
@@ -349,11 +349,11 @@ public class ItemFormMetadataDAO<K extends String,V extends ArrayList> extends E
 
         this.setTypesExpected();
 
-        HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(crfVersionId));
 
         String sql = digester.getQuery("findAllByCRFVersionId");
-        ArrayList alist = this.select(sql, variables);
+        ArrayList alist = this.select(sql, variables, true);
         Iterator it = alist.iterator();
 
         while (it.hasNext()) {
@@ -369,11 +369,11 @@ public class ItemFormMetadataDAO<K extends String,V extends ArrayList> extends E
 
         this.setTypesExpected();
 
-        HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(crfVersionId));
 
         String sql = digester.getQuery("findAllItemsRequiredAndShownByCrfVersionId");
-        ArrayList alist = this.select(sql, variables);
+        ArrayList alist = this.select(sql, variables, true);
         Iterator it = alist.iterator();
 
         while (it.hasNext()) {
@@ -390,11 +390,11 @@ public class ItemFormMetadataDAO<K extends String,V extends ArrayList> extends E
 
         this.setTypesExpected();
 
-        HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(crfVersionId));
 
         String sql = digester.getQuery("findAllItemsRequiredAndHiddenByCrfVersionId");
-        ArrayList alist = this.select(sql, variables);
+        ArrayList alist = this.select(sql, variables, true);
         Iterator it = alist.iterator();
 
         while (it.hasNext()) {
@@ -411,12 +411,12 @@ public class ItemFormMetadataDAO<K extends String,V extends ArrayList> extends E
 
         this.setTypesExpected();
 
-        HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(crfId));
         variables.put(new Integer(2), new Integer(itemId));
 
         String sql = digester.getQuery("findAllByCRFIdItemIdAndHasValidations");
-        ArrayList alist = this.select(sql, variables);
+        ArrayList alist = this.select(sql, variables, true);
         Iterator it = alist.iterator();
 
         while (it.hasNext()) {
@@ -428,26 +428,25 @@ public class ItemFormMetadataDAO<K extends String,V extends ArrayList> extends E
     }
 
     public ArrayList<ItemFormMetadataBean> findAllByCRFVersionIdAndResponseTypeId(int crfVersionId, int responseTypeId) throws OpenClinicaException {
-     //Caching purpose
-        K key;
+        String key;
 
 
         ArrayList<ItemFormMetadataBean> answer = new ArrayList<ItemFormMetadataBean>();
 
         this.setTypesExpected();
 
-        HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(crfVersionId));
         variables.put(new Integer(2), new Integer(responseTypeId));
         ArrayList alist;
 
         String sql = digester.getQuery("findAllByCRFVersionIdAndResponseTypeId");
 
-        key = (K) (sql+","+crfVersionId+","+responseTypeId);
+        key = sql+","+crfVersionId+","+responseTypeId;
 
-        if((alist=(V) cache.get(key))==null)
+        if((alist= cache.get(key))==null)
         {
-         alist = this.select(sql, variables);
+         alist = this.select(sql, variables, true);
          if(alist!=null)
              cache.put(key, alist);
         }
@@ -477,12 +476,12 @@ public class ItemFormMetadataDAO<K extends String,V extends ArrayList> extends E
         this.setTypeExpected(29, TypeNames.STRING);// group_label
         this.setTypeExpected(30, TypeNames.INT);// repeat_max
         this.setTypeExpected(31, TypeNames.STRING);// section_name
-        HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(itemId));
 
         String sql = digester.getQuery("findAllByItemId");
         // logger.info("<<<found SQL: "+sql);
-        ArrayList alist = this.select(sql, variables);
+        ArrayList alist = this.select(sql, variables, true);
         Iterator it = alist.iterator();
 
         while (it.hasNext()) {
@@ -517,12 +516,12 @@ public class ItemFormMetadataDAO<K extends String,V extends ArrayList> extends E
         this.setTypeExpected(29, TypeNames.STRING);// group_label
         this.setTypeExpected(30, TypeNames.INT);// repeat_max
         this.setTypeExpected(31, TypeNames.STRING);// section_name
-        HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(itemId));
 
         String sql = digester.getQuery("findAllByItemIdAndHasValidations");
         // logger.info("<<<found SQL: "+sql);
-        ArrayList alist = this.select(sql, variables);
+        ArrayList alist = this.select(sql, variables, true);
         Iterator it = alist.iterator();
 
         while (it.hasNext()) {
@@ -549,12 +548,12 @@ public class ItemFormMetadataDAO<K extends String,V extends ArrayList> extends E
 
         this.setTypesExpected();
 
-        HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(sectionId));
 
         String sql = digester.getQuery("findAllBySectionId");
 
-        ArrayList alist = this.select(sql, variables);
+        ArrayList alist = this.select(sql, variables, true);
         Iterator it = alist.iterator();
 
         while (it.hasNext()) {
@@ -570,12 +569,12 @@ public class ItemFormMetadataDAO<K extends String,V extends ArrayList> extends E
 
         this.setTypesExpected();
 
-        HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(crfVersionId));
         variables.put(new Integer(2), new Integer(sectionId));
 
         String sql = digester.getQuery("findAllByCRFVersionIdAndSectionId");
-        ArrayList alist = this.select(sql, variables);
+        ArrayList alist = this.select(sql, variables, true);
         Iterator it = alist.iterator();
 
         while (it.hasNext()) {
@@ -596,11 +595,11 @@ public class ItemFormMetadataDAO<K extends String,V extends ArrayList> extends E
         this.setTypesExpected();
 
         // TODO place holder to return here, tbh
-        HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(id));
 
         String sql = digester.getQuery("findByPK");
-        ArrayList alist = this.select(sql, variables);
+        ArrayList alist = this.select(sql, variables, true);
         Iterator it = alist.iterator();
 
         if (it.hasNext()) {
@@ -667,7 +666,7 @@ public class ItemFormMetadataDAO<K extends String,V extends ArrayList> extends E
         ind++;
         variables.put(new Integer(ind), new Boolean(ifmb.isShowItem()));
 
-        execute("create", variables);
+        executeUpdate("create", variables);
 
         if (isQuerySuccessful()) {
             ifmb.setId(id);
@@ -735,7 +734,7 @@ public class ItemFormMetadataDAO<K extends String,V extends ArrayList> extends E
         ind++;
         variables.put(new Integer(ind), ifmb.getId());
 
-        execute("update", variables);
+        executeUpdate("update", variables);
 
         if (!isQuerySuccessful()) {
             ifmb.setId(0);
@@ -781,7 +780,7 @@ public class ItemFormMetadataDAO<K extends String,V extends ArrayList> extends E
         this.setTypeExpected(31, TypeNames.STRING);// section_name
 
         logMe("Current Thread:::"+Thread.currentThread()+"types Expected?");
-        HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(itemId));
         variables.put(new Integer(2), new Integer(crfVersionId));
 
@@ -790,7 +789,7 @@ public class ItemFormMetadataDAO<K extends String,V extends ArrayList> extends E
 
         logMe("Thread?"+Thread.currentThread()+"SQL?"+sql+"variables?"+variables);
 
-        ArrayList alist = this.select(sql, variables);
+        ArrayList alist = this.select(sql, variables, true);
 
 
 
@@ -831,7 +830,7 @@ public class ItemFormMetadataDAO<K extends String,V extends ArrayList> extends E
     public ItemFormMetadataBean findByItemIdAndCRFVersionIdNotInIGM(int itemId, int crfVersionId) {
         this.setTypesExpected();
 
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(itemId));
         variables.put(new Integer(2), new Integer(crfVersionId));
 
@@ -864,7 +863,7 @@ public class ItemFormMetadataDAO<K extends String,V extends ArrayList> extends E
         this.setTypeExpected(ind, TypeNames.STRING);// description
         ind++;
 
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(id));
 
         return (ResponseSetBean) this.executeFindByPKQuery("findResponseSetByPK", variables);
@@ -879,11 +878,11 @@ public class ItemFormMetadataDAO<K extends String,V extends ArrayList> extends E
         ArrayList<ItemFormMetadataBean> answer = new ArrayList<ItemFormMetadataBean>();
         this.unsetTypeExpected();
         this.setTypesExpected();
-        HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), sectionId);
 
         String sql = digester.getQuery("findSCDItemsBySectionId");
-        ArrayList alist = this.select(sql, variables);
+        ArrayList alist = this.select(sql, variables, true);
         Iterator it = alist.iterator();
         while (it.hasNext()) {
             ItemFormMetadataBean ifmb = (ItemFormMetadataBean) this.getEntityFromHashMap((HashMap) it.next());
@@ -914,7 +913,7 @@ public class ItemFormMetadataDAO<K extends String,V extends ArrayList> extends E
         variables.put(new Integer(1), sectionId);
         //String sql = "select ifm.item_form_metadata_id from item_form_metadata ifm, response_set rs"
         //    +" where rs.response_type_id = 10 and ifm.section_id = ? and ifm.response_set_id = rs.response_set_id limit 1";
-        ArrayList alist = this.select(digester.getQuery("instantTypeExistsInSection"),variables);
+        ArrayList alist = this.select(digester.getQuery("instantTypeExistsInSection"), variables, true);
         for(Iterator it = alist.iterator(); it.hasNext();) {
             HashMap row = (HashMap) it.next();
             id = (Integer) row.get("item_form_metadata_id");
@@ -932,7 +931,7 @@ public class ItemFormMetadataDAO<K extends String,V extends ArrayList> extends E
         variables.put(new Integer(4), crfVersionId);
         variables.put(new Integer(5), crfVersionId);
         String sql = digester.getQuery("findInstantItemsByCrfVersionId");
-        ArrayList alist = this.select(sql, variables);
+        ArrayList alist = this.select(sql, variables, true);
         Iterator it = alist.iterator();
         while (it.hasNext()) {
             InstantOnChangePairContainer instantItemPair = new InstantOnChangePairContainer();
@@ -1004,60 +1003,5 @@ public class ItemFormMetadataDAO<K extends String,V extends ArrayList> extends E
         this.setTypeExpected(ind, TypeNames.INT);
         ind++; // option_name 12
         this.setTypeExpected(ind, TypeNames.STRING);
-    }
-
-/**
- * need to use this method when you want the results to be cached. i.e they do not get updated.
- */
-    @Override
-    public ArrayList<V> select(String query, HashMap variables) {
-        clearSignals();
-
-        ArrayList results = new ArrayList();
-        K key;
-        ResultSet rs = null;
-        Connection con = null;
-        PreparedStatementFactory psf = new PreparedStatementFactory(variables);
-        PreparedStatement ps = null;
-
-        try {
-            con = ds.getConnection();
-            if (con.isClosed()) {
-                if (logger.isWarnEnabled())
-                    logger.warn("Connection is closed: GenericDAO.select!");
-                throw new SQLException();
-            }
-
-           ps = con.prepareStatement(query);
-
-
-            ps = psf.generate(ps);// enter variables here!
-            key = (K) ps.toString();
-            if((results=(V) cache.get(key))==null)
-            {
-            rs = ps.executeQuery();
-            results = this.processResultRows(rs);
-            if(results!=null){
-                cache.put(key,results);
-            }
-            }
-
-         //   if (logger.isInfoEnabled()) {
-                logger.debug("Executing dynamic query, EntityDAO.select:query " + query);
-         //   }
-            signalSuccess();
-
-
-        } catch (SQLException sqle) {
-            signalFailure(sqle);
-            if (logger.isWarnEnabled()) {
-                logger.warn("Exception while executing dynamic query, GenericDAO.select: " + query + ":message: " + sqle.getMessage());
-                sqle.printStackTrace();
-            }
-        } finally {
-            this.closeIfNecessary(con, rs, ps);
-        }
-        return results;
-
     }
 }

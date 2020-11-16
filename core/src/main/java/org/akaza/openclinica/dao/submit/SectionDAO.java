@@ -95,7 +95,7 @@ public class SectionDAO extends AuditableEntityDAO {
         variables.put(new Integer(9), new Integer(sb.getUpdaterId()));
         variables.put(new Integer(10), new Integer(sb.getBorders()));
         variables.put(new Integer(11), new Integer(sb.getId()));
-        this.execute(digester.getQuery("update"), variables);
+        this.executeUpdate(digester.getQuery("update"), variables);
         return eb;
     }
 
@@ -114,7 +114,7 @@ public class SectionDAO extends AuditableEntityDAO {
         variables.put(new Integer(9), new Integer(sb.getParentId()));
         variables.put(new Integer(10), new Integer(sb.getOwnerId()));
         variables.put(new Integer(11), new Integer(sb.getBorders()));
-        this.execute(digester.getQuery("create"), variables);
+        this.executeUpdate(digester.getQuery("create"), variables);
         return eb;
     }
 
@@ -378,7 +378,7 @@ public class SectionDAO extends AuditableEntityDAO {
     public void deleteTestSection(String label) {
         HashMap variables = new HashMap();
         variables.put(new Integer(1), label);
-        this.execute(digester.getQuery("deleteTestSection"), variables);
+        this.executeUpdate(digester.getQuery("deleteTestSection"), variables);
     }
 
     public boolean hasSCDItem(Integer sectionId) {

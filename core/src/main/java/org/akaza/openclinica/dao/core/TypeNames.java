@@ -7,11 +7,16 @@
  */
 package org.akaza.openclinica.dao.core;
 
+import java.sql.Date;
+import java.sql.Timestamp;
+
 /**
  * @author ywang
  * @author thickerson
  *
  * Constant values are matched with java.sql.Types constant field values
+ * 
+ * TODO convert to enum
  */
 public interface TypeNames {
     // YW 04-2007 << With following match, JDBC driver could know datatype >> YW
@@ -38,4 +43,28 @@ public interface TypeNames {
     // added 10-13-2004, tbh
     public static final int CHAR = 1; // as CHAR
     public static final int BOOL = 16; // as BOOLEAN
+    
+	public static Class<?> getReturnType(int type) {		
+		switch (type) {
+		case TypeNames.DATE:
+			return Date.class;
+		case TypeNames.TIMESTAMP:
+			return Timestamp.class;
+		case TypeNames.DOUBLE:
+			return Double.class;
+		case TypeNames.BOOL:
+			return Boolean.class;
+		case TypeNames.FLOAT:
+			return Float.class;
+		case TypeNames.INT:
+			return Integer.class;
+		case TypeNames.STRING:
+			return String.class;
+		case TypeNames.CHAR:
+			return Character.class;
+		default:
+			String msg = "Type %s not supported";
+			throw new IllegalArgumentException(String.format(msg, type));
+		}
+	}
 }

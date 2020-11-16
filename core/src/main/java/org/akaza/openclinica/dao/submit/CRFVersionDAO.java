@@ -79,7 +79,7 @@ public class CRFVersionDAO<K extends String, V extends ArrayList> extends Audita
         variables.put(new Integer(5), new Integer(ib.getUpdater().getId()));
         variables.put(new Integer(6), ib.getRevisionNotes());
         variables.put(new Integer(7), new Integer(ib.getId()));
-        this.execute(digester.getQuery("update"), variables);
+        this.executeUpdate(digester.getQuery("update"), variables);
         return eb;
     }
 
@@ -110,7 +110,7 @@ public class CRFVersionDAO<K extends String, V extends ArrayList> extends Audita
 
         // am i the only one who runs their daos' unit tests after I change
         // things, tbh?
-        this.execute(digester.getQuery("create"), variables);
+        this.executeUpdate(digester.getQuery("create"), variables);
         if (isQuerySuccessful()) {
             cvb.setActive(true);
         }
@@ -376,7 +376,7 @@ public class CRFVersionDAO<K extends String, V extends ArrayList> extends Audita
         variables.put(new Integer(1), new Integer(id));
 
         String sql = digester.getQuery("delete");
-        this.execute(sql, variables);
+        this.executeUpdate(sql, variables);
     }
 
     /**

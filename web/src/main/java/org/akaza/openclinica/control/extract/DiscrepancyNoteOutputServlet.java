@@ -268,7 +268,7 @@ public class DiscrepancyNoteOutputServlet extends SecureController {
         ItemDAO idao = new ItemDAO(sm.getDataSource());
         StudyDAO studyDao = new StudyDAO(sm.getDataSource());
         ItemGroupMetadataDAO<String, ArrayList> igmdao = new ItemGroupMetadataDAO<String, ArrayList>(sm.getDataSource());
-        ItemGroupDAO<String, ArrayList> igdao = new ItemGroupDAO<String, ArrayList>(sm.getDataSource());
+        ItemGroupDAO igdao = new ItemGroupDAO(sm.getDataSource());
 
         ArrayList<DiscrepancyNoteBean> allNotes = new ArrayList<DiscrepancyNoteBean>();
 

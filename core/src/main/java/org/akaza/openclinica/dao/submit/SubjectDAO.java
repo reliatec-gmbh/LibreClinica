@@ -432,7 +432,7 @@ public class SubjectDAO extends AuditableEntityDAO {
         // DATE_CREATED is now()
         variables.put(new Integer(7), new Integer(sb.getOwner().getId()));
 
-        execute(digester.getQuery("create"), variables, nullVars);
+        executeUpdate(digester.getQuery("create"), variables, nullVars);
 
         if (isQuerySuccessful()) {
             sb.setId(getCurrentPK());
@@ -486,7 +486,7 @@ public class SubjectDAO extends AuditableEntityDAO {
         variables.put(new Integer(ind), new Boolean(sb.isDobCollected()));
         ind++;
 
-        executeWithPK(digester.getQuery("create"), variables, nullVars);
+        executeUpdateWithPK(digester.getQuery("create"), variables, nullVars);
         if (isQuerySuccessful()) {
             sb.setId(getLatestPK());
         }
@@ -584,7 +584,7 @@ public class SubjectDAO extends AuditableEntityDAO {
         variables.put(new Integer(ind++), new Integer(sb.getId()));
 
         String sql = digester.getQuery("update");
-        this.execute(sql, variables, nullVars);
+        this.executeUpdate(sql, variables, nullVars);
 
         return sb;
     }
@@ -604,6 +604,6 @@ public class SubjectDAO extends AuditableEntityDAO {
     public void deleteTestSubject(String uniqueIdentifier) {
         HashMap variables = new HashMap();
         variables.put(1, uniqueIdentifier);
-        this.execute(digester.getQuery("deleteTestSubject"), variables);
+        this.executeUpdate(digester.getQuery("deleteTestSubject"), variables);
     }
 }

@@ -1502,7 +1502,7 @@ public class DiscrepancyNoteDAO extends AuditableEntityDAO {
         }
         // variables.put(Integer.valueOf(9), Integer.valueOf(sb.getAssignedUserId()));
 
-        this.executeWithPK(digester.getQuery("create"), variables, nullVars);
+        this.executeUpdateWithPK(digester.getQuery("create"), variables, nullVars);
         if (isQuerySuccessful()) {
             sb.setId(getLatestPK());
         }
@@ -1521,16 +1521,16 @@ public class DiscrepancyNoteDAO extends AuditableEntityDAO {
         String entityType = eb.getEntityType();
 
         if ("subject".equalsIgnoreCase(entityType)) {
-            this.execute(digester.getQuery("createSubjectMap"), variables);
+            this.executeUpdate(digester.getQuery("createSubjectMap"), variables);
         } else if ("studySub".equalsIgnoreCase(entityType)) {
-            this.execute(digester.getQuery("createStudySubjectMap"), variables);
+            this.executeUpdate(digester.getQuery("createStudySubjectMap"), variables);
         } else if ("eventCrf".equalsIgnoreCase(entityType)) {
-            this.execute(digester.getQuery("createEventCRFMap"), variables);
+            this.executeUpdate(digester.getQuery("createEventCRFMap"), variables);
         } else if ("studyEvent".equalsIgnoreCase(entityType)) {
-            this.execute(digester.getQuery("createStudyEventMap"), variables);
+            this.executeUpdate(digester.getQuery("createStudyEventMap"), variables);
         } else if ("itemData".equalsIgnoreCase(entityType)) {
             variables.put(Integer.valueOf(4), eb.isActivated());
-            this.execute(digester.getQuery("createItemDataMap"), variables);
+            this.executeUpdate(digester.getQuery("createItemDataMap"), variables);
         }
 
     }
@@ -1556,7 +1556,7 @@ public class DiscrepancyNoteDAO extends AuditableEntityDAO {
         variables.put(Integer.valueOf(3), Integer.valueOf(dnb.getResolutionStatusId()));
         variables.put(Integer.valueOf(4), dnb.getDetailedNotes());
         variables.put(Integer.valueOf(5), Integer.valueOf(dnb.getId()));
-        this.execute(digester.getQuery("update"), variables);
+        this.executeUpdate(digester.getQuery("update"), variables);
 
         if (isQuerySuccessful()) {
             dnb.setActive(true);
@@ -1576,7 +1576,7 @@ public class DiscrepancyNoteDAO extends AuditableEntityDAO {
 
         variables.put(Integer.valueOf(1), dnb.getAssignedUserId());
         variables.put(Integer.valueOf(2), Integer.valueOf(dnb.getId()));
-        this.execute(digester.getQuery("updateAssignedUser"), variables);
+        this.executeUpdate(digester.getQuery("updateAssignedUser"), variables);
 
         if (isQuerySuccessful()) {
             dnb.setActive(true);
@@ -1596,7 +1596,7 @@ public class DiscrepancyNoteDAO extends AuditableEntityDAO {
 
         variables.put(Integer.valueOf(1), dnb.isActivated());
         variables.put(Integer.valueOf(2), dnb.getEntityId());
-        this.execute(digester.getQuery("updateDnMapActivation"), variables);
+        this.executeUpdate(digester.getQuery("updateDnMapActivation"), variables);
 
         if (isQuerySuccessful()) {
             dnb.setActive(true);
@@ -1615,7 +1615,7 @@ public class DiscrepancyNoteDAO extends AuditableEntityDAO {
         HashMap variables = new HashMap();
 
         variables.put(Integer.valueOf(1), Integer.valueOf(dnb.getId()));
-        this.execute(digester.getQuery("updateAssignedUserToNull"), variables);
+        this.executeUpdate(digester.getQuery("updateAssignedUserToNull"), variables);
 
         if (isQuerySuccessful()) {
             dnb.setActive(true);
@@ -1625,9 +1625,9 @@ public class DiscrepancyNoteDAO extends AuditableEntityDAO {
     }
 
     public void deleteNotes(int id) {
-        HashMap<Integer, Comparable> variables = new HashMap<Integer, Comparable>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(Integer.valueOf(1), Integer.valueOf(id));
-        this.execute(digester.getQuery("deleteNotes"), variables);
+        this.executeUpdate(digester.getQuery("deleteNotes"), variables);
         return;
 
     }

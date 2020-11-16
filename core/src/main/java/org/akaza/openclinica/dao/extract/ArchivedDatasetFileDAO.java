@@ -78,7 +78,7 @@ public class ArchivedDatasetFileDAO extends AuditableEntityDAO {
         variables.put(Integer.valueOf(5), Integer.valueOf(fb.getFileSize()));
         variables.put(Integer.valueOf(6), new Double(fb.getRunTime()));
         variables.put(Integer.valueOf(7), Integer.valueOf(fb.getOwnerId()));
-        this.executeWithPK(digester.getQuery("create"), variables, nullVars);
+        this.executeUpdateWithPK(digester.getQuery("create"), variables, nullVars);
         if (isQuerySuccessful()) {
             fb.setId(getLatestPK());
         }
@@ -97,7 +97,7 @@ public class ArchivedDatasetFileDAO extends AuditableEntityDAO {
         variables.put(Integer.valueOf(6), new Double(fb.getRunTime()));
         variables.put(Integer.valueOf(7), Integer.valueOf(fb.getOwnerId()));
         variables.put(Integer.valueOf(8), Integer.valueOf(fb.getId()));
-        this.execute(digester.getQuery("update"), variables, nullVars);
+        this.executeUpdate(digester.getQuery("update"), variables, nullVars);
         return fb;
     }
 
@@ -123,7 +123,7 @@ public class ArchivedDatasetFileDAO extends AuditableEntityDAO {
     public void deleteArchiveDataset(ArchivedDatasetFileBean adfBean){
         HashMap variables = new HashMap();
         variables.put(Integer.valueOf(1), adfBean.getId());
-        this.execute(digester.getQuery("deleteArchiveDataset"), variables);
+        this.executeUpdate(digester.getQuery("deleteArchiveDataset"), variables);
     }
 
 

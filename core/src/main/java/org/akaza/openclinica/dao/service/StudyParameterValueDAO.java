@@ -61,7 +61,7 @@ public class StudyParameterValueDAO extends AuditableEntityDAO {
         variables.put(new Integer(2), spvb.getValue());
         variables.put(new Integer(3), spvb.getParameter());
 
-        this.execute(digester.getQuery("create"), variables);
+        this.executeUpdate(digester.getQuery("create"), variables);
         return spvb;
 
     }
@@ -74,7 +74,7 @@ public class StudyParameterValueDAO extends AuditableEntityDAO {
         variables.put(new Integer(2), new Integer(spvb.getStudyId()));
         variables.put(new Integer(3), spvb.getParameter());
 
-        this.execute(digester.getQuery("update"), variables);
+        this.executeUpdate(digester.getQuery("update"), variables);
         return spvb;
     }
 

@@ -47,7 +47,7 @@ public class NewCRFBean extends Object implements java.io.Serializable {
 	private DataSource ds;
     private DAODigester digester;
 
-    private ArrayList queries = new ArrayList();
+    private ArrayList<String> queries = new ArrayList<>();
     private ArrayList errors = new ArrayList();
     private ArrayList deleteQueries = new ArrayList();
     private ArrayList deleteErrors = new ArrayList();
@@ -81,7 +81,7 @@ public class NewCRFBean extends Object implements java.io.Serializable {
         }
     }
 
-    public void setQueries(ArrayList q) {
+    public void setQueries(ArrayList<String> q) {
         this.queries = q;
     }
 

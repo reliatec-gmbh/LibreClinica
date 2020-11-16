@@ -259,7 +259,7 @@ public class StudyDAO <K extends String,V extends ArrayList> extends AuditableEn
         // variables.put(new Integer(22), new Integer(1));
         // stop gap measure for owner and updater id
         variables.put(new Integer(24), new Integer(sb.getId()));// study id
-        this.execute(digester.getQuery("updateStepOne"), variables, nullVars);
+        this.executeUpdate(digester.getQuery("updateStepOne"), variables, nullVars);
         return sb;
     }
 
@@ -369,7 +369,7 @@ public class StudyDAO <K extends String,V extends ArrayList> extends AuditableEn
         variables.put(new Integer(23), new Integer(sb.getOwnerId()));
         variables.put(new Integer(24), getValidOid(sb));
         // replace this with the owner id
-        this.execute(digester.getQuery("createStepOne"), variables, nullVars);
+        this.executeUpdate(digester.getQuery("createStepOne"), variables, nullVars);
         return sb;
     }
 
@@ -494,7 +494,7 @@ public class StudyDAO <K extends String,V extends ArrayList> extends AuditableEn
         // variables.put(new Integer(21), new
         // Boolean(sb.isDiscrepancyManagement()));
         variables.put(new Integer(20), new Integer(sb.getId()));
-        this.execute(digester.getQuery("createStepTwo"), variables, nullVars);
+        this.executeUpdate(digester.getQuery("createStepTwo"), variables, nullVars);
         return sb;
     }
 
@@ -508,7 +508,7 @@ public class StudyDAO <K extends String,V extends ArrayList> extends AuditableEn
         variables.put(new Integer(6), sb.getEndpointKey());
         variables.put(new Integer(7), sb.getInterventionsKey());
         variables.put(new Integer(8), new Integer(sb.getId()));
-        this.execute(digester.getQuery("createStepThree"), variables);
+        this.executeUpdate(digester.getQuery("createStepThree"), variables);
         return sb;
     }
 
@@ -518,7 +518,7 @@ public class StudyDAO <K extends String,V extends ArrayList> extends AuditableEn
         variables.put(new Integer(2), sb.getSelectionKey());
         variables.put(new Integer(3), sb.getTimingKey());
         variables.put(new Integer(4), new Integer(sb.getId()));
-        this.execute(digester.getQuery("createStepFour"), variables);
+        this.executeUpdate(digester.getQuery("createStepFour"), variables);
         return sb;
     }
 
@@ -646,7 +646,7 @@ public class StudyDAO <K extends String,V extends ArrayList> extends AuditableEn
     public ArrayList<Integer> getStudyIdsByCRF(int crfId) {
         this.unsetTypeExpected();
         this.setTypeExpected(1, TypeNames.INT);
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, crfId);
         ArrayList alist = this.select(digester.getQuery("getStudyIdsByCRF"), variables);
         ArrayList<Integer> al = new ArrayList<Integer>();
@@ -840,7 +840,7 @@ public class StudyDAO <K extends String,V extends ArrayList> extends AuditableEn
     public void deleteTestOnly(String name) {
         HashMap variables = new HashMap();
         variables.put(new Integer(1), name);
-        this.execute(digester.getQuery("deleteTestOnly"), variables);
+        this.executeUpdate(digester.getQuery("deleteTestOnly"), variables);
     }
 
     public Collection findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
@@ -910,7 +910,7 @@ public class StudyDAO <K extends String,V extends ArrayList> extends AuditableEn
     public Collection<Integer> findAllSiteIdsByStudy(StudyBean study) {
         this.unsetTypeExpected();
         this.setTypeExpected(1, TypeNames.INT);// sid
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(study.getId()));
         variables.put(new Integer(2), new Integer(study.getId()));
         ArrayList alist = this.select(digester.getQuery("findAllSiteIdsByStudy"), variables);
@@ -926,7 +926,7 @@ public class StudyDAO <K extends String,V extends ArrayList> extends AuditableEn
     public Collection<Integer> findOlnySiteIdsByStudy(StudyBean study) {
         this.unsetTypeExpected();
         this.setTypeExpected(1, TypeNames.INT);// sid
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(study.getId()));
         ArrayList alist = this.select(digester.getQuery("findOlnySiteIdsByStudy"), variables);
         ArrayList<Integer> al = new ArrayList<Integer>();
@@ -946,7 +946,7 @@ public class StudyDAO <K extends String,V extends ArrayList> extends AuditableEn
         variables.put(new Integer(2), sb.getOldStatus().getId());
         variables.put(new Integer(3), sb.getId());
 
-        this.execute(digester.getQuery("updateSitesStatus"), variables, nullVars);
+        this.executeUpdate(digester.getQuery("updateSitesStatus"), variables, nullVars);
         return sb;
     }
 
@@ -959,7 +959,7 @@ public class StudyDAO <K extends String,V extends ArrayList> extends AuditableEn
         variables.put(new Integer(3), sb.getId());
 
 
-        this.execute(digester.getQuery("updateStudyStatus"), variables, nullVars);
+        this.executeUpdate(digester.getQuery("updateStudyStatus"), variables, nullVars);
         return sb;
     }
 

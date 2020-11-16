@@ -247,7 +247,7 @@ public class StudyGroupDAO extends AuditableEntityDAO {
         variables.put(new Integer(2), sb.getDescription());
         variables.put(new Integer(3), new Integer(sb.getStudyGroupClassId()));
 
-        this.execute(digester.getQuery("create"), variables);
+        this.executeUpdate(digester.getQuery("create"), variables);
 
         return sb;
     }
@@ -268,7 +268,7 @@ public class StudyGroupDAO extends AuditableEntityDAO {
         variables.put(new Integer(4), new Integer(sb.getId()));
 
         String sql = digester.getQuery("update");
-        this.execute(sql, variables);
+        this.executeUpdate(sql, variables);
 
         return sb;
     }

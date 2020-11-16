@@ -155,8 +155,8 @@ public class SubjectTransferDAO extends EntityDAO {
         // INSERT INTO subject_transfer (subject_transfer_id,date_of_birth,gender,person_id,study_subject_id, status_id,updater_id,date_updated) VALUES
         // (?,?,?,?,?)
         SubjectTransferBean subjectTransferBean = (SubjectTransferBean) eb;
-        HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
-        HashMap<Integer, Object> nullVars = new HashMap<Integer, Object>();
+        HashMap<Integer, Object> variables = new HashMap<>();
+        HashMap<Integer, Integer> nullVars = new HashMap<>();
 
         if (subjectTransferBean.getDateOfBirth() == null) {
             nullVars.put(new Integer(1), new Integer(Types.DATE));
@@ -180,7 +180,7 @@ public class SubjectTransferDAO extends EntityDAO {
         variables.put(7, subjectTransferBean.getEnrollmentDate());
         variables.put(8, subjectTransferBean.getOwner().getId());
 
-        executeWithPK(digester.getQuery("create"), variables, nullVars);
+        executeUpdateWithPK(digester.getQuery("create"), variables, nullVars);
         if (isQuerySuccessful()) {
             subjectTransferBean.setId(getLatestPK());
         }

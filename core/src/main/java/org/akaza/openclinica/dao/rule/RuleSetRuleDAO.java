@@ -103,50 +103,50 @@ public class RuleSetRuleDAO extends AuditableEntityDAO {
     public void removeByRuleSet(RuleSetBean eb) {
 
         RuleSetBean ruleSetBean = eb;
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
+        HashMap<Integer, Object> variables = new HashMap<>();
 
         variables.put(new Integer(1), ruleSetBean.getUpdaterId());
         variables.put(new Integer(2), Status.DELETED.getId());
         variables.put(new Integer(3), ruleSetBean.getId());
-        execute(digester.getQuery("updateStatusByRuleSet"), variables);
+        executeUpdate(digester.getQuery("updateStatusByRuleSet"), variables);
 
     }
 
     public void autoRemoveByRuleSet(RuleSetBean eb, UserAccountBean ub) {
 
         RuleSetBean ruleSetBean = eb;
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
+        HashMap<Integer, Object> variables = new HashMap<>();
 
         variables.put(new Integer(1), ruleSetBean.getUpdaterId());
         variables.put(new Integer(2), Status.AUTO_DELETED.getId());
         variables.put(new Integer(3), ruleSetBean.getId());
         variables.put(new Integer(4), Status.AVAILABLE.getId());
-        execute(digester.getQuery("updateStatusByRuleSetAuto"), variables);
+        executeUpdate(digester.getQuery("updateStatusByRuleSetAuto"), variables);
 
     }
 
     public void autoRestoreByRuleSet(RuleSetBean eb, UserAccountBean ub) {
 
         RuleSetBean ruleSetBean = eb;
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
+        HashMap<Integer, Object> variables = new HashMap<>();
 
         variables.put(new Integer(1), ub.getId());
         variables.put(new Integer(2), Status.AVAILABLE.getId());
         variables.put(new Integer(3), ruleSetBean.getId());
         variables.put(new Integer(4), Status.AUTO_DELETED.getId());
-        execute(digester.getQuery("updateStatusByRuleSetAuto"), variables);
+        executeUpdate(digester.getQuery("updateStatusByRuleSetAuto"), variables);
 
     }
 
     public void remove(RuleSetRuleBean eb, UserAccountBean ub) {
 
         RuleSetRuleBean ruleSetRuleBean = eb;
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
+        HashMap<Integer, Object> variables = new HashMap<>();
 
         variables.put(new Integer(1), ub.getId());
         variables.put(new Integer(2), Status.DELETED.getId());
         variables.put(new Integer(3), ruleSetRuleBean.getId());
-        execute(digester.getQuery("updateStatus"), variables);
+        executeUpdate(digester.getQuery("updateStatus"), variables);
         if (isQuerySuccessful()) {
             ruleSetRuleBean.setStatus(Status.DELETED);
             getRuleSetRuleAuditDao().create(ruleSetRuleBean, ub);
@@ -157,12 +157,12 @@ public class RuleSetRuleDAO extends AuditableEntityDAO {
     public void restore(RuleSetRuleBean eb, UserAccountBean ub) {
 
         RuleSetRuleBean ruleSetRuleBean = eb;
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
+        HashMap<Integer, Object> variables = new HashMap<>();
 
         variables.put(new Integer(1), ub.getId());
         variables.put(new Integer(2), Status.AVAILABLE.getId());
         variables.put(new Integer(3), ruleSetRuleBean.getId());
-        execute(digester.getQuery("updateStatus"), variables);
+        executeUpdate(digester.getQuery("updateStatus"), variables);
 
         if (isQuerySuccessful()) {
             ruleSetRuleBean.setStatus(Status.AVAILABLE);
@@ -180,14 +180,14 @@ public class RuleSetRuleDAO extends AuditableEntityDAO {
         ruleBean.setOid(ruleSetRuleBean.getOid());
 
         if (eb.getId() == 0) {
-            HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
-            HashMap<Integer, Object> nullVars = new HashMap<Integer, Object>();
+            HashMap<Integer, Object> variables = new HashMap<>();
+            HashMap<Integer, Integer> nullVars = new HashMap<>();
             variables.put(new Integer(1), ruleSetRuleBean.getRuleSetBean().getId());
             variables.put(new Integer(2), getRuleDao().findByOid(ruleBean).getId());
             variables.put(new Integer(3), new Integer(ruleSetRuleBean.getOwnerId()));
             variables.put(new Integer(4), new Integer(Status.AVAILABLE.getId()));
 
-            executeWithPK(digester.getQuery("create"), variables, nullVars);
+            executeUpdateWithPK(digester.getQuery("create"), variables, nullVars);
             if (isQuerySuccessful()) {
                 ruleSetRuleBean.setId(getLatestPK());
             }

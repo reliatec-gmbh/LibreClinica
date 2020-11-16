@@ -383,7 +383,7 @@ public class EventDefinitionCRFDAO extends AuditableEntityDAO {
         	variables.put(new Integer(21), sb.getSubmissionUrl());
         }
         
-        this.execute(digester.getQuery("create"), variables, nullVars);
+        this.executeUpdate(digester.getQuery("create"), variables, nullVars);
 
         if (isQuerySuccessful()) {
             sb.setId(id);
@@ -446,7 +446,7 @@ public class EventDefinitionCRFDAO extends AuditableEntityDAO {
         variables.put(new Integer(22), new Integer(sb.getId()));
 
         String sql = digester.getQuery("update");
-        this.execute(sql, variables, nullVars);
+        this.executeUpdate(sql, variables, nullVars);
 
         return sb;
     }

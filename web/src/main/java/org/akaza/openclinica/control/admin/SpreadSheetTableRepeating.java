@@ -152,7 +152,7 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
         StringBuffer buf = new StringBuffer();
         HSSFWorkbook wb = new HSSFWorkbook(fs);
         int numSheets = wb.getNumberOfSheets();
-        ArrayList queries = new ArrayList();
+        ArrayList<String> queries = new ArrayList<>();
         // ArrayList groupItemMapQueries = new ArrayList();
         ArrayList errors = new ArrayList();
        // ArrayList repeats = new ArrayList();

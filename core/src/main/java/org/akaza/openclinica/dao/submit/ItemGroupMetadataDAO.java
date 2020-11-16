@@ -75,7 +75,8 @@ public class ItemGroupMetadataDAO<K extends String,V extends ArrayList> extends 
         this.setTypeExpected(15, TypeNames.BOOL);
     }
 
-    public Object getEntityFromHashMap(HashMap hm) {
+    @Override
+    public Object getEntityFromHashMap(HashMap<String, Object> hm) {
         ItemGroupMetadataBean meta = new ItemGroupMetadataBean();
         meta.setId((Integer) hm.get("item_group_metadata_id"));
         meta.setItemGroupId((Integer) hm.get("item_group_id"));
@@ -106,7 +107,7 @@ public class ItemGroupMetadataDAO<K extends String,V extends ArrayList> extends 
     public EntityBean findByPK(int id) throws OpenClinicaException {
         ItemGroupMetadataBean eb = new ItemGroupMetadataBean();
         this.setTypesExpected();
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, id);
         String sql = digester.getQuery("findByPK");
         ArrayList alist = this.select(sql, variables);
@@ -124,11 +125,11 @@ public class ItemGroupMetadataDAO<K extends String,V extends ArrayList> extends 
     public EntityBean findByItemAndCrfVersion(Integer itemId, Integer crfVersionId) {
         ItemGroupMetadataBean eb = new ItemGroupMetadataBean();
         this.setTypesExpected();
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, itemId);
         variables.put(2, crfVersionId);
         String sql = digester.getQuery("findByItemIdAndCrfVersionId");
-        ArrayList alist = this.select(sql, variables);
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
         Iterator it = alist.iterator();
 
         if (it.hasNext()) {
@@ -161,7 +162,7 @@ public class ItemGroupMetadataDAO<K extends String,V extends ArrayList> extends 
         variables.put(13, igMetaBean.getBorders());
         variables.put(14, new Boolean(igMetaBean.isShowGroup()));
 
-        this.execute(digester.getQuery("create"), variables);
+        this.executeUpdate(digester.getQuery("create"), variables);
         if (isQuerySuccessful()) {
             eb.setId(id);
         }
@@ -171,7 +172,7 @@ public class ItemGroupMetadataDAO<K extends String,V extends ArrayList> extends 
 
     public List<ItemGroupMetadataBean> findMetaByGroupAndSection(int itemGroupId, int crfVersionId, int sectionId) {
         this.setTypesExpected();
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, itemGroupId);
         variables.put(2, crfVersionId);
         variables.put(3, sectionId);
@@ -188,7 +189,7 @@ public class ItemGroupMetadataDAO<K extends String,V extends ArrayList> extends 
 
     public List<ItemGroupMetadataBean> findMetaByGroupAndCrfVersion(int itemGroupId, int crfVersionId) {
         this.setTypesExpected();
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, itemGroupId);
         variables.put(2, crfVersionId);
         List listofMaps = this.select(digester.getQuery("findMetaByGroupAndCrfVersion"), variables);
@@ -205,7 +206,7 @@ public class ItemGroupMetadataDAO<K extends String,V extends ArrayList> extends 
     
     public List<ItemGroupMetadataBean> findMetaByGroupAndSectionForPrint(int itemGroupId, int crfVersionId, int sectionId) {
         this.setTypesExpected();
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, itemGroupId);
         variables.put(2, crfVersionId);
         variables.put(3, sectionId);
@@ -246,7 +247,7 @@ public class ItemGroupMetadataDAO<K extends String,V extends ArrayList> extends 
         this.unsetTypeExpected();
         this.setTypeExpected(1, TypeNames.INT);
 
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(crfVersionId));
 
         ArrayList al = this.select(digester.getQuery("findThisCrfVersionId"), variables);
@@ -260,60 +261,10 @@ public class ItemGroupMetadataDAO<K extends String,V extends ArrayList> extends 
 
         return false;
     }
-    @Override
-    public ArrayList<V> select(String query, HashMap variables) {
-        clearSignals();
 
-        ArrayList results = new ArrayList();
-        K key;
-        ResultSet rs = null;
-        Connection con = null;
-        PreparedStatementFactory psf = new PreparedStatementFactory(variables);
-        PreparedStatement ps = null;
-        
-        try {
-            con = ds.getConnection();
-            if (con.isClosed()) {
-                if (logger.isWarnEnabled())
-                    logger.warn("Connection is closed: GenericDAO.select!");
-                throw new SQLException();
-            }
-
-           ps = con.prepareStatement(query);
-           
-       
-            ps = psf.generate(ps);// enter variables here!
-            key = (K) ps.toString();
-            if((results=(V) cache.get(key))==null)
-            {
-            rs = ps.executeQuery();
-            results = this.processResultRows(rs);
-            if(results!=null){
-                cache.put(key,results);
-            }
-            }
-            
-          //  if (logger.isInfoEnabled()) {
-                logger.debug("Executing dynamic query, EntityDAO.select:query " + query);
-          //  }
-            signalSuccess();
-              
-
-        } catch (SQLException sqle) {
-            signalFailure(sqle);
-            if (logger.isWarnEnabled()) {
-                logger.warn("Exception while executing dynamic query, GenericDAO.select: " + query + ":message: " + sqle.getMessage());
-                sqle.printStackTrace();
-            }
-        } finally {
-            this.closeIfNecessary(con, rs, ps);
-        }
-        return results;
-
-    }
 	   public List<ItemGroupMetadataBean> findByCrfVersion(Integer crfVersionId) {
         this.setTypesExpected();
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, crfVersionId);
         String sql = digester.getQuery("findByCrfVersionId");
         ArrayList alist = this.select(sql, variables);

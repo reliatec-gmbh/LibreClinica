@@ -74,7 +74,7 @@ public class CRFDAO<K extends String, V extends ArrayList> extends AuditableEnti
         variables.put(Integer.valueOf(3), cb.getDescription());
         variables.put(Integer.valueOf(4), Integer.valueOf(cb.getUpdater().getId()));
         variables.put(Integer.valueOf(5), Integer.valueOf(cb.getId()));
-        this.execute(digester.getQuery("update"), variables);
+        this.executeUpdate(digester.getQuery("update"), variables);
         return eb;
     }
 
@@ -90,7 +90,7 @@ public class CRFDAO<K extends String, V extends ArrayList> extends AuditableEnti
         variables.put(Integer.valueOf(6), cb.getStudyId());
         // am i the only one who runs their daos' unit tests after I change
         // things, tbh?
-        this.execute(digester.getQuery("create"), variables);
+        this.executeUpdate(digester.getQuery("create"), variables);
         if (isQuerySuccessful()) {
             cb.setActive(true);
         }

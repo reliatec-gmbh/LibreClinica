@@ -144,7 +144,7 @@ public class StudyEventDefinitionDAO<K extends String,V extends ArrayList> exten
         variables.put(new Integer(9), new Integer(sedb.getStatus().getId()));
         variables.put(new Integer(10), new Integer(sedb.getOrdinal()));
         variables.put(new Integer(11), getValidOid(sedb));
-        this.execute(digester.getQuery("create"), variables);
+        this.executeUpdate(digester.getQuery("create"), variables);
 
         return sedb;
     }
@@ -162,7 +162,7 @@ public class StudyEventDefinitionDAO<K extends String,V extends ArrayList> exten
         variables.put(new Integer(8), new Integer(sedb.getUpdaterId()));
         variables.put(new Integer(9), new Integer(sedb.getOrdinal()));
         variables.put(new Integer(10), new Integer(sedb.getId()));
-        this.execute(digester.getQuery("update"), variables);
+        this.executeUpdate(digester.getQuery("update"), variables);
         return eb;
     }
 

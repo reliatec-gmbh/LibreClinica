@@ -118,7 +118,7 @@ public class ImportDataRuleRunnerContainer {
                                 ArrayList<ImportItemDataBean> itemDataBeans = itemGroupDataBean.getItemData();
                                 for (ImportItemDataBean importItemDataBean : itemDataBeans) {
                                     //if(targetItemOids.contains(importItemDataBean.getItemOID())) {
-                                        ItemBean item = new ItemDAO<String, ArrayList>(ds).findByOid(importItemDataBean.getItemOID()).get(0);
+                                        ItemBean item = new ItemDAO(ds).findByOid(importItemDataBean.getItemOID()).get(0);
                                         String igOid = itemGroupDataBean.getItemGroupOID();
                                         String igOrd = itemGroupDataBean.getItemGroupRepeatKey();
                                         Integer igOrdinal = igOrd != null && !igOrd.isEmpty() ? Integer.valueOf(igOrd) : 1;

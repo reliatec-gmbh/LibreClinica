@@ -29,7 +29,7 @@ public interface DAOInterface {
     // until
     // the virtual machine runs out of memory, looking for its owner of its
     // owner.
-    Object getEntityFromHashMap(HashMap hm);
+    Object getEntityFromHashMap(HashMap<String, Object> hm);
 
     Collection findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) throws OpenClinicaException;
 

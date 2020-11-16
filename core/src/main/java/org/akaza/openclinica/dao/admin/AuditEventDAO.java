@@ -256,7 +256,7 @@ public class AuditEventDAO extends AuditableEntityDAO {
         variables.put(new Integer(4), sb.getReasonForChangeKey());
         variables.put(new Integer(5), sb.getActionMessageKey());
 
-        this.execute(digester.getQuery("create"), variables);
+        this.executeUpdate(digester.getQuery("create"), variables);
 
         return sb;
     }

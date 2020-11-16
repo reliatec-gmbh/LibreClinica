@@ -83,7 +83,7 @@ public class ExpressionDAO extends AuditableEntityDAO {
         variables.put(new Integer(3), expressionBean.getUpdaterId());
         variables.put(new Integer(4), expressionBean.getId());
 
-        this.execute(digester.getQuery("update"), variables, nullVars);
+        this.executeUpdate(digester.getQuery("update"), variables, nullVars);
 
         if (isQuerySuccessful()) {
             expressionBean.setActive(true);
@@ -94,15 +94,15 @@ public class ExpressionDAO extends AuditableEntityDAO {
 
     public EntityBean create(EntityBean eb) {
         ExpressionBean expressionBean = (ExpressionBean) eb;
-        HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
-        HashMap<Integer, Object> nullVars = new HashMap<Integer, Object>();
+        HashMap<Integer, Object> variables = new HashMap<>();
+        HashMap<Integer, Integer> nullVars = new HashMap<>();
         variables.put(new Integer(1), expressionBean.getContext().getCode());
         variables.put(new Integer(2), expressionBean.getValue());
 
         variables.put(new Integer(3), new Integer(expressionBean.getOwnerId()));
         variables.put(new Integer(4), new Integer(Status.AVAILABLE.getId()));
 
-        executeWithPK(digester.getQuery("create"), variables, nullVars);
+        executeUpdateWithPK(digester.getQuery("create"), variables, nullVars);
         if (isQuerySuccessful()) {
             expressionBean.setId(getLatestPK());
         }

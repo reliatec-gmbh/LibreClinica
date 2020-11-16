@@ -32,7 +32,7 @@ import javax.sql.DataSource;
 /**
  * Created by IntelliJ IDEA. User: bruceperry Date: May 8, 2007
  */
-public class ItemGroupDAO<K extends String,V extends ArrayList> extends AuditableEntityDAO {
+public class ItemGroupDAO extends AuditableEntityDAO {
 
     public ItemGroupDAO(DataSource ds) {
         super(ds);
@@ -93,7 +93,7 @@ public class ItemGroupDAO<K extends String,V extends ArrayList> extends Auditabl
         variables.put(3, formGroupBean.getStatus().getId());
         variables.put(4, formGroupBean.getUpdater().getId());
         variables.put(5, formGroupBean.getId());
-        this.execute(digester.getQuery("update"), variables);
+        this.executeUpdate(digester.getQuery("update"), variables);
         return eb;
     }
 
@@ -143,7 +143,7 @@ public class ItemGroupDAO<K extends String,V extends ArrayList> extends Auditabl
         variables.put(4, new Integer(formGroupBean.getStatus().getId()));
         variables.put(5, formGroupBean.getOwner().getId());
 
-        this.execute(digester.getQuery("create"), variables);
+        this.executeUpdate(digester.getQuery("create"), variables);
         if (isQuerySuccessful()) {
             eb.setId(id);
             eb.setActive(true);
@@ -166,7 +166,7 @@ public class ItemGroupDAO<K extends String,V extends ArrayList> extends Auditabl
     // YW 10-30-2007, one item_id might have more than one item_groups
     public Collection findGroupsByItemID(int ID) {
         this.setTypesExpected();
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, ID);
         List listofMap = this.select(digester.getQuery("findGroupsByItemID"), variables);
 
@@ -181,7 +181,7 @@ public class ItemGroupDAO<K extends String,V extends ArrayList> extends Auditabl
 
     public List<ItemGroupBean> findGroupByCRFVersionIDMap(int Id) {
         this.setTypesExpected();
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, Id);
         List listofMaps = this.select(digester.getQuery("findGroupByCRFVersionIDMap"), variables);
 
@@ -199,7 +199,7 @@ public class ItemGroupDAO<K extends String,V extends ArrayList> extends Auditabl
         ItemGroupBean formGroupB = new ItemGroupBean();
         this.setTypesExpected();
 
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, ID);
 
         String sql = digester.getQuery("findByPK");
@@ -215,7 +215,7 @@ public class ItemGroupDAO<K extends String,V extends ArrayList> extends Auditabl
         ItemGroupBean formGroupBean = new ItemGroupBean();
         this.setTypesExpected();
 
-        HashMap<Integer, String> variables = new HashMap<Integer, String>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, name);
 
         String sql = digester.getQuery("findByName");
@@ -232,7 +232,7 @@ public class ItemGroupDAO<K extends String,V extends ArrayList> extends Auditabl
         this.unsetTypeExpected();
         setTypesExpected();
 
-        HashMap<Integer, String> variables = new HashMap<Integer, String>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), oid);
         String sql = digester.getQuery("findGroupByOid");
 
@@ -252,7 +252,7 @@ public class ItemGroupDAO<K extends String,V extends ArrayList> extends Auditabl
         this.unsetTypeExpected();
         setTypesExpected();
 
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), oid);
         String sql = digester.getQuery("findGroupByOid");
 
@@ -293,7 +293,7 @@ public class ItemGroupDAO<K extends String,V extends ArrayList> extends Auditabl
         setTypesExpected();
 
         
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, Id);
         List listofMaps = this.select(digester.getQuery("findGroupByCRFVersionID"), variables);
 
@@ -340,7 +340,7 @@ public class ItemGroupDAO<K extends String,V extends ArrayList> extends Auditabl
 
     public List<ItemGroupBean> findOnlyGroupsByCRFVersionID(int Id) {
         this.setTypesExpected();
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, Id);
         List listofMaps = this.select(digester.getQuery("findOnlyGroupsByCRFVersionID"), variables);
 
@@ -355,7 +355,7 @@ public class ItemGroupDAO<K extends String,V extends ArrayList> extends Auditabl
 
     public List<ItemGroupBean> findGroupBySectionId(int sectionId) {
         this.setTypesExpected();
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, sectionId);
         List listofMaps = this.select(digester.getQuery("findGroupBySectionId"), variables);
 
@@ -370,7 +370,7 @@ public class ItemGroupDAO<K extends String,V extends ArrayList> extends Auditabl
 
     public List<ItemGroupBean> findLegitGroupBySectionId(int sectionId) {
         this.setTypesExpected();
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, sectionId);
         List listofMaps = this.select(digester.getQuery("findLegitGroupBySectionId"), variables);
 
@@ -384,7 +384,7 @@ public class ItemGroupDAO<K extends String,V extends ArrayList> extends Auditabl
     }
     public List<ItemGroupBean> findLegitGroupAllBySectionId(int sectionId) {
         this.setTypesExpected();
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, sectionId);
         List listofMaps = this.select(digester.getQuery("findLegitGroupAllBySectionId"), variables);
 
@@ -414,13 +414,13 @@ public class ItemGroupDAO<K extends String,V extends ArrayList> extends Auditabl
     public void deleteTestGroup(String name) {
         HashMap variables = new HashMap();
         variables.put(new Integer(1), name);
-        this.execute(digester.getQuery("deleteTestGroup"), variables);
+        this.executeUpdate(digester.getQuery("deleteTestGroup"), variables);
     }
     
     public Boolean isItemGroupRepeatingBasedOnAllCrfVersions(String groupOid) {
     	Boolean result = false;
         setTypesExpected();
-        HashMap<Integer, String> variables = new HashMap<Integer, String>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, groupOid);
 
         String sql = digester.getQuery("isItemGroupRepeatingBasedOnAllCrfVersions");
@@ -459,7 +459,7 @@ public class ItemGroupDAO<K extends String,V extends ArrayList> extends Auditabl
         ItemGroupBean formGroupBean = new ItemGroupBean();
         this.setTypesExpected();
 
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, sectionId);
 
         String sql = digester.getQuery("findTopOneGroupBySectionId");
@@ -471,11 +471,11 @@ public class ItemGroupDAO<K extends String,V extends ArrayList> extends Auditabl
         return formGroupBean;
     }
     @Override
-    public ArrayList<V> select(String query, HashMap variables) {
+    public ArrayList<HashMap<String, Object>> select(String query, HashMap<Integer, Object> variables) {
         clearSignals();
 
-        ArrayList results = new ArrayList();
-        K key;
+        ArrayList<HashMap<String, Object>> results = new ArrayList<>();
+        String key;
         ResultSet rs = null;
         Connection con = null;
         PreparedStatementFactory psf = new PreparedStatementFactory(variables);
@@ -488,27 +488,21 @@ public class ItemGroupDAO<K extends String,V extends ArrayList> extends Auditabl
                     logger.warn("Connection is closed: GenericDAO.select!");
                 throw new SQLException();
             }
-
-           ps = con.prepareStatement(query);
-           
-       
+            ps = con.prepareStatement(query);
+                  
             ps = psf.generate(ps);// enter variables here!
-            key = (K) ps.toString();
-            if((results=(V) cache.get(key))==null)
+            key = ps.toString();
+            if((results= cache.get(key))==null)
             {
-            rs = ps.executeQuery();
-            results = this.processResultRows(rs);
-            if(results!=null){
-                cache.put(key,results);
-            }
+            	rs = ps.executeQuery();
+            	results = this.processResultRows(rs);
+	            if(results!=null){
+	                cache.put(key,results);
+	            }
             }
             
-           // if (logger.isInfoEnabled()) {
-                logger.debug("Executing dynamic query, EntityDAO.select:query " + query);
-          //  }
+            logger.debug("Executing dynamic query, EntityDAO.select:query " + query);
             signalSuccess();
-              
-
         } catch (SQLException sqle) {
             signalFailure(sqle);
             if (logger.isWarnEnabled()) {
@@ -519,6 +513,5 @@ public class ItemGroupDAO<K extends String,V extends ArrayList> extends Auditabl
             this.closeIfNecessary(con, rs, ps);
         }
         return results;
-
     }
 }

@@ -353,7 +353,7 @@ public class StudyEventDAO extends AuditableEntityDAO implements Listener {
     // YW <<
     public ArrayList<StudyEventBean> findAllWithSubjectLabelByStudySubjectAndDefinition(StudySubjectBean studySubject, int definitionId) {
         this.setTypesExpected(true);
-        HashMap<Integer, Integer> variables = new HashMap<>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(Integer.valueOf(1), Integer.valueOf(studySubject.getId()));
         variables.put(Integer.valueOf(2), Integer.valueOf(definitionId));
 
@@ -519,7 +519,7 @@ public class StudyEventDAO extends AuditableEntityDAO implements Listener {
         variables.put(Integer.valueOf(10), sb.getStartTimeFlag());
         variables.put(Integer.valueOf(11), sb.getEndTimeFlag());
 
-        this.executeWithPK(digester.getQuery("create"), variables, nullVars);
+        this.executeUpdateWithPK(digester.getQuery("create"), variables, nullVars);
         if (isQuerySuccessful()) {
             sb.setId(getLatestPK());
         }
@@ -591,9 +591,9 @@ public class StudyEventDAO extends AuditableEntityDAO implements Listener {
 
         String sql = digester.getQuery("update");
         if ( con == null){
-        	this.execute(sql, variables, nullVars);
+        	this.executeUpdate(sql, variables, nullVars);
         }else{
-        	this.execute(sql, variables, nullVars, con);
+        	this.executeUpdate(sql, variables, nullVars, con);
         }
         
         if (isQuerySuccessful()) {

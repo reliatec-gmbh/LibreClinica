@@ -128,9 +128,9 @@ public class RuleSetDAO extends AuditableEntityDAO {
         ruleSetBean.setActive(false);
 
         HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
-        HashMap nullVars = new HashMap();
+        HashMap<Integer, Integer> nullVars = new HashMap<>();
 
-        this.execute(digester.getQuery("update"), variables, nullVars);
+        this.executeUpdate(digester.getQuery("update"), variables, nullVars);
 
         if (isQuerySuccessful()) {
             ruleSetBean.setActive(true);
@@ -142,13 +142,13 @@ public class RuleSetDAO extends AuditableEntityDAO {
     public EntityBean remove(RuleSetBean ruleSetBean, UserAccountBean ub) {
         ruleSetBean.setActive(false);
 
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
+        HashMap<Integer, Object> variables = new HashMap<>();
 
         variables.put(new Integer(1), new Integer(ub.getId()));
         variables.put(new Integer(2), new Integer(Status.DELETED.getId()));
         variables.put(new Integer(3), new Integer(ruleSetBean.getId()));
 
-        this.execute(digester.getQuery("removeOrRestore"), variables);
+        this.executeUpdate(digester.getQuery("removeOrRestore"), variables);
 
         if (isQuerySuccessful()) {
             ruleSetBean.setActive(true);
@@ -164,13 +164,13 @@ public class RuleSetDAO extends AuditableEntityDAO {
     public EntityBean restore(RuleSetBean ruleSetBean, UserAccountBean ub) {
         ruleSetBean.setActive(false);
 
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
+        HashMap<Integer, Object> variables = new HashMap<>();
 
         variables.put(new Integer(1), new Integer(ub.getId()));
         variables.put(new Integer(2), new Integer(Status.AVAILABLE.getId()));
         variables.put(new Integer(3), new Integer(ruleSetBean.getId()));
 
-        this.execute(digester.getQuery("removeOrRestore"), variables);
+        this.executeUpdate(digester.getQuery("removeOrRestore"), variables);
 
         if (isQuerySuccessful()) {
             ruleSetBean.setActive(true);
@@ -188,8 +188,8 @@ public class RuleSetDAO extends AuditableEntityDAO {
     public EntityBean create(EntityBean eb) {
         RuleSetBean ruleSetBean = (RuleSetBean) eb;
         if (eb.getId() == 0) {
-            HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
-            HashMap<Integer, Object> nullVars = new HashMap<Integer, Object>();
+            HashMap<Integer, Object> variables = new HashMap<>();
+            HashMap<Integer, Integer> nullVars = new HashMap<>();
             variables.put(new Integer(1), getExpressionDao().create(ruleSetBean.getTarget()).getId());
             variables.put(new Integer(2), new Integer(ruleSetBean.getStudyEventDefinition().getId()));
             if (ruleSetBean.getCrf() == null) {
@@ -208,7 +208,7 @@ public class RuleSetDAO extends AuditableEntityDAO {
             variables.put(new Integer(6), new Integer(ruleSetBean.getOwnerId()));
             variables.put(new Integer(7), new Integer(Status.AVAILABLE.getId()));
 
-            executeWithPK(digester.getQuery("create"), variables, nullVars);
+            executeUpdateWithPK(digester.getQuery("create"), variables, nullVars);
             if (isQuerySuccessful()) {
                 ruleSetBean.setId(getLatestPK());
             }

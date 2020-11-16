@@ -4587,7 +4587,7 @@ public abstract class DataEntryServlet extends CoreSecureController {
         ItemDataDAO iddao = new ItemDataDAO(getDataSource(),locale);
         int maxOrdinal = iddao.getMaxOrdinalForGroup(ecb, sb, itemGroup.getItemGroupBean());
         if(maxOrdinal==0)maxOrdinal = 1;//Incase of no data
-        ItemFormMetadataDAO ifmdao = new ItemFormMetadataDAO<String, ArrayList>(getDataSource());
+        ItemFormMetadataDAO ifmdao = new ItemFormMetadataDAO(getDataSource());
         List<DisplayItemGroupBean> itemGroups = new ArrayList<DisplayItemGroupBean>();
         boolean groupHasData = false;
         for(int i=1;i<=maxOrdinal;i++){

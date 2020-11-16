@@ -246,7 +246,7 @@ public class DatasetDAO extends AuditableEntityDAO {
         variables.put(Integer.valueOf(10), db.getDateStart());
         variables.put(Integer.valueOf(11), db.getDateEnd());
         variables.put(Integer.valueOf(12), Integer.valueOf(db.getId()));
-        this.execute(digester.getQuery("update"), variables, nullVars);
+        this.executeUpdate(digester.getQuery("update"), variables, nullVars);
         return eb;
     }
 
@@ -308,7 +308,7 @@ public class DatasetDAO extends AuditableEntityDAO {
         variables.put(Integer.valueOf(27), db.isShowSubjectSecondaryId());
         variables.put(Integer.valueOf(28), db.getDatasetItemStatus().getId());
 
-        this.executeWithPK(digester.getQuery("create"), variables, nullVars);
+        this.executeUpdateWithPK(digester.getQuery("create"), variables, nullVars);
 
         // logger.warn("**************************************************");
         // logger.warn("just created dataset bean: "+
@@ -381,7 +381,7 @@ public class DatasetDAO extends AuditableEntityDAO {
         this.unsetTypeExpected();
         this.setTypeExpected(1, TypeNames.INT);// dataset id
         this.setTypeExpected(2, TypeNames.INT);// subject group id
-        HashMap<Integer, Integer> variablesNew = new HashMap<Integer, Integer>();
+        HashMap<Integer, Object> variablesNew = new HashMap<>();
         variablesNew.put(Integer.valueOf(1), Integer.valueOf(datasetId));
         ArrayList alist = this.select(digester.getQuery("findAllGroups"), variablesNew);
         // convert them to ids for the array list, tbh
@@ -767,7 +767,7 @@ public class DatasetDAO extends AuditableEntityDAO {
         variables.put(Integer.valueOf(32), Integer.valueOf(db.getDatasetItemStatus().getId()));
         variables.put(Integer.valueOf(33), Integer.valueOf(db.getId()));
 
-        this.execute(digester.getQuery("updateAll"), variables, nullVars);
+        this.executeUpdate(digester.getQuery("updateAll"), variables, nullVars);
         if (isQuerySuccessful()) {
             eb.setActive(true);
         }
@@ -812,19 +812,19 @@ public class DatasetDAO extends AuditableEntityDAO {
     }
 
     protected void createGroupMap(int datasetId, int studyGroupClassId, HashMap nullVars) {
-        HashMap<Integer, Integer> variablesNew = new HashMap<Integer, Integer>();
+        HashMap<Integer, Object> variablesNew = new HashMap<>();
         variablesNew.put(Integer.valueOf(1), Integer.valueOf(datasetId));
         Integer groupId = Integer.valueOf(studyGroupClassId);
         variablesNew.put(Integer.valueOf(2), groupId);
-        this.execute(digester.getQuery("createGroupMap"), variablesNew, nullVars);
+        this.executeUpdate(digester.getQuery("createGroupMap"), variablesNew, nullVars);
     }
 
     protected void removeGroupMap(int datasetId, int studyGroupClassId, HashMap nullVars) {
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(Integer.valueOf(1), Integer.valueOf(datasetId));
         Integer groupId = Integer.valueOf(studyGroupClassId);
         variables.put(Integer.valueOf(2), groupId);
-        this.execute(digester.getQuery("removeGroupMap"), variables, nullVars);
+        this.executeUpdate(digester.getQuery("removeGroupMap"), variables, nullVars);
     }
 
     /**

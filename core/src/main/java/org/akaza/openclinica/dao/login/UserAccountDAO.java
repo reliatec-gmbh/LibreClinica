@@ -207,7 +207,7 @@ public class UserAccountDAO extends AuditableEntityDAO {
 
 
         String sql = digester.getQuery("update");
-        this.execute(sql, variables, nullVars);
+        this.executeUpdate(sql, variables, nullVars);
 
         if (!uab.isTechAdmin()) {
             setSysAdminRole(uab, false);
@@ -233,7 +233,7 @@ public class UserAccountDAO extends AuditableEntityDAO {
     public void deleteTestOnly(String name) {
         HashMap variables = new HashMap();
         variables.put(new Integer(1), name);
-        this.execute(digester.getQuery("deleteTestOnly"), variables);
+        this.executeUpdate(digester.getQuery("deleteTestOnly"), variables);
     }
 
     public void delete(UserAccountBean u) {
@@ -244,11 +244,11 @@ public class UserAccountDAO extends AuditableEntityDAO {
         /*
          * this.execute(digester.getQuery("deleteStudyUserRolesByUserID"), variables);
          */
-        this.execute(digester.getQuery("deleteStudyUserRolesIncludeAutoRemove"), variables);
+        this.executeUpdate(digester.getQuery("deleteStudyUserRolesIncludeAutoRemove"), variables);
 
         variables.put(new Integer(1), new Integer(u.getUpdaterId()));
         variables.put(new Integer(2), new Integer(u.getId()));
-        this.execute(digester.getQuery("delete"), variables);
+        this.executeUpdate(digester.getQuery("delete"), variables);
     }
 
     public void restore(UserAccountBean u) {
@@ -256,18 +256,18 @@ public class UserAccountDAO extends AuditableEntityDAO {
         variables.put(new Integer(1), u.getPasswd());
         variables.put(new Integer(2), new Integer(u.getUpdaterId()));
         variables.put(new Integer(3), new Integer(u.getId()));
-        this.execute(digester.getQuery("restore"), variables);
+        this.executeUpdate(digester.getQuery("restore"), variables);
 
         variables = new HashMap();
         variables.put(new Integer(1), u.getName());
-        this.execute(digester.getQuery("restoreStudyUserRolesByUserID"), variables);
+        this.executeUpdate(digester.getQuery("restoreStudyUserRolesByUserID"), variables);
     }
 
     public void updateLockCounter(Integer id, Integer newCounterNumber) {
         HashMap variables = new HashMap();
         variables.put(new Integer(1), new Integer(newCounterNumber));
         variables.put(new Integer(2), new Integer(id));
-        this.execute(digester.getQuery("updateLockCounter"), variables);
+        this.executeUpdate(digester.getQuery("updateLockCounter"), variables);
     }
 
     public void lockUser(Integer id) {
@@ -275,7 +275,7 @@ public class UserAccountDAO extends AuditableEntityDAO {
         variables.put(new Integer(1), new Boolean(false));
         variables.put(new Integer(2), new Integer(Status.LOCKED.getId()));
         variables.put(new Integer(3), new Integer(id));
-        this.execute(digester.getQuery("lockUser"), variables);
+        this.executeUpdate(digester.getQuery("lockUser"), variables);
     }
 
     @Override
@@ -312,7 +312,7 @@ public class UserAccountDAO extends AuditableEntityDAO {
 
         
         boolean success = true;
-        this.execute(digester.getQuery("insert"), variables);
+        this.executeUpdate(digester.getQuery("insert"), variables);
         success = success && isQuerySuccessful();
 
         setSysAdminRole(uab, true);
@@ -345,7 +345,7 @@ public class UserAccountDAO extends AuditableEntityDAO {
         variables.put(new Integer(3), new Integer(studyRole.getStatus().getId()));
         variables.put(new Integer(4), user.getName());
         variables.put(new Integer(5), new Integer(studyRole.getOwnerId()));
-        this.execute(digester.getQuery("insertStudyUserRole"), variables);
+        this.executeUpdate(digester.getQuery("insertStudyUserRole"), variables);
         ResourceBundleProvider.updateLocale(currentLocale);
         return studyRole;
     }
@@ -1099,7 +1099,7 @@ public class UserAccountDAO extends AuditableEntityDAO {
         variables.put(new Integer(5), userName);
 
         String sql = digester.getQuery("updateStudyUserRole");
-        this.execute(sql, variables);
+        this.executeUpdate(sql, variables);
 
         ResourceBundleProvider.updateLocale(currentLocale);
         return s;
@@ -1146,14 +1146,14 @@ public class UserAccountDAO extends AuditableEntityDAO {
 
         if (uab.isSysAdmin() && !uab.isTechAdmin()) {
             // we remove first so that there are no duplicate roles
-            this.execute(digester.getQuery("removeSysAdminRole"), variables);
+            this.executeUpdate(digester.getQuery("removeSysAdminRole"), variables);
 
             int ownerId = creating ? uab.getOwnerId() : uab.getUpdaterId();
             variables.put(new Integer(2), new Integer(ownerId));
             variables.put(new Integer(3), new Integer(ownerId));
-            this.execute(digester.getQuery("addSysAdminRole"), variables);
+            this.executeUpdate(digester.getQuery("addSysAdminRole"), variables);
         } else {
-            this.execute(digester.getQuery("removeSysAdminRole"), variables);
+            this.executeUpdate(digester.getQuery("removeSysAdminRole"), variables);
         }
     }
 

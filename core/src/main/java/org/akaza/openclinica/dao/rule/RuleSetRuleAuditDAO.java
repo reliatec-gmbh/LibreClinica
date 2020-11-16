@@ -159,7 +159,7 @@ public class RuleSetRuleAuditDAO extends EntityDAO {
         variables.put(2, ruleSetRuleBean.getStatus().getId());
         variables.put(3, ub.getId());
 
-        this.execute(digester.getQuery("create"), variables);
+        this.executeUpdate(digester.getQuery("create"), variables);
         if (isQuerySuccessful()) {
             ruleSetRuleAudit.setRuleSetRuleBean(ruleSetRuleBean);
             ruleSetRuleAudit.setId(getCurrentPK());

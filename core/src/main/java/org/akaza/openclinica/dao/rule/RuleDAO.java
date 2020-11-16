@@ -108,7 +108,7 @@ public class RuleDAO extends AuditableEntityDAO {
         variables.put(new Integer(4), ruleBean.getId());
         getExpressionDao().update(ruleBean.getExpression());
 
-        this.execute(digester.getQuery("update"), variables, nullVars);
+        this.executeUpdate(digester.getQuery("update"), variables, nullVars);
 
         if (isQuerySuccessful()) {
             ruleBean.setActive(true);
@@ -119,8 +119,8 @@ public class RuleDAO extends AuditableEntityDAO {
 
     public EntityBean create(EntityBean eb) {
         RuleBean ruleBean = (RuleBean) eb;
-        HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
-        HashMap<Integer, Object> nullVars = new HashMap<Integer, Object>();
+        HashMap<Integer, Object> variables = new HashMap<>();
+        HashMap<Integer, Integer> nullVars = new HashMap<>();
 
         variables.put(new Integer(1), ruleBean.getName());
         variables.put(new Integer(2), ruleBean.getDescription());
@@ -131,7 +131,7 @@ public class RuleDAO extends AuditableEntityDAO {
         variables.put(new Integer(6), new Integer(ruleBean.getOwnerId()));
         variables.put(new Integer(7), new Integer(Status.AVAILABLE.getId()));
 
-        executeWithPK(digester.getQuery("create"), variables, nullVars);
+        executeUpdateWithPK(digester.getQuery("create"), variables, nullVars);
         if (isQuerySuccessful()) {
             ruleBean.setId(getLatestPK());
         }

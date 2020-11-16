@@ -10,6 +10,7 @@ package org.akaza.openclinica.dao.core;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -85,15 +86,15 @@ public class SQLFactory {
     }
     
     
-    public static EhCacheWrapper ehCacheWrapper;
+    public static EhCacheWrapper<String, ArrayList<HashMap<String, Object>>> ehCacheWrapper;
     
 
-    public EhCacheWrapper getEhCacheWrapper() {
+    public EhCacheWrapper<String, ArrayList<HashMap<String, Object>>> getEhCacheWrapper() {
         return ehCacheWrapper;
     }
 
-    public void setEhCacheWrapper(EhCacheWrapper ehCacheWrapper) {
-        this.ehCacheWrapper = ehCacheWrapper;
+    public void setEhCacheWrapper(EhCacheWrapper<String, ArrayList<HashMap<String, Object>>> ehCacheWrapper) {
+        SQLFactory.ehCacheWrapper = ehCacheWrapper;
     }
 
     private static Hashtable digesters = new Hashtable();

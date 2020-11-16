@@ -2334,13 +2334,11 @@ private void fetchItemGroupMetaData(MetaDataVersionBean metadata,String cvIds, S
 
     protected void setErasedScoreItemDataValues(OdmClinicalDataBean data, String itemIds, String itemDataIds, HashMap<Integer,String> idataOidPoses, String odmVersion) {
         this.setErasedScoreItemDataIdsTypesExpected();
-        ArrayList<Integer> rows = this.select(this.getErasedScoreItemDataIdsSql(itemIds, itemDataIds));
+        ArrayList<HashMap<String, Object>> rows = this.select(this.getErasedScoreItemDataIdsSql(itemIds, itemDataIds));
         if(rows==null || rows.size()<1) {
             logger.debug("OdmExtractDAO.getErasedScoreItemDataIdsSql return no erased score item_data_id" );
         }else {
-            Iterator iter = rows.iterator();
-            while(iter.hasNext()) {
-                HashMap row = (HashMap) iter.next();
+            for (HashMap<String, Object> row : rows) {
                 Integer idataId = (Integer) row.get("item_data_id");
                 if(idataOidPoses.containsKey(idataId)) {
                     String[] poses = idataOidPoses.get(idataId).split("---");

@@ -205,7 +205,7 @@ public class SubjectGroupMapDAO extends AuditableEntityDAO {
         variables.put(new Integer(6), sb.getNotes());
         // DATE_CREATED is now()
 
-        this.execute(digester.getQuery("create"), variables);
+        this.executeUpdate(digester.getQuery("create"), variables);
 
         return sb;
     }
@@ -234,7 +234,7 @@ public class SubjectGroupMapDAO extends AuditableEntityDAO {
         variables.put(new Integer(7), sb.getNotes());
 
         String sql = digester.getQuery("update");
-        this.execute(sql, variables);
+        this.executeUpdate(sql, variables);
 
         return sb;
     }
@@ -242,7 +242,7 @@ public class SubjectGroupMapDAO extends AuditableEntityDAO {
     public ArrayList<SubjectGroupMapBean> findAllByStudyGroupClassAndGroup(int studyGroupClassId, int studyGroupId) {
         setTypesExpected();
         this.setTypeExpected(11, TypeNames.STRING);
-        HashMap<Integer, Integer> variables = new HashMap<>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(studyGroupClassId));
         variables.put(new Integer(2), new Integer(studyGroupId));
         ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findAllByStudyGroupClassAndGroup"), variables);
@@ -286,7 +286,7 @@ public class SubjectGroupMapDAO extends AuditableEntityDAO {
     public void deleteTestGroupMap(int id) {
         HashMap variables = new HashMap();
         variables.put(1, id);
-        this.execute(digester.getQuery("deleteTestGroupMap"), variables);
+        this.executeUpdate(digester.getQuery("deleteTestGroupMap"), variables);
 
     }
 

@@ -527,7 +527,7 @@ public class StudySubjectDAO<K extends String,V extends ArrayList> extends Audit
         variables.put(new Integer(ind), sb.getSecondaryLabel());
         ind++;
 
-        this.execute(digester.getQuery("create"), variables, nullVars);
+        this.executeUpdate(digester.getQuery("create"), variables, nullVars);
 
         if (isQuerySuccessful()) {
             sb.setId(getCurrentPK());
@@ -589,7 +589,7 @@ public class StudySubjectDAO<K extends String,V extends ArrayList> extends Audit
         variables.put(new Integer(ind), getValidOid(sb));
         ind++;
 
-        this.executeWithPK(digester.getQuery("create"), variables, nullVars);
+        this.executeUpdateWithPK(digester.getQuery("create"), variables, nullVars);
         if (isQuerySuccessful()) {
             sb.setId(getLatestPK());
         }
@@ -1132,9 +1132,9 @@ public class StudySubjectDAO<K extends String,V extends ArrayList> extends Audit
 
         String sql = digester.getQuery("update");
         if ( con == null){
-        	this.execute(sql, variables, nullVars);
+        	this.executeUpdate(sql, variables, nullVars);
         }else{
-        	this.execute(sql, variables, nullVars, con);
+        	this.executeUpdate(sql, variables, nullVars, con);
         }
         return sb;
     }

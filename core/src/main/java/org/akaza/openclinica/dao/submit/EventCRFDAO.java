@@ -176,7 +176,7 @@ public class EventCRFDAO<K extends String, V extends ArrayList> extends Auditabl
         // variables.put(new Integer(19), new Integer(ecb.getId()));
         variables.put(new Integer(20), new Integer(ecb.getId()));
 
-        this.execute(digester.getQuery("update"), variables, nullVars);
+        this.executeUpdate(digester.getQuery("update"), variables, nullVars);
 
         if (isQuerySuccessful()) {
             ecb.setActive(true);
@@ -190,9 +190,9 @@ public class EventCRFDAO<K extends String, V extends ArrayList> extends Auditabl
         variables.put(new Integer(1), new Integer(ecb.getId()));
 
         if (ide) {
-            execute(digester.getQuery("markCompleteIDE"), variables);
+            executeUpdate(digester.getQuery("markCompleteIDE"), variables);
         } else {
-            execute(digester.getQuery("markCompleteDDE"), variables);
+            executeUpdate(digester.getQuery("markCompleteDDE"), variables);
         }
     }
 
@@ -221,7 +221,7 @@ public class EventCRFDAO<K extends String, V extends ArrayList> extends Auditabl
         variables.put(new Integer(10), ecb.getValidateString());
         variables.put(new Integer(11), ecb.getValidatorAnnotations());
 
-        executeWithPK(digester.getQuery("create"), variables, nullVars);
+        executeUpdateWithPK(digester.getQuery("create"), variables, nullVars);
         if (isQuerySuccessful()) {
             ecb.setId(getLatestPK());
         }
@@ -466,7 +466,7 @@ public class EventCRFDAO<K extends String, V extends ArrayList> extends Auditabl
         HashMap variables = new HashMap();
         variables.put(new Integer(1), new Integer(eventCRFId));
 
-        this.execute(digester.getQuery("delete"), variables);
+        this.executeUpdate(digester.getQuery("delete"), variables);
         return;
 
     }
@@ -477,7 +477,7 @@ public class EventCRFDAO<K extends String, V extends ArrayList> extends Auditabl
         variables.put(new Integer(2), userId);
         variables.put(new Integer(3), eventCRFId);
 
-        this.execute(digester.getQuery("setSDVStatus"), variables);
+        this.executeUpdate(digester.getQuery("setSDVStatus"), variables);
     }
 
     public Integer countEventCRFsByStudy(int studyId, int parentStudyId) {
@@ -996,9 +996,9 @@ public class EventCRFDAO<K extends String, V extends ArrayList> extends Auditabl
         String sql = digester.getQuery("updateCRFVersionID");
         // this is the way to make the change transactional
         if (con == null) {
-            this.execute(sql, variables);
+            this.executeUpdate(sql, variables);
         } else {
-            this.execute(sql, variables, con);
+            this.executeUpdate(sql, variables, con);
         }
     }
 

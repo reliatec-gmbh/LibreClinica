@@ -30,7 +30,7 @@ import javax.sql.DataSource;
  *
  *
  */
-public abstract class AuditableEntityDAO<K extends String,V extends ArrayList> extends EntityDAO {
+public abstract class AuditableEntityDAO extends EntityDAO {
     /**
      * Should the name of a query which refers to a SQL command of the following
      * form:
