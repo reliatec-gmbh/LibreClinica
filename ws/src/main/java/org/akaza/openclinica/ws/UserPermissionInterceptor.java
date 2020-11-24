@@ -21,6 +21,7 @@ import java.util.Locale;
 
 import javax.sql.DataSource;
 
+// This is here to check for SOAP permission of already authenticated user
 public class UserPermissionInterceptor implements EndpointInterceptor {
 
     private final DataSource dataSource;
@@ -62,4 +63,8 @@ public class UserPermissionInterceptor implements EndpointInterceptor {
         return true;
     }
 
+    //@Override
+    public void afterCompletion(MessageContext messageContext, Object o, Exception e) throws Exception {
+        // TODO something necessary?
+    }
 }

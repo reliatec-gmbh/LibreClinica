@@ -28,6 +28,8 @@ import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -872,8 +874,6 @@ public class Validator {
         fieldErrors.add(errorMessage);
 
         existingErrors.put(fieldName, fieldErrors);
-
-        return;
     }
 
     protected HashMap validate(String fieldName, Validation v) {
@@ -1190,7 +1190,7 @@ public class Validator {
      */
     protected boolean isDate(String fieldName) {
         String fieldValue = getFieldValue(fieldName);
-        if (StringUtil.isBlank(fieldValue)) {
+        if (StringUtils.isBlank(fieldValue)) {
             return false;
         }
         if (!StringUtil.isFormatDate(fieldValue, resformat.getString("date_format_string"))) {
@@ -1216,7 +1216,7 @@ public class Validator {
      */
     protected boolean isDateWithoutRequiredCheck(String fieldName) {
         String fieldValue = request.getParameter(fieldName);
-        if (StringUtil.isBlank(fieldValue)) {
+        if (StringUtils.isBlank(fieldValue)) {
             return true;
         }
         SimpleDateFormat sdf = new SimpleDateFormat(resformat.getString("date_format_string"), ResourceBundleProvider.getLocale());
@@ -1846,7 +1846,7 @@ public class Validator {
         for (int i = 2; i <= funcMatcher.groupCount(); i++) {
             String arg = funcMatcher.group(i);
 
-            if (StringUtil.isBlank(arg)) {
+            if (StringUtils.isBlank(arg)) {
                 continue;
             }
 
@@ -1915,7 +1915,7 @@ public class Validator {
         finalRegexp = finalRegexp.substring(1, finalRegexp.length() - 1);
         // YW >>
 
-        if (StringUtil.isBlank(finalRegexp)) {
+        if (StringUtils.isBlank(finalRegexp)) {
             throw new Exception(resexception.getString("regular_expression_is_blank"));
         }
 
@@ -2035,7 +2035,7 @@ public class Validator {
         logger.debug("find locale=" + resexception.getLocale());
         StringBuffer message = new StringBuffer();
         String fieldValue = getFieldValue(fieldName);
-        if (StringUtil.isBlank(fieldValue)) {
+        if (StringUtils.isBlank(fieldValue)) {
             return message;
         }
         int width = Validator.parseWidth(widthDecimal);
