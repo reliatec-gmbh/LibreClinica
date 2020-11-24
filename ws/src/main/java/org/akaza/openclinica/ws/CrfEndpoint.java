@@ -62,7 +62,7 @@ public class CrfEndpoint {
      * Constructor
      * 
      * @param subjectService
-     * @param cctsService
+     * @param dataSource
      */
     public CrfEndpoint(SubjectServiceInterface subjectService, DataSource dataSource) {
         this.subjectService = subjectService;

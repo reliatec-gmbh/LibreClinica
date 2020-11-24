@@ -74,8 +74,9 @@ public class EventEndpoint {
     /**
      * Constructor
      * 
-     * @param subjectService
-     * @param cctsService
+     * @param eventService
+     * @param dataSource
+     * @param messages
      */
     public EventEndpoint(EventServiceInterface eventService, DataSource dataSource, MessageSource messages) {
         this.eventService = eventService;
@@ -172,8 +173,8 @@ public class EventEndpoint {
     /**
      * Process createEvent request by creating StudyEventTransferBean from received payload.
      * 
-     * @param subjectElement
-     * @return SubjectTransferBean
+     * @param eventElement
+     * @return StudyEventTransferBean
      * @throws ParseException
      */
     private StudyEventTransferBean unMarshallToEventTransfer(Element eventElement)
@@ -215,7 +216,7 @@ public class EventEndpoint {
     /**
      * Create Error Response
      * 
-     * @param confirmation
+     * @param errors
      * @return
      * @throws Exception
      */
