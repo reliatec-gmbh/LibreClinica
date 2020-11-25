@@ -10,6 +10,7 @@ package org.akaza.openclinica.control.admin;
 import org.akaza.openclinica.bean.admin.NewCRFBean;
 import org.akaza.openclinica.bean.submit.CRFVersionBean;
 import org.akaza.openclinica.bean.submit.EventCRFBean;
+import org.akaza.openclinica.bean.submit.ItemBean;
 import org.akaza.openclinica.bean.submit.ItemDataBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
@@ -123,7 +124,7 @@ public class DeleteCRFVersionServlet extends SecureController {
             } else {
                 // submit
                 if (canDelete) {
-                    ArrayList items = cvdao.findNotSharedItemsByVersion(versionId);
+                    ArrayList<ItemBean> items = cvdao.findNotSharedItemsByVersion(versionId);
                     NewCRFBean nib = new NewCRFBean(sm.getDataSource(), version.getCrfId());
                     nib.setDeleteQueries(cvdao.generateDeleteQueries(versionId, items));
                     nib.deleteFromDB();

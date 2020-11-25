@@ -568,7 +568,7 @@ public class CreateCRFVersionServlet extends SecureController {
      */
     private boolean canDeleteVersion(int previousVersionId) {
         CRFVersionDAO cdao = new CRFVersionDAO(sm.getDataSource());
-        ArrayList items = null;
+        ArrayList<ItemBean> items = null;
         ArrayList itemsHaveData = new ArrayList();
         // boolean isItemUsedByOtherVersion =
         // cdao.isItemUsedByOtherVersion(previousVersionId);

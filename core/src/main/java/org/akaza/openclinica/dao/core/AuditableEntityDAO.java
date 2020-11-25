@@ -20,6 +20,7 @@ import org.akaza.openclinica.bean.core.EntityBean;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
+import org.akaza.openclinica.dao.login.UserAccountDAO;
 
 /**
  * <P>
@@ -65,6 +66,8 @@ public abstract class AuditableEntityDAO<T extends EntityBean> extends EntityDAO
      * </code>
      */
     protected String findByPKAndStudyName;
+	
+	protected UserAccountDAO uadao;
 
     public AuditableEntityDAO(DataSource ds) {
         super(ds);
@@ -72,6 +75,7 @@ public abstract class AuditableEntityDAO<T extends EntityBean> extends EntityDAO
         // logger.info("digester name set to " + digesterName);
         digester = SQLFactory.getInstance().getDigester(digesterName);
         // logger.info("digester null? " + (digester == null));
+        uadao = new UserAccountDAO(this.ds);
     }
 
     /*
@@ -226,5 +230,15 @@ public abstract class AuditableEntityDAO<T extends EntityBean> extends EntityDAO
     		result.put(i+1, variables[i]);
 		}
     	return result;
+    }
+    
+    public UserAccountBean getUserById(int id) {
+        UserAccountBean result = (UserAccountBean) uadao.findByPK(id, false);
+        if(result == null) {
+        	String msg = String.format("No UserAccountBean found with id '%d'", id);
+        	logger.debug(msg);
+        	throw new RuntimeException(msg);
+        }
+        return result;
     }
 }
