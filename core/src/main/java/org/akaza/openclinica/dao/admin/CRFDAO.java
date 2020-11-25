@@ -8,16 +8,13 @@
 package org.akaza.openclinica.dao.admin;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
 import org.akaza.openclinica.bean.admin.CRFBean;
-import org.akaza.openclinica.bean.core.EntityBean;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
 import org.akaza.openclinica.dao.core.AuditableEntityDAO;
@@ -66,7 +63,7 @@ public class CRFDAO extends AuditableEntityDAO<CRFBean> {
     }
 
     public CRFBean update(CRFBean cb) {
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(Integer.valueOf(1), Integer.valueOf(cb.getStatus().getId()));
         // variables.put(Integer.valueOf(2), cb.getLabel());
         variables.put(Integer.valueOf(2), cb.getName());
@@ -107,8 +104,8 @@ public class CRFDAO extends AuditableEntityDAO<CRFBean> {
         return eb;
     }
 
-    public Collection findAll() {
-
+    @Override
+    public ArrayList<CRFBean> findAll() {
         return findAllByLimit(false);
     }
 
@@ -117,190 +114,87 @@ public class CRFDAO extends AuditableEntityDAO<CRFBean> {
         return getCountByQuery(sql, new HashMap<>());
     }
 
-    public Collection findAllByStudy(int studyId) {
-        this.setTypesExpected();
-        HashMap variables = new HashMap();
-        variables.put(Integer.valueOf(1), Integer.valueOf(studyId));
-        ArrayList alist = this.select(digester.getQuery("findAllByStudy"), variables);
-        ArrayList al = new ArrayList();
-
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            CRFBean eb = (CRFBean) this.getEntityFromHashMap((HashMap) it.next());
-            al.add(eb);
-        }
-        return al;
-
+    public ArrayList<CRFBean> findAllByStudy(int studyId) {
+    	String queryName = "findAllByStudy";
+        HashMap<Integer, Object> variables = variables(studyId);
+        return executeFindAllQuery(queryName, variables);
     }
 
-    public Collection findAllByLimit(boolean hasLimit) {
-        this.setTypesExpected();
-        ArrayList alist = null;
+    public ArrayList<CRFBean> findAllByLimit(boolean hasLimit) {
+    	String queryName;
         if (hasLimit) {
-            alist = this.select(digester.getQuery("findAllByLimit"));
+        	queryName = "findAllByLimit";
         } else {
-            alist = this.select(digester.getQuery("findAll"));
+        	queryName = "findAll";
         }
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            CRFBean eb = (CRFBean) this.getEntityFromHashMap((HashMap) it.next());
-            al.add(eb);
-        }
-        return al;
+        return executeFindAllQuery(queryName);
     }
 
-    public Collection findAllByStatus(Status status) {
-        this.setTypesExpected();
-        HashMap variables = new HashMap();
-        variables.put(Integer.valueOf(1), Integer.valueOf(status.getId()));
-        ArrayList alist = this.select(digester.getQuery("findAllByStatus"), variables);
-
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            CRFBean eb = (CRFBean) this.getEntityFromHashMap((HashMap) it.next());
-            al.add(eb);
-        }
-        return al;
+    public ArrayList<CRFBean> findAllByStatus(Status status) {
+    	String queryName = "findAllByStatus";
+        HashMap<Integer, Object> variables = variables(status.getId());
+        return executeFindAllQuery(queryName, variables);
     }
 
-    public Collection findAllActiveByDefinition(StudyEventDefinitionBean definition) {
-        this.setTypesExpected();
-        HashMap variables = new HashMap();
-        variables.put(Integer.valueOf(1), Integer.valueOf(definition.getId()));
-        ArrayList alist = this.select(digester.getQuery("findAllActiveByDefinition"), variables);
-
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            CRFBean eb = (CRFBean) this.getEntityFromHashMap((HashMap) it.next());
-            al.add(eb);
-        }
-        return al;
+    public ArrayList<CRFBean> findAllActiveByDefinition(StudyEventDefinitionBean definition) {
+    	String queryName = "findAllActiveByDefinition";
+        HashMap<Integer, Object> variables = variables(definition.getId());
+        return executeFindAllQuery(queryName, variables);
     }
 
-    public Collection findAllActiveByDefinitions(int studyId) {
-        this.setTypesExpected();
-        HashMap variables = new HashMap();
-        variables.put(Integer.valueOf(1), Integer.valueOf(studyId));
-        variables.put(Integer.valueOf(2), Integer.valueOf(studyId));
-        ArrayList alist = this.select(digester.getQuery("findAllActiveByDefinitions"), variables);
-
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            CRFBean eb = (CRFBean) this.getEntityFromHashMap((HashMap) it.next());
-            al.add(eb);
-        }
-        return al;
+    public ArrayList<CRFBean> findAllActiveByDefinitions(int studyId) {
+    	String queryName = "findAllActiveByDefinitions";
+        HashMap<Integer, Object> variables = variables(studyId, studyId);
+        return executeFindAllQuery(queryName, variables);
     }
 
-    public Collection findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    public ArrayList<CRFBean> findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+    	throw new RuntimeException("Not implemented");
     }
 
-    public EntityBean findByPK(int ID) {
-        CRFBean eb = new CRFBean();
-        this.setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(Integer.valueOf(1), Integer.valueOf(ID));
-
-        // String sql = digester.getQuery("findByPK");
-        // logger.warn("found findbypk query: "+sql);
-        ArrayList alist = this.select(digester.getQuery("findByPK"), variables);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            eb = (CRFBean) this.getEntityFromHashMap((HashMap) it.next());
-        }
-        return eb;
+    @Override
+    public CRFBean findByPK(int ID) {
+        String queryName = "findByPK";
+        HashMap<Integer, Object> variables = variables(ID);
+        return (CRFBean) executeFindByPKQuery(queryName, variables);
     }
 
     public CRFBean findByItemOid(String itemOid) {
-        CRFBean eb = new CRFBean();
-        this.setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(Integer.valueOf(1), itemOid);
-
-        ArrayList alist = this.select(digester.getQuery("findByItemOid"), variables);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            eb = (CRFBean) this.getEntityFromHashMap((HashMap) it.next());
-        }
-        return eb;
+        String queryName = "findByItemOid";
+        HashMap<Integer, Object> variables = variables(itemOid);
+        return (CRFBean) executeFindByPKQuery(queryName, variables);
     }
 
-    public EntityBean findByName(String name) {
-        CRFBean eb = new CRFBean();
-        this.setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(Integer.valueOf(1), name);
-
-        String sql = digester.getQuery("findByName");
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            eb = (CRFBean) this.getEntityFromHashMap((HashMap) it.next());
-        }
-        return eb;
+    public CRFBean findByName(String name) {
+        String queryName = "findByName";
+        HashMap<Integer, Object> variables = variables(name);
+        return (CRFBean) executeFindByPKQuery(queryName, variables);
     }
 
-    public EntityBean findAnotherByName(String name, int crfId) {
-        CRFBean eb = new CRFBean();
-        this.setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(Integer.valueOf(1), name);
-        variables.put(Integer.valueOf(2), Integer.valueOf(crfId));
-
-        String sql = digester.getQuery("findAnotherByName");
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            eb = (CRFBean) this.getEntityFromHashMap((HashMap) it.next());
-        }
-        return eb;
+    public CRFBean findAnotherByName(String name, int crfId) {
+        String queryName = "findAnotherByName";
+        HashMap<Integer, Object> variables = variables(name, crfId);
+        return (CRFBean) executeFindByPKQuery(queryName, variables);
     }
 
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<CRFBean> findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+        throw new RuntimeException("Not implemented");
     }
 
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<CRFBean> findAllByPermission(Object objCurrentUser, int intActionType) {
+        throw new RuntimeException("Not implemented");
     }
 
     public CRFBean findByVersionId(int crfVersionId) {
-        CRFBean answer = new CRFBean();
-
-        this.unsetTypeExpected();
-        this.setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(Integer.valueOf(1), Integer.valueOf(crfVersionId));
-
-        String sql = digester.getQuery("findByVersionId");
-        ArrayList rows = select(sql, variables);
-
-        if (rows.size() > 0) {
-            HashMap row = (HashMap) rows.get(0);
-            answer = (CRFBean) getEntityFromHashMap(row);
-        }
-
-        return answer;
+        String queryName = "findByVersionId";
+        HashMap<Integer, Object> variables = variables(crfVersionId);
+        return (CRFBean) executeFindByPKQuery(queryName, variables);
     }
 
     private String getOid(CRFBean crfBean, String crfName) {
@@ -325,32 +219,16 @@ public class CRFDAO extends AuditableEntityDAO<CRFBean> {
         return oid;
     }
 
-    @SuppressWarnings("unchecked")
     public ArrayList<CRFBean> findAllByOid(String oid) {
-        HashMap<Integer, Object> variables = new HashMap<>();
-        variables.put(Integer.valueOf(1), oid);
-
-        return executeFindAllQuery("findByOID", variables);
+        String queryName = "findByOID";
+        HashMap<Integer, Object> variables = variables(oid);
+        return executeFindAllQuery(queryName, variables);
     }
 
     public CRFBean findByOid(String oid) {
-        CRFBean crf = new CRFBean();
-        this.unsetTypeExpected();
-        setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(Integer.valueOf(1), oid);
-        String sql = digester.getQuery("findByOID");
-
-        ArrayList rows = this.select(sql, variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            crf = (CRFBean) this.getEntityFromHashMap((HashMap) it.next());
-            return crf;
-        } else {
-            return null;
-        }
+        String queryName = "findByOID";
+        HashMap<Integer, Object> variables = variables(oid);
+        return (CRFBean) executeFindByPKQuery(queryName, variables);
     }
 
     /**
@@ -359,22 +237,11 @@ public class CRFDAO extends AuditableEntityDAO<CRFBean> {
      * @return
      */
     public Map<Integer, CRFBean> buildCrfById(Integer studySubjectId) {
-        this.setTypesExpected(); // <== Must be called first
-        Map<Integer, CRFBean> result = new HashMap<Integer, CRFBean>();
-
-        HashMap<Integer, Object> param = new HashMap<Integer, Object>();
-        int i = 1;
-        param.put(i++, studySubjectId);
-
-        List selectResult = select(digester.getQuery("buildCrfById"), param);
-
-        Iterator it = selectResult.iterator();
-
-        while (it.hasNext()) {
-            CRFBean bean = (CRFBean) this.getEntityFromHashMap((HashMap) it.next());
-            result.put(bean.getId(), bean);
-        }
-
+        String queryName = "buildCrfById";
+        HashMap<Integer, Object> variables = variables(studySubjectId);
+        ArrayList<CRFBean> beans = executeFindAllQuery(queryName, variables);
+        
+        Map<Integer, CRFBean> result = beans.stream().collect(Collectors.toMap(CRFBean::getId, b -> b));
         return result;
     }
 
