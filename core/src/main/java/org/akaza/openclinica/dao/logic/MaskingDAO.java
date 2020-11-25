@@ -91,11 +91,13 @@ public class MaskingDAO extends AuditableEntityDAO<MaskingBean> {
         return al;
     }
 
-    public EntityBean update(EntityBean eb) {
+    @Override
+    public MaskingBean update(MaskingBean eb) {
         return eb;
     }
 
-    public EntityBean create(EntityBean eb) {
+    @Override
+    public MaskingBean create(MaskingBean eb) {
         return eb;
     }
 

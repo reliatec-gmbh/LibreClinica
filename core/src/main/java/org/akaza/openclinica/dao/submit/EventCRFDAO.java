@@ -115,9 +115,7 @@ public class EventCRFDAO extends AuditableEntityDAO<EventCRFBean> {
 
     }
 
-    public EntityBean update(EntityBean eb) {
-        EventCRFBean ecb = (EventCRFBean) eb;
-
+    public EventCRFBean update(EventCRFBean ecb) {
         ecb.setActive(false);
 
         HashMap variables = new HashMap();
@@ -196,8 +194,7 @@ public class EventCRFDAO extends AuditableEntityDAO<EventCRFBean> {
         }
     }
 
-    public EntityBean create(EntityBean eb) {
-        EventCRFBean ecb = (EventCRFBean) eb;
+    public EventCRFBean create(EventCRFBean ecb) {
         HashMap variables = new HashMap();
         HashMap nullVars = new HashMap();
         variables.put(new Integer(1), new Integer(ecb.getStudyEventId()));

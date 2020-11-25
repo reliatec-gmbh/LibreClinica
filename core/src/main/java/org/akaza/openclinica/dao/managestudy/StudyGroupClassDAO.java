@@ -211,8 +211,8 @@ public class StudyGroupClassDAO extends AuditableEntityDAO<StudyGroupClassBean> 
     /**
      * Creates a new StudyGroup
      */
-    public EntityBean create(EntityBean eb) {
-        StudyGroupClassBean sb = (StudyGroupClassBean) eb;
+    @Override
+    public StudyGroupClassBean create(StudyGroupClassBean sb) {
         HashMap variables = new HashMap();
         int id = getNextPK();
         // INSERT INTO study_group_class
@@ -238,8 +238,7 @@ public class StudyGroupClassDAO extends AuditableEntityDAO<StudyGroupClassBean> 
     /**
      * Updates a StudyGroupClass
      */
-    public EntityBean update(EntityBean eb) {
-        StudyGroupClassBean sb = (StudyGroupClassBean) eb;
+    public StudyGroupClassBean update(StudyGroupClassBean sb) {
         HashMap variables = new HashMap();
 
         // UPDATE study_group_class SET NAME=?,STUDY_ID=?,

@@ -239,8 +239,8 @@ public class StudyGroupDAO extends AuditableEntityDAO<StudyGroupBean> {
     /**
      * Creates a new StudyGroup
      */
-    public EntityBean create(EntityBean eb) {
-        StudyGroupBean sb = (StudyGroupBean) eb;
+    @Override
+    public StudyGroupBean create(StudyGroupBean sb) {
         HashMap variables = new HashMap();
 
         variables.put(new Integer(1), sb.getName());
@@ -255,8 +255,7 @@ public class StudyGroupDAO extends AuditableEntityDAO<StudyGroupBean> {
     /**
      * Updates a StudyGroup
      */
-    public EntityBean update(EntityBean eb) {
-        StudyGroupBean sb = (StudyGroupBean) eb;
+    public StudyGroupBean update(StudyGroupBean sb) {
         HashMap variables = new HashMap();
 
         // UPDATE study_group SET study_group_class_id=?, name=?,

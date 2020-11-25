@@ -150,9 +150,8 @@ public class RuleSetRuleAuditDAO extends EntityDAO<RuleSetRuleAuditBean> {
         return ruleSetRuleAuditBeans;
     }
 
-    public EntityBean create(EntityBean eb, UserAccountBean ub) {
+    public RuleSetRuleAuditBean create(RuleSetRuleBean ruleSetRuleBean, UserAccountBean ub) {
         // INSERT INTO rule_set_rule_audit (rule_set_rule_id, status_id,updater_id,date_updated) VALUES (?,?,?,?,?)
-        RuleSetRuleBean ruleSetRuleBean = (RuleSetRuleBean) eb;
         RuleSetRuleAuditBean ruleSetRuleAudit = new RuleSetRuleAuditBean();
         HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
         variables.put(1, ruleSetRuleBean.getId());
@@ -169,15 +168,15 @@ public class RuleSetRuleAuditDAO extends EntityDAO<RuleSetRuleAuditBean> {
         return ruleSetRuleAudit;
     }
 
-    public EntityBean create(EntityBean eb) throws OpenClinicaException {
-        RuleSetRuleBean ruleSetRuleBean = (RuleSetRuleBean) eb;
-        UserAccountBean userAccount = new UserAccountBean();
-        userAccount.setId(ruleSetRuleBean.getUpdaterId());
-        return create(eb, userAccount);
+    @Override
+    public RuleSetRuleAuditBean create(RuleSetRuleAuditBean ruleSetRuleBean) throws OpenClinicaException {
+    	// implementation not reasonable
+    	throw new RuntimeException("Not implemented");
     }
 
-    public EntityBean update(EntityBean eb) throws OpenClinicaException {
-        return new ItemGroupMetadataBean(); // To change body of implemented
+    @Override
+    public RuleSetRuleAuditBean update(RuleSetRuleAuditBean eb) throws OpenClinicaException {
+        return new RuleSetRuleAuditBean(); // To change body of implemented
 
     }
 

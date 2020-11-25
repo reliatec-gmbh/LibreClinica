@@ -81,8 +81,8 @@ public class ItemDAO extends AuditableEntityDAO<ItemBean> {
         this.setTypeExpected(15, TypeNames.STRING);// name
     }
 
-    public EntityBean update(EntityBean eb) {
-        ItemBean ib = (ItemBean) eb;
+    @Override
+    public ItemBean update(ItemBean ib) {
         HashMap variables = new HashMap();
         variables.put(new Integer(1), ib.getName());
         variables.put(new Integer(2), ib.getDescription());
@@ -94,11 +94,11 @@ public class ItemDAO extends AuditableEntityDAO<ItemBean> {
         variables.put(new Integer(8), new Integer(ib.getUpdaterId()));
         variables.put(new Integer(9), new Integer(ib.getId()));
         this.executeUpdate(digester.getQuery("update"), variables);
-        return eb;
+        return ib;
     }
 
-    public EntityBean create(EntityBean eb) {
-        ItemBean ib = (ItemBean) eb;
+    @Override
+    public ItemBean create(ItemBean ib) {
         // per the create sql statement
         HashMap variables = new HashMap();
         variables.put(new Integer(1), ib.getName());
@@ -112,7 +112,7 @@ public class ItemDAO extends AuditableEntityDAO<ItemBean> {
         // date_created=now() in Postgres
         this.executeUpdate(digester.getQuery("create"), variables);
         // set the id here????
-        return eb;
+        return ib;
     }
 
     private String getOid(ItemBean itemBean, String crfName, String itemLabel) {

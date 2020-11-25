@@ -533,8 +533,7 @@ public class SubjectDAO extends AuditableEntityDAO<SubjectBean> {
      *
      * @return sb, an updated study bean.
      */
-    public EntityBean update(EntityBean eb) {
-        SubjectBean sb = (SubjectBean) eb;
+    public SubjectBean update(SubjectBean sb) {
         HashMap variables = new HashMap();
         HashMap nullVars = new HashMap();
 

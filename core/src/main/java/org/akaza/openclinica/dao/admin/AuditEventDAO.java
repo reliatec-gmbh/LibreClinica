@@ -237,8 +237,7 @@ public class AuditEventDAO extends AuditableEntityDAO<AuditEventBean> {
     /**
      * Creates a new row in the audit_log_event table
      */
-    public EntityBean create(EntityBean eb) {
-        AuditEventBean sb = (AuditEventBean) eb;
+    public AuditEventBean create(AuditEventBean sb) {
         HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
         // INSERT INTO audit_event
         // (AUDIT_DATE,AUDIT_TABLE,USER_ID,ENTITY_ID,REASON_FOR_CHANGE,
@@ -646,9 +645,8 @@ public class AuditEventDAO extends AuditableEntityDAO<AuditEventBean> {
     /**
      * Updates a AuditEvent
      */
-    public EntityBean update(EntityBean eb) {
-        AuditEventBean sb = (AuditEventBean) eb;
-        return sb;
+    public AuditEventBean update(AuditEventBean eb) {
+        return eb;
     }
 
     public Collection findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {

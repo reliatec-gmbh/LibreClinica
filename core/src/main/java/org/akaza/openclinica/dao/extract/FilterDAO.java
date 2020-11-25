@@ -73,8 +73,7 @@ public class FilterDAO extends AuditableEntityDAO<FilterBean> {
         this.setTypeExpected(9, TypeNames.INT);// update id
     }
 
-    public EntityBean update(EntityBean eb) {
-        FilterBean fb = (FilterBean) eb;
+    public FilterBean update(FilterBean fb) {
         HashMap variables = new HashMap();
         HashMap nullVars = new HashMap();
         variables.put(new Integer(1), fb.getName());
@@ -88,8 +87,7 @@ public class FilterDAO extends AuditableEntityDAO<FilterBean> {
         return fb;
     }
 
-    public EntityBean create(EntityBean eb) {
-        FilterBean fb = (FilterBean) eb;
+    public FilterBean create(FilterBean fb) {
         logger.info("logged following owner id: " + fb.getOwnerId() + " vs. " + fb.getOwner().getId());
         HashMap variables = new HashMap();
         int id = getNextPK();

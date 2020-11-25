@@ -122,8 +122,7 @@ public class RuleSetDAO extends AuditableEntityDAO<RuleSetBean> {
 
     }
 
-    public EntityBean update(EntityBean eb) {
-        RuleSetBean ruleSetBean = (RuleSetBean) eb;
+    public RuleSetBean update(RuleSetBean ruleSetBean) {
 
         ruleSetBean.setActive(false);
 
@@ -185,9 +184,8 @@ public class RuleSetDAO extends AuditableEntityDAO<RuleSetBean> {
     /*
      * I am going to attempt to use this create method as we use the saveOrUpdate method in Hibernate.
      */
-    public EntityBean create(EntityBean eb) {
-        RuleSetBean ruleSetBean = (RuleSetBean) eb;
-        if (eb.getId() == 0) {
+    public RuleSetBean create(RuleSetBean ruleSetBean) {
+        if (ruleSetBean.getId() == 0) {
             HashMap<Integer, Object> variables = new HashMap<>();
             HashMap<Integer, Integer> nullVars = new HashMap<>();
             variables.put(new Integer(1), getExpressionDao().create(ruleSetBean.getTarget()).getId());

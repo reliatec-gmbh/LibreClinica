@@ -1368,8 +1368,7 @@ public class DiscrepancyNoteDAO extends AuditableEntityDAO<DiscrepancyNoteBean> 
      * Creates a new discrepancy note
      */
     @Override
-    public EntityBean create(EntityBean eb) {
-        DiscrepancyNoteBean sb = (DiscrepancyNoteBean) eb;
+    public DiscrepancyNoteBean create(DiscrepancyNoteBean sb) {
         HashMap variables = new HashMap();
         HashMap nullVars = new HashMap();
         // INSERT INTO discrepancy_note
@@ -1436,14 +1435,13 @@ public class DiscrepancyNoteDAO extends AuditableEntityDAO<DiscrepancyNoteBean> 
      * Updates a Study event
      */
     @Override
-    public EntityBean update(EntityBean eb) {
+    public DiscrepancyNoteBean update(DiscrepancyNoteBean dnb) {
         // update discrepancy_note set
         // description =?,
         // discrepancy_note_type_id =? ,
         // resolution_status_id =? ,
         // detailed_notes =?
         // where discrepancy_note_id=?
-        DiscrepancyNoteBean dnb = (DiscrepancyNoteBean) eb;
         dnb.setActive(false);
 
         HashMap variables = new HashMap();

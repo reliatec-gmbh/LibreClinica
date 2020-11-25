@@ -134,9 +134,8 @@ public class ItemDataDAO extends AuditableEntityDAO<ItemDataBean> {
         this.setTypeExpected(12, TypeNames.BOOL);// ocform_deleted
     }
 
-    public EntityBean update(EntityBean eb) {
-        ItemDataBean idb = (ItemDataBean) eb;
-
+    @Override
+    public ItemDataBean update(ItemDataBean idb) {
         // YW 12-06-2007 << convert to oc_date_format_string pattern before
         // inserting into database
         ItemDataType dataType = getDataType(idb.getItemId());
@@ -301,8 +300,8 @@ public class ItemDataDAO extends AuditableEntityDAO<ItemDataBean> {
         return idb;
     }
 
-    public EntityBean create(EntityBean eb) {
-        ItemDataBean idb = (ItemDataBean) eb;
+    @Override
+    public ItemDataBean create(ItemDataBean idb) {
         // YW 12-06-2007 << convert to oc_date_format_string pattern before
         // inserting into database
         ItemDataType dataType = getDataType(idb.getItemId());

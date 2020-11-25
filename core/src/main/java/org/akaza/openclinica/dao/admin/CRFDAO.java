@@ -65,8 +65,7 @@ public class CRFDAO extends AuditableEntityDAO<CRFBean> {
         this.setTypeExpected(10, TypeNames.INT);// study_id
     }
 
-    public EntityBean update(EntityBean eb) {
-        CRFBean cb = (CRFBean) eb;
+    public CRFBean update(CRFBean cb) {
         HashMap variables = new HashMap();
         variables.put(Integer.valueOf(1), Integer.valueOf(cb.getStatus().getId()));
         // variables.put(Integer.valueOf(2), cb.getLabel());
@@ -75,11 +74,10 @@ public class CRFDAO extends AuditableEntityDAO<CRFBean> {
         variables.put(Integer.valueOf(4), Integer.valueOf(cb.getUpdater().getId()));
         variables.put(Integer.valueOf(5), Integer.valueOf(cb.getId()));
         this.executeUpdate(digester.getQuery("update"), variables);
-        return eb;
+        return cb;
     }
 
-    public EntityBean create(EntityBean eb) {
-        CRFBean cb = (CRFBean) eb;
+    public CRFBean create(CRFBean cb) {
         HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(Integer.valueOf(1), Integer.valueOf(cb.getStatus().getId()));
         variables.put(Integer.valueOf(2), cb.getName());

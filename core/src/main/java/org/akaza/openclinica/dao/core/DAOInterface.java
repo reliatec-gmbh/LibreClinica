@@ -37,9 +37,9 @@ public interface DAOInterface<T> {
 
     EntityBean findByPK(int id) throws OpenClinicaException;
 
-    EntityBean create(EntityBean eb) throws OpenClinicaException;
+    T create(T eb) throws OpenClinicaException;
 
-    EntityBean update(EntityBean eb) throws OpenClinicaException;
+    T update(T eb) throws OpenClinicaException;
 
     Collection findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase)
             throws OpenClinicaException;

@@ -563,8 +563,7 @@ public class ItemFormMetadataDAO extends EntityDAO<ItemFormMetadataBean> {
      *
      * @see org.akaza.openclinica.dao.core.DAOInterface#create(org.akaza.openclinica.bean.core.EntityBean)
      */
-    public EntityBean create(EntityBean eb) throws OpenClinicaException {
-        ItemFormMetadataBean ifmb = (ItemFormMetadataBean) eb;
+    public ItemFormMetadataBean create(ItemFormMetadataBean ifmb) throws OpenClinicaException {
         HashMap<Integer, Object> variables = new HashMap<>();
 
         int ind = 0;
@@ -629,8 +628,7 @@ public class ItemFormMetadataDAO extends EntityDAO<ItemFormMetadataBean> {
      *
      * @see org.akaza.openclinica.dao.core.DAOInterface#update(org.akaza.openclinica.bean.core.EntityBean)
      */
-    public EntityBean update(EntityBean eb) throws OpenClinicaException {
-        ItemFormMetadataBean ifmb = (ItemFormMetadataBean) eb;
+    public ItemFormMetadataBean update(ItemFormMetadataBean ifmb) throws OpenClinicaException {
         HashMap<Integer, Object> variables = new HashMap<>();
 
         int ind = 0;

@@ -20,6 +20,7 @@ import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.managestudy.StudySubjectDAO;
 import org.akaza.openclinica.dao.service.StudyParameterValueDAO;
 import org.akaza.openclinica.dao.submit.SubjectDAO;
+import org.akaza.openclinica.exception.OpenClinicaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,9 +69,13 @@ public class SubjectService implements SubjectServiceInterface {
             subjectBean = getSubjectDao().create(subjectBean);
         }
         
-        StudySubjectBean studySubject = createStudySubject(subjectBean, studyBean, enrollmentDate, secondaryId);
-        getStudySubjectDao().createWithoutGroup(studySubject);
-        return studySubject.getLabel();
+        try {
+	        StudySubjectBean studySubject = createStudySubject(subjectBean, studyBean, enrollmentDate, secondaryId);
+	        getStudySubjectDao().createWithoutGroup(studySubject);
+	        return studySubject.getLabel();
+        } catch (OpenClinicaException e) {
+        	return null;
+        }
     }
 
     private StudySubjectBean createStudySubject(SubjectBean subject, StudyBean studyBean, Date enrollmentDate, String secondaryId) {

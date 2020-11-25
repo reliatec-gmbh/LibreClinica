@@ -66,11 +66,10 @@ public class CRFVersionDAO extends AuditableEntityDAO<CRFVersionBean> {
         this.locale = locale;
     }
 
-    public EntityBean update(EntityBean eb) {
+    public CRFVersionBean update(CRFVersionBean ib) {
         // UPDATE CRF_VERSION SET CRF_ID=?,STATUS_ID=?,NAME=?,
         // DESCRIPTION=?,DATE_UPDATED=NOW(),UPDATE_ID=?,REVISION_NOTES =? WHERE
         // CRF_VERSION_ID=?
-        CRFVersionBean ib = (CRFVersionBean) eb;
         HashMap variables = new HashMap();
         variables.put(new Integer(1), new Integer(ib.getCrfId()));
         variables.put(new Integer(2), new Integer(ib.getStatus().getId()));
@@ -80,10 +79,10 @@ public class CRFVersionDAO extends AuditableEntityDAO<CRFVersionBean> {
         variables.put(new Integer(6), ib.getRevisionNotes());
         variables.put(new Integer(7), new Integer(ib.getId()));
         this.executeUpdate(digester.getQuery("update"), variables);
-        return eb;
+        return ib;
     }
 
-    public EntityBean create(EntityBean eb) {
+    public CRFVersionBean create(CRFVersionBean cvb) {
         // "INSERT INTO CRF_VERSION (NAME, DESCRIPTION, CRF_ID, STATUS_ID,DATE_CREATED," +
         // "OWNER_ID,REVISION_NOTES,OC_OID) "
         // + "VALUES ('" + stripQuotes(version) + "','" + stripQuotes(versionDesc) + "'," +
@@ -95,7 +94,6 @@ public class CRFVersionDAO extends AuditableEntityDAO<CRFVersionBean> {
         // DATE_CREATED, REVISION_NOTES)
         // VALUES (?,?,?,?,?,NOW(),?)</sql>
 
-        CRFVersionBean cvb = (CRFVersionBean) eb;
         HashMap variables = new HashMap();
         // variables.put(Integer.valueOf(2), cb.getLabel());
         variables.put(Integer.valueOf(1), Integer.valueOf(cvb.getCrfId()));

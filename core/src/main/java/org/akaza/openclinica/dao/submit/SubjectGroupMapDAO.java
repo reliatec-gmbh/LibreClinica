@@ -190,8 +190,7 @@ public class SubjectGroupMapDAO extends AuditableEntityDAO<SubjectGroupMapBean> 
     /**
      * Creates a new subject
      */
-    public EntityBean create(EntityBean eb) {
-        SubjectGroupMapBean sb = (SubjectGroupMapBean) eb;
+    public SubjectGroupMapBean create(SubjectGroupMapBean sb) {
         HashMap variables = new HashMap();
         // INSERT INTO SUBJECT_GROUP_MAP (study_group_class_id,
         // study_subject_id, study_group_id,
@@ -216,8 +215,7 @@ public class SubjectGroupMapDAO extends AuditableEntityDAO<SubjectGroupMapBean> 
      * 
      * @return sb, an updated study bean.
      */
-    public EntityBean update(EntityBean eb) {
-        SubjectGroupMapBean sb = (SubjectGroupMapBean) eb;
+    public SubjectGroupMapBean update(SubjectGroupMapBean sb) {
         HashMap variables = new HashMap();
         // UPDATE SUBJECT_GROUP_MAP SET STUDY_GROUP_CLASS_ID=?,
         // STUDY_SUBJECT_ID=?,STUDY_GROUP_ID=?,

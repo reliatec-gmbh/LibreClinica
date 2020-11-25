@@ -467,9 +467,8 @@ public class AuditDAO extends EntityDAO<AuditBean> {
     // Audit events should not be writable
     // //////////////////////////////////////////////////////////////////////////////////////////////////
     // /
-    public EntityBean update(EntityBean eb) {
-        AuditBean sb = (AuditBean) eb;
-        return sb;
+    public AuditBean update(AuditBean eb) {
+        return eb;
     }
 
     // ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -478,9 +477,8 @@ public class AuditDAO extends EntityDAO<AuditBean> {
     // database triggers
     // //////////////////////////////////////////////////////////////////////////////////////////////////
     // /
-    public EntityBean create(EntityBean eb) {
-        AuditBean sb = (AuditBean) eb;
-        return sb;
+    public AuditBean create(AuditBean eb) {
+        return eb;
     }
 
     /*

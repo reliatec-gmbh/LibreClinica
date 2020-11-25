@@ -853,7 +853,7 @@ public class AddNewSubjectServlet extends SecureController {
     }
 
     
-    protected void createStudyEvent(FormProcessor fp, StudySubjectBean s) {
+    protected void createStudyEvent(FormProcessor fp, StudySubjectBean s) throws OpenClinicaException {
         int studyEventDefinitionId = fp.getInt("studyEventDefinition");
         String location = fp.getString("location");
         Date startDate = s.getEventStartDate();
@@ -942,15 +942,16 @@ public class AddNewSubjectServlet extends SecureController {
      * @param entityId
      * @param entityType
      * @param sb
+     * @throws OpenClinicaException 
      */
-    public static void saveFieldNotes(String field, FormDiscrepancyNotes notes, DiscrepancyNoteDAO dndao, int entityId, String entityType, StudyBean sb) {
+    public static void saveFieldNotes(String field, FormDiscrepancyNotes notes, DiscrepancyNoteDAO dndao, int entityId, String entityType, StudyBean sb) throws OpenClinicaException {
     	
     	 saveFieldNotes( field,  notes,  dndao,  entityId,  entityType,  sb, -1) ;
 	
     	}
     public static void saveFieldNotes(String field, FormDiscrepancyNotes notes, 
     		DiscrepancyNoteDAO dndao, int entityId, String entityType, StudyBean sb,
-    		int event_crf_id) {
+    		int event_crf_id) throws OpenClinicaException {
 
         if (notes == null || dndao == null || sb == null) {
             // logger.info("AddNewSubjectServlet,saveFieldNotes:parameter is

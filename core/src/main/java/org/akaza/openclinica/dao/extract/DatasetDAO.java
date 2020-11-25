@@ -140,8 +140,7 @@ public class DatasetDAO extends AuditableEntityDAO<DatasetBean> {
         this.setTypeExpected(17, TypeNames.STRING);// crf_name
     }
 
-    public EntityBean update(EntityBean eb) {
-        DatasetBean db = (DatasetBean) eb;
+    public DatasetBean update(DatasetBean db) {
         HashMap variables = new HashMap();
         HashMap nullVars = new HashMap();
         variables.put(Integer.valueOf(1), Integer.valueOf(db.getStudyId()));
@@ -166,10 +165,10 @@ public class DatasetDAO extends AuditableEntityDAO<DatasetBean> {
         variables.put(Integer.valueOf(11), db.getDateEnd());
         variables.put(Integer.valueOf(12), Integer.valueOf(db.getId()));
         this.executeUpdate(digester.getQuery("update"), variables, nullVars);
-        return eb;
+        return db;
     }
 
-    public EntityBean create(EntityBean eb) {
+    public DatasetBean create(DatasetBean db) {
         /*
          * INSERT INTO DATASET (STUDY_ID, STATUS_ID, NAME, DESCRIPTION,
          * SQL_STATEMENT, OWNER_ID, DATE_CREATED, DATE_LAST_RUN, NUM_RUNS,
@@ -191,7 +190,6 @@ public class DatasetDAO extends AuditableEntityDAO<DatasetBean> {
          * mapping dataset id to study group classes id, tbh
          *
          */
-        DatasetBean db = (DatasetBean) eb;
         HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
         HashMap nullVars = new HashMap();
         variables.put(Integer.valueOf(1), Integer.valueOf(db.getStudyId()));
@@ -238,15 +236,15 @@ public class DatasetDAO extends AuditableEntityDAO<DatasetBean> {
         // logger.warn("**************************************************");
 
         if (isQuerySuccessful()) {
-            eb.setId(getLatestPK());
+            db.setId(getLatestPK());
             if (db.isShowSubjectGroupInformation()) {
                 // add additional information here
                 for (int i = 0; i < db.getSubjectGroupIds().size(); i++) {
-                    createGroupMap(eb.getId(), ((Integer) db.getSubjectGroupIds().get(i)).intValue(), nullVars);
+                    createGroupMap(db.getId(), ((Integer) db.getSubjectGroupIds().get(i)).intValue(), nullVars);
                 }
             }
         }
-        return eb;
+        return db;
     }
 
     public DatasetBean getEntityFromHashMap(HashMap hm) {

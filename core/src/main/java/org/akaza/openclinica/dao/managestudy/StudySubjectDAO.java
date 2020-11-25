@@ -31,6 +31,7 @@ import org.akaza.openclinica.dao.core.DAODigester;
 import org.akaza.openclinica.dao.core.SQLFactory;
 import org.akaza.openclinica.dao.core.TypeNames;
 import org.akaza.openclinica.dao.submit.SubjectGroupMapDAO;
+import org.akaza.openclinica.exception.OpenClinicaException;
 import org.apache.commons.lang.StringUtils;
 /**
  * @author jxu
@@ -411,8 +412,7 @@ public class StudySubjectDAO extends AuditableEntityDAO<StudySubjectBean> {
      */
     @Override
     @Deprecated
-    public EntityBean create(EntityBean eb) {
-        StudySubjectBean sb = (StudySubjectBean) eb;
+    public StudySubjectBean create(StudySubjectBean sb) {
         HashMap variables = new HashMap();
         HashMap nullVars = new HashMap();
 
@@ -465,8 +465,9 @@ public class StudySubjectDAO extends AuditableEntityDAO<StudySubjectBean> {
      *            for use with genetic studies); <code>false</false> otherwise.
      * @return The study subject with id set to the insert id if the operation
      *         was successful, or 0 otherwise.
+     * @throws OpenClinicaException 
      */
-    public StudySubjectBean create(StudySubjectBean sb, boolean withGroup) {
+    public StudySubjectBean create(StudySubjectBean sb, boolean withGroup) throws OpenClinicaException {
         HashMap variables = new HashMap();
         HashMap nullVars = new HashMap();
 
@@ -526,11 +527,11 @@ public class StudySubjectDAO extends AuditableEntityDAO<StudySubjectBean> {
         return sb;
     }
 
-    public StudySubjectBean createWithGroup(StudySubjectBean sb) {
+    public StudySubjectBean createWithGroup(StudySubjectBean sb) throws OpenClinicaException {
         return create(sb, true);
     }
 
-    public StudySubjectBean createWithoutGroup(StudySubjectBean sb) {
+    public StudySubjectBean createWithoutGroup(StudySubjectBean sb) throws OpenClinicaException {
         return create(sb, false);
     }
 
@@ -856,14 +857,13 @@ public class StudySubjectDAO extends AuditableEntityDAO<StudySubjectBean> {
      * Updates a StudySubject
      */
     @Override
-    public EntityBean update(EntityBean eb) {
+    public StudySubjectBean update(StudySubjectBean eb) {
    	 Connection con = null;
    	 return update( eb, con);
    }
 
     /* this function allows to run transactional updates for an action*/
-    public EntityBean update(EntityBean eb, Connection con) {
-        StudySubjectBean sb = (StudySubjectBean) eb;
+    public StudySubjectBean update(StudySubjectBean sb, Connection con) {
         HashMap variables = new HashMap();
         HashMap nullVars = new HashMap();
 

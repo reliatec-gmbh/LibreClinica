@@ -332,8 +332,7 @@ public class EventDefinitionCRFDAO extends AuditableEntityDAO<EventDefinitionCRF
      * Creates a new studysubject
      */
     @Override
-    public EntityBean create(EntityBean eb) {
-        EventDefinitionCRFBean sb = (EventDefinitionCRFBean) eb;
+    public EventDefinitionCRFBean create(EventDefinitionCRFBean sb) {
         HashMap nullVars = new HashMap();
         HashMap variables = new HashMap();
         int id = getNextPK();
@@ -396,8 +395,7 @@ public class EventDefinitionCRFDAO extends AuditableEntityDAO<EventDefinitionCRF
      * Updates a Study event
      */
     @Override
-    public EntityBean update(EntityBean eb) {
-        EventDefinitionCRFBean sb = (EventDefinitionCRFBean) eb;
+    public EventDefinitionCRFBean update(EventDefinitionCRFBean sb) {
         HashMap nullVars = new HashMap();
         HashMap variables = new HashMap();
         // UPDATE EVENT_DEFINITION_CRF SET

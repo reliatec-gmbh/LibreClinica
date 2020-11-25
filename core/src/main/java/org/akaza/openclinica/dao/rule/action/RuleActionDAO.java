@@ -90,9 +90,8 @@ public class RuleActionDAO extends AuditableEntityDAO<RuleActionBean> {
 
     }
 
-    public EntityBean update(EntityBean eb) {
-        RuleBean ruleBean = (RuleBean) eb;
-
+    @Override
+    public RuleActionBean update(RuleActionBean ruleBean) {
         ruleBean.setActive(false);
 
         HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
@@ -108,7 +107,8 @@ public class RuleActionDAO extends AuditableEntityDAO<RuleActionBean> {
         return ruleBean;
     }
 
-    public EntityBean create(EntityBean eb) {
+    @Override
+    public RuleActionBean create(RuleActionBean eb) {
         HashMap<Integer, Object> variables = new HashMap<>();
         HashMap<Integer, Integer> nullVars = new HashMap<>();
 

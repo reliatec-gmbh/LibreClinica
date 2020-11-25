@@ -81,8 +81,8 @@ public class SectionDAO extends AuditableEntityDAO<SectionBean> {
 
     }
 
-    public EntityBean update(EntityBean eb) {
-        SectionBean sb = (SectionBean) eb;
+    @Override
+    public SectionBean update(SectionBean sb) {
         HashMap variables = new HashMap();
         variables.put(new Integer(1), new Integer(sb.getCRFVersionId()));
         variables.put(new Integer(2), new Integer(sb.getStatus().getId()));
@@ -96,11 +96,11 @@ public class SectionDAO extends AuditableEntityDAO<SectionBean> {
         variables.put(new Integer(10), new Integer(sb.getBorders()));
         variables.put(new Integer(11), new Integer(sb.getId()));
         this.executeUpdate(digester.getQuery("update"), variables);
-        return eb;
+        return sb;
     }
 
-    public EntityBean create(EntityBean eb) {
-        SectionBean sb = (SectionBean) eb;
+    @Override
+    public SectionBean create(SectionBean sb) {
         HashMap variables = new HashMap();
 
         variables.put(new Integer(1), new Integer(sb.getCRFVersionId()));
@@ -115,7 +115,7 @@ public class SectionDAO extends AuditableEntityDAO<SectionBean> {
         variables.put(new Integer(10), new Integer(sb.getOwnerId()));
         variables.put(new Integer(11), new Integer(sb.getBorders()));
         this.executeUpdate(digester.getQuery("create"), variables);
-        return eb;
+        return sb;
     }
 
     public SectionBean getEntityFromHashMap(HashMap hm) {

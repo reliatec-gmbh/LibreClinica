@@ -130,8 +130,7 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
     }
 
     @Override
-    public EntityBean update(EntityBean eb) {
-        UserAccountBean uab = (UserAccountBean) eb;
+    public UserAccountBean update(UserAccountBean uab) {
         HashMap variables = new HashMap();
         HashMap nullVars = new HashMap();
 
@@ -214,7 +213,7 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
         }
 
         if (!this.isQuerySuccessful()) {
-            eb.setId(0);
+            uab.setId(0);
             logger.warn("query failed: " + sql);
         } else {
             // for bug testing, tbh
@@ -222,7 +221,7 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
             // "+variables.toString());
         }
 
-        return eb;
+        return uab;
     }
 
     /**
@@ -279,8 +278,7 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
     }
 
     @Override
-    public EntityBean create(EntityBean eb) {
-        UserAccountBean uab = (UserAccountBean) eb;
+    public UserAccountBean create(UserAccountBean uab) {
         HashMap variables = new HashMap();
         int id = getNextPK();
         variables.put(new Integer(1), new Integer(id));

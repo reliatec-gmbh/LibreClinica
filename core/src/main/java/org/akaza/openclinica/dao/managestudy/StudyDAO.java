@@ -187,8 +187,8 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
      * 
      * @return sb an updated study bean.
      */
-    public EntityBean update(EntityBean eb) {
-        StudyBean sb = (StudyBean) eb;
+    @Override
+    public StudyBean update(StudyBean sb) {
         sb = this.updateStepOne(sb);
         sb = this.createStepTwo(sb);
         sb = this.createStepThree(sb);
@@ -273,8 +273,8 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
      * 
      * @return eb the created entity bean.
      */
-    public EntityBean create(EntityBean eb) {
-        StudyBean sb = (StudyBean) eb;
+    @Override
+    public StudyBean create(StudyBean sb) {
         sb = this.createStepOne(sb);
         // in the above step, we will have created a primary key,
         // and in the next steps, we update the study bean

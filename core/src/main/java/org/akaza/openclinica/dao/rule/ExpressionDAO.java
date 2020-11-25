@@ -72,9 +72,7 @@ public class ExpressionDAO extends AuditableEntityDAO<ExpressionBean> {
         this.setTypeExpected(9, TypeNames.INT);// version
     }
 
-    public EntityBean update(EntityBean eb) {
-        ExpressionBean expressionBean = (ExpressionBean) eb;
-
+    public ExpressionBean update(ExpressionBean expressionBean) {
         expressionBean.setActive(false);
 
         HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
@@ -93,8 +91,7 @@ public class ExpressionDAO extends AuditableEntityDAO<ExpressionBean> {
         return expressionBean;
     }
 
-    public EntityBean create(EntityBean eb) {
-        ExpressionBean expressionBean = (ExpressionBean) eb;
+    public ExpressionBean create(ExpressionBean expressionBean) {
         HashMap<Integer, Object> variables = new HashMap<>();
         HashMap<Integer, Integer> nullVars = new HashMap<>();
         variables.put(new Integer(1), expressionBean.getContext().getCode());

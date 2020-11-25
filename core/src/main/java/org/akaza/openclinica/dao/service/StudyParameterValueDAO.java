@@ -53,8 +53,7 @@ public class StudyParameterValueDAO extends AuditableEntityDAO<StudyParameterVal
         return al;
     }
 
-    public EntityBean create(EntityBean eb) {
-        StudyParameterValueBean spvb = (StudyParameterValueBean) eb;
+    public StudyParameterValueBean create(StudyParameterValueBean spvb) {
         HashMap variables = new HashMap();
 
         variables.put(new Integer(1), new Integer(spvb.getStudyId()));
@@ -66,8 +65,7 @@ public class StudyParameterValueDAO extends AuditableEntityDAO<StudyParameterVal
 
     }
 
-    public EntityBean update(EntityBean eb) {
-        StudyParameterValueBean spvb = (StudyParameterValueBean) eb;
+    public StudyParameterValueBean update(StudyParameterValueBean spvb) {
         HashMap variables = new HashMap();
 
         variables.put(new Integer(1), spvb.getValue());

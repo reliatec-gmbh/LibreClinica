@@ -40,11 +40,11 @@ public class QueryDAO extends AuditableEntityDAO<QueryBean> {
 
     }
 
-    public EntityBean update(EntityBean eb) {
+    public QueryBean update(QueryBean eb) {
         return eb;
     }
 
-    public EntityBean create(EntityBean eb) {
+    public QueryBean create(QueryBean eb) {
         return eb;
     }
 

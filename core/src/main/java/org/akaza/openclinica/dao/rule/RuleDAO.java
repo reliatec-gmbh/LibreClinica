@@ -97,9 +97,7 @@ public class RuleDAO extends AuditableEntityDAO<RuleBean> {
         this.setTypeExpected(13, TypeNames.INT);// study_id
     }
 
-    public EntityBean update(EntityBean eb) {
-        RuleBean ruleBean = (RuleBean) eb;
-
+    public RuleBean update(RuleBean ruleBean) {
         ruleBean.setActive(false);
 
         HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
@@ -119,8 +117,8 @@ public class RuleDAO extends AuditableEntityDAO<RuleBean> {
         return ruleBean;
     }
 
-    public EntityBean create(EntityBean eb) {
-        RuleBean ruleBean = (RuleBean) eb;
+    @Override
+    public RuleBean create(RuleBean ruleBean) {
         HashMap<Integer, Object> variables = new HashMap<>();
         HashMap<Integer, Integer> nullVars = new HashMap<>();
 

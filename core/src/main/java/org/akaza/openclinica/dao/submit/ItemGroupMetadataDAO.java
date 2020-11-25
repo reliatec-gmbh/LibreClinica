@@ -133,13 +133,13 @@ public class ItemGroupMetadataDAO extends EntityDAO<ItemGroupMetadataBean> {
         return eb;
     }
 
-    public EntityBean create(EntityBean eb) throws OpenClinicaException {
+    @Override
+    public ItemGroupMetadataBean create(ItemGroupMetadataBean igMetaBean) throws OpenClinicaException {
         // INSERT INTO item_group_metadata (item_group_id,
         // header, subheader,layout,repeat_number,repeat_max,
         // repeat_array, row_start_number,crf_version_id,
         // item_id, ordinal,borders, show_group)
         // VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
-        ItemGroupMetadataBean igMetaBean = (ItemGroupMetadataBean) eb;
         HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
         int id = getNextPK();
         variables.put(1, id);
@@ -159,9 +159,9 @@ public class ItemGroupMetadataDAO extends EntityDAO<ItemGroupMetadataBean> {
 
         this.executeUpdate(digester.getQuery("create"), variables);
         if (isQuerySuccessful()) {
-            eb.setId(id);
+        	igMetaBean.setId(id);
         }
-        return eb;
+        return igMetaBean;
 
     }
 
@@ -215,10 +215,10 @@ public class ItemGroupMetadataDAO extends EntityDAO<ItemGroupMetadataBean> {
         }
         return beanList;
     }
-    public EntityBean update(EntityBean eb) throws OpenClinicaException {
-        return new ItemGroupMetadataBean(); // To change body of implemented
-        // methods use File | Settings |
-        // File Templates.
+    
+    @Override
+    public ItemGroupMetadataBean update(ItemGroupMetadataBean eb) throws OpenClinicaException {
+    	return new ItemGroupMetadataBean();
     }
 
     public Collection findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase)

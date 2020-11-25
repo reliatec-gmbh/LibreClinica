@@ -95,7 +95,8 @@ public class RuleSetRuleDAO extends AuditableEntityDAO<RuleSetRuleBean> {
      * @param eb
      * @return
      */
-    public EntityBean update(EntityBean eb) throws OpenClinicaException {
+    @Override
+    public RuleSetRuleBean update(RuleSetRuleBean eb) throws OpenClinicaException {
         // TODO Auto-generated method stub
         return null;
     }
@@ -174,12 +175,12 @@ public class RuleSetRuleDAO extends AuditableEntityDAO<RuleSetRuleBean> {
     /*
      * I am going to attempt to use this create method as we use the saveOrUpdate method in Hibernate.
      */
-    public EntityBean create(EntityBean eb) {
-        RuleSetRuleBean ruleSetRuleBean = (RuleSetRuleBean) eb;
+    @Override
+    public RuleSetRuleBean create(RuleSetRuleBean ruleSetRuleBean) {
         RuleBean ruleBean = new RuleBean();
         ruleBean.setOid(ruleSetRuleBean.getOid());
 
-        if (eb.getId() == 0) {
+        if (ruleSetRuleBean.getId() == 0) {
             HashMap<Integer, Object> variables = new HashMap<>();
             HashMap<Integer, Integer> nullVars = new HashMap<>();
             variables.put(new Integer(1), ruleSetRuleBean.getRuleSetBean().getId());

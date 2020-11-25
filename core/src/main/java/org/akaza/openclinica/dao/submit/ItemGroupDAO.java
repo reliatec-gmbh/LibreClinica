@@ -80,8 +80,8 @@ public class ItemGroupDAO extends AuditableEntityDAO<ItemGroupBean> {
 
     }
 
-    public EntityBean update(EntityBean eb) {
-        ItemGroupBean formGroupBean = (ItemGroupBean) eb;
+    @Override
+    public ItemGroupBean update(ItemGroupBean formGroupBean) {
         HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
         /*
          * item_group_id serial NOT NULL, name varchar(255), crf_id numeric NOT
@@ -94,7 +94,7 @@ public class ItemGroupDAO extends AuditableEntityDAO<ItemGroupBean> {
         variables.put(4, formGroupBean.getUpdater().getId());
         variables.put(5, formGroupBean.getId());
         this.executeUpdate(digester.getQuery("update"), variables);
-        return eb;
+        return formGroupBean;
     }
 
     public Collection findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase)
@@ -133,8 +133,8 @@ public class ItemGroupDAO extends AuditableEntityDAO<ItemGroupBean> {
      * date_created date, date_updated date, owner_id numeric, update_id
      * numeric,
      */
-    public EntityBean create(EntityBean eb) {
-        ItemGroupBean formGroupBean = (ItemGroupBean) eb;
+    @Override
+    public ItemGroupBean create(ItemGroupBean formGroupBean) {
         HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
         int id = getNextPK();
         variables.put(1, id);
@@ -145,10 +145,10 @@ public class ItemGroupDAO extends AuditableEntityDAO<ItemGroupBean> {
 
         this.executeUpdate(digester.getQuery("create"), variables);
         if (isQuerySuccessful()) {
-            eb.setId(id);
-            eb.setActive(true);
+        	formGroupBean.setId(id);
+        	formGroupBean.setActive(true);
         }
-        return eb;
+        return formGroupBean;
     }
 
     public Collection findAll() {

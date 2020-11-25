@@ -36,6 +36,7 @@ import org.akaza.openclinica.dao.service.StudyParameterValueDAO;
 import org.akaza.openclinica.domain.technicaladmin.AuditUserLoginBean;
 import org.akaza.openclinica.domain.technicaladmin.LoginStatus;
 import org.akaza.openclinica.domain.user.AuthoritiesBean;
+import org.akaza.openclinica.exception.OpenClinicaException;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
 import org.akaza.openclinica.service.pmanage.ParticipantPortalRegistrar;
 import org.apache.commons.dbcp2.BasicDataSource;
@@ -622,12 +623,12 @@ public class AccountController {
         return createdUserAccountBean;
     }
 
-    private void createUserAccount(UserAccountBean userAccountBean) {
+    private void createUserAccount(UserAccountBean userAccountBean) throws OpenClinicaException {
         UserAccountDAO udao = new UserAccountDAO(dataSource);
         udao.create(userAccountBean);
     }
 
-    private void updateUserAccount(UserAccountBean userAccountBean) {
+    private void updateUserAccount(UserAccountBean userAccountBean) throws OpenClinicaException {
         UserAccountDAO udao = new UserAccountDAO(dataSource);
         udao.update(userAccountBean);
     }
@@ -685,7 +686,7 @@ public class AccountController {
         return studySubjectBean;
     }
 
-    private void updateStudySubjectBean(StudySubjectBean sBean) {
+    private void updateStudySubjectBean(StudySubjectBean sBean) throws OpenClinicaException {
         StudySubjectDAO ssdao = new StudySubjectDAO(dataSource);
         ssdao.update(sBean);
     }

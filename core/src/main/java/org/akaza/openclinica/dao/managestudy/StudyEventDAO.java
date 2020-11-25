@@ -450,14 +450,14 @@ public class StudyEventDAO extends AuditableEntityDAO<StudyEventBean> implements
     /**
      * Creates a new studysubject
      */
-    public EntityBean create(EntityBean eb) {
+    @Override
+    public StudyEventBean create(StudyEventBean eb) {
         return create(eb,false);
     }
     /**
      * Creates a new studysubject
      */
-    public EntityBean create(EntityBean eb, boolean isTransaction) {
-        StudyEventBean sb = (StudyEventBean) eb;
+    public StudyEventBean create(StudyEventBean sb, boolean isTransaction) {
         HashMap variables = new HashMap();
         HashMap nullVars = new HashMap();
         // INSERT INTO STUDY_EVENT
@@ -507,25 +507,25 @@ public class StudyEventDAO extends AuditableEntityDAO<StudyEventBean> implements
     /**
      * Updates a Study event
      */
-    public EntityBean update(EntityBean eb) {
+    @Override
+    public StudyEventBean update(StudyEventBean eb) {
         return update(eb,false);
     }
     
     /**
      * Updates a Study event
      */
-    public EntityBean update(EntityBean eb, boolean isTransaction) {
+    public StudyEventBean update(StudyEventBean eb, boolean isTransaction) {
     	 Connection con = null;
     	 return update( eb, con, isTransaction);
     }
     
-    public EntityBean update(EntityBean eb, Connection con) {
+    public StudyEventBean update(StudyEventBean eb, Connection con) {
         return update(eb,con,false);
     }
     /* this function allows to run transactional updates for an action*/
     
-    public EntityBean update(EntityBean eb, Connection con, boolean isTransaction) {
-        StudyEventBean sb = (StudyEventBean) eb;
+    public StudyEventBean update(StudyEventBean sb, Connection con, boolean isTransaction) {
         StudyEventBean oldStudyEventBean = (StudyEventBean)findByPK(sb.getId());
         HashMap nullVars = new HashMap();
         HashMap variables = new HashMap();

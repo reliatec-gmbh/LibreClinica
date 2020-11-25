@@ -125,11 +125,10 @@ public class StudyEventDefinitionDAO extends AuditableEntityDAO<StudyEventDefini
 
     }
 
-    public EntityBean create(EntityBean eb) {
+    public StudyEventDefinitionBean create(StudyEventDefinitionBean sedb) {
         // study_event_definition_id ,
         // STUDY_ID, NAME,DESCRIPTION, REPEATING, TYPE, CATEGORY, OWNER_ID,
         // STATUS_ID, DATE_CREATED,ordinal,oid
-        StudyEventDefinitionBean sedb = (StudyEventDefinitionBean) eb;
         sedb.setId(this.findNextKey());
         logger.debug("***id:" + sedb.getId());
         HashMap variables = new HashMap();
@@ -149,8 +148,7 @@ public class StudyEventDefinitionDAO extends AuditableEntityDAO<StudyEventDefini
         return sedb;
     }
 
-    public EntityBean update(EntityBean eb) {
-        StudyEventDefinitionBean sedb = (StudyEventDefinitionBean) eb;
+    public StudyEventDefinitionBean update(StudyEventDefinitionBean sedb) {
         HashMap variables = new HashMap();
         variables.put(new Integer(1), new Integer(sedb.getStudyId()));
         variables.put(new Integer(2), sedb.getName());
@@ -163,7 +161,7 @@ public class StudyEventDefinitionDAO extends AuditableEntityDAO<StudyEventDefini
         variables.put(new Integer(9), new Integer(sedb.getOrdinal()));
         variables.put(new Integer(10), new Integer(sedb.getId()));
         this.executeUpdate(digester.getQuery("update"), variables);
-        return eb;
+        return sedb;
     }
 
     public StudyEventDefinitionBean getEntityFromHashMap(HashMap hm) {
