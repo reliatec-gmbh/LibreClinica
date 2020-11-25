@@ -29,7 +29,7 @@ import javax.sql.DataSource;
  * The data access object that users will access the database for study group
  * class objects
  */
-public class StudyGroupClassDAO extends AuditableEntityDAO {
+public class StudyGroupClassDAO extends AuditableEntityDAO<StudyGroupClassBean> {
     protected void setQueryNames() {
         findAllByStudyName = "findAllByStudy";
         findByPKAndStudyName = "findByPKAndStudy";
@@ -84,7 +84,7 @@ public class StudyGroupClassDAO extends AuditableEntityDAO {
      * getEntityFromHashMap, the method that gets the object from the database
      * query.
      */
-    public Object getEntityFromHashMap(HashMap hm) {
+    public StudyGroupClassBean getEntityFromHashMap(HashMap hm) {
         StudyGroupClassBean eb = new StudyGroupClassBean();
         super.setEntityAuditInformation(eb, hm);
         // STUDY_GROUP_ID NAME STUDY_ID OWNER_ID DATE_CREATED
@@ -289,5 +289,10 @@ public class StudyGroupClassDAO extends AuditableEntityDAO {
 
         return al;
     }
+
+	@Override
+	public StudyGroupClassBean emptyBean() {
+		return new StudyGroupClassBean();
+	}
 
 }

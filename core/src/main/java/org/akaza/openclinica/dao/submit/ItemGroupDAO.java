@@ -32,7 +32,7 @@ import javax.sql.DataSource;
 /**
  * Created by IntelliJ IDEA. User: bruceperry Date: May 8, 2007
  */
-public class ItemGroupDAO extends AuditableEntityDAO {
+public class ItemGroupDAO extends AuditableEntityDAO<ItemGroupBean> {
 
     public ItemGroupDAO(DataSource ds) {
         super(ds);
@@ -396,7 +396,7 @@ public class ItemGroupDAO extends AuditableEntityDAO {
         }
         return beanList;
     }
-    public Object getEntityFromHashMap(HashMap hm) {
+    public ItemGroupBean getEntityFromHashMap(HashMap hm) {
         ItemGroupBean formGroupBean = new ItemGroupBean();
         super.setEntityAuditInformation(formGroupBean, hm);
         formGroupBean.setId((Integer) hm.get("item_group_id"));
@@ -418,39 +418,26 @@ public class ItemGroupDAO extends AuditableEntityDAO {
     }
     
     public Boolean isItemGroupRepeatingBasedOnAllCrfVersions(String groupOid) {
+        HashMap<Integer, Object> variables = variables(groupOid);
+        String query = digester.getQuery("isItemGroupRepeatingBasedOnAllCrfVersions");
+        Integer count = getCountByQuery(query, variables);
+        
     	Boolean result = false;
-        setTypesExpected();
-        HashMap<Integer, Object> variables = new HashMap<>();
-        variables.put(1, groupOid);
-
-        String sql = digester.getQuery("isItemGroupRepeatingBasedOnAllCrfVersions");
-
-        ArrayList rows = this.select(sql,variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            Integer count = (Integer) ((HashMap) it.next()).get("count");
+    	if(count != null) {
             result = count > 0 ? true : false;
-        } 
+    	} 
         return result;
     }
     
     public Boolean isItemGroupRepeatingBasedOnCrfVersion(String groupOid,Integer crfVersion) {
+        HashMap<Integer, Object> variables = variables(groupOid, crfVersion);
+        String query = digester.getQuery("isItemGroupRepeatingBasedOnCrfVersion");
+        Integer count = getCountByQuery(query, variables);
+        
     	Boolean result = false;
-        setTypesExpected();
-        HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
-        variables.put(1, groupOid);
-        variables.put(2, crfVersion);
-
-        String sql = digester.getQuery("isItemGroupRepeatingBasedOnCrfVersion");
-
-        ArrayList rows = this.select(sql,variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            Integer count = (Integer) ((HashMap) it.next()).get("count");
+    	if(count != null) {
             result = count > 0 ? true : false;
-        } 
+    	} 
         return result;
     }
     
@@ -470,48 +457,14 @@ public class ItemGroupDAO extends AuditableEntityDAO {
         }
         return formGroupBean;
     }
+    
     @Override
     public ArrayList<HashMap<String, Object>> select(String query, HashMap<Integer, Object> variables) {
-        clearSignals();
-
-        ArrayList<HashMap<String, Object>> results = new ArrayList<>();
-        String key;
-        ResultSet rs = null;
-        Connection con = null;
-        PreparedStatementFactory psf = new PreparedStatementFactory(variables);
-        PreparedStatement ps = null;
-        
-        try {
-            con = ds.getConnection();
-            if (con.isClosed()) {
-                if (logger.isWarnEnabled())
-                    logger.warn("Connection is closed: GenericDAO.select!");
-                throw new SQLException();
-            }
-            ps = con.prepareStatement(query);
-                  
-            ps = psf.generate(ps);// enter variables here!
-            key = ps.toString();
-            if((results= cache.get(key))==null)
-            {
-            	rs = ps.executeQuery();
-            	results = this.processResultRows(rs);
-	            if(results!=null){
-	                cache.put(key,results);
-	            }
-            }
-            
-            logger.debug("Executing dynamic query, EntityDAO.select:query " + query);
-            signalSuccess();
-        } catch (SQLException sqle) {
-            signalFailure(sqle);
-            if (logger.isWarnEnabled()) {
-                logger.warn("Exception while executing dynamic query, GenericDAO.select: " + query + ":message: " + sqle.getMessage());
-                sqle.printStackTrace();
-            }
-        } finally {
-            this.closeIfNecessary(con, rs, ps);
-        }
-        return results;
+        return select(query, variables, true);
     }
+
+	@Override
+	public ItemGroupBean emptyBean() {
+		return new ItemGroupBean();
+	}
 }

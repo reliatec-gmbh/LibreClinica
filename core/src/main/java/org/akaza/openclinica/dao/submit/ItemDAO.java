@@ -7,10 +7,6 @@
  */
 package org.akaza.openclinica.dao.submit;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -27,20 +23,19 @@ import org.akaza.openclinica.bean.core.EntityBean;
 import org.akaza.openclinica.bean.core.ItemDataType;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.submit.ItemBean;
+import org.akaza.openclinica.bean.submit.ItemDataBean;
 import org.akaza.openclinica.bean.submit.ItemFormMetadataBean;
+import org.akaza.openclinica.core.util.ItemGroupCrvVersionUtil;
 import org.akaza.openclinica.dao.core.AuditableEntityDAO;
 import org.akaza.openclinica.dao.core.DAODigester;
-import org.akaza.openclinica.dao.core.PreparedStatementFactory;
 import org.akaza.openclinica.dao.core.SQLFactory;
 import org.akaza.openclinica.dao.core.TypeNames;
-import org.akaza.openclinica.bean.submit.ItemDataBean;
-import org.akaza.openclinica.core.util.ItemGroupCrvVersionUtil;
 /**
  * @author thickerson
  * 
  * 
  */
-public class ItemDAO extends AuditableEntityDAO {
+public class ItemDAO extends AuditableEntityDAO<ItemBean> {
     // private DAODigester digester;
 
     public ItemDAO(DataSource ds) {
@@ -81,6 +76,9 @@ public class ItemDAO extends AuditableEntityDAO {
         this.setTypeExpected(11, TypeNames.DATE);// updated
         this.setTypeExpected(12, TypeNames.INT);// update id
         this.setTypeExpected(13, TypeNames.STRING);// oc_oid
+        // types from item_form_metadata or crf_version
+        this.setTypeExpected(14, TypeNames.INT);// crf_version_id, ordinal
+        this.setTypeExpected(15, TypeNames.STRING);// name
     }
 
     public EntityBean update(EntityBean eb) {
@@ -129,19 +127,8 @@ public class ItemDAO extends AuditableEntityDAO {
     }
 
     public Integer getCountofActiveItems() {
-        setTypesExpected();
-
-        String sql = digester.getQuery("getCountofItems");
-
-        ArrayList rows = this.select(sql);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            Integer count = (Integer) ((HashMap) it.next()).get("count");
-            return count;
-        } else {
-            return null;
-        }
+        String query = digester.getQuery("getCountofItems");
+        return getCountByQuery(query, new HashMap<Integer, Object>());
     }
 
     public String getValidOid(ItemBean itemBean, String crfName, String itemLabel, ArrayList<String> oidList) {
@@ -156,7 +143,7 @@ public class ItemDAO extends AuditableEntityDAO {
 
     }
 
-    public Object getEntityFromHashMap(HashMap hm) {
+    public ItemBean getEntityFromHashMap(HashMap hm) {
         ItemBean eb = new ItemBean();
         // below inserted to find out a class cast exception, tbh
         Date dateCreated = (Date) hm.get("date_created");
@@ -479,22 +466,9 @@ public class ItemDAO extends AuditableEntityDAO {
     }
 
     public int findAllRequiredByCRFVersionId(int crfVersionId) {
-        this.unsetTypeExpected();
-        this.setTypeExpected(1, TypeNames.INT);
-        int answer = 0;
-
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(crfVersionId));
-        String sql = digester.getQuery("findAllRequiredByCRFVersionId");
-
-        ArrayList rows = select(sql, variables, true);
-
-        if (rows.size() > 0) {
-            HashMap row = (HashMap) rows.get(0);
-            answer = ((Integer) row.get("number")).intValue();
-        }
-
-        return answer;
+        HashMap<Integer, Object> variables = variables(crfVersionId);
+        String query = digester.getQuery("findAllRequiredByCRFVersionId");
+        return getCountByQueryOrDefault(query, variables, 0);
     }
 
     public ArrayList findAllRequiredBySectionId(int sectionId) {
@@ -689,4 +663,9 @@ crf_version.name as version_name, crf_version.status_id as v_status
         }
         return item_group_crfversion_info;
     }
+
+	@Override
+	public ItemBean emptyBean() {
+		return new ItemBean();
+	}
 }

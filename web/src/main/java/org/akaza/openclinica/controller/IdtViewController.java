@@ -21,7 +21,7 @@ import org.akaza.openclinica.domain.datamap.ItemDataFlag;
 import org.akaza.openclinica.domain.datamap.ItemDataFlagWorkflow;
 import org.akaza.openclinica.domain.user.UserAccount;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

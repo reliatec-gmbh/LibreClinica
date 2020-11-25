@@ -4192,7 +4192,7 @@ public abstract class DataEntryServlet extends CoreSecureController {
         ArrayList<ItemFormMetadataBean> shownRequiredAllItemsInCrfVersion = itemFormMetadataDao.findAllItemsRequiredAndShownByCrfVersionId(ecb.getCRFVersionId());
         ArrayList<ItemFormMetadataBean> hiddenRequiredAllItemsInCrfVersion = itemFormMetadataDao.findAllItemsRequiredAndHiddenByCrfVersionId(ecb
                 .getCRFVersionId());
-        ItemGroupMetadataDAO<String, ArrayList> igdao = new ItemGroupMetadataDAO<String, ArrayList>(dataSource);
+        ItemGroupMetadataDAO igdao = new ItemGroupMetadataDAO(dataSource);
         
         ArrayList<ItemDataBean> itemdatas = null;
         for (ItemFormMetadataBean shownItemMeta : shownRequiredAllItemsInCrfVersion) {

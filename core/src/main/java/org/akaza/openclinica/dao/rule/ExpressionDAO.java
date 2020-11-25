@@ -33,7 +33,7 @@ import javax.sql.DataSource;
  * @author Krikor Krumlian
  * 
  */
-public class ExpressionDAO extends AuditableEntityDAO {
+public class ExpressionDAO extends AuditableEntityDAO<ExpressionBean> {
 
     private void setQueryNames() {
         this.findByPKAndStudyName = "findByPKAndStudy";
@@ -69,6 +69,7 @@ public class ExpressionDAO extends AuditableEntityDAO {
         this.setTypeExpected(6, TypeNames.DATE);// date_updated
         this.setTypeExpected(7, TypeNames.INT);// updater_id
         this.setTypeExpected(8, TypeNames.INT);// status_id
+        this.setTypeExpected(9, TypeNames.INT);// version
     }
 
     public EntityBean update(EntityBean eb) {
@@ -110,7 +111,7 @@ public class ExpressionDAO extends AuditableEntityDAO {
         return expressionBean;
     }
 
-    public Object getEntityFromHashMap(HashMap hm) {
+    public ExpressionBean getEntityFromHashMap(HashMap hm) {
         ExpressionBean expressionBean = new ExpressionBean();
         this.setEntityAuditInformation(expressionBean, hm);
 
@@ -173,5 +174,10 @@ public class ExpressionDAO extends AuditableEntityDAO {
 
         return al;
     }
+
+	@Override
+	public ExpressionBean emptyBean() {
+		return new ExpressionBean();
+	}
 
 }

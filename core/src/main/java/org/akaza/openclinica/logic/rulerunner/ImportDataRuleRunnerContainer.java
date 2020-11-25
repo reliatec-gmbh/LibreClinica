@@ -72,7 +72,7 @@ public class ImportDataRuleRunnerContainer {
         studyOid = studyBean.getOid();
         studySubjectOid = subjectDataBean.getSubjectOID();
         StudySubjectBean studySubject =
-                new StudySubjectDAO<String, ArrayList>(ds).findByOid(studySubjectOid);
+                new StudySubjectDAO(ds).findByOid(studySubjectOid);
 
         HashMap<String, StudyEventDefinitionBean> seds = new HashMap<String, StudyEventDefinitionBean>();
         HashMap<String, CRFVersionBean> cvs = new HashMap<String, CRFVersionBean>();
@@ -83,7 +83,7 @@ public class ImportDataRuleRunnerContainer {
             if(seds.containsKey(sedOid))
                 sed = seds.get(sedOid);
             else {
-                sed = new StudyEventDefinitionDAO<String, ArrayList>(ds).findByOid(sedOid);
+                sed = new StudyEventDefinitionDAO(ds).findByOid(sedOid);
                 seds.put(sedOid, sed);
             }
             ArrayList<FormDataBean> formDataBeans = studyEventDataBean.getFormData();
@@ -93,7 +93,7 @@ public class ImportDataRuleRunnerContainer {
                 if(cvs.containsKey(cvOid))
                     crfVersion = cvs.get(cvOid);
                 else {
-                    crfVersion = new CRFVersionDAO<String, ArrayList>(ds).findByOid(cvOid);
+                    crfVersion = new CRFVersionDAO(ds).findByOid(cvOid);
                     cvs.put(cvOid, crfVersion);
                 }
                 String sedOrd = studyEventDataBean.getStudyEventRepeatKey();
@@ -180,7 +180,7 @@ public class ImportDataRuleRunnerContainer {
             if(itemGroupOid.endsWith("_UNGROUPED") || itemGroupOid.contains("_UNGROUPED_")) isRepeatForSure = false;
             else {
                 ItemGroupMetadataBean itemGroupMetadataBean =
-                    (ItemGroupMetadataBean)new ItemGroupMetadataDAO<String, ArrayList>(ds).findByItemAndCrfVersion(itemId, crfVersionId);
+                    (ItemGroupMetadataBean)new ItemGroupMetadataDAO(ds).findByItemAndCrfVersion(itemId, crfVersionId);
                 isRepeatForSure = itemGroupMetadataBean.isRepeatingGroup();
             }
         }

@@ -28,7 +28,7 @@ import javax.sql.DataSource;
  * @author thickerson
  *
  */
-public class FilterDAO extends AuditableEntityDAO {
+public class FilterDAO extends AuditableEntityDAO<FilterBean> {
     private DAODigester digester;
 
     @Override
@@ -109,7 +109,7 @@ public class FilterDAO extends AuditableEntityDAO {
         return fb;
     }
 
-    public Object getEntityFromHashMap(HashMap hm) {
+    public FilterBean getEntityFromHashMap(HashMap hm) {
         FilterBean fb = new FilterBean();
         this.setEntityAuditInformation(fb, hm);
         fb.setDescription((String) hm.get("description"));
@@ -258,4 +258,9 @@ public class FilterDAO extends AuditableEntityDAO {
         }
         return sb;
     }
+
+	@Override
+	public FilterBean emptyBean() {
+		return new FilterBean();
+	}
 }

@@ -28,8 +28,11 @@ import org.akaza.openclinica.bean.core.EntityBean;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.core.Utils;
 import org.akaza.openclinica.bean.extract.ExtractBean;
+import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.bean.managestudy.StudySubjectBean;
+import org.akaza.openclinica.core.SessionManager;
 import org.akaza.openclinica.dao.cache.EhCacheWrapper;
+import org.akaza.openclinica.dao.login.UserAccountDAO;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +62,7 @@ import org.springframework.cache.ehcache.EhCacheManagerFactoryBean;
  * @param <V>
  * @param <K>
  */
-public abstract class EntityDAO implements DAOInterface {
+public abstract class EntityDAO<B> implements DAOInterface<B> {
     protected DataSource ds;
 
     protected String digesterName;
@@ -213,11 +216,16 @@ public abstract class EntityDAO implements DAOInterface {
         ArrayList<HashMap<String, Object>> results = null;
         ResultSet rs = null;
         PreparedStatement ps = null;
-        PreparedStatementFactory psf = new PreparedStatementFactory(variables);
+        PreparedStatementFactory psf = null;
+        if(variables != null && !variables.isEmpty()) {
+        	psf = new PreparedStatementFactory(variables);
+        }
 
         try {
             ps = connection.prepareStatement(query);
-            ps = psf.generate(ps);// enter variables here!
+            if(psf != null) {
+            	ps = psf.generate(ps);// enter variables here!
+            }
 			String key = null;
 
             if(useCache) {
@@ -391,7 +399,7 @@ public abstract class EntityDAO implements DAOInterface {
                 throw new SQLException();
             }
             logger.debug("Executing query, EntityDAO: %s", query);
-            getCurrentPK(connection);
+            this.latestPK = getCurrentPK(connection);
         } catch (SQLException sqle) {
             signalFailure(sqle);
             if (logger.isWarnEnabled()) {
@@ -490,10 +498,16 @@ public abstract class EntityDAO implements DAOInterface {
         	break;
         case TypeNames.DOUBLE:
         	cellValue = Double.valueOf(0d);
+        	break;
         case TypeNames.FLOAT:
         	cellValue = Float.valueOf(0f);
+        	break;
         case TypeNames.INT:
         	cellValue = Integer.valueOf(0);
+        	break;
+        case TypeNames.LONG:
+        	cellValue = Long.valueOf(0);
+        	break;
 		case TypeNames.BOOL:
 			if (columnName.equalsIgnoreCase("start_time_flag")
 					|| columnName.equalsIgnoreCase("end_time_flag")) {
@@ -501,10 +515,13 @@ public abstract class EntityDAO implements DAOInterface {
 			} else {
 				cellValue = new Boolean(true);
 			}
+        	break;
 		case TypeNames.STRING:
 			cellValue = "";
+        	break;
 		case TypeNames.CHAR:
 			cellValue = new Character('x');
+        	break;
 		}
 		return cellValue;
 	}
@@ -519,6 +536,13 @@ public abstract class EntityDAO implements DAOInterface {
 	 * @see TypeNames
 	 */
 	public Integer getColumnType(HashMap<Integer, Integer> types, int columnIndex) {
+		if(types == null) {
+			throw new IllegalArgumentException("The given type map is null.");
+		}
+		if(columnIndex < 1 || columnIndex > types.size()) {
+			String msg = "The given column index '%d' is not within the allowed range of [1,%d].";
+			throw new IllegalArgumentException(String.format(msg, columnIndex, types.size()));
+		}
 		Integer type = types.get(columnIndex);
 		if(type == null) {
 			String msg = "No type defined for column '%d'";
@@ -539,13 +563,14 @@ public abstract class EntityDAO implements DAOInterface {
         }
 
         this.unsetTypeExpected();
-        this.setTypeExpected(1, TypeNames.INT);
+        this.setTypeExpected(1, TypeNames.LONG);
 
-        ArrayList<HashMap<String, Object>> al = select(digester.getQuery(getNextPKName));
+        String query = digester.getQuery(getNextPKName);
+        ArrayList<HashMap<String, Object>> al = select(query);
 
         if (al.size() > 0) {
             HashMap<String, ?> h = al.get(0);
-            answer = ((Integer) h.get("key")).intValue();
+            answer = ((Long) h.get("key")).intValue();
         }
 
         return answer;
@@ -576,14 +601,14 @@ public abstract class EntityDAO implements DAOInterface {
         }
 
         this.unsetTypeExpected();
-        this.setTypeExpected(1, TypeNames.INT);
+        this.setTypeExpected(1, TypeNames.LONG);
 
         String queryForPK = digester.getQuery(getCurrentPKName);
         ArrayList<HashMap<String, Object>> al = select(queryForPK, connection);
 
         if (al.size() > 0) {
             HashMap<String, Object> h = al.get(0);
-            answer = ((Integer) h.get("key")).intValue();
+            answer = ((Long) h.get("key")).intValue();
         }
         return answer;
     }
@@ -2383,4 +2408,44 @@ public abstract class EntityDAO implements DAOInterface {
     	
     	return String.format(msg, statusList);
     }
+    
+    public UserAccountBean getUserById(Integer userId) {
+		UserAccountBean user = null;
+		if (userId != null) {
+			UserAccountDAO udao = new UserAccountDAO(SessionManager.getStaticDataSource());
+			user = (UserAccountBean) udao.findByPK(userId);
+		}
+		return user;
+    }
+    
+    public Integer getCountByQuery(String query, HashMap<Integer, Object> variables) {
+    	return getCountByQuery(query, variables, "count");
+    }
+    
+    public Integer getCountByQuery(String query, HashMap<Integer, Object> variables, String columnName) {
+        this.unsetTypeExpected();
+        this.setTypeExpected(1, TypeNames.LONG);
+
+        ArrayList<HashMap<String, Object>> rows = select(query, variables);
+        if (rows != null && !rows.isEmpty()) {
+            Long count = (Long) rows.get(0).get(columnName);
+            return count.intValue();
+        } else {
+            return null;
+        }
+    }
+    
+    public Integer getCountByQueryOrDefault(String query, HashMap<Integer, Object> variables, Integer defaultValue) {
+    	return getCountByQueryOrDefault(query, variables, "count", defaultValue);
+    }
+    
+    public Integer getCountByQueryOrDefault(String query, HashMap<Integer, Object> variables, String columnName, Integer defaultValue) {
+        Integer result = getCountByQuery(query, variables, columnName);
+        if(result == null) {
+        	result = defaultValue;
+        }
+        return result;
+    }
+    
+    public abstract B emptyBean();
 }

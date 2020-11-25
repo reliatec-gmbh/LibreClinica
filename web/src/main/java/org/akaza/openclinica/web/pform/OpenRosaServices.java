@@ -472,7 +472,7 @@ public class OpenRosaServices {
             @PathParam("studyOID") String studyOID, @RequestHeader("Authorization") String authorization) throws Exception {
 
         String ssoid = request.getParameter("studySubjectOID");
-        StudySubjectDAO ssdao = new StudySubjectDAO<String, ArrayList>(dataSource);
+        StudySubjectDAO ssdao = new StudySubjectDAO(dataSource);
         StudySubjectBean ssBean = ssdao.findByOid(ssoid);
         if (!mayProceedSubmission(studyOID, ssBean))
             return null;

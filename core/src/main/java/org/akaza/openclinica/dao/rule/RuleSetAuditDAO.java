@@ -34,7 +34,7 @@ import java.util.Iterator;
 
 import javax.sql.DataSource;
 
-public class RuleSetAuditDAO extends EntityDAO {
+public class RuleSetAuditDAO extends EntityDAO<RuleSetAuditBean> {
 
     RuleSetDAO ruleSetDao;
     UserAccountDAO userAccountDao;
@@ -89,7 +89,7 @@ public class RuleSetAuditDAO extends EntityDAO {
 
     }
 
-    public Object getEntityFromHashMap(HashMap hm) {
+    public RuleSetAuditBean getEntityFromHashMap(HashMap hm) {
         RuleSetAuditBean ruleSetAudit = new RuleSetAuditBean();
         ruleSetAudit.setId((Integer) hm.get("rule_set_audit_id"));
         int ruleSetId = (Integer) hm.get("rule_set_id");
@@ -187,5 +187,10 @@ public class RuleSetAuditDAO extends EntityDAO {
     public Collection findAllByPermission(Object objCurrentUser, int intActionType) throws OpenClinicaException {
         return new ArrayList<RuleSetAuditBean>();
     }
+
+	@Override
+	public RuleSetAuditBean emptyBean() {
+		return new RuleSetAuditBean();
+	}
 
 }

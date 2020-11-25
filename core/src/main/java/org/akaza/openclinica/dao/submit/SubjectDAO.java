@@ -7,16 +7,6 @@
  */
 package org.akaza.openclinica.dao.submit;
 
-import org.akaza.openclinica.bean.core.EntityBean;
-import org.akaza.openclinica.bean.managestudy.StudyBean;
-import org.akaza.openclinica.bean.managestudy.StudySubjectBean;
-import org.akaza.openclinica.bean.submit.SubjectBean;
-import org.akaza.openclinica.dao.core.AuditableEntityDAO;
-import org.akaza.openclinica.dao.core.CoreResources;
-import org.akaza.openclinica.dao.core.DAODigester;
-import org.akaza.openclinica.dao.core.SQLFactory;
-import org.akaza.openclinica.dao.core.TypeNames;
-
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,10 +17,19 @@ import java.util.Locale;
 
 import javax.sql.DataSource;
 
+import org.akaza.openclinica.bean.core.EntityBean;
+import org.akaza.openclinica.bean.managestudy.StudyBean;
+import org.akaza.openclinica.bean.submit.SubjectBean;
+import org.akaza.openclinica.dao.core.AuditableEntityDAO;
+import org.akaza.openclinica.dao.core.CoreResources;
+import org.akaza.openclinica.dao.core.DAODigester;
+import org.akaza.openclinica.dao.core.SQLFactory;
+import org.akaza.openclinica.dao.core.TypeNames;
+
 /**
  * @author jxu
  */
-public class SubjectDAO extends AuditableEntityDAO {
+public class SubjectDAO extends AuditableEntityDAO<SubjectBean> {
     // private DataSource ds;
     // private DAODigester digester;
     // protected String
@@ -74,11 +73,11 @@ public class SubjectDAO extends AuditableEntityDAO {
         this.setTypeExpected(3, TypeNames.INT);
         this.setTypeExpected(4, TypeNames.INT);
         this.setTypeExpected(5, TypeNames.DATE);
-        this.setTypeExpected(6, TypeNames.CHAR);
+        this.setTypeExpected(6, TypeNames.STRING);
         this.setTypeExpected(7, TypeNames.STRING);
-        this.setTypeExpected(8, TypeNames.DATE);
+        this.setTypeExpected(8, TypeNames.TIMESTAMP);
         this.setTypeExpected(9, TypeNames.INT);
-        this.setTypeExpected(10, TypeNames.DATE);
+        this.setTypeExpected(10, TypeNames.TIMESTAMP);
         this.setTypeExpected(11, TypeNames.INT);
         this.setTypeExpected(12, TypeNames.BOOL);
         this.setTypeExpected(13, TypeNames.STRING);
@@ -97,8 +96,8 @@ public class SubjectDAO extends AuditableEntityDAO {
         ArrayList answer = new ArrayList();
 
         this.setTypesExpected();
-        this.setTypeExpected(13, TypeNames.CHAR); // label from study_subject table
-        this.setTypeExpected(14, TypeNames.CHAR); // unique_identifier from study table
+        this.setTypeExpected(13, TypeNames.STRING); // label from study_subject table
+        this.setTypeExpected(14, TypeNames.STRING); // unique_identifier from study table
 
         String sql = digester.getQuery("findAllSubjectsAndStudies");
 
@@ -201,23 +200,9 @@ public class SubjectDAO extends AuditableEntityDAO {
     }
 
     public Integer getCountWithFilter(ListSubjectFilter filter, StudyBean currentStudy) {
-        setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), currentStudy.getId());
-        variables.put(new Integer(2), currentStudy.getId());
-        String sql = digester.getQuery("getCountWithFilter");
-        sql += filter.execute("");
-
-        ArrayList rows = this.select(sql);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            Integer count = (Integer) ((HashMap) it.next()).get("count");
-            return count;
-        } else {
-            return null;
-        }
+        String query = digester.getQuery("getCountWithFilter");
+        query += filter.execute("");
+        return getCountByQuery(query, new HashMap<Integer, Object>());
     }
 
     /**
@@ -225,7 +210,7 @@ public class SubjectDAO extends AuditableEntityDAO {
      * getEntityFromHashMap, the method that gets the object from the database
      * query.
      */
-    public Object getEntityFromHashMap(HashMap hm) {
+    public SubjectBean getEntityFromHashMap(HashMap hm) {
         SubjectBean eb = new SubjectBean();
         super.setEntityAuditInformation(eb, hm);
         eb.setId(((Integer) hm.get("subject_id")).intValue());
@@ -606,4 +591,9 @@ public class SubjectDAO extends AuditableEntityDAO {
         variables.put(1, uniqueIdentifier);
         this.executeUpdate(digester.getQuery("deleteTestSubject"), variables);
     }
+
+	@Override
+	public SubjectBean emptyBean() {
+		return new SubjectBean();
+	}
 }

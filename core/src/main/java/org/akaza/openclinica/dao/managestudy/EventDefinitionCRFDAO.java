@@ -38,7 +38,7 @@ import org.apache.commons.lang.StringUtils;
  * @author jxu
  * 
  */
-public class EventDefinitionCRFDAO extends AuditableEntityDAO {
+public class EventDefinitionCRFDAO extends AuditableEntityDAO<EventDefinitionCRFBean> {
     // private DAODigester digester;
 
     private void setQueryNames() {
@@ -101,7 +101,7 @@ public class EventDefinitionCRFDAO extends AuditableEntityDAO {
      * query.
      */
     @Override
-    public Object getEntityFromHashMap(HashMap hm) {
+    public EventDefinitionCRFBean getEntityFromHashMap(HashMap hm) {
         EventDefinitionCRFBean eb = new EventDefinitionCRFBean();
         super.setEntityAuditInformation(eb, hm);
         // EVENT_DEFINITION_CRF_ID STUDY_EVENT_DEFINITION_ID STUDY_ID
@@ -1038,5 +1038,10 @@ public class EventDefinitionCRFDAO extends AuditableEntityDAO {
         }
 
     }
+
+	@Override
+	public EventDefinitionCRFBean emptyBean() {
+		return new EventDefinitionCRFBean();
+	}
 
 }

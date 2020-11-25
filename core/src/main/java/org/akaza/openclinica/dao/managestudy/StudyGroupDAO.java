@@ -26,7 +26,7 @@ import javax.sql.DataSource;
 /**
  * @author jxu
  */
-public class StudyGroupDAO extends AuditableEntityDAO {
+public class StudyGroupDAO extends AuditableEntityDAO<StudyGroupBean> {
     // private DAODigester digester;
 
     protected void setQueryNames() {
@@ -68,7 +68,7 @@ public class StudyGroupDAO extends AuditableEntityDAO {
      * getEntityFromHashMap, the method that gets the object from the database
      * query.
      */
-    public Object getEntityFromHashMap(HashMap hm) {
+    public StudyGroupBean getEntityFromHashMap(HashMap hm) {
         StudyGroupBean eb = new StudyGroupBean();
         eb.setId(((Integer) hm.get("study_group_id")).intValue());
         eb.setName((String) hm.get("name"));
@@ -323,6 +323,11 @@ public class StudyGroupDAO extends AuditableEntityDAO {
 
         return eb;
     }
+
+	@Override
+	public StudyGroupBean emptyBean() {
+		return new StudyGroupBean();
+	}
  
     
 }

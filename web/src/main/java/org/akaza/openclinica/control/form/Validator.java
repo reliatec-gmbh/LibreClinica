@@ -1617,7 +1617,7 @@ break;
 
         try {
             int id = Integer.parseInt(fieldValue);
-            AuditableEntityBean e = dao.findByPKAndStudy(id, study);
+            EntityBean e = dao.findByPKAndStudy(id, study);
 
             if (!e.isActive()) {
                 return false;

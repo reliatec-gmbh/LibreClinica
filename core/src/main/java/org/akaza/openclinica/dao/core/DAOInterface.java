@@ -23,13 +23,13 @@ import java.util.HashMap;
  *
  *
  */
-public interface DAOInterface {
+public interface DAOInterface<T> {
     // problem here is to prevent beans which recursively access themselves;
     // if we don't have a special boolean, the user account bean will recurse
     // until
     // the virtual machine runs out of memory, looking for its owner of its
     // owner.
-    Object getEntityFromHashMap(HashMap<String, Object> hm);
+    T getEntityFromHashMap(HashMap<String, Object> hm);
 
     Collection findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) throws OpenClinicaException;
 

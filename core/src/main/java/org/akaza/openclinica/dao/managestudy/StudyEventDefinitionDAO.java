@@ -30,7 +30,7 @@ import org.akaza.openclinica.dao.core.TypeNames;
  * @author thickerson
  * @author jsampson
  */
-public class StudyEventDefinitionDAO<K extends String,V extends ArrayList> extends AuditableEntityDAO {
+public class StudyEventDefinitionDAO extends AuditableEntityDAO<StudyEventDefinitionBean> {
 
     private void setQueryNames() {
         findAllByStudyName = "findAllByStudy";
@@ -166,7 +166,7 @@ public class StudyEventDefinitionDAO<K extends String,V extends ArrayList> exten
         return eb;
     }
 
-    public Object getEntityFromHashMap(HashMap hm) {
+    public StudyEventDefinitionBean getEntityFromHashMap(HashMap hm) {
         StudyEventDefinitionBean eb = new StudyEventDefinitionBean();
 
         this.setEntityAuditInformation(eb, hm);
@@ -482,5 +482,10 @@ public class StudyEventDefinitionDAO<K extends String,V extends ArrayList> exten
         }
         return result;
     }
+
+	@Override
+	public StudyEventDefinitionBean emptyBean() {
+		return new StudyEventDefinitionBean();
+	}
 
 }

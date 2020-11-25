@@ -42,7 +42,7 @@ import org.akaza.openclinica.dao.core.TypeNames;
  * 
  * 
  */
-public class CRFVersionDAO<K extends String, V extends ArrayList> extends AuditableEntityDAO {
+public class CRFVersionDAO extends AuditableEntityDAO<CRFVersionBean> {
 
     @Override
     protected void setDigesterName() {
@@ -151,7 +151,7 @@ public class CRFVersionDAO<K extends String, V extends ArrayList> extends Audita
 
     }
 
-    public Object getEntityFromHashMap(HashMap hm) {
+    public CRFVersionBean getEntityFromHashMap(HashMap hm) {
         // CRF_VERSION_ID NAME DESCRIPTION
         // CRF_ID STATUS_ID DATE_CREATED DATE_UPDATED
         // OWNER_ID REVISION_NUMBER UPDATE_ID
@@ -542,5 +542,10 @@ public class CRFVersionDAO<K extends String, V extends ArrayList> extends Audita
 
         return result;
     }
+
+	@Override
+	public CRFVersionBean emptyBean() {
+		return new CRFVersionBean();
+	}
 
 }

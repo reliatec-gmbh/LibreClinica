@@ -43,7 +43,7 @@ import javax.sql.DataSource;
  * @author Krikor Krumlian
  * 
  */
-public class RuleDAO extends AuditableEntityDAO {
+public class RuleDAO extends AuditableEntityDAO<RuleBean> {
 
     private EventCRFDAO eventCrfDao;
     private RuleSetDAO ruleSetDao;
@@ -93,6 +93,8 @@ public class RuleDAO extends AuditableEntityDAO {
         this.setTypeExpected(9, TypeNames.DATE);// date_updated
         this.setTypeExpected(10, TypeNames.INT);// updater_id
         this.setTypeExpected(11, TypeNames.INT);// status_id
+        this.setTypeExpected(12, TypeNames.INT);// version
+        this.setTypeExpected(13, TypeNames.INT);// study_id
     }
 
     public EntityBean update(EntityBean eb) {
@@ -139,7 +141,7 @@ public class RuleDAO extends AuditableEntityDAO {
         return ruleBean;
     }
 
-    public Object getEntityFromHashMap(HashMap hm) {
+    public RuleBean getEntityFromHashMap(HashMap hm) {
         RuleBean ruleBean = new RuleBean();
         this.setEntityAuditInformation(ruleBean, hm);
 
@@ -156,10 +158,10 @@ public class RuleDAO extends AuditableEntityDAO {
     public Collection findAll() {
         this.setTypesExpected();
         ArrayList alist = this.select(digester.getQuery("findAll"));
-        ArrayList<RuleSetBean> ruleSetBeans = new ArrayList<RuleSetBean>();
+        ArrayList<RuleBean> ruleSetBeans = new ArrayList<RuleBean>();
         Iterator it = alist.iterator();
         while (it.hasNext()) {
-            RuleSetBean ruleSet = (RuleSetBean) this.getEntityFromHashMap((HashMap) it.next());
+        	RuleBean ruleSet = (RuleBean) this.getEntityFromHashMap((HashMap) it.next());
             ruleSetBeans.add(ruleSet);
         }
         return ruleSetBeans;
@@ -267,5 +269,10 @@ public class RuleDAO extends AuditableEntityDAO {
 
         return al;
     }
+
+	@Override
+	public RuleBean emptyBean() {
+		return new RuleBean();
+	}
 
 }

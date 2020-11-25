@@ -7,21 +7,6 @@
  */
 package org.akaza.openclinica.dao.submit;
 
-import org.akaza.openclinica.bean.core.EntityBean;
-import org.akaza.openclinica.bean.submit.ItemFormMetadataBean;
-import org.akaza.openclinica.bean.submit.ResponseSetBean;
-import org.akaza.openclinica.dao.core.DAODigester;
-import org.akaza.openclinica.dao.core.EntityDAO;
-import org.akaza.openclinica.dao.core.PreparedStatementFactory;
-import org.akaza.openclinica.dao.core.SQLFactory;
-import org.akaza.openclinica.dao.core.TypeNames;
-import org.akaza.openclinica.domain.crfdata.InstantOnChangePairContainer;
-import org.akaza.openclinica.exception.OpenClinicaException;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -29,13 +14,24 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
+
+import org.akaza.openclinica.bean.core.EntityBean;
+import org.akaza.openclinica.bean.submit.ItemFormMetadataBean;
+import org.akaza.openclinica.bean.submit.ResponseSetBean;
+import org.akaza.openclinica.dao.core.DAODigester;
+import org.akaza.openclinica.dao.core.EntityDAO;
+import org.akaza.openclinica.dao.core.SQLFactory;
+import org.akaza.openclinica.dao.core.TypeNames;
+import org.akaza.openclinica.domain.crfdata.InstantOnChangePairContainer;
+import org.akaza.openclinica.exception.OpenClinicaException;
 
 /**
  * @author ssachs
  */
-public class ItemFormMetadataDAO extends EntityDAO {
+public class ItemFormMetadataDAO extends EntityDAO<ItemFormMetadataBean> {
 
     @Override
     protected void setDigesterName() {
@@ -126,7 +122,8 @@ public class ItemFormMetadataDAO extends EntityDAO {
      *
      * @see org.akaza.openclinica.dao.core.DAOInterface#getEntityFromHashMap(java.util.HashMap)
      */
-    public Object getEntityFromHashMap(HashMap hm) {
+    @Override
+    public ItemFormMetadataBean getEntityFromHashMap(HashMap hm) {
         ItemFormMetadataBean answer = new ItemFormMetadataBean();
 
         answer.setId(getIntFromRow(hm, "item_form_metadata_id"));
@@ -277,20 +274,10 @@ public class ItemFormMetadataDAO extends EntityDAO {
     </query>
      */
     public int findCountAllHiddenByCRFVersionId(int crfVersionId) {
-        int answer = 0;
-        this.unsetTypeExpected();
-        this.setTypeExpected(1, TypeNames.INT);
-
         HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(crfVersionId));
-        String sql = digester.getQuery("findAllCountHiddenByCRFVersionId");
-
-        ArrayList rows = select(sql, variables, true);
-
-        if (rows.size() > 0) {
-            HashMap row = (HashMap) rows.get(0);
-            answer = ((Integer) row.get("number")).intValue();
-        }
+        String query = digester.getQuery("findAllCountHiddenByCRFVersionId");
+        int answer = getCountByQueryOrDefault(query, variables, "number", 0);
 
         // what about those shown but in a hidden section?
         /*
@@ -302,15 +289,9 @@ public class ItemFormMetadataDAO extends EntityDAO {
            and ifm.show_item=true
            and igm.show_group=false
          */
-        int answer2 = 0;
-
-        String sql2 = digester.getQuery("findAllCountHiddenUnderGroupsByCRFVersionId");
-        rows = select(sql2, variables);
-        if (rows.size() > 0) {
-            HashMap row = (HashMap) rows.get(0);
-            answer2 = ((Integer) row.get("number")).intValue();
-        }
-        return answer + answer2;
+        query = digester.getQuery("findAllCountHiddenUnderGroupsByCRFVersionId");
+        answer += getCountByQueryOrDefault(query, variables, "number", 0);
+        return answer;
     }
 
     /*
@@ -326,22 +307,10 @@ public class ItemFormMetadataDAO extends EntityDAO {
     </query>
      */
     public int findCountAllHiddenButShownByEventCRFId(int eventCrfId) {
-        int answer = 0;
-        this.unsetTypeExpected();
-        this.setTypeExpected(1, TypeNames.INT);
-
         HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(eventCrfId));
-        String sql = digester.getQuery("findAllCountHiddenButShownByEventCrfId");
-
-        ArrayList rows = select(sql, variables, true);
-
-        if (rows.size() > 0) {
-            HashMap row = (HashMap) rows.get(0);
-            answer = ((Integer) row.get("number")).intValue();
-        }
-
-        return answer;
+        String query = digester.getQuery("findAllCountHiddenButShownByEventCrfId");
+        return getCountByQueryOrDefault(query, variables, "number", 0);
     }
 
     public ArrayList<ItemFormMetadataBean> findAllByCRFVersionId(int crfVersionId) throws OpenClinicaException {
@@ -428,35 +397,15 @@ public class ItemFormMetadataDAO extends EntityDAO {
     }
 
     public ArrayList<ItemFormMetadataBean> findAllByCRFVersionIdAndResponseTypeId(int crfVersionId, int responseTypeId) throws OpenClinicaException {
-        String key;
-
-
-        ArrayList<ItemFormMetadataBean> answer = new ArrayList<ItemFormMetadataBean>();
-
-        this.setTypesExpected();
-
         HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(crfVersionId));
         variables.put(new Integer(2), new Integer(responseTypeId));
-        ArrayList alist;
+        String query = digester.getQuery("findAllByCRFVersionIdAndResponseTypeId");
 
-        String sql = digester.getQuery("findAllByCRFVersionIdAndResponseTypeId");
+        ArrayList<HashMap<String, Object>> alist = this.select(query, variables, true);
 
-        key = sql+","+crfVersionId+","+responseTypeId;
-
-        if((alist= cache.get(key))==null)
-        {
-         alist = this.select(sql, variables, true);
-         if(alist!=null)
-             cache.put(key, alist);
-        }
-
-        Iterator it = alist.iterator();
-
-        while (it.hasNext()) {
-            ItemFormMetadataBean ifmb = (ItemFormMetadataBean) this.getEntityFromHashMap((HashMap) it.next());
-            answer.add(ifmb);
-        }
+        ArrayList<ItemFormMetadataBean> answer = new ArrayList<ItemFormMetadataBean>();
+        answer.addAll(alist.stream().map(m -> (ItemFormMetadataBean) this.getEntityFromHashMap(m)).collect(Collectors.toList()));
 
         return answer;
     }
@@ -1004,4 +953,11 @@ public class ItemFormMetadataDAO extends EntityDAO {
         ind++; // option_name 12
         this.setTypeExpected(ind, TypeNames.STRING);
     }
+
+
+
+	@Override
+	public ItemFormMetadataBean emptyBean() {
+		return new ItemFormMetadataBean();
+	}
 }

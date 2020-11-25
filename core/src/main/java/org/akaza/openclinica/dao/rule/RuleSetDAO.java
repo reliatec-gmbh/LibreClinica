@@ -44,7 +44,7 @@ import javax.sql.DataSource;
  * @author Krikor Krumlian
  * 
  */
-public class RuleSetDAO extends AuditableEntityDAO {
+public class RuleSetDAO extends AuditableEntityDAO<RuleSetBean> {
 
     private EventCRFDAO eventCrfDao;
     private StudyEventDefinitionDAO studyEventDefinitionDAO;
@@ -217,7 +217,7 @@ public class RuleSetDAO extends AuditableEntityDAO {
         return ruleSetBean;
     }
 
-    public Object getEntityFromHashMap(HashMap hm) {
+    public RuleSetBean getEntityFromHashMap(HashMap hm) {
         RuleSetBean ruleSetBean = new RuleSetBean();
         this.setEntityAuditInformation(ruleSetBean, hm);
 
@@ -442,5 +442,10 @@ public class RuleSetDAO extends AuditableEntityDAO {
 
         return al;
     }
+
+	@Override
+	public RuleSetBean emptyBean() {
+		return new RuleSetBean();
+	}
 
 }

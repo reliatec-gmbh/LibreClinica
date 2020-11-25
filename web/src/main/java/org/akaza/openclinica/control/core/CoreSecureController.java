@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.sql.DataSource;
 
+import org.akaza.openclinica.bean.core.AuditableEntityBean;
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.extract.ArchivedDatasetFileBean;
@@ -704,11 +705,12 @@ public abstract class CoreSecureController extends HttpServlet {
      * @param ds
      *            javax.sql.DataSource
      */
-    protected boolean entityIncluded(int entityId, String userName, AuditableEntityDAO adao, DataSource ds) {
+    protected boolean entityIncluded(int entityId, String userName, AuditableEntityDAO<? extends AuditableEntityBean> adao, DataSource ds) {
         StudyDAO sdao = new StudyDAO(ds);
-        ArrayList<StudyBean> studies = (ArrayList<StudyBean>) sdao.findAllByUserNotRemoved(userName);
+        ArrayList<StudyBean> studies = sdao.findAllByUserNotRemoved(userName);
         for (int i = 0; i < studies.size(); ++i) {
-            if (adao.findByPKAndStudy(entityId, studies.get(i)).getId() > 0) {
+        	AuditableEntityBean bean = adao.findByPKAndStudy(entityId, studies.get(i)); 
+            if (bean != null && bean.getId() > 0) {
                 return true;
             }
             // Here follow the current logic - study subjects at sites level are

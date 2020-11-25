@@ -7,16 +7,19 @@
  */
 package org.akaza.openclinica.dao.core;
 
-import org.akaza.openclinica.bean.core.AuditableEntityBean;
-import org.akaza.openclinica.bean.core.Status;
-import org.akaza.openclinica.bean.managestudy.StudyBean;
-
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
+
+import org.akaza.openclinica.bean.core.AuditableEntityBean;
+import org.akaza.openclinica.bean.core.EntityBean;
+import org.akaza.openclinica.bean.core.Status;
+import org.akaza.openclinica.bean.login.UserAccountBean;
+import org.akaza.openclinica.bean.managestudy.StudyBean;
 
 /**
  * <P>
@@ -30,7 +33,7 @@ import javax.sql.DataSource;
  *
  *
  */
-public abstract class AuditableEntityDAO extends EntityDAO {
+public abstract class AuditableEntityDAO<T extends EntityBean> extends EntityDAO<T> {
     /**
      * Should the name of a query which refers to a SQL command of the following
      * form:
@@ -97,64 +100,14 @@ public abstract class AuditableEntityDAO extends EntityDAO {
      * @return An array containing all the entities which belong to
      *         <code>study</code>.
      */
-    public ArrayList findAllByStudy(StudyBean study) {
-        ArrayList answer = new ArrayList();
-
-        if (findAllByStudyName == null) {
-            return answer;
-        }
-
-        setTypesExpected();
-
-        HashMap variables = new HashMap();
-
-        // study.study_id=?
-        variables.put(Integer.valueOf(1), Integer.valueOf(study.getId()));
-
-        // or study.parent_study_id=?
-        variables.put(Integer.valueOf(2), Integer.valueOf(study.getId()));
-
-        String sql = digester.getQuery(findAllByStudyName);
-
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        while (it.hasNext()) {
-            AuditableEntityBean aeb = (AuditableEntityBean) this.getEntityFromHashMap((HashMap) it.next());
-            answer.add(aeb);
-        }
-
-        return answer;
+    public ArrayList<T> findAllByStudy(StudyBean study) {
+        HashMap<Integer, Object> variables = variables(study.getId(), study.getId());
+        return executeFindAllQuery(findAllByStudyName, variables);
     }
 
-    public ArrayList findAllActiveByStudy(StudyBean study) {
-        ArrayList answer = new ArrayList();
-
-        if (findAllActiveByStudyName == null) {
-            return answer;
-        }
-
-        setTypesExpected();
-
-        HashMap variables = new HashMap();
-
-        // study.study_id=?
-        variables.put(Integer.valueOf(1), Integer.valueOf(study.getId()));
-
-        // or study.parent_study_id=?
-        variables.put(Integer.valueOf(2), Integer.valueOf(study.getId()));
-
-        String sql = digester.getQuery(findAllActiveByStudyName);
-
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        while (it.hasNext()) {
-            AuditableEntityBean aeb = (AuditableEntityBean) this.getEntityFromHashMap((HashMap) it.next());
-            answer.add(aeb);
-        }
-
-        return answer;
+    public ArrayList<T> findAllActiveByStudy(StudyBean study) {
+        HashMap<Integer, Object> variables = variables(study.getId(), study.getId());
+        return executeFindAllQuery(findAllActiveByStudyName, variables);
     }
 
     /**
@@ -168,39 +121,19 @@ public abstract class AuditableEntityDAO extends EntityDAO {
      * @return The entity which belong to <code>study</code> and has primary
      *         key <code>id</code>.
      */
-    public AuditableEntityBean findByPKAndStudy(int id, StudyBean study) {
-        AuditableEntityBean answer = new AuditableEntityBean();
-
-        if (findByPKAndStudyName == null) {
-            return answer;
+    public T findByPKAndStudy(int id, StudyBean study) {
+        HashMap<Integer, Object> variables = variables(id, study.getId(), study.getId());
+        ArrayList<T> rows = executeFindAllQuery(findByPKAndStudyName, variables);
+        T result = null;
+        if(rows.size() > 0) {
+        	result = rows.get(0);
+        } else {
+        	result = emptyBean();
         }
-
-        setTypesExpected();
-
-        HashMap variables = new HashMap();
-        // id=?
-        variables.put(Integer.valueOf(1), Integer.valueOf(id));
-
-        // study.study_id = ?
-        variables.put(Integer.valueOf(2), Integer.valueOf(study.getId()));
-
-        // study.parent_study_id = ?
-        variables.put(Integer.valueOf(3), Integer.valueOf(study.getId()));
-
-        String sql = digester.getQuery(findByPKAndStudyName);
-
-        ArrayList rows = this.select(sql, variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            answer = (AuditableEntityBean) this.getEntityFromHashMap((HashMap) it.next());
-        }
-
-        return answer;
-
+        return result;
     }
 
-    public void setEntityAuditInformation(AuditableEntityBean aeb, HashMap hm) {
+    public void setEntityAuditInformation(AuditableEntityBean aeb, HashMap<String, Object> hm) {
         // grab the required information from the table
         // so that we don't have to repeat this in every single dao
         Date dateCreated = (Date) hm.get("date_created");
@@ -208,6 +141,9 @@ public abstract class AuditableEntityDAO extends EntityDAO {
         Integer statusId = (Integer) hm.get("status_id");
         Integer ownerId = (Integer) hm.get("owner_id");
         Integer updateId = (Integer) hm.get("update_id");
+        
+        UserAccountBean owner = getUserById(ownerId);
+        UserAccountBean updater = getUserById(updateId);
 
         if (aeb != null) {
             aeb.setCreatedDate(dateCreated);
@@ -215,8 +151,12 @@ public abstract class AuditableEntityDAO extends EntityDAO {
             //This was throwing a ClassCastException : BWP altered in 4/2009
            // aeb.setStatus(Status.get(statusId.intValue()));
             aeb.setStatus(Status.getFromMap(statusId));
-            aeb.setOwnerId(ownerId.intValue());
-            aeb.setUpdaterId(updateId.intValue());
+            if(owner != null) {
+            	aeb.setOwner(owner);
+            }
+            if(updater != null) {
+            	aeb.setUpdater(updater);
+            }
         }
     }
 
@@ -241,25 +181,24 @@ public abstract class AuditableEntityDAO extends EntityDAO {
      *            should be empty if none are needed.
      * @return An ArrayList of AuditableEntityBeans selected by the query.
      */
-    public ArrayList executeFindAllQuery(String queryName, HashMap variables) {
-        ArrayList answer = new ArrayList();
+    public ArrayList<T> executeFindAllQuery(String queryName, HashMap<Integer, Object> variables) {
+        ArrayList<T> answer = new ArrayList<>();
 
-        this.setTypesExpected();
-
-        ArrayList rows;
-        String sql = digester.getQuery(queryName);
-
-        if (variables == null || variables.isEmpty()) {
-            rows = this.select(sql);
-        } else {
-            rows = this.select(sql, variables);
+        if (queryName == null || queryName.trim().isEmpty()) {
+            return answer;
         }
-        Iterator it = rows.iterator();
-
-        while (it.hasNext()) {
-            answer.add(this.getEntityFromHashMap((HashMap) it.next()));
+        
+        setTypesExpected();
+        
+        String query = digester.getQuery(queryName);
+        if (query == null || query.trim().isEmpty()) {
+        	// TODO for backwards compatibility here is no error thrown but this should be changed in the future
+        	logger.error("No query with name '%s' not found", queryName);
+            return answer;
         }
-
+        
+        ArrayList<HashMap<String, Object>> alist = this.select(query, variables);
+        answer.addAll(alist.stream().map(m -> (T) this.getEntityFromHashMap(m)).collect(Collectors.toList()));
         return answer;
     }
 
@@ -271,7 +210,21 @@ public abstract class AuditableEntityDAO extends EntityDAO {
      *            The name of the query which selects the AuditableEntityBeans.
      * @return An ArrayList of AuditableEntityBeans selected by the query.
      */
-    public ArrayList executeFindAllQuery(String queryName) {
-        return executeFindAllQuery(queryName, new HashMap());
+    public ArrayList<T> executeFindAllQuery(String queryName) {
+        return executeFindAllQuery(queryName, new HashMap<>());
+    }
+    
+    public HashMap<Integer, Object> variables(Object... variables) {
+    	HashMap<Integer, Object> result = new HashMap<>();
+    	
+    	if(variables == null) {
+    		variables = new Object[0];
+    	}
+    	
+    	Arrays.asList(variables);
+    	for (int i = 0; i < variables.length; i++) {
+    		result.put(i+1, variables[i]);
+		}
+    	return result;
     }
 }

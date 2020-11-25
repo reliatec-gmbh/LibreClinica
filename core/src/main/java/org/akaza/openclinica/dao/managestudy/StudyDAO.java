@@ -36,7 +36,7 @@ import java.util.Locale;
 
 import javax.sql.DataSource;
 
-public class StudyDAO <K extends String,V extends ArrayList> extends AuditableEntityDAO {
+public class StudyDAO extends AuditableEntityDAO<StudyBean> {
     // private DataSource ds;
     // private DAODigester digester;
 
@@ -534,7 +534,8 @@ public class StudyDAO <K extends String,V extends ArrayList> extends AuditableEn
      * getEntityFromHashMap, the method that gets the object from the database
      * query.
      */
-    public Object getEntityFromHashMap(HashMap hm) {
+    @Override
+    public StudyBean getEntityFromHashMap(HashMap<String, Object> hm) {
         StudyBean eb = new StudyBean();
 
         // first set all the strings
@@ -659,19 +660,11 @@ public class StudyDAO <K extends String,V extends ArrayList> extends AuditableEn
     }
 
     // YW 10-18-2007
-    public Collection findAllByUserNotRemoved(String username) {
+    public  ArrayList<StudyBean> findAllByUserNotRemoved(String username) {    	
         this.unsetTypeExpected();
         this.setTypesExpected();
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), username);
-        ArrayList alist = this.select(digester.getQuery("findAllByUserNotRemoved"), variables);
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            StudyBean eb = (StudyBean) this.getEntityFromHashMap((HashMap) it.next());
-            al.add(eb);
-        }
-        return al;
+        HashMap<Integer, Object> variables = variables(username);
+        return executeFindAllQuery("findAllByUserNotRemoved", variables);
     }
 
     public ArrayList findAllByStatus(Status status) {
@@ -746,11 +739,11 @@ public class StudyDAO <K extends String,V extends ArrayList> extends AuditableEn
         return ret;
     }
 
-    public Collection findAllByParent(int parentStudyId) {
+    public ArrayList<StudyBean> findAllByParent(int parentStudyId) {
         return findAllByParentAndLimit(parentStudyId, false);
     }
 
-    public Collection findAllByParentAndLimit(int parentStudyId, boolean isLimited) {
+    public ArrayList<StudyBean> findAllByParentAndLimit(int parentStudyId, boolean isLimited) {
         this.setTypesExpected();
         HashMap variables = new HashMap();
         variables.put(new Integer(1), new Integer(parentStudyId));
@@ -760,10 +753,10 @@ public class StudyDAO <K extends String,V extends ArrayList> extends AuditableEn
         } else {
             alist = this.select(digester.getQuery("findAllByParent"), variables);
         }
-        ArrayList al = new ArrayList();
+        ArrayList<StudyBean> al = new ArrayList();
         Iterator it = alist.iterator();
         while (it.hasNext()) {
-            StudyBean eb = (StudyBean) this.getEntityFromHashMap((HashMap) it.next());
+            StudyBean eb = this.getEntityFromHashMap((HashMap) it.next());
             al.add(eb);
         }
         return al;
@@ -1002,5 +995,10 @@ public class StudyDAO <K extends String,V extends ArrayList> extends AuditableEn
         return al;
 
     }
+
+	@Override
+	public StudyBean emptyBean() {
+		return new StudyBean();
+	}
 
 }

@@ -24,7 +24,7 @@ import java.util.Iterator;
 
 import javax.sql.DataSource;
 
-public class StudyParameterValueDAO extends AuditableEntityDAO {
+public class StudyParameterValueDAO extends AuditableEntityDAO<StudyParameterValueBean> {
 
     @Override
     protected void setDigesterName() {
@@ -78,7 +78,7 @@ public class StudyParameterValueDAO extends AuditableEntityDAO {
         return spvb;
     }
 
-    public Object getEntityFromHashMap(HashMap hm) {
+    public StudyParameterValueBean getEntityFromHashMap(HashMap hm) {
         // study_id numeric,
         // value varchar(50),
         // study_parameter_id int4,
@@ -164,24 +164,6 @@ public class StudyParameterValueDAO extends AuditableEntityDAO {
             spvb = (StudyParameterValueBean) this.getEntityFromHashMap((HashMap) it.next());
         }
         return spvb;
-    }
-
-    public StudyParameter findParameterByHandle(String handle) {
-        StudyParameter sp = new StudyParameter();
-        this.setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), handle);
-
-        String sql = digester.getQuery("findParameterByHandle");
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            sp = (StudyParameter) this.getEntityFromHashMap((HashMap) it.next());
-        }
-        return sp;
-
     }
 
     public boolean setParameterValue(int studyId, String parameterHandle, String value) {
@@ -278,5 +260,10 @@ public class StudyParameterValueDAO extends AuditableEntityDAO {
 
         return al;
     }
+
+	@Override
+	public StudyParameterValueBean emptyBean() {
+		return new StudyParameterValueBean();
+	}
 
 }

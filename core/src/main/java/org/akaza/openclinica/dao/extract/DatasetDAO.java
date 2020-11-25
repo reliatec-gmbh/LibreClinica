@@ -38,7 +38,7 @@ import javax.sql.DataSource;
  *
  *
  */
-public class DatasetDAO extends AuditableEntityDAO {
+public class DatasetDAO extends AuditableEntityDAO<DatasetBean> {
 
     // private DataSource ds;
     // private DAODigester digester;
@@ -84,10 +84,10 @@ public class DatasetDAO extends AuditableEntityDAO {
         this.setTypeExpected(5, TypeNames.STRING);// desc
         this.setTypeExpected(6, TypeNames.STRING);// sql
         this.setTypeExpected(7, TypeNames.INT);// num runs
-        this.setTypeExpected(8, TypeNames.TIMESTAMP);// date start. YW,
+        this.setTypeExpected(8, TypeNames.DATE);// date start. YW,
         // 08-21-2007, datatype
         // changed to Timestamp
-        this.setTypeExpected(9, TypeNames.TIMESTAMP);// date end
+        this.setTypeExpected(9, TypeNames.DATE);// date end
         this.setTypeExpected(10, TypeNames.DATE);// created
         this.setTypeExpected(11, TypeNames.DATE);// updated
         this.setTypeExpected(12, TypeNames.DATE);// last run
@@ -115,87 +115,6 @@ public class DatasetDAO extends AuditableEntityDAO {
         this.setTypeExpected(34, TypeNames.STRING);// odm_prior_metadataversion_oid
         this.setTypeExpected(35, TypeNames.BOOL);// show_secondary_id
         this.setTypeExpected(36, TypeNames.INT);// dataset_item_status_id
-    }
-
-    public void setExtractTypesExpected() {
-        this.unsetTypeExpected();
-        this.setTypeExpected(1, TypeNames.INT);// subj id
-        this.setTypeExpected(2, TypeNames.STRING);// subj identifier
-        this.setTypeExpected(3, TypeNames.INT);// study id
-        this.setTypeExpected(4, TypeNames.STRING);// study ident
-        this.setTypeExpected(5, TypeNames.INT);// event def crf id
-        this.setTypeExpected(6, TypeNames.INT);// crf id
-        this.setTypeExpected(7, TypeNames.STRING);// crf label
-        this.setTypeExpected(8, TypeNames.STRING);// crf name
-        this.setTypeExpected(9, TypeNames.INT);// version id
-        this.setTypeExpected(10, TypeNames.STRING);// version label
-        this.setTypeExpected(11, TypeNames.STRING);// version name
-        this.setTypeExpected(12, TypeNames.INT);// study event id
-        this.setTypeExpected(13, TypeNames.INT);// event crf id
-        this.setTypeExpected(14, TypeNames.INT);// item data id
-        this.setTypeExpected(15, TypeNames.STRING);// value
-        // oops added three more here
-        this.setTypeExpected(16, TypeNames.STRING);// sed.name
-        this.setTypeExpected(17, TypeNames.BOOL);// repeating
-        this.setTypeExpected(18, TypeNames.INT);// sample ordinal
-        this.setTypeExpected(19, TypeNames.INT);// item id
-        this.setTypeExpected(20, TypeNames.STRING);// item name
-        this.setTypeExpected(21, TypeNames.STRING);// item desc
-        this.setTypeExpected(22, TypeNames.STRING);// item units
-        this.setTypeExpected(23, TypeNames.DATE);// date created for item
-        // data
-        this.setTypeExpected(24, TypeNames.INT);// study event definition id
-        this.setTypeExpected(25, TypeNames.STRING);// option stings
-        this.setTypeExpected(26, TypeNames.STRING);// option values
-        this.setTypeExpected(27, TypeNames.INT);// response type id
-        this.setTypeExpected(28, TypeNames.STRING);// gender
-        this.setTypeExpected(29, TypeNames.DATE);// dob
-        // added more columns below this line
-        this.setTypeExpected(30, TypeNames.INT);// s.status_id AS
-        // subject_status_id,
-        this.setTypeExpected(31, TypeNames.STRING);// s.unique_identifier,
-        this.setTypeExpected(32, TypeNames.BOOL);// s.dob_collected,
-        this.setTypeExpected(33, TypeNames.INT);// ec.completion_status_id,
-        this.setTypeExpected(34, TypeNames.DATE);// ec.date_created AS
-        // event_crf_start_time,
-        this.setTypeExpected(35, TypeNames.INT);// crfv.status_id AS
-        // crf_version_status_id,
-        this.setTypeExpected(36, TypeNames.STRING);// ec.interviewer_name,
-        this.setTypeExpected(37, TypeNames.DATE);// ec.date_interviewed,
-        this.setTypeExpected(38, TypeNames.DATE);// ec.date_completed AS
-        // event_crf_date_completed,
-        this.setTypeExpected(39, TypeNames.DATE);// ec.date_validate_completed
-        // AS
-        // event_crf_date_validate_completed,
-        this.setTypeExpected(40, TypeNames.INT);// sgmap.study_group_id,
-        this.setTypeExpected(41, TypeNames.INT);// sgmap.study_group_class_id
-        // this.setTypeExpected(39, TypeNames.STRING);//ig.name AS
-        // item_group_name,
-        // this.setTypeExpected(40, TypeNames.STRING);//dn.description AS
-        // discrepancy_note_description,
-        // this.setTypeExpected(41, TypeNames.INT);//dn.resolution_status_id AS
-        // discrepancy_resolution_status_id,
-        // this.setTypeExpected(42, TypeNames.STRING);//dn.detailed_notes,
-        // this.setTypeExpected(43, TypeNames.INT);//type id for dn
-        // added more columns above this line
-        this.setTypeExpected(42, TypeNames.STRING);// location
-        this.setTypeExpected(43, TypeNames.TIMESTAMP);// date start. YW,
-        // 08-21-2007, datatype
-        // changed to Timestamp
-        this.setTypeExpected(44, TypeNames.TIMESTAMP);// date end
-        this.setTypeExpected(45, TypeNames.INT);// item data ordinal, added tbh
-        this.setTypeExpected(46, TypeNames.STRING);// item group name, added
-        this.setTypeExpected(47, TypeNames.STRING);// secondary label
-        // tbh
-        this.setTypeExpected(48, TypeNames.INT);// item_data_type_id
-        this.setTypeExpected(49, TypeNames.STRING);// study_event_definition_oid
-        this.setTypeExpected(50, TypeNames.STRING);// crf_version_oid
-        this.setTypeExpected(51, TypeNames.STRING);// item_group_oid
-        this.setTypeExpected(52, TypeNames.STRING);// item_oid
-        this.setTypeExpected(53, TypeNames.STRING);// study_subject_oid
-        this.setTypeExpected(54, TypeNames.INT);// sed_order
-        this.setTypeExpected(55, TypeNames.INT);// crf_order
-        this.setTypeExpected(56, TypeNames.INT);// item_order
     }
 
     public void setDefinitionCrfItemTypesExpected() {
@@ -330,7 +249,7 @@ public class DatasetDAO extends AuditableEntityDAO {
         return eb;
     }
 
-    public Object getEntityFromHashMap(HashMap hm) {
+    public DatasetBean getEntityFromHashMap(HashMap hm) {
         DatasetBean eb = new DatasetBean();
         this.setEntityAuditInformation(eb, hm);
         eb.setDescription((String) hm.get("description"));
@@ -1003,5 +922,10 @@ public class DatasetDAO extends AuditableEntityDAO {
         }//
 
     }
+
+	@Override
+	public DatasetBean emptyBean() {
+		return new DatasetBean();
+	}
 
 }

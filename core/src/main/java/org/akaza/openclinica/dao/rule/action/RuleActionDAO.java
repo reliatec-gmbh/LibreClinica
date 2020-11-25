@@ -42,7 +42,7 @@ import javax.sql.DataSource;
  * @author Krikor Krumlian
  * 
  */
-public class RuleActionDAO extends AuditableEntityDAO {
+public class RuleActionDAO extends AuditableEntityDAO<RuleActionBean> {
 
     private EventCRFDAO eventCrfDao;
     private RuleSetDAO ruleSetDao;
@@ -255,5 +255,10 @@ public class RuleActionDAO extends AuditableEntityDAO {
 
         return al;
     }
+
+	@Override
+	public RuleActionBean emptyBean() {
+		return new RuleActionBean();
+	}
 
 }

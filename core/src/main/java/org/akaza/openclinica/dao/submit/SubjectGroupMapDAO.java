@@ -26,7 +26,7 @@ import javax.sql.DataSource;
  * @author jxu
  * 
  */
-public class SubjectGroupMapDAO extends AuditableEntityDAO {
+public class SubjectGroupMapDAO extends AuditableEntityDAO<SubjectGroupMapBean> {
 
     private void setQueryNames() {
         this.getCurrentPKName = "getCurrentPK";
@@ -91,7 +91,7 @@ public class SubjectGroupMapDAO extends AuditableEntityDAO {
      * getEntityFromHashMap, the method that gets the object from the database
      * query.
      */
-    public Object getEntityFromHashMap(HashMap hm) {
+    public SubjectGroupMapBean getEntityFromHashMap(HashMap hm) {
         SubjectGroupMapBean eb = new SubjectGroupMapBean();
         super.setEntityAuditInformation(eb, hm);
         // subject_group_map_id serial NOT NULL,
@@ -289,5 +289,10 @@ public class SubjectGroupMapDAO extends AuditableEntityDAO {
         this.executeUpdate(digester.getQuery("deleteTestGroupMap"), variables);
 
     }
+
+	@Override
+	public SubjectGroupMapBean emptyBean() {
+		return new SubjectGroupMapBean();
+	}
 
 }

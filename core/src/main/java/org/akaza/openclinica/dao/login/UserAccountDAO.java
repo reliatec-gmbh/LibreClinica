@@ -46,7 +46,7 @@ import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
  *         <P>
  *         expand on query to get all that from a select star?
  */
-public class UserAccountDAO extends AuditableEntityDAO {
+public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
     // private DataSource ds;
     // private DAODigester digester;
 
@@ -376,8 +376,8 @@ public class UserAccountDAO extends AuditableEntityDAO {
     }
 
     @Override
-    public Object getEntityFromHashMap(HashMap hm) {
-        UserAccountBean uab = (UserAccountBean) this.getEntityFromHashMap(hm, true);
+    public UserAccountBean getEntityFromHashMap(HashMap hm) {
+        UserAccountBean uab = this.getEntityFromHashMap(hm, true);
         return uab;
     }
 
@@ -409,7 +409,7 @@ public class UserAccountDAO extends AuditableEntityDAO {
         return Privilege.get(privId.intValue());
     }
 
-    public Object getEntityFromHashMap(HashMap hm, boolean findOwner) {
+    public UserAccountBean getEntityFromHashMap(HashMap hm, boolean findOwner) {
         UserAccountBean eb = new UserAccountBean();
 
         // pull out objects from hashmap
@@ -571,11 +571,11 @@ public class UserAccountDAO extends AuditableEntityDAO {
 
     public EntityBean findByUserName(String name) {
         this.setTypesExpected();
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
 
         variables.put(new Integer(1), name);
 
-        ArrayList alist = this.select(digester.getQuery("findByUserName"), variables);
+        ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findByUserName"), variables);
         UserAccountBean eb = new UserAccountBean();
         Iterator it = alist.iterator();
         if (it.hasNext()) {
@@ -1176,5 +1176,10 @@ public class UserAccountDAO extends AuditableEntityDAO {
         }
         return al;
     }
+
+	@Override
+	public UserAccountBean emptyBean() {
+		return new UserAccountBean();
+	}
 
 }

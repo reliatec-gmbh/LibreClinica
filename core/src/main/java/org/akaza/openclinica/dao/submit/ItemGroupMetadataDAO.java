@@ -7,18 +7,6 @@
  */
 package org.akaza.openclinica.dao.submit;
 
-import org.akaza.openclinica.bean.core.EntityBean;
-import org.akaza.openclinica.bean.submit.ItemGroupMetadataBean;
-import org.akaza.openclinica.dao.core.EntityDAO;
-import org.akaza.openclinica.dao.core.PreparedStatementFactory;
-import org.akaza.openclinica.dao.core.SQLFactory;
-import org.akaza.openclinica.dao.core.TypeNames;
-import org.akaza.openclinica.exception.OpenClinicaException;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -27,10 +15,17 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.akaza.openclinica.bean.core.EntityBean;
+import org.akaza.openclinica.bean.submit.ItemGroupMetadataBean;
+import org.akaza.openclinica.dao.core.EntityDAO;
+import org.akaza.openclinica.dao.core.SQLFactory;
+import org.akaza.openclinica.dao.core.TypeNames;
+import org.akaza.openclinica.exception.OpenClinicaException;
+
 /**
  * Created by IntelliJ IDEA. User: bruceperry Date: May 10, 2007
  */
-public class ItemGroupMetadataDAO<K extends String,V extends ArrayList> extends EntityDAO {
+public class ItemGroupMetadataDAO extends EntityDAO<ItemGroupMetadataBean> {
     public ItemGroupMetadataDAO(DataSource ds) {
         super(ds);
         // this.getCurrentPKName="findCurrentPKValue";
@@ -76,7 +71,7 @@ public class ItemGroupMetadataDAO<K extends String,V extends ArrayList> extends 
     }
 
     @Override
-    public Object getEntityFromHashMap(HashMap<String, Object> hm) {
+    public ItemGroupMetadataBean getEntityFromHashMap(HashMap<String, Object> hm) {
         ItemGroupMetadataBean meta = new ItemGroupMetadataBean();
         meta.setId((Integer) hm.get("item_group_metadata_id"));
         meta.setItemGroupId((Integer) hm.get("item_group_id"));
@@ -276,5 +271,10 @@ public class ItemGroupMetadataDAO<K extends String,V extends ArrayList> extends 
         }
         return beanList;
     }
+
+	@Override
+	public ItemGroupMetadataBean emptyBean() {
+		return new ItemGroupMetadataBean();
+	}
 
 }

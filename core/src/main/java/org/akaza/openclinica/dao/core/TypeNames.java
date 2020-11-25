@@ -7,8 +7,8 @@
  */
 package org.akaza.openclinica.dao.core;
 
-import java.sql.Date;
 import java.sql.Timestamp;
+import java.sql.Date;
 
 /**
  * @author ywang
@@ -62,6 +62,8 @@ public interface TypeNames {
 			return String.class;
 		case TypeNames.CHAR:
 			return Character.class;
+		case TypeNames.LONG:
+			return Long.class;
 		default:
 			String msg = "Type %s not supported";
 			throw new IllegalArgumentException(String.format(msg, type));

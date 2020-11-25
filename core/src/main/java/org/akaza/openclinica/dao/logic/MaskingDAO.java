@@ -27,7 +27,7 @@ import javax.sql.DataSource;
  *
  *
  */
-public class MaskingDAO extends AuditableEntityDAO {
+public class MaskingDAO extends AuditableEntityDAO<MaskingBean> {
     private DAODigester digester;
 
     @Override
@@ -70,7 +70,7 @@ public class MaskingDAO extends AuditableEntityDAO {
 
     }
 
-    public Object getEntityFromHashMap(HashMap hm) {
+    public MaskingBean getEntityFromHashMap(HashMap hm) {
         MaskingBean mb = new MaskingBean();
         this.setEntityAuditInformation(mb, hm);
         mb.setName((String) hm.get("name"));
@@ -122,5 +122,10 @@ public class MaskingDAO extends AuditableEntityDAO {
 
         return al;
     }
+
+	@Override
+	public MaskingBean emptyBean() {
+		return new MaskingBean();
+	}
 
 }

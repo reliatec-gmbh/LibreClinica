@@ -265,22 +265,6 @@ public class FormProcessor {
     }
 
     /**
-     * @param fieldName
-     *            The name of the HTML form field which holds the Entity's
-     *            primary key.
-     * @param edao
-     *            The data source for the Entity.
-     * @return The Entity whose primary key is specified by fieldName, and which
-     *         can be retrieved by edao.
-     * @throws OpenClinicaException
-     */
-    public EntityBean getEntity(String fieldName, EntityDAO edao) throws OpenClinicaException {
-        int id = getInt(fieldName);
-        EntityBean result = edao.findByPK(id);
-        return result;
-    }
-
-    /**
      * Precondition: ResourceBundleProvider's locale has been updated.
      * @param date
      * @return

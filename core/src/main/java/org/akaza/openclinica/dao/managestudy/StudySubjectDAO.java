@@ -36,7 +36,7 @@ import org.apache.commons.lang.StringUtils;
  * @author jxu
  *
  */
-public class StudySubjectDAO<K extends String,V extends ArrayList> extends AuditableEntityDAO {
+public class StudySubjectDAO extends AuditableEntityDAO<StudySubjectBean> {
 
     // private DAODigester digester;
 
@@ -96,9 +96,9 @@ public class StudySubjectDAO<K extends String,V extends ArrayList> extends Audit
 
         this.setTypeExpected(ind, TypeNames.DATE);
         ind++; // enrollment_date
-        this.setTypeExpected(ind, TypeNames.DATE);
+        this.setTypeExpected(ind, TypeNames.TIMESTAMP);
         ind++; // date_created
-        this.setTypeExpected(ind, TypeNames.DATE);
+        this.setTypeExpected(ind, TypeNames.TIMESTAMP);
         ind++; // date_updated
         this.setTypeExpected(ind, TypeNames.INT);
         ind++; // owner_id
@@ -112,85 +112,13 @@ public class StudySubjectDAO<K extends String,V extends ArrayList> extends Audit
  //       ind++; //
     }
 
-    public void setTypesExpectedFilter() {
-
-        this.unsetTypeExpected();
-        int ind = 1;
-        this.setTypeExpected(ind, TypeNames.INT);
-        ind++; // study_subject_id
-        this.setTypeExpected(ind, TypeNames.STRING);
-        ind++; // label
-        this.setTypeExpected(ind, TypeNames.STRING);
-        ind++; // secondary_label
-        this.setTypeExpected(ind, TypeNames.INT);
-        ind++; // subject_id
-        this.setTypeExpected(ind, TypeNames.INT);
-        ind++; // study_id
-        this.setTypeExpected(ind, TypeNames.INT);
-        ind++; // status_id
-
-        this.setTypeExpected(ind, TypeNames.DATE);
-        ind++; // enrollment_date
-        this.setTypeExpected(ind, TypeNames.TIMESTAMP);
-        ind++; // date_created
-        this.setTypeExpected(ind, TypeNames.TIMESTAMP);
-        ind++; // date_updated
-        this.setTypeExpected(ind, TypeNames.INT);
-        ind++; // owner_id
-        this.setTypeExpected(ind, TypeNames.INT);
-        ind++; // update_id
-        this.setTypeExpected(ind, TypeNames.STRING);
-        ind++; // oc oid
-        this.setTypeExpected(ind, TypeNames.STRING);
-        ind++;
-
-    }
-
-    public void setDNTypesExpected() {
-
-        this.unsetTypeExpected();
-        int ind = 1;
-        this.setTypeExpected(ind, TypeNames.INT);
-        ind++; // study_subject_id
-        this.setTypeExpected(ind, TypeNames.STRING);
-        ind++; // label
-        this.setTypeExpected(ind, TypeNames.STRING);
-        ind++; // secondary_label
-        this.setTypeExpected(ind, TypeNames.INT);
-        ind++; // subject_id
-        this.setTypeExpected(ind, TypeNames.INT);
-        ind++; // study_id
-        this.setTypeExpected(ind, TypeNames.INT);
-        ind++; // status_id
-
-        this.setTypeExpected(ind, TypeNames.DATE);
-        ind++; // enrollment_date
-        this.setTypeExpected(ind, TypeNames.DATE);
-        ind++; // date_created
-        this.setTypeExpected(ind, TypeNames.DATE);
-        ind++; // date_updated
-        this.setTypeExpected(ind, TypeNames.INT);
-        ind++; // owner_id
-        this.setTypeExpected(ind, TypeNames.INT);
-        ind++; // update_id
-        this.setTypeExpected(ind, TypeNames.STRING);
-        ind++; // oc oid
-        this.setTypeExpected(ind, TypeNames.STRING);
-        ind++; //
-        this.setTypeExpected(ind, TypeNames.STRING);
-        ind++; //
-        this.setTypeExpected(ind, TypeNames.STRING);
-        ind++; //
-
-    }
-
     /**
      * <p>
      * getEntityFromHashMap, the method that gets the object from the database
      * query.
      */
     @Override
-    public Object getEntityFromHashMap(HashMap hm) {
+    public StudySubjectBean getEntityFromHashMap(HashMap<String, Object> hm) {
         StudySubjectBean eb = new StudySubjectBean();
         super.setEntityAuditInformation(eb, hm);
         // STUDY_SUBJECT_ID, LABEL, SUBJECT_ID, STUDY_ID
@@ -265,25 +193,14 @@ public class StudySubjectDAO<K extends String,V extends ArrayList> extends Audit
     }
 
     public int countAllByStudySDV(int studyId, int parentStudyId, StudySubjectSDVFilter filter) {
-        this.unsetTypeExpected();
-        this.setTypeExpected(1, TypeNames.INT);
-
-        HashMap variables = new HashMap();
-        variables.put(1, studyId);
-        variables.put(2, parentStudyId);
-
-        String sql = digester.getQuery("countAllByStudySDV");
-        sql += filter.execute("");
-
-        ArrayList rows = this.select(sql, variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            Integer count = (Integer) ((HashMap) it.next()).get("count");
-            return count;
-        } else {
-            return 0;
+        HashMap<Integer, Object> variables = variables(studyId, parentStudyId);
+        String query = digester.getQuery("countAllByStudySDV");
+        query += filter.execute("");
+        Integer result = getCountByQuery(query, variables);
+        if(result == null) {
+        	result = 0;
         }
+        return result;
     }
 
     public int findTheGreatestLabel() {
@@ -421,6 +338,8 @@ public class StudySubjectDAO<K extends String,V extends ArrayList> extends Audit
     public EntityBean findByPK(int ID) {
         StudySubjectBean eb = new StudySubjectBean();
         this.setTypesExpected();
+        // type for 'unique_identifier' from the subject table
+        setTypeExpected(14, TypeNames.STRING);
 
         HashMap variables = new HashMap();
         variables.put(new Integer(1), new Integer(ID));
@@ -684,6 +603,9 @@ public class StudySubjectDAO<K extends String,V extends ArrayList> extends Audit
     public ArrayList<StudySubjectBean> getWithFilterAndSort(StudyBean currentStudy, FindSubjectsFilter filter, FindSubjectsSort sort, int rowStart, int rowEnd) {
         ArrayList<StudySubjectBean> studySubjects = new ArrayList<StudySubjectBean>();
         setTypesExpected();
+        // type for 'unique_identifier' from the subject table
+        setTypeExpected(14, TypeNames.STRING);
+        
         String partialSql;
         HashMap variables = new HashMap();
         variables.put(new Integer(1), currentStudy.getId());
@@ -721,31 +643,13 @@ public class StudySubjectDAO<K extends String,V extends ArrayList> extends Audit
     }
 
     public Integer getCountofStudySubjectsAtStudyOrSite(StudyBean currentStudy) {
-        StudySubjectBean studySubjectBean = new StudySubjectBean();
-        setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), currentStudy.getId());
-        String sql = digester.getQuery("getCountofStudySubjectsAtStudyOrSite");
-
-        ArrayList rows = this.select(sql, variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            Integer count = (Integer) ((HashMap) it.next()).get("count");
-            return count;
-        } else {
-            return null;
-        }
+        HashMap<Integer, Object> variables = variables(currentStudy.getId());
+        String query = digester.getQuery("getCountofStudySubjectsAtStudyOrSite");
+        return getCountByQuery(query, variables);
     }
 
-
-
     public Integer getTotalCountStudySubjectForCrfMigration(CRFVersionBean sourceCrfVersionBean , CRFVersionBean targetCrfVersionBean ,ArrayList<String> studyEventDefnlist ,ArrayList<String>  sitelist) {
-        StudySubjectBean studySubjectBean = new StudySubjectBean();
-        setTypesExpected();
-
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         String eventStr =StringUtils.join(studyEventDefnlist, ",");
         String siteStr =StringUtils.join(sitelist, ",");
         variables.put(new Integer(1), new Integer(sourceCrfVersionBean.getId()));
@@ -754,25 +658,13 @@ public class StudySubjectDAO<K extends String,V extends ArrayList> extends Audit
         variables.put(4, String.valueOf(sourceCrfVersionBean.getId()));
         variables.put(5, String.valueOf(targetCrfVersionBean.getId()));
 
-        String sql = digester.getQuery("getTotalCountStudySubjectForCrfMigration");
-
-        ArrayList rows = this.select(sql, variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            Integer count = (Integer) ((HashMap) it.next()).get("count");
-            return count;
-        } else {
-            return null;
-        }
+        String query = digester.getQuery("getTotalCountStudySubjectForCrfMigration");
+        return getCountByQuery(query, variables);
     }
 
 
     public Integer getTotalEventCrfCountForCrfMigration(CRFVersionBean sourceCrfVersionBean , CRFVersionBean targetCrfVersionBean ,ArrayList<String> studyEventDefnlist ,ArrayList<String>  sitelist) {
-        StudySubjectBean studySubjectBean = new StudySubjectBean();
-        setTypesExpected();
-
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         String eventStr =StringUtils.join(studyEventDefnlist, ",");
         String siteStr =StringUtils.join(sitelist, ",");
         variables.put(new Integer(1), new Integer(sourceCrfVersionBean.getId()));
@@ -781,100 +673,36 @@ public class StudySubjectDAO<K extends String,V extends ArrayList> extends Audit
         variables.put(4, String.valueOf(sourceCrfVersionBean.getId()));
         variables.put(5, String.valueOf(targetCrfVersionBean.getId()));
 
-        String sql = digester.getQuery("getTotalEventCrfCountForCrfMigration");
-
-        ArrayList rows = this.select(sql, variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            Integer count = (Integer) ((HashMap) it.next()).get("count");
-            return count;
-        } else {
-            return null;
-        }
+        String query = digester.getQuery("getTotalEventCrfCountForCrfMigration");
+        return getCountByQuery(query, variables);
     }
 
 
     public Integer getCountofStudySubjectsAtStudy(StudyBean currentStudy) {
-        StudySubjectBean studySubjectBean = new StudySubjectBean();
-        setTypesExpected();
-
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), currentStudy.getId());
         variables.put(new Integer(2), currentStudy.getId());
-        String sql = digester.getQuery("getCountofStudySubjectsAtStudy");
-
-        ArrayList rows = this.select(sql, variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            Integer count = (Integer) ((HashMap) it.next()).get("count");
-            return count;
-        } else {
-            return null;
-        }
+        String query = digester.getQuery("getCountofStudySubjectsAtStudy");
+        return getCountByQuery(query, variables);
     }
 
     public Integer getCountofStudySubjects(StudyBean currentStudy) {
-        StudySubjectBean studySubjectBean = new StudySubjectBean();
-        setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), currentStudy.getId());
-        variables.put(new Integer(2), currentStudy.getId());
-        String sql = digester.getQuery("getCountofStudySubjects");
-
-        ArrayList rows = this.select(sql, variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            Integer count = (Integer) ((HashMap) it.next()).get("count");
-            return count;
-        } else {
-            return null;
-        }
+        HashMap<Integer, Object> variables = variables(currentStudy.getId(), currentStudy.getId());
+        String query = digester.getQuery("getCountofStudySubjects");
+        return getCountByQuery(query, variables);
     }
 
     public Integer getCountofStudySubjectsBasedOnStatus(StudyBean currentStudy, Status status) {
-        StudySubjectBean studySubjectBean = new StudySubjectBean();
-        setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), currentStudy.getId());
-        variables.put(new Integer(2), currentStudy.getId());
-        variables.put(new Integer(3), status.getId());
-        String sql = digester.getQuery("getCountofStudySubjectsBasedOnStatus");
-
-        ArrayList rows = this.select(sql, variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            Integer count = (Integer) ((HashMap) it.next()).get("count");
-            return count;
-        } else {
-            return null;
-        }
+        HashMap<Integer, Object> variables = variables(currentStudy.getId(), currentStudy.getId(), status.getId());
+        String query = digester.getQuery("getCountofStudySubjectsBasedOnStatus");
+        return getCountByQuery(query, variables);
     }
 
     public Integer getCountWithFilter(ListDiscNotesSubjectFilter filter, StudyBean currentStudy) {
-        StudySubjectBean studySubjectBean = new StudySubjectBean();
-        setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), currentStudy.getId());
-        variables.put(new Integer(2), currentStudy.getId());
-        String sql = digester.getQuery("getCountWithFilterListDiscNotes");
-        sql += filter.execute("");
-
-        ArrayList rows = this.select(sql, variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            Integer count = (Integer) ((HashMap) it.next()).get("count");
-            return count;
-        } else {
-            return null;
-        }
+        HashMap<Integer, Object> variables = variables(currentStudy.getId(), currentStudy.getId());
+        String query = digester.getQuery("getCountWithFilterListDiscNotes");
+        query += filter.execute("");
+        return getCountByQuery(query, variables);
     }
 
     public ArrayList<StudySubjectBean> getWithFilterAndSort(StudyBean currentStudy, ListDiscNotesSubjectFilter filter, ListDiscNotesSubjectSort sort,
@@ -907,24 +735,10 @@ public class StudySubjectDAO<K extends String,V extends ArrayList> extends Audit
     }
 
     public Integer getCountWithFilter(ListDiscNotesForCRFFilter filter, StudyBean currentStudy) {
-        StudySubjectBean studySubjectBean = new StudySubjectBean();
-        setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), currentStudy.getId());
-        variables.put(new Integer(2), currentStudy.getId());
-        String sql = digester.getQuery("getCountWithFilterListDiscNotes");
-        sql += filter.execute("");
-
-        ArrayList rows = this.select(sql, variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            Integer count = (Integer) ((HashMap) it.next()).get("count");
-            return count;
-        } else {
-            return null;
-        }
+        HashMap<Integer, Object> variables = variables(currentStudy.getId(), currentStudy.getId());
+        String query = digester.getQuery("getCountWithFilterListDiscNotes");
+        query += filter.execute("");
+        return getCountByQuery(query, variables);
     }
 
     public ArrayList<StudySubjectBean> getWithFilterAndSort(StudyBean currentStudy, ListDiscNotesForCRFFilter filter, ListDiscNotesForCRFSort sort,
@@ -957,29 +771,18 @@ public class StudySubjectDAO<K extends String,V extends ArrayList> extends Audit
     }
 
     public Integer getCountWithFilter(FindSubjectsFilter filter, StudyBean currentStudy) {
-        StudySubjectBean studySubjectBean = new StudySubjectBean();
-        setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), currentStudy.getId());
-        variables.put(new Integer(2), currentStudy.getId());
-        String sql = digester.getQuery("getCountWithFilter");
-        sql += filter.execute("");
-
-        ArrayList rows = this.select(sql, variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            Integer count = (Integer) ((HashMap) it.next()).get("count");
-            return count;
-        } else {
-            return null;
-        }
+        HashMap<Integer, Object> variables = variables(currentStudy.getId(), currentStudy.getId());
+        String query = digester.getQuery("getCountWithFilter");
+        query += filter.execute("");
+        return getCountByQuery(query, variables);
     }
 
     public ArrayList<StudySubjectBean> getWithFilterAndSort(StudyBean currentStudy, StudyAuditLogFilter filter, StudyAuditLogSort sort, int rowStart, int rowEnd) {
         ArrayList<StudySubjectBean> studySubjects = new ArrayList<StudySubjectBean>();
-        setTypesExpectedFilter();
+        setTypesExpected();
+        this.setTypeExpected(14, TypeNames.DATE);
+        this.setTypeExpected(15, TypeNames.STRING);
+        this.setTypeExpected(16, TypeNames.STRING);
 
         HashMap variables = new HashMap();
         variables.put(new Integer(1), currentStudy.getId());
@@ -1007,24 +810,10 @@ public class StudySubjectDAO<K extends String,V extends ArrayList> extends Audit
     }
 
     public Integer getCountWithFilter(StudyAuditLogFilter filter, StudyBean currentStudy) {
-        StudySubjectBean studySubjectBean = new StudySubjectBean();
-        setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), currentStudy.getId());
-        variables.put(new Integer(2), currentStudy.getId());
-        String sql = digester.getQuery("getCountWithFilterAuditLog");
-        sql += filter.execute("");
-
-        ArrayList rows = this.select(sql, variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            Integer count = (Integer) ((HashMap) it.next()).get("count");
-            return count;
-        } else {
-            return null;
-        }
+        HashMap<Integer, Object> variables = variables(currentStudy.getId(), currentStudy.getId());
+        String query = digester.getQuery("getCountWithFilterAuditLog");
+        query += filter.execute("");
+        return getCountByQuery(query, variables);
     }
 
     public ArrayList<StudySubjectBean> getWithFilterAndSort(StudyBean currentStudy, ListEventsForSubjectFilter filter, ListEventsForSubjectSort sort,
@@ -1057,24 +846,10 @@ public class StudySubjectDAO<K extends String,V extends ArrayList> extends Audit
     }
 
     public Integer getCountWithFilter(ListEventsForSubjectFilter filter, StudyBean currentStudy) {
-        StudySubjectBean studySubjectBean = new StudySubjectBean();
-        setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), currentStudy.getId());
-        variables.put(new Integer(2), currentStudy.getId());
-        String sql = digester.getQuery("getCountWithFilter");
-        sql += filter.execute("");
-
-        ArrayList rows = this.select(sql, variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            Integer count = (Integer) ((HashMap) it.next()).get("count");
-            return count;
-        } else {
-            return null;
-        }
+        HashMap<Integer, Object> variables = variables(currentStudy.getId(), currentStudy.getId());
+        String query = digester.getQuery("getCountWithFilter");
+        query += filter.execute("");
+        return getCountByQuery(query, variables);
     }
 
     /**
@@ -1158,6 +933,8 @@ public class StudySubjectDAO<K extends String,V extends ArrayList> extends Audit
 
         this.unsetTypeExpected();
         setTypesExpected();
+        // type for 'unique_identifier' from the study table
+        setTypeExpected(14, TypeNames.STRING);
 
         HashMap variables = new HashMap();
         variables.put(new Integer(1), new Integer(subjectId));
@@ -1184,38 +961,12 @@ public class StudySubjectDAO<K extends String,V extends ArrayList> extends Audit
         ArrayList answer = new ArrayList();
 
         this.setTypesExpected();
-        int ind = 1;
-        this.setTypeExpected(ind, TypeNames.STRING);
-        ind++; // unique_identifier
-        this.setTypeExpected(ind, TypeNames.CHAR);
-        ind++; // gender
-        this.setTypeExpected(ind, TypeNames.INT);
-        ind++; // study_subject_id
-        this.setTypeExpected(ind, TypeNames.STRING);
-        ind++; // label
-        this.setTypeExpected(ind, TypeNames.STRING);
-        ind++; // secondary_label
-        this.setTypeExpected(ind, TypeNames.INT);
-        ind++; // subject_id
-        this.setTypeExpected(ind, TypeNames.INT);
-        ind++; // study_id
-        this.setTypeExpected(ind, TypeNames.INT);
-        ind++; // status_id
-
-        this.setTypeExpected(ind, TypeNames.DATE);
-        ind++; // enrollment_date
-        this.setTypeExpected(ind, TypeNames.DATE);
-        ind++; // date_created
-        this.setTypeExpected(ind, TypeNames.DATE);
-        ind++; // date_updated
-        this.setTypeExpected(ind, TypeNames.INT);
-        ind++; // owner_id
-        this.setTypeExpected(ind, TypeNames.INT);
-        ind++; // update_id
-        this.setTypeExpected(ind, TypeNames.STRING);
-        ind++; // secondary_label
-        this.setTypeExpected(ind, TypeNames.STRING);
-        ind++; // studyName
+        this.setTypeExpected(14, TypeNames.STRING);
+        // unique_identifier
+        this.setTypeExpected(15, TypeNames.STRING);
+        // gender
+        this.setTypeExpected(16, TypeNames.STRING);
+        // study.name
 
         HashMap variables = new HashMap();
         variables.put(new Integer(1), new Integer(studyId));
@@ -1270,57 +1021,9 @@ public class StudySubjectDAO<K extends String,V extends ArrayList> extends Audit
         studySubjectIds = studySubjectIds.endsWith(",")?studySubjectIds.substring(0, studySubjectIds.length()-1):studySubjectIds;
         return studySubjectIds;
     }
-    //Jn: Commenting out the studySubjectDao's caching since its used only in one place in dataentry and is causing issues when trying to add new subject to a study event via createNewStudyEvent
-   /* @Override
-    public ArrayList<V> select(String query, HashMap variables) {
-        clearSignals();
 
-        ArrayList results = new ArrayList();
-        V  value;
-        K key;
-        ResultSet rs = null;
-        Connection con = null;
-        PreparedStatementFactory psf = new PreparedStatementFactory(variables);
-        PreparedStatement ps = null;
-
-        try {
-            con = ds.getConnection();
-            if (con.isClosed()) {
-                if (logger.isWarnEnabled())
-                    logger.warn("Connection is closed: GenericDAO.select!");
-                throw new SQLException();
-            }
-
-           ps = con.prepareStatement(query);
-
-
-            ps = psf.generate(ps);// enter variables here!
-            key = (K) ps.toString();
-            if((results=(V) cache.get(key))==null)
-            {
-            rs = ps.executeQuery();
-            results = this.processResultRows(rs);
-            if(results!=null){
-                cache.put(key,results);
-            }
-            }
-
-            if (logger.isInfoEnabled()) {
-                logger.info("Executing dynamic query, EntityDAO.select:query " + query);
-            }
-            signalSuccess();
-
-
-        } catch (SQLException sqle) {
-            signalFailure(sqle);
-            if (logger.isWarnEnabled()) {
-                logger.warn("Exception while executing dynamic query, GenericDAO.select: " + query + ":message: " + sqle.getMessage());
-                sqle.printStackTrace();
-            }
-        } finally {
-            this.closeIfNecessary(con, rs, ps);
-        }
-        return results;
-
-    }*/
+	@Override
+	public StudySubjectBean emptyBean() {
+		return new StudySubjectBean();
+	}
 }

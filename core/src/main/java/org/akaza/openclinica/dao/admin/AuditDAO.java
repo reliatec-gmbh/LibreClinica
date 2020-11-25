@@ -36,7 +36,7 @@ import javax.sql.DataSource;
  * @author jsampson
  *
  */
-public class AuditDAO extends EntityDAO {
+public class AuditDAO extends EntityDAO<AuditBean> {
     // private DAODigester digester;
     // YW 12-06-2007 <<!!! Be careful when there is item with data-type as
     // "Date".
@@ -102,7 +102,7 @@ public class AuditDAO extends EntityDAO {
      * getEntityFromHashMap, the method that gets the object from the database
      * query.
      */
-    public Object getEntityFromHashMap(HashMap hm) {
+    public AuditBean getEntityFromHashMap(HashMap hm) {
         AuditBean eb = new AuditBean();
         // AUDIT_ID AUDIT_DATE AUDIT_TABLE USER_ID ENTITY_ID
         // REASON_FOR_CHANGE
@@ -601,5 +601,10 @@ public class AuditDAO extends EntityDAO {
             return null;
         }
     }
+
+	@Override
+	public AuditBean emptyBean() {
+		return new AuditBean();
+	}
   
 }

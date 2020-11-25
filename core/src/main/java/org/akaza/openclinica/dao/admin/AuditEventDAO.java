@@ -35,7 +35,7 @@ import javax.sql.DataSource;
  * 
  * 
  */
-public class AuditEventDAO extends AuditableEntityDAO {
+public class AuditEventDAO extends AuditableEntityDAO<AuditEventBean> {
     // private DAODigester digester;
 
     public AuditEventDAO(DataSource ds) {
@@ -71,7 +71,7 @@ public class AuditEventDAO extends AuditableEntityDAO {
      * getEntityFromHashMap, the method that gets the object from the database
      * query.
      */
-    public Object getEntityFromHashMap(HashMap hm) {
+    public AuditEventBean getEntityFromHashMap(HashMap<String, Object> hm) {
         AuditEventBean eb = new AuditEventBean();
         // AUDIT_ID AUDIT_DATE AUDIT_TABLE USER_ID ENTITY_ID
         // REASON_FOR_CHANGE
@@ -170,7 +170,7 @@ public class AuditEventDAO extends AuditableEntityDAO {
      * getEntityFromHashMap, the method that gets the object from the database
      * query.
      */
-    public Object getColumnNameFromHashMap(HashMap hm) {
+    public AuditEventBean getColumnNameFromHashMap(HashMap hm) {
         AuditEventBean eb = new AuditEventBean();
 
         eb.setColumnName((String) hm.get("column_name"));
@@ -350,24 +350,23 @@ public class AuditEventDAO extends AuditableEntityDAO {
         return al;
     }
 
-    public Collection findAggregatesByTableName(String tableName) {
+    public ArrayList<AuditEventBean> findAggregatesByTableName(String tableName) {
         this.unsetTypeExpected();
-        this.setTypeExpected(1, TypeNames.INT);
+        this.setTypeExpected(1, TypeNames.LONG);
         this.setTypeExpected(2, TypeNames.STRING);
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), tableName);
 
         String sql = digester.getQuery("findAggregatesByTableName");
         logger.debug("sql is: " + sql);
-        ArrayList alist = this.select(sql, variables);
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
         logger.debug("size is: " + alist.size());
 
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
+        ArrayList<AuditEventBean> al = new ArrayList<>();
 
-        while (it.hasNext()) {
-            logger.debug("has next..");
-            AuditEventBean eb = (AuditEventBean) this.getColumnNameFromHashMap((HashMap) it.next());
+        for (HashMap<String, Object> map : alist) {
+			logger.debug("has next..");
+            AuditEventBean eb = this.getColumnNameFromHashMap(map);
             logger.debug("got bean");
             al.add(eb);
         }
@@ -664,4 +663,8 @@ public class AuditEventDAO extends AuditableEntityDAO {
         return al;
     }
 
+	@Override
+	public AuditEventBean emptyBean() {
+		return new AuditEventBean();
+	}
 }

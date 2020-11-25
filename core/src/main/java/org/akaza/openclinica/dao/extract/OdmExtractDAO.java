@@ -478,7 +478,7 @@ public class OdmExtractDAO extends DatasetDAO {
         ++i;
         this.setTypeExpected(i, TypeNames.INT); // owner_id
         ++i;
-        this.setTypeExpected(i, TypeNames.DATE); // date_created
+        this.setTypeExpected(i, TypeNames.TIMESTAMP); // date_created
         ++i;
         this.setTypeExpected(i, TypeNames.STRING); // status
         ++i;
@@ -502,7 +502,7 @@ public class OdmExtractDAO extends DatasetDAO {
         ++i;
         this.setTypeExpected(i, TypeNames.INT); // owner_id
         ++i;
-        this.setTypeExpected(i, TypeNames.DATE); // date_created
+        this.setTypeExpected(i, TypeNames.TIMESTAMP); // date_created
         ++i;
         this.setTypeExpected(i, TypeNames.STRING); // status
         ++i;
@@ -524,7 +524,7 @@ public class OdmExtractDAO extends DatasetDAO {
         ++i;
         this.setTypeExpected(i, TypeNames.INT); // owner_id
         ++i;
-        this.setTypeExpected(i, TypeNames.DATE); // date_created
+        this.setTypeExpected(i, TypeNames.TIMESTAMP); // date_created
         ++i;
         this.setTypeExpected(i, TypeNames.STRING); // status
         ++i;
@@ -546,7 +546,7 @@ public class OdmExtractDAO extends DatasetDAO {
         ++i;
         this.setTypeExpected(i, TypeNames.INT); // owner_id
         ++i;
-        this.setTypeExpected(i, TypeNames.DATE); // date_created
+        this.setTypeExpected(i, TypeNames.TIMESTAMP); // date_created
         ++i;
         this.setTypeExpected(i, TypeNames.STRING); // status
         ++i;
@@ -736,7 +736,7 @@ public class OdmExtractDAO extends DatasetDAO {
     public void getODMMetadataForForm(MetaDataVersionBean metadata,String formVersionOID,String odmVersion){
     	  FormDefBean formDef = new FormDefBean();
     	  String cvIds = new String("");
-    	  CRFVersionDAO<String, ArrayList> crfVersionDAO = new CRFVersionDAO<String, ArrayList>(this.ds);
+    	  CRFVersionDAO crfVersionDAO = new CRFVersionDAO(this.ds);
   	 	CRFVersionBean crfVersionBean = crfVersionDAO.findByOid(formVersionOID);
   	 	cvIds =crfVersionBean.getId()+"";
   	 	
@@ -879,7 +879,7 @@ public class OdmExtractDAO extends DatasetDAO {
 
 	public FormDefBean fetchFormDetails(CRFVersionBean crfVBean,FormDefBean formDef){
     
-    	CRFDAO<String, ArrayList> crfDao = new CRFDAO(this.ds);
+    	CRFDAO crfDao = new CRFDAO(this.ds);
     	CRFBean crfBean   = (CRFBean) crfDao.findByPK(crfVBean.getCrfId());  	
     	formDef.setOid(crfVBean.getOid());
     	formDef.setName(crfBean.getName() + " - " +crfVBean.getName());

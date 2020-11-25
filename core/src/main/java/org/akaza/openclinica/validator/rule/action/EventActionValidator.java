@@ -103,7 +103,7 @@ public class EventActionValidator implements Validator {
 
     private boolean isEventActionValueExpressionValid(PropertyBean property, AuditableBeanWrapper<RuleSetBean> ruleSetBeanWrapper) {
 
-        StudyDAO studyDAO =  new StudyDAO<String, ArrayList>(getDataSource());
+        StudyDAO studyDAO =  new StudyDAO(getDataSource());
         StudyBean study = (StudyBean) studyDAO.findByPK(ruleSetBeanWrapper.getAuditableBean().getStudyId());
                
         ExpressionBean expressionBean = isExpressionValid(property.getValueExpression(), ruleSetBeanWrapper);

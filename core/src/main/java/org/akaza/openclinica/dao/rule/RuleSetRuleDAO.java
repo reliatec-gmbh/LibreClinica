@@ -36,7 +36,7 @@ import javax.sql.DataSource;
  * @author Krikor Krumlian
  * 
  */
-public class RuleSetRuleDAO extends AuditableEntityDAO {
+public class RuleSetRuleDAO extends AuditableEntityDAO<RuleSetRuleBean> {
 
     private RuleDAO ruleDao;
     private RuleSetDAO ruleSetDao;
@@ -199,7 +199,7 @@ public class RuleSetRuleDAO extends AuditableEntityDAO {
         return ruleSetRuleBean;
     }
 
-    public Object getEntityFromHashMap(HashMap hm) {
+    public RuleSetRuleBean getEntityFromHashMap(HashMap hm) {
         RuleSetRuleBean ruleSetRuleBean = new RuleSetRuleBean();
         this.setEntityAuditInformation(ruleSetRuleBean, hm);
 
@@ -210,7 +210,7 @@ public class RuleSetRuleDAO extends AuditableEntityDAO {
         return ruleSetRuleBean;
     }
 
-    public Object getEntityFromHashMap(HashMap hm, Boolean getRuleSet) {
+    public RuleSetRuleBean getEntityFromHashMap(HashMap hm, Boolean getRuleSet) {
         RuleSetRuleBean ruleSetRuleBean = new RuleSetRuleBean();
         this.setEntityAuditInformation(ruleSetRuleBean, hm);
 
@@ -300,8 +300,8 @@ public class RuleSetRuleDAO extends AuditableEntityDAO {
         return ruleSetRuleBeans;
     }
 
-    public RuleSetBean findByStudyEventDefinition(StudyEventDefinitionBean studyEventDefinition) {
-        RuleSetBean ruleSetBean = null;
+    public RuleSetRuleBean findByStudyEventDefinition(StudyEventDefinitionBean studyEventDefinition) {
+    	RuleSetRuleBean ruleSetBean = null;
         this.setTypesExpected();
 
         HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
@@ -313,7 +313,7 @@ public class RuleSetRuleDAO extends AuditableEntityDAO {
         Iterator it = alist.iterator();
 
         if (it.hasNext()) {
-            ruleSetBean = (RuleSetBean) this.getEntityFromHashMap((HashMap) it.next());
+            ruleSetBean = this.getEntityFromHashMap((HashMap) it.next());
         }
         return ruleSetBean;
     }
@@ -344,5 +344,10 @@ public class RuleSetRuleDAO extends AuditableEntityDAO {
 
         return al;
     }
+
+	@Override
+	public RuleSetRuleBean emptyBean() {
+		return new RuleSetRuleBean();
+	}
 
 }

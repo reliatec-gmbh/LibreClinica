@@ -30,7 +30,7 @@ import javax.sql.DataSource;
  * TODO To change the template for this generated type comment go to Window -
  * Preferences - Java - Code Style - Code Templates
  */
-public class ArchivedDatasetFileDAO extends AuditableEntityDAO {
+public class ArchivedDatasetFileDAO extends AuditableEntityDAO<ArchivedDatasetFileBean> {
     private DAODigester digester;
 
     public ArchivedDatasetFileDAO(DataSource ds) {
@@ -63,7 +63,7 @@ public class ArchivedDatasetFileDAO extends AuditableEntityDAO {
         this.setTypeExpected(5, TypeNames.STRING);// file_reference
         this.setTypeExpected(6, TypeNames.INT);// run_time
         this.setTypeExpected(7, TypeNames.INT);// file_size
-        this.setTypeExpected(8, TypeNames.DATE);// date_created
+        this.setTypeExpected(8, TypeNames.TIMESTAMP);// date_created
         this.setTypeExpected(9, TypeNames.INT);// owner id
     }
 
@@ -101,7 +101,7 @@ public class ArchivedDatasetFileDAO extends AuditableEntityDAO {
         return fb;
     }
 
-    public Object getEntityFromHashMap(HashMap hm) {
+    public ArchivedDatasetFileBean getEntityFromHashMap(HashMap hm) {
         ArchivedDatasetFileBean fb = new ArchivedDatasetFileBean();
         fb.setId(((Integer) hm.get("archived_dataset_file_id")).intValue());
         fb.setDateCreated((Date) hm.get("date_created"));
@@ -212,4 +212,9 @@ public class ArchivedDatasetFileDAO extends AuditableEntityDAO {
 
         return al;
     }
+
+	@Override
+	public ArchivedDatasetFileBean emptyBean() {
+		return new ArchivedDatasetFileBean();
+	}
 }

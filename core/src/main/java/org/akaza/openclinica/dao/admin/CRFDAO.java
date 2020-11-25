@@ -31,7 +31,7 @@ import org.akaza.openclinica.dao.core.TypeNames;
  * @author thickerson
  * 
  */
-public class CRFDAO<K extends String, V extends ArrayList> extends AuditableEntityDAO {
+public class CRFDAO extends AuditableEntityDAO<CRFBean> {
     // private DataSource ds;
     // private DAODigester digester;
 
@@ -80,16 +80,14 @@ public class CRFDAO<K extends String, V extends ArrayList> extends AuditableEnti
 
     public EntityBean create(EntityBean eb) {
         CRFBean cb = (CRFBean) eb;
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(Integer.valueOf(1), Integer.valueOf(cb.getStatus().getId()));
-        // variables.put(Integer.valueOf(2), cb.getLabel());
         variables.put(Integer.valueOf(2), cb.getName());
         variables.put(Integer.valueOf(3), cb.getDescription());
         variables.put(Integer.valueOf(4), Integer.valueOf(cb.getOwner().getId()));
         variables.put(Integer.valueOf(5), getValidOid(cb, cb.getName()));
         variables.put(Integer.valueOf(6), cb.getStudyId());
-        // am i the only one who runs their daos' unit tests after I change
-        // things, tbh?
+        
         this.executeUpdate(digester.getQuery("create"), variables);
         if (isQuerySuccessful()) {
             cb.setActive(true);
@@ -97,9 +95,12 @@ public class CRFDAO<K extends String, V extends ArrayList> extends AuditableEnti
         return cb;
     }
 
-    public Object getEntityFromHashMap(HashMap hm) {
+    @Override
+    public CRFBean getEntityFromHashMap(HashMap<String, Object> hm) {
         CRFBean eb = new CRFBean();
+        // set common informations
         this.setEntityAuditInformation(eb, hm);
+        // set crf specific informations
         eb.setId(((Integer) hm.get("crf_id")).intValue());
         eb.setName((String) hm.get("name"));
         eb.setDescription((String) hm.get("description"));
@@ -114,19 +115,8 @@ public class CRFDAO<K extends String, V extends ArrayList> extends AuditableEnti
     }
 
     public Integer getCountofActiveCRFs() {
-        setTypesExpected();
-
         String sql = digester.getQuery("getCountofCRFs");
-
-        ArrayList rows = this.select(sql);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            Integer count = (Integer) ((HashMap) it.next()).get("count");
-            return count;
-        } else {
-            return null;
-        }
+        return getCountByQuery(sql, new HashMap<>());
     }
 
     public Collection findAllByStudy(int studyId) {
@@ -339,7 +329,7 @@ public class CRFDAO<K extends String, V extends ArrayList> extends AuditableEnti
 
     @SuppressWarnings("unchecked")
     public ArrayList<CRFBean> findAllByOid(String oid) {
-        HashMap<Integer, String> variables = new HashMap<Integer, String>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(Integer.valueOf(1), oid);
 
         return executeFindAllQuery("findByOID", variables);
@@ -389,5 +379,10 @@ public class CRFDAO<K extends String, V extends ArrayList> extends AuditableEnti
 
         return result;
     }
+
+	@Override
+	public CRFBean emptyBean() {
+		return new CRFBean();
+	}
 
 }

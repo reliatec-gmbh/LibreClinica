@@ -46,7 +46,7 @@ import org.akaza.openclinica.service.rule.StudyEventBeanListener;
  *         Modified by ywang.
  *
  */
-public class StudyEventDAO extends AuditableEntityDAO implements Listener {
+public class StudyEventDAO extends AuditableEntityDAO<StudyEventBean> implements Listener {
     
 	
 	private Observer observer;
@@ -100,8 +100,8 @@ public class StudyEventDAO extends AuditableEntityDAO implements Listener {
         this.setTypeExpected(8, TypeNames.INT);
 
         this.setTypeExpected(9, TypeNames.INT);
-        this.setTypeExpected(10, TypeNames.DATE);
-        this.setTypeExpected(11, TypeNames.DATE);
+        this.setTypeExpected(10, TypeNames.TIMESTAMP);
+        this.setTypeExpected(11, TypeNames.TIMESTAMP);
         this.setTypeExpected(12, TypeNames.INT);
         this.setTypeExpected(13, TypeNames.INT);
         // YW 08-17-2007 <<
@@ -129,8 +129,8 @@ public class StudyEventDAO extends AuditableEntityDAO implements Listener {
         this.setTypeExpected(8, TypeNames.INT);
 
         this.setTypeExpected(9, TypeNames.INT);
-        this.setTypeExpected(10, TypeNames.DATE);
-        this.setTypeExpected(11, TypeNames.DATE);
+        this.setTypeExpected(10, TypeNames.TIMESTAMP);
+        this.setTypeExpected(11, TypeNames.TIMESTAMP);
         this.setTypeExpected(12, TypeNames.INT);
         this.setTypeExpected(13, TypeNames.INT);
         // YW 08-17-2007 <<
@@ -164,7 +164,7 @@ public class StudyEventDAO extends AuditableEntityDAO implements Listener {
      * getEntityFromHashMap, the method that gets the object from the database
      * query.
      */
-    public Object getEntityFromHashMap(HashMap hm) {
+    public StudyEventBean getEntityFromHashMap(HashMap hm) {
         StudyEventBean eb = new StudyEventBean();
         super.setEntityAuditInformation(eb, hm);
         // STUDY_EVENT_ID STUDY_EVENT_DEFINITION_ID SUBJECT_ID LOCATION
@@ -267,42 +267,15 @@ public class StudyEventDAO extends AuditableEntityDAO implements Listener {
     }
 
     public Integer getCountofEventsBasedOnEventStatus(StudyBean currentStudy, SubjectEventStatus subjectEventStatus) {
-        setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(Integer.valueOf(1), currentStudy.getId());
-        variables.put(Integer.valueOf(2), currentStudy.getId());
-        variables.put(Integer.valueOf(3), subjectEventStatus.getId());
-        String sql = digester.getQuery("getCountofEventsBasedOnEventStatus");
-
-        ArrayList rows = this.select(sql, variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            Integer count = (Integer) ((HashMap) it.next()).get("count");
-            return count;
-        } else {
-            return null;
-        }
+        HashMap<Integer, Object> variables = variables(currentStudy.getId(), currentStudy.getId(), subjectEventStatus.getId());
+        String query = digester.getQuery("getCountofEventsBasedOnEventStatus");
+        return getCountByQuery(query, variables);
     }
 
     public Integer getCountofEvents(StudyBean currentStudy) {
-        setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(Integer.valueOf(1), currentStudy.getId());
-        variables.put(Integer.valueOf(2), currentStudy.getId());
-        String sql = digester.getQuery("getCountofEvents");
-
-        ArrayList rows = this.select(sql, variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            Integer count = (Integer) ((HashMap) it.next()).get("count");
-            return count;
-        } else {
-            return null;
-        }
+        HashMap<Integer, Object> variables = variables(currentStudy.getId(), currentStudy.getId());
+        String query = digester.getQuery("getCountofEvents");
+        return getCountByQuery(query, variables);
     }
 
     public StudyEventBean findAllByStudyEventDefinitionAndCrfOidsAndOrdinal(String studyEventDefinitionOid, String crfOrCrfVersionOid, String ordinal,
@@ -1181,21 +1154,13 @@ public class StudyEventDAO extends AuditableEntityDAO implements Listener {
     }
 
     public Integer countNotRemovedEvents(Integer studyEventDefinitionId) {
-        this.unsetTypeExpected();
-        this.setTypeExpected(1, TypeNames.INT);
-        HashMap variables = new HashMap();
-        variables.put(Integer.valueOf(1), studyEventDefinitionId);
-        String sql = digester.getQuery("countNotRemovedEvents");
-
-        ArrayList rows = this.select(sql, variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            Integer count = (Integer) ((HashMap) it.next()).get("count");
-            return count;
-        } else {
-            return 0;
+        HashMap<Integer, Object> variables = variables(studyEventDefinitionId);
+        String query = digester.getQuery("countNotRemovedEvents");
+        Integer result = getCountByQuery(query, variables);
+        if(result == null) {
+        	result = 0;
         }
+        return result;
     }
     
     public HashMap getStudySubjectCRFData(StudyBean sb, int studySubjectId, int eventDefId, String crfVersionOID, int eventOrdinal) {
@@ -1255,6 +1220,11 @@ public class StudyEventDAO extends AuditableEntityDAO implements Listener {
 	@Override
     public void setObserver(Observer observer) {
 		this.observer = observer;
+	}
+
+	@Override
+	public StudyEventBean emptyBean() {
+		return new StudyEventBean();
 	}
 
 }

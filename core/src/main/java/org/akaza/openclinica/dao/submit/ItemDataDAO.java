@@ -45,7 +45,7 @@ import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
  * 
  * 
  */
-public class ItemDataDAO extends AuditableEntityDAO {
+public class ItemDataDAO extends AuditableEntityDAO<ItemDataBean> {
 
     boolean formatDates = true;
 
@@ -425,7 +425,7 @@ public class ItemDataDAO extends AuditableEntityDAO {
         return temp;
     }
 
-    public Object getEntityFromHashMap(HashMap hm) {
+    public ItemDataBean getEntityFromHashMap(HashMap hm) {
         ItemDataBean eb = new ItemDataBean();
         this.setEntityAuditInformation(eb, hm);
         eb.setId(((Integer) hm.get("item_data_id")).intValue());
@@ -791,21 +791,14 @@ public class ItemDataDAO extends AuditableEntityDAO {
     }
 
     public int getGroupSize(int itemId, int eventcrfId) {
-        this.unsetTypeExpected();
-        this.setTypeExpected(1, TypeNames.INT);
+        HashMap<Integer, Object> variables = variables(itemId, eventcrfId);
 
-        HashMap<Integer, Object> variables = new HashMap<>();
-        variables.put(new Integer(1), new Integer(itemId));
-        variables.put(new Integer(2), new Integer(eventcrfId));
-
-        ArrayList alist = this.select(digester.getQuery("getGroupSize"), variables);
-        Iterator it = alist.iterator();
-        if (it.hasNext()) {
-            Integer count = (Integer) ((HashMap) it.next()).get("count");
-            return count;
-        } else {
-            return 0;
+        String query = digester.getQuery("getGroupSize");
+        Integer result = getCountByQuery(query, variables);
+        if(result == null) {
+        	result = 0;
         }
+        return result;
     }
 
     public List<String> findValuesByItemOID(String itoid) {
@@ -839,5 +832,10 @@ public class ItemDataDAO extends AuditableEntityDAO {
         this.executeUpdate(digester.getQuery("undelete"), variables);
         return;
 
+	}
+
+	@Override
+	public ItemDataBean emptyBean() {
+		return new ItemDataBean();
 	}
 }

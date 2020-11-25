@@ -23,7 +23,7 @@ import javax.sql.DataSource;
  * TODO To change the template for this generated type comment go to Window -
  * Preferences - Java - Code Style - Code Templates
  */
-public class QueryDAO extends AuditableEntityDAO {
+public class QueryDAO extends AuditableEntityDAO<QueryBean> {
     // private DataSource ds;
 
     public QueryDAO(DataSource ds) {
@@ -48,7 +48,7 @@ public class QueryDAO extends AuditableEntityDAO {
         return eb;
     }
 
-    public Object getEntityFromHashMap(HashMap hm) {
+    public QueryBean getEntityFromHashMap(HashMap hm) {
         QueryBean eb = new QueryBean();
 
         return eb;
@@ -83,5 +83,10 @@ public class QueryDAO extends AuditableEntityDAO {
 
         return al;
     }
+
+	@Override
+	public QueryBean emptyBean() {
+		return new QueryBean();
+	}
 
 }
