@@ -7,6 +7,12 @@
  */
 package org.akaza.openclinica.dao.extract;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+
+import javax.sql.DataSource;
+
 import org.akaza.openclinica.bean.core.EntityBean;
 import org.akaza.openclinica.bean.extract.ArchivedDatasetFileBean;
 import org.akaza.openclinica.bean.login.UserAccountBean;
@@ -15,14 +21,6 @@ import org.akaza.openclinica.dao.core.DAODigester;
 import org.akaza.openclinica.dao.core.SQLFactory;
 import org.akaza.openclinica.dao.core.TypeNames;
 import org.akaza.openclinica.dao.login.UserAccountDAO;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-
-import javax.sql.DataSource;
 
 /**
  * @author thickerson
@@ -67,10 +65,11 @@ public class ArchivedDatasetFileDAO extends AuditableEntityDAO<ArchivedDatasetFi
         this.setTypeExpected(9, TypeNames.INT);// owner id
     }
 
-    public EntityBean create(EntityBean eb) {
-        ArchivedDatasetFileBean fb = (ArchivedDatasetFileBean) eb;
-        HashMap variables = new HashMap();
-        HashMap nullVars = new HashMap();
+    @Override
+    public ArchivedDatasetFileBean create(ArchivedDatasetFileBean eb) {
+        ArchivedDatasetFileBean fb = eb;
+        HashMap<Integer, Object> variables = new HashMap<>();
+        HashMap<Integer, Integer> nullVars = new HashMap<>();
         variables.put(Integer.valueOf(1), fb.getName());
         variables.put(Integer.valueOf(2), Integer.valueOf(fb.getDatasetId()));
         variables.put(Integer.valueOf(3), Integer.valueOf(fb.getExportFormatId()));
@@ -85,10 +84,11 @@ public class ArchivedDatasetFileDAO extends AuditableEntityDAO<ArchivedDatasetFi
         return fb;
     }
 
-    public EntityBean update(EntityBean eb) {
-        ArchivedDatasetFileBean fb = (ArchivedDatasetFileBean) eb;
-        HashMap variables = new HashMap();
-        HashMap nullVars = new HashMap();
+    @Override
+    public ArchivedDatasetFileBean update(ArchivedDatasetFileBean eb) {
+        ArchivedDatasetFileBean fb = eb;
+        HashMap<Integer, Object> variables = new HashMap<>();
+        HashMap<Integer, Integer> nullVars = new HashMap<>();
         variables.put(Integer.valueOf(1), fb.getName());
         variables.put(Integer.valueOf(2), Integer.valueOf(fb.getDatasetId()));
         variables.put(Integer.valueOf(3), Integer.valueOf(fb.getExportFormatId()));
@@ -101,7 +101,8 @@ public class ArchivedDatasetFileDAO extends AuditableEntityDAO<ArchivedDatasetFi
         return fb;
     }
 
-    public ArchivedDatasetFileBean getEntityFromHashMap(HashMap hm) {
+    @Override
+    public ArchivedDatasetFileBean getEntityFromHashMap(HashMap<String, Object> hm) {
         ArchivedDatasetFileBean fb = new ArchivedDatasetFileBean();
         fb.setId(((Integer) hm.get("archived_dataset_file_id")).intValue());
         fb.setDateCreated((Date) hm.get("date_created"));
@@ -121,96 +122,57 @@ public class ArchivedDatasetFileDAO extends AuditableEntityDAO<ArchivedDatasetFi
     }
 
     public void deleteArchiveDataset(ArchivedDatasetFileBean adfBean){
-        HashMap variables = new HashMap();
-        variables.put(Integer.valueOf(1), adfBean.getId());
-        this.executeUpdate(digester.getQuery("deleteArchiveDataset"), variables);
+        HashMap<Integer, Object> variables = variables(adfBean.getId());
+        String query = digester.getQuery("deleteArchiveDataset");
+        this.executeUpdate(query, variables);
     }
 
-
-
-    public Collection findAll() {
-        this.setTypesExpected();
-        ArrayList alist = this.select(digester.getQuery("findAll"));
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            ArchivedDatasetFileBean fb = (ArchivedDatasetFileBean) this.getEntityFromHashMap((HashMap) it.next());
-            al.add(fb);
-        }
-        return al;
+    @Override
+    public ArrayList<ArchivedDatasetFileBean> findAll() {
+    	return executeFindAllQuery("findAll");
     }
 
-    public Collection findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    @Override
+    public ArrayList<ArchivedDatasetFileBean> findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+    	throw new RuntimeException("Not implemented");
     }
 
+    @Override
     public EntityBean findByPK(int ID) {
-        ArchivedDatasetFileBean fb = new ArchivedDatasetFileBean();
-        this.setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(Integer.valueOf(1), Integer.valueOf(ID));
-
-        String sql = digester.getQuery("findByPK");
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            fb = (ArchivedDatasetFileBean) this.getEntityFromHashMap((HashMap) it.next());
-        }
-
-        return fb;
+        HashMap<Integer, Object> variables = variables(ID);
+        String queryName = "findByPK";
+        return executeFindByPKQuery(queryName, variables);
     }
 
-    public ArrayList findByDatasetId(int did) {
-        // ArchivedDatasetFileBean fb = new ArchivedDatasetFileBean();
-        this.setTypesExpected();
-        ArrayList al = new ArrayList();
-        HashMap variables = new HashMap();
-        variables.put(Integer.valueOf(1), Integer.valueOf(did));
-
-        String sql = digester.getQuery("findByDatasetId");
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        while (it.hasNext()) {
-            ArchivedDatasetFileBean fb = (ArchivedDatasetFileBean) this.getEntityFromHashMap((HashMap) it.next());
-            al.add(fb);
-        }
-
-        return al;
+    public ArrayList<ArchivedDatasetFileBean> findByDatasetId(int did) {
+        HashMap<Integer, Object> variables = variables(did);
+        String queryName = "findByDatasetId";
+        return executeFindAllQuery(queryName, variables);
     }
 
-    public ArrayList findByDatasetIdByDate(int did) {
-        // ArchivedDatasetFileBean fb = new ArchivedDatasetFileBean();
-        this.setTypesExpected();
-        ArrayList al = new ArrayList();
-        HashMap variables = new HashMap();
-        variables.put(Integer.valueOf(1), Integer.valueOf(did));
-
-        String sql = digester.getQuery("findByDatasetIdByDate");
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        while (it.hasNext()) {
-            ArchivedDatasetFileBean fb = (ArchivedDatasetFileBean) this.getEntityFromHashMap((HashMap) it.next());
-            al.add(fb);
-        }
-
-        return al;
+    public ArrayList<ArchivedDatasetFileBean> findByDatasetIdByDate(int did) {
+        HashMap<Integer, Object> variables = variables(did);
+        String queryName = "findByDatasetIdByDate";
+        return executeFindAllQuery(queryName, variables);
     }
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    
+    /**
+     * NOT IMPELEMENTED
+     */
+    @Override
+    public ArrayList<ArchivedDatasetFileBean> findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+    	throw new RuntimeException("Not implemented");
     }
 
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    @Override
+    public ArrayList<ArchivedDatasetFileBean> findAllByPermission(Object objCurrentUser, int intActionType) {
+    	throw new RuntimeException("Not implemented");
     }
 
 	@Override
