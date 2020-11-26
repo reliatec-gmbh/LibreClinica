@@ -10,6 +10,8 @@ package org.akaza.openclinica.bean.core;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Jun Xu
@@ -114,5 +116,42 @@ public class NullValue extends Term {
     @Override
     public String getName() {
         return name;
+    }
+    
+    /**
+     * Converts a list of {@link NullValue} to a comma separated string of their names.
+     * 
+     * @param values list of  {@link NullValue}
+     * @return comma separated string of the names
+     * @see NullValue#listFromString(String)
+     */
+    public static String listToString(ArrayList<NullValue> values) {
+    	String result;
+    	if(values != null) {
+    		result = values.stream().map(n -> n.getName()).collect(Collectors.joining(","));
+    	} else {
+    		result = "";
+    	}
+    	return result;
+    }
+    
+    /**
+     * Converts a comma separated list of null value names to a list of {@link NullValue}.
+     * 
+     * @param values comma separated list of null value names
+     * @param filterActive indicates if only active values should be returned
+     * @return list with {@link NullValue}
+     * @see NullValue#getName()}
+     * @see NullValue#listToString(ArrayList)
+     */
+    public static ArrayList<NullValue> listFromString(String values, boolean filterActive) {
+    	if(values == null) {
+    		values = "";
+    	}
+    	Stream<NullValue> map = Arrays.stream(values.split(",")).map(v -> NullValue.getByName(v));
+    	if(filterActive) {
+    		map = map.filter(v -> v.isActive());
+    	}
+        return new ArrayList<>(map.collect(Collectors.toList()));
     }
 }
