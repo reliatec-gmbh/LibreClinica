@@ -148,242 +148,97 @@ public class ItemGroupDAO extends AuditableEntityDAO<ItemGroupBean> {
     }
 
     public ArrayList<ItemGroupBean> findAll() {
-        this.setTypesExpected();
-        ArrayList<HashMap<String, Object>> listofMaps = this.select(digester.getQuery("findAll"));
-        ArrayList<ItemGroupBean> beanList = new ArrayList<ItemGroupBean>();
-        ItemGroupBean bean;
-        for (HashMap<String, Object> map : listofMaps) {
-            bean = this.getEntityFromHashMap(map);
-            beanList.add(bean);
-        }
-        return beanList;
+    	String queryName = "findAll";
+        return executeFindAllQuery(queryName);
     }
 
     // YW 10-30-2007, one item_id might have more than one item_groups
     public ArrayList<ItemGroupBean> findGroupsByItemID(int ID) {
-        this.setTypesExpected();
-        HashMap<Integer, Object> variables = new HashMap<>();
-        variables.put(1, ID);
-        ArrayList<HashMap<String, Object>> listofMaps = this.select(digester.getQuery("findGroupsByItemID"), variables);
-
-        ArrayList<ItemGroupBean> formGroupBs = new ArrayList<ItemGroupBean>();
-        for (HashMap<String, Object> map : listofMaps) {
-            ItemGroupBean bean = (ItemGroupBean) this.getEntityFromHashMap(map);
-            formGroupBs.add(bean);
-        }
-        return formGroupBs;
+    	String queryName = "findGroupsByItemID";
+        HashMap<Integer, Object> variables = variables(ID);
+        return executeFindAllQuery(queryName, variables);
 
     }
 
     public ArrayList<ItemGroupBean> findGroupByCRFVersionIDMap(int Id) {
-        this.setTypesExpected();
-        HashMap<Integer, Object> variables = new HashMap<>();
-        variables.put(1, Id);
-        ArrayList<HashMap<String, Object>> listofMaps = this.select(digester.getQuery("findGroupByCRFVersionIDMap"), variables);
-
-        ArrayList<ItemGroupBean> beanList = new ArrayList<ItemGroupBean>();
-        ItemGroupBean bean;
-        for (HashMap<String, Object> map : listofMaps) {
-            bean = (ItemGroupBean) this.getEntityFromHashMap(map);
-            beanList.add(bean);
-        }
-        return beanList;
+    	String queryName = "findGroupByCRFVersionIDMap";
+        HashMap<Integer, Object> variables = variables(Id);
+        return executeFindAllQuery(queryName, variables);
 
     }
 
     public EntityBean findByPK(int ID) {
-        ItemGroupBean formGroupB = new ItemGroupBean();
-        this.setTypesExpected();
-
-        HashMap<Integer, Object> variables = new HashMap<>();
-        variables.put(1, ID);
-
-        String sql = digester.getQuery("findByPK");
-        ArrayList<HashMap<String, Object>> listofMaps = this.select(sql, variables);
-        for (HashMap<String, Object> map : listofMaps) {
-            formGroupB = (ItemGroupBean) this.getEntityFromHashMap(map);
-
-        }
-        return formGroupB;
+    	String queryName = "findByPK";
+        HashMap<Integer, Object> variables = variables(ID);
+        return executeFindByPKQuery(queryName, variables);
     }
 
     public EntityBean findByName(String name) {
-        ItemGroupBean formGroupBean = new ItemGroupBean();
-        this.setTypesExpected();
-
-        HashMap<Integer, Object> variables = new HashMap<>();
-        variables.put(1, name);
-
-        String sql = digester.getQuery("findByName");
-        ArrayList<HashMap<String, Object>> listofMaps = this.select(sql, variables);
-        for (HashMap<String, Object> map : listofMaps) {
-            formGroupBean = (ItemGroupBean) this.getEntityFromHashMap(map);
-
-        }
-        return formGroupBean;
+    	String queryName = "findByName";
+        HashMap<Integer, Object> variables = variables(name);
+        return executeFindByPKQuery(queryName, variables);
     }
 
     public List<ItemGroupBean> findAllByOid(String oid) {
-        // ItemGroupBean itemGroup = new ItemGroupBean();
-        this.unsetTypeExpected();
-        setTypesExpected();
-
-        HashMap<Integer, Object> variables = new HashMap<>();
-        variables.put(new Integer(1), oid);
-        String sql = digester.getQuery("findGroupByOid");
-
-        ArrayList<HashMap<String, Object>> rows = this.select(sql, variables);
-        // return rows;
-        List<ItemGroupBean> beanList = new ArrayList<ItemGroupBean>();
-        ItemGroupBean bean;
-        for (HashMap<String, Object> map : rows) {
-            bean = (ItemGroupBean) this.getEntityFromHashMap(map);
-            beanList.add(bean);
-        }
-        return beanList;
+    	String queryName = "findGroupByOid";
+        HashMap<Integer, Object> variables = variables(oid);
+        return executeFindAllQuery(queryName, variables);
     }
 
     public ItemGroupBean findByOid(String oid) {
-        ItemGroupBean itemGroup = new ItemGroupBean();
-        this.unsetTypeExpected();
-        setTypesExpected();
-
-        HashMap<Integer, Object> variables = new HashMap<>();
-        variables.put(new Integer(1), oid);
-        String sql = digester.getQuery("findGroupByOid");
-
-        ArrayList<HashMap<String, Object>> rows = this.select(sql, variables);
-        if (rows != null && rows.size() > 0) {
-            itemGroup = (ItemGroupBean) this.getEntityFromHashMap(rows.get(0));
-            return itemGroup;
-        } else {
-            return null;
-        }
+    	String queryName = "findGroupByOid";
+        HashMap<Integer, Object> variables = variables(oid);
+        return executeFindByPKQuery(queryName, variables);
     }
 
     public ItemGroupBean findByOidAndCrf(String oid, int crfId) {
-        ItemGroupBean itemGroup = new ItemGroupBean();
-        this.unsetTypeExpected();
-        setTypesExpected();
-
-        HashMap<Integer, Object> variables = new HashMap<>();
-        variables.put(new Integer(1), oid);
-        variables.put(new Integer(2), new Integer(crfId));
-        String sql = digester.getQuery("findGroupByOidAndCrfId");
-
-        ArrayList<HashMap<String, Object>> rows = this.select(sql, variables);
-        if (rows != null && rows.size() > 0) {
-            itemGroup = (ItemGroupBean) this.getEntityFromHashMap(rows.get(0));
-            return itemGroup;
-        } else {
-            return null;
-        }
+    	String queryName = "findGroupByOidAndCrfId";
+        HashMap<Integer, Object> variables = variables(oid, crfId);
+        return executeFindByPKQuery(queryName, variables);
     }
 
     public List<ItemGroupBean> findGroupByCRFVersionID(int Id) {
-        this.unsetTypeExpected();
-        setTypesExpected();
-
-        
-        HashMap<Integer, Object> variables = new HashMap<>();
-        variables.put(1, Id);
-        ArrayList<HashMap<String, Object>> listofMaps = this.select(digester.getQuery("findGroupByCRFVersionID"), variables);
-
-        List<ItemGroupBean> beanList = new ArrayList<ItemGroupBean>();
-        ItemGroupBean bean;
-        for (HashMap<String, Object> map : listofMaps) {
-            bean = (ItemGroupBean) this.getEntityFromHashMap(map);
-            beanList.add(bean);
-        }
-        return beanList;
+    	String queryName = "findGroupByCRFVersionID";
+        HashMap<Integer, Object> variables = variables(Id);
+        return executeFindAllQuery(queryName, variables);
     }
 
     public ItemGroupBean findGroupByGroupNameAndCrfVersionId(String groupName, int crfVersionId) {
-        this.setTypesExpected();
-        HashMap<Integer, Object> variables = new HashMap<>();
-        variables.put(new Integer(1), new Integer(crfVersionId));
-        variables.put(new Integer(2), groupName);
-
-        ArrayList<HashMap<String, Object>> rows = this.select(digester.getQuery("findGroupByGroupNameCRFVersionID"), variables);
-        if (rows != null && rows.size() > 0) {
-            return (ItemGroupBean) this.getEntityFromHashMap(rows.get(0));
-        } else {
-            return null;
-        }
+    	String queryName = "findGroupByGroupNameCRFVersionID";
+        HashMap<Integer, Object> variables = variables(crfVersionId, groupName);
+        return executeFindByPKQuery(queryName, variables);
     }
 
     public ItemGroupBean findGroupByItemIdCrfVersionId(int itemId, int crfVersionId) {
-        this.setTypesExpected();
-        HashMap<Integer, Object> variables = new HashMap<>();
-        variables.put(new Integer(1), new Integer(crfVersionId));
-        variables.put(new Integer(2), new Integer(itemId));
-
-        ArrayList<HashMap<String, Object>> rows = this.select(digester.getQuery("findGroupByItemIdCRFVersionID"), variables);
-        if (rows != null && rows.size() > 0) {
-            return (ItemGroupBean) this.getEntityFromHashMap(rows.get(0));
-        } else {
-            return null;
-        }
+    	String queryName = "findGroupByItemIdCRFVersionID";
+        HashMap<Integer, Object> variables = variables(crfVersionId, itemId);
+        return executeFindByPKQuery(queryName, variables);
     }
 
     public List<ItemGroupBean> findOnlyGroupsByCRFVersionID(int Id) {
-        this.setTypesExpected();
-        HashMap<Integer, Object> variables = new HashMap<>();
-        variables.put(1, Id);
-        ArrayList<HashMap<String, Object>> listofMaps = this.select(digester.getQuery("findOnlyGroupsByCRFVersionID"), variables);
-
-        List<ItemGroupBean> beanList = new ArrayList<ItemGroupBean>();
-        ItemGroupBean bean;
-        for (HashMap<String, Object> map : listofMaps) {
-            bean = (ItemGroupBean) this.getEntityFromHashMap(map);
-            beanList.add(bean);
-        }
-        return beanList;
+    	String queryName = "findOnlyGroupsByCRFVersionID";
+        HashMap<Integer, Object> variables = variables(Id);
+        return executeFindAllQuery(queryName, variables);
     }
 
     public List<ItemGroupBean> findGroupBySectionId(int sectionId) {
-        this.setTypesExpected();
-        HashMap<Integer, Object> variables = new HashMap<>();
-        variables.put(1, sectionId);
-        ArrayList<HashMap<String, Object>> listofMaps = this.select(digester.getQuery("findGroupBySectionId"), variables);
-
-        List<ItemGroupBean> beanList = new ArrayList<ItemGroupBean>();
-        ItemGroupBean bean;
-        for (HashMap<String, Object> map : listofMaps) {
-            bean = (ItemGroupBean) this.getEntityFromHashMap(map);
-            beanList.add(bean);
-        }
-        return beanList;
+    	String queryName = "findGroupBySectionId";
+        HashMap<Integer, Object> variables = variables(sectionId);
+        return executeFindAllQuery(queryName, variables);
     }
 
     public List<ItemGroupBean> findLegitGroupBySectionId(int sectionId) {
-        this.setTypesExpected();
-        HashMap<Integer, Object> variables = new HashMap<>();
-        variables.put(1, sectionId);
-        ArrayList<HashMap<String, Object>> listofMaps = this.select(digester.getQuery("findLegitGroupBySectionId"), variables);
-
-        List<ItemGroupBean> beanList = new ArrayList<ItemGroupBean>();
-        ItemGroupBean bean;
-        for (HashMap<String, Object> map : listofMaps) {
-            bean = (ItemGroupBean) this.getEntityFromHashMap(map);
-            beanList.add(bean);
-        }
-        return beanList;
+    	String queryName = "findLegitGroupBySectionId";
+        HashMap<Integer, Object> variables = variables(sectionId);
+        return executeFindAllQuery(queryName, variables);
     }
+    
     public List<ItemGroupBean> findLegitGroupAllBySectionId(int sectionId) {
-        this.setTypesExpected();
-        HashMap<Integer, Object> variables = new HashMap<>();
-        variables.put(1, sectionId);
-        ArrayList<HashMap<String, Object>> listofMaps = this.select(digester.getQuery("findLegitGroupAllBySectionId"), variables);
-
-        List<ItemGroupBean> beanList = new ArrayList<ItemGroupBean>();
-        ItemGroupBean bean;
-        for (HashMap<String, Object> map : listofMaps) {
-            bean = (ItemGroupBean) this.getEntityFromHashMap(map);
-            beanList.add(bean);
-        }
-        return beanList;
+    	String queryName = "findLegitGroupAllBySectionId";
+        HashMap<Integer, Object> variables = variables(sectionId);
+        return executeFindAllQuery(queryName, variables);
     }
+    
     public ItemGroupBean getEntityFromHashMap(HashMap<String, Object> hm) {
         ItemGroupBean formGroupBean = new ItemGroupBean();
         super.setEntityAuditInformation(formGroupBean, hm);
@@ -400,8 +255,7 @@ public class ItemGroupDAO extends AuditableEntityDAO<ItemGroupBean> {
     }
 
     public void deleteTestGroup(String name) {
-        HashMap<Integer, Object> variables = new HashMap<>();
-        variables.put(new Integer(1), name);
+        HashMap<Integer, Object> variables = variables(name);
         this.executeUpdate(digester.getQuery("deleteTestGroup"), variables);
     }
     
