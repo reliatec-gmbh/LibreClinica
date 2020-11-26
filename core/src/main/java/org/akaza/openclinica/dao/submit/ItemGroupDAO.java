@@ -7,27 +7,20 @@
  */
 package org.akaza.openclinica.dao.submit;
 
-import org.akaza.openclinica.bean.core.EntityBean;
-import org.akaza.openclinica.bean.submit.ItemGroupBean;
-import org.akaza.openclinica.dao.core.AuditableEntityDAO;
-import org.akaza.openclinica.dao.core.DAODigester;
-import org.akaza.openclinica.dao.core.PreparedStatementFactory;
-import org.akaza.openclinica.dao.core.SQLFactory;
-import org.akaza.openclinica.dao.core.TypeNames;
-import org.akaza.openclinica.exception.OpenClinicaException;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
 import javax.sql.DataSource;
+
+import org.akaza.openclinica.bean.core.EntityBean;
+import org.akaza.openclinica.bean.submit.ItemGroupBean;
+import org.akaza.openclinica.dao.core.AuditableEntityDAO;
+import org.akaza.openclinica.dao.core.DAODigester;
+import org.akaza.openclinica.dao.core.SQLFactory;
+import org.akaza.openclinica.dao.core.TypeNames;
+import org.akaza.openclinica.exception.OpenClinicaException;
 
 /**
  * Created by IntelliJ IDEA. User: bruceperry Date: May 8, 2007
@@ -97,13 +90,16 @@ public class ItemGroupDAO extends AuditableEntityDAO<ItemGroupBean> {
         return formGroupBean;
     }
 
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase)
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<ItemGroupBean> findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase)
             throws OpenClinicaException {
-        return new ArrayList();
+        throw new RuntimeException("Not implemented");
     }
 
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType) throws OpenClinicaException {
-        return new ArrayList();
+    public ArrayList<ItemGroupBean> findAllByPermission(Object objCurrentUser, int intActionType) throws OpenClinicaException {
+        return new ArrayList<>();
     }
 
     private String getOid(ItemGroupBean itemGroupBean, String crfName, String itemGroupLabel) {
@@ -151,44 +147,44 @@ public class ItemGroupDAO extends AuditableEntityDAO<ItemGroupBean> {
         return formGroupBean;
     }
 
-    public Collection findAll() {
+    public ArrayList<ItemGroupBean> findAll() {
         this.setTypesExpected();
-        List listofMaps = this.select(digester.getQuery("findAll"));
-        List<ItemGroupBean> beanList = new ArrayList<ItemGroupBean>();
+        ArrayList<HashMap<String, Object>> listofMaps = this.select(digester.getQuery("findAll"));
+        ArrayList<ItemGroupBean> beanList = new ArrayList<ItemGroupBean>();
         ItemGroupBean bean;
-        for (Object map : listofMaps) {
-            bean = (ItemGroupBean) this.getEntityFromHashMap((HashMap) map);
+        for (HashMap<String, Object> map : listofMaps) {
+            bean = this.getEntityFromHashMap(map);
             beanList.add(bean);
         }
         return beanList;
     }
 
     // YW 10-30-2007, one item_id might have more than one item_groups
-    public Collection findGroupsByItemID(int ID) {
+    public ArrayList<ItemGroupBean> findGroupsByItemID(int ID) {
         this.setTypesExpected();
         HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, ID);
-        List listofMap = this.select(digester.getQuery("findGroupsByItemID"), variables);
+        ArrayList<HashMap<String, Object>> listofMaps = this.select(digester.getQuery("findGroupsByItemID"), variables);
 
-        List<ItemGroupBean> formGroupBs = new ArrayList<ItemGroupBean>();
-        for (Object map : listofMap) {
-            ItemGroupBean bean = (ItemGroupBean) this.getEntityFromHashMap((HashMap) map);
+        ArrayList<ItemGroupBean> formGroupBs = new ArrayList<ItemGroupBean>();
+        for (HashMap<String, Object> map : listofMaps) {
+            ItemGroupBean bean = (ItemGroupBean) this.getEntityFromHashMap(map);
             formGroupBs.add(bean);
         }
         return formGroupBs;
 
     }
 
-    public List<ItemGroupBean> findGroupByCRFVersionIDMap(int Id) {
+    public ArrayList<ItemGroupBean> findGroupByCRFVersionIDMap(int Id) {
         this.setTypesExpected();
         HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, Id);
-        List listofMaps = this.select(digester.getQuery("findGroupByCRFVersionIDMap"), variables);
+        ArrayList<HashMap<String, Object>> listofMaps = this.select(digester.getQuery("findGroupByCRFVersionIDMap"), variables);
 
-        List<ItemGroupBean> beanList = new ArrayList<ItemGroupBean>();
+        ArrayList<ItemGroupBean> beanList = new ArrayList<ItemGroupBean>();
         ItemGroupBean bean;
-        for (Object map : listofMaps) {
-            bean = (ItemGroupBean) this.getEntityFromHashMap((HashMap) map);
+        for (HashMap<String, Object> map : listofMaps) {
+            bean = (ItemGroupBean) this.getEntityFromHashMap(map);
             beanList.add(bean);
         }
         return beanList;
@@ -203,9 +199,9 @@ public class ItemGroupDAO extends AuditableEntityDAO<ItemGroupBean> {
         variables.put(1, ID);
 
         String sql = digester.getQuery("findByPK");
-        ArrayList listofMap = this.select(sql, variables);
-        for (Object map : listofMap) {
-            formGroupB = (ItemGroupBean) this.getEntityFromHashMap((HashMap) map);
+        ArrayList<HashMap<String, Object>> listofMaps = this.select(sql, variables);
+        for (HashMap<String, Object> map : listofMaps) {
+            formGroupB = (ItemGroupBean) this.getEntityFromHashMap(map);
 
         }
         return formGroupB;
@@ -219,9 +215,9 @@ public class ItemGroupDAO extends AuditableEntityDAO<ItemGroupBean> {
         variables.put(1, name);
 
         String sql = digester.getQuery("findByName");
-        ArrayList listofMap = this.select(sql, variables);
-        for (Object map : listofMap) {
-            formGroupBean = (ItemGroupBean) this.getEntityFromHashMap((HashMap) map);
+        ArrayList<HashMap<String, Object>> listofMaps = this.select(sql, variables);
+        for (HashMap<String, Object> map : listofMaps) {
+            formGroupBean = (ItemGroupBean) this.getEntityFromHashMap(map);
 
         }
         return formGroupBean;
@@ -236,12 +232,12 @@ public class ItemGroupDAO extends AuditableEntityDAO<ItemGroupBean> {
         variables.put(new Integer(1), oid);
         String sql = digester.getQuery("findGroupByOid");
 
-        ArrayList rows = this.select(sql, variables);
+        ArrayList<HashMap<String, Object>> rows = this.select(sql, variables);
         // return rows;
         List<ItemGroupBean> beanList = new ArrayList<ItemGroupBean>();
         ItemGroupBean bean;
-        for (Object map : rows) {
-            bean = (ItemGroupBean) this.getEntityFromHashMap((HashMap) map);
+        for (HashMap<String, Object> map : rows) {
+            bean = (ItemGroupBean) this.getEntityFromHashMap(map);
             beanList.add(bean);
         }
         return beanList;
@@ -256,11 +252,9 @@ public class ItemGroupDAO extends AuditableEntityDAO<ItemGroupBean> {
         variables.put(new Integer(1), oid);
         String sql = digester.getQuery("findGroupByOid");
 
-        ArrayList rows = this.select(sql, variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            itemGroup = (ItemGroupBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> rows = this.select(sql, variables);
+        if (rows != null && rows.size() > 0) {
+            itemGroup = (ItemGroupBean) this.getEntityFromHashMap(rows.get(0));
             return itemGroup;
         } else {
             return null;
@@ -272,16 +266,14 @@ public class ItemGroupDAO extends AuditableEntityDAO<ItemGroupBean> {
         this.unsetTypeExpected();
         setTypesExpected();
 
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), oid);
         variables.put(new Integer(2), new Integer(crfId));
         String sql = digester.getQuery("findGroupByOidAndCrfId");
 
-        ArrayList rows = this.select(sql, variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            itemGroup = (ItemGroupBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> rows = this.select(sql, variables);
+        if (rows != null && rows.size() > 0) {
+            itemGroup = (ItemGroupBean) this.getEntityFromHashMap(rows.get(0));
             return itemGroup;
         } else {
             return null;
@@ -295,12 +287,12 @@ public class ItemGroupDAO extends AuditableEntityDAO<ItemGroupBean> {
         
         HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, Id);
-        List listofMaps = this.select(digester.getQuery("findGroupByCRFVersionID"), variables);
+        ArrayList<HashMap<String, Object>> listofMaps = this.select(digester.getQuery("findGroupByCRFVersionID"), variables);
 
         List<ItemGroupBean> beanList = new ArrayList<ItemGroupBean>();
         ItemGroupBean bean;
-        for (Object map : listofMaps) {
-            bean = (ItemGroupBean) this.getEntityFromHashMap((HashMap) map);
+        for (HashMap<String, Object> map : listofMaps) {
+            bean = (ItemGroupBean) this.getEntityFromHashMap(map);
             beanList.add(bean);
         }
         return beanList;
@@ -308,15 +300,13 @@ public class ItemGroupDAO extends AuditableEntityDAO<ItemGroupBean> {
 
     public ItemGroupBean findGroupByGroupNameAndCrfVersionId(String groupName, int crfVersionId) {
         this.setTypesExpected();
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(crfVersionId));
         variables.put(new Integer(2), groupName);
 
-        ArrayList rows = this.select(digester.getQuery("findGroupByGroupNameCRFVersionID"), variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            return (ItemGroupBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> rows = this.select(digester.getQuery("findGroupByGroupNameCRFVersionID"), variables);
+        if (rows != null && rows.size() > 0) {
+            return (ItemGroupBean) this.getEntityFromHashMap(rows.get(0));
         } else {
             return null;
         }
@@ -324,15 +314,13 @@ public class ItemGroupDAO extends AuditableEntityDAO<ItemGroupBean> {
 
     public ItemGroupBean findGroupByItemIdCrfVersionId(int itemId, int crfVersionId) {
         this.setTypesExpected();
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(crfVersionId));
         variables.put(new Integer(2), new Integer(itemId));
 
-        ArrayList rows = this.select(digester.getQuery("findGroupByItemIdCRFVersionID"), variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            return (ItemGroupBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> rows = this.select(digester.getQuery("findGroupByItemIdCRFVersionID"), variables);
+        if (rows != null && rows.size() > 0) {
+            return (ItemGroupBean) this.getEntityFromHashMap(rows.get(0));
         } else {
             return null;
         }
@@ -342,12 +330,12 @@ public class ItemGroupDAO extends AuditableEntityDAO<ItemGroupBean> {
         this.setTypesExpected();
         HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, Id);
-        List listofMaps = this.select(digester.getQuery("findOnlyGroupsByCRFVersionID"), variables);
+        ArrayList<HashMap<String, Object>> listofMaps = this.select(digester.getQuery("findOnlyGroupsByCRFVersionID"), variables);
 
         List<ItemGroupBean> beanList = new ArrayList<ItemGroupBean>();
         ItemGroupBean bean;
-        for (Object map : listofMaps) {
-            bean = (ItemGroupBean) this.getEntityFromHashMap((HashMap) map);
+        for (HashMap<String, Object> map : listofMaps) {
+            bean = (ItemGroupBean) this.getEntityFromHashMap(map);
             beanList.add(bean);
         }
         return beanList;
@@ -357,12 +345,12 @@ public class ItemGroupDAO extends AuditableEntityDAO<ItemGroupBean> {
         this.setTypesExpected();
         HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, sectionId);
-        List listofMaps = this.select(digester.getQuery("findGroupBySectionId"), variables);
+        ArrayList<HashMap<String, Object>> listofMaps = this.select(digester.getQuery("findGroupBySectionId"), variables);
 
         List<ItemGroupBean> beanList = new ArrayList<ItemGroupBean>();
         ItemGroupBean bean;
-        for (Object map : listofMaps) {
-            bean = (ItemGroupBean) this.getEntityFromHashMap((HashMap) map);
+        for (HashMap<String, Object> map : listofMaps) {
+            bean = (ItemGroupBean) this.getEntityFromHashMap(map);
             beanList.add(bean);
         }
         return beanList;
@@ -372,12 +360,12 @@ public class ItemGroupDAO extends AuditableEntityDAO<ItemGroupBean> {
         this.setTypesExpected();
         HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, sectionId);
-        List listofMaps = this.select(digester.getQuery("findLegitGroupBySectionId"), variables);
+        ArrayList<HashMap<String, Object>> listofMaps = this.select(digester.getQuery("findLegitGroupBySectionId"), variables);
 
         List<ItemGroupBean> beanList = new ArrayList<ItemGroupBean>();
         ItemGroupBean bean;
-        for (Object map : listofMaps) {
-            bean = (ItemGroupBean) this.getEntityFromHashMap((HashMap) map);
+        for (HashMap<String, Object> map : listofMaps) {
+            bean = (ItemGroupBean) this.getEntityFromHashMap(map);
             beanList.add(bean);
         }
         return beanList;
@@ -386,17 +374,17 @@ public class ItemGroupDAO extends AuditableEntityDAO<ItemGroupBean> {
         this.setTypesExpected();
         HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, sectionId);
-        List listofMaps = this.select(digester.getQuery("findLegitGroupAllBySectionId"), variables);
+        ArrayList<HashMap<String, Object>> listofMaps = this.select(digester.getQuery("findLegitGroupAllBySectionId"), variables);
 
         List<ItemGroupBean> beanList = new ArrayList<ItemGroupBean>();
         ItemGroupBean bean;
-        for (Object map : listofMaps) {
-            bean = (ItemGroupBean) this.getEntityFromHashMap((HashMap) map);
+        for (HashMap<String, Object> map : listofMaps) {
+            bean = (ItemGroupBean) this.getEntityFromHashMap(map);
             beanList.add(bean);
         }
         return beanList;
     }
-    public ItemGroupBean getEntityFromHashMap(HashMap hm) {
+    public ItemGroupBean getEntityFromHashMap(HashMap<String, Object> hm) {
         ItemGroupBean formGroupBean = new ItemGroupBean();
         super.setEntityAuditInformation(formGroupBean, hm);
         formGroupBean.setId((Integer) hm.get("item_group_id"));
@@ -407,12 +395,12 @@ public class ItemGroupDAO extends AuditableEntityDAO<ItemGroupBean> {
         return formGroupBean;
     }
 
-    public Collection findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        return new ArrayList();
+    public ArrayList<ItemGroupBean> findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+        return new ArrayList<>();
     }
 
     public void deleteTestGroup(String name) {
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), name);
         this.executeUpdate(digester.getQuery("deleteTestGroup"), variables);
     }
@@ -450,9 +438,9 @@ public class ItemGroupDAO extends AuditableEntityDAO<ItemGroupBean> {
         variables.put(1, sectionId);
 
         String sql = digester.getQuery("findTopOneGroupBySectionId");
-        ArrayList listofMap = this.select(sql, variables);
-        for (Object map : listofMap) {
-            formGroupBean = (ItemGroupBean) this.getEntityFromHashMap((HashMap) map);
+        ArrayList<HashMap<String, Object>> listofMaps = this.select(sql, variables);
+        for (HashMap<String, Object> map : listofMaps) {
+            formGroupBean = (ItemGroupBean) this.getEntityFromHashMap(map);
 
         }
         return formGroupBean;
