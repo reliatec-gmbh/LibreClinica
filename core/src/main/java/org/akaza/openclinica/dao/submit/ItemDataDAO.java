@@ -11,7 +11,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
@@ -424,7 +423,7 @@ public class ItemDataDAO extends AuditableEntityDAO<ItemDataBean> {
         return temp;
     }
 
-    public ItemDataBean getEntityFromHashMap(HashMap hm) {
+    public ItemDataBean getEntityFromHashMap(HashMap<String, Object> hm) {
         ItemDataBean eb = new ItemDataBean();
         this.setEntityAuditInformation(eb, hm);
         eb.setId(((Integer) hm.get("item_data_id")).intValue());
@@ -450,7 +449,6 @@ public class ItemDataDAO extends AuditableEntityDAO<ItemDataBean> {
         return eb;
     }
 
-    @SuppressWarnings("unchecked")
     public List<ItemDataBean> findByStudyEventAndOids(Integer studyEventId, String itemOid, String itemGroupOid) {
         setTypesExpected();
 
@@ -468,20 +466,20 @@ public class ItemDataDAO extends AuditableEntityDAO<ItemDataBean> {
     public Collection<ItemDataBean> findAll() {
         setTypesExpected();
 
-        ArrayList alist = this.select(digester.getQuery("findAll"));
+        ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findAll"));
         ArrayList<ItemDataBean> al = new ArrayList<ItemDataBean>();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            ItemDataBean eb = (ItemDataBean) this.getEntityFromHashMap((HashMap) it.next());
+        for(HashMap<String, Object> hm : alist) {
+            ItemDataBean eb = (ItemDataBean) this.getEntityFromHashMap(hm);
             al.add(eb);
         }
         return al;
     }
 
-    public Collection findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<ItemDataBean> findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+    	throw new RuntimeException("Not implemented");
     }
 
     public EntityBean findByPK(int ID) {
@@ -492,11 +490,9 @@ public class ItemDataDAO extends AuditableEntityDAO<ItemDataBean> {
         variables.put(new Integer(1), new Integer(ID));
 
         String sql = digester.getQuery("findByPK");
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            eb = (ItemDataBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
+        if (alist != null && alist.size() > 0) {
+            eb = (ItemDataBean) this.getEntityFromHashMap(alist.get(0));
         }
         return eb;
     }
@@ -519,16 +515,18 @@ public class ItemDataDAO extends AuditableEntityDAO<ItemDataBean> {
 
     }
 
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<ItemDataBean> findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+    	throw new RuntimeException("Not implemented");
     }
 
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<ItemDataBean> findAllByPermission(Object objCurrentUser, int intActionType) {
+    	throw new RuntimeException("Not implemented");
     }
 
     public ArrayList<ItemDataBean> findAllBySectionIdAndEventCRFId(int sectionId, int eventCRFId) {
@@ -700,11 +698,10 @@ public class ItemDataDAO extends AuditableEntityDAO<ItemDataBean> {
         variables.put(new Integer(2), new Integer(sb.getId()));
         variables.put(new Integer(3), new Integer(igb.getId()));
 
-        ArrayList alist = this.select(digester.getQuery("getMaxOrdinalForGroup"), variables);
-        Iterator it = alist.iterator();
-        if (it.hasNext()) {
+        ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("getMaxOrdinalForGroup"), variables);
+        if (alist != null && alist.size() > 0) {
             try {
-                HashMap hm = (HashMap) it.next();
+                HashMap<String, Object> hm = alist.get(0);
                 Integer max = (Integer) hm.get("max_ord");
                 return max.intValue();
             } catch (Exception e) {
@@ -727,15 +724,12 @@ public class ItemDataDAO extends AuditableEntityDAO<ItemDataBean> {
         this.setTypeExpected(1, TypeNames.INT);
         this.setTypeExpected(2, TypeNames.STRING);
 
-        HashMap variables = new HashMap(1);
-        variables.put(new Integer(1), new Integer(event_crf_id));
-        variables.put(new Integer(2), item_group_oid);
+        HashMap<Integer, Object> variables = variables(event_crf_id, item_group_oid);
 
-        ArrayList alist = this.select(digester.getQuery("getMaxOrdinalForGroupByGroupOID"), variables);
-        Iterator it = alist.iterator();
-        if (it.hasNext()) {
+        ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("getMaxOrdinalForGroupByGroupOID"), variables);
+        if (alist != null && alist.size() > 0) {
             try {
-                HashMap hm = (HashMap) it.next();
+                HashMap<String, Object> hm = alist.get(0);
                 Integer max = (Integer) hm.get("max_ord");
                 return max.intValue();
             } catch (Exception e) {
@@ -754,11 +748,10 @@ public class ItemDataDAO extends AuditableEntityDAO<ItemDataBean> {
         variables.put(new Integer(1), itemId);
         variables.put(new Integer(2), new Integer(ec.getId()));
 
-        ArrayList alist = this.select(digester.getQuery("getMaxOrdinalForGroupByItemAndEventCrf"), variables);
-        Iterator it = alist.iterator();
-        if (it.hasNext()) {
+        ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("getMaxOrdinalForGroupByItemAndEventCrf"), variables);
+        if (alist != null && alist.size() > 0) {
             try {
-                HashMap hm = (HashMap) it.next();
+                HashMap<String, Object> hm = alist.get(0);
                 Integer max = (Integer) hm.get("max_ord");
                 return max.intValue();
             } catch (Exception e) {
@@ -780,9 +773,8 @@ public class ItemDataDAO extends AuditableEntityDAO<ItemDataBean> {
         variables.put(new Integer(2), new Integer(ordinal_for_repeating_group_field));
         variables.put(new Integer(3), new Integer(event_crf_id));
 
-        ArrayList alist = this.select(digester.getQuery("isItemExists"), variables);
-        Iterator it = alist.iterator();
-        if (it.hasNext()) {
+        ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("isItemExists"), variables);
+        if (alist != null && alist.size() > 0) {
             return true;
         }
 
@@ -806,10 +798,9 @@ public class ItemDataDAO extends AuditableEntityDAO<ItemDataBean> {
         this.setTypeExpected(1, TypeNames.STRING);
         HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, itoid);
-        ArrayList alist = this.select(digester.getQuery("findValuesByItemOID"), variables);
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            vals.add((String) ((HashMap) it.next()).get("value"));
+        ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findValuesByItemOID"), variables);
+        for(HashMap<String, Object> hm : alist) {
+            vals.add((String) hm.get("value"));
         }
         return vals;
     }
