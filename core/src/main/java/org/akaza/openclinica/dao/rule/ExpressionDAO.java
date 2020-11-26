@@ -8,7 +8,11 @@
 
 package org.akaza.openclinica.dao.rule;
 
-import org.akaza.openclinica.bean.core.EntityBean;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import javax.sql.DataSource;
+
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.rule.expression.Context;
 import org.akaza.openclinica.bean.rule.expression.ExpressionBean;
@@ -16,13 +20,6 @@ import org.akaza.openclinica.dao.core.AuditableEntityDAO;
 import org.akaza.openclinica.dao.core.DAODigester;
 import org.akaza.openclinica.dao.core.SQLFactory;
 import org.akaza.openclinica.dao.core.TypeNames;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-
-import javax.sql.DataSource;
 
 /**
  * <p>
@@ -75,8 +72,8 @@ public class ExpressionDAO extends AuditableEntityDAO<ExpressionBean> {
     public ExpressionBean update(ExpressionBean expressionBean) {
         expressionBean.setActive(false);
 
-        HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
-        HashMap nullVars = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
+		HashMap<Integer, Integer> nullVars = new HashMap<>();
         variables.put(new Integer(1), expressionBean.getContext().getCode());
         variables.put(new Integer(2), expressionBean.getValue());
         variables.put(new Integer(3), expressionBean.getUpdaterId());
@@ -108,7 +105,7 @@ public class ExpressionDAO extends AuditableEntityDAO<ExpressionBean> {
         return expressionBean;
     }
 
-    public ExpressionBean getEntityFromHashMap(HashMap hm) {
+    public ExpressionBean getEntityFromHashMap(HashMap<String, Object> hm) {
         ExpressionBean expressionBean = new ExpressionBean();
         this.setEntityAuditInformation(expressionBean, hm);
 
@@ -123,53 +120,47 @@ public class ExpressionDAO extends AuditableEntityDAO<ExpressionBean> {
      * Do not return All
      * @see org.akaza.openclinica.dao.core.DAOInterface#findAll()
      */
-    public Collection findAll() {
-        return null;
+     /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<ExpressionBean> findAll() {
+        throw new RuntimeException("Not implemented");
     }
 
-    public EntityBean findByPK(int ID) {
-        ExpressionBean expressionBean = new ExpressionBean();
-        this.setTypesExpected();
-
-        HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
-        variables.put(new Integer(1), new Integer(ID));
-
-        String sql = digester.getQuery("findByPK");
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            expressionBean = (ExpressionBean) this.getEntityFromHashMap((HashMap) it.next());
-        }
-
-        return expressionBean;
+    public ExpressionBean findByPK(int ID) {
+    	String queryName = "findByPK";
+        HashMap<Integer, Object> variables = variables(ID);
+        return executeFindByPKQuery(queryName, variables);
     }
 
     /*
      * Why should we even have these in here if they are not needed? TODO: refactor super class to remove dependency.
      */
-    public Collection findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
-
-        return al;
+     /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<ExpressionBean> findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+       throw new RuntimeException("Not implemented");
     }
 
     /*
      * Why should we even have these in here if they are not needed? TODO: refactor super class to remove dependency.
      */
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
-
-        return al;
+     /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<ExpressionBean> findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+       throw new RuntimeException("Not implemented");
     }
 
     /*
      * Why should we even have these in here if they are not needed? TODO: refactor super class to remove dependency.
      */
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType) {
-        ArrayList al = new ArrayList();
-
-        return al;
+     /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<ExpressionBean> findAllByPermission(Object objCurrentUser, int intActionType) {
+        throw new RuntimeException("Not implemented");
     }
 
 	@Override
