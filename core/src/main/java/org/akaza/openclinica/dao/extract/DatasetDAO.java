@@ -7,27 +7,25 @@
  */
 package org.akaza.openclinica.dao.extract;
 
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+
+import javax.sql.DataSource;
+
 import org.akaza.openclinica.bean.core.DatasetItemStatus;
 import org.akaza.openclinica.bean.core.EntityBean;
 import org.akaza.openclinica.bean.extract.DatasetBean;
 import org.akaza.openclinica.bean.extract.ExtractBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
+import org.akaza.openclinica.bean.managestudy.StudySubjectBean;
 import org.akaza.openclinica.bean.submit.ItemBean;
 import org.akaza.openclinica.dao.core.AuditableEntityDAO;
 import org.akaza.openclinica.dao.core.DAODigester;
 import org.akaza.openclinica.dao.core.SQLFactory;
 import org.akaza.openclinica.dao.core.TypeNames;
 import org.akaza.openclinica.dao.submit.ItemDAO;
-
-import java.sql.Types;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Vector;
-
-import javax.sql.DataSource;
 
 /**
  * The data access object for datasets; also generates datasets based on their
@@ -141,8 +139,8 @@ public class DatasetDAO extends AuditableEntityDAO<DatasetBean> {
     }
 
     public DatasetBean update(DatasetBean db) {
-        HashMap variables = new HashMap();
-        HashMap nullVars = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
+        HashMap<Integer, Integer> nullVars = new HashMap<>();
         variables.put(Integer.valueOf(1), Integer.valueOf(db.getStudyId()));
         variables.put(Integer.valueOf(2), Integer.valueOf(db.getStatus().getId()));
         variables.put(Integer.valueOf(3), db.getName());
@@ -190,8 +188,8 @@ public class DatasetDAO extends AuditableEntityDAO<DatasetBean> {
          * mapping dataset id to study group classes id, tbh
          *
          */
-        HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
-        HashMap nullVars = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
+        HashMap<Integer, Integer> nullVars = new HashMap<>();
         variables.put(Integer.valueOf(1), Integer.valueOf(db.getStudyId()));
         variables.put(Integer.valueOf(2), Integer.valueOf(db.getStatus().getId()));
         variables.put(Integer.valueOf(3), db.getName());
@@ -247,7 +245,7 @@ public class DatasetDAO extends AuditableEntityDAO<DatasetBean> {
         return db;
     }
 
-    public DatasetBean getEntityFromHashMap(HashMap hm) {
+    public DatasetBean getEntityFromHashMap(HashMap<String, Object> hm) {
         DatasetBean eb = new DatasetBean();
         this.setEntityAuditInformation(eb, hm);
         eb.setDescription((String) hm.get("description"));
@@ -293,63 +291,37 @@ public class DatasetDAO extends AuditableEntityDAO<DatasetBean> {
         return eb;
     }
 
-    private ArrayList getGroupIds(int datasetId) {
+    private ArrayList<Integer> getGroupIds(int datasetId) {
         ArrayList<Integer> groupIds = new ArrayList<Integer>();
         this.unsetTypeExpected();
         this.setTypeExpected(1, TypeNames.INT);// dataset id
         this.setTypeExpected(2, TypeNames.INT);// subject group id
         HashMap<Integer, Object> variablesNew = new HashMap<>();
         variablesNew.put(Integer.valueOf(1), Integer.valueOf(datasetId));
-        ArrayList alist = this.select(digester.getQuery("findAllGroups"), variablesNew);
+        ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findAllGroups"), variablesNew);
         // convert them to ids for the array list, tbh
         // the above is an array list of hashmaps, each hash map being a row in
         // the DB
-        for (Iterator iter = alist.iterator(); iter.hasNext();) {
-            HashMap row = (HashMap) iter.next();
+        for (HashMap<String, Object> row : alist) {
             Integer id = (Integer) row.get("study_group_class_id");
             groupIds.add(id);
         }
         return groupIds;
     }
 
-    public Collection findAll() {
-        this.setTypesExpected();
-        ArrayList alist = this.select(digester.getQuery("findAll"));
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            DatasetBean eb = (DatasetBean) this.getEntityFromHashMap((HashMap) it.next());
-            al.add(eb);
-        }
-        return al;
+    public ArrayList<DatasetBean> findAll() {
+    	return executeFindAllQuery("findAll");
     }
 
-    public Collection findAllOrderByStudyIdAndName() {
-        this.setTypesExpected();
-        ArrayList alist = this.select(digester.getQuery("findAllOrderByStudyIdAndName"));
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            DatasetBean eb = (DatasetBean) this.getEntityFromHashMap((HashMap) it.next());
-            al.add(eb);
-        }
-        return al;
+    public ArrayList<DatasetBean> findAllOrderByStudyIdAndName() {
+    	return executeFindAllQuery("findAllOrderByStudyIdAndName");
     }
 
-    public Collection findTopFive(StudyBean currentStudy) {
+    public ArrayList<DatasetBean> findTopFive(StudyBean currentStudy) {
         int studyId = currentStudy.getId();
-        this.setTypesExpected();
-        HashMap variables = new HashMap();
-        variables.put(Integer.valueOf(1), Integer.valueOf(studyId));
-        variables.put(Integer.valueOf(2), Integer.valueOf(studyId));
-        ArrayList alist = this.select(digester.getQuery("findTopFive"), variables);
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            DatasetBean eb = (DatasetBean) this.getEntityFromHashMap((HashMap) it.next());
-            al.add(eb);
-        }
-        return al;
+        String queryName = "findTopFive";
+        HashMap<Integer, Object> variables = variables(studyId, studyId);
+        return executeFindAllQuery(queryName, variables);
     }
 
     /**
@@ -359,48 +331,23 @@ public class DatasetDAO extends AuditableEntityDAO<DatasetBean> {
      *            studyId
      */
 
-    public Collection findByOwnerId(int ownerId, int studyId) {
-        // TODO add an findbyadminownerid?
-        this.setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(Integer.valueOf(1), Integer.valueOf(studyId));
-        variables.put(Integer.valueOf(2), Integer.valueOf(studyId));
-        variables.put(Integer.valueOf(3), Integer.valueOf(ownerId));
-
-        ArrayList alist = this.select(digester.getQuery("findByOwnerId"), variables);
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            DatasetBean eb = (DatasetBean) this.getEntityFromHashMap((HashMap) it.next());
-            al.add(eb);
-        }
-        return al;
+    public ArrayList<DatasetBean> findByOwnerId(int ownerId, int studyId) {
+        String queryName = "findByOwnerId";
+        HashMap<Integer, Object> variables = variables(studyId, studyId, ownerId);
+        return executeFindAllQuery(queryName, variables);
     }
 
-    public Collection findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<DatasetBean> findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+    	throw new RuntimeException("Not implemented");
     }
 
-    public EntityBean findByPK(int ID) {
-        DatasetBean eb = new DatasetBean();
-        this.setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(Integer.valueOf(1), Integer.valueOf(ID));
-
-        String sql = digester.getQuery("findByPK");
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            eb = (DatasetBean) this.getEntityFromHashMap((HashMap) it.next());
-        } else {
-            logger.warn("found no object: " + sql + " " + ID);
-        }
-        return eb;
+    public DatasetBean findByPK(int ID) {
+        String queryName = "findByPK";
+        HashMap<Integer, Object> variables = variables(ID);
+    	return executeFindByPKQuery(queryName, variables);
     }
 
     /**
@@ -408,23 +355,10 @@ public class DatasetDAO extends AuditableEntityDAO<DatasetBean> {
      * @param name
      * @return
      */
-    public EntityBean findByNameAndStudy(String name, StudyBean study) {
-        DatasetBean eb = new DatasetBean();
-        this.setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(Integer.valueOf(1), name);
-        variables.put(Integer.valueOf(2), Integer.valueOf(study.getId()));
-        String sql = digester.getQuery("findByNameAndStudy");
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            eb = (DatasetBean) this.getEntityFromHashMap((HashMap) it.next());
-        } else {
-            logger.warn("found no object: " + sql + " " + name);
-        }
-        return eb;
+    public DatasetBean findByNameAndStudy(String name, StudyBean study) {
+        String queryName = "findByPK";
+        HashMap<Integer, Object> variables = variables(name, study.getId());
+    	return executeFindByPKQuery(queryName, variables);
     }
 
     /**
@@ -484,7 +418,7 @@ public class DatasetDAO extends AuditableEntityDAO<DatasetBean> {
         int datasetItemStatusId = eb.getDataset().getDatasetItemStatus().getId();
         String ecStatusConstraint = this.getECStatusConstraint(datasetItemStatusId);
         String itStatusConstraint = this.getItemDataStatusConstraint(datasetItemStatusId);
-        ArrayList newRows =
+        ArrayList<StudySubjectBean> newRows =
             selectStudySubjects(currentstudyid, parentstudyid, st_sed_in, st_itemid_in, this.genDatabaseDateConstraint(eb), ecStatusConstraint,
                     itStatusConstraint);
         /**
@@ -517,7 +451,7 @@ public class DatasetDAO extends AuditableEntityDAO<DatasetBean> {
 
         // setHashMapInKeysHelper(String sedin, String itin, int studyid, int
         // parentid)
-        HashMap nhInHelpKeys =
+        HashMap<String, Boolean> nhInHelpKeys =
             setHashMapInKeysHelper(currentstudyid, parentstudyid, st_sed_in, st_itemid_in, this.genDatabaseDateConstraint(eb), ecStatusConstraint,
                     itStatusConstraint);
         eb.setHmInKeys(nhInHelpKeys);
@@ -544,32 +478,30 @@ public class DatasetDAO extends AuditableEntityDAO<DatasetBean> {
         return eb;
     }
 
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<DatasetBean> findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+        throw new RuntimeException("Not implemented");
     }
 
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType) {
-        ArrayList al = new ArrayList();
-
-        return al;
+     /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<DatasetBean> findAllByPermission(Object objCurrentUser, int intActionType) {
+        throw new RuntimeException("Not implemented");
     }
 
-    public ArrayList findAllByStudyId(int studyId) {
-        HashMap variables = new HashMap();
-        variables.put(Integer.valueOf(1), Integer.valueOf(studyId));
-        variables.put(Integer.valueOf(2), Integer.valueOf(studyId));
-
-        return executeFindAllQuery("findAllByStudyId", variables);
+    public ArrayList<DatasetBean> findAllByStudyId(int studyId) {
+    	String queryName = "findAllByStudyId";
+        HashMap<Integer, Object> variables = variables(studyId, studyId);
+        return executeFindAllQuery(queryName, variables);
     }
 
-    public ArrayList findAllByStudyIdAdmin(int studyId) {
-        HashMap variables = new HashMap();
-        variables.put(Integer.valueOf(1), Integer.valueOf(studyId));
-        variables.put(Integer.valueOf(2), Integer.valueOf(studyId));
-
-        return executeFindAllQuery("findAllByStudyIdAdmin", variables);
+    public ArrayList<DatasetBean> findAllByStudyIdAdmin(int studyId) {        
+        String queryName = "findAllByStudyIdAdmin";
+        HashMap<Integer, Object> variables = variables(studyId, studyId);
+        return executeFindAllQuery(queryName, variables);
     }
 
     /**
@@ -591,10 +523,8 @@ public class DatasetDAO extends AuditableEntityDAO<DatasetBean> {
 
         this.setDefinitionCrfItemTypesExpected();
         logger.debug("begin to execute GetDefinitionCrfItemSql");
-        ArrayList alist = select(getDefinitionCrfItemSql(sedIds, itemIds));
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            HashMap row = (HashMap) it.next();
+        ArrayList<HashMap<String, Object>> alist = select(getDefinitionCrfItemSql(sedIds, itemIds));
+        for (HashMap<String, Object> row : alist) {
             ItemBean ib = (ItemBean) idao.getEntityFromHashMap(row);
             Integer defId = (Integer) row.get("sed_id");
             String defName = (String) row.get("sed_name");
@@ -636,11 +566,10 @@ public class DatasetDAO extends AuditableEntityDAO<DatasetBean> {
      *
      * @author ywang (Feb., 2008)
      */
-    public EntityBean updateAll(EntityBean eb) {
-        eb.setActive(false);
-        DatasetBean db = (DatasetBean) eb;
-        HashMap variables = new HashMap();
-        HashMap nullVars = new HashMap();
+    public DatasetBean updateAll(DatasetBean db) {   	
+        db.setActive(false);
+        HashMap<Integer, Object> variables = new HashMap<>();
+        HashMap<Integer, Integer> nullVars = new HashMap<>();
         variables.put(Integer.valueOf(1), Integer.valueOf(db.getStudyId()));
         variables.put(Integer.valueOf(2), Integer.valueOf(db.getStatus().getId()));
         variables.put(Integer.valueOf(3), db.getName());
@@ -686,22 +615,20 @@ public class DatasetDAO extends AuditableEntityDAO<DatasetBean> {
 
         this.executeUpdate(digester.getQuery("updateAll"), variables, nullVars);
         if (isQuerySuccessful()) {
-            eb.setActive(true);
+            db.setActive(true);
         }
-        return eb;
+        return db;
     }
 
     public EntityBean updateGroupMap(DatasetBean db) {
-        HashMap nullVars = new HashMap();
+    	HashMap<Integer, Integer> nullVars = new HashMap<>();
         db.setActive(false);
         boolean success = true;
 
         ArrayList<Integer> sgcIds = this.getGroupIds(db.getId());
         if (sgcIds == null)
             sgcIds = new ArrayList<Integer>();
-        ArrayList<Integer> dbSgcIds = (ArrayList<Integer>) db.getSubjectGroupIds().clone();
-        if (dbSgcIds == null)
-            dbSgcIds = new ArrayList<Integer>();
+        ArrayList<Integer> dbSgcIds = new ArrayList<Integer>(db.getSubjectGroupIds());
         if (sgcIds.size() > 0) {
             for (Integer id : sgcIds) {
                 if (!dbSgcIds.contains(id)) {
@@ -728,7 +655,7 @@ public class DatasetDAO extends AuditableEntityDAO<DatasetBean> {
         return db;
     }
 
-    protected void createGroupMap(int datasetId, int studyGroupClassId, HashMap nullVars) {
+    protected void createGroupMap(int datasetId, int studyGroupClassId, HashMap<Integer, Integer> nullVars) {
         HashMap<Integer, Object> variablesNew = new HashMap<>();
         variablesNew.put(Integer.valueOf(1), Integer.valueOf(datasetId));
         Integer groupId = Integer.valueOf(studyGroupClassId);
@@ -736,7 +663,7 @@ public class DatasetDAO extends AuditableEntityDAO<DatasetBean> {
         this.executeUpdate(digester.getQuery("createGroupMap"), variablesNew, nullVars);
     }
 
-    protected void removeGroupMap(int datasetId, int studyGroupClassId, HashMap nullVars) {
+    protected void removeGroupMap(int datasetId, int studyGroupClassId, HashMap<Integer, Integer> nullVars) {
         HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(Integer.valueOf(1), Integer.valueOf(datasetId));
         Integer groupId = Integer.valueOf(studyGroupClassId);
@@ -771,9 +698,9 @@ public class DatasetDAO extends AuditableEntityDAO<DatasetBean> {
         String sed_stno = "";
         String it_st = "";
         String it_stno = "";
-        Vector sedvec_tmp = new Vector();
-        Vector sedvec = new Vector();
-        Vector itvec = new Vector();
+        ArrayList<Integer> sedvec_tmp = new ArrayList<>();
+        ArrayList<Integer> sedvec = new ArrayList<>();
+        ArrayList<Integer> itvec = new ArrayList<>();
 
         // get the first
         sedid_one = sql.indexOf("(");
@@ -885,8 +812,6 @@ public class DatasetDAO extends AuditableEntityDAO<DatasetBean> {
                 }
             }// for
         }// if
-        int a = 0;
-        a = 9;
 
         String stsed_in = "";
         for (int ij = 0; ij < sedvec.size(); ij++) {
