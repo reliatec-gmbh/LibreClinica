@@ -635,15 +635,20 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
      * @return The EntityBean selected by the query.
      */
     public B executeFindByPKQuery(String queryName, HashMap<Integer, Object> variables) {
-        B answer = emptyBean();
+    	return executeFindByPKQuery(queryName, variables, false);
+    }
+
+    public B executeFindByPKQuery(String queryName, HashMap<Integer, Object> variables, boolean useCache) {
+        B answer;
 
         String sql = digester.getQuery(queryName);
         logger.debug("query: %s, variables: %s", queryName, variables);
 
-        ArrayList<HashMap<String, Object>> rows = this.select(sql, variables);
+        ArrayList<HashMap<String, Object>> rows = this.select(sql, variables, useCache);
         if(rows.size() > 0) {
         	answer = (B) this.getEntityFromHashMap(rows.get(0));
         } else {
+        	answer = emptyBean();
         	String msg = "found no object for query '%s'"; 
             logger.warn(String.format(msg,  sql));
         }

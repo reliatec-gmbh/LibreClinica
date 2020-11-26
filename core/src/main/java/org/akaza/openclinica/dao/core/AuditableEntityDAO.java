@@ -186,6 +186,11 @@ public abstract class AuditableEntityDAO<T extends EntityBean> extends EntityDAO
      * @return An ArrayList of AuditableEntityBeans selected by the query.
      */
     public ArrayList<T> executeFindAllQuery(String queryName, HashMap<Integer, Object> variables) {
+    	return executeFindAllQuery(queryName, variables, false);
+    }
+    
+
+    public ArrayList<T> executeFindAllQuery(String queryName, HashMap<Integer, Object> variables, boolean useCache) {
         ArrayList<T> answer = new ArrayList<>();
 
         if (queryName == null || queryName.trim().isEmpty()) {
@@ -201,7 +206,7 @@ public abstract class AuditableEntityDAO<T extends EntityBean> extends EntityDAO
             return answer;
         }
         
-        ArrayList<HashMap<String, Object>> alist = this.select(query, variables);
+        ArrayList<HashMap<String, Object>> alist = this.select(query, variables, useCache);
         answer.addAll(alist.stream().map(m -> (T) this.getEntityFromHashMap(m)).collect(Collectors.toList()));
         return answer;
     }

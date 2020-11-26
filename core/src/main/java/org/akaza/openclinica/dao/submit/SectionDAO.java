@@ -7,21 +7,18 @@
  */
 package org.akaza.openclinica.dao.submit;
 
-import org.akaza.openclinica.bean.core.EntityBean;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Locale;
+
+import javax.sql.DataSource;
+
 import org.akaza.openclinica.bean.submit.EventCRFBean;
 import org.akaza.openclinica.bean.submit.SectionBean;
 import org.akaza.openclinica.dao.core.AuditableEntityDAO;
 import org.akaza.openclinica.dao.core.DAODigester;
 import org.akaza.openclinica.dao.core.SQLFactory;
 import org.akaza.openclinica.dao.core.TypeNames;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Locale;
-
-import javax.sql.DataSource;
 
 /**
  * <P>
@@ -83,7 +80,7 @@ public class SectionDAO extends AuditableEntityDAO<SectionBean> {
 
     @Override
     public SectionBean update(SectionBean sb) {
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(sb.getCRFVersionId()));
         variables.put(new Integer(2), new Integer(sb.getStatus().getId()));
         variables.put(new Integer(3), sb.getLabel());
@@ -101,7 +98,7 @@ public class SectionDAO extends AuditableEntityDAO<SectionBean> {
 
     @Override
     public SectionBean create(SectionBean sb) {
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
 
         variables.put(new Integer(1), new Integer(sb.getCRFVersionId()));
         variables.put(new Integer(2), new Integer(sb.getStatus().getId()));
@@ -118,7 +115,7 @@ public class SectionDAO extends AuditableEntityDAO<SectionBean> {
         return sb;
     }
 
-    public SectionBean getEntityFromHashMap(HashMap hm) {
+    public SectionBean getEntityFromHashMap(HashMap<String, Object> hm) {
         SectionBean eb = new SectionBean();
         this.setEntityAuditInformation(eb, hm);
         eb.setId(((Integer) hm.get("section_id")).intValue());
@@ -134,84 +131,55 @@ public class SectionDAO extends AuditableEntityDAO<SectionBean> {
         return eb;
     }
 
-    public Collection findAll() {
-        this.setTypesExpected();
-        ArrayList alist = this.select(digester.getQuery("findAll"));
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            SectionBean eb = (SectionBean) this.getEntityFromHashMap((HashMap) it.next());
-            al.add(eb);
-        }
-        return al;
+    public ArrayList<SectionBean> findAll() {
+    	String queryName = "findAll";
+        return executeFindAllQuery(queryName);
     }
 
-    public Collection findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
-
-        return al;
+     /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<SectionBean> findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+        throw new RuntimeException("Not implemented");
     }
 
-    public Collection findByVersionId(int ID) {
-        this.setTypesExpected();
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(ID));
-
-        String sql = digester.getQuery("findByVersionId");
-        ArrayList alist = this.selectByCache(sql, variables);
-
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            SectionBean eb = (SectionBean) this.getEntityFromHashMap((HashMap) it.next());
-            al.add(eb);
-        }
-        return al;
+    public ArrayList<SectionBean> findByVersionId(int ID) {
+        boolean useCache = true;
+    	String queryName = "findByVersionId";
+        HashMap<Integer, Object> variables = variables(ID);
+        return executeFindAllQuery(queryName, variables, useCache);
     }
 
-    public EntityBean findByPK(int ID) {
-        SectionBean eb = new SectionBean();
-        this.setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(ID));
-
-        String sql = digester.getQuery("findByPK");
-        ArrayList alist = this.selectByCache(sql, variables);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            eb = (SectionBean) this.getEntityFromHashMap((HashMap) it.next());
-        }
-        return eb;
+    public SectionBean findByPK(int ID) {
+    	boolean useCache = true;
+    	String queryName = "findByPK";
+    	HashMap<Integer, Object> variables = variables(ID);
+    	return executeFindByPKQuery(queryName, variables, useCache);
     }
 
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
-
-        return al;
+	/**
+	 * NOT IMPLEMENTED
+	 */
+    public ArrayList<SectionBean> findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+    	throw new RuntimeException("Not implemented");
     }
 
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType) {
-        ArrayList al = new ArrayList();
-
-        return al;
+	/**
+	 * NOT IMPLEMENTED
+	 */
+    public ArrayList<SectionBean> findAllByPermission(Object objCurrentUser, int intActionType) {
+    	throw new RuntimeException("Not implemented");
     }
 
-    public ArrayList findAllByCRFVersionId(int crfVersionId) {
-        this.setTypesExpected();
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(crfVersionId));
-
-        return this.executeFindAllQuery("findAllByCRFVersion", variables);
+    public ArrayList<SectionBean> findAllByCRFVersionId(int crfVersionId) {
+    	String queryName = "findAllByCRFVersion";
+        HashMap<Integer, Object> variables = variables(crfVersionId);
+        return executeFindAllQuery(queryName, variables);
     }
 
-    private HashMap getNumItemsBySectionIdFromRows(ArrayList rows) {
-        HashMap answer = new HashMap();
-        Iterator it = rows.iterator();
-
-        while (it.hasNext()) {
-            HashMap hm = (HashMap) it.next();
+    private HashMap<Integer, Integer> getNumItemsBySectionIdFromRows(ArrayList<HashMap<String, Object>> rows) {
+        HashMap<Integer, Integer> answer = new HashMap<>();
+        for(HashMap<String, Object> hm : rows) {
             Integer sectionIdInt = (Integer) hm.get("section_id");
             Long numItemsInt = (Long) hm.get("num_items");
 
@@ -222,14 +190,15 @@ public class SectionDAO extends AuditableEntityDAO<SectionBean> {
 
         return answer;
     }
-//JN : bySectionID indicates group by section id
-    public HashMap getNumItemsBySectionId() {
+    
+    //JN : bySectionID indicates group by section id
+    public HashMap<Integer, Integer> getNumItemsBySectionId() {
         this.unsetTypeExpected();
         this.setTypeExpected(1, TypeNames.INT); // section_id
         this.setTypeExpected(2, TypeNames.LONG); // count
 
         String sql = digester.getQuery("getNumItemsBySectionId");
-        ArrayList rows = this.select(sql);
+        ArrayList<HashMap<String, Object>> rows = this.select(sql);
         return getNumItemsBySectionIdFromRows(rows);
     }
 /**
@@ -237,148 +206,116 @@ public class SectionDAO extends AuditableEntityDAO<SectionBean> {
  * @param sb
  * @return
  */
-    public HashMap getNumItemsBySection(SectionBean sb){
+    public HashMap<Integer, Integer> getNumItemsBySection(SectionBean sb){
         this.unsetTypeExpected();
         this.setTypeExpected(1, TypeNames.INT); // section_id
         this.setTypeExpected(2, TypeNames.LONG); // count
 
         String sql = digester.getQuery("getNumItemsBySection");
-        ArrayList rows = this.select(sql);
+        ArrayList<HashMap<String, Object>> rows = this.select(sql);
         return getNumItemsBySectionIdFromRows(rows);
-
     }
     
-    public HashMap getNumItemsPlusRepeatBySectionId(EventCRFBean ecb) {
+    public HashMap<Integer, Integer> getNumItemsPlusRepeatBySectionId(EventCRFBean ecb) {
         this.unsetTypeExpected();
         this.setTypeExpected(1, TypeNames.INT); // section_id
         this.setTypeExpected(2, TypeNames.LONG); // count
 
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(ecb.getId()));
+        HashMap<Integer, Object> variables = variables(ecb.getId());
         String sql = digester.getQuery("getNumItemsPlusRepeatBySectionId");
 
-        ArrayList rows = this.select(sql, variables);
+        ArrayList<HashMap<String, Object>> rows = this.select(sql, variables);
         return getNumItemsBySectionIdFromRows(rows);
     }
 
-    public HashMap getNumItemsCompletedBySectionId(EventCRFBean ecb) {
+    public HashMap<Integer, Integer> getNumItemsCompletedBySectionId(EventCRFBean ecb) {
         this.unsetTypeExpected();
         this.setTypeExpected(1, TypeNames.INT); // section_id
         this.setTypeExpected(2, TypeNames.LONG); // count
 
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(ecb.getId()));
+        HashMap<Integer, Object> variables = variables(ecb.getId());
         String sql = digester.getQuery("getNumItemsCompletedBySectionId");
 
-        ArrayList rows = this.select(sql, variables);
+        ArrayList<HashMap<String, Object>> rows = this.select(sql, variables);
         return getNumItemsBySectionIdFromRows(rows);
     }
     
-    public HashMap getNumItemsCompletedBySection(EventCRFBean ecb) {
+    public HashMap<Integer, Integer> getNumItemsCompletedBySection(EventCRFBean ecb) {
         this.unsetTypeExpected();
         this.setTypeExpected(1, TypeNames.INT); // section_id
         this.setTypeExpected(2, TypeNames.LONG); // count
 
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(ecb.getId()));
+        HashMap<Integer, Object> variables = variables(ecb.getId());
         String sql = digester.getQuery("getNumItemsCompletedBySection");
 
-        ArrayList rows = this.select(sql, variables);
+        ArrayList<HashMap<String, Object>> rows = this.select(sql, variables);
         return getNumItemsBySectionIdFromRows(rows);
     }
 
-    public HashMap getNumItemsPendingBySectionId(EventCRFBean ecb) {
+    public HashMap<Integer, Integer> getNumItemsPendingBySectionId(EventCRFBean ecb) {
         this.unsetTypeExpected();
         this.setTypeExpected(1, TypeNames.INT); // section_id
         this.setTypeExpected(2, TypeNames.LONG); // count
 
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(ecb.getId()));
+        HashMap<Integer, Object> variables = variables(ecb.getId());
         String sql = digester.getQuery("getNumItemsPendingBySectionId");
 
-        ArrayList rows = this.select(sql, variables);
+        ArrayList<HashMap<String, Object>> rows = this.select(sql, variables);
         return getNumItemsBySectionIdFromRows(rows);
     }
-    public HashMap getNumItemsPendingBySection(EventCRFBean ecb,SectionBean sb) {
+    
+    public HashMap<Integer, Integer> getNumItemsPendingBySection(EventCRFBean ecb,SectionBean sb) {
         this.unsetTypeExpected();
         this.setTypeExpected(1, TypeNames.INT); // section_id
         this.setTypeExpected(2, TypeNames.LONG); // count
 
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(ecb.getId()));
-        variables.put(new Integer(1), new Integer(sb.getId()));
+        HashMap<Integer, Object> variables = variables(ecb.getId(), sb.getId());
         String sql = digester.getQuery("getNumItemsPendingBySection");
 
-        ArrayList rows = this.select(sql, variables);
+        ArrayList<HashMap<String, Object>> rows = this.select(sql, variables);
         return getNumItemsBySectionIdFromRows(rows);
     }
-    public HashMap getNumItemsBlankBySectionId(EventCRFBean ecb) {
+    
+    public HashMap<Integer, Integer> getNumItemsBlankBySectionId(EventCRFBean ecb) {
         this.unsetTypeExpected();
         this.setTypeExpected(1, TypeNames.INT); // section_id
         this.setTypeExpected(2, TypeNames.LONG); // count
 
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(ecb.getId()));
+        HashMap<Integer, Object> variables = variables(ecb.getId());
         String sql = digester.getQuery("getNumItemsBlankBySectionId");
 
-        ArrayList rows = this.select(sql, variables);
+        ArrayList<HashMap<String, Object>> rows = this.select(sql, variables);
         return getNumItemsBySectionIdFromRows(rows);
     }
-    public HashMap getNumItemsBlankBySection(EventCRFBean ecb,SectionBean sb) {
+    
+    public HashMap<Integer, Integer> getNumItemsBlankBySection(EventCRFBean ecb,SectionBean sb) {
         this.unsetTypeExpected();
         this.setTypeExpected(1, TypeNames.INT); // section_id
         this.setTypeExpected(2, TypeNames.LONG); // count
 
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(ecb.getId()));
-        variables.put(new Integer(1), new Integer(sb.getId()));
+        HashMap<Integer, Object> variables = variables(ecb.getId(), sb.getId());
         String sql = digester.getQuery("getNumItemsBlankBySectionId");
 
-        ArrayList rows = this.select(sql, variables);
+        ArrayList<HashMap<String, Object>> rows = this.select(sql, variables);
         return getNumItemsBySectionIdFromRows(rows);
     }
+    
     public SectionBean findNext(EventCRFBean ecb, SectionBean current) {
-        this.setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(ecb.getCRFVersionId()));
-        variables.put(new Integer(2), new Integer(current.getOrdinal()));
-
-        String sql = digester.getQuery("findNext");
-        ArrayList rows = this.select(sql, variables);
-
-        SectionBean answer = new SectionBean();
-        if (rows.size() > 0) {
-            HashMap row = (HashMap) rows.get(0);
-            answer = (SectionBean) getEntityFromHashMap(row);
-        }
-
-        return answer;
+        String queryName = "findNext";
+        HashMap<Integer, Object> variables = variables(ecb.getCRFVersionId(), current.getOrdinal());
+        return executeFindByPKQuery(queryName, variables);
     }
 
     public SectionBean findPrevious(EventCRFBean ecb, SectionBean current) {
-        this.setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(ecb.getCRFVersionId()));
-        variables.put(new Integer(2), new Integer(current.getOrdinal()));
-
-        String sql = digester.getQuery("findPrevious");
-        ArrayList rows = this.select(sql, variables);
-        SectionBean answer = new SectionBean();
-
-        if (rows.size() > 0) {
-            HashMap row = (HashMap) rows.get(0);
-            answer = (SectionBean) getEntityFromHashMap(row);
-        }
-
-        return answer;
+        String queryName = "findPrevious";
+        HashMap<Integer, Object> variables = variables(ecb.getCRFVersionId(), current.getOrdinal());
+        return executeFindByPKQuery(queryName, variables);
     }
 
     public void deleteTestSection(String label) {
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), label);
-        this.executeUpdate(digester.getQuery("deleteTestSection"), variables);
+    	String query = digester.getQuery("deleteTestSection");
+        HashMap<Integer, Object> variables = variables(label);
+        this.executeUpdate(query, variables);
     }
 
     public boolean hasSCDItem(Integer sectionId) {
@@ -399,41 +336,19 @@ public class SectionDAO extends AuditableEntityDAO<SectionBean> {
         this.unsetTypeExpected();
         this.setTypeExpected(1, TypeNames.INT); //item_id
         
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), sectionId);
         variables.put(new Integer(2), crfVersionId);
         variables.put(new Integer(3), crfVersionId);
         variables.put(new Integer(4), sectionId);
         variables.put(new Integer(5), crfVersionId);
-        ArrayList rows = this.select(digester.getQuery("containNormalItem"), variables);
+        
+        ArrayList<HashMap<String, Object>> rows = this.select(digester.getQuery("containNormalItem"), variables);
         if(rows.size()>0) {
-            return (Integer) ((HashMap) rows.iterator().next()).get("item_id") > 0;
+            return (Integer) (rows.get(0)).get("item_id") > 0;
         } else {
             return false;
         }
-    }
-    
-    public HashMap getSectionIdForTabId(int crfVersionId, int tabId) {
-    	this.unsetTypeExpected();
-        this.setTypeExpected(1, TypeNames.INT); // section_id                
-        
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(crfVersionId));
-        variables.put(new Integer(2), new Integer(tabId));
-        
-        ArrayList rows = this.select(digester.getQuery("getSectionIdForTabId"), variables);
-        return getSectionIdFromRows(rows);
-    }
-    
-    private HashMap getSectionIdFromRows(ArrayList rows) {
-        HashMap answer = new HashMap();
-        Iterator it = rows.iterator();
-        HashMap hm = new HashMap();
-        while (it.hasNext()) {
-            hm = (HashMap) it.next();
-        }
-
-        return hm;
     }
 
 	@Override
