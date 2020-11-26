@@ -790,32 +790,6 @@ public class ItemFormMetadataDAO extends EntityDAO<ItemFormMetadataBean> {
         }
     }
 
-    public ResponseSetBean findResponseSetByPK(int id) {
-        this.unsetTypeExpected();
-        int ind = 1;
-        this.setTypeExpected(ind, TypeNames.INT);// response_set_id
-        ind++;
-        this.setTypeExpected(ind, TypeNames.INT);// response_type_id
-        ind++;
-        this.setTypeExpected(ind, TypeNames.STRING);// label
-        ind++;
-        this.setTypeExpected(ind, TypeNames.STRING);// option_text
-        ind++;
-        this.setTypeExpected(ind, TypeNames.STRING);// options_values
-        ind++;
-        this.setTypeExpected(ind, TypeNames.INT);// version_id
-        ind++;
-        this.setTypeExpected(ind, TypeNames.STRING);// name
-        ind++;
-        this.setTypeExpected(ind, TypeNames.STRING);// description
-        ind++;
-
-        HashMap<Integer, Object> variables = new HashMap<>();
-        variables.put(new Integer(1), new Integer(id));
-
-        return (ResponseSetBean) this.executeFindByPKQuery("findResponseSetByPK", variables);
-    }
-
     /**
      * Find all ItemFormMetadataBean which is simple_conditional_display
      * @param sectionId

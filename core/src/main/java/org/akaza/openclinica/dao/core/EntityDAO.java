@@ -635,15 +635,15 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
      *            The set of variables used to populate the PreparedStatement; should be empty if none are needed.
      * @return The EntityBean selected by the query.
      */
-    public EntityBean executeFindByPKQuery(String queryName, HashMap<Integer, Object> variables) {
-        EntityBean answer = new EntityBean();
+    public B executeFindByPKQuery(String queryName, HashMap<Integer, Object> variables) {
+        B answer = emptyBean();
 
         String sql = digester.getQuery(queryName);
         logger.debug("query: %s, variables: %s", queryName, variables);
 
         ArrayList<HashMap<String, Object>> rows = this.select(sql, variables);
         if(rows.size() > 0) {
-        	answer = (EntityBean) this.getEntityFromHashMap(rows.get(0));
+        	answer = (B) this.getEntityFromHashMap(rows.get(0));
         }
 
         return answer;
@@ -656,7 +656,7 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
      *            The name of the query which should be executed.
      * @return The EntityBean selected by the query.
      */
-    public EntityBean executeFindByPKQuery(String queryName) {
+    public B executeFindByPKQuery(String queryName) {
         return executeFindByPKQuery(queryName, new HashMap<>());
     }
 
