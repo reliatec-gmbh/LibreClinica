@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 import javax.sql.DataSource;
 
 import org.akaza.openclinica.bean.core.ApplicationConstants;
-import org.akaza.openclinica.bean.core.EntityBean;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.core.Utils;
 import org.akaza.openclinica.bean.extract.ExtractBean;
@@ -644,6 +643,9 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
         ArrayList<HashMap<String, Object>> rows = this.select(sql, variables);
         if(rows.size() > 0) {
         	answer = (B) this.getEntityFromHashMap(rows.get(0));
+        } else {
+        	String msg = "found no object for query '%s'"; 
+            logger.warn(String.format(msg,  sql));
         }
 
         return answer;
