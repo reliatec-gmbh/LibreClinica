@@ -8,10 +8,8 @@
 package org.akaza.openclinica.dao.submit;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -22,6 +20,7 @@ import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.core.EntityBean;
 import org.akaza.openclinica.bean.core.ItemDataType;
 import org.akaza.openclinica.bean.core.Status;
+import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.bean.submit.ItemBean;
 import org.akaza.openclinica.bean.submit.ItemDataBean;
 import org.akaza.openclinica.bean.submit.ItemFormMetadataBean;
@@ -83,7 +82,7 @@ public class ItemDAO extends AuditableEntityDAO<ItemBean> {
 
     @Override
     public ItemBean update(ItemBean ib) {
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), ib.getName());
         variables.put(new Integer(2), ib.getDescription());
         variables.put(new Integer(3), ib.getUnits());
@@ -100,7 +99,7 @@ public class ItemDAO extends AuditableEntityDAO<ItemBean> {
     @Override
     public ItemBean create(ItemBean ib) {
         // per the create sql statement
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), ib.getName());
         variables.put(new Integer(2), ib.getDescription());
         variables.put(new Integer(3), ib.getUnits());
@@ -143,7 +142,7 @@ public class ItemDAO extends AuditableEntityDAO<ItemBean> {
 
     }
 
-    public ItemBean getEntityFromHashMap(HashMap hm) {
+    public ItemBean getEntityFromHashMap(HashMap<String, Object> hm) {
         ItemBean eb = new ItemBean();
         // below inserted to find out a class cast exception, tbh
         Date dateCreated = (Date) hm.get("date_created");
@@ -155,8 +154,10 @@ public class ItemDAO extends AuditableEntityDAO<ItemBean> {
         eb.setCreatedDate(dateCreated);
         eb.setUpdatedDate(dateUpdated);
         eb.setStatus(Status.get(statusId.intValue()));
-        eb.setOwnerId(ownerId.intValue());
-        eb.setUpdaterId(updateId.intValue());
+        UserAccountBean owner = (UserAccountBean) uadao.findByPK(ownerId);
+        eb.setOwner(owner);
+        UserAccountBean updater = (UserAccountBean) uadao.findByPK(updateId);
+        eb.setUpdater(updater);
         // something to trip over
         // something else to trip over
         // eb = (ItemBean)this.getEntityAuditInformation(hm);
@@ -179,88 +180,81 @@ public class ItemDAO extends AuditableEntityDAO<ItemBean> {
         this.setTypesExpected();
         HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, oid);
-        List listofMaps = this.select(digester.getQuery("findItemByOid"), variables, true);
+        ArrayList<HashMap<String, Object>> listofMaps = this.select(digester.getQuery("findItemByOid"), variables, true);
 
         List<ItemBean> beanList = new ArrayList<ItemBean>();
         ItemBean bean;
-        for (Object map : listofMaps) {
-            bean = (ItemBean) this.getEntityFromHashMap((HashMap) map);
+        for (HashMap<String, Object> hm : listofMaps) {
+            bean = this.getEntityFromHashMap(hm);
             beanList.add(bean);
         }
         return beanList;
     }
 
-    public Collection findAll() {
-        this.setTypesExpected();
-        ArrayList alist = this.select(digester.getQuery("findAll"));
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            ItemBean eb = (ItemBean) this.getEntityFromHashMap((HashMap) it.next());
-            al.add(eb);
-        }
-        return al;
+    public List<ItemBean> findAll() {
+    	String queryName = "findAll";
+        return executeFindAllQuery(queryName);
     }
 
-    public Collection findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<ItemBean> findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+        throw new RuntimeException("Not implemented");
     }
 
-    public ArrayList findAllParentsBySectionId(int sectionId) {
-        HashMap variables = new HashMap();
+    public ArrayList<ItemBean> findAllParentsBySectionId(int sectionId) {
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(sectionId));
 
         return this.executeFindAllQuery("findAllParentsBySectionId", variables);
     }
 
-    public ArrayList findAllNonRepeatingParentsBySectionId(int sectionId) {
-        HashMap variables = new HashMap();
+    public ArrayList<ItemBean> findAllNonRepeatingParentsBySectionId(int sectionId) {
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(sectionId));
 
         return this.executeFindAllQuery("findAllNonRepeatingParentsBySectionId", variables);
     }
 
-    public ArrayList findAllBySectionId(int sectionId) {
-        HashMap variables = new HashMap();
+    public ArrayList<ItemBean> findAllBySectionId(int sectionId) {
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(sectionId));
 
         return this.executeFindAllQuery("findAllBySectionId", variables);
     }
 
-    public ArrayList findAllBySectionIdOrderedByItemFormMetadataOrdinal(int sectionId) {
-        HashMap variables = new HashMap();
+    public ArrayList<ItemBean> findAllBySectionIdOrderedByItemFormMetadataOrdinal(int sectionId) {
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(sectionId));
 
         return this.executeFindAllQuery("findAllBySectionIdOrderedByItemFormMetadataOrdinal", variables);
     }
 
     
-    public ArrayList findAllUngroupedParentsBySectionId(int sectionId, int crfVersionId) {
-        HashMap variables = new HashMap();
+    public ArrayList<ItemBean> findAllUngroupedParentsBySectionId(int sectionId, int crfVersionId) {
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, sectionId);
         variables.put(2, crfVersionId);
 
         return this.executeFindAllQuery("findAllUngroupedParentsBySectionId", variables);
     }
 
-    public ArrayList findAllItemsByVersionId(int versionId) {
+    public ArrayList<ItemBean> findAllItemsByVersionId(int versionId) {
     	HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(versionId));
 
         return this.executeFindAllQuery("findAllItemsByVersionId", variables);
     }
 
-    public ArrayList findAllVersionsByItemId(int itemId) {
+    public ArrayList<Integer> findAllVersionsByItemId(int itemId) {
     	HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(itemId));
         String sql = digester.getQuery("findAllVersionsByItemId");
-        ArrayList alist = this.select(sql, variables, true);
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            Integer versionId = (Integer) ((HashMap) it.next()).get("crf_version_id");
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables, true);
+        ArrayList<Integer> al = new ArrayList<>();
+        for (HashMap<String, Object> hm : alist) {
+            Integer versionId = (Integer) hm.get("crf_version_id");
             al.add(versionId);
         }
         return al;
@@ -273,11 +267,11 @@ public class ItemDAO extends AuditableEntityDAO<ItemBean> {
         variables.put(1, id);
         variables.put(2, crfVersionId);
         String sql = digester.getQuery("findAllItemsByGroupId");
-        List listofMaps = this.select(sql, variables, true);
+        ArrayList<HashMap<String, Object>> listofMaps = this.select(sql, variables, true);
         List<ItemBean> beanList = new ArrayList<ItemBean>();
         ItemBean bean;
-        for (Object map : listofMaps) {
-            bean = (ItemBean) this.getEntityFromHashMap((HashMap) map);
+        for (HashMap<String, Object> hm : listofMaps) {
+            bean = this.getEntityFromHashMap(hm);
             beanList.add(bean);
         }
         return beanList;
@@ -289,11 +283,11 @@ public class ItemDAO extends AuditableEntityDAO<ItemBean> {
         variables.put(1, id);
         variables.put(2, crfVersionId);
         String sql = digester.getQuery("findAllItemsByGroupIdOrdered");
-        List listofMaps = this.select(sql, variables, true);
+        ArrayList<HashMap<String, Object>> listofMaps = this.select(sql, variables, true);
         List<ItemBean> beanList = new ArrayList<ItemBean>();
         ItemBean bean;
-        for (Object map : listofMaps) {
-            bean = (ItemBean) this.getEntityFromHashMap((HashMap) map);
+        for (HashMap<String, Object> hm : listofMaps) {
+            bean = this.getEntityFromHashMap(hm);
             beanList.add(bean);
         }
         return beanList;
@@ -307,11 +301,11 @@ public class ItemDAO extends AuditableEntityDAO<ItemBean> {
         variables.put(2, sectionId);
         variables.put(3, crfVersionId);
         String sql = digester.getQuery("findAllItemsByGroupIdAndSectionIdOrdered");
-        List listofMaps = this.select(sql, variables, true);
+        ArrayList<HashMap<String, Object>> listofMaps = this.select(sql, variables, true);
         List<ItemBean> beanList = new ArrayList<ItemBean>();
         ItemBean bean;
-        for (Object map : listofMaps) {
-            bean = (ItemBean) this.getEntityFromHashMap((HashMap) map);
+        for (HashMap<String, Object> hm : listofMaps) {
+            bean = this.getEntityFromHashMap(hm);
             beanList.add(bean);
         }
         return beanList;
@@ -325,11 +319,11 @@ public class ItemDAO extends AuditableEntityDAO<ItemBean> {
         variables.put(2, crfVersionId);
         variables.put(3,sectionId);
         String sql = digester.getQuery("findAllItemsByGroupIdForPrint");
-        List listofMaps = this.select(sql, variables, true);
+        ArrayList<HashMap<String, Object>> listofMaps = this.select(sql, variables, true);
         List<ItemBean> beanList = new ArrayList<ItemBean>();
         ItemBean bean;
-        for (Object map : listofMaps) {
-            bean = (ItemBean) this.getEntityFromHashMap((HashMap) map);
+        for (HashMap<String, Object> hm : listofMaps) {
+            bean = this.getEntityFromHashMap(hm);
             beanList.add(bean);
         }
         return beanList;
@@ -337,34 +331,30 @@ public class ItemDAO extends AuditableEntityDAO<ItemBean> {
     public ItemBean findItemByGroupIdandItemOid(int id, String itemOid) {
         ItemBean bean;
         this.setTypesExpected();
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, id);
         variables.put(2, itemOid);
         String sql = digester.getQuery("findItemByGroupIdandItemOid");
 
-        ArrayList rows = this.select(sql, variables, true);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            bean = (ItemBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> rows = this.select(sql, variables, true);
+        if (rows != null && rows.size() > 0) {
+            bean = this.getEntityFromHashMap(rows.get(0));
             return bean;
         } else {
             return null;
         }
     }
 
-    public ArrayList findAllActiveByCRF(CRFBean crf) {
-        HashMap variables = new HashMap();
+    public ArrayList<ItemBean> findAllActiveByCRF(CRFBean crf) {
+        HashMap<Integer, Object> variables = new HashMap<>();
         this.setTypesExpected();
         this.setTypeExpected(14, TypeNames.INT);// crf_version_id
         this.setTypeExpected(15, TypeNames.STRING);// version name
         variables.put(new Integer(1), new Integer(crf.getId()));
         String sql = digester.getQuery("findAllActiveByCRF");
-        ArrayList alist = this.select(sql, variables, true);
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            HashMap hm = (HashMap) it.next();
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables, true);
+        ArrayList<ItemBean> al = new ArrayList<>();
+        for (HashMap<String, Object> hm : alist) {
             ItemBean eb = (ItemBean) this.getEntityFromHashMap(hm);
             Integer versionId = (Integer) hm.get("crf_version_id");
             String versionName = (String) hm.get("cvname");
@@ -383,16 +373,14 @@ public class ItemDAO extends AuditableEntityDAO<ItemBean> {
         ItemBean eb = new ItemBean();
         this.setTypesExpected();
 
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(ID));
 
         String sql = digester.getQuery("findByPK");
         
-        ArrayList alist = this.select(sql, variables, true);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            eb = (ItemBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables, true);
+        if (alist != null && alist.size() > 0) {
+            eb = this.getEntityFromHashMap(alist.get(0));
         }
         return eb;
     }
@@ -401,15 +389,13 @@ public class ItemDAO extends AuditableEntityDAO<ItemBean> {
         ItemBean eb = new ItemBean();
         this.setTypesExpected();
 
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), name);
 
         String sql = digester.getQuery("findByName");
-        ArrayList alist = this.select(sql, variables, true);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            eb = (ItemBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables, true);
+        if (alist != null && alist.size() > 0) {
+            eb = this.getEntityFromHashMap(alist.get(0));
         }
         return eb;
     }
@@ -418,28 +404,26 @@ public class ItemDAO extends AuditableEntityDAO<ItemBean> {
         ItemBean eb = new ItemBean();
         this.setTypesExpected();
 
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), name);
         variables.put(new Integer(2), new Integer(crfId));
 
         String sql = digester.getQuery("findByNameAndCRFId");
-        ArrayList alist = this.select(sql, variables, true);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            eb = (ItemBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables, true);
+        if (alist != null && alist.size() > 0) {
+            eb = this.getEntityFromHashMap(alist.get(0));
         }
         return eb;
     }
 
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
+    public List<ItemBean> findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+        ArrayList<ItemBean> al = new ArrayList<>();
 
         return al;
     }
 
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType) {
-        ArrayList al = new ArrayList();
+    public List<ItemBean> findAllByPermission(Object objCurrentUser, int intActionType) {
+        ArrayList<ItemBean> al = new ArrayList<>();
 
         return al;
     }
@@ -457,8 +441,8 @@ public class ItemDAO extends AuditableEntityDAO<ItemBean> {
      *         the parent and the array is sorted by columnNumber in ascending
      *         order.
      */
-    public ArrayList findAllByParentIdAndCRFVersionId(int parentId, int crfVersionId) {
-        HashMap variables = new HashMap();
+    public ArrayList<ItemBean> findAllByParentIdAndCRFVersionId(int parentId, int crfVersionId) {
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(parentId));
         variables.put(new Integer(2), new Integer(crfVersionId));
 
@@ -471,8 +455,8 @@ public class ItemDAO extends AuditableEntityDAO<ItemBean> {
         return getCountByQueryOrDefault(query, variables, 0);
     }
 
-    public ArrayList findAllRequiredBySectionId(int sectionId) {
-        HashMap variables = new HashMap();
+    public ArrayList<ItemBean> findAllRequiredBySectionId(int sectionId) {
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(sectionId));
 
         return this.executeFindAllQuery("findAllRequiredBySectionId", variables);
@@ -483,13 +467,11 @@ public class ItemDAO extends AuditableEntityDAO<ItemBean> {
         this.unsetTypeExpected();
         this.setTypeExpected(1, TypeNames.INT); //item_id
         this.setTypeExpected(2, TypeNames.STRING); //(item)name
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(sectionId));
         String sql = digester.getQuery("findIdAndNamesInSection");
-        ArrayList rows = select(sql, variables, true);
-        Iterator it = rows.iterator();
-        while (it.hasNext()) {
-            HashMap row = (HashMap) it.next();
+        ArrayList<HashMap<String, Object>> rows = select(sql, variables, true);
+        for (HashMap<String, Object> row : rows) {
             Integer id = (Integer) row.get("item_id");
             String name = (String) row.get("name");
             nameIdMap.put(name, id);
@@ -504,18 +486,14 @@ public class ItemDAO extends AuditableEntityDAO<ItemBean> {
         this.setTypeExpected(2, TypeNames.INT);//item_id
         this.setTypeExpected(3, TypeNames.STRING);//parent_name
         this.setTypeExpected(4, TypeNames.INT);//parent_id
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(sectionId));
         variables.put(new Integer(2), new Integer(sectionId));
         String sql = digester.getQuery("findChildAndParentNamesInSection");
-        ArrayList rows = select(sql, variables, true);
-        Iterator it = rows.iterator();
-        while (it.hasNext()) {
-            HashMap row = (HashMap) it.next();
+        ArrayList<HashMap<String, Object>> rows = select(sql, variables, true);
+        for (HashMap<String, Object> row : rows) {
             String cn = (String) row.get("name");
-            Integer cid = (Integer) row.get("item_id");
             String pn = (String) row.get("parent_name");
-            Integer pid = (Integer) row.get("parent_id");
             nameMap.put(cn, pn);
         }
         return nameMap;
@@ -539,19 +517,17 @@ public class ItemDAO extends AuditableEntityDAO<ItemBean> {
         
         ArrayList<ItemBean> answer = new ArrayList<ItemBean>();
 
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(crfVersionId));
         variables.put(new Integer(2), new Integer(eventCRFId));
         
         String sql = digester.getQuery("findAllWithItemDataByCRFVersionId");
 
-        ArrayList rows = super.select(sql, variables);
-        Iterator it = rows.iterator();
+        ArrayList<HashMap<String, Object>> rows = super.select(sql, variables);
         int cur_item_id=0;
         ItemBean item_bean = null;
         ItemDataBean item_data_bean = null;
-        while (it.hasNext()) {
-            HashMap row = (HashMap) it.next();
+        for (HashMap<String, Object> row : rows) {
             Integer id = (Integer) row.get("item_id");
             if (cur_item_id!= id.intValue() ){
             	item_bean = new ItemBean();
@@ -590,16 +566,14 @@ crf_version.name as version_name, crf_version.status_id as v_status
         this.setTypeExpected(4, TypeNames.STRING);//(crf)name
         this.setTypeExpected(5, TypeNames.INT);//(crf)name
         
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer (1), crfName);
        
         String sql = digester.getQuery("findAllWithItemGroupCRFVersionMetadataByCRFId");
-        ArrayList rows = this.select(sql, variables, true);
+        ArrayList<HashMap<String, Object>> rows = this.select(sql, variables, true);
         ItemGroupCrvVersionUtil item = null;
         ArrayList<ItemGroupCrvVersionUtil> item_group_crfversion_info = new ArrayList<ItemGroupCrvVersionUtil>();
-        Iterator it = rows.iterator();
-        while (it.hasNext()) {
-            HashMap row = (HashMap) it.next();
+        for (HashMap<String, Object> row : rows) {
             item = new ItemGroupCrvVersionUtil();
             item.setItemName((String) row.get("item_name"));
             item.setCrfVersionName((String) row.get("version_name"));
@@ -630,17 +604,15 @@ crf_version.name as version_name, crf_version.status_id as v_status
         this.setTypeExpected(8, TypeNames.STRING);//(crf)version_name
         this.setTypeExpected(9, TypeNames.INT);//(crf)v_status
         
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer (1), crfName);
        
         String sql = digester.getQuery("findAllWithItemDetailsGroupCRFVersionMetadataByCRFId");
-        ArrayList rows = this.select(sql, variables, true);
+        ArrayList<HashMap<String, Object>> rows = this.select(sql, variables, true);
         ItemGroupCrvVersionUtil item = null;
         ItemDataType itemDT= null;
         ArrayList<ItemGroupCrvVersionUtil> item_group_crfversion_info = new ArrayList<ItemGroupCrvVersionUtil>();
-        Iterator it = rows.iterator();
-        while (it.hasNext()) {
-            HashMap row = (HashMap) it.next();
+        for (HashMap<String, Object> row : rows) {
             item = new ItemGroupCrvVersionUtil();
             item.setItemName((String) row.get("item_name"));
             item.setCrfVersionName((String) row.get("version_name"));
