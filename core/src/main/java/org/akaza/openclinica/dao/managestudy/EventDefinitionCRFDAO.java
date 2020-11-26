@@ -9,11 +9,8 @@ package org.akaza.openclinica.dao.managestudy;
 
 import java.sql.Types;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
@@ -101,7 +98,7 @@ public class EventDefinitionCRFDAO extends AuditableEntityDAO<EventDefinitionCRF
      * query.
      */
     @Override
-    public EventDefinitionCRFBean getEntityFromHashMap(HashMap hm) {
+    public EventDefinitionCRFBean getEntityFromHashMap(HashMap<String, Object> hm) {
         EventDefinitionCRFBean eb = new EventDefinitionCRFBean();
         super.setEntityAuditInformation(eb, hm);
         // EVENT_DEFINITION_CRF_ID STUDY_EVENT_DEFINITION_ID STUDY_ID
@@ -135,29 +132,27 @@ public class EventDefinitionCRFDAO extends AuditableEntityDAO<EventDefinitionCRF
     }
 
     @Override
-    public Collection findAll() {
+    public ArrayList<EventDefinitionCRFBean> findAll() {
         this.setTypesExpected();
-        ArrayList alist = this.select(digester.getQuery("findAll"));
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            EventDefinitionCRFBean eb = (EventDefinitionCRFBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findAll"));
+        ArrayList<EventDefinitionCRFBean> al = new ArrayList<>();
+        for(HashMap<String, Object> hm : alist) {
+            EventDefinitionCRFBean eb = (EventDefinitionCRFBean) this.getEntityFromHashMap(hm);
             al.add(eb);
         }
         return al;
     }
 
-    public Collection findAllByDefinition(int definitionId) {
+    public ArrayList<EventDefinitionCRFBean> findAllByDefinition(int definitionId) {
         this.setTypesExpected();
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(definitionId));
 
         String sql = digester.getQuery("findAllByDefinition");
-        ArrayList alist = this.select(sql, variables);
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            EventDefinitionCRFBean eb = (EventDefinitionCRFBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
+        ArrayList<EventDefinitionCRFBean> al = new ArrayList<>();
+        for(HashMap<String, Object> hm : alist) {
+            EventDefinitionCRFBean eb = (EventDefinitionCRFBean) this.getEntityFromHashMap(hm);
             al.add(eb);
         }
         return al;
@@ -172,7 +167,7 @@ public class EventDefinitionCRFDAO extends AuditableEntityDAO<EventDefinitionCRF
      * @param definitionId
      * @return
      */
-    public Collection findAllByDefinition(StudyBean study, int definitionId) {
+    public ArrayList<EventDefinitionCRFBean> findAllByDefinition(StudyBean study, int definitionId) {
         return study.isSite(study.getParentStudyId()) ? findAllByDefinitionAndSiteIdAndParentStudyId(definitionId, study.getId(), study.getParentStudyId())
             : findAllParentsByDefinition(definitionId);
     }
@@ -184,17 +179,16 @@ public class EventDefinitionCRFDAO extends AuditableEntityDAO<EventDefinitionCRF
      * @param definitionId
      * @return
      */
-    public Collection findAllParentsByDefinition(int definitionId) {
+    public ArrayList<EventDefinitionCRFBean> findAllParentsByDefinition(int definitionId) {
         this.setTypesExpected();
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(definitionId));
 
         String sql = digester.getQuery("findAllParentsByDefinition");
-        ArrayList alist = this.select(sql, variables);
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            EventDefinitionCRFBean eb = (EventDefinitionCRFBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
+        ArrayList<EventDefinitionCRFBean> al = new ArrayList<>();
+        for(HashMap<String, Object> hm : alist) {
+            EventDefinitionCRFBean eb = (EventDefinitionCRFBean) this.getEntityFromHashMap(hm);
             al.add(eb);
         }
         return al;
@@ -208,9 +202,9 @@ public class EventDefinitionCRFDAO extends AuditableEntityDAO<EventDefinitionCRF
      * @param parentStudyId
      * @return
      */
-    public Collection findAllByDefinitionAndSiteIdAndParentStudyId(int definitionId, int siteId, int parentStudyId) {
+    public ArrayList<EventDefinitionCRFBean> findAllByDefinitionAndSiteIdAndParentStudyId(int definitionId, int siteId, int parentStudyId) {
         this.setTypesExpected();
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(definitionId));
         variables.put(new Integer(2), new Integer(siteId));
         variables.put(new Integer(3), new Integer(parentStudyId));
@@ -218,11 +212,10 @@ public class EventDefinitionCRFDAO extends AuditableEntityDAO<EventDefinitionCRF
         variables.put(new Integer(5), new Integer(siteId));
 
         String sql = digester.getQuery("findAllByDefinitionAndSiteIdAndParentStudyId");
-        ArrayList alist = this.select(sql, variables);
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            EventDefinitionCRFBean eb = (EventDefinitionCRFBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
+        ArrayList<EventDefinitionCRFBean> al = new ArrayList<>();
+        for(HashMap<String, Object> hm : alist) {
+            EventDefinitionCRFBean eb = (EventDefinitionCRFBean) this.getEntityFromHashMap(hm);
             al.add(eb);
         }
         return al;
@@ -231,16 +224,15 @@ public class EventDefinitionCRFDAO extends AuditableEntityDAO<EventDefinitionCRF
     
     public ArrayList<EventDefinitionCRFBean> findAllByCrfDefinitionInSiteOnly(int definitionId, int crfId) {
         this.setTypesExpected();
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(definitionId));
         variables.put(new Integer(2), new Integer(crfId));
 
         String sql = digester.getQuery("findAllByCrfDefinitionInSiteOnly");
-        ArrayList alist = this.select(sql, variables);
-        ArrayList <EventDefinitionCRFBean> al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            EventDefinitionCRFBean eb = (EventDefinitionCRFBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
+        ArrayList <EventDefinitionCRFBean> al = new ArrayList<>();
+        for(HashMap<String, Object> hm : alist) {
+            EventDefinitionCRFBean eb = (EventDefinitionCRFBean) this.getEntityFromHashMap(hm);
             al.add(eb);
         }
         return al;
@@ -249,16 +241,15 @@ public class EventDefinitionCRFDAO extends AuditableEntityDAO<EventDefinitionCRF
     
     public ArrayList<EventDefinitionCRFBean> findAllActiveSitesAndStudiesPerParentStudy(int parentStudyId) {
         this.setTypesExpected();
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(parentStudyId));
         variables.put(new Integer(2), new Integer(parentStudyId));
 
         String sql = digester.getQuery("findAllActiveSitesAndStudiesPerParentStudy");
-        ArrayList alist = this.select(sql, variables);
-        ArrayList <EventDefinitionCRFBean> al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            EventDefinitionCRFBean eb = (EventDefinitionCRFBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
+        ArrayList <EventDefinitionCRFBean> al = new ArrayList<>();
+        for(HashMap<String, Object> hm : alist) {
+            EventDefinitionCRFBean eb = (EventDefinitionCRFBean) this.getEntityFromHashMap(hm);
             al.add(eb);
         }
         return al;
@@ -266,17 +257,16 @@ public class EventDefinitionCRFDAO extends AuditableEntityDAO<EventDefinitionCRF
     
     public ArrayList<EventDefinitionCRFBean> findAllSubmissionUriAndStudyId(String submissionUri, int studyId) {
         this.setTypesExpected();
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new String(submissionUri));
         variables.put(new Integer(2), new Integer(studyId));
         variables.put(new Integer(3), new Integer(studyId));
 
         String sql = digester.getQuery("findAllSubmissionUriAndStudyId");
-        ArrayList alist = this.select(sql, variables);
-        ArrayList <EventDefinitionCRFBean> al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            EventDefinitionCRFBean eb = (EventDefinitionCRFBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
+        ArrayList <EventDefinitionCRFBean> al = new ArrayList<>();
+        for(HashMap<String, Object> hm : alist) {
+            EventDefinitionCRFBean eb = (EventDefinitionCRFBean) this.getEntityFromHashMap(hm);
             al.add(eb);
         }
         return al;
@@ -286,25 +276,24 @@ public class EventDefinitionCRFDAO extends AuditableEntityDAO<EventDefinitionCRF
     
     
     
-    public Collection findAllByCRF(int crfId) {
+    public ArrayList<EventDefinitionCRFBean> findAllByCRF(int crfId) {
         this.setTypesExpected();
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(crfId));
 
         String sql = digester.getQuery("findByCRFId");
-        ArrayList alist = this.select(sql, variables);
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            EventDefinitionCRFBean eb = (EventDefinitionCRFBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
+        ArrayList<EventDefinitionCRFBean> al = new ArrayList<>();
+        for(HashMap<String, Object> hm : alist) {
+            EventDefinitionCRFBean eb = (EventDefinitionCRFBean) this.getEntityFromHashMap(hm);
             al.add(eb);
         }
         return al;
     }
 
     @Override
-    public Collection findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
+    public ArrayList<EventDefinitionCRFBean> findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+        ArrayList<EventDefinitionCRFBean> al = new ArrayList<>();
 
         return al;
     }
@@ -314,15 +303,13 @@ public class EventDefinitionCRFDAO extends AuditableEntityDAO<EventDefinitionCRF
         EventDefinitionCRFBean eb = new EventDefinitionCRFBean();
         this.setTypesExpected();
 
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(ID));
 
         String sql = digester.getQuery("findByPK");
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            eb = (EventDefinitionCRFBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
+        if (alist != null && alist.size() > 0) {
+            eb = (EventDefinitionCRFBean) this.getEntityFromHashMap(alist.get(0));
         }
 
         return eb;
@@ -333,8 +320,8 @@ public class EventDefinitionCRFDAO extends AuditableEntityDAO<EventDefinitionCRF
      */
     @Override
     public EventDefinitionCRFBean create(EventDefinitionCRFBean sb) {
-        HashMap nullVars = new HashMap();
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
+		HashMap<Integer, Integer> nullVars = new HashMap<>();
         int id = getNextPK();
         // INSERT INTO EVENT_DEFINITION_CRF
         // (EVENT_DEFINITION_CRF_ID,STUDY_EVENT_DEFINITION_ID,STUDY_ID,CRF_ID,
@@ -396,8 +383,8 @@ public class EventDefinitionCRFDAO extends AuditableEntityDAO<EventDefinitionCRF
      */
     @Override
     public EventDefinitionCRFBean update(EventDefinitionCRFBean sb) {
-        HashMap nullVars = new HashMap();
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
+		HashMap<Integer, Integer> nullVars = new HashMap<>();
         // UPDATE EVENT_DEFINITION_CRF SET
         // STUDY_EVENT_DEFINITION_ID=?,STUDY_ID=?,CRF_ID=?, REQUIRED_CRF=?,
         // DOUBLE_ENTRY=?,REQUIRE_ALL_TEXT_FILLED=?,DECISION_CONDITIONS=?,
@@ -450,44 +437,43 @@ public class EventDefinitionCRFDAO extends AuditableEntityDAO<EventDefinitionCRF
     }
 
     @Override
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
+    public ArrayList<EventDefinitionCRFBean> findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+        ArrayList<EventDefinitionCRFBean> al = new ArrayList<>();
 
         return al;
     }
 
     @Override
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType) {
-        ArrayList al = new ArrayList();
+    public ArrayList<EventDefinitionCRFBean> findAllByPermission(Object objCurrentUser, int intActionType) {
+        ArrayList<EventDefinitionCRFBean> al = new ArrayList<>();
 
         return al;
     }
 
-    public ArrayList findByDefaultVersion(int versionId) {
+    public ArrayList<EventDefinitionCRFBean> findByDefaultVersion(int versionId) {
         this.setTypesExpected();
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(versionId));
 
         String sql = digester.getQuery("findByDefaultVersion");
-        ArrayList alist = this.select(sql, variables);
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            EventDefinitionCRFBean eb = (EventDefinitionCRFBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
+        ArrayList<EventDefinitionCRFBean> al = new ArrayList<>();
+        for(HashMap<String, Object> hm : alist) {
+            EventDefinitionCRFBean eb = (EventDefinitionCRFBean) this.getEntityFromHashMap(hm);
             al.add(eb);
         }
         return al;
     }
 
-    public ArrayList findAllByEventDefinitionId(int eventDefinitionId) {
-        HashMap variables = new HashMap();
+    public ArrayList<EventDefinitionCRFBean> findAllByEventDefinitionId(int eventDefinitionId) {
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(eventDefinitionId));
 
         return executeFindAllQuery("findAllByEventDefinitionId", variables);
     }
 
-    public ArrayList findAllByEventDefinitionIdAndOrdinal(int eventDefinitionId, int ordinal) {
-        HashMap variables = new HashMap();
+    public ArrayList<EventDefinitionCRFBean> findAllByEventDefinitionIdAndOrdinal(int eventDefinitionId, int ordinal) {
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(eventDefinitionId));
         variables.put(new Integer(2), new Integer(ordinal));
 
@@ -501,30 +487,29 @@ public class EventDefinitionCRFDAO extends AuditableEntityDAO<EventDefinitionCRF
      * @param eventDefinitionId
      * @return
      */
-    public Collection findAllByEventDefinitionId(StudyBean study, int eventDefinitionId) {
+    public ArrayList<EventDefinitionCRFBean> findAllByEventDefinitionId(StudyBean study, int eventDefinitionId) {
         return study.isSite(study.getParentStudyId()) ? findAllByEventDefinitionIdAndSiteIdAndParentStudyId(eventDefinitionId, study.getId(),
                 study.getParentStudyId()) : findAllParentsByEventDefinitionId(eventDefinitionId);
     }
 
-    public Collection findAllParentsByEventDefinitionId(int definitionId) {
+    public ArrayList<EventDefinitionCRFBean> findAllParentsByEventDefinitionId(int definitionId) {
         this.setTypesExpected();
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(definitionId));
 
         String sql = digester.getQuery("findAllParentsByEventDefinitionId");
-        ArrayList alist = this.select(sql, variables);
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            EventDefinitionCRFBean eb = (EventDefinitionCRFBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
+        ArrayList<EventDefinitionCRFBean> al = new ArrayList<>();
+        for(HashMap<String, Object> hm : alist) {
+            EventDefinitionCRFBean eb = (EventDefinitionCRFBean) this.getEntityFromHashMap(hm);
             al.add(eb);
         }
         return al;
     }
 
-    public Collection findAllByEventDefinitionIdAndSiteIdAndParentStudyId(int definitionId, int siteId, int parentStudyId) {
+    public ArrayList<EventDefinitionCRFBean> findAllByEventDefinitionIdAndSiteIdAndParentStudyId(int definitionId, int siteId, int parentStudyId) {
         this.setTypesExpected();
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(definitionId));
         variables.put(new Integer(2), new Integer(siteId));
         variables.put(new Integer(3), new Integer(parentStudyId));
@@ -532,18 +517,17 @@ public class EventDefinitionCRFDAO extends AuditableEntityDAO<EventDefinitionCRF
         variables.put(new Integer(5), new Integer(siteId));
 
         String sql = digester.getQuery("findAllByEventDefinitionIdAndSiteIdAndParentStudyId");
-        ArrayList alist = this.select(sql, variables);
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            EventDefinitionCRFBean eb = (EventDefinitionCRFBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
+        ArrayList<EventDefinitionCRFBean> al = new ArrayList<>();
+        for(HashMap<String, Object> hm : alist) {
+            EventDefinitionCRFBean eb = (EventDefinitionCRFBean) this.getEntityFromHashMap(hm);
             al.add(eb);
         }
         return al;
     }
 
-    public ArrayList findAllActiveByEventDefinitionId(int eventDefinitionId) {
-        HashMap variables = new HashMap();
+    public ArrayList<EventDefinitionCRFBean> findAllActiveByEventDefinitionId(int eventDefinitionId) {
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(eventDefinitionId));
 
         return executeFindAllQuery("findAllActiveByEventDefinitionId", variables);
@@ -557,7 +541,7 @@ public class EventDefinitionCRFDAO extends AuditableEntityDAO<EventDefinitionCRF
      * @param eventDefinitionId
      * @return
      */
-    public Collection findAllActiveByEventDefinitionId(StudyBean study, int eventDefinitionId) {
+    public ArrayList<EventDefinitionCRFBean> findAllActiveByEventDefinitionId(StudyBean study, int eventDefinitionId) {
         if (study.isSite(study.getParentStudyId())) {
             return findAllActiveByEventDefinitionIdAndSiteIdAndParentStudyId(eventDefinitionId, study.getId(), study.getParentStudyId());
         } else {
@@ -566,18 +550,17 @@ public class EventDefinitionCRFDAO extends AuditableEntityDAO<EventDefinitionCRF
     }
 
     
-    public Collection findAllActiveByEventDefinitionIdandStudyId(int definitionId , int studyId) {
+    public ArrayList<EventDefinitionCRFBean> findAllActiveByEventDefinitionIdandStudyId(int definitionId , int studyId) {
         this.setTypesExpected();
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(definitionId));
         variables.put(new Integer(2), new Integer(studyId));
 
         String sql = digester.getQuery("findAllActiveByEventDefinitionIdandStudyId");
-        ArrayList alist = this.select(sql, variables);
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            EventDefinitionCRFBean eb = (EventDefinitionCRFBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
+        ArrayList<EventDefinitionCRFBean> al = new ArrayList<>();
+        for(HashMap<String, Object> hm : alist) {
+            EventDefinitionCRFBean eb = (EventDefinitionCRFBean) this.getEntityFromHashMap(hm);
             al.add(eb);
         }
         return al;
@@ -586,15 +569,15 @@ public class EventDefinitionCRFDAO extends AuditableEntityDAO<EventDefinitionCRF
     
     
     
-    public ArrayList findAllDefIdandStudyId(Integer studyEventDefnId, Integer studyId) {
-        HashMap variables = new HashMap();
+    public ArrayList<EventDefinitionCRFBean> findAllDefIdandStudyId(Integer studyEventDefnId, Integer studyId) {
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(studyEventDefnId));
         variables.put(new Integer(2), new Integer(studyId));
         return executeFindAllQuery("findAllDefIdandStudyId", variables);
     }
 
-    public ArrayList findAllDefnIdandStudyIdForSite(Integer studyEventDefnId, Integer studyId) {
-        HashMap variables = new HashMap();
+    public ArrayList<EventDefinitionCRFBean> findAllDefnIdandStudyIdForSite(Integer studyEventDefnId, Integer studyId) {
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(studyEventDefnId));
         variables.put(new Integer(2), new Integer(studyId));
         return executeFindAllQuery("findAllDefnIdandStudyIdForSite", variables);
@@ -602,8 +585,8 @@ public class EventDefinitionCRFDAO extends AuditableEntityDAO<EventDefinitionCRF
 
     
     
-    public List findAllCrfMigrationDoesNotPerform(CRFVersionBean sourceCrfVersionBean , CRFVersionBean targetCrfVersionBean ,ArrayList<String> studyEventDefnlist ,ArrayList<String>  sitelist) {
-        HashMap variables = new HashMap();
+    public ArrayList<EventDefinitionCRFBean> findAllCrfMigrationDoesNotPerform(CRFVersionBean sourceCrfVersionBean , CRFVersionBean targetCrfVersionBean ,ArrayList<String> studyEventDefnlist ,ArrayList<String>  sitelist) {
+        HashMap<Integer, Object> variables = new HashMap<>();
         String eventStr =StringUtils.join(studyEventDefnlist, ",");
         String siteStr =StringUtils.join(sitelist, ",");
         variables.put(new Integer(1), new Integer(sourceCrfVersionBean.getId()));
@@ -617,25 +600,24 @@ public class EventDefinitionCRFDAO extends AuditableEntityDAO<EventDefinitionCRF
 
     
         
-    public Collection findAllActiveParentsByEventDefinitionId(int definitionId) {
+    public ArrayList<EventDefinitionCRFBean> findAllActiveParentsByEventDefinitionId(int definitionId) {
         this.setTypesExpected();
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(definitionId));
 
         String sql = digester.getQuery("findAllActiveParentsByEventDefinitionId");
-        ArrayList alist = this.select(sql, variables);
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            EventDefinitionCRFBean eb = (EventDefinitionCRFBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
+        ArrayList<EventDefinitionCRFBean> al = new ArrayList<>();
+        for(HashMap<String, Object> hm : alist) {
+            EventDefinitionCRFBean eb = (EventDefinitionCRFBean) this.getEntityFromHashMap(hm);
             al.add(eb);
         }
         return al;
     }
 
-    public Collection findAllActiveByEventDefinitionIdAndSiteIdAndParentStudyId(int definitionId, int siteId, int parentStudyId) {
+    public ArrayList<EventDefinitionCRFBean> findAllActiveByEventDefinitionIdAndSiteIdAndParentStudyId(int definitionId, int siteId, int parentStudyId) {
         this.setTypesExpected();
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(definitionId));
         variables.put(new Integer(2), new Integer(siteId));
         variables.put(new Integer(3), new Integer(parentStudyId));
@@ -643,30 +625,28 @@ public class EventDefinitionCRFDAO extends AuditableEntityDAO<EventDefinitionCRF
         variables.put(new Integer(5), new Integer(siteId));
 
         String sql = digester.getQuery("findAllActiveByEventDefinitionIdAndSiteIdAndParentStudyId");
-        ArrayList alist = this.select(sql, variables);
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            EventDefinitionCRFBean eb = (EventDefinitionCRFBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
+        ArrayList<EventDefinitionCRFBean> al = new ArrayList<>();
+        for(HashMap<String, Object> hm : alist) {
+            EventDefinitionCRFBean eb = (EventDefinitionCRFBean) this.getEntityFromHashMap(hm);
             al.add(eb);
         }
         return al;
     }
 
-    public Collection findAllActiveNonHiddenByEventDefinitionIdAndStudy(int definitionId, StudyBean study) {
-        ArrayList al = new ArrayList();
+    public ArrayList<EventDefinitionCRFBean> findAllActiveNonHiddenByEventDefinitionIdAndStudy(int definitionId, StudyBean study) {
+        ArrayList<EventDefinitionCRFBean> al = new ArrayList<>();
         this.setTypesExpected();
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         if (study.getParentStudyId() > 0) {
             variables.put(new Integer(1), new Integer(definitionId));
             variables.put(new Integer(2), new Integer(study.getId()));
             variables.put(new Integer(3), new Integer(definitionId));
 
             String sql = digester.getQuery("findAllActiveNonHiddenByEventDefinitionIdAndSite");
-            ArrayList alist = this.select(sql, variables);
-            Iterator it = alist.iterator();
-            while (it.hasNext()) {
-                EventDefinitionCRFBean eb = (EventDefinitionCRFBean) this.getEntityFromHashMap((HashMap) it.next());
+            ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
+            for(HashMap<String, Object> hm : alist) {
+                EventDefinitionCRFBean eb = (EventDefinitionCRFBean) this.getEntityFromHashMap(hm);
                 al.add(eb);
             }
         }
@@ -699,20 +679,18 @@ public class EventDefinitionCRFDAO extends AuditableEntityDAO<EventDefinitionCRF
         this.setTypeExpected(1, TypeNames.BOOL);
         this.setTypeExpected(2, TypeNames.INT);
         this.setTypeExpected(3, TypeNames.INT);
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(2), new Integer(studyEventId));
         variables.put(new Integer(1), new Integer(crfVersionId));
 
         String sql = digester.getQuery("isRequiredInDefinition");
 
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
         Boolean answer = false;
         Boolean siteR = false;
         Boolean studyR = false;
         Boolean isExisted = false;
-        while (it.hasNext()) {
-            HashMap hm = (HashMap) it.next();
+        for(HashMap<String, Object> hm : alist) {
             Integer dbStudyId = (Integer) hm.get("study_id");
             Integer parentId = (Integer) hm.get("parent_id");
             if (dbStudyId == study.getId()) {
@@ -768,17 +746,15 @@ public class EventDefinitionCRFDAO extends AuditableEntityDAO<EventDefinitionCRF
         EventDefinitionCRFBean answer = new EventDefinitionCRFBean();
 
         this.setTypesExpected();
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(studyEventId));
         variables.put(new Integer(2), new Integer(crfVersionId));
 
         String sql = digester.getQuery("findForStudyByStudyEventIdAndCRFVersionId");
 
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        while (it.hasNext()) {
-            answer = (EventDefinitionCRFBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
+        for(HashMap<String, Object> hm : alist) {
+            answer = (EventDefinitionCRFBean) this.getEntityFromHashMap(hm);
         }
 
         return answer;
@@ -788,7 +764,7 @@ public class EventDefinitionCRFDAO extends AuditableEntityDAO<EventDefinitionCRF
         EventDefinitionCRFBean answer = new EventDefinitionCRFBean();
 
         this.setTypesExpected();
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(studyEventId));
         variables.put(new Integer(2), new Integer(crfVersionId));
         variables.put(new Integer(3), new Integer(siteId));
@@ -797,11 +773,9 @@ public class EventDefinitionCRFDAO extends AuditableEntityDAO<EventDefinitionCRF
 
         String sql = digester.getQuery("findByStudyEventIdAndCRFVersionIdAndSiteIdAndParentStudyId");
 
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        while (it.hasNext()) {
-            answer = (EventDefinitionCRFBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
+        for(HashMap<String, Object> hm : alist) {
+            answer = (EventDefinitionCRFBean) this.getEntityFromHashMap(hm);
         }
 
         return answer;
@@ -820,17 +794,15 @@ public class EventDefinitionCRFDAO extends AuditableEntityDAO<EventDefinitionCRF
         EventDefinitionCRFBean answer = new EventDefinitionCRFBean();
 
         this.setTypesExpected();
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(studyEventDefinitionId));
         variables.put(new Integer(2), new Integer(crfId));
 
         String sql = digester.getQuery("findByStudyEventDefinitionIdAndCRFId");
 
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        while (it.hasNext()) {
-            answer = (EventDefinitionCRFBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
+        for(HashMap<String, Object> hm : alist) {
+            answer = (EventDefinitionCRFBean) this.getEntityFromHashMap(hm);
         }
 
         return answer;
@@ -840,18 +812,16 @@ public class EventDefinitionCRFDAO extends AuditableEntityDAO<EventDefinitionCRF
         EventDefinitionCRFBean answer = new EventDefinitionCRFBean();
 
         this.setTypesExpected();
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(studyEventDefinitionId));
         variables.put(new Integer(2), new Integer(crfId));
         variables.put(new Integer(3), new Integer(studyId));
 
         String sql = digester.getQuery("findByStudyEventDefinitionIdAndCRFIdAndStudyId");
 
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        while (it.hasNext()) {
-            answer = (EventDefinitionCRFBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
+        for(HashMap<String, Object> hm : alist) {
+            answer = (EventDefinitionCRFBean) this.getEntityFromHashMap(hm);
         }
 
         return answer;
@@ -882,17 +852,15 @@ public class EventDefinitionCRFDAO extends AuditableEntityDAO<EventDefinitionCRF
         EventDefinitionCRFBean answer = new EventDefinitionCRFBean();
 
         this.setTypesExpected();
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(studyEventDefinitionId));
         variables.put(new Integer(2), new Integer(crfId));
 
         String sql = digester.getQuery("findForStudyByStudyEventDefinitionIdAndCRFId");
 
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        while (it.hasNext()) {
-            answer = (EventDefinitionCRFBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
+        for(HashMap<String, Object> hm : alist) {
+            answer = (EventDefinitionCRFBean) this.getEntityFromHashMap(hm);
         }
 
         return answer;
@@ -903,7 +871,7 @@ public class EventDefinitionCRFDAO extends AuditableEntityDAO<EventDefinitionCRF
         EventDefinitionCRFBean answer = new EventDefinitionCRFBean();
 
         this.setTypesExpected();
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(studyEventDefinitionId));
         variables.put(new Integer(2), new Integer(crfId));
         variables.put(new Integer(3), new Integer(siteId));
@@ -911,11 +879,9 @@ public class EventDefinitionCRFDAO extends AuditableEntityDAO<EventDefinitionCRF
         variables.put(new Integer(5), new Integer(siteId));
 
         String sql = digester.getQuery("findByStudyEventDefinitionIdAndCRFIdAndSiteIdAndParentStudyId");
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        while (it.hasNext()) {
-            answer = (EventDefinitionCRFBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
+        for(HashMap<String, Object> hm : alist) {
+            answer = (EventDefinitionCRFBean) this.getEntityFromHashMap(hm);
         }
 
         return answer;
@@ -927,13 +893,11 @@ public class EventDefinitionCRFDAO extends AuditableEntityDAO<EventDefinitionCRF
         this.setTypeExpected(1, TypeNames.INT);
         this.setTypeExpected(2, TypeNames.INT);
         this.setTypeExpected(3, TypeNames.STRING);
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(study.getId()));
         String sql = digester.getQuery("findHiddenCrfIdAndNamesBySite");
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            HashMap hm = (HashMap) it.next();
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
+        for(HashMap<String, Object> hm : alist) {
             ids.add(hm.get("study_event_definition_id") + "_" + hm.get("crf_id"));
         }
 
@@ -946,13 +910,11 @@ public class EventDefinitionCRFDAO extends AuditableEntityDAO<EventDefinitionCRF
         this.setTypeExpected(1, TypeNames.INT);
         this.setTypeExpected(2, TypeNames.INT);
         this.setTypeExpected(3, TypeNames.STRING);
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(study.getId()));
         String sql = digester.getQuery("findHiddenCrfIdAndNamesBySite");
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            HashMap hm = (HashMap) it.next();
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
+        for(HashMap<String, Object> hm : alist) {
             names.add(hm.get("study_event_definition_id") + "_" + hm.get("name"));
         }
 
@@ -977,12 +939,11 @@ public class EventDefinitionCRFDAO extends AuditableEntityDAO<EventDefinitionCRF
         param.put(i++, studySubjectId);
         param.put(i++, siteId);
 
-        List selectResult = select(digester.getQuery("buildEventDefinitionCRFListByStudyEventDefinition"), param);
+        ArrayList<HashMap<String, Object>> selectResult = select(digester.getQuery("buildEventDefinitionCRFListByStudyEventDefinition"), param);
 
         Map<Integer, SortedSet<EventDefinitionCRFBean>> result = new HashMap<Integer, SortedSet<EventDefinitionCRFBean>>();
-        Iterator it = selectResult.iterator();
-        while (it.hasNext()) {
-            EventDefinitionCRFBean bean = (EventDefinitionCRFBean) this.getEntityFromHashMap((HashMap) it.next());
+        for(HashMap<String, Object> hm : selectResult) {
+            EventDefinitionCRFBean bean = (EventDefinitionCRFBean) this.getEntityFromHashMap(hm);
             Integer studyEventDefinitionId = bean.getStudyEventDefinitionId();
 
             if (!result.containsKey(studyEventDefinitionId)) {
@@ -1002,12 +963,11 @@ public class EventDefinitionCRFDAO extends AuditableEntityDAO<EventDefinitionCRF
         int i = 1;
         param.put(i++, studySubjectId);
 
-        List selectResult = select(digester.getQuery("buildEventDefinitionCRFListByStudyEventDefinitionForStudy"), param);
+        ArrayList<HashMap<String, Object>> selectResult = select(digester.getQuery("buildEventDefinitionCRFListByStudyEventDefinitionForStudy"), param);
 
         Map<Integer, SortedSet<EventDefinitionCRFBean>> result = new HashMap<Integer, SortedSet<EventDefinitionCRFBean>>();
-        Iterator it = selectResult.iterator();
-        while (it.hasNext()) {
-            EventDefinitionCRFBean bean = (EventDefinitionCRFBean) this.getEntityFromHashMap((HashMap) it.next());
+        for(HashMap<String, Object> hm : selectResult) {
+            EventDefinitionCRFBean bean = (EventDefinitionCRFBean) this.getEntityFromHashMap(hm);
             Integer studyEventDefinitionId = bean.getStudyEventDefinitionId();
 
             if (!result.containsKey(studyEventDefinitionId)) {

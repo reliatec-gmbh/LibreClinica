@@ -421,12 +421,13 @@ public class EventDefinitionCRFBean extends AuditableEntityBean implements Compa
     }
 
     /**
-     * @deprecated
-     * @return Returns the nullValues.
+     * @return Returns the nullValues as comma separated string.
      */
-    @Deprecated
     public String getNullValues() {
-        return nullValues;
+    	if(nullValues == null) {
+    		nullValues = NullValue.listToString(nullValuesList);
+    	}
+		return nullValues;
     }
 
     /**
@@ -434,18 +435,8 @@ public class EventDefinitionCRFBean extends AuditableEntityBean implements Compa
      *            The nullValues to set.
      */
     public void setNullValues(String nullValues) {
-        this.nullValues = nullValues;
-        String[] nullValuesSeparated = nullValues.split(",");
-
-        nullValuesList = new ArrayList<>();
-        if (nullValuesSeparated != null) {
-            for (String val : nullValuesSeparated) {
-                org.akaza.openclinica.bean.core.NullValue nv = org.akaza.openclinica.bean.core.NullValue.getByName(val);
-                if (nv.isActive()) {
-                    nullValuesList.add(nv);
-                }
-            }
-        }
+    	this.nullValuesList = NullValue.listFromString(nullValues, true);
+    	this.nullValues = NullValue.listToString(nullValuesList);
     }
 
     /**
