@@ -200,7 +200,7 @@ public class RuleSetRuleDAO extends AuditableEntityDAO<RuleSetRuleBean> {
         return ruleSetRuleBean;
     }
 
-    public RuleSetRuleBean getEntityFromHashMap(HashMap hm) {
+    public RuleSetRuleBean getEntityFromHashMap(HashMap<String, Object> hm) {
         RuleSetRuleBean ruleSetRuleBean = new RuleSetRuleBean();
         this.setEntityAuditInformation(ruleSetRuleBean, hm);
 
@@ -211,7 +211,7 @@ public class RuleSetRuleDAO extends AuditableEntityDAO<RuleSetRuleBean> {
         return ruleSetRuleBean;
     }
 
-    public RuleSetRuleBean getEntityFromHashMap(HashMap hm, Boolean getRuleSet) {
+    public RuleSetRuleBean getEntityFromHashMap(HashMap<String, Object> hm, Boolean getRuleSet) {
         RuleSetRuleBean ruleSetRuleBean = new RuleSetRuleBean();
         this.setEntityAuditInformation(ruleSetRuleBean, hm);
 
@@ -226,7 +226,7 @@ public class RuleSetRuleDAO extends AuditableEntityDAO<RuleSetRuleBean> {
         return ruleSetRuleBean;
     }
 
-    public Collection findAll() {
+    public ArrayList<RuleSetRuleBean> findAll() {
         this.setTypesExpected();
         ArrayList alist = this.select(digester.getQuery("findAll"));
         ArrayList<RuleSetRuleBean> ruleSetBeans = new ArrayList<RuleSetRuleBean>();

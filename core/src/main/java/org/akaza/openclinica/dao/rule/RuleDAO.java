@@ -19,7 +19,6 @@ import java.util.HashMap;
 
 import javax.sql.DataSource;
 
-import org.akaza.openclinica.bean.core.EntityBean;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.rule.RuleBean;
 import org.akaza.openclinica.bean.rule.RuleSetBean;
@@ -153,7 +152,7 @@ public class RuleDAO extends AuditableEntityDAO<RuleBean> {
         return ruleSetBeans;
     }
 
-    public EntityBean findByPK(int ID) {
+    public RuleBean findByPK(int ID) {
         RuleBean ruleBean = new RuleBean();
         this.setTypesExpected();
 
