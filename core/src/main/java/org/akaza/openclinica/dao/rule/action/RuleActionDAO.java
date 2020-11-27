@@ -8,9 +8,13 @@
 
 package org.akaza.openclinica.dao.rule.action;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import javax.sql.DataSource;
+
 import org.akaza.openclinica.bean.core.EntityBean;
 import org.akaza.openclinica.bean.core.Status;
-import org.akaza.openclinica.bean.rule.RuleBean;
 import org.akaza.openclinica.bean.rule.RuleSetRuleBean;
 import org.akaza.openclinica.bean.rule.action.ActionType;
 import org.akaza.openclinica.bean.rule.action.DiscrepancyNoteActionBean;
@@ -20,19 +24,6 @@ import org.akaza.openclinica.dao.core.AuditableEntityDAO;
 import org.akaza.openclinica.dao.core.DAODigester;
 import org.akaza.openclinica.dao.core.SQLFactory;
 import org.akaza.openclinica.dao.core.TypeNames;
-import org.akaza.openclinica.dao.managestudy.StudyEventDefinitionDAO;
-import org.akaza.openclinica.dao.rule.RuleDAO;
-import org.akaza.openclinica.dao.rule.RuleSetDAO;
-import org.akaza.openclinica.dao.submit.CRFVersionDAO;
-import org.akaza.openclinica.dao.submit.EventCRFDAO;
-import org.akaza.openclinica.dao.submit.ItemDataDAO;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-
-import javax.sql.DataSource;
 
 /**
  * <p>
@@ -43,13 +34,6 @@ import javax.sql.DataSource;
  * 
  */
 public class RuleActionDAO extends AuditableEntityDAO<RuleActionBean> {
-
-    private EventCRFDAO eventCrfDao;
-    private RuleSetDAO ruleSetDao;
-    private RuleDAO ruleDao;
-    private ItemDataDAO itemDataDao;
-    private StudyEventDefinitionDAO studyEventDefinitionDao;
-    private CRFVersionDAO crfVersionDao;
 
     private void setQueryNames() {
         this.findByPKAndStudyName = "findByPKAndStudy";
@@ -94,8 +78,8 @@ public class RuleActionDAO extends AuditableEntityDAO<RuleActionBean> {
     public RuleActionBean update(RuleActionBean ruleBean) {
         ruleBean.setActive(false);
 
-        HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
-        HashMap nullVars = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
+		HashMap<Integer, Integer> nullVars = new HashMap<>();
         variables.put(new Integer(1), ruleBean.getName());
 
         this.executeUpdate(digester.getQuery("update"), variables, nullVars);
@@ -156,20 +140,24 @@ public class RuleActionDAO extends AuditableEntityDAO<RuleActionBean> {
         return ruleAction;
     }
 
-    public RuleActionBean getEntityFromHashMap(HashMap hm) {
+    public RuleActionBean getEntityFromHashMap(HashMap<String, Object> hm) {
 
         int actionTypeId = ((Integer) hm.get("action_type")).intValue();
         ActionType actionType = ActionType.getByCode(actionTypeId);
-        RuleActionBean ruleAction = null;
+        RuleActionBean ruleAction;
 
         switch (actionType) {
         case FILE_DISCREPANCY_NOTE:
             ruleAction = new DiscrepancyNoteActionBean();
             ((DiscrepancyNoteActionBean) ruleAction).setMessage(((String) hm.get("message")));
+            break;
         case EMAIL:
             ruleAction = new EmailActionBean();
             ((EmailActionBean) ruleAction).setMessage(((String) hm.get("message")));
             ((EmailActionBean) ruleAction).setTo(((String) hm.get("email_to")));
+            break;
+        default:
+        	 ruleAction = null;
         }
 
         this.setEntityAuditInformation(ruleAction, hm);
@@ -180,13 +168,12 @@ public class RuleActionDAO extends AuditableEntityDAO<RuleActionBean> {
         return ruleAction;
     }
 
-    public Collection findAll() {
+    public ArrayList<RuleActionBean> findAll() {
         this.setTypesExpected();
-        ArrayList alist = this.select(digester.getQuery("findAll"));
+        ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findAll"));
         ArrayList<RuleActionBean> ruleSetBeans = new ArrayList<RuleActionBean>();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            RuleActionBean ruleSet = this.getEntityFromHashMap((HashMap) it.next());
+        for(HashMap<String, Object> hm : alist) {
+            RuleActionBean ruleSet = this.getEntityFromHashMap(hm);
             ruleSetBeans.add(ruleSet);
         }
         return ruleSetBeans;
@@ -200,11 +187,9 @@ public class RuleActionDAO extends AuditableEntityDAO<RuleActionBean> {
         variables.put(new Integer(1), new Integer(ID));
 
         String sql = digester.getQuery("findByPK");
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            action = this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
+        if (alist != null && alist.size() > 0) {
+            action = this.getEntityFromHashMap(alist.get(0));
         }
 
         return action;
@@ -218,11 +203,10 @@ public class RuleActionDAO extends AuditableEntityDAO<RuleActionBean> {
         variables.put(new Integer(1), ruleSetRuleId);
 
         String sql = digester.getQuery("findByRuleSetRule");
-        ArrayList<?> alist = this.select(sql, variables);
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
         ArrayList<RuleActionBean> ruleActionBeans = new ArrayList<RuleActionBean>();
-        Iterator<?> it = alist.iterator();
-        while (it.hasNext()) {
-            RuleActionBean ruleActionBean = this.getEntityFromHashMap((HashMap<?, ?>) it.next());
+        for(HashMap<String, Object> hm : alist) {
+            RuleActionBean ruleActionBean = this.getEntityFromHashMap(hm);
             ruleActionBean.setRuleSetRule(ruleSetRule);
             ruleActionBeans.add(ruleActionBean);
         }
@@ -232,33 +216,35 @@ public class RuleActionDAO extends AuditableEntityDAO<RuleActionBean> {
     /*
      * Why should we even have these in here if they are not needed? TODO: refactor super class to remove dependency.
      */
-    public Collection findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<RuleActionBean> findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+        throw new RuntimeException("Not implemented");
     }
 
     /*
      * Why should we even have these in here if they are not needed? TODO: refactor super class to remove dependency.
      */
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<RuleActionBean> findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+        throw new RuntimeException("Not implemented");
     }
 
     /*
      * Why should we even have these in here if they are not needed? TODO: refactor super class to remove dependency.
      */
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<RuleActionBean> findAllByPermission(Object objCurrentUser, int intActionType) {
+       throw new RuntimeException("Not implemented");
     }
 
 	@Override
 	public RuleActionBean emptyBean() {
 		return new RuleActionBean();
 	}
-
 }
