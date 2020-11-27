@@ -67,7 +67,7 @@ public abstract class AuditableEntityDAO<T extends EntityBean> extends EntityDAO
      */
     protected String findByPKAndStudyName;
 	
-	protected UserAccountDAO uadao;
+	private UserAccountDAO uadao;
 
     public AuditableEntityDAO(DataSource ds) {
         super(ds);
@@ -75,7 +75,6 @@ public abstract class AuditableEntityDAO<T extends EntityBean> extends EntityDAO
         // logger.info("digester name set to " + digesterName);
         digester = SQLFactory.getInstance().getDigester(digesterName);
         // logger.info("digester null? " + (digester == null));
-        uadao = new UserAccountDAO(this.ds);
     }
 
     /*
@@ -245,5 +244,12 @@ public abstract class AuditableEntityDAO<T extends EntityBean> extends EntityDAO
         	throw new RuntimeException(msg);
         }
         return result;
+    }
+    
+    public UserAccountDAO getUserAccountDAO() {
+    	if(uadao == null) {
+    		uadao = new UserAccountDAO(ds);
+    	}
+    	return uadao;
     }
 }
