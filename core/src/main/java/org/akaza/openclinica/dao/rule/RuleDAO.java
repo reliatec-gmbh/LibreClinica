@@ -14,6 +14,11 @@
  */
 package org.akaza.openclinica.dao.rule;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import javax.sql.DataSource;
+
 import org.akaza.openclinica.bean.core.EntityBean;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.rule.RuleBean;
@@ -23,17 +28,6 @@ import org.akaza.openclinica.dao.core.AuditableEntityDAO;
 import org.akaza.openclinica.dao.core.DAODigester;
 import org.akaza.openclinica.dao.core.SQLFactory;
 import org.akaza.openclinica.dao.core.TypeNames;
-import org.akaza.openclinica.dao.managestudy.StudyEventDefinitionDAO;
-import org.akaza.openclinica.dao.submit.CRFVersionDAO;
-import org.akaza.openclinica.dao.submit.EventCRFDAO;
-import org.akaza.openclinica.dao.submit.ItemDataDAO;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-
-import javax.sql.DataSource;
 
 /**
  * <p>
@@ -45,11 +39,6 @@ import javax.sql.DataSource;
  */
 public class RuleDAO extends AuditableEntityDAO<RuleBean> {
 
-    private EventCRFDAO eventCrfDao;
-    private RuleSetDAO ruleSetDao;
-    private ItemDataDAO itemDataDao;
-    private StudyEventDefinitionDAO studyEventDefinitionDao;
-    private CRFVersionDAO crfVersionDao;
     private ExpressionDAO expressionDao;
 
     private void setQueryNames() {
@@ -101,7 +90,7 @@ public class RuleDAO extends AuditableEntityDAO<RuleBean> {
         ruleBean.setActive(false);
 
         HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
-        HashMap nullVars = new HashMap();
+        HashMap<Integer, Integer> nullVars = new HashMap<>();
         variables.put(new Integer(1), ruleBean.getName());
         variables.put(new Integer(2), ruleBean.getDescription());
         variables.put(new Integer(3), ruleBean.getUpdaterId());
@@ -139,7 +128,7 @@ public class RuleDAO extends AuditableEntityDAO<RuleBean> {
         return ruleBean;
     }
 
-    public RuleBean getEntityFromHashMap(HashMap hm) {
+    public RuleBean getEntityFromHashMap(HashMap<String, Object> hm) {
         RuleBean ruleBean = new RuleBean();
         this.setEntityAuditInformation(ruleBean, hm);
 
@@ -153,13 +142,12 @@ public class RuleDAO extends AuditableEntityDAO<RuleBean> {
         return ruleBean;
     }
 
-    public Collection findAll() {
+    public ArrayList<RuleBean> findAll() {
         this.setTypesExpected();
-        ArrayList alist = this.select(digester.getQuery("findAll"));
+        ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findAll"));
         ArrayList<RuleBean> ruleSetBeans = new ArrayList<RuleBean>();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-        	RuleBean ruleSet = (RuleBean) this.getEntityFromHashMap((HashMap) it.next());
+        for(HashMap<String, Object> hm : alist) {
+        	RuleBean ruleSet = (RuleBean) this.getEntityFromHashMap(hm);
             ruleSetBeans.add(ruleSet);
         }
         return ruleSetBeans;
@@ -173,11 +161,9 @@ public class RuleDAO extends AuditableEntityDAO<RuleBean> {
         variables.put(new Integer(1), new Integer(ID));
 
         String sql = digester.getQuery("findByPK");
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            ruleBean = (RuleBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
+        if (alist != null && alist.size() > 0) {
+            ruleBean = this.getEntityFromHashMap(alist.get(0));
         }
 
         return ruleBean;
@@ -191,11 +177,9 @@ public class RuleDAO extends AuditableEntityDAO<RuleBean> {
         variables.put(new Integer(1), new String(ruleBean.getOid()));
 
         String sql = digester.getQuery("findByOid");
-        ArrayList<?> alist = this.select(sql, variables);
-        Iterator<?> it = alist.iterator();
-
-        if (it.hasNext()) {
-            ruleBeanInDb = (RuleBean) this.getEntityFromHashMap((HashMap<?, ?>) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
+        if (alist != null && alist.size() > 0) {
+            ruleBeanInDb = (RuleBean) this.getEntityFromHashMap(alist.get(0));
         }
         if (alist.isEmpty()) {
             ruleBeanInDb = null;
@@ -211,11 +195,9 @@ public class RuleDAO extends AuditableEntityDAO<RuleBean> {
         variables.put(new Integer(1), new String(oid));
 
         String sql = digester.getQuery("findByOid");
-        ArrayList<?> alist = this.select(sql, variables);
-        Iterator<?> it = alist.iterator();
-
-        if (it.hasNext()) {
-            ruleBeanInDb = (RuleBean) this.getEntityFromHashMap((HashMap<?, ?>) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
+        if (alist != null && alist.size() > 0) {
+            ruleBeanInDb = (RuleBean) this.getEntityFromHashMap(alist.get(0));
         }
         if (alist.isEmpty()) {
             ruleBeanInDb = null;
@@ -231,11 +213,10 @@ public class RuleDAO extends AuditableEntityDAO<RuleBean> {
         variables.put(new Integer(1), eventCrfBeanId);
 
         String sql = digester.getQuery("findByRuleSet");
-        ArrayList alist = this.select(sql, variables);
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
         ArrayList<RuleBean> ruleSetBeans = new ArrayList<RuleBean>();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            RuleBean ruleBean = (RuleBean) this.getEntityFromHashMap((HashMap) it.next());
+        for(HashMap<String, Object> hm : alist) {
+            RuleBean ruleBean = (RuleBean) this.getEntityFromHashMap(hm);
             ruleSetBeans.add(ruleBean);
         }
         return ruleSetBeans;
@@ -244,28 +225,31 @@ public class RuleDAO extends AuditableEntityDAO<RuleBean> {
     /*
      * Why should we even have these in here if they are not needed? TODO: refactor super class to remove dependency.
      */
-    public Collection findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<RuleBean> findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+    	throw new RuntimeException("Not implemented");
     }
 
     /*
      * Why should we even have these in here if they are not needed? TODO: refactor super class to remove dependency.
      */
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<RuleBean> findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+    	throw new RuntimeException("Not implemented");
     }
 
     /*
      * Why should we even have these in here if they are not needed? TODO: refactor super class to remove dependency.
      */
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<RuleBean> findAllByPermission(Object objCurrentUser, int intActionType) {
+    	throw new RuntimeException("Not implemented");
     }
 
 	@Override
