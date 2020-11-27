@@ -8,6 +8,12 @@
 
 package org.akaza.openclinica.dao.rule;
 
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import javax.sql.DataSource;
+
 import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.core.EntityBean;
 import org.akaza.openclinica.bean.core.Status;
@@ -25,16 +31,7 @@ import org.akaza.openclinica.dao.core.SQLFactory;
 import org.akaza.openclinica.dao.core.TypeNames;
 import org.akaza.openclinica.dao.managestudy.StudyEventDefinitionDAO;
 import org.akaza.openclinica.dao.submit.CRFVersionDAO;
-import org.akaza.openclinica.dao.submit.EventCRFDAO;
 import org.akaza.openclinica.service.rule.expression.ExpressionService;
-
-import java.sql.Types;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-
-import javax.sql.DataSource;
 
 /**
  * <p>
@@ -46,9 +43,7 @@ import javax.sql.DataSource;
  */
 public class RuleSetDAO extends AuditableEntityDAO<RuleSetBean> {
 
-    private EventCRFDAO eventCrfDao;
     private StudyEventDefinitionDAO studyEventDefinitionDAO;
-    private RuleDAO ruleDao;
     private ExpressionDAO expressionDao;
     private CRFDAO crfDao;
     private CRFVersionDAO crfVersionDao;
@@ -215,7 +210,7 @@ public class RuleSetDAO extends AuditableEntityDAO<RuleSetBean> {
         return ruleSetBean;
     }
 
-    public RuleSetBean getEntityFromHashMap(HashMap hm) {
+    public RuleSetBean getEntityFromHashMap(HashMap<String, Object> hm) {
         RuleSetBean ruleSetBean = new RuleSetBean();
         this.setEntityAuditInformation(ruleSetBean, hm);
 
@@ -249,11 +244,9 @@ public class RuleSetDAO extends AuditableEntityDAO<RuleSetBean> {
         variables.put(new Integer(2), ruleSetBean.getTarget().getValue());
 
         String sql = digester.getQuery("findByExpression");
-        ArrayList<?> alist = this.select(sql, variables);
-        Iterator<?> it = alist.iterator();
-
-        if (it.hasNext()) {
-            ruleSetBeanInDb = (RuleSetBean) this.getEntityFromHashMap((HashMap<?, ?>) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
+        if (alist != null && alist.size() > 0) {
+            ruleSetBeanInDb = (RuleSetBean) this.getEntityFromHashMap(alist.get(0));
         }
         if (alist.isEmpty()) {
             ruleSetBeanInDb = null;
@@ -274,11 +267,9 @@ public class RuleSetDAO extends AuditableEntityDAO<RuleSetBean> {
         variables.put(new Integer(2), getStudyId(currentStudy));
 
         String sql = digester.getQuery("findByCrfId");
-        ArrayList<?> alist = this.select(sql, variables);
-        Iterator<?> it = alist.iterator();
-
-        while (it.hasNext()) {
-            RuleSetBean ruleSet = (RuleSetBean) this.getEntityFromHashMap((HashMap<?, ?>) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
+        for (HashMap<String, Object> hm : alist) {
+            RuleSetBean ruleSet = this.getEntityFromHashMap(hm);
             ruleSetBeans.add(ruleSet);
         }
         return ruleSetBeans;
@@ -295,11 +286,9 @@ public class RuleSetDAO extends AuditableEntityDAO<RuleSetBean> {
         variables.put(new Integer(3), sed.getId());
 
         String sql = digester.getQuery("findByCrfVersionStudyAndStudyEventDefinition");
-        ArrayList<?> alist = this.select(sql, variables);
-        Iterator<?> it = alist.iterator();
-
-        while (it.hasNext()) {
-            RuleSetBean ruleSet = (RuleSetBean) this.getEntityFromHashMap((HashMap<?, ?>) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
+        for (HashMap<String, Object> hm : alist) {
+            RuleSetBean ruleSet = (RuleSetBean) this.getEntityFromHashMap(hm);
             ruleSetBeans.add(ruleSet);
         }
         return ruleSetBeans;
@@ -318,11 +307,9 @@ public class RuleSetDAO extends AuditableEntityDAO<RuleSetBean> {
         variables.put(new Integer(5), crfBean.getId());
 
         String sql = digester.getQuery("findByCrfVersionOrCrfStudyAndStudyEventDefinition");
-        ArrayList<?> alist = this.select(sql, variables);
-        Iterator<?> it = alist.iterator();
-
-        while (it.hasNext()) {
-            RuleSetBean ruleSet = (RuleSetBean) this.getEntityFromHashMap((HashMap<?, ?>) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
+        for (HashMap<String, Object> hm : alist) {
+            RuleSetBean ruleSet = (RuleSetBean) this.getEntityFromHashMap(hm);
             ruleSetBeans.add(ruleSet);
         }
         return ruleSetBeans;
@@ -338,11 +325,9 @@ public class RuleSetDAO extends AuditableEntityDAO<RuleSetBean> {
         variables.put(new Integer(3), sed.getId());
 
         String sql = digester.getQuery("findByCrfStudyAndStudyEventDefinition");
-        ArrayList<?> alist = this.select(sql, variables);
-        Iterator<?> it = alist.iterator();
-
-        while (it.hasNext()) {
-            RuleSetBean ruleSet = (RuleSetBean) this.getEntityFromHashMap((HashMap<?, ?>) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
+        for (HashMap<String, Object> hm : alist) {
+            RuleSetBean ruleSet = (RuleSetBean) this.getEntityFromHashMap(hm);
             ruleSetBeans.add(ruleSet);
         }
         return ruleSetBeans;
@@ -357,23 +342,20 @@ public class RuleSetDAO extends AuditableEntityDAO<RuleSetBean> {
         variables.put(new Integer(1), getStudyId(currentStudy));
 
         String sql = digester.getQuery("findAllByStudy");
-        ArrayList<?> alist = this.select(sql, variables);
-        Iterator<?> it = alist.iterator();
-
-        while (it.hasNext()) {
-            RuleSetBean ruleSet = (RuleSetBean) this.getEntityFromHashMap((HashMap<?, ?>) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
+        for (HashMap<String, Object> hm : alist) {
+            RuleSetBean ruleSet = (RuleSetBean) this.getEntityFromHashMap(hm);
             ruleSetBeans.add(ruleSet);
         }
         return ruleSetBeans;
     }
 
-    public Collection findAll() {
+    public ArrayList<RuleSetBean> findAll() {
         this.setTypesExpected();
-        ArrayList alist = this.select(digester.getQuery("findAll"));
+        ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findAll"));
         ArrayList<RuleSetBean> ruleSetBeans = new ArrayList<RuleSetBean>();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            RuleSetBean ruleSet = (RuleSetBean) this.getEntityFromHashMap((HashMap) it.next());
+        for (HashMap<String, Object> hm : alist) {
+            RuleSetBean ruleSet = (RuleSetBean) this.getEntityFromHashMap(hm);
             ruleSetBeans.add(ruleSet);
         }
         return ruleSetBeans;
@@ -387,11 +369,9 @@ public class RuleSetDAO extends AuditableEntityDAO<RuleSetBean> {
         variables.put(new Integer(1), new Integer(ID));
 
         String sql = digester.getQuery("findByPK");
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            ruleSetBean = (RuleSetBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
+        if (alist != null && alist.size() > 0) {
+            ruleSetBean = (RuleSetBean) this.getEntityFromHashMap(alist.get(0));
         }
         return ruleSetBean;
     }
@@ -405,11 +385,9 @@ public class RuleSetDAO extends AuditableEntityDAO<RuleSetBean> {
         variables.put(new Integer(1), studyEventDefinitionId);
 
         String sql = digester.getQuery("findByStudyEventDefinition");
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            ruleSetBean = (RuleSetBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
+        if (alist != null && alist.size() > 0) {
+            ruleSetBean = (RuleSetBean) this.getEntityFromHashMap(alist.get(0));
         }
         return ruleSetBean;
     }
@@ -417,28 +395,31 @@ public class RuleSetDAO extends AuditableEntityDAO<RuleSetBean> {
     /*
      * Why should we even have these in here if they are not needed? TODO: refactor super class to remove dependency.
      */
-    public Collection findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<RuleSetBean> findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+        throw new RuntimeException("Not implemented");
     }
 
     /*
      * Why should we even have these in here if they are not needed? TODO: refactor super class to remove dependency.
      */
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<RuleSetBean> findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+        throw new RuntimeException("Not implemented");
     }
 
     /*
      * Why should we even have these in here if they are not needed? TODO: refactor super class to remove dependency.
      */
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<RuleSetBean> findAllByPermission(Object objCurrentUser, int intActionType) {
+        throw new RuntimeException("Not implemented");
     }
 
 	@Override
