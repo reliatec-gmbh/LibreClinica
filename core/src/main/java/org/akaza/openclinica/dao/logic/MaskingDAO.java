@@ -7,20 +7,17 @@
  */
 package org.akaza.openclinica.dao.logic;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import javax.sql.DataSource;
+
 import org.akaza.openclinica.bean.core.EntityBean;
-import org.akaza.openclinica.bean.extract.QueryBean;
 import org.akaza.openclinica.bean.masking.MaskingBean;
 import org.akaza.openclinica.dao.core.AuditableEntityDAO;
 import org.akaza.openclinica.dao.core.DAODigester;
 import org.akaza.openclinica.dao.core.SQLFactory;
 import org.akaza.openclinica.dao.core.TypeNames;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-
-import javax.sql.DataSource;
 
 /**
  * @author thickerson
@@ -70,7 +67,7 @@ public class MaskingDAO extends AuditableEntityDAO<MaskingBean> {
 
     }
 
-    public MaskingBean getEntityFromHashMap(HashMap hm) {
+    public MaskingBean getEntityFromHashMap(HashMap<String, Object> hm) {
         MaskingBean mb = new MaskingBean();
         this.setEntityAuditInformation(mb, hm);
         mb.setName((String) hm.get("name"));
@@ -79,13 +76,12 @@ public class MaskingDAO extends AuditableEntityDAO<MaskingBean> {
         return mb;
     }
 
-    public java.util.Collection findAll() {
+    public ArrayList<MaskingBean>findAll() {
         this.setTypesExpected();
-        ArrayList aList = this.select(digester.getQuery("findAll"));
-        ArrayList al = new ArrayList();
-        Iterator it = aList.iterator();
-        while (it.hasNext()) {
-            MaskingBean mb = (MaskingBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> aList = this.select(digester.getQuery("findAll"));
+        ArrayList<MaskingBean> al = new ArrayList<>();
+        for(HashMap<String, Object> hm : aList) {
+            MaskingBean mb = this.getEntityFromHashMap(hm);
             al.add(mb);
         }
         return al;
@@ -101,33 +97,36 @@ public class MaskingDAO extends AuditableEntityDAO<MaskingBean> {
         return eb;
     }
 
-    public Collection findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<MaskingBean>findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+        throw new RuntimeException("Not implemented");
     }
 
+    /**
+     * NOT IMPLEMENTED
+     */
     public EntityBean findByPK(int ID) {
-        QueryBean eb = new QueryBean();
-
-        return eb;
+    	throw new RuntimeException("Not implemented");
     }
 
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<MaskingBean>findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+        throw new RuntimeException("Not implemented");
     }
 
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<MaskingBean>findAllByPermission(Object objCurrentUser, int intActionType) {
+      throw new RuntimeException("Not implemented");
     }
 
 	@Override
 	public MaskingBean emptyBean() {
 		return new MaskingBean();
 	}
-
 }
