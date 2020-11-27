@@ -12,7 +12,6 @@ import static java.util.stream.Collectors.toCollection;
 
 import java.sql.Types;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
@@ -548,10 +547,10 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
             eb.setParentStudyId(parentStudyId.intValue());
         }
         Integer ownerId = (Integer) hm.get("owner_id");
-        UserAccountBean owner = (UserAccountBean) uadao.findByPK(ownerId);
+        UserAccountBean owner = (UserAccountBean) getUserAccountDAO().findByPK(ownerId);
         eb.setOwner(owner);
         Integer updateId = (Integer) hm.get("update_id");
-        UserAccountBean updater = (UserAccountBean) uadao.findByPK(updateId);
+        UserAccountBean updater = (UserAccountBean) getUserAccountDAO().findByPK(updateId);
         eb.setUpdater(updater);
         Integer typeId = (Integer) hm.get("type_id");
         eb.setType(StudyType.get(typeId.intValue()));
@@ -733,7 +732,7 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
         return stream.collect(groupingBy(StudyBean::getParentStudyId, HashMap::new, toCollection(ArrayList::new)));
     }
 
-    public Collection<Integer> findAllSiteIdsByStudy(StudyBean study) {
+    public ArrayList<Integer> findAllSiteIdsByStudy(StudyBean study) {
         this.unsetTypeExpected();
         this.setTypeExpected(1, TypeNames.INT);// sid
         HashMap<Integer, Object> variables = variables(study.getId(), study.getId());
@@ -745,7 +744,7 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
         return al;
     }
 
-    public Collection<Integer> findOlnySiteIdsByStudy(StudyBean study) {
+    public ArrayList<Integer> findOlnySiteIdsByStudy(StudyBean study) {
         this.unsetTypeExpected();
         this.setTypeExpected(1, TypeNames.INT);// sid
         HashMap<Integer, Object> variables = variables(study.getId());

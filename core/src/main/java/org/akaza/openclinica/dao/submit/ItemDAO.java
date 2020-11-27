@@ -154,9 +154,9 @@ public class ItemDAO extends AuditableEntityDAO<ItemBean> {
         eb.setCreatedDate(dateCreated);
         eb.setUpdatedDate(dateUpdated);
         eb.setStatus(Status.get(statusId.intValue()));
-        UserAccountBean owner = (UserAccountBean) uadao.findByPK(ownerId);
+        UserAccountBean owner = (UserAccountBean) getUserAccountDAO().findByPK(ownerId);
         eb.setOwner(owner);
-        UserAccountBean updater = (UserAccountBean) uadao.findByPK(updateId);
+        UserAccountBean updater = (UserAccountBean) getUserAccountDAO().findByPK(updateId);
         eb.setUpdater(updater);
         // something to trip over
         // something else to trip over

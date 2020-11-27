@@ -47,4 +47,5 @@ public interface DAOInterface<T> {
     Collection findAllByPermission(Object objCurrentUser, int intActionType) throws OpenClinicaException;
     // perhaps also add one with just object and int????
 
+    void setTypesExpected();
 }

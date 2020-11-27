@@ -653,6 +653,7 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
     }
 
     public B executeFindByPKQuery(String queryName, HashMap<Integer, Object> variables, boolean useCache) {
+    	setTypesExpected();
         B answer;
 
         String sql = digester.getQuery(queryName);

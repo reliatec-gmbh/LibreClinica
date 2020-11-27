@@ -20,7 +20,6 @@ import org.akaza.openclinica.dao.core.AuditableEntityDAO;
 import org.akaza.openclinica.dao.core.DAODigester;
 import org.akaza.openclinica.dao.core.SQLFactory;
 import org.akaza.openclinica.dao.core.TypeNames;
-import org.akaza.openclinica.dao.login.UserAccountDAO;
 
 /**
  * @author thickerson
@@ -115,7 +114,7 @@ public class ArchivedDatasetFileDAO extends AuditableEntityDAO<ArchivedDatasetFi
         fb.setRunTime(((Integer) hm.get("run_time")).doubleValue());
         fb.setFileSize(((Integer) hm.get("file_size")).intValue());
         fb.setOwnerId(((Integer) hm.get("owner_id")).intValue());
-        UserAccountBean owner = (UserAccountBean) uadao.findByPK(fb.getOwnerId());
+        UserAccountBean owner = (UserAccountBean) getUserAccountDAO().findByPK(fb.getOwnerId());
         fb.setOwner(owner);
         return fb;
     }

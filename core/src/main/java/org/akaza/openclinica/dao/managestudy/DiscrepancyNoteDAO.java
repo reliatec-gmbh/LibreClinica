@@ -126,7 +126,7 @@ public class DiscrepancyNoteDAO extends AuditableEntityDAO<DiscrepancyNoteBean> 
         Date dateCreated = (Date) hm.get("date_created");
         Integer ownerId = (Integer) hm.get("owner_id");
         eb.setCreatedDate(dateCreated);
-        UserAccountBean owner = (UserAccountBean) uadao.findByPK(ownerId);
+        UserAccountBean owner = (UserAccountBean) getUserAccountDAO().findByPK(ownerId);
         eb.setOwner(owner);
 
         // discrepancy_note_id serial NOT NULL,

@@ -179,7 +179,7 @@ public class CRFVersionDAO extends AuditableEntityDAO<CRFVersionBean> {
     }
 
     public ArrayList<CRFVersionBean> findAllByCRF(int crfId) {
-    	String queryName = "findAll";
+    	String queryName = "findAllByCRF";
         HashMap<Integer, Object> variables = variables(crfId);
     	return executeFindAllQuery(queryName, variables);
     }

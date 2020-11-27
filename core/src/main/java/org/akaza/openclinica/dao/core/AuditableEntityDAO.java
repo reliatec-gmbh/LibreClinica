@@ -92,8 +92,6 @@ public abstract class AuditableEntityDAO<T extends EntityBean> extends EntityDAO
      * aeb.setUpdaterId(updateId.intValue()); return aeb; }
      */
 
-    public abstract void setTypesExpected();
-
     /**
      * Note: The subclass must define findAllByStudyName before calling this
      * method. Otherwise an empty array will be returned.
@@ -201,7 +199,7 @@ public abstract class AuditableEntityDAO<T extends EntityBean> extends EntityDAO
         String query = digester.getQuery(queryName);
         if (query == null || query.trim().isEmpty()) {
         	// TODO for backwards compatibility here is no error thrown but this should be changed in the future
-        	logger.error("No query with name '%s' not found", queryName);
+        	logger.error("No query with name '%s' found", queryName);
             return answer;
         }
         
