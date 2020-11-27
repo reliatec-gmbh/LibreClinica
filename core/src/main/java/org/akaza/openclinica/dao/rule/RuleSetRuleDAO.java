@@ -8,6 +8,11 @@
 
 package org.akaza.openclinica.dao.rule;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import javax.sql.DataSource;
+
 import org.akaza.openclinica.bean.core.EntityBean;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.login.UserAccountBean;
@@ -20,13 +25,6 @@ import org.akaza.openclinica.dao.core.DAODigester;
 import org.akaza.openclinica.dao.core.SQLFactory;
 import org.akaza.openclinica.dao.core.TypeNames;
 import org.akaza.openclinica.exception.OpenClinicaException;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-
-import javax.sql.DataSource;
 
 /**
  * <p>
@@ -201,14 +199,7 @@ public class RuleSetRuleDAO extends AuditableEntityDAO<RuleSetRuleBean> {
     }
 
     public RuleSetRuleBean getEntityFromHashMap(HashMap<String, Object> hm) {
-        RuleSetRuleBean ruleSetRuleBean = new RuleSetRuleBean();
-        this.setEntityAuditInformation(ruleSetRuleBean, hm);
-
-        ruleSetRuleBean.setId(((Integer) hm.get("rule_set_rule_id")).intValue());
-        int ruleBeanId = ((Integer) hm.get("rule_id")).intValue();
-        ruleSetRuleBean.setRuleBean(getRuleDao().findByPK(ruleBeanId));
-
-        return ruleSetRuleBean;
+    	return getEntityFromHashMap(hm, false);
     }
 
     public RuleSetRuleBean getEntityFromHashMap(HashMap<String, Object> hm, Boolean getRuleSet) {
@@ -216,9 +207,9 @@ public class RuleSetRuleDAO extends AuditableEntityDAO<RuleSetRuleBean> {
         this.setEntityAuditInformation(ruleSetRuleBean, hm);
 
         ruleSetRuleBean.setId(((Integer) hm.get("rule_set_rule_id")).intValue());
-        int ruleSetBeanId = ((Integer) hm.get("rule_set_id")).intValue();
         if (getRuleSet) {
-            ruleSetRuleBean.setRuleSetBean((RuleSetBean) getRuleSetDao().findByPK(ruleSetBeanId));
+            int ruleSetBeanId = ((Integer) hm.get("rule_set_id")).intValue();
+            ruleSetRuleBean.setRuleSetBean(getRuleSetDao().findByPK(ruleSetBeanId));
         }
         int ruleBeanId = ((Integer) hm.get("rule_id")).intValue();
         ruleSetRuleBean.setRuleBean(getRuleDao().findByPK(ruleBeanId));
@@ -227,123 +218,75 @@ public class RuleSetRuleDAO extends AuditableEntityDAO<RuleSetRuleBean> {
     }
 
     public ArrayList<RuleSetRuleBean> findAll() {
-        this.setTypesExpected();
-        ArrayList alist = this.select(digester.getQuery("findAll"));
-        ArrayList<RuleSetRuleBean> ruleSetBeans = new ArrayList<RuleSetRuleBean>();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            RuleSetRuleBean ruleSetRuleBean = (RuleSetRuleBean) this.getEntityFromHashMap((HashMap) it.next());
-            ruleSetBeans.add(ruleSetRuleBean);
-        }
-        return ruleSetBeans;
+    	String queryName = "findAll";
+        return executeFindAllQuery(queryName);
     }
 
     public EntityBean findByPK(int ID) {
-        RuleSetRuleBean ruleSetRuleBean = null;
-        this.setTypesExpected();
-
-        HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
-        variables.put(new Integer(1), new Integer(ID));
-
-        String sql = digester.getQuery("findByPK");
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            ruleSetRuleBean = (RuleSetRuleBean) this.getEntityFromHashMap((HashMap) it.next(), true);
-        }
-        return ruleSetRuleBean;
+    	String queryName = "findByPK";
+        HashMap<Integer, Object> variables = variables(ID);
+        return executeFindByPKQuery(queryName, variables);
     }
 
     public ArrayList<RuleSetRuleBean> findByRuleSet(RuleSetBean ruleSet) {
-        ArrayList<RuleSetRuleBean> ruleSetRuleBeans = new ArrayList<RuleSetRuleBean>();
-
-        this.setTypesExpected();
-
-        HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
-        Integer ruleSetId = Integer.valueOf(ruleSet.getId());
-        variables.put(new Integer(1), ruleSetId);
-        // variables.put(new Integer(2), new Integer(Status.AVAILABLE.getId()));
-
-        String sql = digester.getQuery("findByRuleSetId");
-        ArrayList<?> alist = this.select(sql, variables);
-        Iterator<?> it = alist.iterator();
-
-        while (it.hasNext()) {
-            RuleSetRuleBean ruleSetRule = (RuleSetRuleBean) this.getEntityFromHashMap((HashMap<?, ?>) it.next());
-            ruleSetRule.setRuleSetBean(ruleSet);
-            ruleSetRuleBeans.add(ruleSetRule);
+    	String queryName = "findByRuleSetId";
+        HashMap<Integer, Object> variables = variables(ruleSet.getId());
+        ArrayList<RuleSetRuleBean> beans = executeFindAllQuery(queryName, variables);
+        if(beans != null) {
+        	beans.stream().forEach(ruleSetRule -> ruleSetRule.setRuleSetBean(ruleSet));
         }
-        return ruleSetRuleBeans;
+        return beans;
     }
 
     public ArrayList<RuleSetRuleBean> findByRuleSetAndRule(RuleSetBean ruleSet, RuleBean rule) {
-        ArrayList<RuleSetRuleBean> ruleSetRuleBeans = new ArrayList<RuleSetRuleBean>();
-
-        this.setTypesExpected();
-
+    	String queryName = "findByRuleSetIdAndRuleId";
         HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
-        Integer ruleSetId = Integer.valueOf(ruleSet.getId());
-        Integer ruleId = Integer.valueOf(rule.getId());
-        variables.put(new Integer(1), ruleSetId);
-        variables.put(new Integer(2), new Integer(Status.AVAILABLE.getId()));
-        variables.put(new Integer(3), ruleId);
-
-        String sql = digester.getQuery("findByRuleSetIdAndRuleId");
-        ArrayList<?> alist = this.select(sql, variables);
-        Iterator<?> it = alist.iterator();
-
-        while (it.hasNext()) {
-            RuleSetRuleBean ruleSetRule = (RuleSetRuleBean) this.getEntityFromHashMap((HashMap<?, ?>) it.next());
-            ruleSetRule.setRuleSetBean(ruleSet);
-            ruleSetRuleBeans.add(ruleSetRule);
+        variables.put(1, ruleSet.getId());
+        variables.put(2, Status.AVAILABLE.getId());
+        variables.put(3, rule.getId());
+        
+        ArrayList<RuleSetRuleBean> beans = executeFindAllQuery(queryName, variables);
+        if(beans != null) {
+        	beans.stream().forEach(ruleSetRule -> ruleSetRule.setRuleSetBean(ruleSet));
         }
-        return ruleSetRuleBeans;
+        return beans;
     }
 
     public RuleSetRuleBean findByStudyEventDefinition(StudyEventDefinitionBean studyEventDefinition) {
-    	RuleSetRuleBean ruleSetBean = null;
-        this.setTypesExpected();
-
-        HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
         Integer studyEventDefinitionId = Integer.valueOf(studyEventDefinition.getId());
-        variables.put(new Integer(1), studyEventDefinitionId);
-
-        String sql = digester.getQuery("findByStudyEventDefinition");
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            ruleSetBean = this.getEntityFromHashMap((HashMap) it.next());
-        }
-        return ruleSetBean;
+    	String queryName = "findByStudyEventDefinition";
+        HashMap<Integer, Object> variables = variables(studyEventDefinitionId);
+        return executeFindByPKQuery(queryName, variables);
     }
 
     /*
      * Why should we even have these in here if they are not needed? TODO: refactor super class to remove dependency.
      */
-    public Collection findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<RuleSetRuleBean> findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+       throw new RuntimeException("Not implemented");
     }
 
     /*
      * Why should we even have these in here if they are not needed? TODO: refactor super class to remove dependency.
      */
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<RuleSetRuleBean> findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+       throw new RuntimeException("Not implemented");
     }
 
     /*
      * Why should we even have these in here if they are not needed? TODO: refactor super class to remove dependency.
      */
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<RuleSetRuleBean> findAllByPermission(Object objCurrentUser, int intActionType) {
+        throw new RuntimeException("Not implemented");
     }
 
 	@Override
