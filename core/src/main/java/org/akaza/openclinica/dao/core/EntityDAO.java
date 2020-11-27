@@ -555,6 +555,10 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
      * <code> getNextPKName </code> is null.
      */
     public int getNextPK() {
+    	return getNextKey(getNextPKName, "key", TypeNames.LONG);
+    }
+    
+    public int getNextKey(String queryName, String columnName, int type) {
         int answer = 0;
 
         if (getNextPKName == null) {
@@ -562,14 +566,24 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
         }
 
         this.unsetTypeExpected();
-        this.setTypeExpected(1, TypeNames.LONG);
+        this.setTypeExpected(1, type);
 
-        String query = digester.getQuery(getNextPKName);
+        String query = digester.getQuery(queryName);
         ArrayList<HashMap<String, Object>> al = select(query);
 
         if (al.size() > 0) {
             HashMap<String, ?> h = al.get(0);
-            answer = ((Long) h.get("key")).intValue();
+            switch(type) {
+            case TypeNames.LONG:
+            	answer = ((Long) h.get(columnName)).intValue();
+            	break;
+            case TypeNames.INT:
+            	answer = (Integer) h.get(columnName);
+            	break;
+        	default:
+            	String msg = "Type '%s' is not supported";
+            	throw new RuntimeException(String.format(msg, type));
+            }
         }
 
         return answer;
