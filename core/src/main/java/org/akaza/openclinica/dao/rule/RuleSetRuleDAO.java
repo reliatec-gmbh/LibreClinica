@@ -206,7 +206,7 @@ public class RuleSetRuleDAO extends AuditableEntityDAO<RuleSetRuleBean> {
 
         ruleSetRuleBean.setId(((Integer) hm.get("rule_set_rule_id")).intValue());
         int ruleBeanId = ((Integer) hm.get("rule_id")).intValue();
-        ruleSetRuleBean.setRuleBean((RuleBean) getRuleDao().findByPK(ruleBeanId));
+        ruleSetRuleBean.setRuleBean(getRuleDao().findByPK(ruleBeanId));
 
         return ruleSetRuleBean;
     }
@@ -221,7 +221,7 @@ public class RuleSetRuleDAO extends AuditableEntityDAO<RuleSetRuleBean> {
             ruleSetRuleBean.setRuleSetBean((RuleSetBean) getRuleSetDao().findByPK(ruleSetBeanId));
         }
         int ruleBeanId = ((Integer) hm.get("rule_id")).intValue();
-        ruleSetRuleBean.setRuleBean((RuleBean) getRuleDao().findByPK(ruleBeanId));
+        ruleSetRuleBean.setRuleBean(getRuleDao().findByPK(ruleBeanId));
 
         return ruleSetRuleBean;
     }

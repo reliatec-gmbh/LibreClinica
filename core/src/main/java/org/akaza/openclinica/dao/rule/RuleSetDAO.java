@@ -361,7 +361,7 @@ public class RuleSetDAO extends AuditableEntityDAO<RuleSetBean> {
         return ruleSetBeans;
     }
 
-    public EntityBean findByPK(int ID) {
+    public RuleSetBean findByPK(int ID) {
         RuleSetBean ruleSetBean = null;
         this.setTypesExpected();
 
