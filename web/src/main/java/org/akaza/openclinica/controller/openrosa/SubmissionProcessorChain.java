@@ -10,7 +10,7 @@ package org.akaza.openclinica.controller.openrosa;
 import java.util.Collections;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
+// import javax.annotation.PostConstruct;
 
 import org.akaza.openclinica.controller.openrosa.processor.Processor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,7 @@ public class SubmissionProcessorChain {
     @Autowired
     List<Processor> processors;
     
-    @PostConstruct
+    // @PostConstruct
     public void init() {
         Collections.sort(processors, AnnotationAwareOrderComparator.INSTANCE);
     }

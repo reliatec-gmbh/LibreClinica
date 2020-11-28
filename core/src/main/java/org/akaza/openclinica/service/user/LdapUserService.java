@@ -12,7 +12,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import javax.annotation.PostConstruct;
+// import javax.annotation.PostConstruct;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -75,7 +75,7 @@ public class LdapUserService {
 
     private SpringSecurityLdapTemplate ldapTemplate;
 
-    @PostConstruct // Eclipse warning here is an Eclipse bug, not an issue with the code
+    // @PostConstruct // Eclipse warning here is an Eclipse bug, not an issue with the code
     public void init() {
         ldapTemplate = new SpringSecurityLdapTemplate(contextSource);
         ldapTemplate.setIgnorePartialResultException(true);
