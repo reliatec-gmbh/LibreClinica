@@ -199,7 +199,7 @@ public abstract class AuditableEntityDAO<T extends EntityBean> extends EntityDAO
         String query = digester.getQuery(queryName);
         if (query == null || query.trim().isEmpty()) {
         	// TODO for backwards compatibility here is no error thrown but this should be changed in the future
-        	logger.error("No query with name '%s' found", queryName);
+        	logger.error("No query with name '{}' found", queryName);
             return answer;
         }
         
