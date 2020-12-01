@@ -561,7 +561,7 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
     public int getNextKey(String queryName, String columnName, int type) {
         int answer = 0;
 
-        if (getNextPKName == null) {
+        if (queryName == null || queryName.trim().isEmpty()) {
             return answer;
         }
 
