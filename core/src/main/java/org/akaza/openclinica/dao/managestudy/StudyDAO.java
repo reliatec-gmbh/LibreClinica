@@ -370,16 +370,26 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
     }
 
     private String getValidOid(StudyBean sb) {
-
         String oid = getOid(sb);
         logger.info("*** " + oid);
         String oidPreRandomization = oid;
-        while (findByOid(oid) != null) {
+        while (existStudyWithOid(oid)) {
             oid = sb.getOidGenerator().randomizeOid(oidPreRandomization);
         }
         logger.info("returning the following oid: " + oid);
         return oid;
 
+    }
+    
+    /**
+     * Checks whether a study with the given OID already exist.
+     * 
+     * @param oid the study OID
+     * @return true if a study with the given OID exists, false otherwise
+     */
+    public boolean existStudyWithOid(String oid) {
+    	StudyBean foundStudy = findByOid(oid);
+    	return foundStudy != null && oid.equals(foundStudy.getOid());
     }
 
     public StudyBean findByOid(String oid) {
