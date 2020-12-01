@@ -326,7 +326,7 @@ public class StudyEventDefinitionDAO extends AuditableEntityDAO<StudyEventDefini
      * @return
      */
     public Map<Integer, StudyEventDefinitionBean> findByStudySubject(int studySubjectId) {
-    	String queryName = "";
+    	String queryName = "findByStudySubject";
         HashMap<Integer, Object> variables = variables();
         ArrayList<StudyEventDefinitionBean> beans = executeFindAllQuery(queryName, variables);
         
