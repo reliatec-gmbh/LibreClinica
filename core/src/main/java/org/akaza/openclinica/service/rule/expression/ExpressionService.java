@@ -1058,7 +1058,7 @@ public class ExpressionService {
                     studyEventDefinitionKey);
             // another way to get at the problem which I fix in the
             // findByOidAndStudy method, tbh
-            if (studyEventDefinition != null) {
+            if (studyEventDefinition != null && studyEventDefinitionKey.equals(studyEventDefinition.getOid())) {
                 studyEventDefinitions.put(studyEventDefinitionKey, studyEventDefinition);
                 return studyEventDefinition;
             } else {
