@@ -35,11 +35,13 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
 
     public StudyDAO(DataSource ds) {
         super(ds);
+        setQueryNames();
     }
 
     public StudyDAO(DataSource ds, DAODigester digester) {
         super(ds);
         this.digester = digester;
+        setQueryNames();
     }
 
     // This constructor sets up the Locale for JUnit tests; see the locale
@@ -48,6 +50,10 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
 
         this(ds, digester);
         this.locale = locale;
+    }
+    
+    private void setQueryNames() {
+    	getNextPKName = "findNextKey";
     }
 
     @Override
@@ -286,7 +292,7 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
      * @return int, which is the next primary key for creating a study.
      */
     public int findNextKey() {
-    	return getNextKey("findNextKey", "key", TypeNames.INT);
+    	return getNextPK();
     }
 
     /**
