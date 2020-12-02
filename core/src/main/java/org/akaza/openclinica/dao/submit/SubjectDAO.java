@@ -9,15 +9,12 @@ package org.akaza.openclinica.dao.submit;
 
 import java.sql.Types;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Locale;
 
 import javax.sql.DataSource;
 
-import org.akaza.openclinica.bean.core.EntityBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.submit.SubjectBean;
 import org.akaza.openclinica.dao.core.AuditableEntityDAO;
@@ -92,8 +89,7 @@ public class SubjectDAO extends AuditableEntityDAO<SubjectBean> {
      * smw
      *
      */
-    public ArrayList findAllSubjectsAndStudies() {
-        ArrayList answer = new ArrayList();
+    public ArrayList<SubjectBean> findAllSubjectsAndStudies() {
 
         this.setTypesExpected();
         this.setTypeExpected(13, TypeNames.STRING); // label from study_subject table
@@ -101,11 +97,9 @@ public class SubjectDAO extends AuditableEntityDAO<SubjectBean> {
 
         String sql = digester.getQuery("findAllSubjectsAndStudies");
 
-        ArrayList alist = this.select(sql);
-        Iterator it = alist.iterator();
-
-        while (it.hasNext()) {
-            HashMap hm = (HashMap) it.next();
+        ArrayList<HashMap<String, Object>> alist = this.select(sql);
+        ArrayList<SubjectBean> answer = new ArrayList<>();
+        for(HashMap<String, Object> hm : alist) {
             SubjectBean sb = (SubjectBean) this.getEntityFromHashMap(hm);
             sb.setLabel((String) hm.get("label"));
             sb.setStudyIdentifier((String) hm.get("study_unique_identifier"));
@@ -123,22 +117,26 @@ public class SubjectDAO extends AuditableEntityDAO<SubjectBean> {
      *         subjects who are female, if <code>gender == 'f'</code>, or a
      *         blank list, otherwise.
      */
-    public ArrayList findAllByGender(char gender) {
-        if (gender == 'm') {
-            return findAllMales();
-        } else if (gender == 'f') {
-            return findAllFemales();
-        }
-        return new ArrayList();
+    public ArrayList<SubjectBean> findAllByGender(char gender) {
+    	ArrayList<SubjectBean> beans;
+    	switch(gender) {
+    		case 'm':
+    			beans = findAllMales();
+    			break;
+    		case 'f':
+    			beans = findAllFemales();
+    			break;
+			default:
+				beans = new ArrayList<>();
+    	}
+    	return beans;
     }
 
-    public ArrayList findAllFemales() {
-
+    public ArrayList<SubjectBean> findAllFemales() {
         return executeFindAllQuery("findAllFemales");
     }
 
-    public ArrayList findAllMales() {
-
+    public ArrayList<SubjectBean> findAllMales() {
         return executeFindAllQuery("findAllMales");
     }
 
@@ -149,34 +147,37 @@ public class SubjectDAO extends AuditableEntityDAO<SubjectBean> {
      *         subjects who are female, if <code>gender == 'f'</code>, or a
      *         blank list, otherwise.
      */
-    public ArrayList findAllByGenderNotSelf(char gender, int id) {
-        if (gender == 'm') {
-            return findAllMalesNotSelf(id);
-        } else if (gender == 'f') {
-            return findAllFemalesNotSelf(id);
-        }
-        return new ArrayList();
+    public ArrayList<SubjectBean> findAllByGenderNotSelf(char gender, int id) {
+    	ArrayList<SubjectBean> beans;
+    	switch(gender) {
+    		case 'm':
+    			beans = findAllMalesNotSelf(id);
+    			break;
+    		case 'f':
+    			beans = findAllFemalesNotSelf(id);
+    			break;
+			default:
+				beans = new ArrayList<>();
+    	}
+    	return beans;
     }
 
-    public ArrayList findAllFemalesNotSelf(int id) {
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(id));
-        return executeFindAllQuery("findAllFemalesNotSelf", variables);
+    public ArrayList<SubjectBean> findAllFemalesNotSelf(int id) {
+    	String queryName = "findAllFemalesNotSelf";
+        HashMap<Integer, Object> variables = variables(id);
+        return executeFindAllQuery(queryName, variables);
     }
 
-    public ArrayList findAllMalesNotSelf(int id) {
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(id));
-        return executeFindAllQuery("findAllMalesNotSelf", variables);
+    public ArrayList<SubjectBean> findAllMalesNotSelf(int id) {
+    	String queryName = "findAllMalesNotSelf";
+        HashMap<Integer, Object> variables = variables(id);
+        return executeFindAllQuery(queryName, variables);
     }
 
+    // TODO remove unused parameter 'currentStudy'
     public ArrayList<SubjectBean> getWithFilterAndSort(StudyBean currentStudy, ListSubjectFilter filter, ListSubjectSort sort, int rowStart, int rowEnd) {
-        ArrayList<SubjectBean> subjects = new ArrayList<SubjectBean>();
         setTypesExpected();
 
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), currentStudy.getId());
-        variables.put(new Integer(2), currentStudy.getId());
         String sql = digester.getQuery("getWithFilterAndSort");
         sql = sql + filter.execute("");
 
@@ -188,12 +189,10 @@ public class SubjectDAO extends AuditableEntityDAO<SubjectBean> {
             sql = sql + " LIMIT " + (rowEnd - rowStart) + " OFFSET " + rowStart;
         }
 
-        //        System.out.println("SQL: "+sql);
-        ArrayList rows = this.select(sql);
-        Iterator it = rows.iterator();
-
-        while (it.hasNext()) {
-            SubjectBean subjectBean = (SubjectBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> rows = this.select(sql);
+        ArrayList<SubjectBean> subjects = new ArrayList<SubjectBean>();
+        for(HashMap<String, Object> hm : rows) {
+            SubjectBean subjectBean = (SubjectBean) this.getEntityFromHashMap(hm);
             subjects.add(subjectBean);
         }
         return subjects;
@@ -210,7 +209,7 @@ public class SubjectDAO extends AuditableEntityDAO<SubjectBean> {
      * getEntityFromHashMap, the method that gets the object from the database
      * query.
      */
-    public SubjectBean getEntityFromHashMap(HashMap hm) {
+    public SubjectBean getEntityFromHashMap(HashMap<String, Object> hm) {
         SubjectBean eb = new SubjectBean();
         super.setEntityAuditInformation(eb, hm);
         eb.setId(((Integer) hm.get("subject_id")).intValue());
@@ -229,59 +228,32 @@ public class SubjectDAO extends AuditableEntityDAO<SubjectBean> {
         return eb;
     }
 
-    public Collection findAll() {
+    public ArrayList<SubjectBean> findAll() {
 
         return findAllByLimit(false);
     }
 
-    public Collection findAllByLimit(boolean hasLimit) {
-        this.setTypesExpected();
-        ArrayList alist = null;
+    
+    public ArrayList<SubjectBean> findAllByLimit(boolean hasLimit) {
+    	String queryName;
         if (hasLimit) {
-            alist = this.select(digester.getQuery("findAllByLimit"));
+            queryName = "findAllByLimit";
         } else {
-            alist = this.select(digester.getQuery("findAll"));
+            queryName = "findAll";
         }
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            SubjectBean eb = (SubjectBean) this.getEntityFromHashMap((HashMap) it.next());
-            al.add(eb);
-        }
-        return al;
+        return executeFindAllQuery(queryName);
     }
 
-    public EntityBean findAnotherByIdentifier(String name, int subjectId) {
-        SubjectBean eb = new SubjectBean();
-        this.setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), name);
-        variables.put(new Integer(2), new Integer(subjectId));
-
-        String sql = digester.getQuery("findAnotherByIdentifier");
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            eb = (SubjectBean) this.getEntityFromHashMap((HashMap) it.next());
-        }
-        return eb;
+    public SubjectBean findAnotherByIdentifier(String name, int subjectId) {
+    	String queryName = "findAnotherByIdentifier";
+        HashMap<Integer, Object> variables = variables(name, subjectId);
+        return executeFindByPKQuery(queryName, variables);
     }
 
-    public Collection findAllChildrenByPK(int subjectId) {
-        this.setTypesExpected();
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(subjectId));
-        variables.put(new Integer(2), new Integer(subjectId));
-        ArrayList alist = this.select(digester.getQuery("findAllChildrenByPK"), variables);
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            SubjectBean eb = (SubjectBean) this.getEntityFromHashMap((HashMap) it.next());
-            al.add(eb);
-        }
-        return al;
+    public ArrayList<SubjectBean> findAllChildrenByPK(int subjectId) {
+    	String queryName = "findAllChildrenByPK";
+        HashMap<Integer, Object> variables = variables(subjectId, subjectId);
+        return executeFindAllQuery(queryName, variables);
     }
 
     /**
@@ -292,47 +264,17 @@ public class SubjectDAO extends AuditableEntityDAO<SubjectBean> {
      * @param studyId
      * @return
      */
-
     public SubjectBean findByUniqueIdentifierAndAnyStudy(String uniqueIdentifier, int studyId) {
-        SubjectBean answer = new SubjectBean();
-        this.setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), uniqueIdentifier);
-        variables.put(new Integer(2), new Integer(studyId));
-        variables.put(new Integer(3), new Integer(studyId));
-
-        String sql = digester.getQuery("findByUniqueIdentifierAndAnyStudy");
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            answer = (SubjectBean) this.getEntityFromHashMap((HashMap) it.next());
-        }
-
-        return answer;
-
+    	String queryName = "findByUniqueIdentifierAndAnyStudy";
+        HashMap<Integer, Object> variables = variables(uniqueIdentifier, studyId, studyId);
+        return executeFindByPKQuery(queryName, variables);
     }
 
     
     public SubjectBean findByUniqueIdentifierAndStudy(String uniqueIdentifier, int studyId) {
-        SubjectBean answer = new SubjectBean();
-        this.setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), uniqueIdentifier);
-        variables.put(new Integer(2), new Integer(studyId));
-
-        String sql = digester.getQuery("findByUniqueIdentifierAndStudy");
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            answer = (SubjectBean) this.getEntityFromHashMap((HashMap) it.next());
-        }
-
-        return answer;
-
+    	String queryName = "findByUniqueIdentifierAndStudy";
+        HashMap<Integer, Object> variables = variables(uniqueIdentifier, studyId);
+        return executeFindByPKQuery(queryName, variables);
     }
 
     /**
@@ -344,86 +286,22 @@ public class SubjectDAO extends AuditableEntityDAO<SubjectBean> {
      * @return
      */
     public SubjectBean findByUniqueIdentifierAndParentStudy(String uniqueIdentifier, int studyId) {
-        SubjectBean answer = new SubjectBean();
-        this.setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), uniqueIdentifier);
-        variables.put(new Integer(2), new Integer(studyId));
-
-        String sql = digester.getQuery("findByUniqueIdentifierAndParentStudy");
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            answer = (SubjectBean) this.getEntityFromHashMap((HashMap) it.next());
-        }
-
-        return answer;
-
-    }
-
-    public Collection findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
-
-        return al;
-    }
-
-    public EntityBean findByPK(int ID) {
-        SubjectBean eb = new SubjectBean();
-        this.setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(ID));
-
-        String sql = digester.getQuery("findByPK");
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            eb = (SubjectBean) this.getEntityFromHashMap((HashMap) it.next());
-        }
-
-        return eb;
+    	String queryName = "findByUniqueIdentifierAndParentStudy";
+        HashMap<Integer, Object> variables = variables(uniqueIdentifier, studyId);
+        return executeFindByPKQuery(queryName, variables);
     }
 
     /**
-     * @deprecated Creates a new subject
+     * NOT IMPLEMENTED
      */
-    @Deprecated
-    public EntityBean create(EntityBean eb) {
-        SubjectBean sb = (SubjectBean) eb;
-        HashMap variables = new HashMap();
-        HashMap nullVars = new HashMap();
-        // FATHER_ID,MOTHER_ID, STATUS_ID,
-        // DATE_OF_BIRTH,GENDER,UNIQUE_IDENTIFIER,DATE_CREATED,
-        // OWNER_ID
-        variables.put(new Integer(1), new Integer(sb.getStatus().getId()));
-        if (sb.getDateOfBirth() == null) {
-            nullVars.put(new Integer(4), new Integer(Types.DATE));
-            variables.put(new Integer(4), null);
-        } else {
-            variables.put(new Integer(4), sb.getDateOfBirth());
-        }
-        if (sb.getGender() != 'm' && sb.getGender() != 'f') {
-            nullVars.put(new Integer(5), new Integer(Types.CHAR));
-            variables.put(new Integer(5), null);
-        } else {
-            char[] ch = { sb.getGender() };
-            variables.put(new Integer(5), new String(ch));
-        }
+    public ArrayList<SubjectBean> findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+        throw new RuntimeException("Not implemented");
+    }
 
-        variables.put(new Integer(6), sb.getUniqueIdentifier());
-        // DATE_CREATED is now()
-        variables.put(new Integer(7), new Integer(sb.getOwner().getId()));
-
-        executeUpdate(digester.getQuery("create"), variables, nullVars);
-
-        if (isQuerySuccessful()) {
-            sb.setId(getCurrentPK());
-        }
-
-        return sb;
+    public SubjectBean findByPK(int ID) {
+    	String queryName = "findByPK";
+        HashMap<Integer, Object> variables = variables(ID);
+        return executeFindByPKQuery(queryName, variables);
     }
 
     /**
@@ -437,94 +315,48 @@ public class SubjectDAO extends AuditableEntityDAO<SubjectBean> {
      *            non-genetic studies.
      * @return
      */
+    @Override
     public SubjectBean create(SubjectBean sb) {
-        HashMap variables = new HashMap();
-        HashMap nullVars = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
+		HashMap<Integer, Integer> nullVars = new HashMap<>();
         logger.debug("Logged in subject DAO.create");
-        int ind = 1;
-
         
-
-        variables.put(new Integer(ind), new Integer(sb.getStatus().getId()));
-        ind++;
+        int ind = 1;
+        variables.put(ind++, sb.getStatus().getId());
 
         if (sb.getDateOfBirth() == null) {
-            nullVars.put(new Integer(ind), new Integer(Types.DATE));
-            variables.put(new Integer(ind), null);
+            nullVars.put(ind, Types.DATE);
+            variables.put(ind, null);
+            ind++;
         } else {
-            variables.put(new Integer(ind), sb.getDateOfBirth());
+            variables.put(ind++, sb.getDateOfBirth());
         }
-        ind++;
 
-        if (sb.getGender() != 'm' && sb.getGender() != 'f') {
-            nullVars.put(new Integer(ind), new Integer(Types.CHAR));
-            variables.put(new Integer(ind), null);
-        } else {
-            char[] ch = { sb.getGender() };
-            variables.put(new Integer(ind), new String(ch));
+        switch(sb.getGender()) {
+        case 'm':
+        case 'f':
+            variables.put(ind++, String.valueOf(sb.getGender()));
+            break;
+        default:
+            nullVars.put(ind, Types.CHAR);
+            variables.put(ind, null);
+            ind++;          
         }
-        ind++;
-        variables.put(new Integer(ind), sb.getUniqueIdentifier());
-        ind++;
-        variables.put(new Integer(ind), new Integer(sb.getOwnerId()));
-        ind++;
-        variables.put(new Integer(ind), new Boolean(sb.isDobCollected()));
-        ind++;
+        variables.put(ind++, sb.getUniqueIdentifier());
+        variables.put(ind++, sb.getOwnerId());
+        variables.put(ind++, sb.isDobCollected());
 
         executeUpdateWithPK(digester.getQuery("create"), variables, nullVars);
         if (isQuerySuccessful()) {
             sb.setId(getLatestPK());
         }
-
         return sb;
     }
 
-    /**
-     * Create a subject whose father and mother id have been properly set. This
-     * is primarily for use when creating subjects in genetic studies.
-     *
-     * @param sb
-     *            The subject to create.
-     * @return The created subject, with id set according to the insert id if
-     *         the operation was successful, or id set to 0 otherwise.
-     * @deprecated
-     */
-    @Deprecated
-    public SubjectBean createWithParents(SubjectBean sb) {
-        return create(sb);
-    }
-
-    /**
-     * Create a subject whose father and mother id have not been properly set.
-     * This is primarily for use when creating subjects in non-genetic studies.
-     *
-     * @param sb
-     *            The subject to create.
-     * @return The created subject, with id set according to the insert id if
-     *         the operation was successful, or id set to 0 otherwise.
-     * @deprecated
-     */
-    @Deprecated
-    public SubjectBean createWithoutParents(SubjectBean sb) {
-        return create(sb);
-    }
-
     public SubjectBean findByUniqueIdentifier(String uniqueIdentifier) {
-        SubjectBean answer = new SubjectBean();
-        this.setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), uniqueIdentifier);
-
-        String sql = digester.getQuery("findByUniqueIdentifier");
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            answer = (SubjectBean) this.getEntityFromHashMap((HashMap) it.next());
-        }
-
-        return answer;
+    	String queryName = "findByUniqueIdentifier";
+        HashMap<Integer, Object> variables = variables(uniqueIdentifier);
+        return executeFindByPKQuery(queryName, variables);
     }
 
     /**
@@ -534,38 +366,39 @@ public class SubjectDAO extends AuditableEntityDAO<SubjectBean> {
      * @return sb, an updated study bean.
      */
     public SubjectBean update(SubjectBean sb) {
-        HashMap variables = new HashMap();
-        HashMap nullVars = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
+		HashMap<Integer, Integer> nullVars = new HashMap<>();
 
         // UPDATE subject SET FATHER_ID=?,MOTHER_ID=?, STATUS_ID=?,
         // DATE_OF_BIRTH=?,GENDER=?,UNIQUE_IDENTIFIER=?, DATE_UPDATED=?,
         // UPDATE_ID=? DOB_COLLECTED=? WHERE SUBJECT_ID=?
         // YW <<
         int ind = 1;
-        variables.put(new Integer(ind++), new Integer(sb.getStatus().getId()));
+        variables.put(ind++, sb.getStatus().getId());
         if (sb.getDateOfBirth() != null) {
-            variables.put(new Integer(ind), sb.getDateOfBirth());
+            variables.put(ind++, sb.getDateOfBirth());
         } else {
-            nullVars.put(new Integer(ind), new Integer(Types.DATE));
-            variables.put(new Integer(ind), null);
+            nullVars.put(ind, Types.DATE);
+            variables.put(ind, null);
+            ind++;
         }
-        ind++;
-        if (sb.getGender() != 'm' && sb.getGender() != 'f') {
-            nullVars.put(new Integer(ind), new Integer(Types.CHAR));
-            variables.put(new Integer(ind), null);
-        } else {
-            char[] ch = { sb.getGender() };
-            variables.put(new Integer(ind), new String(ch));
+
+        switch(sb.getGender()) {
+        case 'm':
+        case 'f':
+            variables.put(ind++, String.valueOf(sb.getGender()));
+            break;
+        default:
+            nullVars.put(ind, Types.CHAR);
+            variables.put(ind, null);
+            ind++;          
         }
-        ind++;
-        variables.put(new Integer(ind++), new String(sb.getUniqueIdentifier()));
+        variables.put(ind++, sb.getUniqueIdentifier());
         // date_updated is set to now()
         //    variables.put(new Integer(ind++), new java.util.Date());
-        variables.put(new Integer(ind++), new Integer(sb.getUpdater().getId()));
-        variables.put(new Integer(ind++), new Boolean(sb.isDobCollected()));
-        // YW >>
-
-        variables.put(new Integer(ind++), new Integer(sb.getId()));
+        variables.put(ind++, sb.getUpdater().getId());
+        variables.put(ind++, sb.isDobCollected());
+        variables.put(ind++, sb.getId());
 
         String sql = digester.getQuery("update");
         this.executeUpdate(sql, variables, nullVars);
@@ -573,21 +406,22 @@ public class SubjectDAO extends AuditableEntityDAO<SubjectBean> {
         return sb;
     }
 
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<SubjectBean> findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+        throw new RuntimeException("Not implemented");
     }
 
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<SubjectBean> findAllByPermission(Object objCurrentUser, int intActionType) {
+    	throw new RuntimeException("Not implemented");
     }
 
     public void deleteTestSubject(String uniqueIdentifier) {
-        HashMap variables = new HashMap();
-        variables.put(1, uniqueIdentifier);
+        HashMap<Integer, Object> variables = variables(uniqueIdentifier);
         this.executeUpdate(digester.getQuery("deleteTestSubject"), variables);
     }
 
