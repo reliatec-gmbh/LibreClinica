@@ -189,10 +189,11 @@ public class StudyEventDefinitionDAO extends AuditableEntityDAO<StudyEventDefini
         eb.setOid((String) hm.get("oc_oid"));
         return eb;
     }
+    
     /**
     * Checks whether a study event definition with the given OID already exist.
     * 
-    * @param oid the study OID
+    * @param oid the study event definition OID
     * @return true if a study event definition with the given OID exists, false otherwise
     */
     public boolean existStudyEventDefinitionWithOid(String oid) {
