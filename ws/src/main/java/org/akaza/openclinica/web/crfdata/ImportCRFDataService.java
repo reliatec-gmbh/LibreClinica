@@ -954,7 +954,7 @@ public class ImportCRFDataService {
                 for (SubjectDataBean subjectDataBean : subjectDataBeans) {
                     String oid = subjectDataBean.getSubjectOID();
                     StudySubjectBean studySubjectBean = studySubjectDAO.findByOidAndStudy(oid, studyBean.getId());
-                    if (studySubjectBean == null) {
+                    if (studySubjectBean == null || !oid.equals(studySubjectBean.getOid())) {
                         mf.applyPattern(respage.getString("your_subject_oid_does_not_reference"));
                         Object[] arguments = { oid };
                         errors.add(mf.format(arguments));
