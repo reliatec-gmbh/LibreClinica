@@ -7,6 +7,11 @@
  */
 package org.akaza.openclinica.dao.service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import javax.sql.DataSource;
+
 import org.akaza.openclinica.bean.core.EntityBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.service.StudyParameter;
@@ -16,13 +21,6 @@ import org.akaza.openclinica.dao.core.AuditableEntityDAO;
 import org.akaza.openclinica.dao.core.DAODigester;
 import org.akaza.openclinica.dao.core.SQLFactory;
 import org.akaza.openclinica.dao.core.TypeNames;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-
-import javax.sql.DataSource;
 
 public class StudyParameterValueDAO extends AuditableEntityDAO<StudyParameterValueBean> {
 
@@ -41,24 +39,22 @@ public class StudyParameterValueDAO extends AuditableEntityDAO<StudyParameterVal
         this.digester = digester;
     }
 
-    public Collection findAll() {
-        ArrayList al = new ArrayList();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<StudyParameterValueBean> findAll() {
+    	throw new RuntimeException("Not implemented");
     }
 
-    public Collection findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<StudyParameterValueBean> findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+        throw new RuntimeException("Not implemented");
     }
 
     public StudyParameterValueBean create(StudyParameterValueBean spvb) {
-        HashMap variables = new HashMap();
-
-        variables.put(new Integer(1), new Integer(spvb.getStudyId()));
-        variables.put(new Integer(2), spvb.getValue());
-        variables.put(new Integer(3), spvb.getParameter());
+        HashMap<Integer, Object> variables = variables(spvb.getStudyId(), spvb.getValue(), spvb.getParameter());
 
         this.executeUpdate(digester.getQuery("create"), variables);
         return spvb;
@@ -66,17 +62,13 @@ public class StudyParameterValueDAO extends AuditableEntityDAO<StudyParameterVal
     }
 
     public StudyParameterValueBean update(StudyParameterValueBean spvb) {
-        HashMap variables = new HashMap();
-
-        variables.put(new Integer(1), spvb.getValue());
-        variables.put(new Integer(2), new Integer(spvb.getStudyId()));
-        variables.put(new Integer(3), spvb.getParameter());
+        HashMap<Integer, Object> variables = variables(spvb.getValue(), spvb.getStudyId(), spvb.getParameter());
 
         this.executeUpdate(digester.getQuery("update"), variables);
         return spvb;
     }
 
-    public StudyParameterValueBean getEntityFromHashMap(HashMap hm) {
+    public StudyParameterValueBean getEntityFromHashMap(HashMap<String, Object> hm) {
         // study_id numeric,
         // value varchar(50),
         // study_parameter_id int4,
@@ -85,14 +77,12 @@ public class StudyParameterValueDAO extends AuditableEntityDAO<StudyParameterVal
         spvb.setValue((String) hm.get("value"));
         spvb.setStudyId(((Integer) hm.get("study_id")).intValue());
         spvb.setId(((Integer) hm.get("study_parameter_value_id")).intValue());
-        // YW 10-15-2007 <<
         spvb.setParameter((String) hm.get("parameter"));
-        // YW >>
 
         return spvb;
     }
 
-    public Object getParameterEntityFromHashMap(HashMap hm) {
+    public StudyParameter getParameterEntityFromHashMap(HashMap<String, Object> hm) {
         // study_parameter_id serial NOT NULL,
         // handle varchar(50),
         // name varchar(50),
@@ -147,54 +137,30 @@ public class StudyParameterValueDAO extends AuditableEntityDAO<StudyParameterVal
     }
 
     public StudyParameterValueBean findByHandleAndStudy(int studyId, String handle) {
-        StudyParameterValueBean spvb = new StudyParameterValueBean();
-        this.setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(studyId));
-        variables.put(new Integer(2), handle);
-
-        String sql = digester.getQuery("findByStudyAndHandle");
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            spvb = (StudyParameterValueBean) this.getEntityFromHashMap((HashMap) it.next());
-        }
-        return spvb;
+    	String queryName = "findByStudyAndHandle";
+        HashMap<Integer, Object> variables = variables(studyId, handle);
+        return executeFindByPKQuery(queryName, variables);
     }
 
     public boolean setParameterValue(int studyId, String parameterHandle, String value) {
-
         return false;
-
     }
 
-    public ArrayList findAllParameters() {
+    public ArrayList<StudyParameter> findAllParameters() {
         this.setTypesExpectedForParameter();
-        ArrayList alist = this.select(digester.getQuery("findAllParameters"));
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            StudyParameter eb = (StudyParameter) this.getParameterEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findAllParameters"));
+        ArrayList<StudyParameter> al = new ArrayList<>();
+        for(HashMap<String, Object> hm : alist) {
+            StudyParameter eb = (StudyParameter) this.getParameterEntityFromHashMap(hm);
             al.add(eb);
         }
         return al;
     }
 
-    public ArrayList findAllParameterValuesByStudy(StudyBean study) {
-        this.setTypesExpected();
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(study.getId()));
-
-        ArrayList alist = this.select(digester.getQuery("findAllParameterValuesByStudy"), variables);
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            StudyParameterValueBean eb = (StudyParameterValueBean) this.getEntityFromHashMap((HashMap) it.next());
-            al.add(eb);
-        }
-        return al;
+    public ArrayList<StudyParameterValueBean> findAllParameterValuesByStudy(StudyBean study) {
+    	String queryName = "findAllParameterValuesByStudy";
+        HashMap<Integer, Object> variables = variables(study.getId());
+        return executeFindAllQuery(queryName, variables);
     }
 
     public ArrayList<StudyParamsConfig> findParamConfigByStudy(StudyBean study) {
@@ -210,14 +176,11 @@ public class StudyParameterValueDAO extends AuditableEntityDAO<StudyParameterVal
         this.setTypeExpected(9, TypeNames.STRING);
         this.setTypeExpected(10, TypeNames.BOOL);
         this.setTypeExpected(11, TypeNames.BOOL);
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(study.getId()));
+        HashMap<Integer, Object> variables = variables(study.getId());
 
-        ArrayList alist = this.select(digester.getQuery("findParamConfigByStudy"), variables);
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            HashMap hm = (HashMap) it.next();
+        ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findParamConfigByStudy"), variables);
+        ArrayList<StudyParamsConfig> al = new ArrayList<>();
+        for(HashMap<String, Object> hm : alist) {
             StudyParameterValueBean spvb = new StudyParameterValueBean();
             spvb.setValue((String) hm.get("value"));
             spvb.setStudyId(((Integer) hm.get("study_id")).intValue());
@@ -247,16 +210,18 @@ public class StudyParameterValueDAO extends AuditableEntityDAO<StudyParameterVal
 
     }
 
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<StudyParameterValueBean> findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+       throw new RuntimeException("Not implemented");
     }
 
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<StudyParameterValueBean> findAllByPermission(Object objCurrentUser, int intActionType) {
+        throw new RuntimeException("Not implemented");
     }
 
 	@Override
