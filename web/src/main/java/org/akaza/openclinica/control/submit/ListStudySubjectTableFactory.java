@@ -261,7 +261,7 @@ public class ListStudySubjectTableFactory extends AbstractTableFactory {
             }
             SubjectGroupMapBean subjectGroupMapBean;
             for (StudyGroupClassBean studyGroupClass : getStudyGroupClasses()) {
-                subjectGroupMapBean = getSubjectGroupMapDAO().findAllByStudySubjectAndStudyGroupClass(studySubjectBean.getId(), studyGroupClass.getId());
+                subjectGroupMapBean = getSubjectGroupMapDAO().findByStudySubjectAndStudyGroupClass(studySubjectBean.getId(), studyGroupClass.getId());
                 if (null != subjectGroupMapBean) {
                     theItem.put("sgc_" + studyGroupClass.getId(), subjectGroupMapBean.getStudyGroupId());
                     theItem.put("grpName_sgc_" + studyGroupClass.getId(), subjectGroupMapBean.getStudyGroupName());
