@@ -8,9 +8,7 @@
 package org.akaza.openclinica.dao.submit;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -53,7 +51,6 @@ public class ItemFormMetadataDAO extends EntityDAO<ItemFormMetadataBean> {
     // This constructor sets up the Locale for JUnit tests; see the locale
     // member variable in EntityDAO, and its initializeI18nStrings() method
     public ItemFormMetadataDAO(DataSource ds, DAODigester digester, Locale locale) {
-
         this(ds, digester);
         this.locale = locale;
     }
@@ -67,30 +64,21 @@ public class ItemFormMetadataDAO extends EntityDAO<ItemFormMetadataBean> {
      *         the primary key in <code>ints</code>.
      * @throws OpenClinicaException
      */
-    public ArrayList<ItemFormMetadataBean> findByMultiplePKs(ArrayList ints) throws OpenClinicaException {
+    public ArrayList<ItemFormMetadataBean> findByMultiplePKs(ArrayList<Integer> ints) throws OpenClinicaException {
         ArrayList<ItemFormMetadataBean> answer = new ArrayList<ItemFormMetadataBean>();
 
         this.setTypesExpected();
 
-        Iterator it = ints.iterator();
-        while (it.hasNext()) {
-            Integer newInt = (Integer) it.next();
+        for(Integer newInt : ints) {
             ItemFormMetadataBean ifmBean = (ItemFormMetadataBean) this.findByPK(newInt.intValue());
             // check to make sure we have what we need
             logger.debug("options: " + ifmBean.getResponseSetId() + " bean options list: " + ifmBean.getResponseSet().getOptions().toString());
-            /*
-             * ArrayList options = ifmBean.getResponseSet().getOptions();
-             * Iterator robit = options.iterator(); while (robit.hasNext()) {
-             * ResponseOptionBean rob = (ResponseOptionBean)robit.next();
-             * logger.info("rob text: "+rob.getText()); logger.info("value:
-             * "+rob.getValue()); }
-             */
             answer.add(ifmBean);
         }
         return answer;
     }
 
-    private int getIntFromRow(HashMap row, String column) {
+    private int getIntFromRow(HashMap<String, Object> row, String column) {
         Integer i = (Integer) row.get(column);
         if (i == null) {
             return 0;
@@ -99,7 +87,7 @@ public class ItemFormMetadataDAO extends EntityDAO<ItemFormMetadataBean> {
         }
     }
 
-    private boolean getBooleanFromRow(HashMap row, String column) {
+    private boolean getBooleanFromRow(HashMap<String, Object> row, String column) {
         Boolean i = (Boolean) row.get(column);
         if (i == null) {
             return false;
@@ -108,7 +96,7 @@ public class ItemFormMetadataDAO extends EntityDAO<ItemFormMetadataBean> {
         }
     }
 
-    private String getStringFromRow(HashMap row, String column) {
+    private String getStringFromRow(HashMap<String, Object> row, String column) {
         String s = (String) row.get(column);
         if (s == null) {
             return "";
@@ -123,7 +111,7 @@ public class ItemFormMetadataDAO extends EntityDAO<ItemFormMetadataBean> {
      * @see org.akaza.openclinica.dao.core.DAOInterface#getEntityFromHashMap(java.util.HashMap)
      */
     @Override
-    public ItemFormMetadataBean getEntityFromHashMap(HashMap hm) {
+    public ItemFormMetadataBean getEntityFromHashMap(HashMap<String, Object> hm) {
         ItemFormMetadataBean answer = new ItemFormMetadataBean();
 
         answer.setId(getIntFromRow(hm, "item_form_metadata_id"));
@@ -234,9 +222,11 @@ public class ItemFormMetadataDAO extends EntityDAO<ItemFormMetadataBean> {
      * @see org.akaza.openclinica.dao.core.DAOInterface#findAll(java.lang.String,
      *      boolean, java.lang.String)
      */
-    public Collection findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) throws OpenClinicaException {
-        // Auto-generated method stub
-        return null;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<ItemFormMetadataBean> findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) throws OpenClinicaException {
+        throw new RuntimeException("Not implemented");
     }
 
     /*
@@ -244,17 +234,15 @@ public class ItemFormMetadataDAO extends EntityDAO<ItemFormMetadataBean> {
      *
      * @see org.akaza.openclinica.dao.core.DAOInterface#findAll()
      */
-    public Collection<ItemFormMetadataBean> findAll() throws OpenClinicaException {
+    public ArrayList<ItemFormMetadataBean> findAll() throws OpenClinicaException {
         ArrayList<ItemFormMetadataBean> answer = new ArrayList<ItemFormMetadataBean>();
 
         this.setTypesExpected();
 
         String sql = digester.getQuery("findAll");
-        ArrayList alist = this.select(sql);
-        Iterator it = alist.iterator();
-
-        while (it.hasNext()) {
-            ItemFormMetadataBean ifmb = (ItemFormMetadataBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql);
+        for(HashMap<String, Object> hm : alist) {
+            ItemFormMetadataBean ifmb = (ItemFormMetadataBean) this.getEntityFromHashMap(hm);
             answer.add(ifmb);
         }
 
@@ -322,11 +310,9 @@ public class ItemFormMetadataDAO extends EntityDAO<ItemFormMetadataBean> {
         variables.put(new Integer(1), new Integer(crfVersionId));
 
         String sql = digester.getQuery("findAllByCRFVersionId");
-        ArrayList alist = this.select(sql, variables, true);
-        Iterator it = alist.iterator();
-
-        while (it.hasNext()) {
-            ItemFormMetadataBean ifmb = (ItemFormMetadataBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables, true);
+        for(HashMap<String, Object> hm : alist) {
+            ItemFormMetadataBean ifmb = this.getEntityFromHashMap(hm);
             answer.add(ifmb);
         }
 
@@ -342,14 +328,11 @@ public class ItemFormMetadataDAO extends EntityDAO<ItemFormMetadataBean> {
         variables.put(new Integer(1), new Integer(crfVersionId));
 
         String sql = digester.getQuery("findAllItemsRequiredAndShownByCrfVersionId");
-        ArrayList alist = this.select(sql, variables, true);
-        Iterator it = alist.iterator();
-
-        while (it.hasNext()) {
-            ItemFormMetadataBean ifmb = (ItemFormMetadataBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables, true);
+        for(HashMap<String, Object> hm : alist) {
+            ItemFormMetadataBean ifmb = this.getEntityFromHashMap(hm);
             answer.add(ifmb);
         }
-
         return answer;
     }
 
@@ -363,14 +346,11 @@ public class ItemFormMetadataDAO extends EntityDAO<ItemFormMetadataBean> {
         variables.put(new Integer(1), new Integer(crfVersionId));
 
         String sql = digester.getQuery("findAllItemsRequiredAndHiddenByCrfVersionId");
-        ArrayList alist = this.select(sql, variables, true);
-        Iterator it = alist.iterator();
-
-        while (it.hasNext()) {
-            ItemFormMetadataBean ifmb = (ItemFormMetadataBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables, true);
+        for(HashMap<String, Object> hm : alist) {
+            ItemFormMetadataBean ifmb = this.getEntityFromHashMap(hm);
             answer.add(ifmb);
         }
-
         return answer;
     }
 
@@ -385,11 +365,9 @@ public class ItemFormMetadataDAO extends EntityDAO<ItemFormMetadataBean> {
         variables.put(new Integer(2), new Integer(itemId));
 
         String sql = digester.getQuery("findAllByCRFIdItemIdAndHasValidations");
-        ArrayList alist = this.select(sql, variables, true);
-        Iterator it = alist.iterator();
-
-        while (it.hasNext()) {
-            ItemFormMetadataBean ifmb = (ItemFormMetadataBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables, true);
+        for(HashMap<String, Object> hm : alist) {
+            ItemFormMetadataBean ifmb = this.getEntityFromHashMap(hm);
             answer.add(ifmb);
         }
 
@@ -430,12 +408,9 @@ public class ItemFormMetadataDAO extends EntityDAO<ItemFormMetadataBean> {
 
         String sql = digester.getQuery("findAllByItemId");
         // logger.info("<<<found SQL: "+sql);
-        ArrayList alist = this.select(sql, variables, true);
-        Iterator it = alist.iterator();
-
-        while (it.hasNext()) {
-            HashMap hm = (HashMap) it.next();
-            ItemFormMetadataBean ifmb = (ItemFormMetadataBean) this.getEntityFromHashMap(hm);
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables, true);
+        for(HashMap<String, Object> hm : alist) {
+            ItemFormMetadataBean ifmb = this.getEntityFromHashMap(hm);
             String versionName = (String) hm.get("cvname");
             String groupLabel = (String) hm.get("group_label");
             String sectionName = (String) hm.get("section_name");
@@ -470,12 +445,9 @@ public class ItemFormMetadataDAO extends EntityDAO<ItemFormMetadataBean> {
 
         String sql = digester.getQuery("findAllByItemIdAndHasValidations");
         // logger.info("<<<found SQL: "+sql);
-        ArrayList alist = this.select(sql, variables, true);
-        Iterator it = alist.iterator();
-
-        while (it.hasNext()) {
-            HashMap hm = (HashMap) it.next();
-            ItemFormMetadataBean ifmb = (ItemFormMetadataBean) this.getEntityFromHashMap(hm);
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables, true);
+        for(HashMap<String, Object> hm : alist) {
+            ItemFormMetadataBean ifmb = this.getEntityFromHashMap(hm);
             String versionName = (String) hm.get("cvname");
             String groupLabel = (String) hm.get("group_label");
             String sectionName = (String) hm.get("section_name");
@@ -502,11 +474,9 @@ public class ItemFormMetadataDAO extends EntityDAO<ItemFormMetadataBean> {
 
         String sql = digester.getQuery("findAllBySectionId");
 
-        ArrayList alist = this.select(sql, variables, true);
-        Iterator it = alist.iterator();
-
-        while (it.hasNext()) {
-            ItemFormMetadataBean ifmb = (ItemFormMetadataBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables, true);
+        for(HashMap<String, Object> hm : alist) {
+            ItemFormMetadataBean ifmb = (ItemFormMetadataBean) this.getEntityFromHashMap(hm);
             answer.add(ifmb);
         }
 
@@ -523,11 +493,9 @@ public class ItemFormMetadataDAO extends EntityDAO<ItemFormMetadataBean> {
         variables.put(new Integer(2), new Integer(sectionId));
 
         String sql = digester.getQuery("findAllByCRFVersionIdAndSectionId");
-        ArrayList alist = this.select(sql, variables, true);
-        Iterator it = alist.iterator();
-
-        while (it.hasNext()) {
-            ItemFormMetadataBean ifmb = (ItemFormMetadataBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables, true);
+        for(HashMap<String, Object> hm : alist) {
+            ItemFormMetadataBean ifmb = (ItemFormMetadataBean) this.getEntityFromHashMap(hm);
             answer.add(ifmb);
         }
 
@@ -548,11 +516,9 @@ public class ItemFormMetadataDAO extends EntityDAO<ItemFormMetadataBean> {
         variables.put(new Integer(1), new Integer(id));
 
         String sql = digester.getQuery("findByPK");
-        ArrayList alist = this.select(sql, variables, true);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            ifmb = (ItemFormMetadataBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables, true);
+        if (alist != null && alist.size() > 0) {
+            ifmb = (ItemFormMetadataBean) this.getEntityFromHashMap(alist.get(0));
         }
 
         return ifmb;
@@ -697,10 +663,12 @@ public class ItemFormMetadataDAO extends EntityDAO<ItemFormMetadataBean> {
      * @see org.akaza.openclinica.dao.core.DAOInterface#findAllByPermission(java.lang.Object,
      *      int, java.lang.String, boolean, java.lang.String)
      */
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase)
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<ItemFormMetadataBean> findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase)
             throws OpenClinicaException {
-        // Auto-generated method stub
-        return null;
+        throw new RuntimeException("Not implemented");
     }
 
     /*
@@ -709,9 +677,11 @@ public class ItemFormMetadataDAO extends EntityDAO<ItemFormMetadataBean> {
      * @see org.akaza.openclinica.dao.core.DAOInterface#findAllByPermission(java.lang.Object,
      *      int)
      */
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType) throws OpenClinicaException {
-        // Auto-generated method stub
-        return null;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<ItemFormMetadataBean> findAllByPermission(Object objCurrentUser, int intActionType) throws OpenClinicaException {
+        throw new RuntimeException("Not implemented");
     }
     private void logMe(String message){
         logger.debug(message);
@@ -736,16 +706,11 @@ public class ItemFormMetadataDAO extends EntityDAO<ItemFormMetadataBean> {
 
         logMe("Thread?"+Thread.currentThread()+"SQL?"+sql+"variables?"+variables);
 
-        ArrayList alist = this.select(sql, variables, true);
-
-
-
-        Iterator it = alist.iterator();
-
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables, true);
         ItemFormMetadataBean ifmb = new ItemFormMetadataBean();
-        HashMap hm = new HashMap();
-        if (it.hasNext()) {
-            hm = (HashMap) it.next();
+        HashMap<String, Object> hm = new HashMap<>();
+        if (alist != null && alist.size() > 0) {
+            hm = alist.get(0);
             ifmb = (ItemFormMetadataBean) this.getEntityFromHashMap(hm);
         }
         // EntityBean eb =
@@ -803,10 +768,9 @@ public class ItemFormMetadataDAO extends EntityDAO<ItemFormMetadataBean> {
         variables.put(new Integer(1), sectionId);
 
         String sql = digester.getQuery("findSCDItemsBySectionId");
-        ArrayList alist = this.select(sql, variables, true);
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            ItemFormMetadataBean ifmb = (ItemFormMetadataBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables, true);
+        for(HashMap<String, Object> hm : alist) {
+            ItemFormMetadataBean ifmb = this.getEntityFromHashMap(hm);
             answer.add(ifmb);
         }
         return answer;
@@ -817,9 +781,9 @@ public class ItemFormMetadataDAO extends EntityDAO<ItemFormMetadataBean> {
         this.unsetTypeExpected();
         this.setTypeExpected(1, TypeNames.INT);
         String sql = "select max(ifm.item_form_metadata_id) as max_id from item_form_metadata ifm";
-        ArrayList rows = this.select(sql);
-        if (rows.size() > 0) {
-            HashMap row = (HashMap) rows.get(0);
+        ArrayList<HashMap<String, Object>> rows = this.select(sql);
+        if(rows != null && rows.size() > 0) {
+            HashMap<String, Object> row = rows.get(0);
             answer = ((Integer) row.get("max_id")).intValue();
         }
 
@@ -830,13 +794,12 @@ public class ItemFormMetadataDAO extends EntityDAO<ItemFormMetadataBean> {
         Integer id = null;
         this.unsetTypeExpected();
         this.setTypeExpected(1, TypeNames.INT);
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), sectionId);
         //String sql = "select ifm.item_form_metadata_id from item_form_metadata ifm, response_set rs"
         //    +" where rs.response_type_id = 10 and ifm.section_id = ? and ifm.response_set_id = rs.response_set_id limit 1";
-        ArrayList alist = this.select(digester.getQuery("instantTypeExistsInSection"), variables, true);
-        for(Iterator it = alist.iterator(); it.hasNext();) {
-            HashMap row = (HashMap) it.next();
+        ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("instantTypeExistsInSection"), variables, true);
+        for(HashMap<String, Object> row : alist) {
             id = (Integer) row.get("item_form_metadata_id");
         }
         return id != null && id > 0;
@@ -845,18 +808,16 @@ public class ItemFormMetadataDAO extends EntityDAO<ItemFormMetadataBean> {
     public Map<Integer,List<InstantOnChangePairContainer>> sectionInstantMapInSameSection(int crfVersionId) {
         Map<Integer,List<InstantOnChangePairContainer>> pairs = new HashMap<Integer,List<InstantOnChangePairContainer>>();
         this.setInstantTypesExpected();
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), crfVersionId);
         variables.put(new Integer(2), crfVersionId);
         variables.put(new Integer(3), crfVersionId);
         variables.put(new Integer(4), crfVersionId);
         variables.put(new Integer(5), crfVersionId);
         String sql = digester.getQuery("findInstantItemsByCrfVersionId");
-        ArrayList alist = this.select(sql, variables, true);
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables, true);
+        for(HashMap<String, Object> row : alist) {
             InstantOnChangePairContainer instantItemPair = new InstantOnChangePairContainer();
-            HashMap row = (HashMap) it.next();
             Integer sectionId = (Integer) row.get("o_sec_id");
             instantItemPair.setOriginSectionId(sectionId);
             instantItemPair.setOriginItemId((Integer) row.get("o_item_id"));
