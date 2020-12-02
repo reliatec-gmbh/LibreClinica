@@ -9,15 +9,12 @@ package org.akaza.openclinica.dao.login;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Locale;
 
 import javax.sql.DataSource;
 
-import org.akaza.openclinica.bean.core.EntityBean;
 import org.akaza.openclinica.bean.core.Privilege;
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.core.Status;
@@ -131,8 +128,8 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
 
     @Override
     public UserAccountBean update(UserAccountBean uab) {
-        HashMap variables = new HashMap();
-        HashMap nullVars = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
+		HashMap<Integer, Integer> nullVars = new HashMap<>();
 
         /*
          * update user_account set date_lastvisit=?, passwd_timestamp=?, passwd_challenge_question=?, passwd_challenge_answer=?, phone=? where user_name=?
@@ -215,10 +212,6 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
         if (!this.isQuerySuccessful()) {
             uab.setId(0);
             logger.warn("query failed: " + sql);
-        } else {
-            // for bug testing, tbh
-            // logger.warn("query succeeded: "+sql+" variables:
-            // "+variables.toString());
         }
 
         return uab;
@@ -230,56 +223,40 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
      * @param name
      */
     public void deleteTestOnly(String name) {
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), name);
+        HashMap<Integer, Object> variables = variables(name);
         this.executeUpdate(digester.getQuery("deleteTestOnly"), variables);
     }
 
     public void delete(UserAccountBean u) {
-        HashMap variables = new HashMap();
-
-        variables = new HashMap();
-        variables.put(new Integer(1), u.getName());
-        /*
-         * this.execute(digester.getQuery("deleteStudyUserRolesByUserID"), variables);
-         */
+        HashMap<Integer, Object> variables = variables(u.getName());
         this.executeUpdate(digester.getQuery("deleteStudyUserRolesIncludeAutoRemove"), variables);
 
-        variables.put(new Integer(1), new Integer(u.getUpdaterId()));
-        variables.put(new Integer(2), new Integer(u.getId()));
+        variables = variables(u.getUpdaterId(), u.getId());
         this.executeUpdate(digester.getQuery("delete"), variables);
     }
 
     public void restore(UserAccountBean u) {
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), u.getPasswd());
-        variables.put(new Integer(2), new Integer(u.getUpdaterId()));
-        variables.put(new Integer(3), new Integer(u.getId()));
+        HashMap<Integer, Object> variables = variables(u.getPasswd(), u.getUpdaterId(), u.getId());
         this.executeUpdate(digester.getQuery("restore"), variables);
 
-        variables = new HashMap();
-        variables.put(new Integer(1), u.getName());
+        variables = variables(u.getName());
         this.executeUpdate(digester.getQuery("restoreStudyUserRolesByUserID"), variables);
     }
 
     public void updateLockCounter(Integer id, Integer newCounterNumber) {
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(newCounterNumber));
-        variables.put(new Integer(2), new Integer(id));
+        HashMap<Integer, Object> variables = variables(newCounterNumber, id);
         this.executeUpdate(digester.getQuery("updateLockCounter"), variables);
     }
 
     public void lockUser(Integer id) {
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Boolean(false));
-        variables.put(new Integer(2), new Integer(Status.LOCKED.getId()));
-        variables.put(new Integer(3), new Integer(id));
+        HashMap<Integer, Object> variables = variables(false, Status.LOCKED.getId(), id);
         this.executeUpdate(digester.getQuery("lockUser"), variables);
     }
 
-    @Override
+    @SuppressWarnings({ "unlikely-arg-type" })
+	@Override
     public UserAccountBean create(UserAccountBean uab) {
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         int id = getNextPK();
         variables.put(new Integer(1), new Integer(id));
         variables.put(new Integer(2), uab.getName());
@@ -315,10 +292,11 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
 
         setSysAdminRole(uab, true);
 
-        ArrayList userRoles = uab.getRoles();
+        ArrayList<StudyUserRoleBean> userRoles = uab.getRoles();
         for (int i = 0; i < userRoles.size(); i++) {
-            StudyUserRoleBean studyRole = (StudyUserRoleBean) userRoles.get(i);
+            StudyUserRoleBean studyRole = userRoles.get(i);
 
+            // TODO Role.AMDIN is an unlikely argument for equals, check this
             if (studyRole.equals(Role.ADMIN)) {
                 continue;
             }
@@ -337,12 +315,12 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
     public StudyUserRoleBean createStudyUserRole(UserAccountBean user, StudyUserRoleBean studyRole) {
         Locale currentLocale = ResourceBundleProvider.getLocale();
         ResourceBundleProvider.updateLocale(Locale.US); 
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), studyRole.getRoleName());
-        variables.put(new Integer(2), new Integer(studyRole.getStudyId()));
-        variables.put(new Integer(3), new Integer(studyRole.getStatus().getId()));
-        variables.put(new Integer(4), user.getName());
-        variables.put(new Integer(5), new Integer(studyRole.getOwnerId()));
+        HashMap<Integer, Object> variables = new HashMap<>();
+        variables.put(1, studyRole.getRoleName());
+        variables.put(2, studyRole.getStudyId());
+        variables.put(3, studyRole.getStatus().getId());
+        variables.put(4, user.getName());
+        variables.put(5, studyRole.getOwnerId());
         this.executeUpdate(digester.getQuery("insertStudyUserRole"), variables);
         ResourceBundleProvider.updateLocale(currentLocale);
         return studyRole;
@@ -357,37 +335,34 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
         this.setTypeExpected(6, TypeNames.DATE);
         this.setTypeExpected(7, TypeNames.INT);
         this.setTypeExpected(8, TypeNames.STRING);
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
 
         variables.put(new Integer(1),  studyRole.getRoleName());
         variables.put(new Integer(2),  new Integer(studyRole.getStudyId()));
         variables.put(new Integer(3), new Integer(studyRole.getStatus().getId()));
         variables.put(new Integer(4), user.getName());
 
-        ArrayList alist = this.select(digester.getQuery("findStudyUserRole"), variables);
+        ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findStudyUserRole"), variables);
         UserAccountBean eb = new UserAccountBean();
-        Iterator it = alist.iterator();
-        if (it.hasNext()) {
-        eb.setName((String) ((HashMap) it.next()).get("user_name"));
+        if (alist != null && alist.size() > 0) {
+        	eb.setName((String) (alist.get(0)).get("user_name"));
         }
         return eb;
     }
 
     @Override
-    public UserAccountBean getEntityFromHashMap(HashMap hm) {
+    public UserAccountBean getEntityFromHashMap(HashMap<String, Object> hm) {
         UserAccountBean uab = this.getEntityFromHashMap(hm, true);
         return uab;
     }
 
-    public StudyUserRoleBean getRoleFromHashMap(HashMap hm) {
+    public StudyUserRoleBean getRoleFromHashMap(HashMap<String, Object> hm) {
         StudyUserRoleBean surb = new StudyUserRoleBean();
 
         Date dateCreated = (Date) hm.get("date_created");
         Date dateUpdated = (Date) hm.get("date_updated");
         Integer statusId = (Integer) hm.get("status_id");
         Integer studyId = (Integer) hm.get("study_id");
-        Integer ownerId = (Integer) hm.get("owner_id");
-        Integer updateId = (Integer) hm.get("update_id");
 
         surb.setName((String) hm.get("user_name"));
         surb.setUserName((String) hm.get("user_name"));
@@ -396,18 +371,18 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
         surb.setUpdatedDate(dateUpdated);
         surb.setStatus(Status.get(statusId.intValue()));
         surb.setStudyId(studyId.intValue());
-        // surb.setOwner()
-        // surb.setUpdater()
         return surb;
     }
 
-    public Privilege getPrivilegeFromHashMap(HashMap hm) {
+    public Privilege getPrivilegeFromHashMap(HashMap<String, Object> hm) {
         Integer privId = (Integer) hm.get("priv_id");
 
         return Privilege.get(privId.intValue());
     }
 
-    public UserAccountBean getEntityFromHashMap(HashMap hm, boolean findOwner) {
+    // TODO remove SuppressWarnings when a solution for the recursion problem with 'owner' and 'updater' is found
+    @SuppressWarnings("deprecation")
+	public UserAccountBean getEntityFromHashMap(HashMap<String, Object> hm, boolean findOwner) {
         UserAccountBean eb = new UserAccountBean();
 
         // pull out objects from hashmap
@@ -458,6 +433,7 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
         if (eb.isTechAdmin()) {
             // logger.warn("&&& is TECH ADMIN &&&");
         }
+        
         eb.setOwnerId(ownerId.intValue());
         eb.setUpdaterId(updateId.intValue());
 
@@ -478,47 +454,29 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
 
         // pull out the roles and privs here, tbh
         if (!userName.contains(".")){
-        ArrayList userRoleBeans = (ArrayList) this.findAllRolesByUserName(eb.getName());
-        eb.setRoles(userRoleBeans);
+        	ArrayList<StudyUserRoleBean> userRoleBeans = this.findAllRolesByUserName(eb.getName());
+        	eb.setRoles(userRoleBeans);
         }
-        // the role-privilege mapping is now statically fixed in Role,
-        // so we don't need the block below
-
-        // Iterator it = userRoleBeans.iterator();
-        // HashMap studyRoleMap = new HashMap();
-        // while (it.hasNext()) {
-        // StudyUserRoleBean surb = (StudyUserRoleBean)it.next();
-        // studyRoleMap.put(new Integer(surb.getStudyId()),surb);
-        // if (surb.getStudyId()==eb.getActiveStudyId()) {
-        // ArrayList privilegeBeans =
-        // (ArrayList)this.findPrivilegesByRoleName(surb.getRoleName());
-        // eb.setUserPrivileges(privilegeBeans);
-        // //set this user up with active privs based on active study notation
-        // }
-        // }
-        // eb.setRoles(studyRoleMap);
-
         eb.setActive(true);
         return eb;
     }
 
     @Override
-    public Collection findAll() {
+    public ArrayList<UserAccountBean> findAll() {
         return findAllByLimit(false);
     }
 
-    public Collection findAllByLimit(boolean hasLimit) {
+    public ArrayList<UserAccountBean> findAllByLimit(boolean hasLimit) {
         this.setTypesExpected();
-        ArrayList alist = null;
+        ArrayList<HashMap<String, Object>> alist = null;
         if (hasLimit) {
             alist = this.select(digester.getQuery("findAllByLimit"));
         } else {
             alist = this.select(digester.getQuery("findAll"));
         }
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            UserAccountBean eb = (UserAccountBean) this.getEntityFromHashMap((HashMap) it.next(), true);
+        ArrayList<UserAccountBean> al = new ArrayList<>();
+        for(HashMap<String, Object> hm : alist) {
+            UserAccountBean eb = this.getEntityFromHashMap(hm, true);
             al.add(eb);
         }
         return al;
@@ -528,46 +486,43 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
      * next on our list, how can we affect the query??? SELECT FROM USER_ACCOUNT ORDER BY ? DESC?
      * @see org.akaza.openclinica.dao.core.DAOInterface#findAll(java.lang.String, boolean, java.lang.String)
      */
+    /**
+     * NOT IMPLEMENTED
+     */
     @Override
-    public Collection findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    public ArrayList<UserAccountBean> findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+        throw new RuntimeException("Not implemented");
     }
 
     @Override
-    public EntityBean findByPK(int ID) {
+    public UserAccountBean findByPK(int ID) {    	
         this.setTypesExpected();
 
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(ID));
+        HashMap<Integer, Object> variables = variables(ID);
 
         String sql = digester.getQuery("findByPK");
-        ArrayList alist = this.select(sql, variables);
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
         UserAccountBean eb = new UserAccountBean();
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            eb = (UserAccountBean) this.getEntityFromHashMap((HashMap) it.next(), true);
+        if (alist != null && alist.size() > 0) {
+            eb = (UserAccountBean) this.getEntityFromHashMap(alist.get(0), true);
         }
 
         return eb;
     }
 
-    public EntityBean findByPK(int ID, boolean findOwner) {
+    public UserAccountBean findByPK(int ID, boolean findOwner) {
         this.setTypesExpected();
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(ID));
-        ArrayList alist = this.select(digester.getQuery("findByPK"), variables);
+        ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findByPK"), variables);
         UserAccountBean eb = new UserAccountBean();
-        Iterator it = alist.iterator();
-        if (it.hasNext()) {
-            eb = (UserAccountBean) this.getEntityFromHashMap((HashMap) it.next(), findOwner);
+        if (alist != null && alist.size() > 0) {
+            eb = this.getEntityFromHashMap(alist.get(0), findOwner);
         }
         return eb;
     }
 
-    public EntityBean findByUserName(String name) {
+    public UserAccountBean findByUserName(String name) {
         this.setTypesExpected();
         HashMap<Integer, Object> variables = new HashMap<>();
 
@@ -575,55 +530,46 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
 
         ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findByUserName"), variables);
         UserAccountBean eb = new UserAccountBean();
-        Iterator it = alist.iterator();
-        if (it.hasNext()) {
-            eb = (UserAccountBean) this.getEntityFromHashMap((HashMap) it.next(), true);
+        if (alist != null && alist.size() > 0) {
+            eb = (UserAccountBean) this.getEntityFromHashMap(alist.get(0), true);
         }
         return eb;
     }
 
 
-    public EntityBean findByAccessCode(String name) {
+    public UserAccountBean findByAccessCode(String name) {
         this.setTypesExpected();
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = variables(name);
 
-        variables.put(new Integer(1), name);
-
-        ArrayList alist = this.select(digester.getQuery("findByAccessCode"), variables);
+        ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findByAccessCode"), variables);
         UserAccountBean eb = new UserAccountBean();
-        Iterator it = alist.iterator();
-        if (it.hasNext()) {
-            eb = (UserAccountBean) this.getEntityFromHashMap((HashMap) it.next(), true);
+        if (alist != null && alist.size() > 0) {
+            eb = (UserAccountBean) this.getEntityFromHashMap(alist.get(0), true);
         }
         return eb;
     }
 
-    public EntityBean findByApiKey(String name) {
+    public UserAccountBean findByApiKey(String name) {
         this.setTypesExpected();
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = variables(name);
 
-        variables.put(new Integer(1), name);
-
-        ArrayList alist = this.select(digester.getQuery("findByApiKey"), variables);
+        ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findByApiKey"), variables);
         UserAccountBean eb = new UserAccountBean();
-        Iterator it = alist.iterator();
-        if (it.hasNext()) {
-            eb = (UserAccountBean) this.getEntityFromHashMap((HashMap) it.next(), true);
+        if (alist != null && alist.size() > 0) {
+            eb = (UserAccountBean) this.getEntityFromHashMap(alist.get(0), true);
         }
         return eb;
     }
 
     
-    public Collection findAllParticipantsByStudyOid(String studyOid) {
+    public ArrayList<UserAccountBean> findAllParticipantsByStudyOid(String studyOid) {
         this.setTypesExpected();
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), studyOid+".%");
-        ArrayList alist = this.select(digester.getQuery("findAllParticipantsByStudyOid"), variables);
+        HashMap<Integer, Object> variables = variables(studyOid+".%");
+        ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findAllParticipantsByStudyOid"), variables);
 
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            UserAccountBean eb = (UserAccountBean)this.getEntityFromHashMap((HashMap) it.next(),false);
+        ArrayList<UserAccountBean> al = new ArrayList<>();
+        for(HashMap<String, Object> hm : alist) {
+            UserAccountBean eb = (UserAccountBean)this.getEntityFromHashMap(hm,false);
             al.add(eb);
         }
         return al;
@@ -639,21 +585,18 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
      * @param allStudies
      *            The result of calling StudyDAO.findAll();
      */
-    public ArrayList findStudyByUser(String userName, ArrayList allStudies) {
+    public ArrayList<StudyUserRoleBean> findStudyByUser(String userName, ArrayList<StudyBean> allStudies) {
         this.unsetTypeExpected();
 
         this.setTypeExpected(1, TypeNames.STRING);
         this.setTypeExpected(2, TypeNames.INT);
         this.setTypeExpected(3, TypeNames.STRING);
-        HashMap allStudyUserRoleBeans = new HashMap();
+        HashMap<Integer, StudyUserRoleBean> allStudyUserRoleBeans = new HashMap<>();
 
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), userName);
-        ArrayList alist = this.select(digester.getQuery("findStudyByUser"), variables);
-        Iterator it = alist.iterator();
+        HashMap<Integer, Object> variables = variables(userName);
+        ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findStudyByUser"), variables);
 
-        while (it.hasNext()) {
-            HashMap hm = (HashMap) it.next();
+        for(HashMap<String, Object> hm : alist) {
             String roleName = (String) hm.get("role_name");
             String studyName = (String) hm.get("name");
             Integer studyId = (Integer) hm.get("study_id");
@@ -676,15 +619,13 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
         // let parentAdded = true
         // add the user's role in C to the answer
 
-        ArrayList answer = new ArrayList();
+        ArrayList<StudyUserRoleBean> answer = new ArrayList<>();
 
         StudyDAO sdao = new StudyDAO(ds);
 
-        HashMap childrenByParentId = sdao.getChildrenByParentIds(allStudies);
+        HashMap<Integer, ArrayList<StudyBean>> childrenByParentId = sdao.getChildrenByParentIds(allStudies);
 
-        for (int i = 0; i < allStudies.size(); i++) {
-            StudyBean parent = (StudyBean) allStudies.get(i);
-
+        for (StudyBean parent : allStudies) {
             if (parent == null || parent.getParentStudyId() > 0) {
                 continue;
             }
@@ -693,10 +634,10 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
             Integer studyId = new Integer(parent.getId());
             StudyUserRoleBean roleInStudy;
 
-            ArrayList subTreeRoles = new ArrayList();
+            ArrayList<StudyUserRoleBean> subTreeRoles = new ArrayList<>();
 
             if (allStudyUserRoleBeans.containsKey(studyId)) {
-                roleInStudy = (StudyUserRoleBean) allStudyUserRoleBeans.get(studyId);
+                roleInStudy = allStudyUserRoleBeans.get(studyId);
 
                 subTreeRoles.add(roleInStudy);
                 parentAdded = true;
@@ -706,9 +647,9 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
                 roleInStudy = new StudyUserRoleBean();
             }
 
-            ArrayList children = (ArrayList) childrenByParentId.get(studyId);
+            ArrayList<StudyBean> children = childrenByParentId.get(studyId);
             if (children == null) {
-                children = new ArrayList();
+                children = new ArrayList<>();
             }
 
             for (int j = 0; j < children.size(); j++) {
@@ -724,7 +665,7 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
                         parentAdded = true;
                     }
 
-                    StudyUserRoleBean roleInChild = (StudyUserRoleBean) allStudyUserRoleBeans.get(childId);
+                    StudyUserRoleBean roleInChild = allStudyUserRoleBeans.get(childId);
                     Role max = Role.max(roleInChild.getRole(), roleInStudy.getRole());
                     roleInChild.setRole(max);
                     roleInChild.setParentStudyId(studyId.intValue());
@@ -743,105 +684,17 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
             }
         }
 
-        // HashMap allStudiesById = sdao.findAllHashMap();
-
-        // pseudocode:
-        // foreach parent study P
-        // add the user's StudyUserRoleBean in P to the result
-        // get all of the user's StudyUserRoleBean for each study that is a
-        // child of
-        // P
-        // foreach of the user's StudyUserRoleBean for each study that is a
-        // child of
-        // P
-        // set the studyName in that bean correctly
-        // add the bean to the result
-
-        // //find all sites for the studies
-        // Iterator ita = allStudyUserRoleBeans.keySet().iterator();
-        // while (ita.hasNext()){
-        // //gets parent role bean
-        // Integer studyId = (Integer)ita.next();
-        // StudyUserRoleBean sur =
-        // (StudyUserRoleBean)allStudyUserRoleBeans.get(studyId);
-        //
-        // StudyBean sb = (StudyBean) allStudiesById.get(new
-        // Integer(sur.getStudyId()));
-        // if (sb == null) { continue; }
-        //
-        // int parentStudyId = sb.getParentStudyId();
-        // if (parentStudyId <= 0) { // sb is a parent, not a child
-        // result.add(sur);
-        // }
-        // else { // sb is a child
-        // if (!allStudyUserRoleBeans.containsKey(new Integer(parentStudyId))) {
-        // // since the user doesn't have a role in sb's parent, their role in
-        // sb
-        // would never be added in the for loop below
-        // result.add(sur);
-        // }
-        // }
-        //
-        // ArrayList children = findAllByParent(studyId);//find all sites
-        //
-        // for (int i = 0; i < children.size(); i++) {
-        // StudyBean child = (StudyBean) children.get(i);
-        //
-        // Integer childId = new Integer(child.getId());
-        // StudyUserRoleBean roleInChild =
-        // (StudyUserRoleBean) allStudyUserRoleBeans.get(childId);
-        //
-        // if (roleInChild != null) { // that is, the user has a role in the
-        // child
-        // study
-        // Role maxRole = Role.max(roleInChild.getRole(), sur.getRole());
-        // roleInChild.setRole(maxRole);
-        // result.add(roleInChild);
-        // }
-        // else { // the user does not have a role in the child study - he
-        // inherits
-        // the role he has in the parent study
-        // roleInChild = new StudyUserRoleBean();
-        // roleInChild.setStudyId(child.getId());
-        // roleInChild.setStudyName(child.getName());
-        // roleInChild.setRole(sur.getRole());
-        // result.add(roleInChild);
-        // }
-        // }//for
-        // }
-
         return answer;
     }
 
-    private ArrayList findAllByParent(Integer parentStudyId) {
-        this.setTypesExpected();
-        this.setTypeExpected(1, TypeNames.INT);
-        this.setTypeExpected(2, TypeNames.STRING);
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), parentStudyId);
-        ArrayList alist = this.select(digester.getQuery("findAllByParent"), variables);
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            HashMap hm = (HashMap) it.next();
-            StudyBean sb = new StudyBean();
-            sb.setName((String) hm.get("name"));
-            sb.setId(((Integer) hm.get("study_id")).intValue());
-            al.add(sb);
-        }
-        return al;
-    }
-
-    public Collection findAllRolesByUserName(String userName) {
+    public ArrayList<StudyUserRoleBean> findAllRolesByUserName(String userName) {
         this.setRoleTypesExpected();
-        ArrayList answer = new ArrayList();
 
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), userName);
-        ArrayList alist = this.select(digester.getQuery("findAllRolesByUserName"), variables);
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            StudyUserRoleBean surb = this.getRoleFromHashMap((HashMap) it.next());
+        HashMap<Integer, Object> variables = variables(userName);
+        ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findAllRolesByUserName"), variables);
+        ArrayList<StudyUserRoleBean> answer = new ArrayList<>();
+        for(HashMap<String, Object> hm : alist) {
+            StudyUserRoleBean surb = this.getRoleFromHashMap(hm);
             answer.add(surb);
         }
 
@@ -853,10 +706,8 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
      *
      * @param studyId
      */
-    public ArrayList findAllByStudyId(int studyId) {
-
+    public ArrayList<StudyUserRoleBean> findAllByStudyId(int studyId) {
         return findAllUsersByStudyIdAndLimit(studyId, false);
-
     }
 
     /**
@@ -864,27 +715,23 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
      *
      * @param studyId
      */
-    public ArrayList findAllUsersByStudyIdAndLimit(int studyId, boolean isLimited) {
+    public ArrayList<StudyUserRoleBean> findAllUsersByStudyIdAndLimit(int studyId, boolean isLimited) {
         this.setRoleTypesExpected();
-        ArrayList answer = new ArrayList();
-
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(studyId));
         variables.put(new Integer(2), new Integer(studyId));
-        ArrayList alist = null;
+        ArrayList<HashMap<String, Object>> alist = null;
         if (isLimited) {
             alist = this.select(digester.getQuery("findAllByStudyIdAndLimit"), variables);
         } else {
             alist = this.select(digester.getQuery("findAllByStudyId"), variables);
         }
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            StudyUserRoleBean surb = this.getRoleFromHashMap((HashMap) it.next());
+        ArrayList<StudyUserRoleBean> answer = new ArrayList<>();
+        for(HashMap<String, Object> hm : alist) {
+            StudyUserRoleBean surb = this.getRoleFromHashMap(hm);
             answer.add(surb);
         }
-
         return answer;
-
     }
 
     /**
@@ -892,7 +739,7 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
      *
      * @param studyId
      */
-    public ArrayList findAllUsersByStudy(int studyId) {
+    public ArrayList<StudyUserRoleBean> findAllUsersByStudy(int studyId) {
         // SELECT ua.user_name,ua.first_name, ua.last_name, sur.role_name,
         // sur.study_id,sur.status_id,sur.date_updated,sur.update_id, s.name
         // ua.user_id
@@ -917,15 +764,11 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
         this.setTypeExpected(10, TypeNames.INT);
         this.setTypeExpected(11, TypeNames.INT);
 
-        ArrayList answer = new ArrayList();
+        HashMap<Integer, Object> variables = variables(studyId, studyId);
+        ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findAllUsersByStudy"), variables);
 
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(studyId));
-        variables.put(new Integer(2), new Integer(studyId));
-        ArrayList alist = this.select(digester.getQuery("findAllUsersByStudy"), variables);
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            HashMap hm = (HashMap) it.next();
+        ArrayList<StudyUserRoleBean> answer = new ArrayList<>();
+        for(HashMap<String, Object> hm : alist) {
             StudyUserRoleBean surb = new StudyUserRoleBean();
             surb.setUserName((String) hm.get("user_name"));
             surb.setLastName((String) hm.get("last_name"));
@@ -952,7 +795,7 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
      * @param studyId
      * @return
      */
-    public ArrayList findAllAssignedUsersByStudy(int studyId) {
+    public ArrayList<StudyUserRoleBean> findAllAssignedUsersByStudy(int studyId) {
         this.unsetTypeExpected();
 
         this.setTypeExpected(1, TypeNames.STRING);
@@ -967,15 +810,48 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
         this.setTypeExpected(10, TypeNames.INT);
         this.setTypeExpected(11, TypeNames.INT);
 
-        ArrayList answer = new ArrayList();
+        HashMap<Integer, Object> variables = variables(studyId, studyId);
+        ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findAllAssignedUsersByStudy"), variables);
+        ArrayList<StudyUserRoleBean> answer = new ArrayList<>();
+        for(HashMap<String, Object> hm : alist) {
+            StudyUserRoleBean surb = new StudyUserRoleBean();
+            surb.setUserName((String) hm.get("user_name"));
+            surb.setLastName((String) hm.get("last_name"));
+            surb.setFirstName((String) hm.get("first_name"));
+            surb.setRoleName((String) hm.get("role_name"));
+            surb.setStudyName((String) hm.get("name"));
+            surb.setStudyId(((Integer) hm.get("study_id")).intValue());
+            surb.setParentStudyId(((Integer) hm.get("parent_study_id")).intValue());
+            surb.setUserAccountId(((Integer) hm.get("user_id")).intValue());
+            Integer statusId = (Integer) hm.get("status_id");
+            Date dateUpdated = (Date) hm.get("date_updated");
 
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(studyId));
-        variables.put(new Integer(2), new Integer(studyId));
-        ArrayList alist = this.select(digester.getQuery("findAllAssignedUsersByStudy"), variables);
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            HashMap hm = (HashMap) it.next();
+            surb.setUpdatedDate(dateUpdated);
+            surb.setStatus(Status.get(statusId.intValue()));
+            answer.add(surb);
+        }
+        return answer;
+    }
+
+    public ArrayList<StudyUserRoleBean> findAllUsersByStudyOrSite(int studyId, int parentStudyId, int studySubjectId) {
+        this.unsetTypeExpected();
+
+        this.setTypeExpected(1, TypeNames.STRING);
+        this.setTypeExpected(2, TypeNames.STRING);
+        this.setTypeExpected(3, TypeNames.STRING);
+        this.setTypeExpected(4, TypeNames.STRING);
+        this.setTypeExpected(5, TypeNames.INT);
+        this.setTypeExpected(6, TypeNames.INT);
+        this.setTypeExpected(7, TypeNames.DATE);
+        this.setTypeExpected(8, TypeNames.INT);
+        this.setTypeExpected(9, TypeNames.STRING);
+        this.setTypeExpected(10, TypeNames.INT);
+        this.setTypeExpected(11, TypeNames.INT);
+
+        HashMap<Integer, Object> variables = variables(studyId, parentStudyId, studySubjectId);
+        ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findAllUsersByStudyOrSite"), variables);
+        ArrayList<StudyUserRoleBean> answer = new ArrayList<>();
+        for(HashMap<String, Object> hm : alist) {
             StudyUserRoleBean surb = new StudyUserRoleBean();
             surb.setUserName((String) hm.get("user_name"));
             surb.setLastName((String) hm.get("last_name"));
@@ -997,98 +873,51 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
 
     }
 
-    public ArrayList findAllUsersByStudyOrSite(int studyId, int parentStudyId, int studySubjectId) {
-        this.unsetTypeExpected();
-
-        this.setTypeExpected(1, TypeNames.STRING);
-        this.setTypeExpected(2, TypeNames.STRING);
-        this.setTypeExpected(3, TypeNames.STRING);
-        this.setTypeExpected(4, TypeNames.STRING);
-        this.setTypeExpected(5, TypeNames.INT);
-        this.setTypeExpected(6, TypeNames.INT);
-        this.setTypeExpected(7, TypeNames.DATE);
-        this.setTypeExpected(8, TypeNames.INT);
-        this.setTypeExpected(9, TypeNames.STRING);
-        this.setTypeExpected(10, TypeNames.INT);
-        this.setTypeExpected(11, TypeNames.INT);
-
-        ArrayList answer = new ArrayList();
-
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(studyId));
-        variables.put(new Integer(2), new Integer(parentStudyId));
-        variables.put(new Integer(3), new Integer(studySubjectId));
-        ArrayList alist = this.select(digester.getQuery("findAllUsersByStudyOrSite"), variables);
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            HashMap hm = (HashMap) it.next();
-            StudyUserRoleBean surb = new StudyUserRoleBean();
-            surb.setUserName((String) hm.get("user_name"));
-            surb.setLastName((String) hm.get("last_name"));
-            surb.setFirstName((String) hm.get("first_name"));
-            surb.setRoleName((String) hm.get("role_name"));
-            surb.setStudyName((String) hm.get("name"));
-            surb.setStudyId(((Integer) hm.get("study_id")).intValue());
-            surb.setParentStudyId(((Integer) hm.get("parent_study_id")).intValue());
-            surb.setUserAccountId(((Integer) hm.get("user_id")).intValue());
-            Integer statusId = (Integer) hm.get("status_id");
-            Date dateUpdated = (Date) hm.get("date_updated");
-
-            surb.setUpdatedDate(dateUpdated);
-            surb.setStatus(Status.get(statusId.intValue()));
-            answer.add(surb);
-        }
-
-        return answer;
-
-    }
-
-    public Collection findPrivilegesByRole(int roleId) {
+    public ArrayList<Privilege> findPrivilegesByRole(int roleId) {
         this.setPrivilegeTypesExpected();
-        ArrayList al = new ArrayList();
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(roleId));
-        ArrayList alist = this.select(digester.getQuery("findPrivilegesByRole"), variables);
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            Privilege pb = this.getPrivilegeFromHashMap((HashMap) it.next());
+        HashMap<Integer, Object> variables = variables(roleId);
+        ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findPrivilegesByRole"), variables);
+        ArrayList<Privilege> al = new ArrayList<>();
+        for(HashMap<String, Object> hm : alist) {
+            Privilege pb = this.getPrivilegeFromHashMap(hm);
             al.add(pb);
         }
         return al;
     }
 
-    public Collection findPrivilegesByRoleName(String roleName) {
+    public ArrayList<Privilege> findPrivilegesByRoleName(String roleName) {
         this.setPrivilegeTypesExpected();
-        ArrayList al = new ArrayList();
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), roleName);
-        ArrayList alist = this.select(digester.getQuery("findPrivilegesByRoleName"), variables);
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            Privilege p = this.getPrivilegeFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findPrivilegesByRoleName"), variables);
+        ArrayList<Privilege> al = new ArrayList<>();
+        for(HashMap<String, Object> hm : alist) {
+            Privilege p = this.getPrivilegeFromHashMap(hm);
             al.add(p);
         }
         return al;
     }
 
+    /**
+     * NOT IMPLEMENTED
+     */
     @Override
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    public ArrayList<StudyUserRoleBean> findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+       throw new RuntimeException("Not implemented");
     }
 
+    /**
+     * NOT IMPLEMENTED
+     */
     @Override
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    public ArrayList<StudyUserRoleBean> findAllByPermission(Object objCurrentUser, int intActionType) {
+        throw new RuntimeException("Not implemented");
     }
 
     public StudyUserRoleBean updateStudyUserRole(StudyUserRoleBean s, String userName) {
         Locale currentLocale = ResourceBundleProvider.getLocale();
         ResourceBundleProvider.updateLocale(Locale.US);
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
 
         variables.put(new Integer(1), s.getRoleName());
         variables.put(new Integer(2), new Integer(s.getStatus().getId()));
@@ -1104,11 +933,8 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
     }
 
     public StudyUserRoleBean findRoleByUserNameAndStudyId(String userName, int studyId) {
-        Collection roles = findAllRolesByUserName(userName);
-        Iterator roleIt = roles.iterator();
-
-        while (roleIt.hasNext()) {
-            StudyUserRoleBean s = (StudyUserRoleBean) roleIt.next();
+        ArrayList<StudyUserRoleBean> roles = findAllRolesByUserName(userName);
+        for (StudyUserRoleBean s : roles) {
             if (s.getStudyId() == studyId) {
                 s.setActive(true);
                 return s;
@@ -1123,11 +949,9 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
     public int findRoleCountByUserNameAndStudyId(String userName, int studyId, int childStudyId) {
 
         this.setRoleTypesExpected();
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), userName);
-        variables.put(new Integer(2), studyId);
+        HashMap<Integer, Object> variables = variables(userName, studyId);
 
-        ArrayList alist = new ArrayList();
+        ArrayList<HashMap<String, Object>> alist;
         if(childStudyId == 0){
             alist = this.select(digester.getQuery("findRoleCountByUserNameAndStudyId"), variables);
         } else {
@@ -1139,8 +963,7 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
 
 
     public void setSysAdminRole(UserAccountBean uab, boolean creating) {
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), uab.getName());
+        HashMap<Integer, Object> variables = variables(uab.getName());
 
         if (uab.isSysAdmin() && !uab.isTechAdmin()) {
             // we remove first so that there are no duplicate roles
@@ -1155,21 +978,18 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
         }
     }
 
-    public Collection findAllByRole(String role) {
+    public ArrayList<UserAccountBean> findAllByRole(String role) {
         return this.findAllByRole(role, "");
     }
 
-    public Collection findAllByRole(String role1, String role2) {
+    public ArrayList<UserAccountBean> findAllByRole(String role1, String role2) {
         this.setTypesExpected();
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), role1);
-        variables.put(new Integer(2), role2);
-        ArrayList alist = null;
+        HashMap<Integer, Object> variables = variables(role1, role2);
+        ArrayList<HashMap<String, Object>> alist = null;
         alist = this.select(digester.getQuery("findAllByRole"), variables);
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            UserAccountBean eb = (UserAccountBean) this.getEntityFromHashMap((HashMap) it.next(), true);
+        ArrayList<UserAccountBean> al = new ArrayList<>();
+        for(HashMap<String, Object> hm : alist) {
+            UserAccountBean eb = (UserAccountBean) this.getEntityFromHashMap(hm, true);
             al.add(eb);
         }
         return al;
@@ -1179,5 +999,4 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
 	public UserAccountBean emptyBean() {
 		return new UserAccountBean();
 	}
-
 }

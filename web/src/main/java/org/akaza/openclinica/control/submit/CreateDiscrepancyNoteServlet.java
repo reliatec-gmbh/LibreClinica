@@ -571,6 +571,7 @@ public class CreateDiscrepancyNoteServlet extends SecureController {
             request.setAttribute("unlock", "0");
             request.setAttribute(WRITE_TO_DB, writeToDB ? "1" : "0");//this should go from UI & here
             ArrayList userAccounts = this.generateUserAccounts(ub.getActiveStudyId(), subjectId);
+            // TODO it seems like there is no place where the attribute USER_ACCOUNT is read
             request.setAttribute(USER_ACCOUNTS, userAccounts);
 
             // ideally should be only two cases
@@ -697,6 +698,7 @@ public class CreateDiscrepancyNoteServlet extends SecureController {
                 logger.debug("set UNLOCK to ZERO");
             }
 
+            // TODO it seems like there is no place where the attribute USER_ACCOUNT is read
             request.setAttribute(USER_ACCOUNTS, userAccounts);
 
             if (errors.isEmpty()) {

@@ -25,6 +25,7 @@ import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.core.DiscrepancyNoteType;
 import org.akaza.openclinica.bean.core.ResolutionStatus;
 import org.akaza.openclinica.bean.core.Role;
+import org.akaza.openclinica.bean.login.StudyUserRoleBean;
 import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.bean.managestudy.DiscrepancyNoteBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
@@ -647,7 +648,7 @@ public class ViewDiscrepancyNoteServlet extends SecureController {
         StudyDAO studyDAO = new StudyDAO(sm.getDataSource());
         StudyBean subjectStudy = studyDAO.findByStudySubjectId(subjectId);
         int studyId = currentStudy.getId();
-        ArrayList<UserAccountBean> userAccounts = new ArrayList();
+        ArrayList<StudyUserRoleBean> userAccounts = new ArrayList<>();
         if (currentStudy.getParentStudyId() > 0) {
             userAccounts = udao.findAllUsersByStudyOrSite(studyId, currentStudy.getParentStudyId(), subjectId);
         } else if (subjectStudy.getParentStudyId() > 0) {
@@ -655,6 +656,7 @@ public class ViewDiscrepancyNoteServlet extends SecureController {
         } else {
             userAccounts = udao.findAllUsersByStudyOrSite(studyId, 0, subjectId);
         }
+        // TODO it seems like there is no place where the attribute USER_ACCOUNT is read
         request.setAttribute(USER_ACCOUNTS, userAccounts);
         request.setAttribute(VIEW_DN_LINK, this.getPageServletFileName());
 
