@@ -179,8 +179,57 @@ public class AnonymousFormControllerV2 {
 
         return accessPermission;
     }
+    
+    @Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((context == null) ? 0 : context.hashCode());
+		result = prime * result + ((dataSource == null) ? 0 : dataSource.hashCode());
+		result = prime * result + ((participantPortalRegistrar == null) ? 0 : participantPortalRegistrar.hashCode());
+		result = prime * result + ((sdao == null) ? 0 : sdao.hashCode());
+		result = prime * result + ((udao == null) ? 0 : udao.hashCode());
+		return result;
+	}
 
-    private class AnonymousUrlResponse {
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AnonymousFormControllerV2 other = (AnonymousFormControllerV2) obj;
+		if (context == null) {
+			if (other.context != null)
+				return false;
+		} else if (!context.equals(other.context))
+			return false;
+		if (dataSource == null) {
+			if (other.dataSource != null)
+				return false;
+		} else if (!dataSource.equals(other.dataSource))
+			return false;
+		if (participantPortalRegistrar == null) {
+			if (other.participantPortalRegistrar != null)
+				return false;
+		} else if (!participantPortalRegistrar.equals(other.participantPortalRegistrar))
+			return false;
+		if (sdao == null) {
+			if (other.sdao != null)
+				return false;
+		} else if (!sdao.equals(other.sdao))
+			return false;
+		if (udao == null) {
+			if (other.udao != null)
+				return false;
+		} else if (!udao.equals(other.udao))
+			return false;
+		return true;
+	}
+
+	private class AnonymousUrlResponse {
         private String url = null;
         private String offline = null;
         private String name = null;
