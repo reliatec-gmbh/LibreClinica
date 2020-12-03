@@ -103,7 +103,7 @@ public class ViewSectionDataEntryServlet extends DataEntryServlet {
 
     }
 
-    public Map getErrors() {
+    public Map<String, ArrayList<String>> getErrors() {
         return errors;
     }
 
@@ -161,7 +161,7 @@ public class ViewSectionDataEntryServlet extends DataEntryServlet {
         String action = fp.getString("action");
         HttpSession session = request.getSession();
         String fromResolvingNotes = fp.getString("fromResolvingNotes", true);
-        if (StringUtil.isBlank(fromResolvingNotes)) {
+        if (fromResolvingNotes == null || fromResolvingNotes.trim().isEmpty()) {
             session.removeAttribute(ViewNotesServlet.WIN_LOCATION);
             session.removeAttribute(ViewNotesServlet.NOTES_TABLE);
         }
@@ -328,15 +328,15 @@ public class ViewSectionDataEntryServlet extends DataEntryServlet {
             } catch (Exception e) {
                 formattedInterviewerDate = "";
             }
-            HashMap presetVals = (HashMap) session.getAttribute("presetValues");
+            HashMap<String, String> presetVals = (HashMap<String, String>) session.getAttribute("presetValues");
             if (presetVals == null) {
-                presetVals = new HashMap();
+                presetVals = new HashMap<>();
                 session.setAttribute("presetValues", presetVals);
             }
             presetVals.put("interviewDate", formattedInterviewerDate);
             request.setAttribute("toc", displayBean);
 
-            ArrayList sections = displayBean.getSections();
+            ArrayList<SectionBean> sections = displayBean.getSections();
 
             request.setAttribute("sectionNum", sections.size() + "");
             if (!sections.isEmpty()) {
@@ -354,7 +354,7 @@ public class ViewSectionDataEntryServlet extends DataEntryServlet {
         } else if (crfVersionId > 0) {// for viewing blank CRF
             DisplayTableOfContentsBean displayBean = ViewTableOfContentServlet.getDisplayBean(getDataSource(), crfVersionId);
             request.setAttribute("toc", displayBean);
-            ArrayList sections = displayBean.getSections();
+            ArrayList<SectionBean> sections = displayBean.getSections();
 
             request.setAttribute("sectionNum", sections.size() + "");
             if (!sections.isEmpty()) {
@@ -529,7 +529,7 @@ public class ViewSectionDataEntryServlet extends DataEntryServlet {
                     String inputName = getInputName(dib);
                     AddNewSubjectServlet.saveFieldNotes(inputName, discNotes, dndao, dib.getData().getId(), DiscrepancyNoteBean.ITEM_DATA, currentStudy);
 
-                    ArrayList childItems = dib.getChildren();
+                    ArrayList<DisplayItemBean> childItems = dib.getChildren();
                     for (int j = 0; j < childItems.size(); j++) {
                         DisplayItemBean child = (DisplayItemBean) childItems.get(j);
                         inputName = getInputName(child);

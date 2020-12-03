@@ -50,7 +50,7 @@ public class DisplayItemBean implements Comparable<DisplayItemBean> {
      * Furthermore, they must be ordered in increasing value of their
      * metadata.columnNumber property.
      */
-    private ArrayList children;
+    private ArrayList<DisplayItemBean> children;
 
     /**
      * Not a database column. Always equal to children.size(). Is primarily used
@@ -100,7 +100,7 @@ public class DisplayItemBean implements Comparable<DisplayItemBean> {
         data = new ItemDataBean();
         item = new ItemBean();
         metadata = new ItemFormMetadataBean();
-        children = new ArrayList();
+        children = new ArrayList<>();
         numChildren = 0;
         numColumns = 0;
         dbData = new ItemDataBean();
@@ -194,7 +194,7 @@ public class DisplayItemBean implements Comparable<DisplayItemBean> {
     /**
      * @return Returns the children.
      */
-    public ArrayList getChildren() {
+    public ArrayList<DisplayItemBean> getChildren() {
         return children;
     }
 
@@ -205,7 +205,7 @@ public class DisplayItemBean implements Comparable<DisplayItemBean> {
      * @param children
      *            The children to set.
      */
-    public void setChildren(ArrayList children) {
+    public void setChildren(ArrayList<DisplayItemBean> children) {
         this.children = children;
         numChildren = children.size();
 

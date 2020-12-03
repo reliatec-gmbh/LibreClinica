@@ -7,7 +7,6 @@
  */
 package org.akaza.openclinica.control.core;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,7 +34,6 @@ import javax.sql.DataSource;
 import org.akaza.openclinica.bean.core.AuditableEntityBean;
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.core.Status;
-import org.akaza.openclinica.bean.extract.ArchivedDatasetFileBean;
 import org.akaza.openclinica.bean.login.StudyUserRoleBean;
 import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
@@ -48,8 +46,6 @@ import org.akaza.openclinica.core.CRFLocker;
 import org.akaza.openclinica.core.EmailEngine;
 import org.akaza.openclinica.core.SessionManager;
 import org.akaza.openclinica.dao.core.AuditableEntityDAO;
-import org.akaza.openclinica.dao.core.CoreResources;
-import org.akaza.openclinica.dao.extract.ArchivedDatasetFileDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDefinitionDAO;
 import org.akaza.openclinica.dao.managestudy.StudyGroupClassDAO;
@@ -59,7 +55,6 @@ import org.akaza.openclinica.dao.service.StudyParameterValueDAO;
 import org.akaza.openclinica.exception.OpenClinicaException;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
-import org.akaza.openclinica.view.BreadcrumbTrail;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.view.StudyInfoPanel;
 import org.akaza.openclinica.view.StudyInfoPanelLine;
@@ -67,11 +62,6 @@ import org.akaza.openclinica.web.InconsistentStateException;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.akaza.openclinica.web.SQLInitServlet;
 import org.akaza.openclinica.web.bean.EntityBeanTable;
-import org.quartz.JobKey;
-import org.quartz.SchedulerException;
-import org.quartz.Trigger;
-import org.quartz.Trigger.TriggerState;
-import org.quartz.TriggerKey;
 import org.quartz.impl.StdScheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,7 +86,7 @@ public abstract class CoreSecureController extends HttpServlet {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(CoreSecureController.class);
 
-    protected HashMap errors = new HashMap();
+    protected HashMap<String, ArrayList<String>> errors = new HashMap<>();
 
     private static String SCHEDULER = "schedulerFactoryBean";
 
@@ -978,5 +968,17 @@ public abstract class CoreSecureController extends HttpServlet {
 
     public CRFLocker getCrfLocker() {
         return crfLocker;
+    }
+    
+    protected void addErrorMessage(String key, String errorMsg) {
+    	if(errors == null) {
+    		errors = new HashMap<>();
+    	}
+    	ArrayList<String> messages = errors.get(key);
+    	if(messages == null) {
+    		messages = new ArrayList<>();
+    		errors.put(key, messages);
+    	}
+    	messages.add(errorMsg);
     }
 }

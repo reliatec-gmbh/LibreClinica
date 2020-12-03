@@ -477,7 +477,7 @@ public class Validator {
 
     public Validator(HttpServletRequest request) {
         validations = new HashMap();
-        errors = new HashMap();
+        errors = new HashMap<>();
         this.request = request;
  //        locale=request.getLocale();
        locale = LocaleResolver.getLocale(request);
@@ -883,13 +883,13 @@ public class Validator {
      * @param errorMessage
      *            The message to add to the field name.
      */
-    public static void addError(HashMap existingErrors, String fieldName, String errorMessage) {
-        ArrayList fieldErrors;
+    public static void addError(HashMap<String, ArrayList<String>> existingErrors, String fieldName, String errorMessage) {
+        ArrayList<String> fieldErrors;
 
         if (existingErrors.containsKey(fieldName)) {
-            fieldErrors = (ArrayList) existingErrors.get(fieldName);
+            fieldErrors = existingErrors.get(fieldName);
         } else {
-            fieldErrors = new ArrayList();
+            fieldErrors = new ArrayList<>();
         }
 
         fieldErrors.add(errorMessage);

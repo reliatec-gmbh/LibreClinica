@@ -723,7 +723,7 @@ public abstract class DataEntryServlet extends CoreSecureController {
             // session.setAttribute(HAS_DATA_FLAG, true);
 
             // section.setCheckInputs(fp.getBoolean(INPUT_CHECK_INPUTS));
-            errors = new HashMap();
+            errors = new HashMap<>();
             // ArrayList items = section.getItems();
 
             discNotes = (FormDiscrepancyNotes) session.getAttribute(AddNewSubjectServlet.FORM_DISCREPANCY_NOTES_NAME);
@@ -2132,7 +2132,7 @@ public abstract class DataEntryServlet extends CoreSecureController {
             }
 
              if (!isRFCFiled) {
-                     errors.put(formName, error);
+                     addErrorMessage(formName, error);
             } else {
                 LOGGER.debug("has a note in db: entered an error here: " + formName + ": " + errors.toString());
             }
@@ -5452,7 +5452,7 @@ String tempKey = idb.getItemId()+","+idb.getOrdinal();
         return manualRows;
     }
 
-    private HashMap reshuffleErrorGroupNamesKK(HashMap errors, List<DisplayItemWithGroupBean> allItems,
+    private HashMap reshuffleErrorGroupNamesKK(HashMap<String, ArrayList<String>> errors, List<DisplayItemWithGroupBean> allItems,
     		HttpServletRequest request) {
         int manualRows = 0;
         if (errors == null || errors.size() <1){ return errors;}
