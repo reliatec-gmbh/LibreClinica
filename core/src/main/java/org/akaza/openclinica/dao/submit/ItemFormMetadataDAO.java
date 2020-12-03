@@ -12,11 +12,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
-import org.akaza.openclinica.bean.core.EntityBean;
 import org.akaza.openclinica.bean.submit.ItemFormMetadataBean;
 import org.akaza.openclinica.bean.submit.ResponseSetBean;
 import org.akaza.openclinica.dao.core.DAODigester;
@@ -235,18 +233,8 @@ public class ItemFormMetadataDAO extends EntityDAO<ItemFormMetadataBean> {
      * @see org.akaza.openclinica.dao.core.DAOInterface#findAll()
      */
     public ArrayList<ItemFormMetadataBean> findAll() throws OpenClinicaException {
-        ArrayList<ItemFormMetadataBean> answer = new ArrayList<ItemFormMetadataBean>();
-
-        this.setTypesExpected();
-
-        String sql = digester.getQuery("findAll");
-        ArrayList<HashMap<String, Object>> alist = this.select(sql);
-        for(HashMap<String, Object> hm : alist) {
-            ItemFormMetadataBean ifmb = (ItemFormMetadataBean) this.getEntityFromHashMap(hm);
-            answer.add(ifmb);
-        }
-
-        return answer;
+    	String queryName = "findAll";
+        return executeFindAllQuery(queryName);
     }
 
     /*
@@ -262,8 +250,7 @@ public class ItemFormMetadataDAO extends EntityDAO<ItemFormMetadataBean> {
     </query>
      */
     public int findCountAllHiddenByCRFVersionId(int crfVersionId) {
-        HashMap<Integer, Object> variables = new HashMap<>();
-        variables.put(new Integer(1), new Integer(crfVersionId));
+        HashMap<Integer, Object> variables = variables(crfVersionId);
         String query = digester.getQuery("findAllCountHiddenByCRFVersionId");
         int answer = getCountByQueryOrDefault(query, variables, "number", 0);
 
@@ -295,97 +282,41 @@ public class ItemFormMetadataDAO extends EntityDAO<ItemFormMetadataBean> {
     </query>
      */
     public int findCountAllHiddenButShownByEventCRFId(int eventCrfId) {
-        HashMap<Integer, Object> variables = new HashMap<>();
-        variables.put(new Integer(1), new Integer(eventCrfId));
+        HashMap<Integer, Object> variables = variables(eventCrfId);
         String query = digester.getQuery("findAllCountHiddenButShownByEventCrfId");
         return getCountByQueryOrDefault(query, variables, "number", 0);
     }
 
     public ArrayList<ItemFormMetadataBean> findAllByCRFVersionId(int crfVersionId) throws OpenClinicaException {
-        ArrayList<ItemFormMetadataBean> answer = new ArrayList<ItemFormMetadataBean>();
-
-        this.setTypesExpected();
-
-        HashMap<Integer, Object> variables = new HashMap<>();
-        variables.put(new Integer(1), new Integer(crfVersionId));
-
-        String sql = digester.getQuery("findAllByCRFVersionId");
-        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables, true);
-        for(HashMap<String, Object> hm : alist) {
-            ItemFormMetadataBean ifmb = this.getEntityFromHashMap(hm);
-            answer.add(ifmb);
-        }
-
-        return answer;
+    	String queryName = "findAllByCRFVersionId";
+        HashMap<Integer, Object> variables = variables(crfVersionId);
+        return executeFindAllQuery(queryName, variables, true);
     }
 
     public ArrayList<ItemFormMetadataBean> findAllItemsRequiredAndShownByCrfVersionId(int crfVersionId)  {
-        ArrayList<ItemFormMetadataBean> answer = new ArrayList<ItemFormMetadataBean>();
-
-        this.setTypesExpected();
-
-        HashMap<Integer, Object> variables = new HashMap<>();
-        variables.put(new Integer(1), new Integer(crfVersionId));
-
-        String sql = digester.getQuery("findAllItemsRequiredAndShownByCrfVersionId");
-        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables, true);
-        for(HashMap<String, Object> hm : alist) {
-            ItemFormMetadataBean ifmb = this.getEntityFromHashMap(hm);
-            answer.add(ifmb);
-        }
-        return answer;
+    	String queryName = "findAllItemsRequiredAndShownByCrfVersionId";
+        HashMap<Integer, Object> variables = variables(crfVersionId);
+        return executeFindAllQuery(queryName, variables, true);
     }
 
     
     public ArrayList<ItemFormMetadataBean> findAllItemsRequiredAndHiddenByCrfVersionId(int crfVersionId)  {
-        ArrayList<ItemFormMetadataBean> answer = new ArrayList<ItemFormMetadataBean>();
-
-        this.setTypesExpected();
-
-        HashMap<Integer, Object> variables = new HashMap<>();
-        variables.put(new Integer(1), new Integer(crfVersionId));
-
-        String sql = digester.getQuery("findAllItemsRequiredAndHiddenByCrfVersionId");
-        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables, true);
-        for(HashMap<String, Object> hm : alist) {
-            ItemFormMetadataBean ifmb = this.getEntityFromHashMap(hm);
-            answer.add(ifmb);
-        }
-        return answer;
+    	String queryName = "findAllItemsRequiredAndHiddenByCrfVersionId";
+        HashMap<Integer, Object> variables = variables(crfVersionId);
+        return executeFindAllQuery(queryName, variables, true);
     }
 
     
     public ArrayList<ItemFormMetadataBean> findAllByCRFIdItemIdAndHasValidations(int crfId, int itemId) {
-        ArrayList<ItemFormMetadataBean> answer = new ArrayList<ItemFormMetadataBean>();
-
-        this.setTypesExpected();
-
-        HashMap<Integer, Object> variables = new HashMap<>();
-        variables.put(new Integer(1), new Integer(crfId));
-        variables.put(new Integer(2), new Integer(itemId));
-
-        String sql = digester.getQuery("findAllByCRFIdItemIdAndHasValidations");
-        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables, true);
-        for(HashMap<String, Object> hm : alist) {
-            ItemFormMetadataBean ifmb = this.getEntityFromHashMap(hm);
-            answer.add(ifmb);
-        }
-
-        return answer;
+    	String queryName = "findAllByCRFIdItemIdAndHasValidations";
+        HashMap<Integer, Object> variables = variables(crfId, itemId);
+        return executeFindAllQuery(queryName, variables, true);
     }
 
     public ArrayList<ItemFormMetadataBean> findAllByCRFVersionIdAndResponseTypeId(int crfVersionId, int responseTypeId) throws OpenClinicaException {
-        HashMap<Integer, Object> variables = new HashMap<>();
-        variables.put(new Integer(1), new Integer(crfVersionId));
-        variables.put(new Integer(2), new Integer(responseTypeId));
-        String query = digester.getQuery("findAllByCRFVersionIdAndResponseTypeId");
-
-        ArrayList<HashMap<String, Object>> alist = this.select(query, variables, true);
-
-        ArrayList<ItemFormMetadataBean> answer = new ArrayList<ItemFormMetadataBean>();
-        answer.addAll(alist.stream().map(m -> (ItemFormMetadataBean) this.getEntityFromHashMap(m)).collect(Collectors.toList()));
-
-        return answer;
+    	String queryName = "findAllByCRFVersionIdAndResponseTypeId";
+        HashMap<Integer, Object> variables = variables(crfVersionId, responseTypeId);
+        return executeFindAllQuery(queryName, variables, true);
     }
 
 
@@ -465,41 +396,15 @@ public class ItemFormMetadataDAO extends EntityDAO<ItemFormMetadataBean> {
     }
 
     public ArrayList<ItemFormMetadataBean> findAllBySectionId(int sectionId) throws OpenClinicaException {
-        ArrayList<ItemFormMetadataBean> answer = new ArrayList<ItemFormMetadataBean>();
-
-        this.setTypesExpected();
-
-        HashMap<Integer, Object> variables = new HashMap<>();
-        variables.put(new Integer(1), new Integer(sectionId));
-
-        String sql = digester.getQuery("findAllBySectionId");
-
-        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables, true);
-        for(HashMap<String, Object> hm : alist) {
-            ItemFormMetadataBean ifmb = (ItemFormMetadataBean) this.getEntityFromHashMap(hm);
-            answer.add(ifmb);
-        }
-
-        return answer;
+    	String queryName = "findAllBySectionId";
+        HashMap<Integer, Object> variables = variables(sectionId);
+        return executeFindAllQuery(queryName, variables, true);
     }
 
     public ArrayList<ItemFormMetadataBean> findAllByCRFVersionIdAndSectionId(int crfVersionId, int sectionId) throws OpenClinicaException {
-        ArrayList<ItemFormMetadataBean> answer = new ArrayList<ItemFormMetadataBean>();
-
-        this.setTypesExpected();
-
-        HashMap<Integer, Object> variables = new HashMap<>();
-        variables.put(new Integer(1), new Integer(crfVersionId));
-        variables.put(new Integer(2), new Integer(sectionId));
-
-        String sql = digester.getQuery("findAllByCRFVersionIdAndSectionId");
-        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables, true);
-        for(HashMap<String, Object> hm : alist) {
-            ItemFormMetadataBean ifmb = (ItemFormMetadataBean) this.getEntityFromHashMap(hm);
-            answer.add(ifmb);
-        }
-
-        return answer;
+    	String queryName = "findAllByCRFVersionIdAndSectionId";
+        HashMap<Integer, Object> variables = variables(crfVersionId, sectionId);
+        return executeFindAllQuery(queryName, variables);
     }
 
     /*
@@ -507,21 +412,10 @@ public class ItemFormMetadataDAO extends EntityDAO<ItemFormMetadataBean> {
      *
      * @see org.akaza.openclinica.dao.core.DAOInterface#findByPK(int)
      */
-    public EntityBean findByPK(int id) throws OpenClinicaException {
-        ItemFormMetadataBean ifmb = new ItemFormMetadataBean();
-        this.setTypesExpected();
-
-        // TODO place holder to return here, tbh
-        HashMap<Integer, Object> variables = new HashMap<>();
-        variables.put(new Integer(1), new Integer(id));
-
-        String sql = digester.getQuery("findByPK");
-        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables, true);
-        if (alist != null && alist.size() > 0) {
-            ifmb = (ItemFormMetadataBean) this.getEntityFromHashMap(alist.get(0));
-        }
-
-        return ifmb;
+    public ItemFormMetadataBean findByPK(int id) throws OpenClinicaException {
+    	String queryName = "findByPK";
+        HashMap<Integer, Object> variables = variables(id);
+        return executeFindByPKQuery(queryName, variables, true);
     }
 
     /*
@@ -740,18 +634,14 @@ public class ItemFormMetadataDAO extends EntityDAO<ItemFormMetadataBean> {
 
     // YW 8-22-2007
     public ItemFormMetadataBean findByItemIdAndCRFVersionIdNotInIGM(int itemId, int crfVersionId) {
-        this.setTypesExpected();
-
-        HashMap<Integer, Object> variables = new HashMap<>();
-        variables.put(new Integer(1), new Integer(itemId));
-        variables.put(new Integer(2), new Integer(crfVersionId));
-
-        EntityBean eb = this.executeFindByPKQuery("findByItemIdAndCRFVersionIdNotInIGM", variables);
-
+    	String queryName = "findByItemIdAndCRFVersionIdNotInIGM";
+        HashMap<Integer, Object> variables = variables(itemId, crfVersionId);
+        ItemFormMetadataBean eb = executeFindByPKQuery(queryName, variables);
+        
         if (!eb.isActive()) {
-            return new ItemFormMetadataBean();
+            return emptyBean();
         } else {
-            return (ItemFormMetadataBean) eb;
+            return eb;
         }
     }
 
@@ -761,19 +651,9 @@ public class ItemFormMetadataDAO extends EntityDAO<ItemFormMetadataBean> {
      * @return
      */
     public ArrayList<ItemFormMetadataBean> findSCDItemsBySectionId(Integer sectionId) {
-        ArrayList<ItemFormMetadataBean> answer = new ArrayList<ItemFormMetadataBean>();
-        this.unsetTypeExpected();
-        this.setTypesExpected();
-        HashMap<Integer, Object> variables = new HashMap<>();
-        variables.put(new Integer(1), sectionId);
-
-        String sql = digester.getQuery("findSCDItemsBySectionId");
-        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables, true);
-        for(HashMap<String, Object> hm : alist) {
-            ItemFormMetadataBean ifmb = this.getEntityFromHashMap(hm);
-            answer.add(ifmb);
-        }
-        return answer;
+    	String queryName = "findSCDItemsBySectionId";
+        HashMap<Integer, Object> variables = variables(sectionId);
+        return executeFindAllQuery(queryName, variables, true);
     }
 
     public int findMaxId() {
