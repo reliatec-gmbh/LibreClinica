@@ -266,6 +266,87 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
 			throw new RuntimeException(e);
 		}
     }
+    
+    /*
+     * FIND METHODS
+     */
+
+    /**
+     * This method executes a "findAll-style" query. Such a query has two
+     * characteristics:
+     * <ol>
+     * <li> The columns SELECTed by the SQL are all of the columns in the table
+     * relevant to the DAO, and only those columns. (e.g., in StudyDAO, the
+     * columns SELECTed are all of the columns in the study table, and only
+     * those columns.)
+     * <li> It returns multiple AuditableEntityBeans.
+     * </ol>
+     *
+     * Note that queries which join two tables may be included in the definition
+     * of "findAll-style" query, as long as the first criterion is met.
+     *
+     * @param queryName
+     *            The name of the query which should be executed.
+     * @param variables
+     *            The set of variables used to populate the PreparedStatement;
+     *            should be empty if none are needed.
+     * @return An ArrayList of AuditableEntityBeans selected by the query.
+     */
+    public ArrayList<B> executeFindAllQuery(String queryName, HashMap<Integer, Object> variables) {
+    	return executeFindAllQuery(queryName, variables, false);
+    }
+    
+
+    public ArrayList<B> executeFindAllQuery(String queryName, HashMap<Integer, Object> variables, boolean useCache) {
+        ArrayList<B> answer = new ArrayList<>();
+
+        if (queryName == null || queryName.trim().isEmpty()) {
+            return answer;
+        }
+        
+        setTypesExpected();
+        
+        String query = digester.getQuery(queryName);
+        if (query == null || query.trim().isEmpty()) {
+        	// TODO for backwards compatibility here is no error thrown but this should be changed in the future
+        	logger.error("No query with name '{}' found", queryName);
+            return answer;
+        }
+        
+        ArrayList<HashMap<String, Object>> alist = this.select(query, variables, useCache);
+        answer.addAll(alist.stream().map(m -> (B) this.getEntityFromHashMap(m)).collect(Collectors.toList()));
+        return answer;
+    }
+
+    /**
+     * This method executes a "findAll-style" query which does not accept any
+     * variables.
+     *
+     * @param queryName
+     *            The name of the query which selects the AuditableEntityBeans.
+     * @return An ArrayList of AuditableEntityBeans selected by the query.
+     */
+    public ArrayList<B> executeFindAllQuery(String queryName) {
+        return executeFindAllQuery(queryName, new HashMap<>());
+    }
+    
+    public HashMap<Integer, Object> variables(Object... variables) {
+    	HashMap<Integer, Object> result = new HashMap<>();
+    	
+    	if(variables == null) {
+    		variables = new Object[0];
+    	}
+    	
+    	Arrays.asList(variables);
+    	for (int i = 0; i < variables.length; i++) {
+    		result.put(i+1, variables[i]);
+		}
+    	return result;
+    }
+    
+    /*
+     * UPDATE METHODS
+     */
 
     /**
      * execute, the static version of executing an update or insert on a table in the database.
