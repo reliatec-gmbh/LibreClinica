@@ -15,11 +15,14 @@ package org.akaza.openclinica.control.admin;
 
 import static org.jmesa.facade.TableFacadeFactory.createTableFacade;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.submit.CRFVersionBean;
-import org.akaza.openclinica.control.SpringServletAccess;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.core.util.ItemGroupCrvVersionUtil;
@@ -27,28 +30,13 @@ import org.akaza.openclinica.dao.admin.CRFDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.submit.CRFVersionDAO;
 import org.akaza.openclinica.dao.submit.ItemDAO;
-import org.akaza.openclinica.domain.rule.RuleSetBean;
-import org.akaza.openclinica.domain.rule.RuleSetRuleBean;
-import org.akaza.openclinica.domain.rule.action.RuleActionBean;
-import org.akaza.openclinica.service.rule.RuleSetServiceInterface;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.akaza.openclinica.web.table.sdv.SDVUtil;
 import org.jmesa.facade.TableFacade;
-import org.jmesa.view.component.Column;
-import org.jmesa.view.component.Row;
-import org.jmesa.view.component.Table;
-import org.jmesa.view.editor.BasicCellEditor;
-import org.jmesa.view.editor.CellEditor;
-import org.jmesa.view.html.HtmlBuilder;
 import org.jmesa.view.html.component.HtmlColumn;
 import org.jmesa.view.html.component.HtmlRow;
 import org.jmesa.view.html.component.HtmlTable;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
 
 /**
  * @author jxu
@@ -64,7 +52,6 @@ public class ViewCRFServlet extends SecureController {
 	private static final long serialVersionUID = 9110391473513698480L;
 	private static String CRF_ID = "crfId";
     private static String CRF = "crf";
-    private RuleSetServiceInterface ruleSetService;
 
     /**
      *
@@ -170,7 +157,7 @@ public class ViewCRFServlet extends SecureController {
 		   		//	if ( temp_buffer != null){cur_item.setErrorMesages(cur_item.getErrorMesages() + temp_buffer);}
 		   			if ( temp_buffer != null){cur_item.getArrErrorMesages().add( temp_buffer);}
 		   			temp_buffer=null;
-		   			cur_item.getArrErrorMesages().add(  error_message);
+		   			cur_item.getArrErrorMesages().add(error_message.toString());
 		   			if (check_group.getCrfVersionStatus() == 1 && cur_item.getCrfVersionStatus()!= 1){
 		   				cur_item.setCrfVersionStatus(1);
 		   			}
