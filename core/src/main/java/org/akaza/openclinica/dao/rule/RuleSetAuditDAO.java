@@ -14,25 +14,21 @@
  */
 package org.akaza.openclinica.dao.rule;
 
-import org.akaza.openclinica.bean.core.EntityBean;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+
+import javax.sql.DataSource;
+
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.bean.rule.RuleSetAuditBean;
 import org.akaza.openclinica.bean.rule.RuleSetBean;
-import org.akaza.openclinica.bean.submit.ItemGroupMetadataBean;
 import org.akaza.openclinica.dao.core.EntityDAO;
 import org.akaza.openclinica.dao.core.SQLFactory;
 import org.akaza.openclinica.dao.core.TypeNames;
 import org.akaza.openclinica.dao.login.UserAccountDAO;
 import org.akaza.openclinica.exception.OpenClinicaException;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-
-import javax.sql.DataSource;
 
 public class RuleSetAuditDAO extends EntityDAO<RuleSetAuditBean> {
 
@@ -43,27 +39,6 @@ public class RuleSetAuditDAO extends EntityDAO<RuleSetAuditBean> {
         super(ds);
         this.getCurrentPKName = "findCurrentPKValue";
         // this.getNextPKName = "getNextPK";
-    }
-
-    @Override
-    public int getCurrentPK() {
-        int answer = 0;
-
-        if (getCurrentPKName == null) {
-            return answer;
-        }
-
-        this.unsetTypeExpected();
-        this.setTypeExpected(1, TypeNames.INT);
-
-        ArrayList al = select(digester.getQuery(getCurrentPKName));
-
-        if (al.size() > 0) {
-            HashMap h = (HashMap) al.get(0);
-            answer = ((Integer) h.get("key")).intValue();
-        }
-
-        return answer;
     }
 
     private RuleSetDAO getRuleSetDao() {
@@ -89,7 +64,7 @@ public class RuleSetAuditDAO extends EntityDAO<RuleSetAuditBean> {
 
     }
 
-    public RuleSetAuditBean getEntityFromHashMap(HashMap hm) {
+    public RuleSetAuditBean getEntityFromHashMap(HashMap<String, Object> hm) {
         RuleSetAuditBean ruleSetAudit = new RuleSetAuditBean();
         ruleSetAudit.setId((Integer) hm.get("rule_set_audit_id"));
         int ruleSetId = (Integer) hm.get("rule_set_id");
@@ -104,48 +79,35 @@ public class RuleSetAuditDAO extends EntityDAO<RuleSetAuditBean> {
         return ruleSetAudit;
     }
 
-    public Collection findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) throws OpenClinicaException {
-        return new ArrayList();
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<RuleSetAuditBean> findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) throws OpenClinicaException {
+    	throw new RuntimeException("Not implemented");
     }
 
-    public Collection findAll() throws OpenClinicaException {
-        return new ArrayList();
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<RuleSetAuditBean> findAll() throws OpenClinicaException {
+        throw new RuntimeException("Not implemented");
     }
 
-    public EntityBean findByPK(int id) throws OpenClinicaException {
-        RuleSetAuditBean ruleSetAudit = null;
-
-        this.setTypesExpected();
-        HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
-        variables.put(new Integer(1), id);
-
-        String sql = digester.getQuery("findByPK");
-        ArrayList<?> alist = this.select(sql, variables);
-
-        Iterator<?> it = alist.iterator();
-
-        if (it.hasNext()) {
-            ruleSetAudit = (RuleSetAuditBean) this.getEntityFromHashMap((HashMap<?, ?>) it.next());
+    public RuleSetAuditBean findByPK(int id) throws OpenClinicaException {
+    	String queryName = "findByPK";
+        HashMap<Integer, Object> variables = variables(id);
+        RuleSetAuditBean ruleSetAudit = executeFindByPKQuery(queryName, variables);
+        if(ruleSetAudit != null && id != ruleSetAudit.getId()) {
+        	// this is just an empty bean so no rule set audit bean was found
+        	ruleSetAudit = null;
         }
         return ruleSetAudit;
     }
 
     public ArrayList<RuleSetAuditBean> findAllByRuleSet(RuleSetBean ruleSet) {
-        ArrayList<RuleSetAuditBean> ruleSetAuditBeans = new ArrayList<RuleSetAuditBean>();
-
-        this.setTypesExpected();
-        HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
-        variables.put(new Integer(1), ruleSet.getId());
-
-        String sql = digester.getQuery("findAllByRuleSet");
-        ArrayList<?> alist = this.select(sql, variables);
-        Iterator<?> it = alist.iterator();
-
-        while (it.hasNext()) {
-            RuleSetAuditBean ruleSetAudit = (RuleSetAuditBean) this.getEntityFromHashMap((HashMap<?, ?>) it.next());
-            ruleSetAuditBeans.add(ruleSetAudit);
-        }
-        return ruleSetAuditBeans;
+    	String queryName = "findAllByRuleSet";
+        HashMap<Integer, Object> variables = variables(ruleSet.getId());
+        return executeFindAllQuery(queryName, variables);
     }
 
     public RuleSetAuditBean create(RuleSetBean ruleSetBean, UserAccountBean ub) {
@@ -180,18 +142,26 @@ public class RuleSetAuditDAO extends EntityDAO<RuleSetAuditBean> {
     	throw new RuntimeException("Not implemented");
     }
 
+    /**
+     * NOT IMPLEMENTED
+     */
     public RuleSetAuditBean update(RuleSetAuditBean eb) throws OpenClinicaException {
-        return eb; // To change body of implemented
-
+        throw new RuntimeException("Not implemented");
     }
 
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase)
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<RuleSetAuditBean> findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase)
             throws OpenClinicaException {
-        return new ArrayList<RuleSetAuditBean>();
+        throw new RuntimeException("Not implemented");
     }
 
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType) throws OpenClinicaException {
-        return new ArrayList<RuleSetAuditBean>();
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<RuleSetAuditBean> findAllByPermission(Object objCurrentUser, int intActionType) throws OpenClinicaException {
+        throw new RuntimeException("Not implemented");
     }
 
 	@Override
