@@ -38,14 +38,13 @@ public class AuditUserLoginDao extends AbstractDomainDao<AuditUserLoginBean> {
     public ArrayList<AuditUserLoginBean> getWithFilterAndSort(final AuditUserLoginFilter filter, final AuditUserLoginSort sort, final int rowStart,
             final int rowEnd) {
         Criteria criteria = getCurrentSession().createCriteria(domainClass());
-        try {
-		criteria = filter.execute(criteria);
-	} catch (IllegalArgumentException ex) {
-		return new ArrayList<AuditUserLoginBean>();
-	}
+        criteria = filter.execute(criteria);
         criteria = sort.execute(criteria);
         criteria.setFirstResult(rowStart);
         criteria.setMaxResults(rowEnd - rowStart);
+	if (criteria.list().isEmpty()) {
+		return new ArrayList<AuditUserLoginBean>();
+	}
         return (ArrayList<AuditUserLoginBean>) criteria.list();
     }
 
