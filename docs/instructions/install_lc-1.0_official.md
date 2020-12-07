@@ -40,7 +40,11 @@ changes to another step._
     /var/lib/tomcat9/webapps/libreclinica.war*
 1. **create datainfo.properties**  
    You can create your own version of datainfo.properties or copy a template from LibreClinica by executing the command  
-   `sudo -u tomcat cp /var/lib/tomcat9/webapps/libreclinica/WEB-INF/classes/datainfo.properties /usr/share/tomcat9/libreclinica.config/`
+   ```
+   sudo -u tomcat cp \
+      /var/lib/tomcat9/webapps/libreclinica/WEB-INF/classes/datainfo.properties \
+      /usr/share/tomcat9/libreclinica.config/
+   ```
 1. **configure datainfo.properties**  
     Edit /usr/share/tomcat9/libreclinica.config/datainfo.properties to match your requirements.  
     _Detailed instructions on how to configure it properly can be found in the different 
