@@ -38,6 +38,9 @@ changes to another step._
     *context name is the name that comes usually after the slash  
     e.g. for https://libreclinica.org/libreclinica it is
     /var/lib/tomcat9/webapps/libreclinica.war*
+1. **create datainfo.properties**  
+   You can create your own version of datainfo.properties or copy a template from LibreClinica by executing the command  
+   `sudo -u tomcat cp /var/lib/tomcat9/webapps/libreclinica/WEB-INF/classes/datainfo.properties /usr/share/tomcat9/libreclinica.config/`
 1. **configure datainfo.properties**  
     Edit /usr/share/tomcat9/libreclinica.config/datainfo.properties to match your requirements.  
     _Detailed instructions on how to configure it properly can be found in the different 
@@ -77,7 +80,7 @@ changes to another step._
 
 
 You now should be able to access your LibreClinica installation port 8080. e.g.  
-http://<ip of your machine>:8080/libreclinica
+http://\<ip of your machine\>:8080/libreclinica with the default credentials (user: root, password: 12345678).
 
 In a productive environment your system administrator should configure a web server 
 like nginx or apache to act as a reverse proxy for your LibreClinica installation so that
