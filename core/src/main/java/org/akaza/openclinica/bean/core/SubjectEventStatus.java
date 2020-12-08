@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
@@ -51,7 +52,7 @@ public class SubjectEventStatus extends Term implements Comparable<SubjectEventS
 
     private static final SubjectEventStatus[] members = { SCHEDULED, NOT_SCHEDULED, DATA_ENTRY_STARTED, COMPLETED, STOPPED, SKIPPED, SIGNED, LOCKED };
 
-    private static List list = Arrays.asList(members);
+    private static List<SubjectEventStatus> list = Arrays.asList(members);
 
     // Solve the problem with the get() method...
     private static final Map<Integer, String> membersMap = new HashMap<Integer, String>();
@@ -123,18 +124,18 @@ public class SubjectEventStatus extends Term implements Comparable<SubjectEventS
     }
 
     public static SubjectEventStatus get(int id) {
-        return (SubjectEventStatus) Term.get(id, list);
+    	Optional<SubjectEventStatus> o = list.stream().filter(r -> r.getId() == id).findFirst();
+    	return o.orElse(new SubjectEventStatus());
     }
 
-    public static ArrayList toArrayList() {
-        return new ArrayList(list);
+    public static ArrayList<SubjectEventStatus> toArrayList() {
+        return new ArrayList<>(list);
     }
 
     public int compareTo(SubjectEventStatus o) {
         return name.compareTo(o.getName());
     }
 
-    @SuppressWarnings("unchecked")
     public static Collection<String> getSubjectEventStatusValues() {
         return membersMap.values();
     }
