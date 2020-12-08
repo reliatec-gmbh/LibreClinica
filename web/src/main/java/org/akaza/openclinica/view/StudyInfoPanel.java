@@ -7,7 +7,7 @@
  */
 package org.akaza.openclinica.view;
 
-import static org.akaza.openclinica.core.util.RequestHelper.getAttributeAsList;
+import static org.akaza.openclinica.core.util.ClassCastHelper.getAttributeAsList;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

@@ -7,13 +7,12 @@
  */
 package org.akaza.openclinica.control.core;
 
+import static org.akaza.openclinica.core.util.ClassCastHelper.getAttributeAsList;
+
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.ResourceBundle;
@@ -37,6 +36,7 @@ import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.login.StudyUserRoleBean;
 import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
+import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
 import org.akaza.openclinica.bean.managestudy.StudyGroupBean;
 import org.akaza.openclinica.bean.managestudy.StudyGroupClassBean;
 import org.akaza.openclinica.bean.service.StudyParamsConfig;
@@ -62,7 +62,6 @@ import org.akaza.openclinica.web.InconsistentStateException;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.akaza.openclinica.web.SQLInitServlet;
 import org.akaza.openclinica.web.bean.EntityBeanTable;
-import org.quartz.impl.StdScheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -87,10 +86,6 @@ public abstract class CoreSecureController extends HttpServlet {
 	private static final Logger LOGGER = LoggerFactory.getLogger(CoreSecureController.class);
 
     protected HashMap<String, ArrayList<String>> errors = new HashMap<>();
-
-    private static String SCHEDULER = "schedulerFactoryBean";
-
-    private StdScheduler scheduler;
 
     public static ResourceBundle resadmin, resaudit, resexception, resformat, respage, resterm, restext, resword, resworkflow;
 
@@ -135,10 +130,10 @@ public abstract class CoreSecureController extends HttpServlet {
     // protected HashMap errors = new HashMap();//error messages on the page
 
     protected void addPageMessage(String message, HttpServletRequest request) {
-        ArrayList pageMessages = (ArrayList) request.getAttribute(PAGE_MESSAGE);
+        ArrayList<String> pageMessages = getAttributeAsList(request, PAGE_MESSAGE, String.class);
 
         if (pageMessages == null) {
-            pageMessages = new ArrayList();
+            pageMessages = new ArrayList<>();
         }
 
         pageMessages.add(message);
@@ -169,7 +164,7 @@ public abstract class CoreSecureController extends HttpServlet {
 
     protected void setToPanel(String title, String info, HttpServletRequest request) {
         if (panel.isOrderedData()) {
-            ArrayList data = panel.getUserOrderedData();
+            ArrayList<StudyInfoPanelLine> data = panel.getUserOrderedData();
             data.add(new StudyInfoPanelLine(title, info));
             panel.setUserOrderedData(data);
         } else {
@@ -178,11 +173,11 @@ public abstract class CoreSecureController extends HttpServlet {
         request.setAttribute(STUDY_INFO_PANEL, panel);
     }
 
-    protected void setInputMessages(HashMap messages, HttpServletRequest request) {
+    protected void setInputMessages(HashMap<String, ArrayList<String>> messages, HttpServletRequest request) {
         request.setAttribute(INPUT_MESSAGES, messages);
     }
 
-    protected void setPresetValues(HashMap presetValues, HttpServletRequest request) {
+    protected void setPresetValues(HashMap<String, Object> presetValues, HttpServletRequest request) {
         request.setAttribute(PRESET_VALUES, presetValues);
     }
 
@@ -350,9 +345,8 @@ public abstract class CoreSecureController extends HttpServlet {
                  * The Role decription will be set depending on whether the user
                  * logged in at study lever or site level. issue-2422
                  */
-                List roles = Role.toArrayList();
-                for (Iterator it = roles.iterator(); it.hasNext();) {
-                    Role role = (Role) it.next();
+                ArrayList<Role> roles = Role.toArrayList();
+                for (Role role : roles) {
                     switch (role.getId()) {
                         case 2:
                             role.setDescription("site_Study_Coordinator");
@@ -381,9 +375,8 @@ public abstract class CoreSecureController extends HttpServlet {
                  * If the current study is a site, we will change the role
                  * description. issue-2422
                  */
-                List roles = Role.toArrayList();
-                for (Iterator it = roles.iterator(); it.hasNext();) {
-                    Role role = (Role) it.next();
+                ArrayList<Role> roles = Role.toArrayList();
+                for (Role role : roles) {
                     switch (role.getId()) {
                         case 2:
                             role.setDescription("Study_Coordinator");
@@ -626,39 +619,6 @@ public abstract class CoreSecureController extends HttpServlet {
     }
 
     /**
-     * This method supports functionality of the type
-     * "if a list of entities is empty, then jump to some page and display an error message."
-     * This prevents users from seeing empty drop-down lists and being given
-     * error messages when they can't choose an entity from the drop-down list.
-     * Use, e.g.:
-     * <code>addEntityList("groups", allGroups, "There are no groups to display, so you cannot add a subject to this Study.",
-     * Page.SUBMIT_DATA)</code>
-     *
-     * @param beanName
-     *            The name of the entity list as it should be stored in the
-     *            request object.
-     * @param list
-     *            The Collection of entities.
-     * @param messageIfEmpty
-     *            The message to display if the collection is empty.
-     * @param destinationIfEmpty
-     *            The Page to go to if the collection is empty.
-     * @param request
-     *            TODO
-     * @param response
-     *            TODO
-     * @throws InconsistentStateException
-     */
-    protected void addEntityList(String beanName, Collection list, String messageIfEmpty, Page destinationIfEmpty, HttpServletRequest request,
-                                 HttpServletResponse response) throws InconsistentStateException {
-        if (list.isEmpty()) {
-            throw new InconsistentStateException(destinationIfEmpty, messageIfEmpty);
-        }
-
-        request.setAttribute(beanName, list);
-    }
-
-    /**
      * @return A blank String if this servlet is not an Administer System
      *         servlet. CoreSecureController.ADMIN_SERVLET_CODE otherwise.
      */
@@ -784,12 +744,12 @@ public abstract class CoreSecureController extends HttpServlet {
 
     }
 
-    public ArrayList getEventDefinitionsByCurrentStudy(HttpServletRequest request) {
+    public ArrayList<StudyEventDefinitionBean> getEventDefinitionsByCurrentStudy(HttpServletRequest request) {
         StudyDAO studyDAO = new StudyDAO(getDataSource());
         StudyEventDefinitionDAO studyEventDefinitionDAO = new StudyEventDefinitionDAO(getDataSource());
         StudyBean currentStudy = (StudyBean) request.getSession().getAttribute("study");
         int parentStudyId = currentStudy.getParentStudyId();
-        ArrayList allDefs = new ArrayList();
+        ArrayList<StudyEventDefinitionBean> allDefs = new ArrayList<>();
         if (parentStudyId > 0) {
             StudyBean parentStudy = (StudyBean) studyDAO.findByPK(parentStudyId);
             allDefs = studyEventDefinitionDAO.findAllActiveByStudy(parentStudy);
@@ -800,13 +760,13 @@ public abstract class CoreSecureController extends HttpServlet {
         return allDefs;
     }
 
-    public ArrayList getStudyGroupClassesByCurrentStudy(HttpServletRequest request) {
+    public ArrayList<StudyGroupClassBean> getStudyGroupClassesByCurrentStudy(HttpServletRequest request) {
         StudyDAO studyDAO = new StudyDAO(getDataSource());
         StudyGroupClassDAO studyGroupClassDAO = new StudyGroupClassDAO(getDataSource());
         StudyGroupDAO studyGroupDAO = new StudyGroupDAO(getDataSource());
         StudyBean currentStudy = (StudyBean) request.getSession().getAttribute("study");
         int parentStudyId = currentStudy.getParentStudyId();
-        ArrayList studyGroupClasses = new ArrayList();
+        ArrayList<StudyGroupClassBean> studyGroupClasses = new ArrayList<>();
         if (parentStudyId > 0) {
             StudyBean parentStudy = (StudyBean) studyDAO.findByPK(parentStudyId);
             studyGroupClasses = studyGroupClassDAO.findAllActiveByStudy(parentStudy);

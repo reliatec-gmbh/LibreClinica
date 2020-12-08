@@ -13,6 +13,7 @@
  */
 package org.akaza.openclinica.control.admin;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.akaza.openclinica.control.SpringServletAccess;
@@ -58,7 +59,7 @@ public class ConfigurePasswordRequirementsServlet extends SecureController {
                 v.addValidation(key, Validator.IS_AN_INTEGER);
             }
 
-            HashMap<?,?> errors = v.validate();
+            HashMap<String, ArrayList<String>> errors = v.validate();
 
             int minChars = fp.getInt("pwd.chars.min");
             int maxChars = fp.getInt("pwd.chars.max");

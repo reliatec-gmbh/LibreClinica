@@ -153,7 +153,7 @@ public class CreateFiltersTwoServlet extends SecureController {
                 SectionBean secBean = (SectionBean) secDAO.findByPK(sectionId);
                 session.setAttribute("secBean", secBean);
                 ItemFormMetadataDAO ifmDAO = new ItemFormMetadataDAO(sm.getDataSource());
-                Collection metadatas = ifmDAO.findAllBySectionId(sectionId);
+                ArrayList<ItemFormMetadataBean> metadatas = ifmDAO.findAllBySectionId(sectionId);
                 if (metadatas.size() > 0) {
                     request.setAttribute("metadatas", metadatas);
                     forwardPage(Page.CREATE_FILTER_SCREEN_3_2);
@@ -193,7 +193,7 @@ public class CreateFiltersTwoServlet extends SecureController {
                 SectionBean secBean = (SectionBean) session.getAttribute("secBean");
                 addPageMessage(respage.getString("select_questions_before_set_parameters"));
                 ItemFormMetadataDAO ifmDAO = new ItemFormMetadataDAO(sm.getDataSource());
-                Collection metadatas = ifmDAO.findAllBySectionId(secBean.getId());
+                ArrayList<ItemFormMetadataBean> metadatas = ifmDAO.findAllBySectionId(secBean.getId());
                 request.setAttribute("metadatas", metadatas);
                 forwardPage(Page.CREATE_FILTER_SCREEN_3_2);
             }

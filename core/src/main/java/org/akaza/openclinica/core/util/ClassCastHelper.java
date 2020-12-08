@@ -8,6 +8,7 @@
 package org.akaza.openclinica.core.util;
 
 import java.util.ArrayList;
+import java.util.Enumeration;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -17,7 +18,7 @@ import javax.servlet.http.HttpServletRequest;
  * @author Christian H&auml;nsel
  *
  */
-public class RequestHelper {
+public class ClassCastHelper {
 
 	/**
 	 * Returns the value of the named attribute as the given result type,
@@ -53,13 +54,50 @@ public class RequestHelper {
      *
 	 * @param resultType the expected result type
      *
-     * @return		an <code>Object</code> containing the value 
+     * @return		an <code>ArrayList</code> containing the value 
+     *			of the attribute, or <code>null</code> if
+     *			the attribute does not exist
+     * @see HttpServletRequest#getAttribute(String)
+	 */
+	public static <T> ArrayList<T> getAttributeAsList(HttpServletRequest request, String name, Class<T> resultType) {    	
+        return asArrayList(request.getAttribute(name), resultType);
+    }
+
+	/**
+	 * Returns the value of the named attribute as an ArrayList with the given result type,
+     * or <code>null</code> if no attribute of the given name exists. 
+     * 
+	 * @param <T> the expected result type
+	 * @param the object to cast
+     *
+	 * @param resultType the expected result type
+     *
+     * @return		an <code>Enumeration</code> containing the value 
      *			of the attribute, or <code>null</code> if
      *			the attribute does not exist
      * @see HttpServletRequest#getAttribute(String)
 	 */
     @SuppressWarnings("unchecked")
-	public static <T> ArrayList<T> getAttributeAsList(HttpServletRequest request, String name, Class<T> resultType) {    	
-        return (ArrayList<T>) request.getAttribute(name);
+	public static <T> ArrayList<T> asArrayList(Object o, Class<T> resultType) {    	
+        return (ArrayList<T>) o;
+    }
+
+	/**
+	 * Returns the value of the named attribute as an Enumeration with the given result type,
+     * or <code>null</code> if no attribute of the given name exists. 
+     * 
+	 * @param <T> the expected result type
+	 * @param the object to cast
+     *
+	 * @param resultType the expected result type
+     *
+     * @return		an <code>Enumeration</code> containing the value 
+     *			of the attribute, or <code>null</code> if
+     *			the attribute does not exist
+     * @see HttpServletRequest#getAttribute(String)
+	 */
+    @SuppressWarnings("unchecked")
+	public static <T> Enumeration<T> asEnumeration(Object o, Class<T> resultType) {    	
+        return (Enumeration<T>) o;
     }
 }
