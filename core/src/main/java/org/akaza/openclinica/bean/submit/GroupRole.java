@@ -7,11 +7,12 @@
  */
 package org.akaza.openclinica.bean.submit;
 
-import org.akaza.openclinica.bean.core.Term;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+
+import org.akaza.openclinica.bean.core.Term;
 
 /**
  * @author jxu
@@ -28,7 +29,7 @@ public class GroupRole extends Term {
 
     private static final GroupRole[] members = { PROBAND };
 
-    public static final List list = Arrays.asList(members);
+    public static final List<GroupRole> list = Arrays.asList(members);
 
     private GroupRole(int id, String name) {
         super(id, name);
@@ -42,11 +43,12 @@ public class GroupRole extends Term {
     }
 
     public static GroupRole get(int id) {
-        return (GroupRole) Term.get(id, list);
+    	Optional<GroupRole> groupRole = list.stream().filter(r -> r.getId() == id).findFirst();
+    	return groupRole.orElse(new GroupRole());
     }
 
-    public static ArrayList toArrayList() {
-        return new ArrayList(list);
+    public static ArrayList<GroupRole> toArrayList() {
+        return new ArrayList<>(list);
     }
 
     @Override
