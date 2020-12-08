@@ -9,6 +9,7 @@ package org.akaza.openclinica.bean.core;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 // implicit controlled vocab, not stored in db
 
@@ -29,7 +30,7 @@ public class NumericComparisonOperator extends Term {
         new NumericComparisonOperator(6, "greater_than_or_equal_to", "greater_than_or_equal_to");
 
     private static final NumericComparisonOperator[] members = { EQUALS, NOT_EQUALS, LESS_THAN, LESS_THAN_OR_EQUAL_TO, GREATER_THAN, GREATER_THAN_OR_EQUAL_TO };
-    public static final List list = Arrays.asList(members);
+    public static final List<NumericComparisonOperator> list = Arrays.asList(members);
 
     private NumericComparisonOperator(int id, String name) {
         super(id, name);
@@ -47,6 +48,7 @@ public class NumericComparisonOperator extends Term {
     }
 
     public static NumericComparisonOperator get(int id) {
-        return (NumericComparisonOperator) Term.get(id, list);
+    	Optional<NumericComparisonOperator> o = list.stream().filter(r -> r.getId() == id).findFirst();
+    	return o.orElse(new NumericComparisonOperator());
     }
 }
