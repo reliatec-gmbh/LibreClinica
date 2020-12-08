@@ -101,20 +101,17 @@ public class CreateUserAccountServlet extends SecureController {
             }
         }
         addEntityList("studies", finalList, respage.getString("a_user_cannot_be_created_no_study_as_active"), Page.ADMIN_SYSTEM);
-        // YW >>
-        Map roleMap = new LinkedHashMap();
-        for (Iterator it = getRoles().iterator(); it.hasNext();) {
-            Role role = (Role) it.next();
+        Map<Integer, String> roleMap = new LinkedHashMap<>();
+        ArrayList<Role> roles = getRoles();
+        for(Role role : roles) {
             // I added the below if statement , to exclude displaying on study level the newly added 'ReseachAssisstant2' role by default.
             if (role.getId() != 7) 
                 roleMap.put(role.getId(), role.getDescription());
-//            roleMap.put(role.getId(), role.getDescription());
         }
 
-        // addEntityList("roles", getRoles(), respage.getString("a_user_cannot_be_created_no_roles_as_role"), Page.ADMIN_SYSTEM);
         request.setAttribute("roles", roleMap);
 
-        ArrayList types = UserType.toArrayList();
+        ArrayList<UserType> types = UserType.toArrayList();
         types.remove(UserType.INVALID);
         if (!ub.isTechAdmin()) {
             types.remove(UserType.TECHADMIN);
@@ -125,11 +122,11 @@ public class CreateUserAccountServlet extends SecureController {
         int activeStudy = fp.getInt(INPUT_STUDY);
         if (changeRoles) {
             StudyBean study = (StudyBean) sdao.findByPK(activeStudy);
-            roleMap = new LinkedHashMap();
+            roleMap = new LinkedHashMap<>();
             ResourceBundle resterm = org.akaza.openclinica.i18n.util.ResourceBundleProvider.getTermsBundle();
 
             if (study.getParentStudyId() > 0) {
-                for (Iterator it = getRoles().iterator(); it.hasNext();) {
+                for (Iterator<Role> it = getRoles().iterator(); it.hasNext();) {
                     Role role = (Role) it.next();
                     switch (role.getId()) {
                     // case 2: roleMap.put(role.getId(), resterm.getString("site_Study_Coordinator").trim());
@@ -153,7 +150,7 @@ public class CreateUserAccountServlet extends SecureController {
                     }
                 }
             } else {
-                for (Iterator it = getRoles().iterator(); it.hasNext();) {
+                for (Iterator<Role> it = getRoles().iterator(); it.hasNext();) {
                     Role role = (Role) it.next();
                     switch (role.getId()) {
                     case 2:
@@ -188,7 +185,7 @@ public class CreateUserAccountServlet extends SecureController {
             String ddlbFields[] = { INPUT_STUDY, INPUT_ROLE, INPUT_TYPE, INPUT_RUN_WEBSERVICES };
             fp.setCurrentIntValuesAsPreset(ddlbFields);
 
-            HashMap presetValues = fp.getPresetValues();
+            HashMap<String, Object> presetValues = fp.getPresetValues();
             // Mantis Issue 6058.
             String sendPwd = SQLInitServlet.getField("user_account_notification");
             fp.addPresetValue(USER_ACCOUNT_NOTIFICATION, sendPwd);
@@ -223,7 +220,7 @@ public class CreateUserAccountServlet extends SecureController {
             v.addValidation(INPUT_STUDY, Validator.ENTITY_EXISTS, sdao);
             v.addValidation(INPUT_ROLE, Validator.IS_VALID_TERM, TermType.ROLE);
 
-            HashMap errors = v.validate();
+            HashMap<String, ArrayList<String>> errors = v.validate();
 
             if (errors.isEmpty()) {
                 UserAccountBean createdUserAccountBean = new UserAccountBean();
@@ -306,7 +303,7 @@ public class CreateUserAccountServlet extends SecureController {
                 String ddlbFields[] = { INPUT_STUDY, INPUT_ROLE, INPUT_TYPE, INPUT_RUN_WEBSERVICES };
                 fp.setCurrentIntValuesAsPreset(ddlbFields);
 
-                HashMap presetValues = fp.getPresetValues();
+                HashMap<String, Object> presetValues = fp.getPresetValues();
                 setPresetValues(presetValues);
 
                 setInputMessages(errors);
@@ -327,31 +324,29 @@ public class CreateUserAccountServlet extends SecureController {
      * in the session scope.
      * @param presetValues
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    protected void setPresetValues(HashMap presetValues) {
-        HashMap map = presetValues;
+    protected void setPresetValues(HashMap<String, Object> presetValues) {
         if (isLdapEnabled()) {
             LdapUser ldapUser = (LdapUser) session.getAttribute("ldapUser");
             if (ldapUser != null) {
                 session.removeAttribute("ldapUser");
-                if (map == null) {
-                    map = new HashMap();
+                if (presetValues == null) {
+                	presetValues = new HashMap<>();
                 }
                 
-                map.put("userName", ldapUser.getUsername());
-                map.put("firstName", ldapUser.getFirstName());
-                map.put("lastName", ldapUser.getLastName());
-                map.put("email", ldapUser.getEmail());
-                map.put("institutionalAffiliation", ldapUser.getOrganization());
+                presetValues.put("userName", ldapUser.getUsername());
+                presetValues.put("firstName", ldapUser.getFirstName());
+                presetValues.put("lastName", ldapUser.getLastName());
+                presetValues.put("email", ldapUser.getEmail());
+                presetValues.put("institutionalAffiliation", ldapUser.getOrganization());
             }
         }
-        super.setPresetValues(map);
+        super.setPresetValues(presetValues);
     }
 
-    private ArrayList getRoles() {
+    private ArrayList<Role> getRoles() {
 
-        ArrayList roles = Role.toArrayList();
+        ArrayList<Role> roles = Role.toArrayList();
         roles.remove(Role.ADMIN);
 
         return roles;
