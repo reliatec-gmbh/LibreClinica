@@ -7,6 +7,8 @@
  */
 package org.akaza.openclinica.control.form;
 
+import static org.akaza.openclinica.core.util.ClassCastHelper.asEnumeration;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -17,8 +19,6 @@ import java.util.ResourceBundle;
 import javax.servlet.http.HttpServletRequest;
 
 import org.akaza.openclinica.bean.core.EntityBean;
-import org.akaza.openclinica.dao.core.EntityDAO;
-import org.akaza.openclinica.exception.OpenClinicaException;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.i18n.util.I18nFormatUtil;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
@@ -55,7 +55,7 @@ import org.slf4j.LoggerFactory;
 public class FormProcessor {
     private HttpServletRequest request;
     private final Locale locale;
-    private HashMap presetValues;
+    private HashMap<String, Object> presetValues;
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
 
     public static final String DEFAULT_STRING = "";
@@ -75,7 +75,7 @@ public class FormProcessor {
 
     public FormProcessor(HttpServletRequest request) {
         this.request = request;
-        this.presetValues = new HashMap();
+        this.presetValues = new HashMap<>();
         this.locale = LocaleResolver.getLocale(request);
     }
 
@@ -97,7 +97,7 @@ public class FormProcessor {
     /**
      * @return Returns the presetValues.
      */
-    public HashMap getPresetValues() {
+    public HashMap<String, Object> getPresetValues() {
         return presetValues;
     }
 
@@ -105,12 +105,12 @@ public class FormProcessor {
      * @param presetValues
      *            The presetValues to set.
      */
-    public void setPresetValues(HashMap presetValues) {
+    public void setPresetValues(HashMap<String, Object> presetValues) {
         this.presetValues = presetValues;
     }
 
     public void clearPresetValues() {
-        presetValues = new HashMap();
+        presetValues = new HashMap<>();
     }
 
     public String getString(String fieldName, boolean searchAttributes) {
@@ -153,8 +153,8 @@ public class FormProcessor {
      *         Guaranteed to be non-null. All elements guaranteed to be
      *         non-null.
      */
-    public ArrayList getStringArray(String fieldName) {
-        ArrayList answer = new ArrayList();
+    public ArrayList<String> getStringArray(String fieldName) {
+        ArrayList<String> answer = new ArrayList<>();
 
         String values[] = request.getParameterValues(fieldName);
 
@@ -172,19 +172,14 @@ public class FormProcessor {
     // GET STARTS WITH, added tbh 01/2010
     public boolean getStartsWith(String partialFieldName) {
         boolean answer = false;
-        CharSequence seq = partialFieldName.subSequence(0, partialFieldName.length());
-        // System.out.println("checking " + seq.toString());
-        java.util.Enumeration<String> names = request.getParameterNames();
-
+        java.util.Enumeration<String> names = asEnumeration(request.getParameterNames(), String.class);
+        
         while (names.hasMoreElements()) {
-
             String name = names.nextElement();
-            // System.out.println("*** Comparing " + name + " and " + seq.toString() );
-            if (name.contains(seq)) {
-            //    System.out.println("*** FOUND " + seq.toString());
-                return true;
+            if (name.contains(partialFieldName)) {
+                answer = true;
+                break;
             }
-
         }
         return answer;
     }
