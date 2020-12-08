@@ -7,11 +7,12 @@
  */
 package org.akaza.openclinica.bean.submit;
 
-import org.akaza.openclinica.bean.core.Term;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+
+import org.akaza.openclinica.bean.core.Term;
 
 /**
  * @author jxu, modified by ywang
@@ -41,7 +42,7 @@ public class GroupType extends Term {
     private static final GroupType[] members = { ARM, FAMILY, DEMOGRAPHIC, OTHER };
     // YW >>
 
-    public static final List list = Arrays.asList(members);
+    public static final List<GroupType> list = Arrays.asList(members);
 
     private GroupType(int id, String name) {
         super(id, name);
@@ -55,11 +56,12 @@ public class GroupType extends Term {
     }
 
     public static GroupType get(int id) {
-        return (GroupType) Term.get(id, list);
+    	Optional<GroupType> groupRole = list.stream().filter(r -> r.getId() == id).findFirst();
+    	return groupRole.orElse(new GroupType());
     }
 
-    public static ArrayList toArrayList() {
-        return new ArrayList(list);
+    public static ArrayList<GroupType> toArrayList() {
+        return new ArrayList<>(list);
     }
 
 }
