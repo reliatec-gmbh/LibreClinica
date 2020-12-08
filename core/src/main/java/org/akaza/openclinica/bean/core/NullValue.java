@@ -10,6 +10,7 @@ package org.akaza.openclinica.bean.core;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -77,7 +78,7 @@ public class NullValue extends Term {
 
     private static final NullValue[] members = { NI, NA, UNK, NASK, ASKU, NAV, OTH, PINF, NINF, MSK, NP, NPE };
 
-    public static final List list = Arrays.asList(members);
+    public static final List<NullValue> list = Arrays.asList(members);
 
     private NullValue(int id, String name, String description) {
         super(id, name, description);
@@ -91,11 +92,12 @@ public class NullValue extends Term {
     }
 
     public static NullValue get(int id) {
-        Term t = Term.get(id, list);
+    	Optional<NullValue> o = list.stream().filter(r -> r.getId() == id).findFirst();
+    	NullValue t = o.orElse(new NullValue());
         if (!t.isActive()) {
             return INVALID;
         } else {
-            return (NullValue) t;
+            return t;
         }
     }
 
@@ -109,8 +111,8 @@ public class NullValue extends Term {
         return INVALID;
     }
 
-    public static ArrayList toArrayList() {
-        return new ArrayList(list);
+    public static ArrayList<NullValue> toArrayList() {
+        return new ArrayList<>(list);
     }
 
     @Override
