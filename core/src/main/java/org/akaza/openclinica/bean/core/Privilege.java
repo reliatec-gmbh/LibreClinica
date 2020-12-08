@@ -10,6 +10,7 @@ package org.akaza.openclinica.bean.core;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author ssachs
@@ -33,7 +34,7 @@ public class Privilege extends Term {
     public static final Privilege RESEARCHASSISTANT2 = new Privilege(6, "ra2");
 
     private static final Privilege[] members = { ADMIN, STUDYDIRECTOR, INVESTIGATOR, RESEARCHASSISTANT, MONITOR,RESEARCHASSISTANT2 };
-    public static final List list = Arrays.asList(members);
+    public static final List<Privilege> list = Arrays.asList(members);
 
     private Privilege(int id, String name) {
         super(id, name);
@@ -47,10 +48,11 @@ public class Privilege extends Term {
     }
 
     public static Privilege get(int id) {
-        return (Privilege) Term.get(id, list);
+    	Optional<Privilege> o = list.stream().filter(r -> r.getId() == id).findFirst();
+    	return o.orElse(new Privilege());
     }
 
-    public static ArrayList toArrayList() {
-        return new ArrayList(list);
+    public static ArrayList<Privilege> toArrayList() {
+        return new ArrayList<>(list);
     }
 }
