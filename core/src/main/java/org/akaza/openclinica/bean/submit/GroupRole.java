@@ -43,8 +43,8 @@ public class GroupRole extends Term {
     }
 
     public static GroupRole get(int id) {
-    	Optional<GroupRole> groupRole = list.stream().filter(r -> r.getId() == id).findFirst();
-    	return groupRole.orElse(new GroupRole());
+    	Optional<GroupRole> o = list.stream().filter(r -> r.getId() == id).findFirst();
+    	return o.orElse(new GroupRole());
     }
 
     public static ArrayList<GroupRole> toArrayList() {
