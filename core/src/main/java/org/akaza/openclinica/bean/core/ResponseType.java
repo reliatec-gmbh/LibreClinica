@@ -9,6 +9,7 @@ package org.akaza.openclinica.bean.core;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author ssachs
@@ -45,7 +46,7 @@ public class ResponseType extends Term {
 
     private static final ResponseType[] members = { TEXT, TEXTAREA, CHECKBOX, FILE, RADIO, SELECT, SELECTMULTI, CALCULATION, GROUP_CALCULATION, INSTANT_CALCULATION};// , CODING };
 
-    public static final List list = Arrays.asList(members);
+    public static final List<ResponseType> list = Arrays.asList(members);
 
     private ResponseType(int id, String name) {
         super(id, name);
@@ -59,7 +60,8 @@ public class ResponseType extends Term {
     }
 
     public static ResponseType get(int id) {
-        Term t = Term.get(id, list);
+    	Optional<ResponseType> o = list.stream().filter(r -> r.getId() == id).findFirst();
+    	ResponseType t = o.orElse(new ResponseType());
 
         if (!t.isActive()) {
             return TEXT;
