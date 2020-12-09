@@ -34,10 +34,10 @@ public class SEDColumn {
      */
     @Override
     public boolean equals(Object obj) {
-        if (!obj.getClass().equals(this.getClass())) {
+        if (obj == null) {
             return false;
         }
-        if (obj == null) {
+        if (!obj.getClass().equals(this.getClass())) {
             return false;
         }
 
