@@ -25,12 +25,12 @@ public class OrderedEntityBeansSet {
      * Key is entity's id, value is Integer whose value is index into entities.
      * If key is present, entity was added to entities; otherwise it was not.
      */
-    private HashMap entityIsAdded = new HashMap();
+    private HashMap<Integer, Integer> entityIsAdded = new HashMap<>();
 
     /**
      * Array of EntityBeans, ordered as they should be retrieved.
      */
-    private ArrayList entities = new ArrayList();
+    private ArrayList<EntityBean> entities = new ArrayList<>();
 
     /**
      * Returned by add in case of error.
@@ -82,10 +82,10 @@ public class OrderedEntityBeansSet {
      *            The entity to update.
      */
     public void update(EntityBean entity) {
-        Integer key = new Integer(entity.getId());
+        Integer key = entity.getId();
 
         if (entityIsAdded.containsKey(key)) {
-            Integer ind = (Integer) entityIsAdded.get(key);
+            Integer ind = entityIsAdded.get(key);
 
             if (ind == null) {
                 return;
@@ -103,7 +103,7 @@ public class OrderedEntityBeansSet {
     /**
      * @return Returns the entities.
      */
-    public ArrayList getEntities() {
+    public ArrayList<EntityBean> getEntities() {
         return entities;
     }
 
