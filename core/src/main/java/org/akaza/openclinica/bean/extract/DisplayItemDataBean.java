@@ -28,9 +28,9 @@ public class DisplayItemDataBean {
     private ArrayList<String> itemValues = new ArrayList<>();
     // private ArrayList groupNames = new ArrayList();
     // was a hashmap with class id as the key, tbh
-    private HashMap groupNames = new HashMap();
+    private HashMap<Integer, String> groupNames = new HashMap<>();
 
-    public HashMap getGroupNames() {
+    public HashMap<Integer, String> getGroupNames() {
         return groupNames;
     }
 
