@@ -17,7 +17,6 @@ package org.akaza.openclinica.bean.extract;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -90,7 +89,7 @@ public class SPSSReportBean extends ReportBean<DisplayItemHeaderBean> {
     /**
      * @return Returns the descriptions.
      */
-    public HashMap getDescriptions() {
+    public HashMap<String, String> getDescriptions() {
         return descriptions;
     }
 
@@ -98,7 +97,7 @@ public class SPSSReportBean extends ReportBean<DisplayItemHeaderBean> {
      * @param descriptions
      *            The descriptions to set.
      */
-    public void setDescriptions(HashMap descriptions) {
+    public void setDescriptions(HashMap<String, String> descriptions) {
         this.descriptions = descriptions;
     }
 
@@ -152,7 +151,7 @@ public class SPSSReportBean extends ReportBean<DisplayItemHeaderBean> {
         if (data.size() <= 0) {
             answer.append(".\n");
         } else {
-            ArrayList columns = (ArrayList) data.get(this.COLUMNS_IND);
+            ArrayList<String> columns = data.get(SPSSReportBean.COLUMNS_IND);
 
             int startItem = columns.size() - items.size();
 
@@ -189,12 +188,12 @@ public class SPSSReportBean extends ReportBean<DisplayItemHeaderBean> {
                             len = 1; // mininum length required by spss
                         }
                         // >> tbh #5524
-                        ArrayList metas = ib.getItemMetas();
+                        ArrayList<ItemFormMetadataBean> metas = ib.getItemMetas();
                         
                         for (int k = 0; k < metas.size(); k++) {
                             ItemFormMetadataBean ifmb = (ItemFormMetadataBean) metas.get(k);
                             ResponseSetBean rsb = ifmb.getResponseSet();
-                            ArrayList options = rsb.getOptions();
+                            ArrayList<ResponseOptionBean> options = rsb.getOptions();
                             for (int l = 0; l < options.size(); l++) {
                                 ResponseOptionBean ro = (ResponseOptionBean) options.get(l);
                                 if (ro.getText().length() > len) {
@@ -245,7 +244,7 @@ public class SPSSReportBean extends ReportBean<DisplayItemHeaderBean> {
                     if (len == 0) {
                         len = 1; // mininum length required by spss
                     }
-                    ArrayList metas = ib.getItemMetas();
+                    ArrayList<ItemFormMetadataBean> metas = ib.getItemMetas();
                     int optionCount = 0;
                     for (int k = 0; k < metas.size(); k++) {
                         ItemFormMetadataBean ifmb = (ItemFormMetadataBean) metas.get(k);
@@ -255,7 +254,7 @@ public class SPSSReportBean extends ReportBean<DisplayItemHeaderBean> {
                             optionCount++;
                         }
                         // tbh >> #5524: all possible response value options should be reviewed so that length is OK
-                        ArrayList options = rsb.getOptions();
+                        ArrayList<ResponseOptionBean> options = rsb.getOptions();
                         for (int l = 0; l < options.size(); l++) {
                             ResponseOptionBean ro = (ResponseOptionBean) options.get(l);
                             if (ro.getText().length() > len) {
@@ -317,8 +316,8 @@ public class SPSSReportBean extends ReportBean<DisplayItemHeaderBean> {
                 String varLabel = (String) itemNames.get(i + startItem);
                 temp += "\t" + varLabel + "\n";
                 boolean allOption = true;
-                ArrayList metas = ib.getItemMetas();
-                HashMap optionMap = new LinkedHashMap();
+                ArrayList<ItemFormMetadataBean> metas = ib.getItemMetas();
+                HashMap<String, ArrayList<String>> optionMap = new LinkedHashMap<>();
 
                 for (int k = 0; k < metas.size(); k++) {
                     ItemFormMetadataBean ifmb = (ItemFormMetadataBean) metas.get(k);
@@ -335,14 +334,14 @@ public class SPSSReportBean extends ReportBean<DisplayItemHeaderBean> {
 
                             String key = ob.getValue();
                             if (optionMap.containsKey(key)) {
-                                ArrayList a = (ArrayList) optionMap.get(key);
+                                ArrayList<String> a = optionMap.get(key);
                                 if (!a.contains(ob.getText())) {
                                     a.add(ob.getText());
                                     optionMap.put(key, a);
                                 }
 
                             } else {
-                                ArrayList a = new ArrayList();
+                                ArrayList<String> a = new ArrayList<>();
                                 a.add(ob.getText());
                                 optionMap.put(key, a);
 
@@ -352,10 +351,8 @@ public class SPSSReportBean extends ReportBean<DisplayItemHeaderBean> {
 
                     }
                 }
-                Iterator it = optionMap.keySet().iterator();
-                while (it.hasNext()) {
-                    String value = (String) it.next();
-                    ArrayList a = (ArrayList) optionMap.get(value);
+                for(String value : optionMap.keySet()) {
+                    ArrayList<String> a = optionMap.get(value);
                     String texts = "";
                     if (a.size() > 1) {
                         for (int n = 0; n < a.size(); n++) {
@@ -409,7 +406,7 @@ public class SPSSReportBean extends ReportBean<DisplayItemHeaderBean> {
 
         // YW >>
 
-        ArrayList row = (ArrayList) data.get(1);
+        ArrayList<String> row = data.get(1);
         for (int j = 0; j < row.size(); j++) {
             // answer += (String) row.get(j) + "\t";
             answer.append(itemNames.get(j) + "\t");
@@ -418,7 +415,7 @@ public class SPSSReportBean extends ReportBean<DisplayItemHeaderBean> {
 
         for (int i = 2; i < data.size(); i++) {// if start with row 2, not
             // include header, just row data
-            row = (ArrayList) data.get(i);
+            row = data.get(i);
             for (int j = 0; j < row.size(); j++) {
                 String s = ((String)row.get(j)).replaceAll("\\s", " ");
                 // >> tbh #5523: we should catch strings of type dd-MMM-yyyy AND yyyy-MM-dd
@@ -437,7 +434,7 @@ public class SPSSReportBean extends ReportBean<DisplayItemHeaderBean> {
 
     // YW
     private boolean isIntType(ItemBean ib) {
-        ArrayList metas = ib.getItemMetas();
+        ArrayList<ItemFormMetadataBean> metas = ib.getItemMetas();
         for (int k = 0; k < metas.size(); k++) {
             ItemFormMetadataBean ifmb = (ItemFormMetadataBean) metas.get(k);
             ResponseSetBean rsb = ifmb.getResponseSet();
