@@ -114,7 +114,7 @@ public class AccountController {
      */
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
-    public ResponseEntity<HashMap> getAccountByUserName(@RequestBody HashMap<String, String> requestMap) throws Exception {
+    public ResponseEntity<HashMap<?, ?>> getAccountByUserName(@RequestBody HashMap<String, String> requestMap) throws Exception {
 
         String userName = (requestMap.get("username")).trim();
         String password = (requestMap.get("password")).trim();
@@ -124,7 +124,7 @@ public class AccountController {
         try {
             authentication = authenticationManager.authenticate(authentication);
         } catch (Exception bce) {
-            return new ResponseEntity<HashMap>(new HashMap(), org.springframework.http.HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<HashMap<?, ?>>(new HashMap<>(), org.springframework.http.HttpStatus.UNAUTHORIZED);
         }
 
         ResourceBundleProvider.updateLocale(new Locale("en_US"));
@@ -151,10 +151,10 @@ public class AccountController {
             }
             userDTO.put("roles", rolesDTO);
         } else {
-            return new ResponseEntity<HashMap>(new HashMap(), org.springframework.http.HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<HashMap<?, ?>>(new HashMap<>(), org.springframework.http.HttpStatus.UNAUTHORIZED);
 
         }
-        return new ResponseEntity<HashMap>(userDTO, org.springframework.http.HttpStatus.OK);
+        return new ResponseEntity<HashMap<?, ?>>(userDTO, org.springframework.http.HttpStatus.OK);
     }
 
     /**
@@ -349,7 +349,7 @@ public class AccountController {
         if (isStudySubjectDoesNotExist(studySubjectBean))
             return new ResponseEntity<UserDTO>(uDTO, org.springframework.http.HttpStatus.NOT_ACCEPTABLE);
         // build UserName
-        HashMap<String, String> mapValues = buildParticipantUserName(studySubjectBean);
+        HashMap<String, String> mapValues = new HashMap<String, String>(buildParticipantUserName(studySubjectBean));
         String pUserName = mapValues.get("pUserName"); // Participant User Name
 
         UserAccountDAO udao = new UserAccountDAO(dataSource);
@@ -767,8 +767,8 @@ public class AccountController {
         return false;
     }
 
-    private HashMap buildParticipantUserName(StudySubjectBean studySubjectBean) {
-        HashMap<String, String> map = new HashMap();
+    private HashMap<String, String> buildParticipantUserName(StudySubjectBean studySubjectBean) {
+        HashMap<String, String> map = new HashMap<>();
         String studySubjectOid = studySubjectBean.getOid();
         Integer studyId = studySubjectBean.getStudyId();
         StudyBean study = getParentStudy(studyId);
@@ -993,8 +993,8 @@ public class AccountController {
     }
 
     @RequestMapping(value = "/auditcrc", method = RequestMethod.POST)
-    public ResponseEntity<HashMap> auditcrc(@RequestBody HashMap<String, String> requestMap) throws Exception {
-        HashMap map = new HashMap();
+    public ResponseEntity<HashMap<String, String>> auditcrc(@RequestBody HashMap<String, String> requestMap) throws Exception {
+        HashMap<String, String> map = new HashMap<>();
 
         String crcUserName = requestMap.get("crcUserName");
         String studyOid = requestMap.get("studyOid");
@@ -1017,7 +1017,7 @@ public class AccountController {
 
         getAuditUserLoginDao().save(auditUserLogin);
 
-        return new ResponseEntity<HashMap>(map, org.springframework.http.HttpStatus.OK);
+        return new ResponseEntity<HashMap<String, String>>(map, org.springframework.http.HttpStatus.OK);
     }
 
     public AuditUserLoginDao getAuditUserLoginDao() {
