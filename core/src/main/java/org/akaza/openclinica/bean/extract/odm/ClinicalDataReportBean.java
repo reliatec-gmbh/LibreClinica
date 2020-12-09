@@ -551,37 +551,35 @@ public class ClinicalDataReportBean extends OdmXmlReportBean {
     public OdmClinicalDataBean getClinicalData() {
         return this.clinicalData;
     }
-	@SuppressWarnings("unchecked")
+
 	private void sortImportItemGroupDataBeanList(ArrayList<ImportItemGroupDataBean> igs) {
 
-	    Collections.sort(igs, new Comparator() {
+	    Collections.sort(igs, new Comparator<ImportItemGroupDataBean>() {
+	        public int compare(ImportItemGroupDataBean o1, ImportItemGroupDataBean o2) {
 
-	        public int compare(Object o1, Object o2) {
-
-	            String x1 = ((ImportItemGroupDataBean) o1).getItemGroupOID();
-	            String x2 = ((ImportItemGroupDataBean) o2).getItemGroupOID();
+	            String x1 = o1.getItemGroupOID();
+	            String x2 = o2.getItemGroupOID();
 	            int sComp = x1.compareTo(x2);
 
 	            if (sComp != 0) {
 	               return sComp;
 	            } else {
-	              Integer  i1 = Integer.valueOf(((ImportItemGroupDataBean) o1).getItemGroupRepeatKey());
-	               Integer i2 = Integer.valueOf(((ImportItemGroupDataBean) o2).getItemGroupRepeatKey());
+	              Integer  i1 = Integer.valueOf(o1.getItemGroupRepeatKey());
+	               Integer i2 = Integer.valueOf(o2.getItemGroupRepeatKey());
 	               return i1.compareTo(i2);
 	            }
 	            }
 	    });
 	}
 
-	@SuppressWarnings("unchecked")
 	private void sortImportItemDataBeanList(ArrayList<ImportItemDataBean> items) {
 
-	    Collections.sort(items, new Comparator() {
+	    Collections.sort(items, new Comparator<ImportItemDataBean>() {
 
-	        public int compare(Object o1, Object o2) {
+	        public int compare(ImportItemDataBean o1, ImportItemDataBean o2) {
 
-	              String  i1 = ((ImportItemDataBean) o1).getItemOID();
-	              String  i2 = ((ImportItemDataBean) o2).getItemOID();
+	              String  i1 = o1.getItemOID();
+	              String  i2 = o2.getItemOID();
 	         //     Integer  i1 = ((ImportItemDataBean) o1).getItemId();
 	         //     Integer  i2 = ((ImportItemDataBean) o2).getItemId();
 	               return i1.compareTo(i2);
