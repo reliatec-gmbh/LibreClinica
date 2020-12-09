@@ -25,8 +25,8 @@ public class PrintCRFBean {
     private CRFVersionBean crfVersionBean;
     private EventCRFBean eventCrfBean;
     private DisplaySectionBean displaySectionBean;
-    private List displaySectionBeans;
-    private List allSections;
+    private List<DisplaySectionBean> displaySectionBeans;
+    private List<DisplaySectionBean> allSections;
     private boolean grouped;
 
     public boolean isGrouped() {
@@ -77,19 +77,19 @@ public class PrintCRFBean {
         this.displaySectionBean = displaySectionBean;
     }
 
-    public List getDisplaySectionBeans() {
+    public List<DisplaySectionBean> getDisplaySectionBeans() {
         return displaySectionBeans;
     }
 
-    public void setDisplaySectionBeans(List displaySectionBeans) {
+    public void setDisplaySectionBeans(List<DisplaySectionBean> displaySectionBeans) {
         this.displaySectionBeans = displaySectionBeans;
     }
 
-    public List getAllSections() {
+    public List<DisplaySectionBean> getAllSections() {
         return allSections;
     }
 
-    public void setAllSections(List allSections) {
+    public void setAllSections(List<DisplaySectionBean> allSections) {
         this.allSections = allSections;
     }
 }
