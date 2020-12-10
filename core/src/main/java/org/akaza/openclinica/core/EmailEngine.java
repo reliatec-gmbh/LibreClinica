@@ -94,7 +94,7 @@ public class EmailEngine {
     }
 
     private InternetAddress[] processMultipleImailAddresses(String to) throws MessagingException {
-        ArrayList recipientsArray = new ArrayList();
+        ArrayList<String> recipientsArray = new ArrayList<>();
         StringTokenizer st = new StringTokenizer(to, ",");
         while (st.hasMoreTokens()) {
             recipientsArray.add(st.nextToken());
