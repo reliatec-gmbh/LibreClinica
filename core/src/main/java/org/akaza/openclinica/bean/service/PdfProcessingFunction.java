@@ -22,6 +22,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.File;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -31,6 +32,7 @@ import javax.xml.transform.Source;
 import javax.xml.transform.Result;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.transform.sax.SAXResult;
+import static org.akaza.openclinica.core.util.ClassCastHelper.asArrayList;
 /**
  * PdfProcessingFunction, a post-processing function for Extract Data
  * By Tom Hickerson, 09/2010
@@ -110,9 +112,8 @@ public class PdfProcessingFunction extends ProcessingFunction  {
 
             // Result processing
             FormattingResults foResults = fop.getResults();
-            java.util.List pageSequences = foResults.getPageSequences();
-            for (java.util.Iterator it = pageSequences.iterator(); it.hasNext();) {
-                PageSequenceResults pageSequenceResults = (PageSequenceResults)it.next();
+            ArrayList<PageSequenceResults> pageSequences = asArrayList(foResults.getPageSequences(), PageSequenceResults.class);
+            for(PageSequenceResults pageSequenceResults : pageSequences) {
                 logger.debug("PageSequence "
                         + (String.valueOf(pageSequenceResults.getID()).length() > 0
                                 ? pageSequenceResults.getID() : "<no id>")
