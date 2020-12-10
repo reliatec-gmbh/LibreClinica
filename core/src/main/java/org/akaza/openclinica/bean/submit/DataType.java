@@ -7,14 +7,13 @@
  */
 package org.akaza.openclinica.bean.submit;
 
-import org.akaza.openclinica.bean.core.DatasetItemStatus;
-import org.akaza.openclinica.bean.core.Privilege;
-import org.akaza.openclinica.bean.core.Term;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import org.akaza.openclinica.bean.core.Privilege;
+import org.akaza.openclinica.bean.core.Term;
 
 /**
  * BL - Boolean

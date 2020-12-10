@@ -8,7 +8,6 @@
 package org.akaza.openclinica.bean.submit;
 
 import org.akaza.openclinica.bean.core.EntityBean;
-import org.akaza.openclinica.core.form.StringUtil;
 
 /**
  * @author ssachs
@@ -271,7 +270,7 @@ public class ItemFormMetadataBean extends EntityBean implements Comparable<ItemF
      */
     public void setDefaultValue(String defaults) {
 
-        if (!StringUtil.isBlank(defaults)) {
+        if (!(defaults == null || defaults.trim().isEmpty())) {
             String[] defaults2 = defaults.split(",", -1);
 
             for (int i = 0; i < defaults2.length; i++) {

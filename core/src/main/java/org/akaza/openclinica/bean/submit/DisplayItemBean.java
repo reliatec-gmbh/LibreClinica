@@ -177,7 +177,7 @@ public class DisplayItemBean implements Comparable<DisplayItemBean> {
             || rt.equals(org.akaza.openclinica.bean.core.ResponseType.SELECT) || rt.equals(org.akaza.openclinica.bean.core.ResponseType.SELECTMULTI)) {
 
             if (eventDefinitionCRF != null) {
-                ArrayList nullValues = eventDefinitionCRF.getNullValuesList();
+                ArrayList<NullValue> nullValues = eventDefinitionCRF.getNullValuesList();
                 for (int i = 0; i < nullValues.size(); i++) {
                     NullValue nv = (NullValue) nullValues.get(i);
                     ResponseOptionBean ro = new ResponseOptionBean();
@@ -254,14 +254,13 @@ public class DisplayItemBean implements Comparable<DisplayItemBean> {
      *
      * @param values
      */
-    public void loadFormValue(ArrayList values) {
+    public void loadFormValue(ArrayList<String> values) {
         ResponseSetBean rsb = getMetadata().getResponseSet();
 
         String valueForDB = "";
         String glue = "";
 
-        for (int i = 0; i < values.size(); i++) {
-            String value = (String) values.get(i);
+        for(String value : values) {
 
             if (value == null || value.equals("")) {
                 continue;

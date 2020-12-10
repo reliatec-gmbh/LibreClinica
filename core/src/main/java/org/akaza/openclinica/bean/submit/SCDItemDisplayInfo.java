@@ -140,7 +140,7 @@ public class SCDItemDisplayInfo {
                     rowStatus = 0;
                 }
     
-                ArrayList childItems = dib.getChildren();
+                ArrayList<DisplayItemBean> childItems = dib.getChildren();
                 for (int j = 0; j < childItems.size(); ++j) {
                     DisplayItemBean child = (DisplayItemBean)childItems.get(j);
                     if(SCDItemDisplayInfo.isSCDItem(child)) {
