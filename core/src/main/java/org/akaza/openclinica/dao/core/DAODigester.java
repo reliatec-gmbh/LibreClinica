@@ -30,7 +30,7 @@ import java.util.HashMap;
  */
 public class DAODigester {
 
-    private final HashMap queries = new HashMap();
+    private final HashMap<String, String> queries = new HashMap<>();
     private InputStream fis;
 
     public void run() throws IOException, SAXException {

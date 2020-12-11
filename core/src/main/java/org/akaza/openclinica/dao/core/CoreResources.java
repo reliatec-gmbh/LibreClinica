@@ -7,7 +7,8 @@
  */
 package org.akaza.openclinica.dao.core;
 
-import java.io.ByteArrayInputStream;
+import static org.akaza.openclinica.core.util.ClassCastHelper.asEnumeration;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -192,7 +193,7 @@ public class CoreResources implements ResourceLoaderAware {
      */
     private void setDataInfoVals() {
 
-        Enumeration<String> properties = (Enumeration<String>) DATAINFO.propertyNames();
+        Enumeration<String> properties = asEnumeration(DATAINFO.propertyNames(), String.class);
         String vals, key;
         while (properties.hasMoreElements()) {
             key = properties.nextElement();
@@ -601,8 +602,8 @@ public class CoreResources implements ResourceLoaderAware {
         return extractProperties;
     }
 
-    public void setExtractProperties(ArrayList extractProperties) {
-        this.extractProperties = extractProperties;
+    public void setExtractProperties(ArrayList<ExtractPropertyBean> extractProperties) {
+        CoreResources.extractProperties = extractProperties;
     }
 
     private ArrayList<ExtractPropertyBean> findExtractProperties() throws OpenClinicaSystemException {

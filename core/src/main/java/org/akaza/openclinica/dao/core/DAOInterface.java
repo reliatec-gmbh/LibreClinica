@@ -7,11 +7,11 @@
  */
 package org.akaza.openclinica.dao.core;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import org.akaza.openclinica.bean.core.EntityBean;
 import org.akaza.openclinica.exception.OpenClinicaException;
-
-import java.util.Collection;
-import java.util.HashMap;
 
 /**
  * DAOInterface.java, created to enforce several methods in our EntityDAO and
@@ -31,9 +31,9 @@ public interface DAOInterface<T> {
     // owner.
     T getEntityFromHashMap(HashMap<String, Object> hm);
 
-    Collection findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) throws OpenClinicaException;
+    ArrayList<T> findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) throws OpenClinicaException;
 
-    Collection findAll() throws OpenClinicaException;
+    ArrayList<T> findAll() throws OpenClinicaException;
 
     EntityBean findByPK(int id) throws OpenClinicaException;
 
@@ -41,10 +41,10 @@ public interface DAOInterface<T> {
 
     T update(T eb) throws OpenClinicaException;
 
-    Collection findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase)
+    ArrayList<T> findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase)
             throws OpenClinicaException;
 
-    Collection findAllByPermission(Object objCurrentUser, int intActionType) throws OpenClinicaException;
+    ArrayList<T> findAllByPermission(Object objCurrentUser, int intActionType) throws OpenClinicaException;
     // perhaps also add one with just object and int????
 
     void setTypesExpected();

@@ -8,10 +8,8 @@
 package org.akaza.openclinica.dao.core;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 

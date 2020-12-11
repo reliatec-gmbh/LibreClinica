@@ -13,15 +13,13 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Set;
-
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.CacheManager;
 
 import org.akaza.openclinica.dao.cache.EhCacheWrapper;
 import org.springframework.core.io.ResourceLoader;
 import org.xml.sax.SAXException;
+
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.CacheManager;
 
 /**
  * Provides a singleton SQLFactory instance
@@ -97,7 +95,7 @@ public class SQLFactory {
         SQLFactory.ehCacheWrapper = ehCacheWrapper;
     }
 
-    private static Hashtable digesters = new Hashtable();
+    private static Hashtable<String, DAODigester> digesters = new Hashtable<>();
 
     /**
      * A handle to the unique SQLFactory instance.
@@ -145,7 +143,7 @@ public class SQLFactory {
 
         // key is the public static final sting used above; value is the actual
         // filename
-        HashMap fileList = new HashMap();
+        HashMap<String, String> fileList = new HashMap<>();
         CacheManager cacheManager = null;
         
         
@@ -160,8 +158,7 @@ public class SQLFactory {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        EhCacheWrapper ehCache = new EhCacheWrapper("com.akaza.openclinica.dao.core.DAOCache",cacheManager);
-        
+        EhCacheWrapper<String, ArrayList<HashMap<String, Object>>> ehCache = new EhCacheWrapper<>("com.akaza.openclinica.dao.core.DAOCache",cacheManager);
         
         setEhCacheWrapper(ehCache);
         
@@ -250,11 +247,7 @@ public class SQLFactory {
             // throw an exception here, ssachs
         }
 
-        Set DAONames = fileList.keySet();
-        Iterator DAONamesIt = DAONames.iterator();
-
-        while (DAONamesIt.hasNext()) {
-            String DAOName = (String) DAONamesIt.next();
+        for(String DAOName : fileList.keySet()) {
             String DAOFileName = (String) fileList.get(DAOName);
 
             DAODigester newDaoDigester = new DAODigester();
