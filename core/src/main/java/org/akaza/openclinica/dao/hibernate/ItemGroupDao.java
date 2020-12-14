@@ -13,7 +13,8 @@ import org.akaza.openclinica.bean.oid.ItemGroupOidGenerator;
 import org.akaza.openclinica.bean.oid.OidGenerator;
 import org.akaza.openclinica.domain.datamap.CrfBean;
 import org.akaza.openclinica.domain.datamap.ItemGroup;
-import org.hibernate.Query;
+import org.hibernate.query.NativeQuery;
+import org.hibernate.query.Query;
 
 public class ItemGroupDao extends AbstractDomainDao<ItemGroup> {
 
@@ -22,29 +23,34 @@ public class ItemGroupDao extends AbstractDomainDao<ItemGroup> {
         return ItemGroup.class;
     }
 
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("deprecation")
     public ItemGroup findByOcOID(String OCOID) {
         getSessionFactory().getStatistics().logSummary();
         String query = "from " + getDomainClassName() + " do  where do.ocOid = :OCOID";
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
+        Query<ItemGroup> q = getCurrentSession().createQuery(query, ItemGroup.class);
         q.setString("OCOID", OCOID);
-        return (ItemGroup) q.uniqueResult();
+        return q.uniqueResult();
     }
 
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("deprecation")
     public ItemGroup findByNameCrfId(String groupName, CrfBean crf) {
         getSessionFactory().getStatistics().logSummary();
         String query = "from " + getDomainClassName() + " do  where do.name = :groupName and do.crf = :crf";
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
+        Query<ItemGroup> q = getCurrentSession().createQuery(query, ItemGroup.class);
         q.setString("groupName", groupName);
         q.setEntity("crf", crf);
-        return (ItemGroup) q.uniqueResult();
+        return q.uniqueResult();
     }
 
     public static final String findAllByCrfVersionIdQuery = "select distinct ig.* from item_group ig, item_group_metadata igm"
             + " where igm.crf_version_id = :crfversionid and ig.item_group_id = igm.item_group_id";
 
-    @SuppressWarnings("unchecked")
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings({ "deprecation", "rawtypes", "unchecked" })
     public ArrayList<ItemGroup> findByCrfVersionId(Integer crfVersionId) {
-        Query q = getCurrentSession().createSQLQuery(findAllByCrfVersionIdQuery).addEntity(ItemGroup.class);
+        NativeQuery q = getCurrentSession().createSQLQuery(findAllByCrfVersionIdQuery).addEntity(ItemGroup.class);
         q.setInteger("crfversionid", crfVersionId.intValue());
         return (ArrayList<ItemGroup>) q.list();
     }

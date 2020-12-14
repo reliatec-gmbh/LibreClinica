@@ -11,8 +11,9 @@ import java.util.List;
 
 import org.akaza.openclinica.domain.datamap.StudyEvent;
 import org.akaza.openclinica.patterns.ocobserver.OnStudyEventUpdated;
-import org.akaza.openclinica.patterns.ocobserver.StudyEventChangeDetails;
 import org.akaza.openclinica.patterns.ocobserver.StudyEventContainer;
+import org.hibernate.query.NativeQuery;
+import org.hibernate.query.Query;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.transaction.annotation.Propagation;
@@ -25,64 +26,62 @@ public class StudyEventDao extends AbstractDomainDao<StudyEvent> implements Appl
 	public Class<StudyEvent> domainClass(){
 		return StudyEvent.class;
 	}
+
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("deprecation") 
 	public StudyEvent fetchByStudyEventDefOID(String oid,Integer studySubjectId){
 		String query = " from StudyEvent se where se.studySubject.studySubjectId = :studySubjectId and se.studyEventDefinition.oc_oid = :oid order by se.studyEventDefinition.ordinal,se.sampleOrdinal";
-		 org.hibernate.Query q = getCurrentSession().createQuery(query);
+		 Query<StudyEvent> q = getCurrentSession().createQuery(query, StudyEvent.class);
          q.setInteger("studySubjectId", studySubjectId);
          q.setString("oid", oid);
 
-         StudyEvent se = (StudyEvent) q.uniqueResult();
-        // this.eventPublisher.publishEvent(new OnStudyEventUpdated(se));
-         return se;
-
-
+         return q.uniqueResult();
 	}
-	
+
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("deprecation")
 	@Transactional
 	public StudyEvent fetchByStudyEventDefOIDAndOrdinal(String oid,Integer ordinal,Integer studySubjectId){
 		String query = " from StudyEvent se where se.studySubject.studySubjectId = :studySubjectId and se.studyEventDefinition.oc_oid = :oid and se.sampleOrdinal = :ordinal order by se.studyEventDefinition.ordinal,se.sampleOrdinal";
-		 org.hibernate.Query q = getCurrentSession().createQuery(query);
+		 Query<StudyEvent> q = getCurrentSession().createQuery(query, StudyEvent.class);
          q.setInteger("studySubjectId", studySubjectId);
          q.setString("oid", oid);
          q.setInteger("ordinal", ordinal);
-         StudyEvent se = (StudyEvent) q.uniqueResult();
-        // this.eventPublisher.publishEvent(new OnStudyEventUpdated(se));
-         return se;
+         return q.uniqueResult();
 	}
 
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("deprecation")
     @Transactional(propagation = Propagation.NEVER)
     public StudyEvent fetchByStudyEventDefOIDAndOrdinalTransactional(String oid,Integer ordinal,Integer studySubjectId){
         String query = " from StudyEvent se where se.studySubject.studySubjectId = :studySubjectId and se.studyEventDefinition.oc_oid = :oid and se.sampleOrdinal = :ordinal order by se.studyEventDefinition.ordinal,se.sampleOrdinal";
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
+        Query<StudyEvent> q = getCurrentSession().createQuery(query, StudyEvent.class);
         q.setInteger("studySubjectId", studySubjectId);
         q.setString("oid", oid);
         q.setInteger("ordinal", ordinal);
-        StudyEvent se = (StudyEvent) q.uniqueResult();
-        // this.eventPublisher.publishEvent(new OnStudyEventUpdated(se));
-        return se;
+        return q.uniqueResult();
     }
 
-    public Integer findMaxOrdinalByStudySubjectStudyEventDefinition(int studySubjectId, int studyEventDefinitionId) {
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("rawtypes")
+	public Integer findMaxOrdinalByStudySubjectStudyEventDefinition(int studySubjectId, int studyEventDefinitionId) {
         String query = "select max(sample_ordinal) from study_event where study_subject_id = " + studySubjectId + " and study_event_definition_id = " + studyEventDefinitionId;
-        org.hibernate.Query q = getCurrentSession().createSQLQuery(query);
+        NativeQuery q = getCurrentSession().createSQLQuery(query);
         Number result = (Number) q.uniqueResult();
         if (result == null) return 0;
         else return result.intValue();
     }
 
-
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("deprecation")
     @Transactional
 	public List<StudyEvent> fetchListByStudyEventDefOID(String oid,Integer studySubjectId){
-		List<StudyEvent> eventList = null;
-
 		String query = " from StudyEvent se where se.studySubject.studySubjectId = :studySubjectId and se.studyEventDefinition.oc_oid = :oid order by se.studyEventDefinition.ordinal,se.sampleOrdinal";
-		 org.hibernate.Query q = getCurrentSession().createQuery(query);
+		Query<StudyEvent> q = getCurrentSession().createQuery(query, StudyEvent.class);
         q.setInteger("studySubjectId", studySubjectId);
         q.setString("oid", oid);
 
-        eventList = (List<StudyEvent>) q.list();
-        return eventList;
-
+        return q.list();
 	}
 
 	@Transactional
@@ -103,13 +102,14 @@ public class StudyEventDao extends AbstractDomainDao<StudyEvent> implements Appl
 			ApplicationEventPublisher applicationEventPublisher) {
  this.eventPublisher = applicationEventPublisher;
 	}
-	
+
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("deprecation")
 	@Transactional
     public StudyEvent findByStudyEventId(int studyEventId) {
         String query = "from " + getDomainClassName() + " study_event  where study_event.studyEventId = :studyeventid ";
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
+        Query<StudyEvent> q = getCurrentSession().createQuery(query, StudyEvent.class);
         q.setInteger("studyeventid", studyEventId);
-        return (StudyEvent) q.uniqueResult();
+        return q.uniqueResult();
     }
-
 }

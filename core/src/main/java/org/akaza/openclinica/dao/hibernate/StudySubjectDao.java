@@ -15,6 +15,7 @@ import org.akaza.openclinica.bean.oid.StudySubjectOidGenerator;
 import org.akaza.openclinica.domain.datamap.Study;
 import org.akaza.openclinica.domain.datamap.StudyEvent;
 import org.akaza.openclinica.domain.datamap.StudySubject;
+import org.hibernate.query.Query;
 
 public class StudySubjectDao extends AbstractDomainDao<StudySubject> {
 
@@ -23,58 +24,68 @@ public class StudySubjectDao extends AbstractDomainDao<StudySubject> {
         // TODO Auto-generated method stub
         return StudySubject.class;
     }
-    
-    @SuppressWarnings("unchecked")
+
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("deprecation")
     public List<StudySubject> findAllByStudy(Integer studyId) {
         String query = "from " + getDomainClassName() + " do where do.study.studyId = :studyid";
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
+        Query<StudySubject> q = getCurrentSession().createQuery(query, StudySubject.class);
         q.setInteger("studyid", studyId);
-        return (List<StudySubject>) q.list();
+        return q.list();
       
     }
 
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("deprecation")
     public StudySubject findByOcOID(String OCOID) {
         getSessionFactory().getStatistics().logSummary();
         String query = "from " + getDomainClassName() + " do  where do.ocOid = :OCOID";
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
+        Query<StudySubject> q = getCurrentSession().createQuery(query, StudySubject.class);
         q.setString("OCOID", OCOID);
-        return (StudySubject) q.uniqueResult();
+        return q.uniqueResult();
     }
 
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("deprecation")
     public StudySubject findByLabelAndStudy(String embeddedStudySubjectId, Study study) {
         getSessionFactory().getStatistics().logSummary();
         String query = "from " + getDomainClassName() + " do  where do.study.studyId = :studyid and do.label = :label";
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
+        Query<StudySubject> q = getCurrentSession().createQuery(query, StudySubject.class);
         q.setInteger("studyid", study.getStudyId());
         q.setString("label", embeddedStudySubjectId);
-        return (StudySubject) q.uniqueResult();
+        return q.uniqueResult();
     }
 
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("deprecation")
     public StudySubject findByLabelAndStudyOrParentStudy(String embeddedStudySubjectId, Study study) {
         getSessionFactory().getStatistics().logSummary();
         String query = "from " + getDomainClassName() + " do  where (do.study.studyId = :studyid or do.study.study.studyId = :studyid) and do.label = :label";
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
+        Query<StudySubject> q = getCurrentSession().createQuery(query, StudySubject.class);
         q.setInteger("studyid", study.getStudyId());
         q.setString("label", embeddedStudySubjectId);
-        return (StudySubject) q.uniqueResult();
+        return q.uniqueResult();
     }
 
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("deprecation")
     public ArrayList<StudySubject> findByLabelAndParentStudy(String embeddedStudySubjectId, Study parentStudy) {
         getSessionFactory().getStatistics().logSummary();
         String query = "from " + getDomainClassName() + " do  where do.study.study.studyId = :studyid and do.label = :label";
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
+        Query<StudySubject> q = getCurrentSession().createQuery(query, StudySubject.class);
         q.setInteger("studyid", parentStudy.getStudyId());
         q.setString("label", embeddedStudySubjectId);
-        return (ArrayList<StudySubject>) q.list();
+        return new ArrayList<>(q.list());
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("deprecation")
     public ArrayList<StudyEvent> fetchListSEs(String id) {
         String query = " from StudyEvent se where se.studySubject.ocOid = :id order by se.studyEventDefinition.ordinal,se.sampleOrdinal";
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
+        Query<StudyEvent> q = getCurrentSession().createQuery(query, StudyEvent.class);
         q.setString("id", id.toString());
 
-        return (ArrayList<StudyEvent>) q.list();
+        return new ArrayList<>(q.list());
 
     }
     public String getValidOid(StudySubject studySubject, ArrayList<String> oidList) {
@@ -98,13 +109,15 @@ public class StudySubjectDao extends AbstractDomainDao<StudySubject> {
         }
     }
 
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("deprecation")
     public int findTheGreatestLabelByStudy(Integer studyId) {
         getSessionFactory().getStatistics().logSummary();
         String query = "from " + getDomainClassName() + " do  where (do.study.studyId = :studyid or do.study.study.studyId = :studyid)";
 
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
+        Query<StudySubject> q = getCurrentSession().createQuery(query, StudySubject.class);
         q.setInteger("studyid", studyId);
-        List<StudySubject> allStudySubjects = (ArrayList<StudySubject>) q.list();
+        List<StudySubject> allStudySubjects = q.list();
         
         int greatestLabel = 0;
         for (StudySubject subject:allStudySubjects) {

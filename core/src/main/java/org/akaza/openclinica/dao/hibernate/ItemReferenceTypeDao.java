@@ -8,6 +8,7 @@
 package org.akaza.openclinica.dao.hibernate;
 
 import org.akaza.openclinica.domain.datamap.ItemReferenceType;
+import org.hibernate.query.Query;
 
 public class ItemReferenceTypeDao extends AbstractDomainDao<ItemReferenceType> {
 
@@ -17,11 +18,13 @@ public class ItemReferenceTypeDao extends AbstractDomainDao<ItemReferenceType> {
         return ItemReferenceType.class;
     }
 
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("deprecation")
     public ItemReferenceType findByItemReferenceTypeId(int item_reference_type_id) {
         String query = "from " + getDomainClassName() + " item_reference_type  where item_reference_type.itemReferenceTypeId = :itemreferencetypeid ";
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
+        Query<ItemReferenceType> q = getCurrentSession().createQuery(query, ItemReferenceType.class);
         q.setInteger("itemreferencetypeid", item_reference_type_id);
-        return (ItemReferenceType) q.uniqueResult();
+        return q.uniqueResult();
     }
 
 }

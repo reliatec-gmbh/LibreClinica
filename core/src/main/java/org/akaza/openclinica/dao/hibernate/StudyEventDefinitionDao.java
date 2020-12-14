@@ -8,6 +8,7 @@
 package org.akaza.openclinica.dao.hibernate;
 
 import org.akaza.openclinica.domain.datamap.StudyEventDefinition;
+import org.hibernate.query.Query;
 
 
 public class StudyEventDefinitionDao extends AbstractDomainDao<StudyEventDefinition> {
@@ -16,12 +17,13 @@ public class StudyEventDefinitionDao extends AbstractDomainDao<StudyEventDefinit
     public Class<StudyEventDefinition> domainClass() {
         return StudyEventDefinition.class;
     }
-    
+
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("deprecation")
     public StudyEventDefinition findByStudyEventDefinitionId(int studyEventDefinitionId) {
         String query = "from " + getDomainClassName() + " study_event_definition  where study_event_definition.studyEventDefinitionId = :studyeventdefinitionid ";
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
+        Query<StudyEventDefinition> q = getCurrentSession().createQuery(query, StudyEventDefinition.class);
         q.setInteger("studyeventdefinitionid", studyEventDefinitionId);
-        return (StudyEventDefinition) q.uniqueResult();
+        return q.uniqueResult();
     }
-
 }

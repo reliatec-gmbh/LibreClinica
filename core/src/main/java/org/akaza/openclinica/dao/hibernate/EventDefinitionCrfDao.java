@@ -10,6 +10,7 @@ package org.akaza.openclinica.dao.hibernate;
 import java.util.List;
 
 import org.akaza.openclinica.domain.datamap.EventDefinitionCrf;
+import org.hibernate.query.Query;
 
 public class EventDefinitionCrfDao extends AbstractDomainDao<EventDefinitionCrf> {
 
@@ -18,36 +19,39 @@ public class EventDefinitionCrfDao extends AbstractDomainDao<EventDefinitionCrf>
         // TODO Auto-generated method stub
         return EventDefinitionCrf.class;
     }
-    
-    @SuppressWarnings("unchecked")
+
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("deprecation")
     public List<EventDefinitionCrf> findByStudyEventDefinitionId(int studyEventDefinitionId) {
         String query = "from "
                 + getDomainClassName()
                 + " event_definition_crf where event_definition_crf.studyEventDefinition.studyEventDefinitionId = :studyeventdefinitionid";
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
+        Query<EventDefinitionCrf> q = getCurrentSession().createQuery(query, EventDefinitionCrf.class);
         q.setInteger("studyeventdefinitionid", studyEventDefinitionId);
-        return (List<EventDefinitionCrf>) q.list();
+        return q.list();
     }
-    
-    @SuppressWarnings("unchecked")
+
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("deprecation")
     public List<EventDefinitionCrf> findAvailableByStudyEventDefStudy(Integer studyEventDefinitionId, Integer studyId) {
         String query = "from " + getDomainClassName() + " do where do.studyEventDefinition.studyEventDefinitionId = :studyeventdefid " + 
                 " and do.study.studyId = :studyid and do.statusId = 1";
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
+        Query<EventDefinitionCrf> q = getCurrentSession().createQuery(query, EventDefinitionCrf.class);
         q.setInteger("studyeventdefid", studyEventDefinitionId);
         q.setInteger("studyid", studyId);
-        return (List<EventDefinitionCrf>) q.list();
+        return q.list();
         
     }
 
-    @SuppressWarnings("unchecked")
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("deprecation")
     public List<EventDefinitionCrf> findSiteHiddenByStudyEventDefStudy(Integer studyEventDefinitionId, Integer studyId) {
         String query = "from " + getDomainClassName() + " do where do.studyEventDefinition.studyEventDefinitionId = :studyeventdefid " + 
                 " and do.study.studyId = :studyid and do.statusId = 1 and do.hideCrf = true";
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
+        Query<EventDefinitionCrf> q = getCurrentSession().createQuery(query, EventDefinitionCrf.class);
         q.setInteger("studyeventdefid", studyEventDefinitionId);
         q.setInteger("studyid", studyId);
-        return (List<EventDefinitionCrf>) q.list();
+        return q.list();
         
     }
 }

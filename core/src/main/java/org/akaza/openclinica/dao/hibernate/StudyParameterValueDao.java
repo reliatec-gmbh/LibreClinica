@@ -8,6 +8,7 @@
 package org.akaza.openclinica.dao.hibernate;
 
 import org.akaza.openclinica.domain.datamap.StudyParameterValue;
+import org.hibernate.query.Query;
 
 
 public class StudyParameterValueDao extends AbstractDomainDao<StudyParameterValue> {
@@ -17,11 +18,13 @@ public class StudyParameterValueDao extends AbstractDomainDao<StudyParameterValu
         return StudyParameterValue.class;
     }
 
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("deprecation")
 	public StudyParameterValue findByStudyIdParameter(int studyId, String parameter) {
         String query = "from " + getDomainClassName() + " study_parameter_value where study_parameter_value.study.studyId = :studyid and study_parameter_value.studyParameter = :parameter ";
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
+        Query<StudyParameterValue> q = getCurrentSession().createQuery(query, StudyParameterValue.class);
         q.setInteger("studyid", studyId);
         q.setString("parameter", parameter);
-        return (StudyParameterValue) q.uniqueResult();
+        return q.uniqueResult();
     }
 }

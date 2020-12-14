@@ -8,6 +8,7 @@
 package org.akaza.openclinica.dao.hibernate;
 
 import org.akaza.openclinica.domain.managestudy.StudyModuleStatus;
+import org.hibernate.query.Query;
 
 /**
  * @author: Shamim
@@ -20,11 +21,13 @@ public class StudyModuleStatusDao extends AbstractDomainDao<StudyModuleStatus> {
         return StudyModuleStatus.class;
     }
 
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("deprecation")
     public StudyModuleStatus findByStudyId(int studyId) {
         String query = "from " + getDomainClassName() + " sms  where sms.studyId = :studyId ";
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
+        Query<StudyModuleStatus> q = getCurrentSession().createQuery(query, StudyModuleStatus.class);
         q.setInteger("studyId", studyId);
-        return (StudyModuleStatus) q.uniqueResult();
+        return q.uniqueResult();
     }
 
 }

@@ -8,6 +8,7 @@
 package org.akaza.openclinica.dao.hibernate;
 
 import org.akaza.openclinica.domain.datamap.Subject;
+import org.hibernate.query.Query;
 
 public class SubjectDao extends AbstractDomainDao<Subject> {
 
@@ -16,18 +17,22 @@ public class SubjectDao extends AbstractDomainDao<Subject> {
         // TODO Auto-generated method stub
         return Subject.class;
     }
-    
+
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("deprecation")
     public Subject findBySubjectId(Integer subjectId) {
         String query = "from " + getDomainClassName() + " do  where do.subjectId = :subject_id ";
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
+        Query<Subject> q = getCurrentSession().createQuery(query, Subject.class);
         q.setInteger("subject_id", subjectId);
-        return (Subject) q.uniqueResult();
+        return q.uniqueResult();
     }
 
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("deprecation")
     public Subject findByUniqueIdentifier(String uniqueIdentifier) {
         String query = "from " + getDomainClassName() + " do  where do.uniqueIdentifier = :unique_identifier ";
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
+        Query<Subject> q = getCurrentSession().createQuery(query, Subject.class);
         q.setString("unique_identifier", uniqueIdentifier);
-        return (Subject) q.uniqueResult();
+        return q.uniqueResult();
     }
 }

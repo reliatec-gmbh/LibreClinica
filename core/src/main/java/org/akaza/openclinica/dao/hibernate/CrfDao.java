@@ -10,6 +10,7 @@ package org.akaza.openclinica.dao.hibernate;
 import org.akaza.openclinica.bean.oid.CrfOidGenerator;
 import org.akaza.openclinica.bean.oid.OidGenerator;
 import org.akaza.openclinica.domain.datamap.CrfBean;
+import org.hibernate.query.Query;
 
 public class CrfDao extends AbstractDomainDao<CrfBean> {
 
@@ -19,26 +20,32 @@ public class CrfDao extends AbstractDomainDao<CrfBean> {
         return CrfBean.class;
     }
 
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("deprecation")
     public CrfBean findByName(String crfName) {
         String query = "from " + getDomainClassName() + " crf  where crf.name = :crfName ";
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
+        Query<CrfBean> q = getCurrentSession().createQuery(query, CrfBean.class);
         q.setString("crfName", crfName);
-        return (CrfBean) q.uniqueResult();
+        return q.uniqueResult();
     }
 
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("deprecation")
     public CrfBean findByOcOID(String OCOID) {
         getSessionFactory().getStatistics().logSummary();
         String query = "from " + getDomainClassName() + " do  where do.ocOid = :OCOID";
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
+        Query<CrfBean> q = getCurrentSession().createQuery(query, CrfBean.class);
         q.setString("OCOID", OCOID);
-        return (CrfBean) q.uniqueResult();
+        return q.uniqueResult();
     }
 
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("deprecation")
     public CrfBean findByCrfId(Integer crfId) {
         String query = "from " + getDomainClassName() + " crf  where crf.crfId = :crfId ";
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
+        Query<CrfBean> q = getCurrentSession().createQuery(query, CrfBean.class);
         q.setInteger("crfId", crfId);
-        return (CrfBean) q.uniqueResult();
+        return q.uniqueResult();
     }
     
     private String getOid(CrfBean crf, String crfName) {

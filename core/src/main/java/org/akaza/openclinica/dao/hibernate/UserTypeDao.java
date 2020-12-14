@@ -8,6 +8,7 @@
 package org.akaza.openclinica.dao.hibernate;
 
 import org.akaza.openclinica.domain.user.UserType;
+import org.hibernate.query.Query;
 
 public class UserTypeDao extends AbstractDomainDao<UserType> {
 	
@@ -15,13 +16,15 @@ public class UserTypeDao extends AbstractDomainDao<UserType> {
     public Class<UserType> domainClass() {
         return UserType.class;
     }
-    
+
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("deprecation")
     public UserType findByUserTypeId(Integer userTypeId) {
         getSessionFactory().getStatistics().logSummary();
         String query = "from " + getDomainClassName() + " do  where do.userTypeId = :user_type_id";
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
+        Query<UserType> q = getCurrentSession().createQuery(query, UserType.class);
         q.setInteger("user_type_id", userTypeId);
-        return (UserType) q.uniqueResult();
+        return q.uniqueResult();
     }
 
 }

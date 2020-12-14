@@ -10,7 +10,7 @@ package org.akaza.openclinica.dao.hibernate;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 
 /**
  * Utility operations for Hibernate manipulation
@@ -28,12 +28,11 @@ public class HibernateUtil {
      * @return Filtered list of IDs
      * @throws IllegalArgumentException When query returns an object that is not a {@link Number}.
      */
-    public static List<Integer> queryIDsList(Query query) {
+    public static List<Integer> queryIDsList(Query<?> query) {
         //TODO - Doug - change return type to List<Long>
 
         // queryResult may contain Int, Long or BigDecimal
-        @SuppressWarnings("rawtypes")
-        List queryResult = query.list();
+        List<?> queryResult = query.list();
 
         List<Integer> result = new ArrayList<Integer>(queryResult.size());
         for (Object o: queryResult) {

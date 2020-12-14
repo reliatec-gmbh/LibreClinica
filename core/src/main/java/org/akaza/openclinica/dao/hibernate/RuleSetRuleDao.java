@@ -20,6 +20,8 @@ import org.akaza.openclinica.domain.rule.action.InsertActionBean;
 import org.akaza.openclinica.domain.rule.action.RandomizeActionBean;
 import org.akaza.openclinica.domain.rule.action.RuleActionBean;
 import org.akaza.openclinica.domain.rule.action.ShowActionBean;
+import org.hibernate.query.NativeQuery;
+import org.hibernate.query.Query;
 import org.hibernate.stat.Statistics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,13 +38,13 @@ public class RuleSetRuleDao extends AbstractDomainDao<RuleSetRuleBean> {
         return RuleSetRuleBean.class;
     }
 
-    @SuppressWarnings("unchecked")
+    // TODO update to CriteriaQuery 
     public ArrayList<RuleSetRuleBean> findByRuleSetBeanAndRuleBean(RuleSetBean ruleSetBean, RuleBean ruleBean) {
         String query = "from " + getDomainClassName() + " ruleSetRule  where ruleSetRule.ruleSetBean = :ruleSetBean" + " AND ruleSetRule.ruleBean = :ruleBean ";
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
+        Query<RuleSetRuleBean> q = getCurrentSession().createQuery(query, RuleSetRuleBean.class);
         q.setParameter("ruleSetBean", ruleSetBean);
         q.setParameter("ruleBean", ruleBean);
-        return (ArrayList<RuleSetRuleBean>) q.list();
+        return new ArrayList<>(q.list());
     }
     
     /**
@@ -51,13 +53,12 @@ public class RuleSetRuleDao extends AbstractDomainDao<RuleSetRuleBean> {
      * @param studyId
      * @return List of RuleSetRuleBeans 
      */
-    @SuppressWarnings("unchecked")
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("deprecation")
     @Transactional
     public ArrayList<RuleSetRuleBean> findByRuleSetStudyIdAndStatusAvail(Integer studyId) {
         String query = "from " + getDomainClassName() + " ruleSetRule  where ruleSetRule.ruleSetBean.studyId = :studyId and status = :status ";
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
-        
-        
+        Query<RuleSetRuleBean> q = getCurrentSession().createQuery(query, RuleSetRuleBean.class);
         
         q.setInteger("studyId", studyId);
         q.setParameter("status", org.akaza.openclinica.domain.Status.AVAILABLE);
@@ -74,7 +75,7 @@ public class RuleSetRuleDao extends AbstractDomainDao<RuleSetRuleBean> {
         
  
         
-        ArrayList<RuleSetRuleBean> ruleSetRules = (ArrayList<RuleSetRuleBean>) q.list();
+        ArrayList<RuleSetRuleBean> ruleSetRules = new ArrayList<>(q.list());
         // Forcing eager fetch of actions & their properties
         for (RuleSetRuleBean ruleSetRuleBean : ruleSetRules) {
             for (RuleActionBean action : ruleSetRuleBean.getActions()) {
@@ -99,7 +100,9 @@ public class RuleSetRuleDao extends AbstractDomainDao<RuleSetRuleBean> {
         return ruleSetRules;
     }
 
-    public int getCountWithFilter(final ViewRuleAssignmentFilter filter) {
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("rawtypes")
+	public int getCountWithFilter(final ViewRuleAssignmentFilter filter) {
 
         // Using a sql query because we are referencing objects not managed by hibernate
         String query =
@@ -111,13 +114,14 @@ public class RuleSetRuleDao extends AbstractDomainDao<RuleSetRuleBean> {
                 + " join rule_expression rer on r.rule_expression_id = rer.id " + " join rule_action ra on ra.rule_set_rule_id = rsr.id " + " where ";
 
         query += filter.execute("");
-        org.hibernate.Query q = getCurrentSession().createSQLQuery(query);
+        NativeQuery q = getCurrentSession().createSQLQuery(query);
 
         return ((Number) q.uniqueResult()).intValue();
     }
 
-    @SuppressWarnings("unchecked")
-    public ArrayList<RuleSetRuleBean> getWithFilterAndSort(final ViewRuleAssignmentFilter filter, final ViewRuleAssignmentSort sort, final int rowStart,
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	public ArrayList<RuleSetRuleBean> getWithFilterAndSort(final ViewRuleAssignmentFilter filter, final ViewRuleAssignmentSort sort, final int rowStart,
             final int rowEnd) {
 
         String select =
@@ -137,13 +141,15 @@ public class RuleSetRuleDao extends AbstractDomainDao<RuleSetRuleBean> {
 
         query += filter.execute("");
         query += sort.execute("");
-        org.hibernate.Query q = getCurrentSession().createSQLQuery(query).addEntity(domainClass());
+        NativeQuery q = getCurrentSession().createSQLQuery(query).addEntity(domainClass());
         q.setFirstResult(rowStart);
         q.setMaxResults(rowEnd - rowStart);
-        return (ArrayList<RuleSetRuleBean>) q.list();
+        return new ArrayList<RuleSetRuleBean>(q.list());
     }
 
-    public int getCountByStudy(StudyBean study) {
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("unchecked")
+	public int getCountByStudy(StudyBean study) {
         String query =
             "select COUNT(*) from rule_set_rule rsr " + " join rule_set rs on rs.id = rsr.rule_set_id "
                 + " left outer join study_event_definition sed on rs.study_event_definition_id = sed.study_event_definition_id "
@@ -152,8 +158,8 @@ public class RuleSetRuleDao extends AbstractDomainDao<RuleSetRuleBean> {
                 + " join rule_expression re on rs.rule_expression_id = re.id " + " join rule r on r.id = rsr.rule_id "
                 + " join rule_expression rer on r.rule_expression_id = rer.id " + " join rule_action ra on ra.rule_set_rule_id = rsr.id " + " where rs.study_id = " + study.getId() + "  AND  rsr.status_id = 1";
 
-        org.hibernate.Query q = getCurrentSession().createSQLQuery(query);
-        return ((Number) q.uniqueResult()).intValue();
+        NativeQuery<Long> q = getCurrentSession().createSQLQuery(query);
+        return q.uniqueResult().intValue();
     }
 
 

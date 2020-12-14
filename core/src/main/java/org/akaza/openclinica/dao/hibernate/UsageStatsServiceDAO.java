@@ -21,6 +21,7 @@ import java.util.Map;
 
 import org.akaza.openclinica.domain.usageStats.LogUsageStatsBean;
 import org.akaza.openclinica.service.usageStats.LogUsageStatsService;
+import org.hibernate.query.Query;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -35,6 +36,8 @@ public class UsageStatsServiceDAO extends AbstractDomainDao<LogUsageStatsBean> {
         return LogUsageStatsBean.class;
     }
 
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("deprecation")
     public LogUsageStatsBean findLatestUsageStatParamValue(String param_key) {
         // logger.debug("UsageStatsServiceDAO -> findLatestUsageStatParamValue");
 
@@ -43,7 +46,7 @@ public class UsageStatsServiceDAO extends AbstractDomainDao<LogUsageStatsBean> {
 
         List<LogUsageStatsBean> logUsageStatsBeanLst = new ArrayList<LogUsageStatsBean>();
         LogUsageStatsBean logUsageStatsBeanRet = new LogUsageStatsBean();
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
+        Query<LogUsageStatsBean> q = getCurrentSession().createQuery(query, LogUsageStatsBean.class);
         q.setString("param_key", param_key);
         q.setMaxResults(1);
         logUsageStatsBeanLst = q.list();
