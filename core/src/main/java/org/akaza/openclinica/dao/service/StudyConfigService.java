@@ -7,19 +7,18 @@
  */
 package org.akaza.openclinica.dao.service;
 
+import java.util.ArrayList;
+
+import javax.sql.DataSource;
+
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.service.StudyParameter;
 import org.akaza.openclinica.bean.service.StudyParameterConfig;
 import org.akaza.openclinica.bean.service.StudyParameterValueBean;
 import org.akaza.openclinica.bean.service.StudyParamsConfig;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-
-import javax.sql.DataSource;
 
 public class StudyConfigService {
 
@@ -53,7 +52,7 @@ public class StudyConfigService {
      */
     public StudyBean setParametersForStudy(StudyBean study) {
         StudyParameterValueDAO spvdao = new StudyParameterValueDAO(ds);
-        ArrayList parameters = spvdao.findAllParameters();
+        ArrayList<StudyParameter> parameters = spvdao.findAllParameters();
         StudyParameterConfig spc = new StudyParameterConfig();
 
         for (int i = 0; i < parameters.size(); i++) {
@@ -115,7 +114,7 @@ public class StudyConfigService {
         ArrayList<StudyParamsConfig> theParameters = spvdao.findParamConfigByStudy(study);
         study.setStudyParameters(theParameters);
 
-        ArrayList parameters = spvdao.findAllParameterValuesByStudy(study);
+        ArrayList<StudyParameterValueBean> parameters = spvdao.findAllParameterValuesByStudy(study);
 
         for (int i = 0; i < parameters.size(); i++) {
             StudyParameterValueBean spvb = (StudyParameterValueBean) parameters.get(i);
@@ -172,7 +171,7 @@ public class StudyConfigService {
         StudyBean parent = (StudyBean) sdao.findByPK(site.getParentStudyId());
         parent = this.setParameterValuesForStudy(parent);
         site.setStudyParameterConfig(parent.getStudyParameterConfig());
-        ArrayList siteParameters = spvdao.findAllParameterValuesByStudy(site);
+        ArrayList<StudyParameterValueBean> siteParameters = spvdao.findAllParameterValuesByStudy(site);
 
         for (int i = 0; i < siteParameters.size(); i++) {
             StudyParameterValueBean spvb = (StudyParameterValueBean) siteParameters.get(i);
