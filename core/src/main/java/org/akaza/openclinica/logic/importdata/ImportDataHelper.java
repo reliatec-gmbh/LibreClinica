@@ -128,7 +128,7 @@ public class ImportDataHelper {
         }
 
         // >> tbh repeating items:
-        ArrayList eventCrfBeans = eventCrfDao.findByEventSubjectVersion(studyEventBean, studySubjectBean, crfVersion);
+        ArrayList<EventCRFBean> eventCrfBeans = eventCrfDao.findByEventSubjectVersion(studyEventBean, studySubjectBean, crfVersion);
         // TODO repeating items here? not yet
         if (eventCrfBeans.size() > 1) {
             logger.info("found more than one");
