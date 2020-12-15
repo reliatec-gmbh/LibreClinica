@@ -72,7 +72,7 @@ public class StudyEventBeanListener implements Observer,ApplicationContextAware 
 		
 		ArrayList<RuleSetBean> ruleSets = (ArrayList<RuleSetBean>) createRuleSet(studyEventDefId);
 		for (RuleSetBean ruleSet : ruleSets) {
-			ArrayList<RuleSetBean> ruleSetBeans = new ArrayList();		
+			ArrayList<RuleSetBean> ruleSetBeans = new ArrayList<>();		
 			ExpressionBean eBean = new ExpressionBean();
 			eBean.setValue(ruleSet.getTarget().getValue() + ".A.B");
 			ruleSet.setTarget(eBean);
@@ -115,7 +115,7 @@ public class StudyEventBeanListener implements Observer,ApplicationContextAware 
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext)
 			throws BeansException {
-		this.cntxt = applicationContext;
+		StudyEventBeanListener.cntxt = applicationContext;
 		
 	}
 

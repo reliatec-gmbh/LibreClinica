@@ -138,7 +138,6 @@ public interface RuleSetServiceInterface {
     public abstract List<RuleSetBean> filterRuleSetsByStudyEventOrdinal(List<RuleSetBean> ruleSets, StudyEventBean studyEvent, CRFVersionBean crfVersion,
             StudyEventDefinitionBean studyEventDefinition);
 
-    @SuppressWarnings("unchecked")
     public abstract List<RuleSetBean> filterRuleSetsByStudyEventOrdinal(List<RuleSetBean> ruleSets, String crfVersionId);
 
     /**

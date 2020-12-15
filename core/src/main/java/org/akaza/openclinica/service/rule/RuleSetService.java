@@ -634,7 +634,6 @@ public class RuleSetService implements RuleSetServiceInterface {
      * @see org.akaza.openclinica.service.rule.RuleSetServiceInterface#filterRuleSetsByStudyEventOrdinal(java.util.List)
      */
     
-    @SuppressWarnings("unchecked")
     public List<RuleSetBean> filterRuleSetsByStudySubject(List<RuleSetBean> ruleSets) throws NumberFormatException, ParseException {
         for (RuleSetBean ruleSet : ruleSets) {
             List<ExpressionBean> filteredExpressions = new ArrayList<ExpressionBean>();
@@ -662,8 +661,6 @@ public class RuleSetService implements RuleSetServiceInterface {
         return ruleSets;
     }
     
-        
-    @SuppressWarnings("unchecked")
     public List<RuleSetBean> filterRuleSetsByStudyEventOrdinal(List<RuleSetBean> ruleSets, String crfVersionId) {
         ArrayList<RuleSetBean> validRuleSets = new ArrayList<RuleSetBean>();
         for (RuleSetBean ruleSetBean : ruleSets) {
