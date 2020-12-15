@@ -73,6 +73,7 @@ import org.exolab.castor.xml.XMLContext;
  * @author ywang (May, 2008)
  */
 
+@SuppressWarnings("deprecation")
 public class MetaDataReportBean extends OdmXmlReportBean {
     private OdmStudyBean odmstudy;
     private LinkedHashMap<String, OdmStudyBean> odmStudyMap;
@@ -135,7 +136,7 @@ public class MetaDataReportBean extends OdmXmlReportBean {
         xml.append(nls);
     }
 
-    private String handleLoadCastor(RulesPostImportContainer rpic) {
+	private String handleLoadCastor(RulesPostImportContainer rpic) {
 
         try {
             // Create Mapping
@@ -399,8 +400,7 @@ public class MetaDataReportBean extends OdmXmlReportBean {
         }
     }
     
-    
-    public void addItemGroupDef(boolean isStudy, String currentIndent) {
+	public void addItemGroupDef(boolean isStudy, String currentIndent) {
         StringBuffer xml = this.getXmlOutput();
         String indent = this.getIndent();
         ArrayList<ItemGroupDefBean> igs = (ArrayList<ItemGroupDefBean>) odmstudy.getMetaDataVersion().getItemGroupDefs();
@@ -431,7 +431,7 @@ public class MetaDataReportBean extends OdmXmlReportBean {
         }
     }
 
-    public void addItemDef(boolean isStudy, String currentIndent) {
+	public void addItemDef(boolean isStudy, String currentIndent) {
         StringBuffer xml = this.getXmlOutput();
         String indent = this.getIndent();
         ArrayList<ItemDefBean> items = (ArrayList<ItemDefBean>) odmstudy.getMetaDataVersion().getItemDefs();
