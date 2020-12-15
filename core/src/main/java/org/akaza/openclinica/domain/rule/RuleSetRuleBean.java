@@ -14,6 +14,8 @@
  */
 package org.akaza.openclinica.domain.rule;
 
+import static org.akaza.openclinica.core.util.ClassCastHelper.asArrayList;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -58,21 +60,54 @@ public class RuleSetRuleBean extends AbstractAuditableMutableDomainObject implem
 	RuleSetBean ruleSetBean;
     RuleBean ruleBean;
     List<RuleActionBean> actions;
-    private List<DiscrepancyNoteActionBean> lazyDiscrepancyNoteActions = LazyList.decorate(new ArrayList<DiscrepancyNoteActionBean>(),
-            FactoryUtils.instantiateFactory(DiscrepancyNoteActionBean.class));
-    private List<EmailActionBean> lazyEmailActions = LazyList
-            .decorate(new ArrayList<EmailActionBean>(), FactoryUtils.instantiateFactory(EmailActionBean.class));
-    private List<ShowActionBean> lazyShowActions = LazyList.decorate(new ArrayList<ShowActionBean>(), FactoryUtils.instantiateFactory(ShowActionBean.class));
-    private List<HideActionBean> lazyHideActions = LazyList.decorate(new ArrayList<HideActionBean>(), FactoryUtils.instantiateFactory(HideActionBean.class));
-    private List<InsertActionBean> lazyInsertActions = LazyList.decorate(new ArrayList<InsertActionBean>(),
-            FactoryUtils.instantiateFactory(InsertActionBean.class));
-    private List<RandomizeActionBean> lazyRandomizeActions = LazyList.decorate(new ArrayList<RandomizeActionBean>(),
-            FactoryUtils.instantiateFactory(RandomizeActionBean.class));
+    private List<DiscrepancyNoteActionBean> lazyDiscrepancyNoteActions = asArrayList(
+    		LazyList.decorate(
+    				new ArrayList<DiscrepancyNoteActionBean>(),
+            FactoryUtils.instantiateFactory(DiscrepancyNoteActionBean.class)),
+    DiscrepancyNoteActionBean.class);
+    
+    private List<EmailActionBean> lazyEmailActions = asArrayList(
+    		LazyList.decorate(
+    				new ArrayList<EmailActionBean>(), 
+    				FactoryUtils.instantiateFactory(EmailActionBean.class)
+    		),
+    EmailActionBean.class);
+    
+    private List<ShowActionBean> lazyShowActions = asArrayList(
+    		LazyList.decorate(
+    				new ArrayList<ShowActionBean>(), 
+    				FactoryUtils.instantiateFactory(ShowActionBean.class)),
+    ShowActionBean.class);
+    
+    private List<HideActionBean> lazyHideActions = asArrayList(
+    		LazyList.decorate(
+    				new ArrayList<HideActionBean>(), 
+    				FactoryUtils.instantiateFactory(HideActionBean.class)),
+    HideActionBean.class);
+    
+    private List<InsertActionBean> lazyInsertActions = asArrayList(
+    		LazyList.decorate(
+    				new ArrayList<InsertActionBean>(),
+    				FactoryUtils.instantiateFactory(InsertActionBean.class)),
+    InsertActionBean.class);
+    
+    private List<RandomizeActionBean> lazyRandomizeActions = asArrayList(
+    		LazyList.decorate(
+    				new ArrayList<RandomizeActionBean>(),
+    				FactoryUtils.instantiateFactory(RandomizeActionBean.class)),
+    RandomizeActionBean.class);
 
-    private List<EventActionBean> lazyEventActions =  LazyList.decorate(new ArrayList<EventActionBean>(),
-            FactoryUtils.instantiateFactory(EventActionBean.class));
-    private List<NotificationActionBean> lazyNotificationActions = LazyList
-            .decorate(new ArrayList<NotificationActionBean>(), FactoryUtils.instantiateFactory(NotificationActionBean.class));
+    private List<EventActionBean> lazyEventActions =  asArrayList(
+    		LazyList.decorate(
+    				new ArrayList<EventActionBean>(),
+    				FactoryUtils.instantiateFactory(EventActionBean.class)),
+    EventActionBean.class);
+    
+    private List<NotificationActionBean> lazyNotificationActions = asArrayList(
+    		LazyList.decorate(
+    				new ArrayList<NotificationActionBean>(), 
+    				FactoryUtils.instantiateFactory(NotificationActionBean.class)),
+    NotificationActionBean.class);
 
     
     // Transient
