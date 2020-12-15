@@ -10,7 +10,6 @@
 package org.akaza.openclinica.domain.datamap;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -138,7 +137,7 @@ public class Study   extends DataMapDomainObject {
 			String duration, String selection, String timing,
 			String officialTitle, Boolean resultsReference, String ocOid,
 			Integer oldStatusId, List<CrfBean> crfs, List<StudyEventDefinition> studyEventDefinitions,
-			List<Study> studies, List<StudyUserRole> studyUserRoles, Set datasets,
+			List<Study> studies, List<StudyUserRole> studyUserRoles,
 			List<StudyParameterValue> studyParameterValues, List<StudySubject> studySubjects,
 			List<EventDefinitionCrf> eventDefinitionCrfs, List<DiscrepancyNote> discrepancyNotes,
 			List<StudyModuleStatus> studyModuleStatuses) {

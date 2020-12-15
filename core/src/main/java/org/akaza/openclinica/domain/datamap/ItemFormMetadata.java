@@ -8,8 +8,6 @@
 // default package
 // Generated Jul 31, 2013 2:03:33 PM by Hibernate Tools 3.4.0.CR1
 package org.akaza.openclinica.domain.datamap;
-import java.util.Set;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -82,8 +80,7 @@ public class ItemFormMetadata  extends DataMapDomainObject {
 			String rightItemText, Integer decisionConditionId, String regexp,
 			String regexpErrorMsg, int ordinal, Boolean required,
 			String defaultValue, String responseLayout, String widthDecimal,
-			Boolean showItem, Set scdItemMetadatasForControlItemFormMetadataId,
-			Set scdItemMetadatasForScdItemFormMetadataId) {
+			Boolean showItem) {
 		this.itemFormMetadataId = itemFormMetadataId;
 		this.responseSet = responseSet;
 		this.item = item;

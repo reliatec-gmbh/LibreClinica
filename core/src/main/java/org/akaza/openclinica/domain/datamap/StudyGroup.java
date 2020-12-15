@@ -44,7 +44,7 @@ public class StudyGroup  extends DataMapDomainObject {
 	private StudyGroupClass studyGroupClass;
 	private String name;
 	private String description;
-	private Set<SubjectGroupMap> subjectGroupMaps = new HashSet(0);
+	private Set<SubjectGroupMap> subjectGroupMaps = new HashSet<>(0);
 
 	public StudyGroup() {
 	}
@@ -54,7 +54,7 @@ public class StudyGroup  extends DataMapDomainObject {
 	}
 
 	public StudyGroup(int studyGroupId, StudyGroupClass studyGroupClass,
-			String name, String description, Set subjectGroupMaps) {
+			String name, String description, Set<SubjectGroupMap> subjectGroupMaps) {
 		this.studyGroupId = studyGroupId;
 		this.studyGroupClass = studyGroupClass;
 		this.name = name;

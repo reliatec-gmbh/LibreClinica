@@ -40,8 +40,8 @@ public class AuditEvent extends AbstractMutableDomainObject {
 	private Integer entityId;
 	private String reasonForChange;
 	private String actionMessage;
-	private Set auditEventValueses = new HashSet(0);
-	private Set auditEventContexts = new HashSet(0);
+	private Set<?> auditEventValueses = new HashSet<>(0);
+	private Set<?> auditEventContexts = new HashSet<>(0);
 
 	public AuditEvent() {
 	}
@@ -54,7 +54,7 @@ public class AuditEvent extends AbstractMutableDomainObject {
 
 	public AuditEvent(int auditId, Date auditDate, String auditTable,
 			Integer userId, Integer entityId, String reasonForChange,
-			String actionMessage, Set auditEventValueses, Set auditEventContexts) {
+			String actionMessage, Set<?> auditEventValueses, Set<?> auditEventContexts) {
 		this.auditId = auditId;
 		this.auditDate = auditDate;
 		this.auditTable = auditTable;
@@ -131,21 +131,29 @@ public class AuditEvent extends AbstractMutableDomainObject {
 		this.actionMessage = actionMessage;
 	}
 
+	/*
+	 * TODO there is no class defined for table 'audit_event_values'
+	 * so this mapping does not work
+	 */
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "auditEvent")
-	public Set getAuditEventValueses() {
+	public Set<?> getAuditEventValueses() {
 		return this.auditEventValueses;
 	}
 
-	public void setAuditEventValueses(Set auditEventValueses) {
+	public void setAuditEventValueses(Set<?> auditEventValueses) {
 		this.auditEventValueses = auditEventValueses;
 	}
 
+	/*
+	 * TODO there is no class defined for table 'audit_event_context'
+	 * so this mapping does not work
+	 */
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "auditEvent")
-	public Set getAuditEventContexts() {
+	public Set<?> getAuditEventContexts() {
 		return this.auditEventContexts;
 	}
 
-	public void setAuditEventContexts(Set auditEventContexts) {
+	public void setAuditEventContexts(Set<?> auditEventContexts) {
 		this.auditEventContexts = auditEventContexts;
 	}
 

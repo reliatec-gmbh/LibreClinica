@@ -9,7 +9,6 @@
 package org.akaza.openclinica.domain.datamap;
 
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -77,9 +76,9 @@ public class CrfVersion extends DataMapDomainObject {
     }
 
     public CrfVersion(int crfVersionId, UserAccount userAccount, Status status, CrfBean crf, String name, String description, String revisionNotes,
-            Date dateCreated, Date dateUpdated, Integer updateId, String ocOid, String xform, String xformName, Set filterCrfVersionMaps,
+            Date dateCreated, Date dateUpdated, Integer updateId, String ocOid, String xform, String xformName,
             List<VersioningMap> versioningMaps, List<EventCrf> eventCrfs, List<Section> sections, List<EventDefinitionCrf> eventDefinitionCrfs,
-            Set decisionConditions, Set<ItemGroupMetadata> itemGroupMetadatas) {
+            Set<ItemGroupMetadata> itemGroupMetadatas) {
         this.crfVersionId = crfVersionId;
         this.userAccount = userAccount;
         this.status = status;

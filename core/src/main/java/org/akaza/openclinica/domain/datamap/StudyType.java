@@ -36,7 +36,7 @@ public class StudyType  extends DataMapDomainObject {
 	private int studyTypeId;
 	private String name;
 	private String description;
-	private Set studies = new HashSet(0);
+	private Set<Study> studies = new HashSet<>(0);
 
 	public StudyType() {
 	}
@@ -46,7 +46,7 @@ public class StudyType  extends DataMapDomainObject {
 	}
 
 	public StudyType(int studyTypeId, String name, String description,
-			Set studies) {
+			Set<Study> studies) {
 		this.studyTypeId = studyTypeId;
 		this.name = name;
 		this.description = description;
@@ -81,12 +81,16 @@ public class StudyType  extends DataMapDomainObject {
 		this.description = description;
 	}
 
+	/*
+	 * TODO the property 'studyType' for class 'Study' is commented
+	 * so this mapping does not work
+	 */
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "studyType")
-	public Set getStudies() {
+	public Set<Study> getStudies() {
 		return this.studies;
 	}
 
-	public void setStudies(Set studies) {
+	public void setStudies(Set<Study> studies) {
 		this.studies = studies;
 	}
 

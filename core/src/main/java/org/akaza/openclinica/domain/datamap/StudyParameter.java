@@ -7,9 +7,6 @@
  */
 package org.akaza.openclinica.domain.datamap;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -52,7 +49,7 @@ public class StudyParameter  extends DataMapDomainObject {
 
 	public StudyParameter(int studyParameterId, String handle, String name,
 			String description, String defaultValue, Boolean inheritable,
-			Boolean overridable, Set studyParameterValues) {
+			Boolean overridable) {
 		this.studyParameterId = studyParameterId;
 		this.handle = handle;
 		this.name = name;
