@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
+@SuppressWarnings("deprecation")
 public abstract class OcDbTestCase extends DataSourceBasedDBTestCase {
 
     private static final Logger logger= LoggerFactory.getLogger(OcDbTestCase.class);

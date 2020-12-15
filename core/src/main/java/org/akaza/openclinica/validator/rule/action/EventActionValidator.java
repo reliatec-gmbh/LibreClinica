@@ -10,9 +10,10 @@ package org.akaza.openclinica.validator.rule.action;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.ResourceBundle;
+
+import javax.sql.DataSource;
 
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
@@ -30,8 +31,6 @@ import org.akaza.openclinica.exception.OpenClinicaSystemException;
 import org.akaza.openclinica.service.rule.expression.ExpressionService;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
-
-import javax.sql.DataSource;
 
 public class EventActionValidator implements Validator {
 
@@ -51,7 +50,7 @@ public class EventActionValidator implements Validator {
     /**
      * This Validator validates just Person instances
      */
-    public boolean supports(Class clazz) {
+    public boolean supports(Class<?> clazz) {
         return EventActionBean.class.equals(clazz);
     }
 

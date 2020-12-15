@@ -25,6 +25,7 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
+@SuppressWarnings("deprecation")
 public abstract class HibernateOcDbTestCase extends DataSourceBasedDBTestCase {
 
     protected static final Logger logger = LoggerFactory.getLogger(HibernateOcDbTestCase.class);

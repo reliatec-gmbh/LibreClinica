@@ -53,7 +53,7 @@ public class RandomizeActionValidator implements Validator {
     /**
      * This Validator validates just Person instances
      */
-    public boolean supports(Class clazz) {
+    public boolean supports(Class<?> clazz) {
         return RandomizeActionBean.class.equals(clazz);
     }
 
@@ -80,10 +80,12 @@ public class RandomizeActionValidator implements Validator {
                 targetCrf = getCrfDAO().findByItemOid(item.getOid());
 
             }
+            // TODO let the database calculate the 'intersection' this will be much faster and will consume less resources
             // Get All event definitions the selected CRF belongs to
             List<StudyEventDefinitionBean> destinationPropertyStudyEventDefinitions = getStudyEventDefinitionDAO().findAllByCrf(destinationPropertyOidCrf);
             List<StudyEventDefinitionBean> targetStudyEventDefinitions = getStudyEventDefinitionDAO().findAllByCrf(targetCrf);
-            Collection intersection = CollectionUtils.intersection(destinationPropertyStudyEventDefinitions, targetStudyEventDefinitions);
+            @SuppressWarnings("rawtypes")
+			Collection intersection = CollectionUtils.intersection(destinationPropertyStudyEventDefinitions, targetStudyEventDefinitions);
             if (intersection.size() == 0) {
                 e.rejectValue(p + "oid", "oid.invalid", "OID: " + propertyBean.getOid() + " is Invalid.");
             }

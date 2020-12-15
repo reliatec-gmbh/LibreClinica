@@ -81,9 +81,9 @@ public class LdapUserService {
         ldapTemplate.setIgnorePartialResultException(true);
     }
 
-    private final AttributesMapper ldapUserAttributesMapper = new AttributesMapper() {
+    private final AttributesMapper<LdapUser> ldapUserAttributesMapper = new AttributesMapper<LdapUser>() {
 
-        public Object mapFromAttributes(Attributes attributes) throws NamingException {
+        public LdapUser mapFromAttributes(Attributes attributes) throws NamingException {
             LdapUser u = new LdapUser();
             u.setDistinguishedName(attToString(attributes, keyDistinguishedName));
             u.setUsername(attToString(attributes, keyUsername));
@@ -112,7 +112,6 @@ public class LdapUserService {
      * @param filter
      * @return
      */
-    @SuppressWarnings("unchecked")
     public List<LdapUser> listUsers(String filter) {
         assert(!StringUtils.isEmpty(filter));
         String query = MessageFormat.format(userSearchQuery, filter);
@@ -149,7 +148,7 @@ public class LdapUserService {
      * @return
      */
     public LdapUser loadUser(String dn) {
-        return (LdapUser) ldapTemplate.lookup(dn, ldapUserAttributesMapper);
+        return ldapTemplate.lookup(dn, ldapUserAttributesMapper);
     }
 
     public DirContextOperations searchForUser(String username) {
