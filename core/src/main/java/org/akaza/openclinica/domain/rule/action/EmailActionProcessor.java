@@ -32,6 +32,8 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.sql.DataSource;
 
+import static org.akaza.openclinica.core.util.ClassCastHelper.*;
+
 public class EmailActionProcessor implements ActionProcessor {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
@@ -56,7 +58,7 @@ public class EmailActionProcessor implements ActionProcessor {
         }
 
         case SAVE: {
-            HashMap<String, String> arg0 = (HashMap<String, String>) arguments[0];
+            HashMap<String, String> arg0 = asHashMap(arguments[0], String.class, String.class);
             sendEmail(ruleAction, ub, arg0.get("body"), arg0.get("subject"));
             RuleActionRunLogBean ruleActionRunLog =
                 new RuleActionRunLogBean(ruleAction.getActionType(), itemDataBean, itemDataBean.getValue(), ruleSetRule.getRuleBean().getOid());

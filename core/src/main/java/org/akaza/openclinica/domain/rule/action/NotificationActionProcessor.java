@@ -8,10 +8,7 @@
 package org.akaza.openclinica.domain.rule.action;
 
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
-import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.sql.DataSource;
 
@@ -33,7 +30,6 @@ import org.akaza.openclinica.dao.managestudy.StudySubjectDAO;
 import org.akaza.openclinica.dao.service.StudyParameterValueDAO;
 import org.akaza.openclinica.domain.rule.RuleSetBean;
 import org.akaza.openclinica.domain.rule.RuleSetRuleBean;
-import org.akaza.openclinica.exception.OpenClinicaSystemException;
 import org.akaza.openclinica.logic.rulerunner.ExecutionMode;
 import org.akaza.openclinica.logic.rulerunner.RuleRunner.RuleRunnerMode;
 import org.akaza.openclinica.service.BulkEmailSenderService;
@@ -41,7 +37,6 @@ import org.akaza.openclinica.service.pmanage.ParticipantPortalRegistrar;
 import org.akaza.openclinica.service.rule.RuleSetService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
