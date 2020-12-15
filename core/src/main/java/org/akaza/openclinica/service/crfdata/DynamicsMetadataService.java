@@ -31,6 +31,7 @@ import org.akaza.openclinica.bean.submit.ItemGroupMetadataBean;
 import org.akaza.openclinica.bean.submit.SectionBean;
 import org.akaza.openclinica.dao.hibernate.DynamicsItemFormMetadataDao;
 import org.akaza.openclinica.dao.hibernate.DynamicsItemGroupMetadataDao;
+import org.akaza.openclinica.dao.login.UserAccountDAO;
 import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDAO;
 import org.akaza.openclinica.dao.submit.EventCRFDAO;
@@ -59,10 +60,11 @@ public class DynamicsMetadataService implements MetadataServiceInterface {
     DataSource ds;
     private EventDefinitionCRFDAO eventDefinitionCRFDAO;
     private ExpressionService expressionService;
+    UserAccountDAO uadao;
     
     public DynamicsMetadataService(DataSource ds) {
-        // itemsAlreadyShown = new ArrayList<Integer>();
         this.ds = ds;
+        this.uadao = new UserAccountDAO(this.ds);
     }
 
     public boolean hide(Object metadataBean, EventCRFBean eventCrfBean) {
@@ -284,7 +286,7 @@ public class DynamicsMetadataService implements MetadataServiceInterface {
             else {
                 logger.debug("found item group id 1 " + oid);
                 ItemGroupBean itemGroupBean = itemOrItemGroup.getItemGroupBean();
-                ArrayList sectionBeans = getSectionDAO().findAllByCRFVersionId(eventCrfBeanA.getCRFVersionId());
+                ArrayList<SectionBean> sectionBeans = getSectionDAO().findAllByCRFVersionId(eventCrfBeanA.getCRFVersionId());
                 for (int i = 0; i < sectionBeans.size(); i++) {
                     SectionBean sectionBean = (SectionBean) sectionBeans.get(i);
                     // System.out.println("found section " + sectionBean.getId());
@@ -417,14 +419,17 @@ public class DynamicsMetadataService implements MetadataServiceInterface {
         ordinal = ordinal == null ? 1 : ordinal;
         itemGroupMetadataBeanB.getRepeatNum();
         ItemDataBean oidBasedItemData = getItemData(itemBeanB, eventCrfBeanB, ordinal);
-        
+
+        int ownerId = oidBasedItemData.getOwnerId();
+        UserAccountBean updater = null;
         if (oidBasedItemData.getId() == 0) {
             oidBasedItemData = createItemData(oidBasedItemData, itemBeanB, ordinal, eventCrfBeanB, ub);
-            oidBasedItemData.setUpdaterId(oidBasedItemData.getOwnerId());
+            updater = uadao.findByPK(ownerId);
+            oidBasedItemData.setUpdater(updater);
         }else{
                 if(oidBasedItemData.getUpdaterId()==0)
-                    oidBasedItemData.setUpdaterId(oidBasedItemData.getOwnerId());
-                
+                    updater = uadao.findByPK(ownerId);
+                	oidBasedItemData.setUpdater(updater);
             }
             
         return oidBasedItemData;
@@ -691,7 +696,7 @@ public class DynamicsMetadataService implements MetadataServiceInterface {
                 // below taken from showNew and reversed, tbh 07/2010
                 logger.debug("found item group id 1 " + oid);
                 ItemGroupBean itemGroupBean = itemOrItemGroup.getItemGroupBean();
-                ArrayList sectionBeans = getSectionDAO().findAllByCRFVersionId(eventCrfBeanA.getCRFVersionId());
+                ArrayList<SectionBean> sectionBeans = getSectionDAO().findAllByCRFVersionId(eventCrfBeanA.getCRFVersionId());
                 for (int i = 0; i < sectionBeans.size(); i++) {
                     SectionBean sectionBean = (SectionBean) sectionBeans.get(i);
                     // System.out.println("found section " + sectionBean.getId());
@@ -803,7 +808,7 @@ public class DynamicsMetadataService implements MetadataServiceInterface {
             else {
                 logger.debug("found item group id 1 " + oid);
                 ItemGroupBean itemGroupBean = itemOrItemGroup.getItemGroupBean();
-                ArrayList sectionBeans = getSectionDAO().findAllByCRFVersionId(eventCrfBeanA.getCRFVersionId());
+                ArrayList<SectionBean> sectionBeans = getSectionDAO().findAllByCRFVersionId(eventCrfBeanA.getCRFVersionId());
                 for (int i = 0; i < sectionBeans.size(); i++) {
                     SectionBean sectionBean = (SectionBean) sectionBeans.get(i);
                     // System.out.println("found section " + sectionBean.getId());
