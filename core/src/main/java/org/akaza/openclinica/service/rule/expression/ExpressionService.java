@@ -44,7 +44,6 @@ import org.akaza.openclinica.bean.submit.ItemFormMetadataBean;
 import org.akaza.openclinica.bean.submit.ItemGroupBean;
 import org.akaza.openclinica.bean.submit.ItemGroupMetadataBean;
 import org.akaza.openclinica.dao.admin.CRFDAO;
-import org.akaza.openclinica.dao.hibernate.DynamicsItemFormMetadataDao;
 import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDefinitionDAO;
@@ -383,8 +382,8 @@ public class ExpressionService {
             if (checkIfExpressionIsForScheduling(expression)) {
                 StudyEvent studyEvent;
 
-                if (expression.endsWith(this.STARTDATE)) {
-                    String oid = expression.substring(0, expression.indexOf(this.STARTDATE));
+                if (expression.endsWith(ExpressionService.STARTDATE)) {
+                    String oid = expression.substring(0, expression.indexOf(ExpressionService.STARTDATE));
                     studyEvent = getStudyEventFromOID(oid);
                     if (studyEvent != null) {
                         logger.debug("Study Event Start Date: "
@@ -393,7 +392,7 @@ public class ExpressionService {
                     } else
                         return "";
                 } else {
-                    String oid = expression.substring(0, expression.indexOf(this.STATUS));
+                    String oid = expression.substring(0, expression.indexOf(ExpressionService.STATUS));
                     studyEvent = getStudyEventFromOID(oid);
                     if (studyEvent != null) {
                         logger.debug("Status: "
@@ -418,12 +417,7 @@ public class ExpressionService {
                     } else {
                         valueFromForm = getValueFromForm(fullExpression, items);
                     }
-                    String valueFromDb = null;
-                    if (itemBeansI == null) {
-                        valueFromDb = getValueFromDb(fullExpression, itemDatas);
-                    } else {
-                        valueFromDb = getValueFromDb(fullExpression, itemDatas, itemBeansI);
-                    }
+                    String valueFromDb = getValueFromDb(fullExpression, itemDatas, itemBeansI);
                     logger.debug("valueFromForm : {} , valueFromDb : {}", valueFromForm, valueFromDb);
                     if (valueFromForm == null && valueFromDb == null) {
                         throw new OpenClinicaSystemException("OCRERR_0017", new Object[] { fullExpression,
@@ -475,7 +469,7 @@ public class ExpressionService {
 
     public boolean checkIfExpressionIsForScheduling(String expression) {
         if (expression.toUpperCase().startsWith("SE_")
-                && (expression.toUpperCase().endsWith(this.STARTDATE) || expression.toUpperCase().endsWith(this.STATUS))) {
+                && (expression.toUpperCase().endsWith(ExpressionService.STARTDATE) || expression.toUpperCase().endsWith(ExpressionService.STATUS))) {
             return true;
         }
         return false;
@@ -733,8 +727,6 @@ public class ExpressionService {
         }
     }
 
-
-    @SuppressWarnings("unchecked")
     private String deContextualizeExpression(int j, String ruleExpression, String ruleSetTargetExpression) {
         String ruleSetExpression = ruleSetTargetExpression;
         String[] splitRuleSetExpression = ruleSetExpression.split(ESCAPED_SEPERATOR);
