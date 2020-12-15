@@ -18,8 +18,6 @@ import org.akaza.openclinica.logic.core.BusinessEvaluator;
 import org.akaza.openclinica.logic.core.BusinessRule;
 import org.akaza.openclinica.logic.masking.rules.MaskSubjectDOBRule;
 
-import java.util.Iterator;
-
 /**
  * @author thickerson
  *
@@ -47,8 +45,7 @@ public class SubjectMaskingEvaluator extends BusinessEvaluator {
     protected void evaluateRuleSet() {
         // can modify this as necessary? tbh
         synchronized (this) {
-            for (Iterator it = ruleSet.iterator(); it.hasNext();) {
-                BusinessRule bRule = (BusinessRule) it.next();
+            for(BusinessRule bRule : ruleSet) {
                 if (bRule.isPropertyTrue(bRule.getClass().getName())) {
                     bRule.doAction(businessObject);
                 }
