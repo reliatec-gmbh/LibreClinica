@@ -115,7 +115,7 @@ public class SpreadSheetTableClassic implements SpreadSheetTable {// extends
         StringBuffer buf = new StringBuffer();
         HSSFWorkbook wb = new HSSFWorkbook(fs);
         int numSheets = wb.getNumberOfSheets();
-        ArrayList queries = new ArrayList();
+        ArrayList<String> queries = new ArrayList();
         ArrayList errors = new ArrayList();
         ArrayList repeats = new ArrayList();
         HashMap items = new HashMap();

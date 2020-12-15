@@ -191,7 +191,8 @@ public class ItemDAO extends AuditableEntityDAO<ItemBean> {
         return beanList;
     }
 
-    public List<ItemBean> findAll() {
+    @Override
+    public ArrayList<ItemBean> findAll() {
     	String queryName = "findAll";
         return executeFindAllQuery(queryName);
     }
@@ -199,6 +200,7 @@ public class ItemDAO extends AuditableEntityDAO<ItemBean> {
     /**
      * NOT IMPLEMENTED
      */
+    @Override
     public ArrayList<ItemBean> findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
         throw new RuntimeException("Not implemented");
     }
@@ -416,16 +418,18 @@ public class ItemDAO extends AuditableEntityDAO<ItemBean> {
         return eb;
     }
 
-    public List<ItemBean> findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList<ItemBean> al = new ArrayList<>();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<ItemBean> findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+        throw new RuntimeException("Not implemented");
     }
 
-    public List<ItemBean> findAllByPermission(Object objCurrentUser, int intActionType) {
-        ArrayList<ItemBean> al = new ArrayList<>();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<ItemBean> findAllByPermission(Object objCurrentUser, int intActionType) {
+        throw new RuntimeException("Not implemented");
     }
 
     /**

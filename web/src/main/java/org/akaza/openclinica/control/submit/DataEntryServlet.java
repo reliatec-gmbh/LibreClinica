@@ -3498,9 +3498,9 @@ public abstract class DataEntryServlet extends CoreSecureController {
      * Retrieve the DisplaySectionBean which will be used to display the Event CRF Section on the JSP, and also is used to controll processRequest.
      * @param request TODO
      */
-    protected ArrayList getAllDisplayBeans(HttpServletRequest request) throws Exception {
+    protected ArrayList<DisplaySectionBean> getAllDisplayBeans(HttpServletRequest request) throws Exception {
         EventCRFBean ecb = (EventCRFBean)request.getAttribute(INPUT_EVENT_CRF);
-        ArrayList sections = new ArrayList();
+        ArrayList<DisplaySectionBean> sections = new ArrayList<>();
         HttpSession session = request.getSession();
         StudyBean study = (StudyBean) session.getAttribute("study");
       SectionDAO  sdao = new SectionDAO(getDataSource());

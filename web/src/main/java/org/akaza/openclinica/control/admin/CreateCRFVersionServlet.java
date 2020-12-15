@@ -217,7 +217,7 @@ public class CreateCRFVersionServlet extends SecureController {
             if (nib != null && nib.getItemQueries() != null) {
                 request.setAttribute("openQueries", nib.getItemQueries());
             } else {
-                request.setAttribute("openQueries", new HashMap());
+                request.setAttribute("openQueries", new HashMap<>());
             }
             boolean canDelete = false;
             // check whether need to delete previous version
@@ -244,7 +244,7 @@ public class CreateCRFVersionServlet extends SecureController {
                 ArrayList<ItemBean> nonSharedItems = (ArrayList<ItemBean>) vdao.findNotSharedItemsByVersion(previousVersionId.intValue());
                 // htaycher: here is the trick we need to put in nib1.setItemQueries()
                 // update statements for shared items and insert for nonShared that were just deleted 5927
-                HashMap item_table_statements = new HashMap();
+                HashMap<String, String> item_table_statements = new HashMap<>();
                 ArrayList<String> temp = new ArrayList<String>(nonSharedItems.size());
 
                 for (ItemBean item : nonSharedItems) {
@@ -615,13 +615,10 @@ public class CreateCRFVersionServlet extends SecureController {
      *            items from excel
      * @return the items found
      */
-    private ArrayList isItemSame(HashMap items, CRFVersionBean version) {
+    private ArrayList isItemSame(HashMap<String, ItemBean> items, CRFVersionBean version) {
         ItemDAO idao = new ItemDAO(sm.getDataSource());
         ArrayList diffItems = new ArrayList();
-        Set names = items.keySet();
-        Iterator it = names.iterator();
-        while (it.hasNext()) {
-            String name = (String) it.next();
+        for(String name : items.keySet()) {
             ItemBean newItem = (ItemBean) idao.findByNameAndCRFId(name, version.getCrfId());
             ItemBean item = (ItemBean) items.get(name);
             if (newItem.getId() > 0) {

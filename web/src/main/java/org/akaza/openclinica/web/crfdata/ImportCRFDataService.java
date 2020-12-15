@@ -358,7 +358,7 @@ public class ImportCRFDataService {
             throws OpenClinicaException {
 
         DisplayItemBeanWrapper displayItemBeanWrapper = null;
-        HashMap validationErrors = new HashMap();
+        HashMap<String, ArrayList<String>> validationErrors = new HashMap<>();
         List<DisplayItemBeanWrapper> wrappers = new ArrayList<DisplayItemBeanWrapper>();
         ImportHelper importHelper = new ImportHelper();
         FormDiscrepancyNotes discNotes = new FormDiscrepancyNotes();
@@ -633,7 +633,7 @@ public class ImportCRFDataService {
                         // validationErrors would get overwritten and the
                         // older errors will be overriden. Moving it after the form.
                         // Removing the comments for now, since it seems to be creating duplicate Discrepancy Notes.
-                        validationErrors = new HashMap();
+                        validationErrors = new HashMap<>();
                         discValidator = new DiscrepancyValidator(request, discNotes);
                         // reset to allow for new errors...
                     }
@@ -818,16 +818,13 @@ public class ImportCRFDataService {
         }
     }
 
-    private String matchValueWithOptions(DisplayItemBean displayItemBean, String value, List options) {
+    private String matchValueWithOptions(DisplayItemBean displayItemBean, String value, List<ResponseOptionBean> options) {
         String returnedValue = null;
         if (!options.isEmpty()) {
-            for (Object responseOption : options) {
-                ResponseOptionBean responseOptionBean = (ResponseOptionBean) responseOption;
+            for(ResponseOptionBean responseOptionBean : options) {
                 if (responseOptionBean.getValue().equals(value)) {
-                    // if (((ResponseOptionBean)
-                    // responseOption).getText().equals(value)) {
-                    displayItemBean.getData().setValue(((ResponseOptionBean) responseOption).getValue());
-                    return ((ResponseOptionBean) responseOption).getValue();
+                    displayItemBean.getData().setValue(responseOptionBean.getValue());
+                    return responseOptionBean.getValue();
 
                 }
             }
@@ -839,7 +836,7 @@ public class ImportCRFDataService {
      * difference from the above is only a 'contains' in the place of an 'equals'. and a few other switches...also need
      * to keep in mind that there are non-null values that need to be taken into account
      */
-    private String matchValueWithManyOptions(DisplayItemBean displayItemBean, String value, List options) {
+    private String matchValueWithManyOptions(DisplayItemBean displayItemBean, String value, List<ResponseOptionBean> options) {
         String returnedValue = null;
         // boolean checkComplete = true;
         String entireOptions = "";
@@ -852,29 +849,14 @@ public class ImportCRFDataService {
         simValue = simValue.replace(" ", "");
         boolean checkComplete = true;
         if (!options.isEmpty()) {
-            for (Object responseOption : options) {
-                ResponseOptionBean responseOptionBean = (ResponseOptionBean) responseOption;
-                // logger.debug("testing response option bean get value: " + responseOptionBean.getValue());
-                // entireOptions += responseOptionBean.getValue() + "{0,1}|";//
-                // once, or not at all
+            for(ResponseOptionBean responseOptionBean : options) {
                 entireOptions += responseOptionBean.getValue();
-                // trying smth new, tbh 01/2009
-
-                // logger.debug("checking on this string: " +
-                // entireOptions + " versus this value " + simValue);
-                // checkComplete = Pattern.matches(entireOptions, simValue); //
-                // switch values, tbh
-
-                // if (!checkComplete) {
-                // return returnedValue;
-                // }
-
             }
             // remove spaces, since they are causing problems:
             entireOptions = entireOptions.replace(" ", "");
             // following may be superfluous, tbh
 
-            ArrayList nullValues = displayItemBean.getEventDefinitionCRF().getNullValuesList();
+            ArrayList<NullValue> nullValues = displayItemBean.getEventDefinitionCRF().getNullValuesList();
 
             for (Object nullValue : nullValues) {
                 NullValue nullValueTerm = (NullValue) nullValue;

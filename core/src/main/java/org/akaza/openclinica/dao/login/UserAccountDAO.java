@@ -902,7 +902,7 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
      * NOT IMPLEMENTED
      */
     @Override
-    public ArrayList<StudyUserRoleBean> findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+    public ArrayList<UserAccountBean> findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
        throw new RuntimeException("Not implemented");
     }
 
@@ -910,7 +910,7 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
      * NOT IMPLEMENTED
      */
     @Override
-    public ArrayList<StudyUserRoleBean> findAllByPermission(Object objCurrentUser, int intActionType) {
+    public ArrayList<UserAccountBean> findAllByPermission(Object objCurrentUser, int intActionType) {
         throw new RuntimeException("Not implemented");
     }
 

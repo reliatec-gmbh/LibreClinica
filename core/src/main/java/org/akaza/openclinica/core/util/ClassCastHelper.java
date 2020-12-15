@@ -45,6 +45,20 @@ public class ClassCastHelper {
     }
 
 	/**
+	 * Returns the value of the named attribute as the type of the assignment variable. 
+     * 
+	 * @param <T> the expected result type
+	 * @param the object to cast
+     *
+     * @return	the object casted to type of the assignment variable
+     * @see HttpServletRequest#getAttribute(String)
+	 */    
+	@SuppressWarnings("unchecked")
+	public static <T> T getAsType(Object o) {   	
+        return (T) o;
+    }
+
+	/**
 	 * Returns the value of the named attribute as the given result type. 
      * 
 	 * @param <T> the expected result type
@@ -54,10 +68,10 @@ public class ClassCastHelper {
      *
      * @return	the object casted to the given result type
      * @see HttpServletRequest#getAttribute(String)
-	 */    
-	@SuppressWarnings("unchecked")
+	 */
 	public static <T> T getAsType(Object o, Class<T> resultType) {   	
-        return (T) o;
+		T result = getAsType(o);
+        return result;
     }
 
 	/**

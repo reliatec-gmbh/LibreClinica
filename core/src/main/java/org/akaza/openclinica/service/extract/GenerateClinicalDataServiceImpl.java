@@ -218,9 +218,6 @@ public class GenerateClinicalDataServiceImpl implements GenerateClinicalDataServ
 		// return null;
 	}
 
-
-
-	@SuppressWarnings("unchecked")
 	private ExportSubjectDataBean setExportSubjectDataBean(
 			StudySubject studySubj, Study study,List<StudyEvent> studyEvents,String formVersionOID) {
 
@@ -777,7 +774,7 @@ public class GenerateClinicalDataServiceImpl implements GenerateClinicalDataServ
 		auditLog.setEntityId(new Integer(entityID));
 		auditLog.setAuditTable(itemDataAuditTable);
 		auditLogsBean.setEntityID(entityValue);
-		ArrayList<AuditLogEvent> auditLogEvent = (getAuditEventDAO().findByParam(auditLog, anotherAuditLog));
+		ArrayList<AuditLogEvent> auditLogEvent = new ArrayList<AuditLogEvent>(getAuditEventDAO().findByParam(auditLog, anotherAuditLog));
 		
 		
 		auditLogsBean= fetchODMAuditBean(auditLogEvent,auditLogsBean);

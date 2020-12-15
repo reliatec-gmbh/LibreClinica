@@ -9,7 +9,6 @@ package org.akaza.openclinica.dao.submit;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -463,7 +462,8 @@ public class ItemDataDAO extends AuditableEntityDAO<ItemDataBean> {
         return dataItems;
     }
 
-    public Collection<ItemDataBean> findAll() {
+    @Override
+    public ArrayList<ItemDataBean> findAll() {
         setTypesExpected();
 
         ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findAll"));
@@ -478,6 +478,7 @@ public class ItemDataDAO extends AuditableEntityDAO<ItemDataBean> {
     /**
      * NOT IMPLEMENTED
      */
+    @Override
     public ArrayList<ItemDataBean> findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
     	throw new RuntimeException("Not implemented");
     }
