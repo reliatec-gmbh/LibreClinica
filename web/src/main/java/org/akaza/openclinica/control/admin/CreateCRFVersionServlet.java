@@ -14,11 +14,28 @@
  */
 package org.akaza.openclinica.control.admin;
 
+import static org.akaza.openclinica.core.util.ClassCastHelper.asArrayList;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+
 import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.admin.NewCRFBean;
 import org.akaza.openclinica.bean.core.Role;
+import org.akaza.openclinica.bean.managestudy.EventDefinitionCRFBean;
 import org.akaza.openclinica.bean.rule.FileUploadHelper;
 import org.akaza.openclinica.bean.submit.CRFVersionBean;
+import org.akaza.openclinica.bean.submit.EventCRFBean;
 import org.akaza.openclinica.bean.submit.ItemBean;
 import org.akaza.openclinica.bean.submit.ItemFormMetadataBean;
 import org.akaza.openclinica.bean.submit.ResponseOptionBean;
@@ -27,7 +44,6 @@ import org.akaza.openclinica.control.SpringServletAccess;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.control.form.Validator;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.admin.CRFDAO;
 import org.akaza.openclinica.dao.core.CoreResources;
 import org.akaza.openclinica.dao.hibernate.MeasurementUnitDao;
@@ -43,19 +59,6 @@ import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.akaza.openclinica.web.SQLInitServlet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
 
 /**
  * Create a new CRF verison by uploading excel file
@@ -91,7 +94,6 @@ public class CreateCRFVersionServlet extends SecureController {
         throw new InsufficientPermissionException(Page.MENU_SERVLET, resexception.getString("may_not_submit_data"), "1");
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void processRequest() throws Exception {
         resetPanel();
@@ -110,7 +112,7 @@ public class CreateCRFVersionServlet extends SecureController {
         String action = request.getParameter("action");
         CRFVersionBean version = (CRFVersionBean) session.getAttribute("version");
 
-        if (StringUtil.isBlank(action)) {
+        if (action == null || action.trim().isEmpty()) {
             logger.debug("action is blank");
             request.setAttribute("version", version);
             forwardPage(Page.CREATE_CRF_VERSION);
@@ -165,7 +167,7 @@ public class CreateCRFVersionServlet extends SecureController {
                 forwardPage(Page.CREATE_CRF_VERSION);
             } else {
                 CRFBean crf = (CRFBean) cdao.findByPK(version.getCrfId());
-                ArrayList versions = (ArrayList) vdao.findAllByCRF(crf.getId());
+                ArrayList<CRFVersionBean> versions = vdao.findAllByCRF(crf.getId());
                 for (int i = 0; i < versions.size(); i++) {
                     CRFVersionBean version1 = (CRFVersionBean) versions.get(i);
                     if (version.getName().equals(version1.getName())) {
@@ -177,7 +179,7 @@ public class CreateCRFVersionServlet extends SecureController {
                             forwardPage(Page.CREATE_CRF_VERSION);
                             return;
                         } else {// owner,
-                            ArrayList definitions = edao.findByDefaultVersion(version1.getId());
+                            ArrayList<EventDefinitionCRFBean> definitions = edao.findByDefaultVersion(version1.getId());
                             if (!definitions.isEmpty()) {// used in
                                 // definition
                                 request.setAttribute("definitions", definitions);
@@ -200,7 +202,7 @@ public class CreateCRFVersionServlet extends SecureController {
 
                 // List excelErr =
                 // ((ArrayList)request.getAttribute("excelErrors"));
-                List excelErr = (ArrayList) session.getAttribute("excelErrors");
+                ArrayList<String> excelErr = asArrayList(session.getAttribute("excelErrors"), String.class);
                 logger.debug("excelErr.isEmpty()=" + excelErr.isEmpty());
                 if (excelErr != null && excelErr.isEmpty()) {
                     addPageMessage(resword.getString("congratulations_your_spreadsheet_no_errors"));
@@ -233,10 +235,10 @@ public class CreateCRFVersionServlet extends SecureController {
                         addPageMessage(respage.getString("you_are_not_owner_some_items_cannot_delete"));
                     }
                     if (session.getAttribute("itemsHaveData") == null) {
-                        session.setAttribute("itemsHaveData", new ArrayList());
+                        session.setAttribute("itemsHaveData", new ArrayList<>());
                     }
                     if (session.getAttribute("eventsForVersion") == null) {
-                        session.setAttribute("eventsForVersion", new ArrayList());
+                        session.setAttribute("eventsForVersion", new ArrayList<>());
                     }
                     forwardPage(Page.CREATE_CRF_VERSION_NODELETE);
                     return;
@@ -282,16 +284,15 @@ public class CreateCRFVersionServlet extends SecureController {
                     // For this purpose, CRFVersion id is needed.
                     // So the latest CRFVersion Id of A CRF Id is it.
                     CRFVersionDAO cvdao = new CRFVersionDAO(sm.getDataSource());
-                    ArrayList crfvbeans = new ArrayList();
+                    ArrayList<CRFVersionBean> crfvbeans = new ArrayList<>();
 
                     logger.debug("CRF-ID [" + version.getCrfId() + "]");
                     int crfVersionId = 0;
                     if (version.getCrfId() != 0) {
                         crfvbeans = cvdao.findAllByCRFId(version.getCrfId());
-                        CRFVersionBean cvbean = (CRFVersionBean) crfvbeans.get(crfvbeans.size() - 1);
-                        crfVersionId = cvbean.getId();
-                        for (Iterator iter = crfvbeans.iterator(); iter.hasNext();) {
-                            cvbean = (CRFVersionBean) iter.next();
+                        CRFVersionBean lastCvbean = crfvbeans.get(crfvbeans.size() - 1);
+                        crfVersionId = lastCvbean.getId();
+                        for(CRFVersionBean cvbean : crfvbeans) {
                             if (crfVersionId < cvbean.getId()) {
                                 crfVersionId = cvbean.getId();
                             }
@@ -373,7 +374,7 @@ public class CreateCRFVersionServlet extends SecureController {
             }
         } else if ("delete".equalsIgnoreCase(action)) {
             logger.debug("user wants to delete previous version");
-            List excelErr = (ArrayList) session.getAttribute("excelErrors");
+            ArrayList<String> excelErr = asArrayList(session.getAttribute("excelErrors"), String.class);
             logger.debug("for overwrite CRF version, excelErr.isEmpty()=" + excelErr.isEmpty());
             if (excelErr != null && excelErr.isEmpty()) {
                 addPageMessage(resword.getString("congratulations_your_spreadsheet_no_errors"));
@@ -504,10 +505,10 @@ public class CreateCRFVersionServlet extends SecureController {
                             }
                         }
                     }
-                    ArrayList ibs = isItemSame(nib.getItems(), version);
+                    ArrayList<ItemBean> ibs = isItemSame(nib.getItems(), version);
 
                     if (!ibs.isEmpty()) {
-                        ArrayList warnings = new ArrayList();
+                        ArrayList<String> warnings = new ArrayList<>();
                         warnings.add(resexception.getString("you_may_not_modify_items"));
                         for (int i = 0; i < ibs.size(); i++) {
                             ItemBean ib = (ItemBean) ibs.get(i);
@@ -569,7 +570,7 @@ public class CreateCRFVersionServlet extends SecureController {
     private boolean canDeleteVersion(int previousVersionId) {
         CRFVersionDAO cdao = new CRFVersionDAO(sm.getDataSource());
         ArrayList<ItemBean> items = null;
-        ArrayList itemsHaveData = new ArrayList();
+        ArrayList<ItemBean> itemsHaveData = new ArrayList<>();
         // boolean isItemUsedByOtherVersion =
         // cdao.isItemUsedByOtherVersion(previousVersionId);
         // if (isItemUsedByOtherVersion) {
@@ -578,7 +579,7 @@ public class CreateCRFVersionServlet extends SecureController {
         // session.setAttribute("itemsUsedByOtherVersion",itemsUsedByOtherVersion);
         // return false;
         EventCRFDAO ecdao = new EventCRFDAO(sm.getDataSource());
-        ArrayList events = ecdao.findAllByCRFVersion(previousVersionId);
+        ArrayList<EventCRFBean> events = ecdao.findAllByCRFVersion(previousVersionId);
         if (!events.isEmpty()) {
             session.setAttribute("eventsForVersion", events);
             return false;
@@ -615,9 +616,9 @@ public class CreateCRFVersionServlet extends SecureController {
      *            items from excel
      * @return the items found
      */
-    private ArrayList isItemSame(HashMap<String, ItemBean> items, CRFVersionBean version) {
+    private ArrayList<ItemBean> isItemSame(HashMap<String, ItemBean> items, CRFVersionBean version) {
         ItemDAO idao = new ItemDAO(sm.getDataSource());
-        ArrayList diffItems = new ArrayList();
+        ArrayList<ItemBean> diffItems = new ArrayList<>();
         for(String name : items.keySet()) {
             ItemBean newItem = (ItemBean) idao.findByNameAndCRFId(name, version.getCrfId());
             ItemBean item = (ItemBean) items.get(name);
@@ -635,17 +636,17 @@ public class CreateCRFVersionServlet extends SecureController {
         return diffItems;
     }
 
-    private ItemBean isResponseValid(HashMap items, CRFVersionBean version) {
+    private ItemBean isResponseValid(HashMap<String, ItemBean> items, CRFVersionBean version) {
         ItemDAO idao = new ItemDAO(sm.getDataSource());
         ItemFormMetadataDAO metadao = new ItemFormMetadataDAO(sm.getDataSource());
-        Set names = items.keySet();
-        Iterator it = names.iterator();
+        Set<String> names = items.keySet();
+        Iterator<String> it = names.iterator();
         while (it.hasNext()) {
             String name = (String) it.next();
-            ItemBean oldItem = (ItemBean) idao.findByNameAndCRFId(name, version.getCrfId());
-            ItemBean item = (ItemBean) items.get(name);
+            ItemBean oldItem = idao.findByNameAndCRFId(name, version.getCrfId());
+            ItemBean item = items.get(name);
             if (oldItem.getId() > 0) {// found same item in DB
-                ArrayList metas = metadao.findAllByItemId(oldItem.getId());
+                ArrayList<ItemFormMetadataBean> metas = metadao.findAllByItemId(oldItem.getId());
                 for (int i = 0; i < metas.size(); i++) {
                     ItemFormMetadataBean ifmb = (ItemFormMetadataBean) metas.get(i);
                     ResponseSetBean rsb = ifmb.getResponseSet();
@@ -684,8 +685,8 @@ public class CreateCRFVersionServlet extends SecureController {
      * @return The original option
      */
     public ResponseOptionBean hasDifferentOption(ResponseSetBean oldRes, ResponseSetBean newRes) {
-        ArrayList oldOptions = oldRes.getOptions();
-        ArrayList newOptions = newRes.getOptions();
+        ArrayList<ResponseOptionBean> oldOptions = oldRes.getOptions();
+        ArrayList<ResponseOptionBean> newOptions = newRes.getOptions();
         if (oldOptions.size() != newOptions.size()) {
             // if the sizes are different, means the options don't match
             return null;
@@ -695,30 +696,30 @@ public class CreateCRFVersionServlet extends SecureController {
                 ResponseOptionBean rob = (ResponseOptionBean) oldOptions.get(i);
                 String text = rob.getText();
                 String value = rob.getValue();
-                for (int j = i; j < newOptions.size(); j++) {// from
-                    // spreadsheet
-                    ResponseOptionBean rob1 = (ResponseOptionBean) newOptions.get(j);
-                    // changed by jxu on 08-29-06, to fix the problem of cannot
-                    // recognize
-                    // the same responses
-                    String text1 = restoreQuotes(rob1.getText());
+                // spreadsheet
+                ResponseOptionBean rob1 = (ResponseOptionBean) newOptions.get(i);
+                // changed by jxu on 08-29-06, to fix the problem of cannot
+                // recognize
+                // the same responses
+                String text1 = restoreQuotes(rob1.getText());
 
-                    String value1 = restoreQuotes(rob1.getValue());
+                String value1 = restoreQuotes(rob1.getValue());
 
-                    if (StringUtil.isBlank(text1) && StringUtil.isBlank(value1)) {
-                        // this response label appears in the spreadsheet
-                        // multiple times, so
-                        // ignore the checking for the repeated ones
-                        break;
-                    }
-                    if (text1.equalsIgnoreCase(text) && !value1.equals(value)) {
-                        logger.debug("different response value:" + value1 + "|" + value);
-                        return rob;
-                    } else if (!text1.equalsIgnoreCase(text) && value1.equals(value)) {
-                        logger.debug("different response text:" + text1 + "|" + text);
-                        return rob;
-                    }
-                    break;
+                if (
+                		(text1 == null || text1.trim().isEmpty()) && 
+                		(value1 == null || value1.trim().isEmpty())
+                ) {
+                    // this response label appears in the spreadsheet
+                    // multiple times, so
+                    // ignore the checking for the repeated ones
+                    continue;
+                }
+                if (text1.equalsIgnoreCase(text) && !value1.equals(value)) {
+                    logger.debug("different response value:" + value1 + "|" + value);
+                    return rob;
+                } else if (!text1.equalsIgnoreCase(text) && value1.equals(value)) {
+                    logger.debug("different response text:" + text1 + "|" + text);
+                    return rob;
                 }
             }
 

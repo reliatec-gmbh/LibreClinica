@@ -75,10 +75,10 @@ public class ViewLogMessageServlet extends SecureController {
             // }
             // r.close();
             String fileContents = readFromFile(logDestDirectory);
-            request.setAttribute(this.LOG_MESSAGE, fileContents);
-            request.setAttribute(this.FILE_NAME, fileName);
-            request.setAttribute(this.TRIGGER_NAME, triggerName);
-            request.setAttribute(this.GROUP_NAME, groupName);
+            request.setAttribute(ViewLogMessageServlet.LOG_MESSAGE, fileContents);
+            request.setAttribute(ViewLogMessageServlet.FILE_NAME, fileName);
+            request.setAttribute(ViewLogMessageServlet.TRIGGER_NAME, triggerName);
+            request.setAttribute(ViewLogMessageServlet.GROUP_NAME, groupName);
             // need to also set the information back to the original view jobs
             // so we have to get back to this type of page:
             // http://localhost:8081/OpenClinica-3.0-SNAPSHOT/ViewSingleJob?tname=test%20job%2001&gname=1

@@ -7,6 +7,10 @@
  */
 package org.akaza.openclinica.control.admin;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+
 import org.akaza.openclinica.bean.admin.AuditEventBean;
 import org.akaza.openclinica.bean.admin.TriggerBean;
 import org.akaza.openclinica.bean.extract.DatasetBean;
@@ -17,22 +21,17 @@ import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.dao.admin.AuditEventDAO;
 import org.akaza.openclinica.dao.extract.DatasetDAO;
 import org.akaza.openclinica.dao.login.UserAccountDAO;
+import org.akaza.openclinica.service.extract.XsltTriggerService;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.akaza.openclinica.web.bean.AuditEventRow;
 import org.akaza.openclinica.web.bean.EntityBeanTable;
 import org.akaza.openclinica.web.job.ExampleSpringJob;
-import org.akaza.openclinica.service.extract.XsltTriggerService;
 import org.quartz.JobDataMap;
 import org.quartz.Trigger;
 import org.quartz.Trigger.TriggerState;
 import org.quartz.TriggerKey;
 import org.quartz.impl.StdScheduler;
-import org.springframework.scheduling.quartz.SchedulerFactoryBean;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 
 public class ViewSingleJobServlet extends SecureController {
 
@@ -151,7 +150,7 @@ public class ViewSingleJobServlet extends SecureController {
 
                 // set the table for the audit event beans here
 
-                ArrayList allRows = AuditEventRow.generateRowsFromBeans(triggerLogs);
+                ArrayList<AuditEventRow> allRows = AuditEventRow.generateRowsFromBeans(triggerLogs);
 
                 EntityBeanTable table = fp.getEntityBeanTable();
                 String[] columns = { resword.getString("date_and_time"), resword.getString("action_message"), resword.getString("entity_operation"),
@@ -159,13 +158,13 @@ public class ViewSingleJobServlet extends SecureController {
                     // resword.getString("study_subject_ID"),
                     resword.getString("changes_and_additions"), resword.getString("actions") };
 
-                table.setColumns(new ArrayList(Arrays.asList(columns)));
+                table.setColumns(new ArrayList<String>(Arrays.asList(columns)));
                 table.setAscendingSort(false);
                 table.hideColumnLink(1);
                 table.hideColumnLink(3);
                 table.hideColumnLink(4);
 
-                table.setQuery("ViewSingleJob?tname=" + triggerName + "&gname=" + gName, new HashMap());
+                table.setQuery("ViewSingleJob?tname=" + triggerName + "&gname=" + gName, new HashMap<>());
                 table.setRows(allRows);
                 table.computeDisplay();
 

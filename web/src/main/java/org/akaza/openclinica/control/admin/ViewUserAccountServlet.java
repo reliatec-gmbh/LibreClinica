@@ -116,7 +116,7 @@ public class ViewUserAccountServlet extends SecureController {
         UserAccountBean answer = (UserAccountBean) udao.findByPK(id);
         StudyDAO sdao = new StudyDAO(sm.getDataSource());
 
-        ArrayList roles = answer.getRoles();
+        ArrayList<StudyUserRoleBean> roles = answer.getRoles();
 
         for (int i = 0; i < roles.size(); i++) {
             StudyUserRoleBean sur = (StudyUserRoleBean) roles.get(i);

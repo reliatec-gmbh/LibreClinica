@@ -7,22 +7,17 @@
  */
 package org.akaza.openclinica.control.admin;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 public final class SpreadsheetPreview implements Preview {
 
@@ -32,10 +27,11 @@ public final class SpreadsheetPreview implements Preview {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
 
-    public Map<String, Map> createCrfMetaObject(HSSFWorkbook workbook) {
+    @SuppressWarnings("rawtypes")
+	public Map<String, Map> createCrfMetaObject(HSSFWorkbook workbook) {
         if (workbook == null)
             return new HashMap<String, Map>();
-        Map<String, Map> spreadSheetMap = new HashMap<String, Map>();
+        Map<String, Map> spreadSheetMap = new HashMap<>();
         Map<Integer, Map<String, String>> sections = createItemsOrSectionMap(workbook, SECTIONS);
         Map<Integer, Map<String, String>> items = createItemsOrSectionMap(workbook, ITEMS);
         Map<String, String> crfInfo = createCrfMap(workbook);
@@ -180,7 +176,8 @@ public final class SpreadsheetPreview implements Preview {
             return "";
         switch (cell.getCellType()) {
         case HSSFCell.CELL_TYPE_STRING:
-            return cell.getStringCellValue();
+            @SuppressWarnings("deprecation") String stringCellValue = cell.getStringCellValue();
+			return stringCellValue;
         case HSSFCell.CELL_TYPE_NUMERIC:
             return Double.toString(cell.getNumericCellValue());
         case HSSFCell.CELL_TYPE_BOOLEAN:
@@ -229,7 +226,8 @@ public final class SpreadsheetPreview implements Preview {
 
                         switch (cell.getCellType()) {
                         case HSSFCell.CELL_TYPE_STRING:
-                            val = cell.getStringCellValue();
+                            @SuppressWarnings("deprecation") String stringCellValue = cell.getStringCellValue();
+							val = stringCellValue;
                             break;
                         case HSSFCell.CELL_TYPE_NUMERIC:
                             val = Double.toString(cell.getNumericCellValue());

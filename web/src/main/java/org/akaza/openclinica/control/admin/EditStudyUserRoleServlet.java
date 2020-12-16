@@ -75,18 +75,11 @@ public class EditStudyUserRoleServlet extends SecureController {
             addPageMessage(message);
             forwardPage(Page.LIST_USER_ACCOUNTS_SERVLET);
         } else {
-            Map roleMap = new LinkedHashMap();
-            for (Iterator it = getRoles().iterator(); it.hasNext();) {
-                Role role = (Role) it.next();
-                roleMap.put(role.getId(), role.getDescription());
-            }
-
-            roleMap = new LinkedHashMap();
+            Map<Integer, String> roleMap = new LinkedHashMap<>();
             ResourceBundle resterm = org.akaza.openclinica.i18n.util.ResourceBundleProvider.getTermsBundle();
             StudyBean study = (StudyBean) sdao.findByPK(studyUserRole.getStudyId());
             if (study.getParentStudyId() == 0) {
-                for (Iterator it = getRoles().iterator(); it.hasNext();) {
-                    Role role = (Role) it.next();
+                for(Role role : getRoles()) {
                     switch (role.getId()) {
                         case 2: roleMap.put(role.getId(), resterm.getString("Study_Coordinator").trim());
                             break;
@@ -103,8 +96,7 @@ public class EditStudyUserRoleServlet extends SecureController {
                     }
                 }
             } else {
-                for (Iterator it = getRoles().iterator(); it.hasNext();) {
-                    Role role = (Role) it.next();
+                for(Role role : getRoles()) {
                     switch (role.getId()) {
 //                        case 2: roleMap.put(role.getId(), resterm.getString("site_Study_Coordinator").trim());
 //                            break;
@@ -142,7 +134,7 @@ public class EditStudyUserRoleServlet extends SecureController {
             else {
                 Validator v = new Validator(request);
                 v.addValidation(INPUT_ROLE, Validator.IS_VALID_TERM, TermType.ROLE);
-                HashMap errors = v.validate();
+                HashMap<String, ArrayList<String>> errors = v.validate();
 
                 if (errors.isEmpty()) {
                     int roleId = fp.getInt(INPUT_ROLE);
@@ -256,8 +248,8 @@ public class EditStudyUserRoleServlet extends SecureController {
     // }
     // }
 
-    private ArrayList getRoles() {
-        ArrayList roles = Role.toArrayList();
+    private ArrayList<Role> getRoles() {
+        ArrayList<Role> roles = Role.toArrayList();
         roles.remove(Role.ADMIN);
         return roles;
     }

@@ -10,13 +10,12 @@ package org.akaza.openclinica.control.admin;
 import org.akaza.openclinica.control.SpringServletAccess;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
+import org.akaza.openclinica.service.extract.XsltTriggerService;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
-import org.akaza.openclinica.service.extract.XsltTriggerService;
 import org.quartz.JobKey;
-import org.quartz.Trigger;
-import org.quartz.TriggerKey;
 import org.quartz.Trigger.TriggerState;
+import org.quartz.TriggerKey;
 import org.quartz.impl.StdScheduler;
 
 /**

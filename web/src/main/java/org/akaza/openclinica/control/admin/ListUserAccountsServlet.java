@@ -7,6 +7,7 @@
  */
 package org.akaza.openclinica.control.admin;
 
+import org.akaza.openclinica.bean.core.EntityBean;
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.login.StudyUserRoleBean;
 import org.akaza.openclinica.bean.login.UserAccountBean;
@@ -23,6 +24,8 @@ import org.akaza.openclinica.web.bean.UserAccountRow;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ListUserAccountsServlet extends SecureController {
     /**
@@ -50,16 +53,16 @@ public class ListUserAccountsServlet extends SecureController {
         EntityBeanTable table = fp.getEntityBeanTable();
         // table.setSortingIfNotExplicitlySet(1, false);
 
-        ArrayList allUsers = getAllUsers(udao);
+        ArrayList<UserAccountBean> allUsers = getAllUsers(udao);
         setStudyNamesInStudyUserRoles(allUsers);
-        ArrayList allUserRows = UserAccountRow.generateRowsFromBeans(allUsers);
+        ArrayList<UserAccountRow> allUserRows = UserAccountRow.generateRowsFromBeans(allUsers);
 
         String[] columns =
             { resword.getString("user_name"), resword.getString("first_name"), resword.getString("last_name"), resword.getString("status"),
                 resword.getString("actions") };
-        table.setColumns(new ArrayList(Arrays.asList(columns)));
+        table.setColumns(new ArrayList<>(Arrays.asList(columns)));
         table.hideColumnLink(4);
-        table.setQuery("ListUserAccounts", new HashMap());
+        table.setQuery("ListUserAccounts", new HashMap<>());
         table.addLink(resword.getString("create_a_new_user"), "CreateUserAccount");
 
         table.setRows(allUserRows);
@@ -82,8 +85,8 @@ public class ListUserAccountsServlet extends SecureController {
         forwardPage(Page.LIST_USER_ACCOUNTS);
     }
 
-    private ArrayList getAllUsers(UserAccountDAO udao) {
-        ArrayList result = (ArrayList) udao.findAll();
+    private ArrayList<UserAccountBean> getAllUsers(UserAccountDAO udao) {
+        ArrayList<UserAccountBean> result = udao.findAll();
         return result;
     }
 
@@ -95,32 +98,21 @@ public class ListUserAccountsServlet extends SecureController {
      *            The users to display in the table of users. Each element is a
      *            UserAccountBean.
      */
-    private void setStudyNamesInStudyUserRoles(ArrayList users) {
+    private void setStudyNamesInStudyUserRoles(ArrayList<UserAccountBean> users) {
         StudyDAO sdao = new StudyDAO(sm.getDataSource());
-        ArrayList allStudies = (ArrayList) sdao.findAll();
-        HashMap studiesById = new HashMap();
+        ArrayList<StudyBean> allStudies = sdao.findAll();
+        Map<Integer, StudyBean> studiesById = allStudies.stream().collect(Collectors.toMap(EntityBean::getId, sb -> sb));
 
-        int i;
-        for (i = 0; i < allStudies.size(); i++) {
-            StudyBean sb = (StudyBean) allStudies.get(i);
-            studiesById.put(new Integer(sb.getId()), sb);
-        }
+        for(UserAccountBean u : users) {
+            ArrayList<StudyUserRoleBean> roles = u.getRoles();
 
-        for (i = 0; i < users.size(); i++) {
-            UserAccountBean u = (UserAccountBean) users.get(i);
-            ArrayList roles = u.getRoles();
-
-            for (int j = 0; j < roles.size(); j++) {
-                StudyUserRoleBean surb = (StudyUserRoleBean) roles.get(j);
-                StudyBean sb = (StudyBean) studiesById.get(new Integer(surb.getStudyId()));
+            for(StudyUserRoleBean surb : roles) {
+                StudyBean sb = studiesById.get(new Integer(surb.getStudyId()));
                 if (sb != null) {
                     surb.setStudyName(sb.getName());
                     surb.setParentStudyId(sb.getParentStudyId());
                 }
-                roles.set(j, surb);
             }
-            u.setRoles(roles);
-            users.set(i, u);
         }
 
         return;

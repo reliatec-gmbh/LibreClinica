@@ -68,7 +68,6 @@ public class SiteStatisticsTableFactory extends AbstractTableFactory {
         tableFacade.addFilterMatcher(new MatcherKey(Date.class, "loginAttemptDate"), new DateFilterMatcher("yyyy-MM-dd hh:mm"));
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void setDataAndLimitVariables(TableFacade tableFacade) {
 

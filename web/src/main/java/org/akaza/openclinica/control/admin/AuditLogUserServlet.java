@@ -7,6 +7,7 @@
  */
 package org.akaza.openclinica.control.admin;
 
+import org.akaza.openclinica.bean.admin.AuditEventBean;
 import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
@@ -62,10 +63,10 @@ public class AuditLogUserServlet extends SecureController {
             session.setAttribute(ARG_USERID, new Integer(userId));
         }
         AuditEventDAO aeDAO = new AuditEventDAO(sm.getDataSource());
-        ArrayList al = aeDAO.findAllByUserId(userId);
+        ArrayList<AuditEventBean> al = aeDAO.findAllByUserId(userId);
 
         EntityBeanTable table = fp.getEntityBeanTable();
-        ArrayList allRows = AuditEventRow.generateRowsFromBeans(al);
+        ArrayList<AuditEventRow> allRows = AuditEventRow.generateRowsFromBeans(al);
 
         // String[] columns = { "Date and Time", "Action", "Entity/Operation",
         // "Record ID", "Changes and Additions","Other Info" };
@@ -73,19 +74,19 @@ public class AuditLogUserServlet extends SecureController {
         // table.hideColumnLink(4);
         // table.hideColumnLink(1);
         // table.hideColumnLink(5);
-        // table.setQuery("AuditLogUser?userLogId="+userId, new HashMap());
+        // table.setQuery("AuditLogUser?userLogId="+userId, new HashMap<>());
         String[] columns =
             { resword.getString("date_and_time"), resword.getString("action_message"), resword.getString("entity_operation"), resword.getString("study_site"),
                 resword.getString("study_subject_ID"), resword.getString("changes_and_additions"),
                 // "Other Info",
                 resword.getString("actions") };
-        table.setColumns(new ArrayList(Arrays.asList(columns)));
+        table.setColumns(new ArrayList<String>(Arrays.asList(columns)));
         table.setAscendingSort(false);
         table.hideColumnLink(1);
         table.hideColumnLink(5);
         table.hideColumnLink(6);
         // table.hideColumnLink(7);
-        table.setQuery("AuditLogUser?userLogId=" + userId, new HashMap());
+        table.setQuery("AuditLogUser?userLogId=" + userId, new HashMap<>());
         table.setRows(allRows);
 
         table.computeDisplay();

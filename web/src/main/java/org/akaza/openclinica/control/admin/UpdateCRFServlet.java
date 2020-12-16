@@ -7,6 +7,8 @@
  */
 package org.akaza.openclinica.control.admin;
 
+import java.util.Date;
+
 import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.core.NumericComparisonOperator;
 import org.akaza.openclinica.bean.core.Role;
@@ -14,12 +16,9 @@ import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.control.form.Validator;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.admin.CRFDAO;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
-
-import java.util.Date;
 
 /**
  * @author jxu
@@ -103,7 +102,7 @@ public class UpdateCRFServlet extends SecureController {
         request.setAttribute(MODULE, module);
 
         CRFBean crf = (CRFBean) session.getAttribute(CRF);
-        if (StringUtil.isBlank(action)) {
+        if (action == null || action.trim().isEmpty()) {
             session.setAttribute(CRF, crf);
             forwardPage(Page.UPDATE_CRF);
 
@@ -134,11 +133,12 @@ public class UpdateCRFServlet extends SecureController {
 
         errors = v.validate();
 
-        if (!StringUtil.isBlank(fp.getString("name"))) {
+        String name = fp.getString("name");
+		if (!(name == null || name.trim().isEmpty())) {
             CRFDAO cdao = new CRFDAO(sm.getDataSource());
 
             CRFBean crf = (CRFBean) session.getAttribute(CRF);
-            CRFBean crf1 = (CRFBean) cdao.findAnotherByName(fp.getString("name").trim(), crf.getId());
+            CRFBean crf1 = (CRFBean) cdao.findAnotherByName(name.trim(), crf.getId());
             logger.info("crf:" + crf.getName() + crf.getId());
             logger.info("crf1:" + crf1.getName() + crf1.getId());
             if (crf1.getId() > 0) {
@@ -154,7 +154,7 @@ public class UpdateCRFServlet extends SecureController {
         } else {
             logger.info("no errors");
             CRFBean crf = (CRFBean) session.getAttribute(CRF);
-            crf.setName(fp.getString("name"));
+            crf.setName(name);
             crf.setDescription(fp.getString("description"));
 
             session.setAttribute(CRF, crf);

@@ -75,16 +75,16 @@ public class RestoreCRFServlet extends SecureController {
             addPageMessage(respage.getString("please_choose_a_CRF_to_restore"));
             forwardPage(Page.CRF_LIST_SERVLET);
         } else {
-            CRFBean crf = (CRFBean) cdao.findByPK(crfId);
-            ArrayList versions = cvdao.findAllByCRFId(crfId);
+            CRFBean crf = cdao.findByPK(crfId);
+            ArrayList<CRFVersionBean> versions = cvdao.findAllByCRFId(crfId);
             crf.setVersions(versions);
             EventDefinitionCRFDAO edcdao = new EventDefinitionCRFDAO(sm.getDataSource());
-            ArrayList edcs = (ArrayList) edcdao.findAllByCRF(crfId);
+            ArrayList<EventDefinitionCRFBean> edcs = edcdao.findAllByCRF(crfId);
 
             SectionDAO secdao = new SectionDAO(sm.getDataSource());
 
             EventCRFDAO evdao = new EventCRFDAO(sm.getDataSource());
-            ArrayList eventCRFs = evdao.findAllByCRF(crfId);
+            ArrayList<EventCRFBean> eventCRFs = evdao.findAllByCRF(crfId);
             if ("confirm".equalsIgnoreCase(action)) {
                 request.setAttribute("crfToRestore", crf);
                 request.setAttribute("eventCRFs", eventCRFs);
@@ -104,7 +104,7 @@ public class RestoreCRFServlet extends SecureController {
                         version.setUpdatedDate(new Date());
                         cvdao.update(version);
 
-                        ArrayList sections = secdao.findAllByCRFVersionId(version.getId());
+                        ArrayList<SectionBean> sections = secdao.findAllByCRFVersionId(version.getId());
                         for (int j = 0; j < sections.size(); j++) {
                             SectionBean section = (SectionBean) sections.get(j);
                             if (section.getStatus().equals(Status.AUTO_DELETED)) {
@@ -136,7 +136,7 @@ public class RestoreCRFServlet extends SecureController {
                         eventCRF.setUpdatedDate(new Date());
                         evdao.update(eventCRF);
 
-                        ArrayList items = idao.findAllByEventCRFId(eventCRF.getId());
+                        ArrayList<ItemDataBean> items = idao.findAllByEventCRFId(eventCRF.getId());
                         for (int j = 0; j < items.size(); j++) {
                             ItemDataBean item = (ItemDataBean) items.get(j);
                             if (item.getStatus().equals(Status.AUTO_DELETED)) {

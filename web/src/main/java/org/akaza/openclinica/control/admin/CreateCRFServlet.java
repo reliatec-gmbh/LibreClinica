@@ -7,6 +7,9 @@
  */
 package org.akaza.openclinica.control.admin;
 
+import java.util.Date;
+import java.util.Locale;
+
 import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.core.Status;
@@ -14,15 +17,11 @@ import org.akaza.openclinica.bean.submit.CRFVersionBean;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.control.form.Validator;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.admin.CRFDAO;
 import org.akaza.openclinica.dao.core.CoreResources;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
-
-import java.util.Date;
-import java.util.Locale;
 
 /**
  * Creates a new CRF
@@ -93,7 +92,7 @@ public class CreateCRFServlet extends SecureController {
         setToPanel(resword.getString("CRF_spreadsheet_template"), respage.getString("br_download_blank_CRF_spreadsheet_from"));
         setToPanel(resword.getString("example_CRF_br_spreadsheets"), respage.getString("br_download_example_CRF_instructions_from"));
 
-        if (StringUtil.isBlank(action)) {
+        if (action == null || action.trim().isEmpty()) {
             session.setAttribute("crf", new CRFBean());
             forwardPage(Page.CREATE_CRF);
         } else {

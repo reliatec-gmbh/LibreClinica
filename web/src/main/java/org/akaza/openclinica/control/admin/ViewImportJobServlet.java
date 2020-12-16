@@ -7,6 +7,11 @@
  */
 package org.akaza.openclinica.control.admin;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Set;
+
 import org.akaza.openclinica.bean.admin.TriggerBean;
 import org.akaza.openclinica.control.SpringServletAccess;
 import org.akaza.openclinica.control.core.SecureController;
@@ -22,12 +27,6 @@ import org.quartz.Trigger.TriggerState;
 import org.quartz.TriggerKey;
 import org.quartz.impl.StdScheduler;
 import org.quartz.impl.matchers.GroupMatcher;
-import org.springframework.scheduling.quartz.SchedulerFactoryBean;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Set;
 
 /**
  * 
@@ -77,7 +76,7 @@ public class ViewImportJobServlet extends SecureController {
         Set<TriggerKey> triggerKeys = scheduler.getTriggerKeys(GroupMatcher.groupEquals(IMPORT_TRIGGER));
 
         // the next bit goes out and processes all the triggers
-        ArrayList triggerBeans = new ArrayList<TriggerBean>();
+        ArrayList<TriggerBean> triggerBeans = new ArrayList<>();
 
         for (TriggerKey triggerKey : triggerKeys) {
             String triggerName = triggerKey.getName();
@@ -122,16 +121,16 @@ public class ViewImportJobServlet extends SecureController {
 
         // set up the table here and get ready to send to the web page
 
-        ArrayList allRows = TriggerRow.generateRowsFromBeans(triggerBeans);
+        ArrayList<TriggerRow> allRows = TriggerRow.generateRowsFromBeans(triggerBeans);
 
         EntityBeanTable table = fp.getEntityBeanTable();
         String[] columns = { resword.getString("name"), resword.getString("previous_fire_time"), 
             resword.getString("next_fire_time"), resword.getString("description"), resword.getString("study"), 
             resword.getString("actions") };
-        table.setColumns(new ArrayList(Arrays.asList(columns)));
+        table.setColumns(new ArrayList<String>(Arrays.asList(columns)));
         table.hideColumnLink(3);
         table.hideColumnLink(5);
-        table.setQuery("ViewImportJob", new HashMap());
+        table.setQuery("ViewImportJob", new HashMap<>());
         // table.addLink("", "CreateUserAccount");
         table.setSortingColumnInd(0);
         table.setRows(allRows);

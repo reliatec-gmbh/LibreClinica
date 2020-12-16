@@ -7,7 +7,6 @@
  */
 package org.akaza.openclinica.control.admin;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -100,7 +99,6 @@ public class ListSubjectTableFactory extends AbstractTableFactory {
 		tableFacade.addFilterMatcher(new MatcherKey(UserAccountBean.class, "subject.updater"), new GenericFilterMatecher());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void setDataAndLimitVariables(TableFacade tableFacade) {
 		// initialize i18n

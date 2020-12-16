@@ -11,8 +11,8 @@ import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -27,7 +27,6 @@ import org.akaza.openclinica.control.SpringServletAccess;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.control.form.Validator;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.core.CoreResources;
 import org.akaza.openclinica.dao.extract.DatasetDAO;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
@@ -94,7 +93,7 @@ public class UpdateJobExportServlet extends SecureController {
         FormProcessor fp2 = new FormProcessor(request);
 
         DatasetDAO dsdao = new DatasetDAO(sm.getDataSource());
-        Collection dsList = dsdao.findAllOrderByStudyIdAndName();
+        ArrayList<DatasetBean> dsList = dsdao.findAllOrderByStudyIdAndName();
         // TODO will have to dress this up to allow for sites then datasets
         request.setAttribute("datasets", dsList);
         request.setAttribute(CreateJobExportServlet.JOB_NAME, trigger.getKey().getName());
@@ -117,7 +116,7 @@ public class UpdateJobExportServlet extends SecureController {
         // >> tbh 5639: collate the correct study id
         // request.setAttribute("study_id", dataset.getStudyId());
         Date jobDate = trigger.getNextFireTime();
-        HashMap presetValues = new HashMap();
+        HashMap<String, Object> presetValues = new HashMap<>();
         Calendar calendar = new GregorianCalendar();
         calendar.setTime(jobDate);
         presetValues.put(CreateJobExportServlet.DATE_START_JOB + "Hour", calendar.get(Calendar.HOUR_OF_DAY));
@@ -142,7 +141,7 @@ public class UpdateJobExportServlet extends SecureController {
         scheduler = getScheduler();
         ExtractUtils extractUtils = new ExtractUtils();
         Trigger updatingTrigger = scheduler.getTrigger(new TriggerKey(triggerName.trim(), XsltTriggerService.TRIGGER_GROUP_NAME));
-        if (StringUtil.isBlank(action)) {
+        if (action == null || action.trim().isEmpty()) {
             setUpServlet(updatingTrigger);
             forwardPage(Page.UPDATE_JOB_EXPORT);
         } else if ("confirmall".equalsIgnoreCase(action)) {
@@ -152,7 +151,7 @@ public class UpdateJobExportServlet extends SecureController {
             String name = XsltTriggerService.TRIGGER_GROUP_NAME;
 
             Set<TriggerKey> triggerKeys = scheduler.getTriggerKeys(GroupMatcher.triggerGroupEquals(name));
-            HashMap errors = validateForm(fp, request, triggerKeys, updatingTrigger.getKey().getName());
+            HashMap<String, ArrayList<String>> errors = validateForm(fp, request, triggerKeys, updatingTrigger.getKey().getName());
             if (!errors.isEmpty()) {
                 // send back
                 addPageMessage("Your modifications caused an error, please see the messages for more information.");
@@ -239,7 +238,7 @@ public class UpdateJobExportServlet extends SecureController {
                 trigger.getJobDataMap().put(XsltTriggerService.JOB_NAME, jobName);
 
                 JobDetailFactoryBean jobDetailBean = new JobDetailFactoryBean();
-                jobDetailBean.setGroup(xsltService.TRIGGER_GROUP_NAME);
+                jobDetailBean.setGroup(XsltTriggerService.TRIGGER_GROUP_NAME);
                 jobDetailBean.setName(trigger.getKey().getName());
                 jobDetailBean.setJobClass(org.akaza.openclinica.job.XsltStatefulJob.class);
                 jobDetailBean.setJobDataMap(trigger.getJobDataMap());
@@ -266,7 +265,7 @@ public class UpdateJobExportServlet extends SecureController {
         }
     }
 
-    public HashMap validateForm(FormProcessor fp, HttpServletRequest request, Set<TriggerKey> triggerKeys, String properName) {
+    public HashMap<String, ArrayList<String>> validateForm(FormProcessor fp, HttpServletRequest request, Set<TriggerKey> triggerKeys, String properName) {
         Validator v = new Validator(request);
         v.addValidation(JOB_NAME, Validator.NO_BLANKS);
         v.addValidation(JOB_NAME, Validator.NO_LEADING_OR_TRAILING_SPACES);
@@ -280,19 +279,19 @@ public class UpdateJobExportServlet extends SecureController {
 
         int formatId = fp.getInt(FORMAT_ID);
         Date jobDate = fp.getDateTime(DATE_START_JOB);
-        HashMap errors = v.validate();
+        HashMap<String, ArrayList<String>> errors = v.validate();
         if (formatId == 0) {
             // throw an error here, at least one should work
             // errors.put(TAB, "Error Message - Pick one of the below");
-            v.addError(errors, FORMAT_ID, "Please pick at least one.");
+            Validator.addError(errors, FORMAT_ID, "Please pick at least one.");
         }
         for (TriggerKey triggerKey : triggerKeys) {
             if (triggerKey.getName().equals(fp.getString(JOB_NAME)) && !triggerKey.getName().equals(properName)) {
-                v.addError(errors, JOB_NAME, "A job with that name already exists.  Please pick another name.");
+                Validator.addError(errors, JOB_NAME, "A job with that name already exists.  Please pick another name.");
             }
         }
         if (jobDate.before(new Date())) {
-            v.addError(errors, DATE_START_JOB + "Date", "This date needs to be later than the present time.");
+            Validator.addError(errors, DATE_START_JOB + "Date", "This date needs to be later than the present time.");
         }
         return errors;
     }

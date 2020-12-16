@@ -7,6 +7,9 @@
  */
 package org.akaza.openclinica.web.job;
 
+import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
+import static org.quartz.TriggerBuilder.newTrigger;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -27,9 +30,6 @@ import org.akaza.openclinica.control.form.Validator;
 import org.akaza.openclinica.control.submit.ImportCRFInfo;
 import org.akaza.openclinica.control.submit.ImportCRFInfoContainer;
 import org.quartz.SimpleTrigger;
-
-import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
-import static org.quartz.TriggerBuilder.newTrigger;
 
 public class TriggerService {
 
@@ -107,7 +107,7 @@ public class TriggerService {
         return trigger;
     }
 
-    public HashMap validateForm(FormProcessor fp, HttpServletRequest request, String[] triggerNames, String properName) {
+    public HashMap<String, ArrayList<String>> validateForm(FormProcessor fp, HttpServletRequest request, String[] triggerNames, String properName) {
         Validator v = new Validator(request);
         v.addValidation(JOB_NAME, Validator.NO_BLANKS);
         // need to be unique too
@@ -125,19 +125,19 @@ public class TriggerService {
         String cdisc13oc = fp.getString(ExampleSpringJob.CDISC13OC);
         String spss = fp.getString(SPSS);
         Date jobDate = fp.getDateTime(DATE_START_JOB);
-        HashMap errors = v.validate();
+        HashMap<String, ArrayList<String>> errors = v.validate();
         if ((tab == "") && (cdisc == "") && (spss == "") && (cdisc12 == "") && (cdisc13 == "") && (cdisc13oc == "")) {
             // throw an error here, at least one should work
             // errors.put(TAB, "Error Message - Pick one of the below");
-            v.addError(errors, TAB, "Please pick at least one of the below.");
+            Validator.addError(errors, TAB, "Please pick at least one of the below.");
         }
         for (String triggerName : triggerNames) {
             if (triggerName.equals(fp.getString(JOB_NAME)) && (!triggerName.equals(properName))) {
-                v.addError(errors, JOB_NAME, "A job with that name already exists.  Please pick another name.");
+                Validator.addError(errors, JOB_NAME, "A job with that name already exists.  Please pick another name.");
             }
         }
         if (jobDate.before(new Date())) {
-            v.addError(errors, DATE_START_JOB + "Date", "This date needs to be later than the present time.");
+            Validator.addError(errors, DATE_START_JOB + "Date", "This date needs to be later than the present time.");
         }
         return errors;
     }
@@ -285,7 +285,7 @@ public class TriggerService {
         return generateHardValidationErrorMessage(subjectData, totalValidationErrors, true);
     }
 
-    public HashMap validateImportJobForm(FormProcessor fp, HttpServletRequest request, String[] triggerNames, String properName) {
+    public HashMap<String, ArrayList<String>> validateImportJobForm(FormProcessor fp, HttpServletRequest request, String[] triggerNames, String properName) {
         Validator v = new Validator(request);
         v.addValidation(JOB_NAME, Validator.NO_BLANKS);
         v.addValidation(JOB_NAME, Validator.NO_LEADING_OR_TRAILING_SPACES);
@@ -304,33 +304,33 @@ public class TriggerService {
         String hours = fp.getString("hours");
         String minutes = fp.getString("minutes");
 
-        HashMap errors = v.validate();
+        HashMap<String, ArrayList<String>> errors = v.validate();
         if ((hours.equals("0")) && (minutes.equals("0"))) {
             // System.out.println("got in the ERROR LOOP");
             // throw an error here, at least one should be greater than zero
             // errors.put(TAB, "Error Message - Pick one of the below");
-            v.addError(errors, "hours", "At least one of the following should be greater than zero.");
+            Validator.addError(errors, "hours", "At least one of the following should be greater than zero.");
         }
         for (String triggerName : triggerNames) {
             if (triggerName.equals(fp.getString(JOB_NAME)) && (!triggerName.equals(properName))) {
-                v.addError(errors, JOB_NAME, "A job with that name already exists.  Please pick another name.");
+                Validator.addError(errors, JOB_NAME, "A job with that name already exists.  Please pick another name.");
             }
         }
         return errors;
     }
 
-    public HashMap validateImportJobForm(FormProcessor fp, HttpServletRequest request, String[] triggerNames) {
+    public HashMap<String, ArrayList<String>> validateImportJobForm(FormProcessor fp, HttpServletRequest request, String[] triggerNames) {
         return validateImportJobForm(fp, request, triggerNames, "");
     }
 
-    public HashMap validateForm(FormProcessor fp, HttpServletRequest request, String[] triggerNames) {
+    public HashMap<String, ArrayList<String>> validateForm(FormProcessor fp, HttpServletRequest request, String[] triggerNames) {
         return validateForm(fp, request, triggerNames, "");
     }
 
-    public HashMap validateImportForm(HttpServletRequest request) {
+    public HashMap<String, ArrayList<String>> validateImportForm(HttpServletRequest request) {
         Validator v = new Validator(request);
 
-        HashMap errors = v.validate();
+        HashMap<String, ArrayList<String>> errors = v.validate();
 
         return errors;
     }

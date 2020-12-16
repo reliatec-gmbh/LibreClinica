@@ -17,7 +17,6 @@ import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.control.SpringServletAccess;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.view.Page;
@@ -128,13 +127,13 @@ public class UpdateJobImportServlet extends SecureController {
         logger.debug("found trigger name " + triggerName);
         Trigger trigger = scheduler.getTrigger(new TriggerKey(triggerName, TRIGGER_IMPORT_GROUP));
         //System.out.println("found trigger from the other side " + trigger.getFullName());
-        if (StringUtil.isBlank(action)) {
+        if (action == null || action.trim().isEmpty()) {
             setUpServlet(trigger);
             forwardPage(Page.UPDATE_JOB_IMPORT);
         } else if ("confirmall".equalsIgnoreCase(action)) {
             Set<TriggerKey> triggerKeys = scheduler.getTriggerKeys(GroupMatcher.triggerGroupEquals("DEFAULT"));
             String[] triggerNames = triggerKeys.stream().toArray(String[]::new);
-            HashMap errors = triggerService.validateImportJobForm(fp, request, triggerNames, trigger.getKey().getName());
+            HashMap<String, ArrayList<String>> errors = triggerService.validateImportJobForm(fp, request, triggerNames, trigger.getKey().getName());
             
             if (!errors.isEmpty()) {
                 // send back

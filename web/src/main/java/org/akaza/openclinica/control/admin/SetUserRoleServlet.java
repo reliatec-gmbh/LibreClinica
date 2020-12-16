@@ -7,6 +7,16 @@
  */
 package org.akaza.openclinica.control.admin;
 
+import static org.akaza.openclinica.core.util.ClassCastHelper.asArrayList;
+
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.ResourceBundle;
+
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.login.StudyUserRoleBean;
@@ -18,15 +28,6 @@ import org.akaza.openclinica.dao.login.UserAccountDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
-
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.ResourceBundle;
 
 /**
  * @author jxu
@@ -66,8 +67,8 @@ public class SetUserRoleServlet extends SecureController {
         } else {
             String action = request.getParameter("action");
             UserAccountBean user = (UserAccountBean) udao.findByPK(userId);
-            ArrayList studies = (ArrayList) sdao.findAll();
-            ArrayList studiesHaveRole = (ArrayList) sdao.findAllByUser(user.getName());
+            ArrayList<StudyBean> studies = sdao.findAll();
+            ArrayList<StudyBean> studiesHaveRole = sdao.findAllByUser(user.getName());
             studies.removeAll(studiesHaveRole);
             HashSet<StudyBean> studiesNotHaveRole = new HashSet<StudyBean>();
             HashSet<StudyBean> sitesNotHaveRole = new HashSet<StudyBean>();
@@ -94,9 +95,8 @@ public class SetUserRoleServlet extends SecureController {
                 }
             }
 
-            Map roleMap = new LinkedHashMap();
-            for (Iterator it = getRoles().iterator(); it.hasNext();) {
-                Role role = (Role) it.next();
+            Map<Integer, String> roleMap = new LinkedHashMap<>();
+            for (Role role : getRoles()) {
                 // I added the below if statement , to exclude displaying on study level the newly added 'ReseachAssisstant2' role by default.
                 if (role.getId() != 7)        
                     roleMap.put(role.getId(), role.getDescription());
@@ -106,12 +106,11 @@ public class SetUserRoleServlet extends SecureController {
             int studyId = fp.getInt("studyId");
             if (changeRoles) {
                 StudyBean study = (StudyBean) sdao.findByPK(studyId);
-                roleMap = new LinkedHashMap();
+                roleMap = new LinkedHashMap<>();
                 ResourceBundle resterm = org.akaza.openclinica.i18n.util.ResourceBundleProvider.getTermsBundle();
 
                 if (study.getParentStudyId() > 0) {
-                    for (Iterator it = getRoles().iterator(); it.hasNext();) {
-                        Role role = (Role) it.next();
+                    for (Role role : getRoles()) {
                         switch (role.getId()) {
 //                        case 2: roleMap.put(role.getId(), resterm.getString("site_Study_Coordinator").trim());
 //                            break;
@@ -130,8 +129,7 @@ public class SetUserRoleServlet extends SecureController {
                         }
                     }
                 } else {
-                    for (Iterator it = getRoles().iterator(); it.hasNext();) {
-                        Role role = (Role) it.next();
+                    for (Role role : getRoles()) {
                         switch (role.getId()) {
                             case 2: roleMap.put(role.getId(), resterm.getString("Study_Coordinator").trim());
                                 break;
@@ -159,14 +157,10 @@ public class SetUserRoleServlet extends SecureController {
             if ("confirm".equalsIgnoreCase(action) || changeRoles) {
                 // YW 11-19-2007 << re-order studiesNotHaveRole so that sites
                 // under their studies;
-                ArrayList finalStudiesNotHaveRole = new ArrayList();
-                Iterator iter_study = studiesNotHaveRole.iterator();
-                while (iter_study.hasNext()) {
-                    StudyBean s = (StudyBean) iter_study.next();
+                ArrayList<StudyBean> finalStudiesNotHaveRole = new ArrayList<>();
+                for(StudyBean s : studiesNotHaveRole) {
                     finalStudiesNotHaveRole.add(s);
-                    Iterator iter_site = sitesNotHaveRole.iterator();
-                    while (iter_site.hasNext()) {
-                        StudyBean site = (StudyBean) iter_site.next();
+                   for(StudyBean site : sitesNotHaveRole) {
                         if (site.getParentStudyId() == s.getId()) {
                             finalStudiesNotHaveRole.add(site);
                         }
@@ -213,7 +207,7 @@ public class SetUserRoleServlet extends SecureController {
                         + respage.getString("has_been_granted_the_role") + " \"" + sur.getRole().getDescription() + "\" " + respage.getString("in_the_study_site") + " "
                         + userStudy.getName() + ".");
                 }
-                ArrayList <String> pMessage =  (ArrayList<String>) request.getAttribute(SecureController.PAGE_MESSAGE);
+                ArrayList <String> pMessage =  asArrayList(request.getAttribute(SecureController.PAGE_MESSAGE), String.class);
                 String url=response.encodeRedirectURL("ListUserAccounts"+"?alertmessage="+  URLEncoder.encode(pMessage.get(0), "UTF-8"));
                           response.sendRedirect(url);
           //   forwardPage(Page.LIST_USER_ACCOUNTS_SERVLET);
@@ -228,8 +222,8 @@ public class SetUserRoleServlet extends SecureController {
         return SecureController.ADMIN_SERVLET_CODE;
     }
 
-    private ArrayList getRoles() {
-        ArrayList roles = Role.toArrayList();
+    private ArrayList<Role> getRoles() {
+        ArrayList<Role> roles = Role.toArrayList();
         roles.remove(Role.ADMIN);
 
         return roles;

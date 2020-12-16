@@ -17,7 +17,6 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import org.akaza.openclinica.bean.admin.CRFBean;
-import org.akaza.openclinica.bean.core.EntityBean;
 import org.akaza.openclinica.bean.core.ItemDataType;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.login.UserAccountBean;
@@ -371,7 +370,7 @@ public class ItemDAO extends AuditableEntityDAO<ItemBean> {
 
     }
 
-    public EntityBean findByPK(int ID) {
+    public ItemBean findByPK(int ID) {
         ItemBean eb = new ItemBean();
         this.setTypesExpected();
 
@@ -387,7 +386,7 @@ public class ItemDAO extends AuditableEntityDAO<ItemBean> {
         return eb;
     }
 
-    public EntityBean findByName(String name) {
+    public ItemBean findByName(String name) {
         ItemBean eb = new ItemBean();
         this.setTypesExpected();
 
@@ -402,7 +401,7 @@ public class ItemDAO extends AuditableEntityDAO<ItemBean> {
         return eb;
     }
 
-    public EntityBean findByNameAndCRFId(String name, int crfId) {
+    public ItemBean findByNameAndCRFId(String name, int crfId) {
         ItemBean eb = new ItemBean();
         this.setTypesExpected();
 

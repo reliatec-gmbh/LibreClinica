@@ -11,8 +11,8 @@ import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -27,17 +27,14 @@ import org.akaza.openclinica.control.SpringServletAccess;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.control.form.Validator;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.core.CoreResources;
 import org.akaza.openclinica.dao.extract.DatasetDAO;
-import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.service.extract.ExtractUtils;
 import org.akaza.openclinica.service.extract.XsltTriggerService;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.akaza.openclinica.web.SQLInitServlet;
-import org.akaza.openclinica.web.job.TriggerService;
 import org.quartz.SchedulerException;
 import org.quartz.SimpleTrigger;
 import org.quartz.TriggerKey;
@@ -110,7 +107,7 @@ public class CreateJobExportServlet extends SecureController {
         // // possible error with dates? yep
         // }
         DatasetDAO dsdao = new DatasetDAO(sm.getDataSource());
-        Collection dsList = dsdao.findAllOrderByStudyIdAndName();
+        ArrayList<DatasetBean> dsList = dsdao.findAllOrderByStudyIdAndName();
         // TODO will have to dress this up to allow for sites then datasets
         request.setAttribute("datasets", dsList);
         request.setAttribute(JOB_NAME, fp2.getString(JOB_NAME));
@@ -121,7 +118,7 @@ public class CreateJobExportServlet extends SecureController {
         request.setAttribute(PERIOD, fp2.getString(PERIOD));
         request.setAttribute(DATASET_ID, fp2.getInt(DATASET_ID));
         Date jobDate = fp2.getDateTime(DATE_START_JOB);
-        HashMap presetValues = new HashMap();
+        HashMap<String, Object> presetValues = new HashMap<>();
         Calendar calendar = new GregorianCalendar();
         calendar.setTime(jobDate);
         presetValues.put(DATE_START_JOB + "Hour", calendar.get(Calendar.HOUR_OF_DAY));
@@ -144,7 +141,7 @@ public class CreateJobExportServlet extends SecureController {
         scheduler = getScheduler();
         String action = fp.getString("action");
         ExtractUtils extractUtils = new ExtractUtils();
-        if (StringUtil.isBlank(action)) {
+        if (action == null || action.trim().isEmpty()) {
             // set up list of data sets
             // select by ... active study
             setUpServlet();
@@ -155,7 +152,7 @@ public class CreateJobExportServlet extends SecureController {
             XsltTriggerService xsltService = new XsltTriggerService();
             Set<TriggerKey> triggerKeySet = scheduler.getTriggerKeys(GroupMatcher.triggerGroupEquals(xsltService.getTriggerGroupNameForExportJobs()));
             TriggerKey[] triggerKeys = triggerKeySet.stream().toArray(TriggerKey[]::new);
-            HashMap errors = validateForm(fp, request, triggerKeys, "");
+            HashMap<String, ArrayList<String>> errors = validateForm(fp, request, triggerKeys, "");
 
             if (!errors.isEmpty()) {
                 // set errors to request
@@ -289,7 +286,7 @@ public class CreateJobExportServlet extends SecureController {
         }
     }
 
-    public HashMap validateForm(FormProcessor fp, HttpServletRequest request, TriggerKey[] triggerKeys, String properName) {
+    public HashMap<String, ArrayList<String>> validateForm(FormProcessor fp, HttpServletRequest request, TriggerKey[] triggerKeys, String properName) {
         Validator v = new Validator(request);
         v.addValidation(JOB_NAME, Validator.NO_BLANKS);
         v.addValidation(JOB_NAME, Validator.NO_LEADING_OR_TRAILING_SPACES);
@@ -303,25 +300,25 @@ public class CreateJobExportServlet extends SecureController {
 
         int formatId = fp.getInt(FORMAT_ID);
         Date jobDate = fp.getDateTime(DATE_START_JOB);
-        HashMap errors = v.validate();
+        HashMap<String, ArrayList<String>> errors = v.validate();
         if (formatId == 0) {
             // throw an error here, at least one should work
             // errors.put(TAB, "Error Message - Pick one of the below");
-            v.addError(errors, FORMAT_ID, "Please pick at least one.");
+            Validator.addError(errors, FORMAT_ID, "Please pick at least one.");
         }
         for (TriggerKey triggerKey : triggerKeys) {
             if (triggerKey.getName().equals(fp.getString(JOB_NAME)) && !triggerKey.getName().equals(properName)) {
-                v.addError(errors, JOB_NAME, "A job with that name already exists.  Please pick another name.");
+                Validator.addError(errors, JOB_NAME, "A job with that name already exists.  Please pick another name.");
             }
         }
         if (jobDate.before(new Date())) {
-            v.addError(errors, DATE_START_JOB + "Date", "This date needs to be later than the present time.");
+            Validator.addError(errors, DATE_START_JOB + "Date", "This date needs to be later than the present time.");
         }
         // @pgawade 20-April-2011 Limit the job description to 250 characters
         String jobDesc = fp.getString(JOB_DESC);
         if (null != jobDesc && !jobDesc.equals("")) {
             if (jobDesc.length() > 250) {
-                v.addError(errors, JOB_DESC, "A job description cannot be more than 250 characters.");
+                Validator.addError(errors, JOB_DESC, "A job description cannot be more than 250 characters.");
             }
         }
         return errors;

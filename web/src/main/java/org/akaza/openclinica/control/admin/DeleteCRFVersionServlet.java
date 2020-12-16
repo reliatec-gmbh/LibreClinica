@@ -7,18 +7,19 @@
  */
 package org.akaza.openclinica.control.admin;
 
+import java.util.ArrayList;
+
 import org.akaza.openclinica.bean.admin.NewCRFBean;
+import org.akaza.openclinica.bean.managestudy.EventDefinitionCRFBean;
+import org.akaza.openclinica.bean.managestudy.StudyEventBean;
+import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
+import org.akaza.openclinica.bean.managestudy.StudySubjectBean;
 import org.akaza.openclinica.bean.submit.CRFVersionBean;
 import org.akaza.openclinica.bean.submit.EventCRFBean;
 import org.akaza.openclinica.bean.submit.ItemBean;
 import org.akaza.openclinica.bean.submit.ItemDataBean;
-import org.akaza.openclinica.bean.managestudy.StudyEventBean;
-import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
-import org.akaza.openclinica.bean.managestudy.EventDefinitionCRFBean;
-import org.akaza.openclinica.bean.managestudy.StudySubjectBean;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
-import org.akaza.openclinica.dao.admin.CRFDAO;
 import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDefinitionDAO;
@@ -28,8 +29,6 @@ import org.akaza.openclinica.dao.submit.EventCRFDAO;
 import org.akaza.openclinica.dao.submit.ItemDataDAO;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
-
-import java.util.ArrayList;
 
 /**
  * @author jxu
@@ -79,7 +78,7 @@ public class DeleteCRFVersionServlet extends SecureController {
             CRFVersionBean version = (CRFVersionBean) cvdao.findByPK(versionId);
 
             // find definitions using this version
-            ArrayList definitions = edcdao.findByDefaultVersion(version.getId());
+            ArrayList<EventDefinitionCRFBean> definitions = edcdao.findByDefaultVersion(version.getId());
             for (Object edcBean: definitions) {
                 StudyEventDefinitionBean sedBean = (StudyEventDefinitionBean)sedDao.findByPK(((EventDefinitionCRFBean)edcBean).getStudyEventDefinitionId());
                 ((EventDefinitionCRFBean)edcBean).setEventName(sedBean.getName());
@@ -99,7 +98,7 @@ public class DeleteCRFVersionServlet extends SecureController {
                    eCRF.setStudyEvent(seBean);
                }
             
-            ArrayList eventCRFs = ecdao.findAllByCRFVersion(versionId);
+            ArrayList<EventCRFBean> eventCRFs = ecdao.findAllByCRFVersion(versionId);
             boolean canDelete = true;
             if (!definitions.isEmpty()) {// used in definition
                 canDelete = false;
