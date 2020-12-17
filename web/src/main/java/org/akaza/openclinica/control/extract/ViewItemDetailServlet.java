@@ -81,8 +81,8 @@ public class ViewItemDetailServlet extends SecureController {
             return;
         }
         ItemBean item = itemId > 0 ? (ItemBean) idao.findByPK(itemId) : (ItemBean) idao.findByOid(itemOid).get(0);
-        ArrayList versions = idao.findAllVersionsByItemId(item.getId());
-        ArrayList versionItems = new ArrayList();
+        ArrayList<Integer> versions = idao.findAllVersionsByItemId(item.getId());
+        ArrayList<ItemFormMetadataBean> versionItems = new ArrayList<>();
         CRFBean crf = null;
         ItemFormMetadataBean imfBean = null;
         // finds each item metadata for each version

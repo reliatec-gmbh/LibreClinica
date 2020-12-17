@@ -111,17 +111,17 @@ public class RemoveFilterServlet extends SecureController {
         FilterDAO fdao = new FilterDAO(sm.getDataSource());
         EntityBeanTable table = fp.getEntityBeanTable();
 
-        ArrayList filters = (ArrayList) fdao.findAll();
+        ArrayList<FilterBean> filters = fdao.findAll();
         // TODO make findAllByProject
-        ArrayList filterRows = FilterRow.generateRowsFromBeans(filters);
+        ArrayList<FilterRow> filterRows = FilterRow.generateRowsFromBeans(filters);
 
         String[] columns =
             { resword.getString("filter_name"), resword.getString("description"), resword.getString("created_by"), resword.getString("created_date"),
                 resword.getString("status"), resword.getString("actions") };
 
-        table.setColumns(new ArrayList(Arrays.asList(columns)));
+        table.setColumns(new ArrayList<String>(Arrays.asList(columns)));
         table.hideColumnLink(5);
-        table.setQuery("CreateFiltersOne", new HashMap());
+        table.setQuery("CreateFiltersOne", new HashMap<>());
         table.setRows(filterRows);
         table.computeDisplay();
         return table;

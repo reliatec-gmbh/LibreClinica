@@ -7,21 +7,21 @@
  */
 package org.akaza.openclinica.control.extract;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Locale;
+
 import org.akaza.openclinica.bean.core.Role;
+import org.akaza.openclinica.bean.extract.FilterBean;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.extract.FilterDAO;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.akaza.openclinica.web.bean.EntityBeanTable;
 import org.akaza.openclinica.web.bean.FilterRow;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Locale;
 
 /**
  * <P>
@@ -52,7 +52,7 @@ public class CreateFiltersOneServlet extends SecureController {
         // covers the plan if you cancel out of a process then want to get in
         // again, tbh
         String action = request.getParameter("action");
-        if (StringUtil.isBlank(action)) {
+        if (action == null || action.trim().isEmpty()) {
             // our start page:
             // note that this is now set up to accept the
             // tabling classes created in View.
@@ -60,22 +60,22 @@ public class CreateFiltersOneServlet extends SecureController {
             FilterDAO fdao = new FilterDAO(sm.getDataSource());
             EntityBeanTable table = fp.getEntityBeanTable();
 
-            ArrayList filters = new ArrayList();
+            ArrayList<FilterBean> filters = new ArrayList<>();
             if (ub.isSysAdmin()) {
-                filters = (ArrayList) fdao.findAllAdmin();
+                filters = fdao.findAllAdmin();
             } else {
-                filters = (ArrayList) fdao.findAll();
+                filters = fdao.findAll();
             }
-            ArrayList filterRows = FilterRow.generateRowsFromBeans(filters);
+            ArrayList<FilterRow> filterRows = FilterRow.generateRowsFromBeans(filters);
 
             String[] columns =
                 { resword.getString("filter_name"), resword.getString("description"), resword.getString("created_by"), resword.getString("created_date"),
                     resword.getString("status"), resword.getString("actions") };
 
-            table.setColumns(new ArrayList(Arrays.asList(columns)));
+            table.setColumns(new ArrayList<String>(Arrays.asList(columns)));
             table.hideColumnLink(5);
             table.addLink(resword.getString("create_new_filter"), "CreateFiltersOne?action=begin");
-            table.setQuery("CreateFiltersOne", new HashMap());
+            table.setQuery("CreateFiltersOne", new HashMap<>());
             table.setRows(filterRows);
             table.computeDisplay();
 

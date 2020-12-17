@@ -112,24 +112,17 @@ public class RemoveDatasetServlet extends SecureController {
 
         EntityBeanTable table = fp.getEntityBeanTable();
         DatasetDAO dsdao = new DatasetDAO(sm.getDataSource());
-        ArrayList datasets = new ArrayList();
-        // if (ub.isSysAdmin()) {
-        // datasets =
-        // (ArrayList)dsdao.findAllByStudyIdAdmin(currentStudy.getId());
-        // } else {
-        datasets = dsdao.findAllByStudyId(currentStudy.getId());
-        // }
-
-        ArrayList datasetRows = DatasetRow.generateRowsFromBeans(datasets);
+        ArrayList<DatasetBean> datasets = dsdao.findAllByStudyId(currentStudy.getId());
+        ArrayList<DatasetRow> datasetRows = DatasetRow.generateRowsFromBeans(datasets);
 
         String[] columns =
             { resword.getString("dataset_name"), resword.getString("description"), resword.getString("created_by"), resword.getString("created_date"),
                 resword.getString("status"), resword.getString("actions") };
-        table.setColumns(new ArrayList(Arrays.asList(columns)));
+        table.setColumns(new ArrayList<String>(Arrays.asList(columns)));
         table.hideColumnLink(5);
         table.addLink(resword.getString("show_only_my_datasets"), "ViewDatasets?action=owner&ownerId=" + ub.getId());
         table.addLink(resword.getString("create_dataset"), "CreateDataset");
-        table.setQuery("ViewDatasets", new HashMap());
+        table.setQuery("ViewDatasets", new HashMap<>());
         table.setRows(datasetRows);
         table.computeDisplay();
         return table;

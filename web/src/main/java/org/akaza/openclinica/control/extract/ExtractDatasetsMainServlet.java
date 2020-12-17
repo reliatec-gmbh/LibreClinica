@@ -8,6 +8,7 @@
 package org.akaza.openclinica.control.extract;
 
 import org.akaza.openclinica.bean.core.Role;
+import org.akaza.openclinica.bean.extract.DatasetBean;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.dao.extract.DatasetDAO;
@@ -49,19 +50,19 @@ public class ExtractDatasetsMainServlet extends SecureController {
         DatasetDAO dsdao = new DatasetDAO(sm.getDataSource());
         EntityBeanTable table = fp.getEntityBeanTable();
 
-        ArrayList datasets = (ArrayList) dsdao.findTopFive(currentStudy);
-        ArrayList datasetRows = DatasetRow.generateRowsFromBeans(datasets);
+        ArrayList<DatasetBean> datasets = dsdao.findTopFive(currentStudy);
+        ArrayList<DatasetRow> datasetRows = DatasetRow.generateRowsFromBeans(datasets);
 
         String[] columns =
             { resword.getString("dataset_name"), resword.getString("description"), resword.getString("created_by"), resword.getString("created_date"),
                 resword.getString("status"), resword.getString("actions") };
-        table.setColumns(new ArrayList(Arrays.asList(columns)));
+        table.setColumns(new ArrayList<String>(Arrays.asList(columns)));
         table.hideColumnLink(5);
 
         table.addLink(resword.getString("view_all"), "ViewDatasets");
         table.addLink(resword.getString("view_my_datasets"), "ViewDatasets?action=owner&ownerId=" + ub.getId());
         table.addLink(resword.getString("create_dataset"), "CreateDataset");
-        table.setQuery("ExtractDatasetsMain", new HashMap());
+        table.setQuery("ExtractDatasetsMain", new HashMap<>());
         table.setRows(datasetRows);
         table.computeDisplay();
 

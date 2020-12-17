@@ -7,6 +7,13 @@
  */
 package org.akaza.openclinica.control.extract;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Locale;
+
+import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.extract.DatasetBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
@@ -14,25 +21,16 @@ import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
 import org.akaza.openclinica.bean.managestudy.StudyGroupClassBean;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.admin.CRFDAO;
 import org.akaza.openclinica.dao.extract.DatasetDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
-import org.akaza.openclinica.dao.managestudy.StudyEventDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDefinitionDAO;
 import org.akaza.openclinica.dao.managestudy.StudyGroupClassDAO;
-import org.akaza.openclinica.dao.submit.EventCRFDAO;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.akaza.openclinica.web.bean.DatasetRow;
 import org.akaza.openclinica.web.bean.EntityBeanTable;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Locale;
 
 /**
  * ViewDatasetsServlet.java, the view datasets function accessed from the
@@ -69,7 +67,7 @@ public class ViewDatasetsServlet extends SecureController {
         session.removeAttribute("allItems");
         session.removeAttribute("newDataset");
         // YW >>
-        if (StringUtil.isBlank(action)) {
+        if (action == null || action.trim().isEmpty()) {
             StudyEventDefinitionDAO seddao = new StudyEventDefinitionDAO(sm.getDataSource());
             StudyBean studyWithEventDefinitions = currentStudy;
             if (currentStudy.getParentStudyId() > 0) {
@@ -77,39 +75,33 @@ public class ViewDatasetsServlet extends SecureController {
                 studyWithEventDefinitions.setId(currentStudy.getParentStudyId());
 
             }
-            ArrayList seds = seddao.findAllActiveByStudy(studyWithEventDefinitions);
+            ArrayList<StudyEventDefinitionBean> seds = seddao.findAllActiveByStudy(studyWithEventDefinitions);
             CRFDAO crfdao = new CRFDAO(sm.getDataSource());
-            HashMap events = new LinkedHashMap();
+            HashMap<StudyEventDefinitionBean, ArrayList<CRFBean>> events = new LinkedHashMap<>();
             for (int i = 0; i < seds.size(); i++) {
                 StudyEventDefinitionBean sed = (StudyEventDefinitionBean) seds.get(i);
-                ArrayList crfs = (ArrayList) crfdao.findAllActiveByDefinition(sed);
+                ArrayList<CRFBean> crfs = crfdao.findAllActiveByDefinition(sed);
                 if (!crfs.isEmpty()) {
                     events.put(sed, crfs);
                 }
             }
             session.setAttribute("eventsForCreateDataset", events);
-            // YW >>
 
             FormProcessor fp = new FormProcessor(request);
 
             EntityBeanTable table = fp.getEntityBeanTable();
-            ArrayList datasets = new ArrayList();
-//            if (ub.isSysAdmin()) {
-//                datasets = dsdao.findAllByStudyIdAdmin(currentStudy.getId());
-//            } else {
-            datasets = dsdao.findAllByStudyId(currentStudy.getId());
-//            }
+            ArrayList<DatasetBean> datasets = dsdao.findAllByStudyId(currentStudy.getId());
 
-            ArrayList datasetRows = DatasetRow.generateRowsFromBeans(datasets);
+            ArrayList<DatasetRow> datasetRows = DatasetRow.generateRowsFromBeans(datasets);
 
             String[] columns =
                 { resword.getString("dataset_name"), resword.getString("description"), resword.getString("created_by"), resword.getString("created_date"),
                     resword.getString("status"), resword.getString("actions") };
-            table.setColumns(new ArrayList(Arrays.asList(columns)));
+            table.setColumns(new ArrayList<String>(Arrays.asList(columns)));
             table.hideColumnLink(5);
             table.addLink(resword.getString("show_only_my_datasets"), "ViewDatasets?action=owner&ownerId=" + ub.getId());
             table.addLink(resword.getString("create_dataset"), "CreateDataset");
-            table.setQuery("ViewDatasets", new HashMap());
+            table.setQuery("ViewDatasets", new HashMap<>());
             table.setRows(datasetRows);
             table.computeDisplay();
 
@@ -124,22 +116,16 @@ public class ViewDatasetsServlet extends SecureController {
                 int ownerId = fp.getInt("ownerId");
                 EntityBeanTable table = fp.getEntityBeanTable();
 
-                ArrayList datasets = (ArrayList) dsdao.findByOwnerId(ownerId, currentStudy.getId());
-
-                /*
-                 * if (datasets.isEmpty()) {
-                 * forwardPage(Page.VIEW_EMPTY_DATASETS); } else {
-                 */
-
-                ArrayList datasetRows = DatasetRow.generateRowsFromBeans(datasets);
+                ArrayList<DatasetBean> datasets = dsdao.findByOwnerId(ownerId, currentStudy.getId());
+                ArrayList<DatasetRow> datasetRows = DatasetRow.generateRowsFromBeans(datasets);
                 String[] columns =
                     { resword.getString("dataset_name"), resword.getString("description"), resword.getString("created_by"), resword.getString("created_date"),
                         resword.getString("status"), resword.getString("actions") };
-                table.setColumns(new ArrayList(Arrays.asList(columns)));
+                table.setColumns(new ArrayList<String>(Arrays.asList(columns)));
                 table.hideColumnLink(5);
                 table.addLink(resword.getString("show_all_datasets"), "ViewDatasets");
                 table.addLink(resword.getString("create_dataset"), "CreateDataset");
-                table.setQuery("ViewDatasets?action=owner&ownerId=" + ub.getId(), new HashMap());
+                table.setQuery("ViewDatasets?action=owner&ownerId=" + ub.getId(), new HashMap<>());
                 table.setRows(datasetRows);
                 table.computeDisplay();
                 request.setAttribute("table", table);

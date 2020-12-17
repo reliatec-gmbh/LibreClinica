@@ -34,6 +34,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
 
+import static org.akaza.openclinica.core.util.ClassCastHelper.*;
+
 /**
  * @author jxu
  *
@@ -78,7 +80,7 @@ public class SelectItemsServlet extends SecureController {
     }
 
     public void setUpStudyGroupPage() {
-        ArrayList sgclasses = (ArrayList) session.getAttribute("allSelectedGroups");
+        ArrayList<StudyGroupClassBean> sgclasses = asArrayList(session.getAttribute("allSelectedGroups"), StudyGroupClassBean.class);
         if (sgclasses == null || sgclasses.size() == 0) {
             StudyDAO studydao = new StudyDAO(sm.getDataSource());
             StudyGroupClassDAO sgclassdao = new StudyGroupClassDAO(sm.getDataSource());
@@ -113,9 +115,10 @@ public class SelectItemsServlet extends SecureController {
         ItemFormMetadataDAO imfdao = new ItemFormMetadataDAO(sm.getDataSource());
         StudyEventDefinitionDAO seddao = new StudyEventDefinitionDAO(sm.getDataSource());
 
-        HashMap events = (HashMap) session.getAttribute(CreateDatasetServlet.EVENTS_FOR_CREATE_DATASET);
+        @SuppressWarnings("unchecked")
+		HashMap<StudyEventDefinitionBean, ArrayList<CRFBean>> events = (HashMap<StudyEventDefinitionBean, ArrayList<CRFBean>>) session.getAttribute(CreateDatasetServlet.EVENTS_FOR_CREATE_DATASET);
         if (events == null) {
-            events = new HashMap();
+            events = new HashMap<>();
         }
         request.setAttribute("eventlist", events);
         logger.info("found dob setting: " + currentStudy.getStudyParameterConfig().getCollectDob());
@@ -168,7 +171,7 @@ public class SelectItemsServlet extends SecureController {
         // bean
         // session.setAttribute(CURRENT_DEF_ID, new Integer(defId));
 
-        ArrayList items = idao.findAllActiveByCRF(crf);
+        ArrayList<ItemBean> items = idao.findAllActiveByCRF(crf);
         for (int i = 0; i < items.size(); i++) {
             ItemBean item = (ItemBean) items.get(i);
             /*
@@ -183,7 +186,7 @@ public class SelectItemsServlet extends SecureController {
             item.getItemMetas().add(meta);
             // item.setItemMetas(metas);
         }
-        HashMap itemMap = new HashMap();
+        HashMap<String, ItemBean> itemMap = new HashMap<>();
         for (int i = 0; i < items.size(); i++) {
             ItemBean item = (ItemBean) items.get(i);
 
@@ -206,7 +209,7 @@ public class SelectItemsServlet extends SecureController {
             }
 
         }
-        ArrayList itemArray = new ArrayList(itemMap.values());
+        ArrayList<ItemBean> itemArray = new ArrayList<>(itemMap.values());
         // now sort them by ordinal/name
         Collections.sort(itemArray);
         session.setAttribute("allItems", itemArray);

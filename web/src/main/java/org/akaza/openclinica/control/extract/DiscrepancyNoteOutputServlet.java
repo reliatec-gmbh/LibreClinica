@@ -7,8 +7,6 @@
  */
 package org.akaza.openclinica.control.extract;
 
-import static java.util.Collections.emptySet;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,7 +14,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -30,19 +27,27 @@ import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
 import org.akaza.openclinica.bean.managestudy.StudySubjectBean;
-import org.akaza.openclinica.bean.submit.*;
+import org.akaza.openclinica.bean.submit.CRFVersionBean;
+import org.akaza.openclinica.bean.submit.EventCRFBean;
+import org.akaza.openclinica.bean.submit.ItemBean;
+import org.akaza.openclinica.bean.submit.ItemDataBean;
+import org.akaza.openclinica.bean.submit.ItemGroupBean;
+import org.akaza.openclinica.bean.submit.ItemGroupMetadataBean;
+import org.akaza.openclinica.bean.submit.SubjectBean;
 import org.akaza.openclinica.control.core.SecureController;
-import org.akaza.openclinica.control.form.FormProcessor;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.core.util.Pair;
 import org.akaza.openclinica.dao.admin.CRFDAO;
 import org.akaza.openclinica.dao.managestudy.DiscrepancyNoteDAO;
-import org.akaza.openclinica.dao.managestudy.ListNotesFilter;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDefinitionDAO;
 import org.akaza.openclinica.dao.managestudy.StudySubjectDAO;
-import org.akaza.openclinica.dao.submit.*;
+import org.akaza.openclinica.dao.submit.CRFVersionDAO;
+import org.akaza.openclinica.dao.submit.EventCRFDAO;
+import org.akaza.openclinica.dao.submit.ItemDAO;
+import org.akaza.openclinica.dao.submit.ItemDataDAO;
+import org.akaza.openclinica.dao.submit.ItemGroupDAO;
+import org.akaza.openclinica.dao.submit.ItemGroupMetadataDAO;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
 import org.akaza.openclinica.service.DiscrepancyNoteThread;
@@ -317,7 +322,7 @@ public class DiscrepancyNoteOutputServlet extends SecureController {
                     dnb.setStudySub(ssb);
                     dnb.setSubjectName(ssb.getLabel());
                     String column = dnb.getColumn().trim();
-                    if (!StringUtil.isBlank(column)) {
+                    if (!(column == null || column.trim().isEmpty())) {
                         if ("gender".equalsIgnoreCase(column)) {
                             dnb.setEntityValue(sb.getGender() + "");
                             dnb.setEntityName(resword.getString("gender"));
@@ -338,7 +343,7 @@ public class DiscrepancyNoteOutputServlet extends SecureController {
                     dnb.setStudySub(ssb);
                     dnb.setSubjectName(ssb.getLabel());
                     String column = dnb.getColumn().trim();
-                    if (!StringUtil.isBlank(column)) {
+                    if (!(column == null || column.trim().isEmpty())) {
                         if ("enrollment_date".equals(column)) {
                             if (ssb.getEnrollmentDate() != null) {
                                 dnb.setEntityValue(ssb.getEnrollmentDate().toString());
@@ -378,7 +383,7 @@ public class DiscrepancyNoteOutputServlet extends SecureController {
 
 
                     String column = dnb.getColumn().trim();
-                    if (!StringUtil.isBlank(column)) {
+                    if (!(column == null || column.trim().isEmpty())) {
                         if ("date_interviewed".equals(column)) {
                             if (ecb.getDateInterviewed() != null) {
                                 dnb.setEntityValue(ecb.getDateInterviewed().toString());
@@ -405,7 +410,7 @@ public class DiscrepancyNoteOutputServlet extends SecureController {
                     dnb.setEventName(se.getName());
                     dnb.setSubjectName(ssub.getLabel());
                     String column = dnb.getColumn().trim();
-                    if (!StringUtil.isBlank(column)) {
+                    if (!(column == null || column.trim().isEmpty())) {
                         if ("date_start".equals(column)) {
                             if (se.getDateStarted() != null) {
                                 dnb.setEntityValue(se.getDateStarted().toString());
