@@ -56,6 +56,7 @@ public class SheetValidatorHelper {
             }
             break;
         case NONE: break;
+        default: // that's necessary to get rid of the 'incomplete-switch' warning
         }
         //print other message first and "INVALID_FIELD" only once.
         if(printHtmlInvalidErr && !sheetErrors.htmlErrors.containsKey(sheetErrors.htmlErrorKey(cell.getSheetNum(), cell.getRowNum(), cell.getColNum())))
