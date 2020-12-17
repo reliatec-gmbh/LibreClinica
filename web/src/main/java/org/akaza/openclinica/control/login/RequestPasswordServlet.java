@@ -18,7 +18,6 @@ import org.akaza.openclinica.control.form.Validator;
 import org.akaza.openclinica.core.EmailEngine;
 import org.akaza.openclinica.core.SecurityManager;
 import org.akaza.openclinica.core.SessionManager;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.login.UserAccountDAO;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
@@ -50,7 +49,7 @@ public class RequestPasswordServlet extends SecureController {
         String action = request.getParameter("action");
         session.setAttribute("challengeQuestions", PwdChallengeQuestion.toArrayList());
 
-        if (StringUtil.isBlank(action)) {
+        if (action == null || action.trim().isEmpty()) {
             request.setAttribute("userBean1", new UserAccountBean());
             forwardPage(Page.REQUEST_PWD);
         } else {

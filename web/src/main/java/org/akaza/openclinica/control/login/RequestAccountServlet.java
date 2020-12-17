@@ -7,6 +7,10 @@
  */
 package org.akaza.openclinica.control.login;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.core.TermType;
 import org.akaza.openclinica.bean.login.StudyUserRoleBean;
@@ -17,15 +21,10 @@ import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.control.form.Validator;
 import org.akaza.openclinica.core.EmailEngine;
 import org.akaza.openclinica.core.SessionManager;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.akaza.openclinica.web.SQLInitServlet;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 
 /**
  * @author jxu
@@ -53,15 +52,15 @@ public class RequestAccountServlet extends SecureController {
         String action = request.getParameter("action");
 
         StudyDAO sdao = new StudyDAO(sm.getDataSource());
-        ArrayList studies = (ArrayList) sdao.findAll();
-        ArrayList roles = Role.toArrayList();
+        ArrayList<StudyBean> studies = sdao.findAll();
+        ArrayList<Role> roles = Role.toArrayList();
         roles.remove(Role.ADMIN); // admin is not a user role, only used for
         // tomcat
 
         request.setAttribute("roles", roles);
         request.setAttribute("studies", studies);
 
-        if (StringUtil.isBlank(action)) {
+        if (action == null || action.trim().isEmpty()) {
 
             session.setAttribute("newUserBean", new UserAccountBean());
 
@@ -96,7 +95,7 @@ public class RequestAccountServlet extends SecureController {
         v.addValidation("activeStudyId", Validator.IS_AN_INTEGER);
         v.addValidation("activeStudyRole", Validator.IS_VALID_TERM, TermType.ROLE);
 
-        HashMap errors = v.validate();
+        HashMap<String, ArrayList<String>> errors = v.validate();
 
         FormProcessor fp = new FormProcessor(request);
 
@@ -116,7 +115,7 @@ public class RequestAccountServlet extends SecureController {
             // see whether this user already in the DB
             UserAccountBean ubDB = sm.getUserBean();
 
-            if (StringUtil.isBlank(ubDB.getName())) {
+            if (ubDB.getName() == null || ubDB.getName().trim().isEmpty()) {
                 StudyDAO sdao = new StudyDAO(sm.getDataSource());
                 StudyBean study = (StudyBean) sdao.findByPK(ubForm.getActiveStudyId());
                 String studyName = study.getName();

@@ -7,6 +7,9 @@
  */
 package org.akaza.openclinica.control.login;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.core.TermType;
@@ -16,13 +19,9 @@ import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.control.form.Validator;
 import org.akaza.openclinica.core.EmailEngine;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * @author jxu
@@ -46,15 +45,15 @@ public class RequestStudyServlet extends SecureController {
 
         String action = request.getParameter("action");
         StudyDAO sdao = new StudyDAO(sm.getDataSource());
-        ArrayList studies = sdao.findAllByStatus(Status.AVAILABLE);
-        ArrayList roles = Role.toArrayList();
+        ArrayList<StudyBean> studies = sdao.findAllByStatus(Status.AVAILABLE);
+        ArrayList<Role> roles = Role.toArrayList();
         roles.remove(Role.ADMIN); // admin is not a user role, only used for
         // tomcat
 
         request.setAttribute("roles", roles);
         request.setAttribute("studies", studies);
 
-        if (StringUtil.isBlank(action)) {
+        if (action == null || action.trim().isEmpty()) {
             request.setAttribute("newRole", new StudyUserRoleBean());
             forwardPage(Page.REQUEST_STUDY);
         } else {
@@ -80,7 +79,7 @@ public class RequestStudyServlet extends SecureController {
         v.addValidation("studyId", Validator.IS_AN_INTEGER);
         v.addValidation("studyRoleId", Validator.IS_VALID_TERM, TermType.ROLE);
 
-        HashMap errors = v.validate();
+        HashMap<String, ArrayList<String>> errors = v.validate();
         FormProcessor fp = new FormProcessor(request);
         StudyUserRoleBean newRole = new StudyUserRoleBean();
         if (fp.getInt("studyRoleId") > 0) {
