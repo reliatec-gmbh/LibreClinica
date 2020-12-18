@@ -7,18 +7,18 @@
  */
 package org.akaza.openclinica.control.managestudy;
 
+import static org.akaza.openclinica.core.util.ClassCastHelper.asArrayList;
+
+import java.util.ArrayList;
+
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.managestudy.EventDefinitionCRFBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
 import org.akaza.openclinica.control.core.SecureController;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.service.StudyParameterValueDAO;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
-
-import java.util.ArrayList;
-
 /**
  * Remove the reference to a CRF from a study event definition
  *
@@ -50,8 +50,8 @@ public class RemoveCRFFromDefinitionServlet extends SecureController {
 
     @Override
     public void processRequest() throws Exception {
-        ArrayList edcs = (ArrayList) session.getAttribute("eventDefinitionCRFs");
-        ArrayList updatedEdcs = new ArrayList();
+        ArrayList<EventDefinitionCRFBean> edcs = asArrayList(session.getAttribute("eventDefinitionCRFs"), EventDefinitionCRFBean.class);
+        ArrayList<EventDefinitionCRFBean> updatedEdcs = new ArrayList<>();
 
         StudyEventDefinitionBean sed = (StudyEventDefinitionBean) session.getAttribute("definition");
         StudyParameterValueDAO spvdao = new StudyParameterValueDAO(sm.getDataSource());    
@@ -62,7 +62,7 @@ public class RemoveCRFFromDefinitionServlet extends SecureController {
         if (edcs != null && edcs.size() > 1) {
             String idString = request.getParameter("id");
             logger.info("crf id:" + idString);
-            if (StringUtil.isBlank(idString)) {
+            if (idString == null || idString.trim().isEmpty()) {
                 addPageMessage(respage.getString("please_choose_a_crf_to_remove"));
                 forwardPage(Page.UPDATE_EVENT_DEFINITION1);
             } else {

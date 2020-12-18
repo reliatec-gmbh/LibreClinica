@@ -7,6 +7,7 @@
  */
 package org.akaza.openclinica.control.managestudy;
 
+import org.akaza.openclinica.bean.admin.AuditBean;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.submit.SubmitDataServlet;
 import org.akaza.openclinica.control.form.FormProcessor;
@@ -49,7 +50,7 @@ public class ViewItemAuditLogServlet extends SecureController {
             auditTable = "item_data";
         }
         int entityId = fp.getInt("entityId");
-        ArrayList itemAuditEvents = adao.findItemAuditEvents(entityId, auditTable);
+        ArrayList<AuditBean> itemAuditEvents = adao.findItemAuditEvents(entityId, auditTable);
         request.setAttribute("itemAudits", itemAuditEvents);
         forwardPage(Page.AUDIT_LOGS_ITEMS);
     }

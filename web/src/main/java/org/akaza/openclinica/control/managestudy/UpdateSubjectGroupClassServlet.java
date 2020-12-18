@@ -7,6 +7,11 @@
  */
 package org.akaza.openclinica.control.managestudy;
 
+import static org.akaza.openclinica.core.util.ClassCastHelper.asArrayList;
+
+import java.util.ArrayList;
+import java.util.Date;
+
 import org.akaza.openclinica.bean.core.GroupClassType;
 import org.akaza.openclinica.bean.core.NumericComparisonOperator;
 import org.akaza.openclinica.bean.core.Role;
@@ -16,16 +21,11 @@ import org.akaza.openclinica.bean.managestudy.StudyGroupClassBean;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.control.form.Validator;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.managestudy.StudyGroupClassDAO;
 import org.akaza.openclinica.dao.managestudy.StudyGroupDAO;
 import org.akaza.openclinica.exception.OpenClinicaException;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
-
-import java.util.ArrayList;
-import java.util.Date;
-
 /**
  * @author jxu
  *
@@ -69,7 +69,7 @@ public class UpdateSubjectGroupClassServlet extends SecureController {
             if (!fp.isSubmitted()) {
                 StudyGroupClassBean sgcb = (StudyGroupClassBean) sgcdao.findByPK(classId);
 
-                ArrayList groups = sgdao.findAllByGroupClass(sgcb);
+                ArrayList<StudyGroupBean> groups = sgdao.findAllByGroupClass(sgcb);
                 request.setAttribute("groupTypes", GroupClassType.toArrayList());
                 session.setAttribute("group", sgcb);
                 session.setAttribute("studyGroups", groups);
@@ -107,12 +107,12 @@ public class UpdateSubjectGroupClassServlet extends SecureController {
         v.addValidation("name", Validator.LENGTH_NUMERIC_COMPARISON, NumericComparisonOperator.LESS_THAN_OR_EQUAL_TO, 30);
         v.addValidation("subjectAssignment", Validator.LENGTH_NUMERIC_COMPARISON, NumericComparisonOperator.LESS_THAN_OR_EQUAL_TO, 30);
 
-        ArrayList studyGroups = new ArrayList();
+        ArrayList<StudyGroupBean> studyGroups = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             String name = fp.getString("studyGroup" + i);
             int studyGroupId = fp.getInt("studyGroupId" + i);
             String description = fp.getString("studyGroupDescription" + i);
-            if (!StringUtil.isBlank(name)) {
+            if (!(name == null || name.trim().isEmpty())) {
                 StudyGroupBean g = new StudyGroupBean();
                 g.setName(name);
                 g.setDescription(description);
@@ -161,7 +161,7 @@ public class UpdateSubjectGroupClassServlet extends SecureController {
 
     private void submitGroup() throws OpenClinicaException {
         StudyGroupClassBean group = (StudyGroupClassBean) session.getAttribute("group");
-        ArrayList studyGroups = (ArrayList) session.getAttribute("studyGroups");
+        ArrayList<StudyGroupBean> studyGroups = asArrayList(session.getAttribute("studyGroups"), StudyGroupBean.class);
         StudyGroupClassDAO sgcdao = new StudyGroupClassDAO(sm.getDataSource());
         group.setUpdater(ub);
         group.setUpdatedDate(new Date());
@@ -172,7 +172,7 @@ public class UpdateSubjectGroupClassServlet extends SecureController {
         } else {
             StudyGroupDAO sgdao = new StudyGroupDAO(sm.getDataSource());
             for (int i = 0; i < studyGroups.size(); i++) {
-                StudyGroupBean sg = (StudyGroupBean) studyGroups.get(i);
+                StudyGroupBean sg = studyGroups.get(i);
                 sg.setStudyGroupClassId(group.getId());
                 if (sg.getId() == 0) {
 

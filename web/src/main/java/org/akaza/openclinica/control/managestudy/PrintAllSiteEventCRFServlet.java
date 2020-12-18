@@ -7,6 +7,15 @@
  */
 package org.akaza.openclinica.control.managestudy;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.login.StudyUserRoleBean;
@@ -20,7 +29,6 @@ import org.akaza.openclinica.bean.submit.DisplayItemBean;
 import org.akaza.openclinica.bean.submit.DisplayItemGroupBean;
 import org.akaza.openclinica.bean.submit.DisplaySectionBean;
 import org.akaza.openclinica.bean.submit.EventCRFBean;
-import org.akaza.openclinica.bean.submit.ItemBean;
 import org.akaza.openclinica.bean.submit.ItemGroupBean;
 import org.akaza.openclinica.bean.submit.SectionBean;
 import org.akaza.openclinica.control.form.DiscrepancyValidator;
@@ -38,16 +46,6 @@ import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.view.display.DisplaySectionBeanHandler;
 import org.akaza.openclinica.web.InsufficientPermissionException;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author Shamim
@@ -102,22 +100,22 @@ public class PrintAllSiteEventCRFServlet extends DataEntryServlet {
         CRFVersionDAO cvdao = new CRFVersionDAO(getDataSource());
         CRFDAO cdao = new CRFDAO(getDataSource());
         boolean isSubmitted = false;
-        ArrayList<EventDefinitionCRFBean> edcs = new ArrayList();
+        ArrayList<EventDefinitionCRFBean> edcs = new ArrayList<>();
         for (StudyEventDefinitionBean sed : seds) {
             int defId = sed.getId();
             edcs.addAll(edcdao.findAllByDefinitionAndSiteIdAndParentStudyId(defId, siteId, site.getParentStudyId()));
         }
 
-        Map eventDefinitionDefaultVersions = new LinkedHashMap();
-        Map eventDefinitionEventDefCrf = new LinkedHashMap<StudyEventDefinitionBean, EventDefinitionCRFBean>();
+        LinkedHashMap<StudyEventDefinitionBean, ArrayList<CRFVersionBean>> eventDefinitionDefaultVersions = new LinkedHashMap<>();
+        LinkedHashMap<StudyEventDefinitionBean, EventDefinitionCRFBean> eventDefinitionEventDefCrf = new LinkedHashMap<StudyEventDefinitionBean, EventDefinitionCRFBean>();
         for (int i = 0; i < edcs.size(); i++) {
             EventDefinitionCRFBean edc = edcs.get(i);
             if (!edc.getStatus().equals(Status.AVAILABLE)) {
                 continue;
             }
-            ArrayList versions = (ArrayList) cvdao.findAllByCRF(edc.getCrfId());
+            ArrayList<CRFVersionBean> versions = cvdao.findAllByCRF(edc.getCrfId());
             edc.setVersions(versions);
-            CRFBean crf = (CRFBean) cdao.findByPK(edc.getCrfId());
+            CRFBean crf = cdao.findByPK(edc.getCrfId());
             // edc.setCrfLabel(crf.getLabel());
             edc.setCrfName(crf.getName());
             // to show/hide edit action on jsp page
@@ -125,13 +123,13 @@ public class PrintAllSiteEventCRFServlet extends DataEntryServlet {
                 edc.setOwner(crf.getOwner());
             }
 
-            CRFVersionBean defaultVersion = (CRFVersionBean) cvdao.findByPK(edc.getDefaultVersionId());
+            CRFVersionBean defaultVersion = cvdao.findByPK(edc.getDefaultVersionId());
             StudyEventDefinitionBean studyEventDefinitionBean = (StudyEventDefinitionBean) sedao.findByPK(edc.getStudyEventDefinitionId());
             edc.setDefaultVersionName(defaultVersion.getName());
             if (defaultVersion.getStatus().isAvailable()) {
-                List list = (ArrayList) eventDefinitionDefaultVersions.get(studyEventDefinitionBean);
+                ArrayList<CRFVersionBean> list = eventDefinitionDefaultVersions.get(studyEventDefinitionBean);
                 if (list == null)
-                    list = new ArrayList();
+                    list = new ArrayList<>();
                 list.add(defaultVersion);
                 eventDefinitionDefaultVersions.put(studyEventDefinitionBean, list);
                 eventDefinitionEventDefCrf.put(studyEventDefinitionBean, edc);
@@ -147,17 +145,15 @@ public class PrintAllSiteEventCRFServlet extends DataEntryServlet {
         SectionDAO sdao = new SectionDAO(getDataSource());
         CRFVersionDAO crfVersionDAO = new CRFVersionDAO(getDataSource());
         CRFDAO crfDao = new CRFDAO(getDataSource());
-        Map sedCrfBeans = null;
+        Map<StudyEventDefinitionBean, ArrayList<PrintCRFBean>> sedCrfBeans = null;
 
-        for (Iterator it = eventDefinitionDefaultVersions.keySet().iterator(); it.hasNext();) {
+        for (StudyEventDefinitionBean sedBean : eventDefinitionDefaultVersions.keySet()) {
             if (sedCrfBeans == null)
-                sedCrfBeans = new LinkedHashMap();
-            StudyEventDefinitionBean sedBean = (StudyEventDefinitionBean) it.next();
-            List crfVersions = (ArrayList) eventDefinitionDefaultVersions.get(sedBean);
-            for (Iterator crfIt = crfVersions.iterator(); crfIt.hasNext();) {
-                CRFVersionBean crfVersionBean = (CRFVersionBean) crfIt.next();
+                sedCrfBeans = new LinkedHashMap<>();
+            ArrayList<CRFVersionBean> crfVersions = eventDefinitionDefaultVersions.get(sedBean);
+            for (CRFVersionBean crfVersionBean : crfVersions) {
                 allSectionBeans = new ArrayList<SectionBean>();
-                ArrayList sectionBeans = new ArrayList();
+                ArrayList<DisplaySectionBean> sectionBeans = new ArrayList<>();
 
                 ItemGroupDAO itemGroupDao = new ItemGroupDAO(getDataSource());
                 // Find truely grouped tables, not groups with a name of 'Ungrouped'
@@ -191,9 +187,9 @@ public class PrintAllSiteEventCRFServlet extends DataEntryServlet {
                     printCrfBean.setCrfBean(crfBean);
                     printCrfBean.setEventCrfBean(ecb);
                     printCrfBean.setGrouped(true);
-                    List list = (ArrayList) sedCrfBeans.get(sedBean);
+                    ArrayList<PrintCRFBean> list = sedCrfBeans.get(sedBean);
                     if (list == null)
-                        list = new ArrayList();
+                        list = new ArrayList<>();
                     list.add(printCrfBean);
                     sedCrfBeans.put(sedBean, list);
 
@@ -202,7 +198,7 @@ public class PrintAllSiteEventCRFServlet extends DataEntryServlet {
                 ecb = new EventCRFBean();
                 ecb.setCRFVersionId(crfVersionBean.getId());
                 CRFVersionBean version = (CRFVersionBean) crfVersionDAO.findByPK(crfVersionBean.getId());
-                ArrayList sects = (ArrayList) sdao.findByVersionId(version.getId());
+                ArrayList<SectionBean> sects = sdao.findByVersionId(version.getId());
                 for (int i = 0; i < sects.size(); i++) {
                      sb = (SectionBean) sects.get(i);
 
@@ -226,9 +222,9 @@ public class PrintAllSiteEventCRFServlet extends DataEntryServlet {
                 printCrfBean.setCrfVersionBean(crfVersionBean);
                 printCrfBean.setCrfBean(crfBean);
                 printCrfBean.setGrouped(false);
-                List list = (ArrayList) sedCrfBeans.get(sedBean);
+                ArrayList<PrintCRFBean> list = sedCrfBeans.get(sedBean);
                 if (list == null)
-                    list = new ArrayList();
+                    list = new ArrayList<>();
                 list.add(printCrfBean);
                 sedCrfBeans.put(sedBean, list);
             }

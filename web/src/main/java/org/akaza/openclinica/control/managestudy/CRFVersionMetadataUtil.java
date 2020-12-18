@@ -24,6 +24,8 @@ import org.akaza.openclinica.dao.submit.ItemGroupDAO;
 import org.akaza.openclinica.dao.submit.ItemGroupMetadataDAO;
 import org.akaza.openclinica.dao.submit.SectionDAO;
 
+import static org.akaza.openclinica.core.util.ClassCastHelper.*;
+
 /**
  * Utility class with method for retrieving the metadata for a CRFVersion.
  */
@@ -47,11 +49,12 @@ public class CRFVersionMetadataUtil {
             SectionDAO sdao = new SectionDAO(dataSource);
             ItemGroupDAO igdao = new ItemGroupDAO(dataSource);
             ItemGroupMetadataDAO igmdao = new ItemGroupMetadataDAO(dataSource);
-            ArrayList sections = (ArrayList) sdao.findByVersionId(version.getId());
-            HashMap versionMap = new HashMap();
+            ArrayList<SectionBean> sections = sdao.findByVersionId(version.getId());
+            HashMap<Integer, ArrayList<ItemBean>> versionMap = new HashMap<>();
             for (int i = 0; i < sections.size(); i++) {
-                SectionBean section = (SectionBean) sections.get(i);
-                versionMap.put(new Integer(section.getId()), section.getItems());
+                SectionBean section = sections.get(i);
+                ArrayList<ItemBean> items = asArrayList(section.getItems(), ItemBean.class);
+				versionMap.put(new Integer(section.getId()), items);
                 // YW 08-21-2007, add group metadata
                 ArrayList<ItemGroupBean> igs = (ArrayList<ItemGroupBean>) igdao.findGroupBySectionId(section.getId());
                 for (int j = 0; j < igs.size(); ++j) {
@@ -71,7 +74,7 @@ public class CRFVersionMetadataUtil {
                 ((SectionBean) sections.get(i)).setGroups(igs);
                 // YW >>
             }
-            ArrayList items = idao.findAllItemsByVersionId(version.getId());
+            ArrayList<ItemBean> items = idao.findAllItemsByVersionId(version.getId());
             // YW 08-22-2007, if this crf_version_id doesn't exist in
             // item_group_metadata table,
             // items in this crf_version will not exist in item_group_metadata,
@@ -84,7 +87,7 @@ public class CRFVersionMetadataUtil {
                     item.setItemMeta(ifm);
                     // logger.info("option******" +
                     // ifm.getResponseSet().getOptions().size());
-                    ArrayList its = (ArrayList) versionMap.get(new Integer(ifm.getSectionId()));
+                    ArrayList<ItemBean> its = versionMap.get(ifm.getSectionId());
                     its.add(item);
                 }
             } else {
@@ -93,16 +96,13 @@ public class CRFVersionMetadataUtil {
                     ItemFormMetadataBean ifm = ifmdao.findByItemIdAndCRFVersionIdNotInIGM(item.getId(), version.getId());
 
                     item.setItemMeta(ifm);
-                    // logger.info("option******" +
-                    // ifm.getResponseSet().getOptions().size());
-                    ArrayList its = (ArrayList) versionMap.get(new Integer(ifm.getSectionId()));
+                    ArrayList<ItemBean> its = versionMap.get(ifm.getSectionId());
                     its.add(item);
                 }
             }
 
-            for (int i = 0; i < sections.size(); i++) {
-                SectionBean section = (SectionBean) sections.get(i);
-                section.setItems((ArrayList) versionMap.get(new Integer(section.getId())));
+            for (SectionBean section : sections) {
+                section.setItems(versionMap.get(section.getId()));
             }
             return sections;
         }

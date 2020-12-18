@@ -7,6 +7,9 @@
  */
 package org.akaza.openclinica.control.managestudy;
 
+import java.util.ArrayList;
+import java.util.Date;
+
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.login.StudyUserRoleBean;
@@ -14,14 +17,10 @@ import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.login.UserAccountDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
-
-import java.util.ArrayList;
-import java.util.Date;
 
 /**
  * @author jxu
@@ -59,7 +58,8 @@ public class SetStudyUserRoleServlet extends SecureController {
         StudyDAO sdao = new StudyDAO(sm.getDataSource());
         String name = request.getParameter("name");
         String studyIdString = request.getParameter("studyId");
-        if (StringUtil.isBlank(name) || StringUtil.isBlank(studyIdString)) {
+        if ((name == null || name.trim().isEmpty()) 
+        		|| (studyIdString == null || studyIdString.trim().isEmpty())) {
             addPageMessage(respage.getString("please_choose_a_user_to_set_role_for"));
             forwardPage(Page.LIST_USER_IN_STUDY_SERVLET);
         } else {
@@ -76,7 +76,7 @@ public class SetStudyUserRoleServlet extends SecureController {
                 uRole.setStudyName(userStudy.getName());
                 request.setAttribute("uRole", uRole);
 
-                ArrayList roles = Role.toArrayList();
+                ArrayList<Role> roles = Role.toArrayList();
                 roles.remove(Role.ADMIN); // admin is not a user role, only used for tomcat
                 roles.remove(Role.RESEARCHASSISTANT2);
 

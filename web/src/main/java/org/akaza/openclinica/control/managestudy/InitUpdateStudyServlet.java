@@ -10,7 +10,6 @@ package org.akaza.openclinica.control.managestudy;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.control.core.SecureController;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.service.StudyConfigService;
 import org.akaza.openclinica.view.Page;
@@ -52,7 +51,7 @@ public class InitUpdateStudyServlet extends SecureController {
         StudyDAO sdao = new StudyDAO(sm.getDataSource());
         String idString = request.getParameter("id");
         logger.info("study id:" + idString);
-        if (StringUtil.isBlank(idString)) {
+        if (idString == null || idString.trim().isEmpty()) {
             addPageMessage(respage.getString("please_choose_a_study_to_edit"));
             forwardPage(Page.STUDY_LIST_SERVLET);
         } else {

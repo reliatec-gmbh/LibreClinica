@@ -21,7 +21,6 @@ import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.dao.admin.CRFDAO;
 import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDefinitionDAO;
-import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.service.StudyParameterValueDAO;
 import org.akaza.openclinica.dao.submit.CRFVersionDAO;
 import org.akaza.openclinica.service.managestudy.EventDefinitionCrfTagService;
@@ -82,16 +81,16 @@ EventDefinitionCrfTagService eventDefinitionCrfTagService = null;
             checkRoleByUserAndStudy(ub, sed.getStudyId(), 0);
 
             EventDefinitionCRFDAO edao = new EventDefinitionCRFDAO(sm.getDataSource());
-            ArrayList eventDefinitionCRFs = (ArrayList) edao.findAllByDefinition(this.currentStudy, defId);
+            ArrayList<EventDefinitionCRFBean> eventDefinitionCRFs = edao.findAllByDefinition(this.currentStudy, defId);
 
             CRFVersionDAO cvdao = new CRFVersionDAO(sm.getDataSource());
             CRFDAO cdao = new CRFDAO(sm.getDataSource());
 
             for (int i = 0; i < eventDefinitionCRFs.size(); i++) {
                 EventDefinitionCRFBean edc = (EventDefinitionCRFBean) eventDefinitionCRFs.get(i);
-                ArrayList versions = (ArrayList) cvdao.findAllByCRF(edc.getCrfId());
+                ArrayList<CRFVersionBean> versions = cvdao.findAllByCRF(edc.getCrfId());
                 edc.setVersions(versions);
-                CRFBean crf = (CRFBean) cdao.findByPK(edc.getCrfId());
+                CRFBean crf = cdao.findByPK(edc.getCrfId());
                 // edc.setCrfLabel(crf.getLabel());
                 edc.setCrfName(crf.getName());
                 // to show/hide edit action on jsp page

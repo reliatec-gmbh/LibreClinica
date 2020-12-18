@@ -73,12 +73,12 @@ public class ViewEventCRFServlet extends SecureController {
             CRFBean crf = cdao.findByVersionId(eventCRF.getCRFVersionId());
             request.setAttribute("crf", crf);
 
-            ArrayList sections = secdao.findAllByCRFVersionId(eventCRF.getCRFVersionId());
+            ArrayList<SectionBean> sections = secdao.findAllByCRFVersionId(eventCRF.getCRFVersionId());
             for (int j = 0; j < sections.size(); j++) {
                 SectionBean section = (SectionBean) sections.get(j);
-                ArrayList itemData = iddao.findAllByEventCRFId(eventCRFId);
+                ArrayList<ItemDataBean> itemData = iddao.findAllByEventCRFId(eventCRFId);
 
-                ArrayList<DisplayItemBean> displayItemData = new ArrayList();
+                ArrayList<DisplayItemBean> displayItemData = new ArrayList<>();
                 for (int i = 0; i < itemData.size(); i++) {
                     ItemDataBean id = (ItemDataBean) itemData.get(i);
                     DisplayItemBean dib = new DisplayItemBean();

@@ -7,14 +7,13 @@
  */
 package org.akaza.openclinica.control.managestudy;
 
+import java.util.ArrayList;
+
 import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.bean.managestudy.EventDefinitionCRFBean;
 import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;
-import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.view.Page;
-
-import java.util.ArrayList;
 
 /**
  * Processes request to change CRF ordinals in a study event definition
@@ -79,8 +78,8 @@ public class ChangeDefinitionCRFOrdinalServlet extends ChangeOrdinalServlet {
                 dao.update(previous);
             }
 
-            ArrayList currOrdlist = dao.findAllByEventDefinitionIdAndOrdinal(defId, current.getOrdinal());
-            ArrayList prevOrdlist = dao.findAllByEventDefinitionIdAndOrdinal(defId, previous.getOrdinal());
+            ArrayList<EventDefinitionCRFBean> currOrdlist = dao.findAllByEventDefinitionIdAndOrdinal(defId, current.getOrdinal());
+            ArrayList<EventDefinitionCRFBean> prevOrdlist = dao.findAllByEventDefinitionIdAndOrdinal(defId, previous.getOrdinal());
             if (currOrdlist.size() > 1 || prevOrdlist.size() > 1 ) {
                 fixDuplicates(defId, dao);
             }
@@ -94,7 +93,7 @@ public class ChangeDefinitionCRFOrdinalServlet extends ChangeOrdinalServlet {
      * @param dao
      */
     private void fixDuplicates(int definitionId, EventDefinitionCRFDAO dao) {
-        ArrayList list = dao.findAllByEventDefinitionId(definitionId);
+        ArrayList<EventDefinitionCRFBean> list = dao.findAllByEventDefinitionId(definitionId);
         boolean incrementNextOrdinal = false;
         for (int i =0; i < list.size(); i++) {
             EventDefinitionCRFBean edc = (EventDefinitionCRFBean) list.get(i);

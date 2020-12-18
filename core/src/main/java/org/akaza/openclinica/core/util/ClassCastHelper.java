@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -105,7 +106,6 @@ public class ClassCastHelper {
 	 * @param resultType the expected result type
      *
      * @return		an <code>Enumeration</code>
-     * @see HttpServletRequest#getAttribute(String)
 	 */
     @SuppressWarnings("unchecked")
 	public static <T> ArrayList<T> asArrayList(Object o, Class<T> resultType) {
@@ -130,7 +130,6 @@ public class ClassCastHelper {
 	 * @param resultType the expected result type
      *
      * @return		an <code>Enumeration</code>
-     * @see HttpServletRequest#getAttribute(String)
 	 */
     @SuppressWarnings("unchecked")
 	public static <T> Enumeration<T> asEnumeration(Object o, Class<T> resultType) {    	
@@ -146,13 +145,28 @@ public class ClassCastHelper {
 	 * @param the object to cast
      *
 	 * @param keyType the expected type of the map key
-	 * @param keyType the expected type of the map value
+	 * @param valueType the expected type of the map value
      *
-     * @return		an <code>HashMap</code>
-     * @see HttpServletRequest#getAttribute(String)
+     * @return		a <code>HashMap</code>
 	 */
     @SuppressWarnings("unchecked")
 	public static <T, V> HashMap<T, V> asHashMap(Object o, Class<T> keyType, Class<V> valueType) {    	
         return (HashMap<T, V>) o;
+    }
+
+	/**
+	 * Returns the value of the named attribute as a HashSet with the given result type,
+     * or <code>null</code> if no attribute of the given name exists. 
+     * 
+	 * @param <T> the expected result type
+	 * @param the object to cast
+     *
+	 * @param resultType the expected result type
+     *
+     * @return		an <code>HashSet</code>
+	 */
+    @SuppressWarnings("unchecked")
+	public static <T> HashSet<T> asHashSet(Object o, Class<T> resultType) {    	
+        return (HashSet<T>) o;
     }
 }

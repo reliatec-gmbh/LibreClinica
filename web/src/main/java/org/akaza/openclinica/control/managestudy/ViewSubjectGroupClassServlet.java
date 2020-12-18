@@ -7,22 +7,22 @@
  */
 package org.akaza.openclinica.control.managestudy;
 
+import java.util.ArrayList;
+
 import org.akaza.openclinica.bean.core.GroupClassType;
 import org.akaza.openclinica.bean.core.Role;
+import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.managestudy.StudyGroupBean;
 import org.akaza.openclinica.bean.managestudy.StudyGroupClassBean;
 import org.akaza.openclinica.bean.submit.SubjectGroupMapBean;
-import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
+import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.managestudy.StudyGroupClassDAO;
 import org.akaza.openclinica.dao.managestudy.StudyGroupDAO;
-import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.submit.SubjectGroupMapDAO;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
-
-import java.util.ArrayList;
 
 /**
  * @author jxu, modified by ywang
@@ -72,8 +72,8 @@ public class ViewSubjectGroupClassServlet extends SecureController {
             sgcb.setGroupClassTypeName(GroupClassType.get(sgcb.getGroupClassTypeId()).getName());
             // YW >>
 
-            ArrayList groups = sgdao.findAllByGroupClass(sgcb);
-            ArrayList studyGroups = new ArrayList();
+            ArrayList<StudyGroupBean> groups = sgdao.findAllByGroupClass(sgcb);
+            ArrayList<StudyGroupBean> studyGroups = new ArrayList<>();
 
             for (int i = 0; i < groups.size(); i++) {
                 StudyGroupBean sg = (StudyGroupBean) groups.get(i);

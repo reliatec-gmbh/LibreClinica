@@ -7,7 +7,14 @@
  */
 package org.akaza.openclinica.control.managestudy;
 
-import org.akaza.openclinica.bean.managestudy.StudyBean;
+import static org.akaza.openclinica.core.util.ClassCastHelper.asHashSet;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.submit.ListDiscNotesSubjectTableFactory;
 import org.akaza.openclinica.control.submit.SubmitDataServlet;
@@ -27,12 +34,6 @@ import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
 import org.akaza.openclinica.service.DiscrepancyNoteUtil;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * @author Bruce W. Perry, 5/1/08
@@ -87,7 +88,7 @@ public class ListDiscNotesSubjectServlet extends SecureController {
         // Set object should be cleared,
         // because we do not have to save a set of filter IDs.
         boolean hasAResolutionStatus = resolutionStatus >= 1 && resolutionStatus <= 5;
-        Set<Integer> resolutionStatusIds = (HashSet) session.getAttribute(RESOLUTION_STATUS);
+        HashSet<Integer> resolutionStatusIds = asHashSet(session.getAttribute(RESOLUTION_STATUS), Integer.class);
         // remove the session if there is no resolution status
         if (!hasAResolutionStatus && resolutionStatusIds != null) {
             session.removeAttribute(RESOLUTION_STATUS);
@@ -119,9 +120,9 @@ public class ListDiscNotesSubjectServlet extends SecureController {
         }
         locale = LocaleResolver.getLocale(request);
 
-        Map stats = discNoteUtil.generateDiscNoteSummaryRefactored(sm.getDataSource(), currentStudy, resolutionStatusIds, discNoteType);
+        Map<String, Map<String, Integer>> stats = discNoteUtil.generateDiscNoteSummaryRefactored(sm.getDataSource(), currentStudy, resolutionStatusIds, discNoteType);
         request.setAttribute("summaryMap", stats);
-        Set mapKeys = stats.keySet();
+        Set<String> mapKeys = stats.keySet();
         request.setAttribute("mapKeys", mapKeys);
 
         // < resword =

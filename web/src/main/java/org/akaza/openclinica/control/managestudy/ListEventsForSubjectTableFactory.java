@@ -67,7 +67,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 import javax.servlet.http.HttpServletResponse;
-
+import static org.akaza.openclinica.core.util.ClassCastHelper.*;
 public class ListEventsForSubjectTableFactory extends AbstractTableFactory {
 
     private StudyEventDefinitionDAO studyEventDefinitionDao;
@@ -203,7 +203,6 @@ public class ListEventsForSubjectTableFactory extends AbstractTableFactory {
                 addSubjectLinkShow, showMoreLink));
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void setDataAndLimitVariables(TableFacade tableFacade) {
         Limit limit = tableFacade.getLimit();
@@ -380,7 +379,6 @@ public class ListEventsForSubjectTableFactory extends AbstractTableFactory {
         return listEventsForSubjectSort;
     }
 
-    @SuppressWarnings("unchecked")
     private ArrayList<StudyEventDefinitionBean> getStudyEventDefinitions() {
         if (this.studyEventDefinitions == null) {
             if (studyBean.getParentStudyId() > 0) {
@@ -393,7 +391,6 @@ public class ListEventsForSubjectTableFactory extends AbstractTableFactory {
         return this.studyEventDefinitions;
     }
 
-    @SuppressWarnings("unchecked")
     private ArrayList<CRFBean> getCrfs(StudyEventDefinitionBean eventDefinition) {
         if (this.crfBeans == null) {
             crfBeans = new ArrayList<CRFBean>();
@@ -414,7 +411,6 @@ public class ListEventsForSubjectTableFactory extends AbstractTableFactory {
         return crfBeans;
     }
 
-    @SuppressWarnings("unchecked")
     private ArrayList<StudyGroupClassBean> getStudyGroupClasses() {
         if (this.studyGroupClasses == null) {
             if (studyBean.getParentStudyId() > 0) {
@@ -670,7 +666,8 @@ public class ListEventsForSubjectTableFactory extends AbstractTableFactory {
         }
 
         public Object getValue(Object item, String property, int rowcount) {
-            groupName = (String) ((HashMap<Object, Object>) item).get("grpName_sgc_" + studyGroupClass.getId());
+            Object result = asHashMap(item, Object.class, Object.class).get("grpName_sgc_" + studyGroupClass.getId());
+            groupName = getAsType(result, String.class);
             return logic();
         }
     }

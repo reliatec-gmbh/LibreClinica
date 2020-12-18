@@ -74,7 +74,7 @@ public class RemoveSubjectGroupClassServlet extends SecureController {
                     forwardPage(Page.SUBJECT_GROUP_CLASS_LIST_SERVLET);
                     return;
                 }
-                ArrayList groups = sgdao.findAllByGroupClass(sgcb);
+                ArrayList<StudyGroupBean> groups = sgdao.findAllByGroupClass(sgcb);
 
                 for (int i = 0; i < groups.size(); i++) {
                     StudyGroupBean sg = (StudyGroupBean) groups.get(i);
@@ -93,7 +93,7 @@ public class RemoveSubjectGroupClassServlet extends SecureController {
                 group.setUpdater(ub);
                 sgcdao.update(group);
 
-                ArrayList subjectMaps = sgmdao.findAllByStudyGroupClassId(group.getId());
+                ArrayList<SubjectGroupMapBean> subjectMaps = sgmdao.findAllByStudyGroupClassId(group.getId());
                 for (int i = 0; i < subjectMaps.size(); i++) {
                     SubjectGroupMapBean sgmb = (SubjectGroupMapBean) subjectMaps.get(i);
                     if (!sgmb.getStatus().equals(Status.DELETED)) {

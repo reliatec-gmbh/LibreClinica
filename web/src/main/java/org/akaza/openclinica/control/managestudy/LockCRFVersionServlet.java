@@ -12,12 +12,12 @@ import java.util.ArrayList;
 import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.core.Status;
-import org.akaza.openclinica.bean.submit.CRFVersionBean;
 import org.akaza.openclinica.bean.managestudy.EventDefinitionCRFBean;
+import org.akaza.openclinica.bean.submit.CRFVersionBean;
+import org.akaza.openclinica.bean.submit.EventCRFBean;
+import org.akaza.openclinica.control.admin.RemoveCRFVersionServlet;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
-import org.akaza.openclinica.control.admin.RemoveCRFVersionServlet;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.admin.CRFDAO;
 import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;
 import org.akaza.openclinica.dao.submit.CRFVersionDAO;
@@ -81,9 +81,9 @@ public class LockCRFVersionServlet extends SecureController {
        }
       
        EventCRFDAO ecdao = new EventCRFDAO(sm.getDataSource());
-       ArrayList eventCRFs = ecdao.findAllStudySubjectByCRFVersion(crfVersionId);
+       ArrayList<EventCRFBean> eventCRFs = ecdao.findAllStudySubjectByCRFVersion(crfVersionId);
        
-       if (StringUtil.isBlank(action)) {
+       if (action == null || action.trim().isEmpty()) {
            request.setAttribute("crfVersionToLock", version);
            request.setAttribute("crf", crf);
            request.setAttribute("eventSubjectsUsingVersion", eventCRFs);
@@ -94,10 +94,10 @@ public class LockCRFVersionServlet extends SecureController {
            version.setUpdater(ub);
            cvdao.update(version);
 
-           ArrayList versionList = (ArrayList)cvdao.findAllByCRF(version.getCrfId());
+           ArrayList<CRFVersionBean> versionList = cvdao.findAllByCRF(version.getCrfId());
            if(versionList.size() > 0){
                EventDefinitionCRFDAO edCRFDao = new EventDefinitionCRFDAO(sm.getDataSource());
-               ArrayList edcList = (ArrayList)edCRFDao.findAllByCRF(version.getCrfId());
+               ArrayList<EventDefinitionCRFBean> edcList = edCRFDao.findAllByCRF(version.getCrfId());
                for(int i = 0; i < edcList.size(); i++){
                    EventDefinitionCRFBean edcBean = (EventDefinitionCRFBean)edcList.get(i);
                     // @pgawade 18-May-2011 #5414 - Changes for setting the correct

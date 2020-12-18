@@ -7,6 +7,9 @@
  */
 package org.akaza.openclinica.control.managestudy;
 
+import java.util.ArrayList;
+import java.util.Date;
+
 import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.core.Status;
@@ -18,8 +21,6 @@ import org.akaza.openclinica.bean.submit.EventCRFBean;
 import org.akaza.openclinica.bean.submit.ItemDataBean;
 import org.akaza.openclinica.control.SpringServletAccess;
 import org.akaza.openclinica.control.core.SecureController;
-import org.akaza.openclinica.core.EmailEngine;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.admin.CRFDAO;
 import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDAO;
@@ -31,9 +32,6 @@ import org.akaza.openclinica.dao.submit.ItemDataDAO;
 import org.akaza.openclinica.service.managestudy.EventDefinitionCrfTagService;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
-
-import java.util.ArrayList;
-import java.util.Date;
 
 /**
  * @author jxu
@@ -74,19 +72,19 @@ public class RestoreEventDefinitionServlet extends SecureController {
         StudyEventDefinitionBean sed = (StudyEventDefinitionBean) sdao.findByPK(defId);
         // find all CRFs
         EventDefinitionCRFDAO edao = new EventDefinitionCRFDAO(sm.getDataSource());
-        ArrayList eventDefinitionCRFs = (ArrayList) edao.findAllByDefinition(defId);
+        ArrayList<EventDefinitionCRFBean> eventDefinitionCRFs = edao.findAllByDefinition(defId);
 
         CRFVersionDAO cvdao = new CRFVersionDAO(sm.getDataSource());
         CRFDAO cdao = new CRFDAO(sm.getDataSource());
         for (int i = 0; i < eventDefinitionCRFs.size(); i++) {
-            EventDefinitionCRFBean edc = (EventDefinitionCRFBean) eventDefinitionCRFs.get(i);
-            ArrayList versions = (ArrayList) cvdao.findAllByCRF(edc.getCrfId());
+            EventDefinitionCRFBean edc = eventDefinitionCRFs.get(i);
+            ArrayList<CRFVersionBean> versions = cvdao.findAllByCRF(edc.getCrfId());
             edc.setVersions(versions);
-            CRFBean crf = (CRFBean) cdao.findByPK(edc.getCrfId());
+            CRFBean crf = cdao.findByPK(edc.getCrfId());
             edc.setCrfName(crf.getName());
-            CRFVersionBean defaultVersion = (CRFVersionBean) cvdao.findByPK(edc.getDefaultVersionId());
+            CRFVersionBean defaultVersion = cvdao.findByPK(edc.getDefaultVersionId());
             edc.setDefaultVersionName(defaultVersion.getName());
-            CRFBean cBean = (CRFBean) cdao.findByPK(edc.getCrfId());                
+            CRFBean cBean = cdao.findByPK(edc.getCrfId());                
             String crfPath=sed.getOid()+"."+cBean.getOid();
             edc.setOffline(getEventDefinitionCrfTagService().getEventDefnCrfOfflineStatus(2,crfPath,true));
 
@@ -95,10 +93,10 @@ public class RestoreEventDefinitionServlet extends SecureController {
         // finds all events
         StudyEventDAO sedao = new StudyEventDAO(sm.getDataSource());
         StudyParameterValueDAO spvdao = new StudyParameterValueDAO(sm.getDataSource());    
-        ArrayList events = (ArrayList) sedao.findAllByDefinition(sed.getId());
+        ArrayList<StudyEventBean> events = sedao.findAllByDefinition(sed.getId());
 
         String action = request.getParameter("action");
-        if (StringUtil.isBlank(idString)) {
+        if (idString == null || idString.trim().isEmpty()) {
             addPageMessage(respage.getString("please_choose_a_SED_to_restore"));
             forwardPage(Page.LIST_DEFINITION_SERVLET);
         } else {
@@ -146,7 +144,7 @@ public class RestoreEventDefinitionServlet extends SecureController {
                         event.setUpdatedDate(new Date());
                         sedao.update(event);
 
-                        ArrayList eventCRFs = ecdao.findAllByStudyEvent(event);
+                        ArrayList<EventCRFBean> eventCRFs = ecdao.findAllByStudyEvent(event);
                         // remove all the item data
                         ItemDataDAO iddao = new ItemDataDAO(sm.getDataSource());
                         for (int k = 0; k < eventCRFs.size(); k++) {
@@ -157,7 +155,7 @@ public class RestoreEventDefinitionServlet extends SecureController {
                                 eventCRF.setUpdatedDate(new Date());
                                 ecdao.update(eventCRF);
 
-                                ArrayList itemDatas = iddao.findAllByEventCRFId(eventCRF.getId());
+                                ArrayList<ItemDataBean> itemDatas = iddao.findAllByEventCRFId(eventCRF.getId());
                                 for (int a = 0; a < itemDatas.size(); a++) {
                                     ItemDataBean item = (ItemDataBean) itemDatas.get(a);
                                     if (item.getStatus().equals(Status.AUTO_DELETED)) {

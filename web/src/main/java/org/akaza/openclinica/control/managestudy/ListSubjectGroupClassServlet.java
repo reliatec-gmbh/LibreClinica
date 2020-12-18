@@ -79,7 +79,7 @@ public class ListSubjectGroupClassServlet extends SecureController {
         // YW <<
         StudyDAO stdao = new StudyDAO(sm.getDataSource());
         int parentStudyId = currentStudy.getParentStudyId();
-        ArrayList groups = new ArrayList();
+        ArrayList<StudyGroupClassBean> groups = new ArrayList<>();
         if (parentStudyId > 0) {
             StudyBean parentStudy = (StudyBean) stdao.findByPK(parentStudyId);
             groups = sgcdao.findAllByStudy(parentStudy);
@@ -89,28 +89,23 @@ public class ListSubjectGroupClassServlet extends SecureController {
         // YW >>
 
         StudyGroupDAO sgdao = new StudyGroupDAO(sm.getDataSource());
-        for (int i = 0; i < groups.size(); i++) {
-            StudyGroupClassBean group = (StudyGroupClassBean) groups.get(i);
+        for (StudyGroupClassBean group : groups) {
             ArrayList<StudyGroupBean> studyGroups = sgdao.findAllByGroupClass(group);
             group.setStudyGroups(studyGroups);
 
         }
         EntityBeanTable table = fp.getEntityBeanTable();
-        ArrayList allGroupRows = StudyGroupClassRow.generateRowsFromBeans(groups);
+        ArrayList<StudyGroupClassRow> allGroupRows = StudyGroupClassRow.generateRowsFromBeans(groups);
         boolean isParentStudy = currentStudy.getParentStudyId() > 0 ? false : true;
         request.setAttribute("isParentStudy", isParentStudy);
 
         String[] columns =
             { resword.getString("subject_group_class"), resword.getString("type"), resword.getString("subject_assignment"), resword.getString("study_name"),
                 resword.getString("subject_groups"), resword.getString("status"), resword.getString("actions") };
-        table.setColumns(new ArrayList(Arrays.asList(columns)));
+        table.setColumns(new ArrayList<String>(Arrays.asList(columns)));
         table.hideColumnLink(4);
         table.hideColumnLink(6);
-        table.setQuery("ListSubjectGroupClass", new HashMap());
-        // if (isParentStudy && (!currentStudy.getStatus().isLocked())) {
-        // table.addLink(resword.getString("create_a_subject_group_class"),
-        // "CreateSubjectGroupClass");
-        // }
+        table.setQuery("ListSubjectGroupClass", new HashMap<>());
         table.setRows(allGroupRows);
         table.computeDisplay();
 

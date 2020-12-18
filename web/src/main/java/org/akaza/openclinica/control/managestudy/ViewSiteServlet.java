@@ -7,6 +7,9 @@
  */
 package org.akaza.openclinica.control.managestudy;
 
+import java.net.MalformedURLException;
+import java.util.ArrayList;
+
 import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.managestudy.EventDefinitionCRFBean;
@@ -16,7 +19,6 @@ import org.akaza.openclinica.bean.service.StudyParamsConfig;
 import org.akaza.openclinica.bean.submit.CRFVersionBean;
 import org.akaza.openclinica.control.SpringServletAccess;
 import org.akaza.openclinica.control.core.SecureController;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.admin.CRFDAO;
 import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
@@ -27,9 +29,6 @@ import org.akaza.openclinica.domain.SourceDataVerification;
 import org.akaza.openclinica.service.managestudy.EventDefinitionCrfTagService;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
-
-import java.net.MalformedURLException;
-import java.util.ArrayList;
 
 /**
  * @author jxu
@@ -75,7 +74,7 @@ public class ViewSiteServlet extends SecureController {
             idString = request.getAttribute("siteId").toString();
         }
         logger.info("site id:" + idString);
-        if (StringUtil.isBlank(idString)) {
+        if (idString == null || idString.trim().isEmpty()) {
             addPageMessage(respage.getString("please_choose_a_site_to_edit"));
             forwardPage(Page.SITE_LIST_SERVLET);
         } else {
@@ -85,7 +84,7 @@ public class ViewSiteServlet extends SecureController {
             checkRoleByUserAndStudy(ub, study.getParentStudyId(), study.getId());
             // if (currentStudy.getId() != study.getId()) {
 
-            ArrayList<StudyParamsConfig> configs = new ArrayList();
+            ArrayList<StudyParamsConfig> configs = new ArrayList<>();
             StudyParameterValueDAO spvdao = new StudyParameterValueDAO(sm.getDataSource());
             configs = spvdao.findParamConfigByStudy(study);
             study.setStudyParameters(configs);

@@ -14,6 +14,13 @@
  */
 package org.akaza.openclinica.control.managestudy;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.core.Utils;
@@ -29,7 +36,6 @@ import org.akaza.openclinica.bean.submit.DisplayItemBean;
 import org.akaza.openclinica.bean.submit.DisplayItemGroupBean;
 import org.akaza.openclinica.bean.submit.DisplaySectionBean;
 import org.akaza.openclinica.bean.submit.EventCRFBean;
-import org.akaza.openclinica.bean.submit.ItemBean;
 import org.akaza.openclinica.bean.submit.ItemGroupBean;
 import org.akaza.openclinica.bean.submit.SectionBean;
 import org.akaza.openclinica.bean.submit.SubjectBean;
@@ -51,13 +57,6 @@ import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.view.display.DisplaySectionBeanHandler;
 import org.akaza.openclinica.web.InsufficientPermissionException;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author Krikor Krumlian 10/26/2006
@@ -109,7 +108,7 @@ public class PrintDataEntryServlet extends DataEntryServlet {
         EventCRFBean ecb ;
         SectionDAO sdao = new SectionDAO(getDataSource());
        ArrayList<SectionBean> allSectionBeans = new ArrayList<SectionBean>();
-        ArrayList sectionBeans = new ArrayList();
+        ArrayList<DisplaySectionBean> sectionBeans = new ArrayList<>();
         String age = "";
         StudyBean currentStudy =    (StudyBean)  request.getSession().getAttribute("study");
         SectionBean sb = (SectionBean)request.getAttribute(SECTION_BEAN);
@@ -127,7 +126,7 @@ public class PrintDataEntryServlet extends DataEntryServlet {
             ecb = (EventCRFBean) ecdao.findByPK(eventCRFId);
 
             // Get all the SectionBeans attached to this ECB
-            ArrayList sects = sdao.findAllByCRFVersionId(ecb.getCRFVersionId());
+            ArrayList<SectionBean> sects = sdao.findAllByCRFVersionId(ecb.getCRFVersionId());
             for (int i = 0; i < sects.size(); i++) {
                  sb = (SectionBean) sects.get(i);
 //                super.sb = sb;

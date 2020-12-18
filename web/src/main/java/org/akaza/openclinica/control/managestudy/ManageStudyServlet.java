@@ -8,6 +8,10 @@
 package org.akaza.openclinica.control.managestudy;
 
 import org.akaza.openclinica.bean.core.Role;
+import org.akaza.openclinica.bean.login.StudyUserRoleBean;
+import org.akaza.openclinica.bean.managestudy.StudyBean;
+import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
+import org.akaza.openclinica.bean.managestudy.StudySubjectBean;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.dao.login.UserAccountDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
@@ -60,8 +64,8 @@ public class ManageStudyServlet extends SecureController {
         StudyDAO sdao = new StudyDAO(sm.getDataSource());
         // ArrayList sites = (ArrayList)
         // sdao.findAllByParentAndLimit(currentStudy.getId(),true);
-        ArrayList allSites = (ArrayList) sdao.findAllByParent(currentStudy.getId());
-        ArrayList sites = new ArrayList();
+        ArrayList<StudyBean> allSites = sdao.findAllByParent(currentStudy.getId());
+        ArrayList<StudyBean> sites = new ArrayList<>();
         for (int i = 0; i < allSites.size(); i++) {
             sites.add(allSites.get(i));
             if (i == 5) {
@@ -77,15 +81,15 @@ public class ManageStudyServlet extends SecureController {
         }
 
         StudyEventDefinitionDAO edao = new StudyEventDefinitionDAO(sm.getDataSource());
-        ArrayList seds = (ArrayList) edao.findAllByStudyAndLimit(currentStudy.getId());
-        ArrayList allSeds = edao.findAllByStudy(currentStudy);
+        ArrayList<StudyEventDefinitionBean> seds = edao.findAllByStudyAndLimit(currentStudy.getId());
+        ArrayList<StudyEventDefinitionBean> allSeds = edao.findAllByStudy(currentStudy);
         request.setAttribute("seds", seds);
         request.setAttribute("sedsCount", new Integer(seds.size()));
         request.setAttribute("allSedsCount", new Integer(allSeds.size()));
 
         UserAccountDAO udao = new UserAccountDAO(sm.getDataSource());
-        ArrayList users = udao.findAllUsersByStudyIdAndLimit(currentStudy.getId(), true);
-        ArrayList allUsers = udao.findAllUsersByStudy(currentStudy.getId());
+        ArrayList<StudyUserRoleBean> users = udao.findAllUsersByStudyIdAndLimit(currentStudy.getId(), true);
+        ArrayList<StudyUserRoleBean> allUsers = udao.findAllUsersByStudy(currentStudy.getId());
         request.setAttribute("users", users);
         request.setAttribute("usersCount", new Integer(users.size()));
         request.setAttribute("allUsersCount", new Integer(allUsers.size()));
@@ -93,8 +97,8 @@ public class ManageStudyServlet extends SecureController {
         StudySubjectDAO ssdao = new StudySubjectDAO(sm.getDataSource());
         // ArrayList subjects = (ArrayList)
         // ssdao.findAllByStudyIdAndLimit(currentStudy.getId(),true);
-        ArrayList allSubjects = ssdao.findAllByStudyId(currentStudy.getId());
-        ArrayList subjects = new ArrayList();
+        ArrayList<StudySubjectBean> allSubjects = ssdao.findAllByStudyId(currentStudy.getId());
+        ArrayList<StudySubjectBean> subjects = new ArrayList<>();
         for (int i = 0; i < allSubjects.size(); i++) {
             subjects.add(allSubjects.get(i));
             if (i == 5) {

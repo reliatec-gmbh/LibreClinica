@@ -7,6 +7,11 @@
  */
 package org.akaza.openclinica.control.managestudy;
 
+import static org.akaza.openclinica.core.util.ClassCastHelper.asHashSet;
+
+import java.util.HashSet;
+import java.util.Locale;
+
 /**
  *
  */
@@ -33,10 +38,6 @@ import org.akaza.openclinica.dao.submit.SubjectGroupMapDAO;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
-
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Set;
 
 public class ListDiscNotesForCRFServlet extends SecureController {
 
@@ -122,7 +123,7 @@ public class ListDiscNotesForCRFServlet extends SecureController {
         // Set object should be cleared,
         // because we do not have to save a set of filter IDs.
         boolean hasAResolutionStatus = resolutionStatus >= 1 && resolutionStatus <= 5;
-        Set<Integer> resolutionStatusIds = (HashSet) session.getAttribute(RESOLUTION_STATUS);
+        HashSet<Integer> resolutionStatusIds = asHashSet(session.getAttribute(RESOLUTION_STATUS), Integer.class);
         // remove the session if there is no resolution status
         if (!hasAResolutionStatus && resolutionStatusIds != null) {
             session.removeAttribute(RESOLUTION_STATUS);

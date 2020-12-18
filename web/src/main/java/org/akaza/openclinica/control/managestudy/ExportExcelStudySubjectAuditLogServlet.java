@@ -15,10 +15,14 @@
 
 package org.akaza.openclinica.control.managestudy;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
+
 import org.akaza.openclinica.bean.admin.AuditBean;
 import org.akaza.openclinica.bean.admin.DeletedEventCRFBean;
 import org.akaza.openclinica.bean.core.Status;
-import org.akaza.openclinica.bean.core.Utils;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
@@ -32,7 +36,6 @@ import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.control.submit.SubmitDataServlet;
 import org.akaza.openclinica.dao.admin.AuditDAO;
 import org.akaza.openclinica.dao.admin.CRFDAO;
-import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDefinitionDAO;
@@ -45,24 +48,16 @@ import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-
 import jxl.CellView;
 import jxl.Workbook;
 import jxl.WorkbookSettings;
 import jxl.format.Colour;
 import jxl.format.UnderlineStyle;
+import jxl.write.Label;
 import jxl.write.WritableCellFormat;
 import jxl.write.WritableFont;
 import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
-import jxl.write.Label;
 
 /**
  * @author jsampson
@@ -117,13 +112,13 @@ public class ExportExcelStudySubjectAuditLogServlet extends SecureController {
         CRFVersionDAO cvdao = new CRFVersionDAO(sm.getDataSource());
         StudySubjectBean studySubject = null;
         SubjectBean subject = null;
-		ArrayList events = null;
-        ArrayList studySubjectAudits = new ArrayList();
-        ArrayList eventCRFAudits = new ArrayList();
-        ArrayList studyEventAudits = new ArrayList();
-        ArrayList allDeletedEventCRFs = new ArrayList();
-        ArrayList allEventCRFs = new ArrayList();
-        ArrayList allEventCRFItems = new ArrayList();
+		ArrayList<StudyEventBean> events = null;
+		ArrayList<AuditBean> studySubjectAudits = new ArrayList<>();
+        ArrayList<AuditBean> eventCRFAudits = new ArrayList<>();
+        ArrayList<AuditBean> studyEventAudits = new ArrayList<>();
+        ArrayList<DeletedEventCRFBean> allDeletedEventCRFs = new ArrayList<>();
+        ArrayList<AuditBean> allEventCRFs = new ArrayList<>();
+        ArrayList<AuditBean> allEventCRFItems = new ArrayList<>();
 
         FormProcessor fp = new FormProcessor(request);
 
@@ -143,7 +138,7 @@ public class ExportExcelStudySubjectAuditLogServlet extends SecureController {
                     return;
                 } else {
                     // The SubjectStudy is not belong to currentstudy and current study is not a site.
-                    Collection sites = studydao.findOlnySiteIdsByStudy(currentStudy);
+                    ArrayList<Integer> sites = studydao.findOlnySiteIdsByStudy(currentStudy);
                     if (!sites.contains(study.getId())) {
                         addPageMessage(respage.getString("no_have_correct_privilege_current_study") + " " + respage.getString("change_active_study_or_contact"));
                         forwardPage(Page.MENU_SERVLET);
@@ -156,11 +151,10 @@ public class ExportExcelStudySubjectAuditLogServlet extends SecureController {
 
             /* Show both study subject and subject audit events together */
             // Study subject value changed
-            Collection studySubjectAuditEvents = adao.findStudySubjectAuditEvents(studySubject.getId());
+            ArrayList<AuditBean> studySubjectAuditEvents = adao.findStudySubjectAuditEvents(studySubject.getId());
             // Text values will be shown on the page for the corresponding
             // integer values.
-            for (Iterator iterator = studySubjectAuditEvents.iterator(); iterator.hasNext();) {
-                AuditBean auditBean = (AuditBean) iterator.next();
+            for (AuditBean auditBean : studySubjectAuditEvents) {
                 if (auditBean.getAuditEventTypeId() == 3) {
                     auditBean.setOldValue(Status.get(Integer.parseInt(auditBean.getOldValue())).getName());
                     auditBean.setNewValue(Status.get(Integer.parseInt(auditBean.getNewValue())).getName());
@@ -184,11 +178,11 @@ public class ExportExcelStudySubjectAuditLogServlet extends SecureController {
                 studyEvent.setEventCRFs(ecdao.findAllByStudyEvent(studyEvent));
 
                 // Find deleted Event CRFs
-                List deletedEventCRFs = adao.findDeletedEventCRFsFromAuditEvent(studyEvent.getId());
+                ArrayList<DeletedEventCRFBean> deletedEventCRFs = adao.findDeletedEventCRFsFromAuditEvent(studyEvent.getId());
                 allDeletedEventCRFs.addAll(deletedEventCRFs);
-                List eventCRFs = (List) adao.findAllEventCRFAuditEvents(studyEvent.getId());
+                ArrayList<AuditBean> eventCRFs = adao.findAllEventCRFAuditEvents(studyEvent.getId());
                 allEventCRFs.addAll(eventCRFs);                
-                List eventCRFItems = (List) adao.findAllEventCRFAuditEventsWithItemDataType(studyEvent.getId());
+                ArrayList<AuditBean> eventCRFItems = adao.findAllEventCRFAuditEventsWithItemDataType(studyEvent.getId());
                 allEventCRFItems.addAll(eventCRFItems);
                 logger.info("deletedEventCRFs size[" + deletedEventCRFs.size() + "]");
                 logger.info("allEventCRFItems size[" + allEventCRFItems.size() + "]");          }
@@ -197,7 +191,7 @@ public class ExportExcelStudySubjectAuditLogServlet extends SecureController {
                 StudyEventBean studyEvent = (StudyEventBean) events.get(i);
                 studyEventAudits.addAll(adao.findStudyEventAuditEvents(studyEvent.getId()));
 
-                ArrayList eventCRFs = studyEvent.getEventCRFs();
+                ArrayList<EventCRFBean> eventCRFs = studyEvent.getEventCRFs();
                 for (int j = 0; j < eventCRFs.size(); j++) {
                     // Link CRF and CRF Versions
                     EventCRFBean eventCRF = (EventCRFBean) eventCRFs.get(j);

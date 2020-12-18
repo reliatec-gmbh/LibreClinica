@@ -7,39 +7,30 @@
  */
 package org.akaza.openclinica.control.managestudy;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Locale;
+import java.util.Map;
+
 import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.core.Role;
-import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.managestudy.EventDefinitionCRFBean;
-import org.akaza.openclinica.bean.managestudy.StudyEventBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
 import org.akaza.openclinica.bean.submit.CRFVersionBean;
-import org.akaza.openclinica.bean.submit.EventCRFBean;
-import org.akaza.openclinica.bean.submit.ItemDataBean;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.dao.admin.CRFDAO;
-import org.akaza.openclinica.dao.login.UserAccountDAO;
 import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDefinitionDAO;
 import org.akaza.openclinica.dao.submit.CRFVersionDAO;
-import org.akaza.openclinica.dao.submit.EventCRFDAO;
-import org.akaza.openclinica.dao.submit.ItemDataDAO;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.akaza.openclinica.web.bean.EntityBeanTable;
 import org.akaza.openclinica.web.bean.StudyEventDefinitionRow;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Locale;
-import java.util.Map;
 
 /**
  * Processes user reuqest to generate study event definition list
@@ -102,18 +93,17 @@ public class ListEventDefinitionServlet extends SecureController {
         EventDefinitionCRFDAO edcdao = new EventDefinitionCRFDAO(sm.getDataSource());
         CRFDAO crfDao = new CRFDAO(sm.getDataSource());
         CRFVersionDAO crfVersionDao = new CRFVersionDAO(sm.getDataSource());
-        ArrayList seds = edao.findAllByStudy(currentStudy);
+        ArrayList<StudyEventDefinitionBean> seds = edao.findAllByStudy(currentStudy);
 
         // request.setAttribute("seds", seds);
 
         StudyEventDAO sedao = new StudyEventDAO(sm.getDataSource());
         for (int i = 0; i < seds.size(); i++) {
             StudyEventDefinitionBean sed = (StudyEventDefinitionBean) seds.get(i);
-            Collection eventDefinitionCRFlist = edcdao.findAllParentsByDefinition(sed.getId());
-            Map crfWithDefaultVersion = new LinkedHashMap();
-            for (Iterator it = eventDefinitionCRFlist.iterator(); it.hasNext();) {
-                EventDefinitionCRFBean edcBean = (EventDefinitionCRFBean) it.next();
-                CRFBean crfBean = (CRFBean) crfDao.findByPK(edcBean.getCrfId());
+            ArrayList<EventDefinitionCRFBean> eventDefinitionCRFlist = edcdao.findAllParentsByDefinition(sed.getId());
+            Map<String, String> crfWithDefaultVersion = new LinkedHashMap<>();
+            for(EventDefinitionCRFBean edcBean : eventDefinitionCRFlist) {
+                CRFBean crfBean = crfDao.findByPK(edcBean.getCrfId());
                 CRFVersionBean crfVersionBean = (CRFVersionBean) crfVersionDao.findByPK(edcBean.getDefaultVersionId());
                 logger.info("ED[" + sed.getName() + "]crf[" + crfBean.getName() + "]dv[" + crfVersionBean.getName() + "]");
                 crfWithDefaultVersion.put(crfBean.getName(), crfVersionBean.getName());
@@ -131,13 +121,13 @@ public class ListEventDefinitionServlet extends SecureController {
 
         FormProcessor fp = new FormProcessor(request);
         EntityBeanTable table = fp.getEntityBeanTable();
-        ArrayList allStudyRows = StudyEventDefinitionRow.generateRowsFromBeans(seds);
+        ArrayList<StudyEventDefinitionRow> allStudyRows = StudyEventDefinitionRow.generateRowsFromBeans(seds);
 
         String[] columns =
             { resword.getString("order"), resword.getString("name"), resword.getString("OID"), resword.getString("repeating"), resword.getString("type"),
                 resword.getString("category"), resword.getString("populated"), resword.getString("date_created"), resword.getString("date_updated"),
                 resword.getString("CRFs"), resword.getString("default_version"), resword.getString("actions") };
-        table.setColumns(new ArrayList(Arrays.asList(columns)));
+        table.setColumns(new ArrayList<String>(Arrays.asList(columns)));
         // >> tbh #4169 09/2009
         table.hideColumnLink(2);
         table.hideColumnLink(3);
@@ -150,7 +140,7 @@ public class ListEventDefinitionServlet extends SecureController {
         table.hideColumnLink(11);
         table.hideColumnLink(12);
         // << tbh 09/2009
-        table.setQuery("ListEventDefinition", new HashMap());
+        table.setQuery("ListEventDefinition", new HashMap<>());
         // if (!currentStudy.getStatus().isLocked()) {
         // table.addLink(resworkflow.getString(
         // "create_a_new_study_event_definition"), "DefineStudyEvent");

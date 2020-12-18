@@ -17,7 +17,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
 
-import org.akaza.openclinica.bean.core.DataEntryStage;
 import org.akaza.openclinica.bean.core.DiscrepancyNoteType;
 import org.akaza.openclinica.bean.core.ResolutionStatus;
 import org.akaza.openclinica.bean.core.Role;
@@ -290,7 +289,7 @@ public class ResolveDiscrepancyServlet extends SecureController {
             return true;
         }
 
-        ArrayList children = note.getChildren();
+        ArrayList<DiscrepancyNoteBean> children = note.getChildren();
         for (int i = 0; i < children.size(); i++) {
             DiscrepancyNoteBean child = (DiscrepancyNoteBean) children.get(i);
             if (child.getResolutionStatusId() == ResolutionStatus.CLOSED.getId()) {

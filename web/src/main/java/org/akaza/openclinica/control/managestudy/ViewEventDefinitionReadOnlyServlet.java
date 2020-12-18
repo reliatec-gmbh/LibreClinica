@@ -59,16 +59,16 @@ public class ViewEventDefinitionReadOnlyServlet extends ViewEventDefinitionServl
         StudyEventDefinitionBean sed = defId > 0 ? (StudyEventDefinitionBean) sdao.findByPK(defId) : (StudyEventDefinitionBean) sdao.findByOid(eventOid);
 
         EventDefinitionCRFDAO edao = new EventDefinitionCRFDAO(sm.getDataSource());
-        ArrayList eventDefinitionCRFs = (ArrayList) edao.findAllByDefinition(this.currentStudy, sed.getId());
+        ArrayList<EventDefinitionCRFBean> eventDefinitionCRFs = edao.findAllByDefinition(this.currentStudy, sed.getId());
 
         CRFVersionDAO cvdao = new CRFVersionDAO(sm.getDataSource());
         CRFDAO cdao = new CRFDAO(sm.getDataSource());
 
         for (int i = 0; i < eventDefinitionCRFs.size(); i++) {
             EventDefinitionCRFBean edc = (EventDefinitionCRFBean) eventDefinitionCRFs.get(i);
-            ArrayList versions = (ArrayList) cvdao.findAllByCRF(edc.getCrfId());
+            ArrayList<CRFVersionBean> versions = cvdao.findAllByCRF(edc.getCrfId());
             edc.setVersions(versions);
-            CRFBean crf = (CRFBean) cdao.findByPK(edc.getCrfId());
+            CRFBean crf = cdao.findByPK(edc.getCrfId());
             // edc.setCrfLabel(crf.getLabel());
             edc.setCrfName(crf.getName());
             // to show/hide edit action on jsp page
@@ -76,7 +76,7 @@ public class ViewEventDefinitionReadOnlyServlet extends ViewEventDefinitionServl
                 edc.setOwner(crf.getOwner());
             }
 
-            CRFBean cBean = (CRFBean) cdao.findByPK(edc.getCrfId());                
+            CRFBean cBean = cdao.findByPK(edc.getCrfId());                
             String crfPath=sed.getOid()+"."+cBean.getOid();
             edc.setOffline(getEventDefinitionCrfTagService().getEventDefnCrfOfflineStatus(2,crfPath,true));
 

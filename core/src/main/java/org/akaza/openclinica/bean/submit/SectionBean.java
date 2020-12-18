@@ -310,6 +310,9 @@ public class SectionBean extends AuditableEntityBean {
      * @param items
      *            The items to set.
      */
+    /* TODO in some cases this is a list of <ItemBean> 
+     * and in other cases this is a list of <DisplayItemBean>
+     */
     public void setItems(ArrayList<?> items) {
         this.items = items;
     }

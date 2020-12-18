@@ -7,6 +7,11 @@
  */
 package org.akaza.openclinica.control.managestudy;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import javax.sql.DataSource;
+
 import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
@@ -22,11 +27,6 @@ import org.akaza.openclinica.dao.submit.CRFVersionDAO;
 import org.akaza.openclinica.dao.submit.SectionDAO;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import javax.sql.DataSource;
 
 /**
  * To view the table of content of an event CRF
@@ -73,7 +73,7 @@ public class ViewTableOfContentServlet extends SecureController {
     public static DisplayTableOfContentsBean getDisplayBean(DataSource ds, int crfVersionId) {
         DisplayTableOfContentsBean answer = new DisplayTableOfContentsBean();
 
-        ArrayList sections = getSections(crfVersionId, ds);
+        ArrayList<SectionBean> sections = getSections(crfVersionId, ds);
         answer.setSections(sections);
 
         CRFVersionDAO cvdao = new CRFVersionDAO(ds);
@@ -91,11 +91,11 @@ public class ViewTableOfContentServlet extends SecureController {
         return answer;
     }
 
-    public static ArrayList getSections(int crfVersionId, DataSource ds) {
+    public static ArrayList<SectionBean> getSections(int crfVersionId, DataSource ds) {
         SectionDAO sdao = new SectionDAO(ds);
 
-        HashMap numItemsBySectionId = sdao.getNumItemsBySectionId();
-        ArrayList sections = sdao.findAllByCRFVersionId(crfVersionId);
+        HashMap<Integer, Integer> numItemsBySectionId = sdao.getNumItemsBySectionId();
+        ArrayList<SectionBean> sections = sdao.findAllByCRFVersionId(crfVersionId);
 
         for (int i = 0; i < sections.size(); i++) {
             SectionBean sb = (SectionBean) sections.get(i);

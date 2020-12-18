@@ -23,7 +23,6 @@ import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
 import org.akaza.openclinica.bean.submit.CRFVersionBean;
 import org.akaza.openclinica.control.SpringServletAccess;
 import org.akaza.openclinica.control.core.SecureController;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.admin.CRFDAO;
 import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDAO;
@@ -78,7 +77,7 @@ public class InitUpdateEventDefinitionServlet extends SecureController {
         String idString = request.getParameter("id");
         int defId = Integer.valueOf(idString.trim()).intValue();
         logger.info("defId" + defId);
-        ArrayList events = (ArrayList) sdao.findAllByDefinition(defId);
+        ArrayList<StudyEventBean> events = sdao.findAllByDefinition(defId);
         if (events != null && events.size() > 0) {
             logger.info("has events");
             for (int i = 0; i < events.size(); i++) {
@@ -99,7 +98,7 @@ public class InitUpdateEventDefinitionServlet extends SecureController {
         StudyEventDefinitionDAO sdao = new StudyEventDefinitionDAO(sm.getDataSource());
         String idString = request.getParameter("id");
         logger.info("definition id: " + idString);
-        if (StringUtil.isBlank(idString)) {
+        if (idString == null || idString.trim().isEmpty()) {
             addPageMessage(respage.getString("please_choose_a_definition_to_edit"));
             forwardPage(Page.LIST_DEFINITION_SERVLET);
         } else {
@@ -119,14 +118,14 @@ public class InitUpdateEventDefinitionServlet extends SecureController {
             }
 
             EventDefinitionCRFDAO edao = new EventDefinitionCRFDAO(sm.getDataSource());
-            ArrayList eventDefinitionCRFs = (ArrayList) edao.findAllParentsByDefinition(defId);
+            ArrayList<EventDefinitionCRFBean> eventDefinitionCRFs = edao.findAllParentsByDefinition(defId);
 
             CRFVersionDAO cvdao = new CRFVersionDAO(sm.getDataSource());
             CRFDAO cdao = new CRFDAO(sm.getDataSource());
-            ArrayList newEventDefinitionCRFs = new ArrayList();
+            ArrayList<EventDefinitionCRFBean> newEventDefinitionCRFs = new ArrayList<>();
             for (int i = 0; i < eventDefinitionCRFs.size(); i++) {
-                EventDefinitionCRFBean edc = (EventDefinitionCRFBean) eventDefinitionCRFs.get(i);
-                ArrayList<CRFVersionBean> versions = (ArrayList<CRFVersionBean>) cvdao.findAllActiveByCRF(edc.getCrfId());
+                EventDefinitionCRFBean edc = eventDefinitionCRFs.get(i);
+                ArrayList<CRFVersionBean> versions = cvdao.findAllActiveByCRF(edc.getCrfId());
                 edc.setVersions(versions);
                 CRFBean crf = (CRFBean) cdao.findByPK(edc.getCrfId());
                 edc.setCrfName(crf.getName());
@@ -160,8 +159,8 @@ public class InitUpdateEventDefinitionServlet extends SecureController {
     }
 
     
-    private HashMap processNullValues(EventDefinitionCRFBean edc) {
-        HashMap flags = new LinkedHashMap();
+    private HashMap<String, String> processNullValues(EventDefinitionCRFBean edc) {
+        HashMap<String, String> flags = new LinkedHashMap<>();
         String s = "";// edc.getNullValues();
         for (int j = 0; j < edc.getNullValuesList().size(); j++) {
             NullValue nv1 = (NullValue) edc.getNullValuesList().get(j);

@@ -7,6 +7,8 @@
  */
 package org.akaza.openclinica.control.managestudy;
 
+import static org.akaza.openclinica.core.util.ClassCastHelper.asHashMap;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -41,7 +43,6 @@ import org.akaza.openclinica.control.form.FormDiscrepancyNotes;
 import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.control.submit.AddNewSubjectServlet;
 import org.akaza.openclinica.control.submit.TableOfContentsServlet;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.managestudy.DiscrepancyNoteDAO;
 import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
@@ -60,7 +61,6 @@ import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 /**
  * @author jxu
  *         <p/>
@@ -99,7 +99,7 @@ public class ViewSectionDataEntryRESTUrlServlet extends ViewSectionDataEntryServ
         String action = fp.getString("action");
         HttpSession session = request.getSession();
         String fromResolvingNotes = fp.getString("fromResolvingNotes", true);
-        if (StringUtil.isBlank(fromResolvingNotes)) {
+        if (fromResolvingNotes == null || fromResolvingNotes.trim().isEmpty()) {
             session.removeAttribute(ViewNotesServlet.WIN_LOCATION);
             session.removeAttribute(ViewNotesServlet.NOTES_TABLE);
         }
@@ -271,15 +271,15 @@ public class ViewSectionDataEntryRESTUrlServlet extends ViewSectionDataEntryServ
             } catch (Exception e) {
                 formattedInterviewerDate = "";
             }
-            HashMap presetVals = (HashMap) session.getAttribute("presetValues");
+            HashMap<String, String> presetVals = asHashMap(session.getAttribute("presetValues"), String.class, String.class);
             if (presetVals == null) {
-                presetVals = new HashMap();
+                presetVals = new HashMap<>();
                 session.setAttribute("presetValues", presetVals);
             }
             presetVals.put("interviewDate", formattedInterviewerDate);
             request.setAttribute("toc", displayBean);
 
-            ArrayList sections = displayBean.getSections();
+            ArrayList<SectionBean> sections = displayBean.getSections();
 
             request.setAttribute("sectionNum", sections.size() + "");
             if (!sections.isEmpty()) {
@@ -297,7 +297,7 @@ public class ViewSectionDataEntryRESTUrlServlet extends ViewSectionDataEntryServ
         } else if (crfVersionId > 0) {// for viewing blank CRF
             DisplayTableOfContentsBean displayBean = ViewTableOfContentServlet.getDisplayBean(getDataSource(), crfVersionId);
             request.setAttribute("toc", displayBean);
-            ArrayList sections = displayBean.getSections();
+            ArrayList<SectionBean> sections = displayBean.getSections();
 
             request.setAttribute("sectionNum", sections.size() + "");
             if (!sections.isEmpty()) {
@@ -462,7 +462,7 @@ public class ViewSectionDataEntryRESTUrlServlet extends ViewSectionDataEntryServ
                     String inputName = getInputName(dib);
                     AddNewSubjectServlet.saveFieldNotes(inputName, discNotes, dndao, dib.getData().getId(), DiscrepancyNoteBean.ITEM_DATA, currentStudy);
 
-                    ArrayList childItems = dib.getChildren();
+                    ArrayList<DisplayItemBean> childItems = dib.getChildren();
                     for (int j = 0; j < childItems.size(); j++) {
                         DisplayItemBean child = (DisplayItemBean) childItems.get(j);
                         inputName = getInputName(child);
