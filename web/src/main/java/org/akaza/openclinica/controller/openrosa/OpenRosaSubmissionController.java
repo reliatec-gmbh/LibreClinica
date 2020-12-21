@@ -94,8 +94,8 @@ public class OpenRosaSubmissionController {
         Study study = studyDao.findByOcOID(studyOID);
         String requestBody=null;
 
-        HashMap<String,String> map = new HashMap();
-        ArrayList <HashMap> listOfUploadFilePaths = new ArrayList();
+        HashMap<String,String> map = new HashMap<>();
+        ArrayList<HashMap<String,String>> listOfUploadFilePaths = new ArrayList<>();
 
         try {
             // Verify Study is allowed to submit

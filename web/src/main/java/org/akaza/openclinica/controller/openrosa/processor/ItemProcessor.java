@@ -104,7 +104,7 @@ public class ItemProcessor implements Processor, Ordered {
 
     public void process(SubmissionContainer container) throws Exception {
         logger.info("Executing Item Processor.");
-        ArrayList<HashMap> listOfUploadFilePaths =container.getListOfUploadFilePaths();        
+        ArrayList<HashMap<String,String>> listOfUploadFilePaths =container.getListOfUploadFilePaths();        
 
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = dbf.newDocumentBuilder();
@@ -180,9 +180,9 @@ public class ItemProcessor implements Processor, Ordered {
                                             itemValue = itemValue.replaceAll(" ", ",");
                                         }
                                         if (responseTypeId == 4) {
-                                           for (HashMap  uploadFilePath : listOfUploadFilePaths){
-                                               if ((boolean) uploadFilePath.containsKey(itemValue)  && itemValue!=""){
-                                                   itemValue = (String) uploadFilePath.get(itemValue);
+                                           for (HashMap<String, String>  uploadFilePath : listOfUploadFilePaths){
+                                               if (uploadFilePath.containsKey(itemValue)  && itemValue!=""){
+                                                   itemValue = uploadFilePath.get(itemValue);
                                                    break;
                                                }
                                                
