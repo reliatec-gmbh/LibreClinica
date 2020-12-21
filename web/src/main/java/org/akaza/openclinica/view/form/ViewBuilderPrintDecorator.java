@@ -7,6 +7,11 @@
  */
 package org.akaza.openclinica.view.form;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.SortedMap;
+
 import org.akaza.openclinica.bean.submit.DisplayItemBean;
 import org.akaza.openclinica.bean.submit.DisplayItemGroupBean;
 import org.akaza.openclinica.bean.submit.DisplaySectionBean;
@@ -14,11 +19,6 @@ import org.akaza.openclinica.bean.submit.ItemDataBean;
 import org.akaza.openclinica.bean.submit.SectionBean;
 import org.akaza.openclinica.control.managestudy.BeanFactory;
 import org.jdom.Element;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.SortedMap;
 
 /**
  * This is a Decorator design pattern for the ViewBuilderUtil Class. It adds
@@ -133,7 +133,7 @@ public class ViewBuilderPrintDecorator {
         }
     }
 
-    public List generatePersistentMatrixRows(SortedMap<Integer, List<ItemDataBean>> sortedDataMap, List<DisplayItemBean> rowContentBeans,
+    public List<List<Element>> generatePersistentMatrixRows(SortedMap<Integer, List<ItemDataBean>> sortedDataMap, List<DisplayItemBean> rowContentBeans,
             int tabIndex, String repeatParentId, boolean hasDiscrepancyMgt, boolean forPrinting, int maxColRows) {
 
         synchronized (this.viewBuilderUtil) {
@@ -248,12 +248,12 @@ public class ViewBuilderPrintDecorator {
     public List<DisplayItemGroupBean> splitUpGroupBeanIntoSingleColumns(DisplayItemGroupBean existingBean) {
 
         List<DisplayItemGroupBean> newDisplayBeans = new ArrayList<DisplayItemGroupBean>();
-        int ordinal = existingBean.getOrdinal();
-        DisplayItemGroupBean cloneDisplayBean = cloneDisplayItemGroupBean(existingBean, existingBean.getItems().get(0), ordinal);
-
         if (existingBean == null) {
             return newDisplayBeans;
         }
+        
+        int ordinal = existingBean.getOrdinal();
+        DisplayItemGroupBean cloneDisplayBean = cloneDisplayItemGroupBean(existingBean, existingBean.getItems().get(0), ordinal);
         // Create a DisplayItemGroupBean for every display item bean
         for (int i=1; i< existingBean.getItems().size(); i++) {
             DisplayItemBean displayItemBean = existingBean.getItems().get(i);

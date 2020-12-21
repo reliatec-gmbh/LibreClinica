@@ -7,13 +7,7 @@
  */
 package org.akaza.openclinica.view.form;
 
-import org.akaza.openclinica.bean.submit.ResponseOptionBean;
-import org.akaza.openclinica.bean.submit.ResponseSetBean;
-import org.akaza.openclinica.i18n.util.HtmlUtils;
-import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
-import org.jdom.Element;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.akaza.openclinica.core.util.ClassCastHelper.asList;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -24,6 +18,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import org.akaza.openclinica.bean.submit.ResponseOptionBean;
+import org.akaza.openclinica.bean.submit.ResponseSetBean;
+import org.akaza.openclinica.i18n.util.HtmlUtils;
+import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
+import org.jdom.Element;
 /**
  * This class creates various types of input fields such as text inputs and
  * select lists. It is used by a class such as HorizontalFormBuilder to
@@ -126,7 +125,7 @@ public class DataEntryInputGenerator implements InputGenerator {
      * refactored to separate the domain or business rules from the rest of the
      * parameters (e.g., isHorizontal)
      */
-    public Element createCheckboxTag(Element tdCell, Integer itemId, List options, Integer tabNumber, boolean includeLabel, String dbValue,
+    public Element createCheckboxTag(Element tdCell, Integer itemId, List<ResponseOptionBean> options, Integer tabNumber, boolean includeLabel, String dbValue,
             String defaultValue, boolean isHorizontal, boolean hasSavedData) {
         Element element;
         String[] arrayOfValues = new String[] {};
@@ -139,12 +138,12 @@ public class DataEntryInputGenerator implements InputGenerator {
         } else if (!hasSavedData && defaultValue != null && defaultValue.length() > 0) {
             arrayOfValues = handleSplitString(defaultValue);
         }
-        for (Object responseOptBean : options) {
+        for (ResponseOptionBean responseOptBean : options) {
             ++count;
             isFirstInGroup = count == 1;
             element = this.initializeInputElement("checkbox", itemId, tabNumber);
-            String value = ((ResponseOptionBean) responseOptBean).getValue();
-            String forDefVal = ((ResponseOptionBean) responseOptBean).getText();
+            String value = responseOptBean.getValue();
+            String forDefVal = responseOptBean.getText();
             element.setAttribute("value", value);
             // It's checked if its value equals the DB value
             if (dbValue != null && dbValue.length() > 0) {
@@ -171,7 +170,7 @@ public class DataEntryInputGenerator implements InputGenerator {
             }
             tdCell.addContent(element);
             if (includeLabel) {
-                tdCell.addContent(((ResponseOptionBean) responseOptBean).getText());
+                tdCell.addContent(responseOptBean.getText());
             }
             // if the response_layout property is not "horizontal", then add a
             // <br> tag
@@ -191,7 +190,7 @@ public class DataEntryInputGenerator implements InputGenerator {
      * and the object receives new attributes and content. Then the method
      * returns the altered Element object.
      */
-    public Element createRadioButtonTag(Element tdCell, Integer itemId, List options, Integer tabNumber, boolean includeLabel, String dbValue,
+    public Element createRadioButtonTag(Element tdCell, Integer itemId, List<ResponseOptionBean> options, Integer tabNumber, boolean includeLabel, String dbValue,
             String defaultValue, boolean isHorizontal, boolean hasSavedData) {
         Element element;
         // For keeping track of whether a radio is the first of a group
@@ -205,12 +204,12 @@ public class DataEntryInputGenerator implements InputGenerator {
         }
         int count = 0;
         // Do not use the default value if there is a valid database value
-        for (Object responseOptBean : options) {
+        for (ResponseOptionBean responseOptBean : options) {
             ++count;
             isFirstInGroup = count == 1;
             element = this.initializeInputElement("radio", itemId, tabNumber);
-            String value = ((ResponseOptionBean) responseOptBean).getValue();
-            String forDefVal = ((ResponseOptionBean) responseOptBean).getText();
+            String value = responseOptBean.getValue();
+            String forDefVal = responseOptBean.getText();
             element.setAttribute("value", value);
             // It's checked if its value equals the DB value
             if (dbValue != null && dbValue.length() > 0 && value.equalsIgnoreCase(dbValue)) {
@@ -254,7 +253,7 @@ public class DataEntryInputGenerator implements InputGenerator {
      * ResponseOptionBeans, which represent each option child element of the
      * select tag.
      */
-    public Element createSingleSelectTag(Element tdCell, Integer itemId, List options, Integer tabNumber) {
+    public Element createSingleSelectTag(Element tdCell, Integer itemId, List<ResponseOptionBean> options, Integer tabNumber) {
         Element element = new Element("select");
         element.setAttribute("tabindex", tabNumber.toString());
         // A repeating attribute may already have had its "name" attribute set
@@ -266,10 +265,10 @@ public class DataEntryInputGenerator implements InputGenerator {
         Element optElement;
         String optValue;
         String optText;
-        for (Object responseOptBean : options) {
+        for (ResponseOptionBean responseOptBean : options) {
             optElement = new Element("option");
-            optValue = ((ResponseOptionBean) responseOptBean).getValue();
-            optText = ((ResponseOptionBean) responseOptBean).getText();
+            optValue = responseOptBean.getValue();
+            optText = responseOptBean.getText();
             optElement.setAttribute("value", optValue);
             if (((ResponseOptionBean) responseOptBean).isSelected()) {
                 optElement.setAttribute("selected", "selected");
@@ -296,13 +295,13 @@ public class DataEntryInputGenerator implements InputGenerator {
      * If there is no default_value, no modification to options required.<br/>
      * BWP added parameter databaseValue 09/13/2007
      */
-    public Element createSingleSelectTag(Element tdCell, Integer itemId, List options, Integer tabNumber, String defaultValue, String databaseValue,
+    public Element createSingleSelectTag(Element tdCell, Integer itemId, List<ResponseOptionBean> options, Integer tabNumber, String defaultValue, String databaseValue,
             boolean hasSavedData) {
         if (databaseValue != null && databaseValue.length() > 0) {
             tdCell = createSingleSelectTag(tdCell, itemId, options, tabNumber);
             Element select = tdCell.getChild("select");
             if (select != null) {
-                List<Element> optElements = select.getChildren("option");
+                List<Element> optElements = asList(select.getChildren("option"), Element.class);
                 String optVal = "";
                 for (Element opts : optElements) {
                     optVal = opts.getAttribute("value").getValue();
@@ -321,7 +320,7 @@ public class DataEntryInputGenerator implements InputGenerator {
         boolean printDefault = false;
         // check if an option has been selected
         for (int i = 0; i < options.size(); ++i) {
-            ResponseOptionBean option = (ResponseOptionBean) options.get(i);
+            ResponseOptionBean option = options.get(i);
             if (option.isSelected()) {
                 selectedOption = i;
                 break;
@@ -331,7 +330,7 @@ public class DataEntryInputGenerator implements InputGenerator {
         if (defaultValue.length() > 0 && !hasSavedData) {
             printDefault = true;
             for (int i = 0; i < options.size(); ++i) {
-                ResponseOptionBean option = (ResponseOptionBean) options.get(i);
+                ResponseOptionBean option = options.get(i);
                 if (defaultValue.equalsIgnoreCase(option.getText()) || defaultValue.equalsIgnoreCase(option.getValue())) {
                     if (selectedOption == -1) {
                         selectedOption = i;
@@ -353,7 +352,7 @@ public class DataEntryInputGenerator implements InputGenerator {
                 op.addAll(options);
             }
         } else {
-            ((ResponseOptionBean) options.get(selectedOption)).setSelected(true);
+            (options.get(selectedOption)).setSelected(true);
         }
 
         if (op.size() > 0) {
@@ -365,7 +364,7 @@ public class DataEntryInputGenerator implements InputGenerator {
         return tdCell;
     }
 
-    public Element createMultiSelectTag(Element tdCell, Integer itemId, List options, Integer tabNumber, String dbValue, String defaultValue,
+    public Element createMultiSelectTag(Element tdCell, Integer itemId, List<ResponseOptionBean> options, Integer tabNumber, String dbValue, String defaultValue,
             boolean hasSavedData) {
         // Database values are Strings separated by spaces or commas as
         // in "meeny moe NASK" or "meeny,moe,NASK"
@@ -667,12 +666,13 @@ public class DataEntryInputGenerator implements InputGenerator {
 
     // This method returns a span element containing any error messages
     // associated with a particular input tag.
-    public Element createInputErrorMessage(Map<Object, ArrayList> messages, Integer itemId) {
+    public Element createInputErrorMessage(Map<Object, ArrayList<String>> messages, Integer itemId) {
         String key = "input" + itemId;
-        ArrayList _messages = messages.get(key);
+        ArrayList<String> _messages = messages.get(key);
         String errMsg = "";
-        for (Object msg : _messages) {
-            errMsg = (String) msg;
+        // TODO find a more elegant solution
+        for (String msg : _messages) {
+            errMsg = msg;
         }
         Element msgSpan = new Element("span");
         msgSpan.setAttribute("id", "spanAlert-" + key);

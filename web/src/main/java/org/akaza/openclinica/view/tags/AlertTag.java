@@ -7,9 +7,10 @@
  */
 package org.akaza.openclinica.view.tags;
 
+import static org.akaza.openclinica.core.util.ClassCastHelper.asArrayList;
+
 import java.io.IOException;
 import java.util.List;
-import java.util.ArrayList;
 
 import javax.servlet.jsp.JspContext;
 import javax.servlet.jsp.JspException;
@@ -30,7 +31,7 @@ public class AlertTag extends SimpleTagSupport {
         JspWriter tagWriter = context.getOut();
         StringBuilder builder = new StringBuilder("");
 
-        List<String> messages = (ArrayList) context.findAttribute("pageMessages");
+        List<String> messages = asArrayList(context.findAttribute("pageMessages"), String.class);
         if(messages != null){
             for(String message : messages){
                 builder.append(message);

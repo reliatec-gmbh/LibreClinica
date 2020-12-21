@@ -7,6 +7,19 @@
  */
 package org.akaza.openclinica.view.form;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
+import javax.servlet.ServletContext;
+import javax.sql.DataSource;
+
 import org.akaza.openclinica.bean.core.NullValue;
 import org.akaza.openclinica.bean.managestudy.EventDefinitionCRFBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
@@ -36,19 +49,6 @@ import org.akaza.openclinica.service.crfdata.DynamicsMetadataService;
 import org.jdom.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
-
-import javax.servlet.ServletContext;
-import javax.sql.DataSource;
 
 /**
  * This class builds DisplayFormGroupBeans and DisplayItemBeans in preparation
@@ -185,9 +185,7 @@ public class FormBeanUtil {
 		// copy the values from AuditableEntityBean
 		copy.setCreatedDate(original.getCreatedDate());
 		copy.setUpdatedDate(original.getUpdatedDate());
-		copy.setOwnerId(original.getOwnerId());
 		copy.setOwner(original.getOwner());
-		copy.setUpdaterId(original.getUpdaterId());
 		copy.setUpdater(original.getUpdater());
 		copy.setStatus(original.getStatus());
 

@@ -51,11 +51,11 @@ public final class SpreadsheetPreviewNw implements Preview {
      * are items, sections, groups, and crf_info. Here is an example return value: groups: {1={group_repeat_number=1.0, group_header=, group_layout=Horizontal,
      * group_repeat_array=, group_row_start_number=2.0, group_sub_header=, group_label=MyGroupLabel, group_repeat_max=3.0}}
      */
-    @SuppressWarnings("rawtypes")
+	@SuppressWarnings("rawtypes")
 	public Map<String, Map> createCrfMetaObject(HSSFWorkbook workbook) {
         if (workbook == null)
-            return new HashMap<String, Map>();
-        Map<String, Map> spreadSheetMap = new HashMap<String, Map>();
+            return new HashMap<>();
+        Map<String, Map> spreadSheetMap = new HashMap<>();
         Map<Integer, Map<String, String>> sections = createItemsOrSectionMap(workbook, SECTIONS);
         Map<Integer, Map<String, String>> items = createItemsOrSectionMap(workbook, ITEMS);
         Map<String, String> crfInfo = createCrfMap(workbook);

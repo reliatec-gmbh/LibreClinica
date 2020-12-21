@@ -10,6 +10,7 @@ package org.akaza.openclinica.view.display;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.ServletContext;
 import javax.sql.DataSource;
 
 import org.akaza.openclinica.bean.managestudy.EventDefinitionCRFBean;
@@ -21,13 +22,9 @@ import org.akaza.openclinica.bean.submit.SectionBean;
 import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDAO;
-import org.akaza.openclinica.dao.submit.CRFVersionDAO;
 import org.akaza.openclinica.dao.submit.EventCRFDAO;
 import org.akaza.openclinica.dao.submit.SectionDAO;
 import org.akaza.openclinica.view.form.FormBeanUtil;
-import org.akaza.openclinica.view.form.ViewPersistanceHandler;
-
-import javax.servlet.ServletContext;
 
 /**
  * This class handles the responsibility for generating a List of
@@ -95,7 +92,7 @@ public class DisplaySectionBeanHandler {
             }
 
             sectionDao = new SectionDAO(dataSource);
-            allCrfSections = (ArrayList) sectionDao.findByVersionId(this.crfVersionId);
+            allCrfSections = sectionDao.findByVersionId(this.crfVersionId);
 
             // for the purposes of null values, try to obtain a valid
             // eventCrfDefinition id
