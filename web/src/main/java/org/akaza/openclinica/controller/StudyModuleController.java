@@ -7,10 +7,12 @@
  */
 package org.akaza.openclinica.controller;
 
+import static org.akaza.openclinica.core.util.ClassCastHelper.asArrayList;
+import static org.akaza.openclinica.core.util.ClassCastHelper.asList;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -57,7 +59,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
-
 /**
  * @author: sshamim Date: Jan 22, 2009 Time: 6:52:16 PM Manages the Study creation process
  */
@@ -280,10 +281,9 @@ public class StudyModuleController {
 
         int siteCount = studyDao.findOlnySiteIdsByStudy(currentStudy).size();
         int userCount = userDao.findAllUsersByStudy(currentStudy.getId()).size();
-        Collection childStudies = studyDao.findAllByParent(currentStudy.getId());
-        Map childStudyUserCount = new HashMap();
-        for (Object sb : childStudies) {
-            StudyBean childStudy = (StudyBean) sb;
+        ArrayList<StudyBean> childStudies = studyDao.findAllByParent(currentStudy.getId());
+        Map<String, Integer> childStudyUserCount = new HashMap<>();
+        for (StudyBean childStudy : childStudies) {
             childStudyUserCount.put(childStudy.getName(), userDao.findAllUsersByStudy(childStudy.getId()).size());
         }
 
@@ -388,18 +388,18 @@ public class StudyModuleController {
 
         // @pgawade 13-April-2011- #8877: Added the rule designer URL
         if (null != coreResources) {
-            map.addAttribute("ruleDesignerURL", coreResources.getField("designer.url"));
+            map.addAttribute("ruleDesignerURL", CoreResources.getField("designer.url"));
             map.addAttribute("contextPath", getContextPath(request));
             logMe("before checking getHostPath url = " + request.getRequestURL());
             // JN: for the eclinicalhosting the https is not showing up in the request path, going for a fix of taking
             // the hostpath from sysurl
             // map.addAttribute("hostPath", getHostPath(request));
-            map.addAttribute("hostPath", getHostPathFromSysUrl(coreResources.getField("sysURL.base"), request.getContextPath()));
+            map.addAttribute("hostPath", getHostPathFromSysUrl(CoreResources.getField("sysURL.base"), request.getContextPath()));
             map.addAttribute("path", "pages/studymodule");
         }
         // UserAccountBean userBean = (UserAccountBean) request.getSession().getAttribute("userBean");
         request.setAttribute("userBean", userBean);
-        ArrayList statusMap = Status.toStudyUpdateMembersList();
+        ArrayList<Status> statusMap = Status.toStudyUpdateMembersList();
         // statusMap.add(Status.PENDING);
         request.setAttribute("statusMap", statusMap);
 
@@ -408,16 +408,16 @@ public class StudyModuleController {
             request.setAttribute("parentStudy", parentStudy);
         }
 
-        ArrayList pageMessages = new ArrayList();
+        ArrayList<String> pageMessages = new ArrayList<>();
         if (request.getSession().getAttribute("pageMessages") != null) {
-            pageMessages.addAll((ArrayList) request.getSession().getAttribute("pageMessages"));
+            pageMessages.addAll(asList(request.getSession().getAttribute("pageMessages"), String.class));
             request.setAttribute("pageMessages", pageMessages);
             request.getSession().removeAttribute("pageMessages");
         }
 
-        ArrayList regMessages = new ArrayList();
+        ArrayList<String> regMessages = new ArrayList<>();
         if (request.getSession().getAttribute(REG_MESSAGE) != null) {
-            regMessages.addAll((ArrayList) request.getSession().getAttribute(REG_MESSAGE));
+            regMessages.addAll(asList(request.getSession().getAttribute(REG_MESSAGE), String.class));
             request.setAttribute(REG_MESSAGE, regMessages);
             request.getSession().removeAttribute(REG_MESSAGE);
         }
@@ -441,7 +441,7 @@ public class StudyModuleController {
                 studyDao.updateStudyStatus(currentStudy);
             }
 
-            ArrayList siteList = (ArrayList) studyDao.findAllByParent(currentStudy.getId());
+            ArrayList<StudyBean> siteList = studyDao.findAllByParent(currentStudy.getId());
             if (siteList.size() > 0) {
                 studyDao.updateSitesStatus(currentStudy);
             }
@@ -464,9 +464,9 @@ public class StudyModuleController {
     }
 
     private void addRegMessage(HttpServletRequest request, String message) {
-        ArrayList regMessages = (ArrayList) request.getSession().getAttribute(REG_MESSAGE);
+        ArrayList<String> regMessages = asArrayList(request.getSession().getAttribute(REG_MESSAGE), String.class);
         if (regMessages == null) {
-            regMessages = new ArrayList();
+            regMessages = new ArrayList<>();
         }
 
         regMessages.add(message);

@@ -59,7 +59,7 @@ public class DiscrepancyNoteController {
 	DiscrepancyNoteDAO dnDao;
 
 	@RequestMapping(value = "/dnote", method = RequestMethod.POST)
-	public ResponseEntity buidDiscrepancyNote(@RequestBody HashMap<String, String> map, HttpServletRequest request) throws Exception {
+	public ResponseEntity<?> buidDiscrepancyNote(@RequestBody HashMap<String, String> map, HttpServletRequest request) throws Exception {
 		ResourceBundleProvider.updateLocale(new Locale("en_US"));
 		logger.debug("I'm in EnketoForm DN Rest Method");
 		org.springframework.http.HttpStatus httpStatus = null;
@@ -94,7 +94,7 @@ public class DiscrepancyNoteController {
 		
 		if (!mayProceed(resolutionStatus, noteType, seBean, entityName, parent, ownerBean)) {
 			httpStatus = org.springframework.http.HttpStatus.BAD_REQUEST;
-			return new ResponseEntity(httpStatus);
+			return new ResponseEntity<>(httpStatus);
 		}
 
 		if (!parent.isActive()){
@@ -104,7 +104,7 @@ public class DiscrepancyNoteController {
 			createDiscrepancyNoteBean(description, detailedNotes, seBean.getId(), entityType, studyBean, ownerBean, assignedUserBean, parent.getId(), resolutionStatus, noteType, entityName);
 			httpStatus = org.springframework.http.HttpStatus.OK;
 		}
-		return new ResponseEntity(httpStatus);
+		return new ResponseEntity<>(httpStatus);
 	}
 
 	private StudyBean getStudy(Integer id) {

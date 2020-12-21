@@ -7,6 +7,15 @@
  */
 package org.akaza.openclinica.controller;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+
+import javax.servlet.ServletContext;
+
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.dao.hibernate.EventCrfFlagDao;
 import org.akaza.openclinica.dao.hibernate.EventCrfFlagWorkflowDao;
@@ -30,15 +39,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.ServletContext;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 @Controller
 @RequestMapping(value = "auth/api/itemdata")
@@ -120,11 +126,11 @@ public class IdtViewController {
     }
 
     @RequestMapping(value = "/", method = RequestMethod.POST)
-    public ResponseEntity postSDVedItemDataAndEventCrfWorkflow(@RequestBody ArrayList<HashMap<String, String>> maps) throws Exception {
+    public ResponseEntity<?> postSDVedItemDataAndEventCrfWorkflow(@RequestBody ArrayList<HashMap<String, String>> maps) throws Exception {
         int tagId = 1;
         UserAccount userAccount = null;
-        HashSet<String> listOfEventCrfPaths = new HashSet();
-        for (HashMap map : maps) {
+        HashSet<String> listOfEventCrfPaths = new HashSet<>();
+        for (HashMap<String, String> map : maps) {
             String eventCrfPath = map.get("ssOid") + "." + map.get("sedOid") + "." + map.get("eventOrdinal") + "." + map.get("crfOid");
 
             String itemDataPath = eventCrfPath + "." + map.get("groupOid") + "." + map.get("groupOrdinal") + "." + map.get("itemOid");

@@ -162,12 +162,12 @@ public class ExtractController {
                 endFilePath + File.separator,
                 exportFileName,
                 dsBean.getId(),
-                epBean, userBean, LocaleResolver.getLocale(request).getLanguage(),cnt,  SQLInitServlet.getField("filePath") + "xslt",this.TRIGGER_GROUP_NAME);
+                epBean, userBean, LocaleResolver.getLocale(request).getLanguage(),cnt,  SQLInitServlet.getField("filePath") + "xslt",TRIGGER_GROUP_NAME);
         // System.out.println("just set locale: " + LocaleResolver.getLocale(request).getLanguage());
 
         cnt++;
         jobDetailBean = new JobDetailFactoryBean();
-        jobDetailBean.setGroup(this.TRIGGER_GROUP_NAME);
+        jobDetailBean.setGroup(TRIGGER_GROUP_NAME);
         jobDetailBean.setName(simpleTrigger.getKey().getName()+System.currentTimeMillis());
         jobDetailBean.setJobClass(org.akaza.openclinica.job.XsltStatefulJob.class);
         jobDetailBean.setJobDataMap(simpleTrigger.getJobDataMap());
@@ -187,7 +187,7 @@ public class ExtractController {
         if(jobDetailBean!=null)
         request.getSession().setAttribute("jobName", jobDetailBean.getObject().getKey().getName());
         if(simpleTrigger!= null)
-        request.getSession().setAttribute("groupName", this.TRIGGER_GROUP_NAME);
+        request.getSession().setAttribute("groupName", TRIGGER_GROUP_NAME);
 
         request.getSession().setAttribute("datasetId", new Integer(dsBean.getId()));
         return map;

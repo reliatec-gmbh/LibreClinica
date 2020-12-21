@@ -7,27 +7,33 @@
  */
 package org.akaza.openclinica.controller;
 
-import static org.jmesa.facade.TableFacadeFactory.createTableFacade;
+import static org.akaza.openclinica.core.util.ClassCastHelper.asArrayList;
+import static org.akaza.openclinica.core.util.ClassCastHelper.asEnumeration;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import javax.sql.DataSource;
 
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.login.StudyUserRoleBean;
 import org.akaza.openclinica.bean.login.UserAccountBean;
-import org.akaza.openclinica.bean.managestudy.StudyBean;
-import org.akaza.openclinica.bean.managestudy.StudySubjectBean;
-import org.akaza.openclinica.bean.submit.EventCRFBean;
 import org.akaza.openclinica.controller.helper.SdvFilterDataBean;
-import org.akaza.openclinica.controller.helper.table.SubjectSDVContainer;
-import org.akaza.openclinica.dao.managestudy.StudyDAO;
-import org.akaza.openclinica.dao.managestudy.StudySubjectDAO;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
 import org.akaza.openclinica.view.StudyInfoPanel;
 import org.akaza.openclinica.web.table.sdv.SDVUtil;
 import org.akaza.openclinica.web.table.sdv.SubjectIdSDVFactory;
 import org.jmesa.facade.TableFacade;
-import org.jmesa.view.html.component.HtmlColumn;
-import org.jmesa.view.html.component.HtmlRow;
-import org.jmesa.view.html.component.HtmlTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,27 +41,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.ServletRequestDataBinder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import javax.sql.DataSource;
-
 
 /**
  * Implement the functionality for displaying a table of Event CRFs for Source Data
@@ -122,7 +110,7 @@ public class SDVController {
         * @RequestParam("studySubjectId") int studySubjectId,*/
         request.setAttribute("imagePathPrefix", "../");
 
-        ArrayList<String> pageMessages = (ArrayList<String>) request.getAttribute("pageMessages");
+        ArrayList<String> pageMessages = asArrayList(request.getAttribute("pageMessages"), String.class);
         if (pageMessages == null) {
             pageMessages = new ArrayList<String>();
         }
@@ -147,7 +135,7 @@ public class SDVController {
         //  request.setAttribute("isViewSubjectRequest","y");
         request.setAttribute("imagePathPrefix", "../");
 
-        ArrayList<String> pageMessages = (ArrayList<String>) request.getAttribute("pageMessages");
+        ArrayList<String> pageMessages = asArrayList(request.getAttribute("pageMessages"), String.class);
         if (pageMessages == null) {
             pageMessages = new ArrayList<String>();
         }
@@ -209,7 +197,7 @@ public class SDVController {
         //set up the elements for the view's filter box
         // sdvUtil.prepareSDVSelectElements(request,studyBean);
 
-        ArrayList<String> pageMessages = (ArrayList<String>) request.getAttribute("pageMessages");
+        ArrayList<String> pageMessages = asArrayList(request.getAttribute("pageMessages"), String.class);
         if (pageMessages == null) {
             pageMessages = new ArrayList<String>();
         }
@@ -242,7 +230,7 @@ public class SDVController {
         
         request.setAttribute("studyId", studyId);
 
-        ArrayList<String> pageMessages = (ArrayList<String>) request.getAttribute("pageMessages");
+        ArrayList<String> pageMessages = asArrayList(request.getAttribute("pageMessages"), String.class);
         if (pageMessages == null) {
             pageMessages = new ArrayList<String>();
         }
@@ -274,11 +262,11 @@ public class SDVController {
         //The application is POSTing parameters with the name "sdvCheck_" plus the
         //Event CRF id, so the parameter is sdvCheck_534.
 
-        Enumeration paramNames = request.getParameterNames();
+        Enumeration<String> paramNames = asEnumeration(request.getParameterNames(), String.class);
         Map<String, String> parameterMap = new HashMap<String, String>();
         String tmpName = "";
         for (; paramNames.hasMoreElements();) {
-            tmpName = (String) paramNames.nextElement();
+            tmpName = paramNames.nextElement();
             if (tmpName.contains(SDVUtil.CHECKBOX_NAME)) {
                 parameterMap.put(tmpName, request.getParameter(tmpName));
             }
@@ -443,11 +431,11 @@ public class SDVController {
         //The application is POSTing parameters with the name "sdvCheck_" plus the
         //Event CRF id, so the parameter is sdvCheck_534.
 
-        Enumeration paramNames = request.getParameterNames();
+        Enumeration<String> paramNames = asEnumeration(request.getParameterNames(), String.class);
         Map<String, String> parameterMap = new HashMap<String, String>();
         String tmpName = "";
         for (; paramNames.hasMoreElements();) {
-            tmpName = (String) paramNames.nextElement();
+            tmpName = paramNames.nextElement();
             if (tmpName.contains(SDVUtil.CHECKBOX_NAME)) {
                 parameterMap.put(tmpName, request.getParameter(tmpName));
             }

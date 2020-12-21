@@ -57,7 +57,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
-
+import static org.akaza.openclinica.core.util.ClassCastHelper.*;
 @Controller
 @RequestMapping(value = "/auth/api/v1/system")
 @ResponseStatus(value = org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR)
@@ -73,7 +73,7 @@ public class SystemController {
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
 
     @RequestMapping(value = "/systemstatus", method = RequestMethod.POST)
-    public ResponseEntity<HashMap> getSystemStatus() throws Exception {
+    public ResponseEntity<HashMap<String, String>> getSystemStatus() throws Exception {
         ResourceBundleProvider.updateLocale(new Locale("en_US"));
         HashMap<String, String> map = new HashMap<>();
 
@@ -109,8 +109,7 @@ public class SystemController {
         } catch (Exception e) {
             logger.error("Error while uBean accessing details", e);
         }
-        return new ResponseEntity<HashMap>(map, org.springframework.http.HttpStatus.OK);
-
+        return new ResponseEntity<HashMap<String, String>>(map, org.springframework.http.HttpStatus.OK);
     }
 
     /**
@@ -145,7 +144,7 @@ public class SystemController {
      */
 
     @RequestMapping(value = "/config", method = RequestMethod.GET)
-    public ResponseEntity<HashMap> getConfig() throws Exception {
+    public ResponseEntity<HashMap<String, Object>> getConfig() throws Exception {
         ResourceBundleProvider.updateLocale(new Locale("en_US"));
         HashMap<String, Object> map = new HashMap<>();
         HashMap<String, Object> ocVersion = new HashMap<>();
@@ -255,7 +254,7 @@ public class SystemController {
 
         map.put("datainfo.properties", datainfo);
 
-        return new ResponseEntity<HashMap>(map, org.springframework.http.HttpStatus.OK);
+        return new ResponseEntity<HashMap<String, Object>>(map, org.springframework.http.HttpStatus.OK);
 
     }
 
@@ -306,7 +305,7 @@ public class SystemController {
      *                    }
      */
     @RequestMapping(value = "/extract", method = RequestMethod.GET)
-    public ResponseEntity<HashMap> getExtractModule() throws Exception {
+    public ResponseEntity<HashMap<String, Object>> getExtractModule() throws Exception {
         ResourceBundleProvider.updateLocale(new Locale("en_US"));
         HashMap<String, Object> map = new HashMap<>();
 
@@ -347,7 +346,7 @@ public class SystemController {
         extractMap.put("extract.number", extractNumber);
         // extractMap.put("DataMart", extractDatamart);
 
-        HashMap<String, String> datamartMap = new HashMap();
+        HashMap<String, String> datamartMap = new HashMap<>();
 
         try (Connection conn = DriverManager.getConnection(url, username, password)) {
             datamartRole = getDbRoleProperties(conn, datamartRole, username);
@@ -359,7 +358,7 @@ public class SystemController {
         map.put("extract.properties", extractMap);
         // map.put("Role Properties", datamartRole);
 
-        return new ResponseEntity<HashMap>(map, org.springframework.http.HttpStatus.OK);
+        return new ResponseEntity<HashMap<String, Object>>(map, org.springframework.http.HttpStatus.OK);
 
     }
 
@@ -444,7 +443,7 @@ public class SystemController {
     @RequestMapping(value = "/modules", method = RequestMethod.GET)
     public ResponseEntity<ArrayList<HashMap<String, Object>>> getAllModules(HttpServletRequest request) throws Exception {
         ResourceBundleProvider.updateLocale(new Locale("en_US"));
-        ArrayList<HashMap<String, Object>> studyListMap = new ArrayList();
+        ArrayList<HashMap<String, Object>> studyListMap = new ArrayList<>();
 
         HttpSession session = request.getSession();
         session.removeAttribute("ruledesigner");
@@ -456,7 +455,7 @@ public class SystemController {
         ArrayList<StudyBean> studyList = getStudyList();
 
         for (StudyBean studyBean : studyList) {
-            ArrayList<HashMap<String, Object>> listOfModules = new ArrayList();
+            ArrayList<HashMap<String, Object>> listOfModules = new ArrayList<>();
             HashMap<String, Object> mapParticipantModule = getParticipateModule(studyBean);
             listOfModules.add(mapParticipantModule);
 
@@ -508,7 +507,7 @@ public class SystemController {
     @RequestMapping(value = "/modules/participate", method = RequestMethod.GET)
     public ResponseEntity<ArrayList<HashMap<String, Object>>> getParticipateModule() throws Exception {
         ResourceBundleProvider.updateLocale(new Locale("en_US"));
-        ArrayList<HashMap<String, Object>> studyListMap = new ArrayList();
+        ArrayList<HashMap<String, Object>> studyListMap = new ArrayList<>();
 
         ArrayList<StudyBean> studyList = getStudyList();
 
@@ -551,7 +550,7 @@ public class SystemController {
     public ResponseEntity<ArrayList<HashMap<String, Object>>> getWebServicesModule(HttpServletRequest request) throws Exception {
         ResourceBundleProvider.updateLocale(new Locale("en_US"));
 
-        ArrayList<HashMap<String, Object>> studyListMap = new ArrayList();
+        ArrayList<HashMap<String, Object>> studyListMap = new ArrayList<>();
         HttpSession session = request.getSession();
         session.removeAttribute("webservice");
 
@@ -595,7 +594,7 @@ public class SystemController {
     public ResponseEntity<ArrayList<HashMap<String, Object>>> getRuleDesignerModule(HttpServletRequest request) throws Exception {
         ResourceBundleProvider.updateLocale(new Locale("en_US"));
 
-        ArrayList<HashMap<String, Object>> studyListMap = new ArrayList();
+        ArrayList<HashMap<String, Object>> studyListMap = new ArrayList<>();
         HttpSession session = request.getSession();
         session.removeAttribute("ruledesigner");
 
@@ -652,7 +651,7 @@ public class SystemController {
         HttpSession session = request.getSession();
         session.removeAttribute("datamart");
 
-        ArrayList<HashMap<String, Object>> studyListMap = new ArrayList();
+        ArrayList<HashMap<String, Object>> studyListMap = new ArrayList<>();
 
         ArrayList<StudyBean> studyList = getStudyList();
         for (StudyBean studyBean : studyList) {
@@ -694,7 +693,7 @@ public class SystemController {
     public ResponseEntity<ArrayList<HashMap<String, Object>>> getLdapModule(HttpServletRequest request) throws Exception {
         ResourceBundleProvider.updateLocale(new Locale("en_US"));
 
-        ArrayList<HashMap<String, Object>> studyListMap = new ArrayList();
+        ArrayList<HashMap<String, Object>> studyListMap = new ArrayList<>();
         HttpSession session = request.getSession();
         session.removeAttribute("ldap");
 
@@ -743,7 +742,7 @@ public class SystemController {
         HttpSession session = request.getSession();
         session.removeAttribute("messaging");
 
-        ArrayList<HashMap<String, Object>> studyListMap = new ArrayList();
+        ArrayList<HashMap<String, Object>> studyListMap = new ArrayList<>();
 
         ArrayList<StudyBean> studyList = getStudyList();
         for (StudyBean studyBean : studyList) {
@@ -800,7 +799,7 @@ public class SystemController {
      */
 
     @RequestMapping(value = "/filesystem", method = RequestMethod.GET)
-    public ResponseEntity<HashMap> getFileSystem() throws Exception {
+    public ResponseEntity<HashMap<String, Object>> getFileSystem() throws Exception {
         ResourceBundleProvider.updateLocale(new Locale("en_US"));
         HashMap<String, Object> map = new HashMap<>();
 
@@ -819,7 +818,7 @@ public class SystemController {
         // map.put("List Of Directory and File Names in OpenClinica.data Directory", displayDirectoryContents(file, new
         // ArrayList()));
 
-        return new ResponseEntity<HashMap>(map, org.springframework.http.HttpStatus.OK);
+        return new ResponseEntity<HashMap<String, Object>>(map, org.springframework.http.HttpStatus.OK);
 
     }
 
@@ -845,7 +844,7 @@ public class SystemController {
      */
 
     @RequestMapping(value = "/database", method = RequestMethod.GET)
-    public ResponseEntity<HashMap> getDatabaseHealthCheck() throws Exception {
+    public ResponseEntity<HashMap<String, Object>> getDatabaseHealthCheck() throws Exception {
         ResourceBundleProvider.updateLocale(new Locale("en_US"));
         HashMap<String, Object> map = new HashMap<>();
         HashMap<String, String> mapRole = new HashMap<>();
@@ -865,7 +864,7 @@ public class SystemController {
         }
 
         map.put("Role Properties", mapRole);
-        return new ResponseEntity<HashMap>(map, org.springframework.http.HttpStatus.OK);
+        return new ResponseEntity<HashMap<String, Object>>(map, org.springframework.http.HttpStatus.OK);
 
     }
 
@@ -1328,7 +1327,7 @@ public class SystemController {
 
     public HashMap<String, Object> getRuleDesignerModuleInSession(StudyBean studyBean, HttpSession session) {
 
-        HashMap<String, Object> mapModule = (HashMap<String, Object>) session.getAttribute("ruledesigner");
+        HashMap<String, Object> mapModule = asHashMap(session.getAttribute("ruledesigner"), String.class, Object.class);
         if (mapModule == null) {
             mapModule = getRuleDesignerModule(studyBean);
             session.setAttribute("ruledesigner", mapModule);
@@ -1338,7 +1337,7 @@ public class SystemController {
 
     public HashMap<String, Object> getMessagingModuleInSession(StudyBean studyBean, HttpSession session) {
 
-        HashMap<String, Object> mapModule = (HashMap<String, Object>) session.getAttribute("messaging");
+        HashMap<String, Object> mapModule = asHashMap(session.getAttribute("messaging"), String.class, Object.class);
         if (mapModule == null) {
             mapModule = getMessagingModule(studyBean);
             session.setAttribute("messaging", mapModule);
@@ -1348,7 +1347,7 @@ public class SystemController {
 
     public HashMap<String, Object> getDatamartModuleInSession(StudyBean studyBean, HttpSession session) {
 
-        HashMap<String, Object> mapModule = (HashMap<String, Object>) session.getAttribute("datamart");
+        HashMap<String, Object> mapModule = asHashMap(session.getAttribute("datamart"), String.class, Object.class);
         if (mapModule == null) {
             mapModule = getDatamartModule(studyBean);
             session.setAttribute("datamart", mapModule);
@@ -1358,7 +1357,7 @@ public class SystemController {
 
     public HashMap<String, Object> getWebServiceModuleInSession(StudyBean studyBean, HttpSession session) {
 
-        HashMap<String, Object> mapModule = (HashMap<String, Object>) session.getAttribute("webservice");
+        HashMap<String, Object> mapModule = asHashMap(session.getAttribute("webservice"), String.class, Object.class);
         if (mapModule == null) {
             mapModule = getWebServiceModule(studyBean);
             session.setAttribute("webservice", mapModule);
@@ -1368,7 +1367,7 @@ public class SystemController {
 
     public HashMap<String, Object> getLdapModuleInSession(StudyBean studyBean, HttpSession session) {
 
-        HashMap<String, Object> mapModule = (HashMap<String, Object>) session.getAttribute("ldap");
+        HashMap<String, Object> mapModule = asHashMap(session.getAttribute("ldap"), String.class, Object.class);
         if (mapModule == null) {
             mapModule = getLdapModule(studyBean);
             session.setAttribute("ldap", mapModule);

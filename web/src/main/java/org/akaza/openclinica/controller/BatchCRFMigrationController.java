@@ -368,7 +368,6 @@ public class BatchCRFMigrationController implements Runnable {
         session.saveOrUpdate(studyEvent);
     }
 
-    @SuppressWarnings("unchecked")
     public ResponseEntity<HelperObject> runPreviewTest(TransferObject transferObject, HttpServletRequest request) throws Exception {
         HelperObject helperObject = new HelperObject();
 
@@ -507,12 +506,10 @@ public class BatchCRFMigrationController implements Runnable {
         }
     }
 
-    @SuppressWarnings("rawtypes")
     private StudyDAO sdao() {
         return new StudyDAO(dataSource);
     }
 
-    @SuppressWarnings("rawtypes")
     private EventCRFDAO ecdao() {
         return new EventCRFDAO(dataSource);
     }
@@ -521,12 +518,10 @@ public class BatchCRFMigrationController implements Runnable {
         return new StudyEventDAO(dataSource);
     }
 
-    @SuppressWarnings("rawtypes")
     private StudyEventDefinitionDAO seddao() {
         return new StudyEventDefinitionDAO(dataSource);
     }
 
-    @SuppressWarnings("rawtypes")
     private StudySubjectDAO ssdao() {
         return new StudySubjectDAO(dataSource);
     }
@@ -539,12 +534,10 @@ public class BatchCRFMigrationController implements Runnable {
         return new UserAccountDAO(dataSource);
     }
 
-    @SuppressWarnings("rawtypes")
     private CRFDAO cdao() {
         return new CRFDAO(dataSource);
     }
 
-    @SuppressWarnings("rawtypes")
     private CRFVersionDAO cvdao() {
         return new CRFVersionDAO(dataSource);
     }
