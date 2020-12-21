@@ -31,6 +31,7 @@ import org.akaza.openclinica.bean.core.ResolutionStatus;
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.core.SubjectEventStatus;
+import org.akaza.openclinica.bean.login.StudyUserRoleBean;
 import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.bean.managestudy.DiscrepancyNoteBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
@@ -175,7 +176,8 @@ public class CreateDiscrepancyNoteServlet extends SecureController {
         throw new InsufficientPermissionException(Page.MENU, exceptionName, "1");
     }
 
-    @Override
+    @SuppressWarnings("deprecation")
+	@Override
     protected void processRequest() throws Exception {
         FormProcessor fp = new FormProcessor(request);
         DiscrepancyNoteDAO dndao = new DiscrepancyNoteDAO(sm.getDataSource());
@@ -352,7 +354,7 @@ public class CreateDiscrepancyNoteServlet extends SecureController {
         }
 
         // finds all the related notes
-        ArrayList notes = (ArrayList) dndao.findAllByEntityAndColumn(entityType, entityId, column);
+        ArrayList<DiscrepancyNoteBean> notes = dndao.findAllByEntityAndColumn(entityType, entityId, column);
 
         DiscrepancyNoteBean parent = new DiscrepancyNoteBean();
         if (parentId > 0) {
@@ -387,7 +389,7 @@ public class CreateDiscrepancyNoteServlet extends SecureController {
             request.setAttribute(DIS_TYPES, types2);
             request.setAttribute(WHICH_RES_STATUSES, "22");
         } else if(currentRole.getRole().equals(Role.MONITOR)){
-            ArrayList<ResolutionStatus> resStatuses = new ArrayList();
+            ArrayList<ResolutionStatus> resStatuses = new ArrayList<>();
             resStatuses.add(ResolutionStatus.OPEN);
             resStatuses.add(ResolutionStatus.UPDATED);
             resStatuses.add(ResolutionStatus.CLOSED);
@@ -570,7 +572,7 @@ public class CreateDiscrepancyNoteServlet extends SecureController {
             request.setAttribute(DIS_NOTE, dnb);
             request.setAttribute("unlock", "0");
             request.setAttribute(WRITE_TO_DB, writeToDB ? "1" : "0");//this should go from UI & here
-            ArrayList userAccounts = this.generateUserAccounts(ub.getActiveStudyId(), subjectId);
+            ArrayList<StudyUserRoleBean> userAccounts = this.generateUserAccounts(ub.getActiveStudyId(), subjectId);
             // TODO it seems like there is no place where the attribute USER_ACCOUNT is read
             request.setAttribute(USER_ACCOUNTS, userAccounts);
 
@@ -620,7 +622,7 @@ public class CreateDiscrepancyNoteServlet extends SecureController {
 
             v.addValidation("typeId", Validator.NO_BLANKS);
 
-            HashMap errors = v.validate();
+            HashMap<String, ArrayList<String>> errors = v.validate();
             note.setDescription(description);
             note.setDetailedNotes(detailedDes);
             note.setOwner(ub);
@@ -683,7 +685,7 @@ public class CreateDiscrepancyNoteServlet extends SecureController {
 
             request.setAttribute(DIS_NOTE, note);
             request.setAttribute(WRITE_TO_DB, writeToDB ? "1" : "0");//this should go from UI & here
-            ArrayList userAccounts = this.generateUserAccounts(ub.getActiveStudyId(), subjectId);
+            ArrayList<StudyUserRoleBean> userAccounts = this.generateUserAccounts(ub.getActiveStudyId(), subjectId);
 
             request.setAttribute(USER_ACCOUNT_ID,   Integer.valueOf(note.getAssignedUserId()).toString());
             // formality more than anything else, we should go to say the note
@@ -953,12 +955,12 @@ public class CreateDiscrepancyNoteServlet extends SecureController {
         }
     }
 
-    private ArrayList generateUserAccounts(int studyId, int subjectId) {
+    private ArrayList<StudyUserRoleBean> generateUserAccounts(int studyId, int subjectId) {
         UserAccountDAO userAccountDAO = new UserAccountDAO(sm.getDataSource());
         StudyDAO studyDAO = new StudyDAO(sm.getDataSource());
         StudyBean subjectStudy = studyDAO.findByStudySubjectId(subjectId);
         // study id, tbh 03/2009
-        ArrayList userAccounts = new ArrayList();
+        ArrayList<StudyUserRoleBean> userAccounts = new ArrayList<>();
         if (currentStudy.getParentStudyId() > 0) {
             userAccounts = userAccountDAO.findAllUsersByStudyOrSite(studyId, currentStudy.getParentStudyId(), subjectId);
         } else if (subjectStudy.getParentStudyId() > 0) {

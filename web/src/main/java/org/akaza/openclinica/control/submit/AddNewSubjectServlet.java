@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 
 import org.akaza.openclinica.bean.core.DiscrepancyNoteType;
 import org.akaza.openclinica.bean.core.NumericComparisonOperator;
@@ -32,14 +31,12 @@ import org.akaza.openclinica.bean.service.StudyParameterValueBean;
 import org.akaza.openclinica.bean.submit.DisplaySubjectBean;
 import org.akaza.openclinica.bean.submit.SubjectBean;
 import org.akaza.openclinica.bean.submit.SubjectGroupMapBean;
-import org.akaza.openclinica.control.SpringServletAccess;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.DiscrepancyValidator;
 import org.akaza.openclinica.control.form.FormDiscrepancyNotes;
 import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.control.form.Validator;
 import org.akaza.openclinica.core.form.StringUtil;
-import org.akaza.openclinica.dao.hibernate.RuleSetDao;
 import org.akaza.openclinica.dao.managestudy.DiscrepancyNoteDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDAO;
@@ -50,9 +47,7 @@ import org.akaza.openclinica.dao.managestudy.StudySubjectDAO;
 import org.akaza.openclinica.dao.service.StudyParameterValueDAO;
 import org.akaza.openclinica.dao.submit.SubjectDAO;
 import org.akaza.openclinica.dao.submit.SubjectGroupMapDAO;
-import org.akaza.openclinica.domain.rule.RuleSetBean;
 import org.akaza.openclinica.exception.OpenClinicaException;
-import org.akaza.openclinica.service.rule.RuleSetService;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.apache.commons.lang.StringUtils;
@@ -136,7 +131,8 @@ public class AddNewSubjectServlet extends SecureController {
      * 
      * @see org.akaza.openclinica.control.core.SecureController#processRequest()
      */
-    @Override
+    @SuppressWarnings("deprecation")
+	@Override
     protected void processRequest() throws Exception {
 
         checkStudyLocked(Page.LIST_STUDY_SUBJECTS, respage.getString("current_study_locked"));
@@ -145,7 +141,7 @@ public class AddNewSubjectServlet extends SecureController {
         StudySubjectDAO ssd = new StudySubjectDAO(sm.getDataSource());
         StudyDAO stdao = new StudyDAO(sm.getDataSource());
         StudyGroupClassDAO sgcdao = new StudyGroupClassDAO(sm.getDataSource());
-        ArrayList classes = new ArrayList();
+        ArrayList<StudyGroupClassBean> classes = new ArrayList<>();
         panel.setStudyInfoShown(false);
         FormProcessor fp = new FormProcessor(request);
         FormDiscrepancyNotes discNotes;
@@ -163,7 +159,7 @@ public class AddNewSubjectServlet extends SecureController {
             parentStudyId = currentStudy.getId();
             classes = sgcdao.findAllActiveByStudy(currentStudy);
         } else {
-            StudyBean parentStudy = (StudyBean) stdao.findByPK(parentStudyId);
+            StudyBean parentStudy = stdao.findByPK(parentStudyId);
             classes = sgcdao.findAllActiveByStudy(parentStudy);
         }
         StudyParameterValueDAO spvdao = new StudyParameterValueDAO(sm.getDataSource());
@@ -269,7 +265,7 @@ public class AddNewSubjectServlet extends SecureController {
                 logger.info("should read this only if DOB not used");
             }
 
-            ArrayList acceptableGenders = new ArrayList();
+            ArrayList<String> acceptableGenders = new ArrayList<>();
             acceptableGenders.add("m");
             acceptableGenders.add("f");
 
@@ -291,7 +287,7 @@ public class AddNewSubjectServlet extends SecureController {
                 }
             }
 
-            HashMap errors = v.validate();
+            HashMap<String, ArrayList<String>> errors = v.validate();
 
             SubjectDAO sdao = new SubjectDAO(sm.getDataSource());
             String uniqueIdentifier = fp.getString(INPUT_UNIQUE_IDENTIFIER);// global
@@ -463,7 +459,7 @@ public class AddNewSubjectServlet extends SecureController {
                              Validator.addError(errors, STUDY_EVENT_DEFINITION, resexception.getString("input_not_acceptable_option"));
                         }
                         String location = fp.getString(LOCATION);
-                        if (location == null && location.length() == 0) {
+                        if (location == null || location.trim().length() == 0) {
                             Validator.addError(errors, LOCATION, resexception.getString("field_not_blank"));
                         }
                         request.setAttribute("showOverlay", true);
@@ -915,7 +911,7 @@ public class AddNewSubjectServlet extends SecureController {
         throw new InsufficientPermissionException(Page.MENU_SERVLET, exceptionName, "1");
     }
 
-    protected void setUpBeans(ArrayList classes) throws Exception {
+    protected void setUpBeans(ArrayList<StudyGroupClassBean> classes) throws Exception {
         StudyGroupDAO sgdao = new StudyGroupDAO(sm.getDataSource());
         // addEntityList(BEAN_GROUPS, sgdao.findAllByStudy(currentStudy),
         // "A group must be available in order to add new subjects to this
@@ -925,7 +921,7 @@ public class AddNewSubjectServlet extends SecureController {
         // Page.SUBMIT_DATA);
 
         for (int i = 0; i < classes.size(); i++) {
-            StudyGroupClassBean group = (StudyGroupClassBean) classes.get(i);
+            StudyGroupClassBean group = classes.get(i);
             ArrayList<StudyGroupBean> studyGroups = sgdao.findAllByGroupClass(group);
             group.setStudyGroups(studyGroups);
         }
@@ -958,7 +954,7 @@ public class AddNewSubjectServlet extends SecureController {
             // null, cannot proceed:");
             return;
         }
-        ArrayList fieldNotes = notes.getNotes(field);
+        ArrayList<DiscrepancyNoteBean> fieldNotes = notes.getNotes(field);
         if ((fieldNotes == null || fieldNotes.size() < 1 ) && event_crf_id >0){
           	fieldNotes = notes.getNotes(field);
         }
@@ -1021,11 +1017,11 @@ public class AddNewSubjectServlet extends SecureController {
      * @param displayArray
      * @param subjects
      */
-    public static void displaySubjects(ArrayList displayArray, ArrayList subjects, StudySubjectDAO ssdao, StudyDAO stdao) {
+    public static void displaySubjects(ArrayList<DisplaySubjectBean> displayArray, ArrayList<SubjectBean> subjects, StudySubjectDAO ssdao, StudyDAO stdao) {
 
         for (int i = 0; i < subjects.size(); i++) {
-            SubjectBean subject = (SubjectBean) subjects.get(i);
-            ArrayList studySubs = ssdao.findAllBySubjectId(subject.getId());
+            SubjectBean subject = subjects.get(i);
+            ArrayList<StudySubjectBean> studySubs = ssdao.findAllBySubjectId(subject.getId());
             String protocolSubjectIds = "";
             for (int j = 0; j < studySubs.size(); j++) {
                 StudySubjectBean studySub = (StudySubjectBean) studySubs.get(j);

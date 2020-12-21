@@ -320,7 +320,6 @@ public class ListStudySubjectTableFactory extends AbstractTableFactory {
         return isSignable;
     }
 
-    @SuppressWarnings("unchecked")
     private boolean eventHasRequiredUncompleteCRFs(StudyEventBean studyEventBean) {
 
         List<EventCRFBean> eventCrfBeans = new ArrayList<EventCRFBean>();
@@ -409,7 +408,6 @@ public class ListStudySubjectTableFactory extends AbstractTableFactory {
         return this.studyEventDefinitions;
     }
 
-    @SuppressWarnings("unchecked")
     private ArrayList<StudyGroupClassBean> getStudyGroupClasses() {
         if (this.studyGroupClasses == null) {
             if (studyBean.getParentStudyId() > 0) {
@@ -645,7 +643,8 @@ public class ListStudySubjectTableFactory extends AbstractTableFactory {
             return groupName != null ? groupName : "";
         }
 
-        public Object getValue(Object item, String property, int rowcount) {
+        @SuppressWarnings("unchecked")
+		public Object getValue(Object item, String property, int rowcount) {
             groupName = (String) ((HashMap<Object, Object>) item).get("grpName_sgc_" + studyGroupClass.getId());
             return logic();
         }

@@ -62,7 +62,8 @@ public class ParticipantFormServlet extends SecureController {
 
     private EnketoCredentials getCredentials() throws Exception {
         EnketoCredentials credentials = null;
-        Map<String, EnketoCredentials> credentialsMap = (Map<String, EnketoCredentials>) session.getAttribute("EnketoCredentialsMap");
+        @SuppressWarnings("unchecked")
+		Map<String, EnketoCredentials> credentialsMap = (Map<String, EnketoCredentials>) session.getAttribute("EnketoCredentialsMap");
         if (credentialsMap == null) {
             credentialsMap = new HashMap<String, EnketoCredentials>();
             credentials = EnketoCredentials.getInstance(currentStudy.getOid());

@@ -86,8 +86,7 @@ public class ViewRuleSetServlet extends SecureController {
 
             }
             
-            CoreResources core = (CoreResources) SpringServletAccess.getApplicationContext(context).getBean("coreResources");
-            String designerUrl = core.getField("designer.url")+"access?host="+getHostPathFromSysUrl(core.getField("sysURL.base"),request.getContextPath())+"&app="+getContextPath(request);
+            String designerUrl = CoreResources.getField("designer.url")+"access?host="+getHostPathFromSysUrl(CoreResources.getField("sysURL.base"),request.getContextPath())+"&app="+getContextPath(request);
             UserAccountBean currentUser = (UserAccountBean) request.getSession().getAttribute("userBean");
 
             request.setAttribute("designerUrl", designerUrl);

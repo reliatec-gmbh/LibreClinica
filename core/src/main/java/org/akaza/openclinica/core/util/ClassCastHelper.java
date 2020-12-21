@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -97,6 +98,30 @@ public class ClassCastHelper {
     }
 
 	/**
+	 * Returns the value of the named attribute as an List with the given result type,
+     * or <code>null</code> if no attribute of the given name exists. 
+     * 
+	 * @param <T> the expected result type
+	 * @param the object to cast
+     *
+	 * @param resultType the expected result type
+     *
+     * @return		an <code>List</code>
+	 */
+    @SuppressWarnings("unchecked")
+	public static <T> List<T> asList(Object o, Class<T> resultType) {
+    	List<T> result = null;
+    	if(o instanceof List<?>) {
+    		result = (List<T>) o;
+    	} else if(o instanceof Collection<?>) {
+    		result = new ArrayList<>((Collection<T>)o);
+    	} else {
+    		result = (List<T>) o;
+    	}
+        return result;
+    }
+
+	/**
 	 * Returns the value of the named attribute as an ArrayList with the given result type,
      * or <code>null</code> if no attribute of the given name exists. 
      * 
@@ -105,7 +130,7 @@ public class ClassCastHelper {
      *
 	 * @param resultType the expected result type
      *
-     * @return		an <code>Enumeration</code>
+     * @return		an <code>ArrayList</code>
 	 */
     @SuppressWarnings("unchecked")
 	public static <T> ArrayList<T> asArrayList(Object o, Class<T> resultType) {

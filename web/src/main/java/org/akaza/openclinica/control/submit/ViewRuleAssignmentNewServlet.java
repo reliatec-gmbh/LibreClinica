@@ -14,6 +14,13 @@
  */
 package org.akaza.openclinica.control.submit;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Locale;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.login.UserAccountBean;
@@ -25,9 +32,7 @@ import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.dao.admin.CRFDAO;
 import org.akaza.openclinica.dao.core.CoreResources;
-import org.akaza.openclinica.dao.managestudy.StudyEventDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDefinitionDAO;
-import org.akaza.openclinica.dao.submit.EventCRFDAO;
 import org.akaza.openclinica.dao.submit.ItemDAO;
 import org.akaza.openclinica.dao.submit.ItemFormMetadataDAO;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
@@ -38,13 +43,6 @@ import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Locale;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * Verify the Rule import , show records that have Errors as well as records that will be saved.
@@ -93,12 +91,12 @@ public class ViewRuleAssignmentNewServlet extends SecureController {
 
         }
         CRFDAO crfdao = new CRFDAO(sm.getDataSource());
-        ArrayList seds = seddao.findAllActiveByStudy(studyWithEventDefinitions);
+        ArrayList<StudyEventDefinitionBean> seds = seddao.findAllActiveByStudy(studyWithEventDefinitions);
 
-        HashMap events = new LinkedHashMap();
+        HashMap<StudyEventDefinitionBean, ArrayList<CRFBean>> events = new LinkedHashMap<>();
         for (int i = 0; i < seds.size(); i++) {
-            StudyEventDefinitionBean sed = (StudyEventDefinitionBean) seds.get(i);
-            ArrayList<CRFBean> crfs = (ArrayList<CRFBean>) crfdao.findAllActiveByDefinition(sed);
+            StudyEventDefinitionBean sed = seds.get(i);
+            ArrayList<CRFBean> crfs = crfdao.findAllActiveByDefinition(sed);
 
             if (currentStudy.getParentStudyId() > 0) {
                 // sift through these CRFs and see which ones are hidden
@@ -119,7 +117,9 @@ public class ViewRuleAssignmentNewServlet extends SecureController {
 
     private void createTable() {
 
-        ViewRuleAssignmentTableFactory factory = new ViewRuleAssignmentTableFactory(showMoreLink, getCoreResources().getField("designer.url")+"access?host="+getHostPathFromSysUrl(getCoreResources().getField("sysURL.base"),request.getContextPath())+"&app="+getContextPath(request), isDesigner);
+        getCoreResources();
+		getCoreResources();
+		ViewRuleAssignmentTableFactory factory = new ViewRuleAssignmentTableFactory(showMoreLink, CoreResources.getField("designer.url")+"access?host="+getHostPathFromSysUrl(CoreResources.getField("sysURL.base"),request.getContextPath())+"&app="+getContextPath(request), isDesigner);
         factory.setRuleSetService(getRuleSetService());
         factory.setItemFormMetadataDAO(getItemFormMetadataDAO());
         factory.setCurrentStudy(currentStudy);

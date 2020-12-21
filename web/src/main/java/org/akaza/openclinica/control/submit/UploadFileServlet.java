@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import javax.xml.bind.DatatypeConverter;
-
+import static org.akaza.openclinica.core.util.ClassCastHelper.*;
 public class UploadFileServlet extends SecureController {
     /**
 	 * 
@@ -50,7 +50,7 @@ public class UploadFileServlet extends SecureController {
     @Override
     public void processRequest() throws Exception {
         FormProcessor fp = new FormProcessor(request);
-        HashMap<String, String> newUploadedFiles = (HashMap<String, String>) session.getAttribute("newUploadedFiles");
+        HashMap<String, String> newUploadedFiles = asHashMap(session.getAttribute("newUploadedFiles"), String.class, String.class);
         if (newUploadedFiles == null) {
             newUploadedFiles = new HashMap<String, String>();
         }

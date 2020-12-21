@@ -7,10 +7,21 @@
  */
 package org.akaza.openclinica.control.submit;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletResponse;
+
 import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.core.DataEntryStage;
 import org.akaza.openclinica.bean.core.ResolutionStatus;
-import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.core.SubjectEventStatus;
 import org.akaza.openclinica.bean.login.StudyUserRoleBean;
@@ -20,8 +31,6 @@ import org.akaza.openclinica.bean.managestudy.EventDefinitionCRFBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
-import org.akaza.openclinica.bean.managestudy.StudyGroupBean;
-import org.akaza.openclinica.bean.managestudy.StudyGroupClassBean;
 import org.akaza.openclinica.bean.managestudy.StudySubjectBean;
 import org.akaza.openclinica.bean.submit.EventCRFBean;
 import org.akaza.openclinica.bean.submit.SubjectBean;
@@ -52,22 +61,9 @@ import org.jmesa.limit.Limit;
 import org.jmesa.limit.Sort;
 import org.jmesa.limit.SortSet;
 import org.jmesa.view.component.Row;
-import org.jmesa.view.editor.BasicCellEditor;
 import org.jmesa.view.editor.CellEditor;
 import org.jmesa.view.html.HtmlBuilder;
 import org.jmesa.view.html.editor.DroplistFilterEditor;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletResponse;
 
 public class ListDiscNotesForCRFTableFactory extends AbstractTableFactory {
 
@@ -88,7 +84,6 @@ public class ListDiscNotesForCRFTableFactory extends AbstractTableFactory {
     private ArrayList<StudyEventDefinitionBean> studyEventDefinitions;
     private ArrayList<CRFBean> crfBeans;
     private ArrayList<EventDefinitionCRFBean> eventDefinitionCrfs;
-    private ArrayList<StudyGroupClassBean> studyGroupClasses;
     private StudyUserRoleBean currentRole;
     private UserAccountBean currentUser;
     private ResourceBundle resword = ResourceBundleProvider.getWordsBundle();
@@ -192,7 +187,6 @@ public class ListDiscNotesForCRFTableFactory extends AbstractTableFactory {
         tableFacade.setToolbar(toolbar);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void setDataAndLimitVariables(TableFacade tableFacade) {
         Limit limit = tableFacade.getLimit();
@@ -360,7 +354,6 @@ public class ListDiscNotesForCRFTableFactory extends AbstractTableFactory {
         return listDiscNotesForCRFSort;
     }
 
-    @SuppressWarnings("unchecked")
     private ArrayList<StudyEventDefinitionBean> getStudyEventDefinitions() {
         if (this.studyEventDefinitions == null) {
             if (studyBean.getParentStudyId() > 0) {
@@ -373,7 +366,6 @@ public class ListDiscNotesForCRFTableFactory extends AbstractTableFactory {
         return this.studyEventDefinitions;
     }
 
-    @SuppressWarnings("unchecked")
     private ArrayList<CRFBean> getCrfs(StudyEventDefinitionBean eventDefinition) {
         if (this.crfBeans == null) {
             crfBeans = new ArrayList<CRFBean>();

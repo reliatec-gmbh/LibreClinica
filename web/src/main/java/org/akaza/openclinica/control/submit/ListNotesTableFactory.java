@@ -260,43 +260,43 @@ public class ListNotesTableFactory extends AbstractTableFactory {
      * @param limit
      *            The Limit to use.
      */
-    public ListNotesFilter getListNoteFilter(Limit limit) {
-        ListNotesFilter listNotesFilter = new ListNotesFilter();
-        FilterSet filterSet = limit.getFilterSet();
-        Collection<Filter> filters = filterSet.getFilters();
-        for (Filter filter : filters) {
-            String property = filter.getProperty();
-            String value = filter.getValue();
-            //Checking if the given date format is valid
-            if("discrepancyNoteBean.createdDate".equalsIgnoreCase(property)
-                    || "discrepancyNoteBean.updatedDate".equalsIgnoreCase(property)){
-                 try{
-                    String date = formatDate(new Date(value));
-                     value = date;
-                   }catch(Exception ex){
-                     value = "01-Jan-1700";
-                   }
-            }else if("discrepancyNoteBean.disType".equalsIgnoreCase(property)) {
-                ResourceBundle reterm = ResourceBundleProvider.getTermsBundle();
-                if(reterm.getString("Query_and_Failed_Validation_Check").equals(value)) {
-                    value = 31 + "";
-                } else {
-                    value = DiscrepancyNoteType.getByName(value).getId()+"";
-                }
-            }else if("discrepancyNoteBean.resolutionStatus".equalsIgnoreCase(property)) {
-                ResourceBundle reterm = ResourceBundleProvider.getTermsBundle();
-                if(reterm.getString("New_and_Updated").equalsIgnoreCase(value)){
-                    value = 21 + "";
-                } else {
-                    value = ResolutionStatus.getByName(value).getId()+"";
-                }
-            }
-            //
-            listNotesFilter.addFilter(property, value);
-        }
+	public ListNotesFilter getListNoteFilter(Limit limit) {
+		ListNotesFilter listNotesFilter = new ListNotesFilter();
+		FilterSet filterSet = limit.getFilterSet();
+		Collection<Filter> filters = filterSet.getFilters();
+		for (Filter filter : filters) {
+			String property = filter.getProperty();
+			String value = filter.getValue();
+			// Checking if the given date format is valid
+			if ("discrepancyNoteBean.createdDate".equalsIgnoreCase(property)
+					|| "discrepancyNoteBean.updatedDate".equalsIgnoreCase(property)) {
+				try {
+					Date date = SimpleDateFormat.getDateInstance().parse(value);
+					value = formatDate(date);
+				} catch (Exception ex) {
+					value = "01-Jan-1700";
+				}
+			} else if ("discrepancyNoteBean.disType".equalsIgnoreCase(property)) {
+				ResourceBundle reterm = ResourceBundleProvider.getTermsBundle();
+				if (reterm.getString("Query_and_Failed_Validation_Check").equals(value)) {
+					value = 31 + "";
+				} else {
+					value = DiscrepancyNoteType.getByName(value).getId() + "";
+				}
+			} else if ("discrepancyNoteBean.resolutionStatus".equalsIgnoreCase(property)) {
+				ResourceBundle reterm = ResourceBundleProvider.getTermsBundle();
+				if (reterm.getString("New_and_Updated").equalsIgnoreCase(value)) {
+					value = 21 + "";
+				} else {
+					value = ResolutionStatus.getByName(value).getId() + "";
+				}
+			}
+			//
+			listNotesFilter.addFilter(property, value);
+		}
 
-        return listNotesFilter;
-    }
+		return listNotesFilter;
+	}
 
     /**
      * A very custom way to sort the items. The AuditUserLoginSort acts as a command for the Hibernate criteria object. Take the Limit information and sort the
@@ -507,7 +507,7 @@ public class ListNotesTableFactory extends AbstractTableFactory {
     }
 
     private String formatDate(Date date) {
-        String format = resformat.getString("date_format_string");
+        String format = getDateFormat();
         SimpleDateFormat sdf = new SimpleDateFormat(format);
         return sdf.format(date);
     }

@@ -313,13 +313,13 @@ public class StudyEventDAO extends AuditableEntityDAO<StudyEventBean> implements
         return executeFindAllQuery(queryName, variables);
     }
 
-    public EntityBean findByPK(int ID) {
+    public StudyEventBean findByPK(int ID) {
     	String queryName = "findByPK";
         HashMap<Integer, Object> variables = variables(ID);
         return executeFindByPKQuery(queryName, variables);
     }
     
-    public EntityBean findByPKCached(int ID) {
+    public StudyEventBean findByPKCached(int ID) {
     	String queryName = "findByPK";
         HashMap<Integer, Object> variables = variables(ID);
         return executeFindByPKQuery(queryName, variables, true);

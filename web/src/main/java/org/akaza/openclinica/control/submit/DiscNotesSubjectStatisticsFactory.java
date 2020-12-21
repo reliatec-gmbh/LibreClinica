@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -22,8 +21,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.akaza.openclinica.bean.login.StudyUserRoleBean;
 import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
-import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
-import org.akaza.openclinica.bean.managestudy.StudyGroupClassBean;
 import org.akaza.openclinica.control.AbstractTableFactory;
 import org.akaza.openclinica.dao.managestudy.DiscrepancyNoteDAO;
 import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;
@@ -73,7 +70,7 @@ public class DiscNotesSubjectStatisticsFactory extends AbstractTableFactory{
     private Integer resolutionStatus;
     private Integer discNoteType;
     private Boolean studyHasDiscNotes;
-    private Map<Object,Map> discrepancyMap;
+    private Map<String,Map<String, String[]>> discrepancyMap;
 
 	@Override
 	protected String getTableName() {
@@ -86,9 +83,9 @@ public class DiscNotesSubjectStatisticsFactory extends AbstractTableFactory{
         //resformat = ResourceBundleProvider.getFormatBundle(locale);
         tableFacade.setColumnProperties(columnNames);
         Row row = tableFacade.getTable().getRow();
-        HashMap<Object,Map> items = (HashMap<Object,Map>) getDiscrepancyMap();
-        Set theKeys  = items.keySet();
-        Iterator theKeysItr = theKeys.iterator();
+        Map<String,Map<String, String[]>> items = getDiscrepancyMap();
+        Set<String> theKeys  = items.keySet();
+        Iterator<String> theKeysItr = theKeys.iterator();
         configureColumn(row.getColumn(columnNames[0]), "_", null, null);
         configureColumn(row.getColumn(columnNames[1]), theKeysItr.next().toString(), null, null);
         configureColumn(row.getColumn(columnNames[2]), theKeysItr.next().toString(), null, null);
@@ -116,59 +113,58 @@ public class DiscNotesSubjectStatisticsFactory extends AbstractTableFactory{
 	    }
 	@Override
 	public void setDataAndLimitVariables(TableFacade tableFacade) {
-        Limit limit = tableFacade.getLimit();
+		Limit limit = tableFacade.getLimit();
 
-        if (!limit.isComplete()) {
-            tableFacade.setTotalRows(6);
-        }
+		if (!limit.isComplete()) {
+			tableFacade.setTotalRows(6);
+		}
 
-        HashMap<Object,Map> items = (HashMap<Object,Map>) getDiscrepancyMap();
+		Map<String, Map<String, String[]>> items = getDiscrepancyMap();
 
-        Collection<HashMap<Object, Object>> theItems = new ArrayList<HashMap<Object, Object>>();
-        Collection<HashMap<Object, Object>> theItemsVals = new ArrayList<HashMap<Object, Object>>();
-        Iterator keyIt = null;
-        if(items.values().iterator().hasNext())
-        keyIt = items.values().iterator().next().keySet().iterator();
-        HashMap<Object, Object> theItem = new HashMap();
+		Collection<HashMap<Object, Object>> theItems = new ArrayList<HashMap<Object, Object>>();
+		Collection<HashMap<Object, Object>> theItemsVals = new ArrayList<HashMap<Object, Object>>();
+		Iterator<String> keyIt = null;
+		if (items.values().iterator().hasNext()) {
+			keyIt = items.values().iterator().next().keySet().iterator();
+		}
+		HashMap<Object, Object> theItem = new HashMap<>();
 
-   	 Set theKeys  = items.keySet();
-   	 
-   	Iterator theKeysItr = theKeys.iterator();
-   	while(keyIt.hasNext())   
-   	{
-     	String key = keyIt.next().toString();	
-   		for(Map<String,String[]> firstVals:items.values())
-        {	
-   			theItem = new HashMap();
-            Iterator it = firstVals.values().iterator();
-        	// keyIt = firstVals.keySet().iterator();
-            String label = (String)theKeysItr.next();         
-               while(it.hasNext())
-                    {                	    
-                	theItem.put("_", key);
-                	theItem.put(label, it.next());                	
-                    }
-           	 theItems.add(theItem);
-        }       
-        theItemsVals.addAll(theItems);
-		tableFacade.setItems(theItemsVals);
+		Set<String> theKeys = items.keySet();
+
+		Iterator<String> theKeysItr = theKeys.iterator();
+		while (keyIt.hasNext()) {
+			String key = keyIt.next().toString();
+			for (Map<String, String[]> firstVals : items.values()) {
+				theItem = new HashMap<Object, Object>();
+				Iterator<String[]> it = firstVals.values().iterator();
+				// keyIt = firstVals.keySet().iterator();
+				String label = theKeysItr.next();
+				while (it.hasNext()) {
+					theItem.put("_", key);
+					theItem.put(label, it.next());
+				}
+				theItems.add(theItem);
+			}
+			theItemsVals.addAll(theItems);
+			tableFacade.setItems(theItemsVals);
+		}
 	}
+
+	private void getColumnNamesMap() {
+		ArrayList<String> columnNamesList = new ArrayList<String>();
+		Map<String, Map<String, String[]>> items = getDiscrepancyMap();
+		Set<String> theKeys = items.keySet();
+		Iterator<String> theKeysItr = theKeys.iterator();
+		columnNamesList.add("_");
+		columnNamesList.add(theKeysItr.next().toString());
+		columnNamesList.add(theKeysItr.next().toString());
+
+		columnNamesList.add(theKeysItr.next().toString());
+		columnNamesList.add(theKeysItr.next().toString());
+
+		columnNamesList.add("Totals");
+		columnNames = columnNamesList.toArray(columnNames);
 	}
-	   private void getColumnNamesMap() {
-	        ArrayList<String> columnNamesList = new ArrayList<String>();
-	        HashMap<Object,Map> items = (HashMap<Object,Map>) getDiscrepancyMap();
-	        Set theKeys  = items.keySet();
-	        Iterator theKeysItr = theKeys.iterator();
-	        columnNamesList.add("_");
-	        columnNamesList.add(theKeysItr.next().toString());
-	        columnNamesList.add(theKeysItr.next().toString());
-	        
-	        columnNamesList.add(theKeysItr.next().toString());
-	        columnNamesList.add(theKeysItr.next().toString());
-	        
-	        columnNamesList.add("Totals");
-	        columnNames = columnNamesList.toArray(columnNames);
-	    }
 	  
 	 protected ListDiscNotesSubjectSort getSubjectSort(Limit limit) {
 	        ListDiscNotesSubjectSort listDiscNotesSubjectSort = new ListDiscNotesSubjectSort();
@@ -202,11 +198,11 @@ public class DiscNotesSubjectStatisticsFactory extends AbstractTableFactory{
 	
 	
 	
-		public Map<Object, Map> getDiscrepancyMap() {
+		public Map<String, Map<String, String[]>> getDiscrepancyMap() {
 			return discrepancyMap;
 		}
 
-		public void setDiscrepancyMap(Map<Object, Map> discrepancyMap) {
+		public void setDiscrepancyMap(Map<String, Map<String, String[]>> discrepancyMap) {
 			this.discrepancyMap = discrepancyMap;
 		}
 

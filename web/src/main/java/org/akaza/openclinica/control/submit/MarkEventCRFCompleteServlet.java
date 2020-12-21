@@ -7,6 +7,10 @@
  */
 package org.akaza.openclinica.control.submit;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
+
 import org.akaza.openclinica.bean.core.DataEntryStage;
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.core.Status;
@@ -15,7 +19,7 @@ import org.akaza.openclinica.bean.managestudy.EventDefinitionCRFBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventBean;
 import org.akaza.openclinica.bean.submit.DisplayTableOfContentsBean;
 import org.akaza.openclinica.bean.submit.EventCRFBean;
-import org.akaza.openclinica.bean.submit.SectionBean;
+import org.akaza.openclinica.bean.submit.ItemDataBean;
 import org.akaza.openclinica.control.SpringServletAccess;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
@@ -23,17 +27,11 @@ import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDAO;
 import org.akaza.openclinica.dao.submit.EventCRFDAO;
 import org.akaza.openclinica.dao.submit.ItemDataDAO;
-import org.akaza.openclinica.dao.submit.SectionDAO;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.service.crfdata.DynamicsMetadataService;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InconsistentStateException;
 import org.akaza.openclinica.web.InsufficientPermissionException;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Locale;
 
 /**
  * @author ssachs
@@ -77,12 +75,12 @@ public class MarkEventCRFCompleteServlet extends SecureController {
         int eventCRFId = fp.getInt(INPUT_EVENT_CRF_ID);
 
         ecdao = new EventCRFDAO(sm.getDataSource());
-        ecb = (EventCRFBean) ecdao.findByPK(eventCRFId);
+        ecb = ecdao.findByPK(eventCRFId);
     }
 
     private boolean isEachRequiredFieldFillout() {
         ItemDataDAO iddao = new ItemDataDAO(sm.getDataSource());
-        ArrayList dataList = iddao.findAllBlankRequiredByEventCRFId(ecb.getId(), ecb.getCRFVersionId());
+        ArrayList<ItemDataBean> dataList = iddao.findAllBlankRequiredByEventCRFId(ecb.getId(), ecb.getCRFVersionId());
         // empty means all required fields got filled out,return true-jxu
         return dataList.isEmpty();
     }
@@ -179,12 +177,12 @@ public class MarkEventCRFCompleteServlet extends SecureController {
                 boolean ide = true;
                 if (stage.equals(DataEntryStage.INITIAL_DATA_ENTRY) && edcb.isDoubleEntry()) {
                     newStatus = Status.PENDING;
-                    ecb.setUpdaterId(ub.getId());
+                    ecb.setUpdater(ub);
                     ecb.setUpdatedDate(new Date());
                     ecb.setDateCompleted(new Date());
                 } else if (stage.equals(DataEntryStage.INITIAL_DATA_ENTRY) && !edcb.isDoubleEntry()) {
                     newStatus = Status.UNAVAILABLE;
-                    ecb.setUpdaterId(ub.getId());
+                    ecb.setUpdater(ub);
                     ecb.setUpdatedDate(new Date());
                     ecb.setDateCompleted(new Date());
                     ecb.setDateValidateCompleted(new Date());
@@ -194,7 +192,7 @@ public class MarkEventCRFCompleteServlet extends SecureController {
                     ide = false;
                 }
                 ecb.setStatus(newStatus);
-                ecb = (EventCRFBean) ecdao.update(ecb);
+                ecb = ecdao.update(ecb);
                 ecdao.markComplete(ecb, ide);
 
                 ItemDataDAO iddao = new ItemDataDAO(sm.getDataSource());
@@ -207,8 +205,8 @@ public class MarkEventCRFCompleteServlet extends SecureController {
                 seb.setUpdater(ub);
 
                 EventDefinitionCRFDAO edcdao = new EventDefinitionCRFDAO(sm.getDataSource());
-                ArrayList allCRFs = ecdao.findAllByStudyEvent(seb);
-                ArrayList allEDCs = edcdao.findAllActiveByEventDefinitionId(seb.getStudyEventDefinitionId());
+                ArrayList<EventCRFBean> allCRFs = ecdao.findAllByStudyEvent(seb);
+                ArrayList<EventDefinitionCRFBean> allEDCs = edcdao.findAllActiveByEventDefinitionId(seb.getStudyEventDefinitionId());
                 boolean eventCompleted = true;
                 for (int i = 0; i < allCRFs.size(); i++) {
                     EventCRFBean ec = (EventCRFBean) allCRFs.get(i);
@@ -239,7 +237,8 @@ public class MarkEventCRFCompleteServlet extends SecureController {
      *
      * @see org.akaza.openclinica.control.core.SecureController#mayProceed()
      */
-    @Override
+    @SuppressWarnings("unlikely-arg-type")
+	@Override
     protected void mayProceed() throws InsufficientPermissionException {
 
         locale = LocaleResolver.getLocale(request);
@@ -254,6 +253,9 @@ public class MarkEventCRFCompleteServlet extends SecureController {
 
         fp = new FormProcessor(request);
 
+        /*
+         *  TODO do not know what this comparison should look like exactly
+         */
         if (currentRole.equals(Role.COORDINATOR) || currentRole.equals(Role.STUDYDIRECTOR)) {
             return;
         }

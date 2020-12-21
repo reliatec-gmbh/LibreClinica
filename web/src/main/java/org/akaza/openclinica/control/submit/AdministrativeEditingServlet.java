@@ -26,12 +26,10 @@ import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.submit.DisplayItemBean;
 import org.akaza.openclinica.bean.submit.DisplayItemGroupBean;
 import org.akaza.openclinica.bean.submit.EventCRFBean;
-import org.akaza.openclinica.bean.submit.ItemBean;
 import org.akaza.openclinica.control.form.DiscrepancyValidator;
 import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.control.form.RuleValidator;
 import org.akaza.openclinica.control.managestudy.ViewNotesServlet;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
@@ -69,7 +67,7 @@ public class AdministrativeEditingServlet extends DataEntryServlet {
         String tabId = fp.getString("tab", true);
         String sectionId = fp.getString(DataEntryServlet.INPUT_SECTION_ID, true);
         String eventCRFId = fp.getString(INPUT_EVENT_CRF_ID, true);
-        if (StringUtil.isBlank(sectionId) || StringUtil.isBlank(tabId)) {
+        if ((sectionId == null || sectionId.trim().isEmpty()) || (tabId == null || tabId.trim().isEmpty())) {
             return Page.ADMIN_EDIT_SERVLET.getFileName();
         } else {
             Page target = Page.ADMIN_EDIT_SERVLET;
@@ -182,7 +180,7 @@ public class AdministrativeEditingServlet extends DataEntryServlet {
         EventCRFBean ecb = (EventCRFBean)request.getAttribute(INPUT_EVENT_CRF);
         String fromResolvingNotes = fp.getString("fromResolvingNotes", true);
 
-        if (StringUtil.isBlank(fromResolvingNotes)) {
+        if ((fromResolvingNotes == null || fromResolvingNotes.trim().isEmpty())) {
             session.removeAttribute(ViewNotesServlet.WIN_LOCATION);
             session.removeAttribute(ViewNotesServlet.NOTES_TABLE);
             checkStudyLocked(Page.LIST_STUDY_SUBJECTS, respage.getString("current_study_locked"), request, response);
@@ -278,7 +276,7 @@ public class AdministrativeEditingServlet extends DataEntryServlet {
         // note that this step sets us up both for
         // displaying the data on the form again, in the event of an error
         // and sending the data to the database, in the event of no error
-        if (StringUtil.isBlank(inputName)) {// not an item from group, doesn't
+        if (inputName == null || inputName.trim().isEmpty()) {// not an item from group, doesn't
             // need to get data from form again
             dib = loadFormValue(dib, request);
         }
@@ -326,7 +324,7 @@ public class AdministrativeEditingServlet extends DataEntryServlet {
     @Override
     protected DisplayItemBean validateDisplayItemBean(DiscrepancyValidator v, DisplayItemBean dib, String inputName, RuleValidator rv,
             HashMap<String, ArrayList<String>> groupOrdinalPLusItemOid, Boolean fireRuleValidation, ArrayList<String> messages, HttpServletRequest request) {
-        if (StringUtil.isBlank(inputName)) {// we pass a blank inputName,which
+        if (inputName == null || inputName.trim().isEmpty()) {// we pass a blank inputName,which
             // means if not an item from group,
             // doesn't
             // need to get data from form again

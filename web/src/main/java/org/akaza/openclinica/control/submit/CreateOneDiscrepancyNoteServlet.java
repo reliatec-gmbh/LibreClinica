@@ -13,6 +13,16 @@
  */
 package org.akaza.openclinica.control.submit;
 
+import static org.akaza.openclinica.core.util.ClassCastHelper.asHashMap;
+
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+
+import javax.servlet.http.HttpSession;
+
 import org.akaza.openclinica.bean.core.DiscrepancyNoteType;
 import org.akaza.openclinica.bean.core.NumericComparisonOperator;
 import org.akaza.openclinica.bean.core.ResolutionStatus;
@@ -43,15 +53,6 @@ import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.akaza.openclinica.web.SQLInitServlet;
-
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Locale;
-
-import javax.servlet.http.HttpSession;
-
 /**
  * Create a discrepancy note
  *
@@ -114,7 +115,7 @@ public class CreateOneDiscrepancyNoteServlet extends SecureController {
         
         int parentId = fp.getInt(PARENT_ID);
         DiscrepancyNoteBean parent = parentId > 0 ? (DiscrepancyNoteBean) dndao.findByPK(parentId) : new DiscrepancyNoteBean();
-        HashMap<Integer, DiscrepancyNoteBean> boxDNMap = (HashMap<Integer, DiscrepancyNoteBean>) session.getAttribute(BOX_DN_MAP);
+        HashMap<Integer, DiscrepancyNoteBean> boxDNMap = asHashMap(session.getAttribute(BOX_DN_MAP), Integer.class, DiscrepancyNoteBean.class);
         boxDNMap = boxDNMap == null ? new HashMap<Integer, DiscrepancyNoteBean>() : boxDNMap;
         DiscrepancyNoteBean dn =
             boxDNMap.size() > 0 && boxDNMap.containsKey(Integer.valueOf(parentId)) ? boxDNMap.get(Integer.valueOf(parentId)) : new DiscrepancyNoteBean();
@@ -147,7 +148,7 @@ public class CreateOneDiscrepancyNoteServlet extends SecureController {
         v.addValidation("description" + parentId, Validator.LENGTH_NUMERIC_COMPARISON, NumericComparisonOperator.LESS_THAN_OR_EQUAL_TO, 255);
         v.addValidation("detailedDes" + parentId, Validator.LENGTH_NUMERIC_COMPARISON, NumericComparisonOperator.LESS_THAN_OR_EQUAL_TO, 1000);
         v.addValidation("typeId" + parentId, Validator.NO_BLANKS);
-        HashMap errors = v.validate();
+        HashMap<String, ArrayList<String>> errors = v.validate();
 
         dn.setParentDnId(parentId);
         dn.setDescription(description);
@@ -442,7 +443,7 @@ public class CreateOneDiscrepancyNoteServlet extends SecureController {
     }
 
     private void manageReasonForChangeState(HttpSession session, String itemDataBeanId) {
-        HashMap<String, Boolean> noteSubmitted = (HashMap<String, Boolean>) session.getAttribute(DataEntryServlet.NOTE_SUBMITTED);
+        HashMap<String, Boolean> noteSubmitted = asHashMap(session.getAttribute(DataEntryServlet.NOTE_SUBMITTED), String.class, Boolean.class);
         if (noteSubmitted == null) {
             noteSubmitted = new HashMap<String, Boolean>();
         }

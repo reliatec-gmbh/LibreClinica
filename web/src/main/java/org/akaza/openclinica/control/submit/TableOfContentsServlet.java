@@ -7,6 +7,15 @@
  */
 package org.akaza.openclinica.control.submit;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+
+import javax.sql.DataSource;
+
 import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.core.AuditableEntityBean;
 import org.akaza.openclinica.bean.core.DataEntryStage;
@@ -14,6 +23,7 @@ import org.akaza.openclinica.bean.core.EntityBean;
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.core.SubjectEventStatus;
+import org.akaza.openclinica.bean.managestudy.DisplayStudyEventBean;
 import org.akaza.openclinica.bean.managestudy.EventDefinitionCRFBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventBean;
@@ -31,7 +41,6 @@ import org.akaza.openclinica.control.form.FormDiscrepancyNotes;
 import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.control.form.Validator;
 import org.akaza.openclinica.control.managestudy.ViewStudySubjectServlet;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.admin.CRFDAO;
 import org.akaza.openclinica.dao.managestudy.DiscrepancyNoteDAO;
 import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;
@@ -49,15 +58,6 @@ import org.akaza.openclinica.web.InconsistentStateException;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-
-import javax.sql.DataSource;
 
 /**
  * @author ssachs
@@ -152,7 +152,7 @@ public class TableOfContentsServlet extends SecureController {
      *         otherwise.
      */
     private boolean invalidAction(String action) {
-        ArrayList validActions = new ArrayList(Arrays.asList(ACTIONS));
+        ArrayList<String> validActions = new ArrayList<>(Arrays.asList(ACTIONS));
         return !validActions.contains(action);
     }
 
@@ -255,7 +255,7 @@ public class TableOfContentsServlet extends SecureController {
             } else {
                 ecb.setDateInterviewed(null);
             }
-            ecb.setOwnerId(ub.getId());
+            ecb.setOwner(ub);
             ecb.setStatus(Status.AVAILABLE);
             ecb.setCompletionStatusId(1);
             ecb.setStudySubjectId(ssb.getId());
@@ -263,15 +263,15 @@ public class TableOfContentsServlet extends SecureController {
             ecb.setValidateString("");
             ecb.setValidatorAnnotations("");
 
-            ecb = (EventCRFBean) ecdao.create(ecb);
+            ecb = ecdao.create(ecb);
             logger.info("CREATED EVENT CRF");
         } else {
             // there is an event CRF already, only need to update
-            ecb = (EventCRFBean) ecdao.findByPK(eventCRFId);
+            ecb = ecdao.findByPK(eventCRFId);
             ecb.setCRFVersionId(crfVersionId);
             ecb.setUpdatedDate(new Date());
             ecb.setUpdater(ub);
-            ecb = (EventCRFBean) ecdao.update(ecb);
+            ecb = ecdao.update(ecb);
 
         }
 
@@ -294,7 +294,7 @@ public class TableOfContentsServlet extends SecureController {
         }
 
         if (!isConsistentAction(action, ecb)) {
-            HashMap verbs = new HashMap();
+            HashMap<String, Object> verbs = new HashMap<>();
             verbs.put(ACTION_START_INITIAL_DATA_ENTRY, resword.getString("start_initial_data_entry"));
             verbs.put(ACTION_CONTINUE_INITIAL_DATA_ENTRY, resword.getString("continue_initial_data_entry"));
             verbs.put(ACTION_START_DOUBLE_DATA_ENTRY, resword.getString("start_double_data_entry"));
@@ -409,7 +409,7 @@ public class TableOfContentsServlet extends SecureController {
         // this is for generating side info panel
         StudySubjectDAO ssdao = new StudySubjectDAO(sm.getDataSource());
         StudySubjectBean ssb = (StudySubjectBean) ssdao.findByPK(ecb.getStudySubjectId());
-        ArrayList beans = ViewStudySubjectServlet.getDisplayStudyEventsForStudySubject(ssb, sm.getDataSource(), ub, currentRole);
+        ArrayList<DisplayStudyEventBean> beans = ViewStudySubjectServlet.getDisplayStudyEventsForStudySubject(ssb, sm.getDataSource(), ub, currentRole);
         request.setAttribute("studySubject", ssb);
         request.setAttribute("beans", beans);
         request.setAttribute("eventCRF", ecb);
@@ -417,7 +417,8 @@ public class TableOfContentsServlet extends SecureController {
         request.setAttribute(BEAN_DISPLAY, displayBean);
 
         boolean allowEnterData = true;
-        if (StringUtil.isBlank(ecb.getInterviewerName())) {
+        String interviewerName = ecb.getInterviewerName();
+		if (interviewerName == null || interviewerName.trim().isEmpty()) {
             if (discNotes == null || discNotes.getNotes(TableOfContentsServlet.INPUT_INTERVIEWER).isEmpty()) {
                 allowEnterData = false;
             }
@@ -534,8 +535,8 @@ public class TableOfContentsServlet extends SecureController {
         } // end else (for actions other than ACTION_START_INITIAL_DATA_ENTRY
     } // end mayProceed
 
-    public static int getIntById(HashMap h, Integer key) {
-        Integer value = (Integer) h.get(key);
+    public static int getIntById(HashMap<Integer, Integer> h, Integer key) {
+        Integer value = h.get(key);
         if (value == null) {
             return 0;
         } else {
@@ -584,16 +585,16 @@ public class TableOfContentsServlet extends SecureController {
         return "";
     }
 
-    public static ArrayList getSections(EventCRFBean ecb, DataSource ds) {
+    public static ArrayList<SectionBean> getSections(EventCRFBean ecb, DataSource ds) {
         SectionDAO sdao = new SectionDAO(ds);
         ItemGroupDAO igdao = new ItemGroupDAO(ds);
 
-        HashMap numItemsBySectionId = sdao.getNumItemsBySectionId();
-        HashMap numItemsPlusRepeatBySectionId = sdao.getNumItemsPlusRepeatBySectionId(ecb);
-        HashMap numItemsCompletedBySectionId = sdao.getNumItemsCompletedBySectionId(ecb);
-        HashMap numItemsPendingBySectionId = sdao.getNumItemsPendingBySectionId(ecb);
+        HashMap<Integer, Integer> numItemsBySectionId = sdao.getNumItemsBySectionId();
+        HashMap<Integer, Integer> numItemsPlusRepeatBySectionId = sdao.getNumItemsPlusRepeatBySectionId(ecb);
+        HashMap<Integer, Integer> numItemsCompletedBySectionId = sdao.getNumItemsCompletedBySectionId(ecb);
+        HashMap<Integer, Integer> numItemsPendingBySectionId = sdao.getNumItemsPendingBySectionId(ecb);
 
-        ArrayList sections = sdao.findAllByCRFVersionId(ecb.getCRFVersionId());
+        ArrayList<SectionBean> sections = sdao.findAllByCRFVersionId(ecb.getCRFVersionId());
 
         for (int i = 0; i < sections.size(); i++) {
             SectionBean sb = (SectionBean) sections.get(i);
@@ -647,7 +648,7 @@ public class TableOfContentsServlet extends SecureController {
         StudyEventBean seb = (StudyEventBean) sedao.findByPK(ecb.getStudyEventId());
         answer.setStudyEvent(seb);
 
-        ArrayList sections = getSections(ecb, ds);
+        ArrayList<SectionBean> sections = getSections(ecb, ds);
         answer.setSections(sections);
 
         // get metadata

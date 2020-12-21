@@ -7,24 +7,6 @@
  */
 package org.akaza.openclinica.control.submit;
 
-import org.akaza.openclinica.bean.core.Status;
-import org.akaza.openclinica.bean.managestudy.EventDefinitionCRFBean;
-import org.akaza.openclinica.bean.submit.DisplayItemBean;
-import org.akaza.openclinica.bean.submit.DisplayItemGroupBean;
-import org.akaza.openclinica.bean.submit.EventCRFBean;
-import org.akaza.openclinica.bean.submit.ItemBean;
-import org.akaza.openclinica.control.form.DiscrepancyValidator;
-import org.akaza.openclinica.control.form.FormProcessor;
-import org.akaza.openclinica.control.form.RuleValidator;
-import org.akaza.openclinica.core.form.StringUtil;
-import org.akaza.openclinica.i18n.core.LocaleResolver;
-import org.akaza.openclinica.view.Page;
-import org.akaza.openclinica.web.InsufficientPermissionException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +15,22 @@ import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
+import org.akaza.openclinica.bean.core.Status;
+import org.akaza.openclinica.bean.managestudy.EventDefinitionCRFBean;
+import org.akaza.openclinica.bean.submit.DisplayItemBean;
+import org.akaza.openclinica.bean.submit.DisplayItemGroupBean;
+import org.akaza.openclinica.bean.submit.EventCRFBean;
+import org.akaza.openclinica.control.form.DiscrepancyValidator;
+import org.akaza.openclinica.control.form.FormProcessor;
+import org.akaza.openclinica.control.form.RuleValidator;
+import org.akaza.openclinica.i18n.core.LocaleResolver;
+import org.akaza.openclinica.view.Page;
+import org.akaza.openclinica.web.InsufficientPermissionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
  * @author ssachs
@@ -126,7 +124,7 @@ public class InitialDataEntryServlet extends DataEntryServlet {
         // note that this step sets us up both for
         // displaying the data on the form again, in the event of an error
         // and sending the data to the database, in the event of no error
-        if (StringUtil.isBlank(inputName)) {// not an item from group, doesn't
+        if (inputName == null || inputName.trim().isEmpty()) {// not an item from group, doesn't
             // need to get data from form again
             dib = loadFormValue(dib, request);
         }
@@ -202,7 +200,7 @@ public class InitialDataEntryServlet extends DataEntryServlet {
         // note that this step sets us up both for
         // displaying the data on the form again, in the event of an error
         // and sending the data to the database, in the event of no error
-        if (StringUtil.isBlank(inputName)) {// not an item from group, doesn't
+        if (inputName == null || inputName.trim().isEmpty()) {// not an item from group, doesn't
             // need to get data from form again
             dib = loadFormValue(dib, request);
         }
@@ -323,7 +321,8 @@ public class InitialDataEntryServlet extends DataEntryServlet {
         String tabId = fp.getString("tab", true);
         String sectionId = fp.getString(DataEntryServlet.INPUT_SECTION_ID, true);
         String eventCRFId = fp.getString(INPUT_EVENT_CRF_ID, true);
-        if (StringUtil.isBlank(sectionId) || StringUtil.isBlank(tabId)) {
+        if ((sectionId == null || sectionId.trim().isEmpty()) 
+        		|| (tabId == null || tabId.trim().isEmpty())) {
             return Page.INITIAL_DATA_ENTRY_SERVLET.getFileName();
         } else {
             Page target = Page.INITIAL_DATA_ENTRY_SERVLET;

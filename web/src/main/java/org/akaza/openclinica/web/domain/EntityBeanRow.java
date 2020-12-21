@@ -60,7 +60,7 @@ import java.util.Date;
  * @see EntityBeanTable
  * @see UserAccountRow
  */
-public abstract class EntityBeanRow implements Comparable<EntityBeanRow> {
+public abstract class EntityBeanRow<T, R> implements Comparable<EntityBeanRow<T, R>> {
     /**
      * The object which will be displayed.
      */
@@ -113,7 +113,7 @@ public abstract class EntityBeanRow implements Comparable<EntityBeanRow> {
      *
      * @see java.lang.Comparable#compareTo(java.lang.Object)
      */
-    public int compareTo(EntityBeanRow row) {
+    public int compareTo(EntityBeanRow<T, R> row) {
         if (ascendingSort) {
             return compareColumn(row, sortingColumn);
         } else {
@@ -179,6 +179,7 @@ public abstract class EntityBeanRow implements Comparable<EntityBeanRow> {
      *
      * <p>
      * Code that's more specific to the subclass is obviously recommended.
+     * @param <R>
      *
      * @param beans
      *            A set of EntityBeans which are to be displayed.
@@ -186,7 +187,7 @@ public abstract class EntityBeanRow implements Comparable<EntityBeanRow> {
      *         element in the result has its bean property set to the
      *         corresponding value in the beans argument.
      */
-    public abstract ArrayList generatRowsFromBeans(ArrayList beans);
+    public abstract ArrayList<R> generatRowsFromBeans(ArrayList<T> beans);
 
     /**
      * @return Returns the bean.

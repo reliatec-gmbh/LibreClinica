@@ -7,22 +7,20 @@
  */
 package org.akaza.openclinica.control.submit;
 
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.ArrayList;
+
+import javax.servlet.ServletOutputStream;
+
 import org.akaza.openclinica.bean.core.Utils;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
-import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
-
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.util.ArrayList;
-import java.util.Locale;
-
-import javax.servlet.ServletOutputStream;
 
 /**
  * @author ywang (Dec., 2008)

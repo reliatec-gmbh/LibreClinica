@@ -16,15 +16,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.akaza.openclinica.bean.core.DataEntryStage;
-import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.core.Status;
-import org.akaza.openclinica.bean.login.StudyUserRoleBean;
-import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.bean.managestudy.EventDefinitionCRFBean;
-import org.akaza.openclinica.bean.submit.DisplayEventCRFBean;
 import org.akaza.openclinica.bean.submit.DisplayItemBean;
 import org.akaza.openclinica.bean.submit.DisplayItemGroupBean;
 import org.akaza.openclinica.bean.submit.EventCRFBean;
@@ -36,12 +30,13 @@ import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.control.form.RuleValidator;
 import org.akaza.openclinica.control.form.ScoreItemValidator;
 import org.akaza.openclinica.control.form.Validator;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.submit.ItemDataDAO;
 import org.akaza.openclinica.dao.submit.SectionDAO;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
+import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,9 +90,6 @@ public class DoubleDataEntryServlet extends DataEntryServlet {
         }
         // if tabNumber still isn't valid, check the "tab" parameter
         if (tabNumber < 1) {
-            if (fp == null) {
-                fp = new FormProcessor(request);
-            }
             String tab = fp.getString("tab");
             if (tab == null || tab.length() < 1) {
                 tabNumber = 1;
@@ -108,7 +100,7 @@ public class DoubleDataEntryServlet extends DataEntryServlet {
         SectionDAO sectionDao = new SectionDAO(getDataSource());
         int crfVersionId = ecb.getCRFVersionId();
         int eventCRFId = ecb.getId();
-        ArrayList sections = sectionDao.findAllByCRFVersionId(crfVersionId);
+        ArrayList<SectionBean> sections = sectionDao.findAllByCRFVersionId(crfVersionId);
         int sectionSize = sections.size();
 
         HttpSession mySession = request.getSession();
@@ -197,7 +189,7 @@ public class DoubleDataEntryServlet extends DataEntryServlet {
         EventCRFBean ecb = (EventCRFBean)request.getAttribute(INPUT_EVENT_CRF);
 
         boolean isSingleItem = false;
-        if (StringUtil.isBlank(inputName)) {// for single items
+        if (inputName == null || inputName.trim().isEmpty()) {// for single items
             inputName = getInputName(dib);
             isSingleItem = true;
         }
@@ -289,7 +281,7 @@ public class DoubleDataEntryServlet extends DataEntryServlet {
                     v.addValidation(inputName, Validator.MATCHES_INITIAL_DATA_ENTRY_VALUE, valueToCompare, false);
                     String errorValue = valueToCompare.getValue();
 
-                    java.util.ArrayList options = dib.getMetadata().getResponseSet().getOptions();
+                    ArrayList<ResponseOptionBean> options = dib.getMetadata().getResponseSet().getOptions();
 
                     for (int u = 0; u < options.size(); u++) {
                         ResponseOptionBean rob = (ResponseOptionBean) options.get(u);
@@ -308,7 +300,7 @@ public class DoubleDataEntryServlet extends DataEntryServlet {
                     String errorValue = valueToCompare.getValue();
                     String errorTexts = "";
 
-                    java.util.ArrayList options = dib.getMetadata().getResponseSet().getOptions();
+                    ArrayList<ResponseOptionBean> options = dib.getMetadata().getResponseSet().getOptions();
 
                     for (int u = 0; u < options.size(); u++) {
                         ResponseOptionBean rob = (ResponseOptionBean) options.get(u);
@@ -404,7 +396,7 @@ public class DoubleDataEntryServlet extends DataEntryServlet {
         org.akaza.openclinica.bean.core.ResponseType rt = dib.getMetadata().getResponseSet().getResponseType();
         ItemDataDAO iddao = new ItemDataDAO(getDataSource());
         boolean isSingleItem = false;
-        if (StringUtil.isBlank(inputName)) {// for single items
+        if (inputName == null || inputName.trim().isEmpty()) {// for single items
             inputName = getInputName(dib);
             isSingleItem = true;
         }
@@ -510,7 +502,8 @@ public class DoubleDataEntryServlet extends DataEntryServlet {
         String tabId = fp.getString("tab", true);
         String sectionId = fp.getString(DataEntryServlet.INPUT_SECTION_ID, true);
         String eventCRFId = fp.getString(INPUT_EVENT_CRF_ID, true);
-        if (StringUtil.isBlank(sectionId) || StringUtil.isBlank(tabId)) {
+        if ((sectionId == null || sectionId.trim().isEmpty()) 
+        		|| (tabId == null || tabId.trim().isEmpty())) {
             return Page.DOUBLE_DATA_ENTRY_SERVLET.getFileName();
         } else {
             Page target = Page.DOUBLE_DATA_ENTRY_SERVLET;
@@ -561,7 +554,7 @@ public class DoubleDataEntryServlet extends DataEntryServlet {
             HashMap<String, ArrayList<String>> groupOrdinalPLusItemOid, Boolean fireRuleValidation, ArrayList<String> messages, HttpServletRequest request) {
 
         boolean isSingleItem = false;
-        if (StringUtil.isBlank(inputName)) {// for single items
+        if (inputName == null || inputName.trim().isEmpty()) {// for single items
             inputName = getInputName(dib);
             isSingleItem = true;
         }
@@ -650,9 +643,7 @@ public class DoubleDataEntryServlet extends DataEntryServlet {
         result.setCreatedDate(src.getCreatedDate());
         result.setUpdatedDate(src.getUpdatedDate());
         result.setOwner(src.getOwner());
-        result.setOwnerId(src.getOwnerId());
         result.setUpdater(src.getUpdater());
-        result.setUpdaterId(src.getUpdaterId());
         result.setStatus(src.getStatus());
 
         return result;

@@ -36,7 +36,7 @@ import org.akaza.openclinica.dao.submit.SubjectGroupMapDAO;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
-
+import static org.akaza.openclinica.core.util.ClassCastHelper.*;
 /**
  * Servlet for creating a table.
  *
@@ -104,8 +104,9 @@ public class ListStudySubjectsServlet extends SecureController {
         if (fp.getRequest().getParameter("subjectOverlay") == null){
             Date today = new Date(System.currentTimeMillis());
             String todayFormatted = local_df.format(today);
-            if (request.getAttribute(PRESET_VALUES) != null) {
-                fp.setPresetValues((HashMap)request.getAttribute(PRESET_VALUES));
+            HashMap<String, Object> presetValues = asHashMap(request.getAttribute(PRESET_VALUES), String.class, Object.class);
+			if (presetValues != null) {
+                fp.setPresetValues(presetValues);
             }
             fp.addPresetValue(AddNewSubjectServlet.INPUT_ENROLLMENT_DATE, todayFormatted);
             fp.addPresetValue(AddNewSubjectServlet.INPUT_EVENT_START_DATE, todayFormatted);

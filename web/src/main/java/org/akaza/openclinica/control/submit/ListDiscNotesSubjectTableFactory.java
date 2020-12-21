@@ -7,10 +7,8 @@
  */
 package org.akaza.openclinica.control.submit;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -20,7 +18,6 @@ import java.util.Set;
 import javax.servlet.http.HttpServletResponse;
 
 import org.akaza.openclinica.bean.core.ResolutionStatus;
-import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.core.SubjectEventStatus;
 import org.akaza.openclinica.bean.login.StudyUserRoleBean;
@@ -28,10 +25,8 @@ import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
-import org.akaza.openclinica.bean.managestudy.StudyGroupClassBean;
 import org.akaza.openclinica.bean.managestudy.StudySubjectBean;
 import org.akaza.openclinica.bean.submit.EventCRFBean;
-import org.akaza.openclinica.bean.submit.SubjectBean;
 import org.akaza.openclinica.control.AbstractTableFactory;
 import org.akaza.openclinica.control.DefaultActionsEditor;
 import org.akaza.openclinica.dao.managestudy.DiscrepancyNoteDAO;
@@ -82,7 +77,6 @@ public class ListDiscNotesSubjectTableFactory extends AbstractTableFactory {
     private StudyUserRoleBean currentRole;
     private UserAccountBean currentUser;
     private ResourceBundle resword;
-    private ResourceBundle resformat;
     private ResourceBundle resterm;
     private String module;
     private Integer resolutionStatus;
@@ -125,7 +119,6 @@ public class ListDiscNotesSubjectTableFactory extends AbstractTableFactory {
     @Override
     protected void configureColumns(TableFacade tableFacade, Locale locale) {
         resword = ResourceBundleProvider.getWordsBundle(locale);
-        resformat = ResourceBundleProvider.getFormatBundle(locale);
         tableFacade.setColumnProperties(columnNames);
         Row row = tableFacade.getTable().getRow();
         configureColumn(row.getColumn(columnNames[0]), resword.getString("study_subject_ID"), null, null);
@@ -285,7 +278,6 @@ public class ListDiscNotesSubjectTableFactory extends AbstractTableFactory {
         return isSignable;
     }
 
-    @SuppressWarnings("unchecked")
     private boolean eventHasRequiredUncompleteCRFs(StudyEventBean studyEventBean) {
 
         List<EventCRFBean> eventCrfBeans = new ArrayList<EventCRFBean>();
@@ -352,7 +344,6 @@ public class ListDiscNotesSubjectTableFactory extends AbstractTableFactory {
         return listDiscNotesSubjectSort;
     }
 
-    @SuppressWarnings("unchecked")
     private ArrayList<StudyEventDefinitionBean> getStudyEventDefinitions() {
         if (this.studyEventDefinitions == null) {
             if (studyBean.getParentStudyId() > 0) {
