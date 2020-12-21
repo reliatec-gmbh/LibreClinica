@@ -46,7 +46,6 @@ public class LdapUserController {
         if (!StringUtils.isEmpty(filter)) {
 
             // Retrieve existing users to remove them from LDAP search results.
-            @SuppressWarnings("unchecked")
             Collection<UserAccountBean> existingAccounts = userAccountDao.findAll();
 
             Set<String> existingUsernames = new HashSet<String>(existingAccounts.size());
