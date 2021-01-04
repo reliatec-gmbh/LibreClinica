@@ -16,6 +16,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import javax.servlet.ServletContext;
 
+// TODO duplicate of the version in the web module?
 public class SpringServletAccess {
 
     public static ApplicationContext getApplicationContext(ServletContext servletContext) {

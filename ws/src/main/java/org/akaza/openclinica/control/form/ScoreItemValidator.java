@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
  * @author ywang (Feb. 2008)
  *
  */
+// TODO duplicate of the version in the web module?
 public class ScoreItemValidator extends DiscrepancyValidator {
 
     public ScoreItemValidator(HttpServletRequest request, FormDiscrepancyNotes notes) {

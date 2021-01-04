@@ -354,6 +354,7 @@ import org.slf4j.LoggerFactory;
 // and making it more beefy (ie adding a checkIfValidated() type method to that
 // class,
 // so that the work is done there and not in this class)
+// TODO duplicate of the version in the web module?
 public class Validator {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());

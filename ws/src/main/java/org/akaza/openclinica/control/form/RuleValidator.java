@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
  * 
  * @author ssachs
  */
+// TODO duplicate of the version in the web module?
 public class RuleValidator extends Validator {
 
     public RuleValidator(HttpServletRequest request, FormDiscrepancyNotes notes) {

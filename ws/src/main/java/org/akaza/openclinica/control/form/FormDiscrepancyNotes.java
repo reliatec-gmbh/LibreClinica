@@ -17,6 +17,7 @@ import java.util.HashMap;
  *
  * 
  */
+// TODO duplicate of the version in the web module?
 public class FormDiscrepancyNotes {
     private HashMap<String, ArrayList<DiscrepancyNoteBean>> fieldNotes;
     private HashMap<Object, Object> numExistingFieldNotes;

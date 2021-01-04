@@ -16,6 +16,7 @@ package org.akaza.openclinica.control.form;
 
 import java.util.ArrayList;
 
+// TODO duplicate of the version in the web module?
 public class Validation {
     private int type;
 
