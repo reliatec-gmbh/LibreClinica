@@ -12,6 +12,7 @@ package org.akaza.openclinica.view;
  * 
  *         Provides a type-safe enumeration for JSP Page
  */
+// TODO duplicate of the version in the web module?
 public class Page {
     /**
      * The filename of the JSP page

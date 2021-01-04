@@ -11,8 +11,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.TreeMap;
@@ -21,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.akaza.openclinica.bean.admin.CRFBean;
+import org.akaza.openclinica.bean.core.AuditableEntityBean;
 import org.akaza.openclinica.bean.core.DataEntryStage;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.extract.DatasetBean;
@@ -47,18 +46,19 @@ import org.slf4j.LoggerFactory;
  * @author thickerson
  *
  */
+// TODO duplicate of the version in the web module?
 public class StudyInfoPanel {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
     ResourceBundle resword;
 
-    private TreeMap data = new TreeMap();
+    private TreeMap<String, String> data = new TreeMap<>();
 
     /**
      * An array of StudyInfoPanelLine objects. This is only used if orderedData
      * is flipped on.
      */
-    private ArrayList userOrderedData = new ArrayList();
+    private ArrayList<StudyInfoPanelLine> userOrderedData = new ArrayList<>();
 
     String datePattern = "MM/dd/yyyy";
 
@@ -155,14 +155,14 @@ public class StudyInfoPanel {
     }
 
     public void reset() {
-        data = new TreeMap();
-        userOrderedData = new ArrayList();
+        data = new TreeMap<>();
+        userOrderedData = new ArrayList<>();
     }
 
     /**
      * @return Returns the data.
      */
-    public TreeMap getData() {
+    public TreeMap<String, String> getData() {
         return data;
     }
 
@@ -170,7 +170,7 @@ public class StudyInfoPanel {
      * @param data
      *            The data to set.
      */
-    public void setData(TreeMap data) {
+    public void setData(TreeMap<String, String> data) {
         this.data = data;
     }
 
@@ -182,7 +182,8 @@ public class StudyInfoPanel {
      * @param session
      * @param request
      */
-    public void setData(Page page, HttpSession session, HttpServletRequest request) {
+    @SuppressWarnings("unchecked")
+	public void setData(Page page, HttpSession session, HttpServletRequest request) {
 
         Locale locale = request.getLocale();
         resword = ResourceBundleProvider.getWordsBundle();
@@ -205,8 +206,8 @@ public class StudyInfoPanel {
                 // this.setData("Number of Steps", "5");
             } else if (page.equals(Page.CREATE_DATASET_2) || page.equals(Page.CREATE_DATASET_EVENT_ATTR) || page.equals(Page.CREATE_DATASET_SUB_ATTR)
                 || page.equals(Page.CREATE_DATASET_CRF_ATTR) || page.equals(Page.CREATE_DATASET_GROUP_ATTR) || page.equals(Page.CREATE_DATASET_VIEW_SELECTED)) {
-                HashMap eventlist = (HashMap) request.getAttribute("eventlist");
-                ArrayList displayData = generateEventTree(eventlist);
+            	HashMap<StudyEventDefinitionBean, ArrayList<CRFBean>> eventlist = (HashMap<StudyEventDefinitionBean, ArrayList<CRFBean>>) request.getAttribute("eventlist");
+                ArrayList<StudyInfoPanelLine> displayData = generateEventTree(eventlist);
 
                 this.reset();
                 this.setUserOrderedData(displayData);
@@ -294,7 +295,7 @@ public class StudyInfoPanel {
             } else if (page.equals(Page.CREATE_FILTER_SCREEN_3_2)) {
                 SectionBean secBean = (SectionBean) session.getAttribute("secBean");
                 this.setData(resword.getString("section_selected"), secBean.getName());
-                Collection metadatas = (Collection) request.getAttribute("metadatas");
+                Collection<?> metadatas = (Collection<?>) request.getAttribute("metadatas");
                 this.setData(resword.getString("number_of_questions"), new Integer(metadatas.size()).toString());
             } else if (page.equals(Page.CREATE_FILTER_SCREEN_4)) {
 
@@ -342,7 +343,7 @@ public class StudyInfoPanel {
 
                 StudyBean study = (StudyBean) session.getAttribute("study");
                 StudySubjectBean studySubject = (StudySubjectBean) request.getAttribute("studySubject");
-                ArrayList beans = (ArrayList) request.getAttribute("beans");
+                ArrayList<DisplayStudyEventBean> beans = (ArrayList<DisplayStudyEventBean>) request.getAttribute("beans");
                 EventCRFBean ecb = (EventCRFBean) request.getAttribute("eventCRF");
                 this.reset();
                 addStudyEventTree(study, studySubject, beans, ecb, true);
@@ -364,7 +365,7 @@ public class StudyInfoPanel {
                  */
                 StudyBean study = (StudyBean) session.getAttribute("study");
                 StudySubjectBean studySubject = (StudySubjectBean) request.getAttribute("studySubject");
-                ArrayList beans = (ArrayList) request.getAttribute("beans");
+                ArrayList<DisplayStudyEventBean> beans = (ArrayList<DisplayStudyEventBean>) request.getAttribute("beans");
                 EventCRFBean ecb = (EventCRFBean) request.getAttribute("eventCRF");
                 this.reset();
                 addStudyEventTree(study, studySubject, beans, ecb, false);
@@ -381,8 +382,8 @@ public class StudyInfoPanel {
 
                 // HashMap eventlist = (HashMap)
                 // request.getAttribute("eventlist");
-                HashMap eventlist = (LinkedHashMap) session.getAttribute("eventsForCreateDataset");
-                ArrayList displayData = generateEventTree(eventlist);
+                HashMap<StudyEventDefinitionBean, ArrayList<CRFBean>> eventlist = (HashMap<StudyEventDefinitionBean, ArrayList<CRFBean>>) session.getAttribute("eventsForCreateDataset");
+                ArrayList<StudyInfoPanelLine> displayData = generateEventTree(eventlist);
 
                 this.setCreateDataset(true);
                 this.setOrderedData(true);
@@ -405,9 +406,7 @@ public class StudyInfoPanel {
                 DatasetBean db = (DatasetBean) request.getAttribute("dataset");
                 ExtractBean exbean = (ExtractBean) request.getAttribute("extractBean");
                 this.reset();
-                ArrayList displayData = new ArrayList();
-
-                displayData = generateDatasetTree(exbean, db);
+                ArrayList<StudyInfoPanelLine> displayData = generateDatasetTree(exbean, db);
                 this.setUserOrderedData(displayData);
                 this.setStudyInfoShown(false);
                 this.setOrderedData(true);
@@ -500,7 +499,7 @@ public class StudyInfoPanel {
     /**
      * @return Returns the userOrderedData.
      */
-    public ArrayList getUserOrderedData() {
+    public ArrayList<StudyInfoPanelLine> getUserOrderedData() {
         return userOrderedData;
     }
 
@@ -508,7 +507,7 @@ public class StudyInfoPanel {
      * @param userOrderedData
      *            The userOrderedData to set.
      */
-    public void setUserOrderedData(ArrayList userOrderedData) {
+    public void setUserOrderedData(ArrayList<StudyInfoPanelLine> userOrderedData) {
         this.userOrderedData = userOrderedData;
     }
 
@@ -555,14 +554,14 @@ public class StudyInfoPanel {
         return answer;
     }
 
-    public void addStudyEventTree(StudyBean study, StudySubjectBean studySubject, ArrayList displayStudyEventBeans, EventCRFBean ecb, boolean withLink) {
+    public void addStudyEventTree(StudyBean study, StudySubjectBean studySubject, ArrayList<DisplayStudyEventBean> displayStudyEventBeans, EventCRFBean ecb, boolean withLink) {
         // method behind madness: we want the other pages to show
         // this information, but we don't want to hit the database when we do.
         // so, we gather--and hide--the information here.
         this.setStudyInfoShown(true);
         this.setOrderedData(false);
 
-        ArrayList displayData = new ArrayList();
+        ArrayList<StudyInfoPanelLine> displayData = new ArrayList<>();
         // displayData.add(new StudyInfoPanelLine("Study", study.getName(),
         // true, false));
         // displayData.add(new StudyInfoPanelLine("<span class='alert'>Subject",
@@ -585,13 +584,10 @@ public class StudyInfoPanel {
      * @param ecb
      * @return
      */
-    public ArrayList generateTreeFromBeans(ArrayList rows, ArrayList displayData, StudySubjectBean studySubject, EventCRFBean ecb) {
-        Iterator itRows = rows.iterator();
-
+    public ArrayList<StudyInfoPanelLine> generateTreeFromBeans(ArrayList<DisplayStudyEventBean> rows, ArrayList<StudyInfoPanelLine> displayData, StudySubjectBean studySubject, EventCRFBean ecb) {
         displayData.add(new StudyInfoPanelLine(resword.getString("study_events"), "(" + rows.size() + ")", true, false, false));
 
-        while (itRows.hasNext()) {
-            DisplayStudyEventBean dseBean = (DisplayStudyEventBean) itRows.next();
+        for(DisplayStudyEventBean dseBean : rows) {
             StudyEventBean seBean = dseBean.getStudyEvent();
             // checks whether the event is the current one
             if (ecb != null && ecb.getStudyEventId() == seBean.getId()) {
@@ -603,11 +599,9 @@ public class StudyInfoPanel {
 
             displayData.add(new StudyInfoPanelLine("<b>Status: </b>", "<a href='EnterDataForStudyEvent?eventId=" + seBean.getId()
                 + "'>" + seBean.getSubjectEventStatus().getName() + "</a>", false, false, false));
-            ArrayList displayCRFs = dseBean.getDisplayEventCRFs();
+            ArrayList<DisplayEventCRFBean> displayCRFs = dseBean.getDisplayEventCRFs();
             int count = 0;
-            Iterator displayIt = displayCRFs.iterator();
-            while (displayIt.hasNext()) {
-                DisplayEventCRFBean dec = (DisplayEventCRFBean) displayIt.next();
+            for(DisplayEventCRFBean dec : displayCRFs) {
                 if (count == displayCRFs.size() - 1 && dseBean.getUncompletedCRFs().size() == 0) {
                     // last event CRF for this event
                     // it's the current crf
@@ -634,10 +628,8 @@ public class StudyInfoPanel {
                 count++;
             }
             count = 0;
-            ArrayList uncompleted = dseBean.getUncompletedCRFs();
-            Iterator uncompIt = uncompleted.iterator();
-            while (uncompIt.hasNext()) {
-                DisplayEventDefinitionCRFBean dedc = (DisplayEventDefinitionCRFBean) uncompIt.next();
+            ArrayList<DisplayEventDefinitionCRFBean> uncompleted = dseBean.getUncompletedCRFs();
+            for(DisplayEventDefinitionCRFBean dedc : uncompleted) {
                 if (count == uncompleted.size() - 1) {
                     if (ecb != null && ecb.getId() == dedc.getEventCRF().getId() && ecb.getCrf().getId() == dedc.getEventCRF().getCrf().getId()) {
                         // logger.info("ecb id*******" + ecb.getId() +
@@ -681,13 +673,10 @@ public class StudyInfoPanel {
      * @param ecb
      * @return
      */
-    public ArrayList generateTreeFromBeansWithoutLink(ArrayList rows, ArrayList displayData, StudySubjectBean studySubject, EventCRFBean ecb) {
-        Iterator itRows = rows.iterator();
-
+    public ArrayList<StudyInfoPanelLine> generateTreeFromBeansWithoutLink(ArrayList<DisplayStudyEventBean> rows, ArrayList<StudyInfoPanelLine> displayData, StudySubjectBean studySubject, EventCRFBean ecb) {
         displayData.add(new StudyInfoPanelLine("Study Events", "(" + rows.size() + ")", true, false, false));
 
-        while (itRows.hasNext()) {
-            DisplayStudyEventBean dseBean = (DisplayStudyEventBean) itRows.next();
+        for(DisplayStudyEventBean dseBean : rows) {
             StudyEventBean seBean = dseBean.getStudyEvent();
             // checks whether the event is the current one
             if (ecb != null && ecb.getStudyEventId() == seBean.getId()) {
@@ -698,11 +687,9 @@ public class StudyInfoPanel {
             }
 
             displayData.add(new StudyInfoPanelLine("<b>Status: </b>", seBean.getSubjectEventStatus().getName(), false, false, false));
-            ArrayList displayCRFs = dseBean.getDisplayEventCRFs();
+            ArrayList<DisplayEventCRFBean> displayCRFs = dseBean.getDisplayEventCRFs();
             int count = 0;
-            Iterator displayIt = displayCRFs.iterator();
-            while (displayIt.hasNext()) {
-                DisplayEventCRFBean dec = (DisplayEventCRFBean) displayIt.next();
+            for(DisplayEventCRFBean dec : displayCRFs) {
                 if (count == displayCRFs.size() - 1 && dseBean.getUncompletedCRFs().size() == 0) {
                     // last event CRF for this event
                     // it's the current crf
@@ -726,10 +713,8 @@ public class StudyInfoPanel {
                 count++;
             }
             count = 0;
-            ArrayList uncompleted = dseBean.getUncompletedCRFs();
-            Iterator uncompIt = uncompleted.iterator();
-            while (uncompIt.hasNext()) {
-                DisplayEventDefinitionCRFBean dedc = (DisplayEventDefinitionCRFBean) uncompIt.next();
+            ArrayList<DisplayEventDefinitionCRFBean> uncompleted = dseBean.getUncompletedCRFs();
+            for(DisplayEventDefinitionCRFBean dedc : uncompleted) {
                 if (count == uncompleted.size() - 1) {
                     if (ecb != null && ecb.getId() == dedc.getEventCRF().getId() && ecb.getCrf().getId() == dedc.getEventCRF().getCrf().getId()) {
                         // logger.info("ecb id*******" + ecb.getId() +
@@ -760,10 +745,10 @@ public class StudyInfoPanel {
         return displayData;
     }
 
-    private ArrayList generateDatasetTree(ExtractBean eb, DatasetBean db) {
-        ArrayList displayData = new ArrayList();
+    private ArrayList<StudyInfoPanelLine> generateDatasetTree(ExtractBean eb, DatasetBean db) {
+        ArrayList<StudyInfoPanelLine> displayData = new ArrayList<>();
 
-        ArrayList seds = eb.getStudyEvents();
+        ArrayList<StudyEventDefinitionBean> seds = eb.getStudyEvents();
 
         for (int i = 0; i < seds.size(); i++) {
             // second, iterate through seds
@@ -776,7 +761,7 @@ public class StudyInfoPanel {
             // change string to (Repeating)
             displayData.add(new StudyInfoPanelLine("Study Event Definition", sed.getName() + repeating, true, false));
 
-            ArrayList crfs = sed.getCrfs();
+            ArrayList<? extends AuditableEntityBean> crfs = sed.getCrfs();
             for (int j = 0; j < crfs.size(); j++) {
                 CRFBean cb = (CRFBean) crfs.get(j);
 
@@ -793,18 +778,16 @@ public class StudyInfoPanel {
         return displayData;
     }
 
-    private ArrayList generateEventTree(HashMap eventlist) {
-        ArrayList displayData = new ArrayList();
+    private ArrayList<StudyInfoPanelLine> generateEventTree(HashMap<StudyEventDefinitionBean, ArrayList<CRFBean>> eventlist) {
+        ArrayList<StudyInfoPanelLine> displayData = new ArrayList<>();
         // Iterator keyIt = eventlist.keySet().iterator();
         // logger.info("how many events =" + eventlist.size());
 
-        for (Iterator keyIt = eventlist.keySet().iterator(); keyIt.hasNext();) {
-            StudyEventDefinitionBean sed = (StudyEventDefinitionBean) keyIt.next();
+        for(StudyEventDefinitionBean sed : eventlist.keySet()) {
             displayData.add(new StudyInfoPanelLine("Definition", sed.getName(), true, false));
-            ArrayList crfs = (ArrayList) eventlist.get(sed);
+            ArrayList<CRFBean> crfs = eventlist.get(sed);
             int ordinal_crf = 1;
-            for (int i = 0; i < crfs.size(); i++) {
-                CRFBean crf = (CRFBean) crfs.get(i);
+            for(CRFBean crf : crfs) {
                 if (ordinal_crf < crfs.size()) {
                     displayData.add(new StudyInfoPanelLine("CRF", "<a href='SelectItems?crfId=" + crf.getId() + "&defId=" + sed.getId() + "'>" + crf.getName()
                         + "</a>", false, false));
