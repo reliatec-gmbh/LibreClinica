@@ -9,6 +9,7 @@ package org.akaza.openclinica.web.crfdata;
 
 import org.akaza.openclinica.bean.core.DataEntryStage;
 
+// TODO duplicate of the version in the web module?
 public class ImportCRFInfo {
     private String studyOID;
     private String studySubjectOID;
