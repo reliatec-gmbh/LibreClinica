@@ -40,7 +40,7 @@ public class DiscrepancyValidator extends Validator {
     }
 
     @Override
-    protected HashMap validate(String fieldName, Validation v) {
+    protected HashMap<String, ArrayList<String>> validate(String fieldName, Validation v) {
         if (!v.isAlwaysExecuted()) {
             if (notes.hasNote(fieldName) || notes.getNumExistingFieldNotes(fieldName) > 0) {
                 return errors;
@@ -51,10 +51,10 @@ public class DiscrepancyValidator extends Validator {
     }
 
     public void alwaysExecuteLastValidation(String fieldName) {
-        ArrayList fieldValidations = getFieldValidations(fieldName);
+        ArrayList<Validation> fieldValidations = getFieldValidations(fieldName);
 
         if (validations.size() >= 1) {
-            Validation v = (Validation) fieldValidations.get(fieldValidations.size() - 1);
+            Validation v = fieldValidations.get(fieldValidations.size() - 1);
             v.setAlwaysExecuted(true);
             fieldValidations.set(fieldValidations.size() - 1, v);
         }

@@ -9,6 +9,7 @@
  */
 package org.akaza.openclinica.control.form;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
@@ -41,7 +42,7 @@ public class RuleValidator extends Validator {
     }
 
     @Override
-    protected HashMap validate(String fieldName, Validation v) {
+    protected HashMap<String, ArrayList<String>> validate(String fieldName, Validation v) {
         /*
          * if (!v.isAlwaysExecuted()) { if (notes.hasNote(fieldName) ||
          * notes.getNumExistingFieldNotes(fieldName) > 0) { return errors; } }
