@@ -17,6 +17,7 @@ package org.akaza.openclinica.controller;
  * Date: Jan 14, 2009
  * @see SidebarEnumConstants
  */
+// TODO duplicate of the version in the web module?
 public class SidebarInit {
     private SidebarEnumConstants alertsBoxSetup;
     private SidebarEnumConstants infoBoxSetup;

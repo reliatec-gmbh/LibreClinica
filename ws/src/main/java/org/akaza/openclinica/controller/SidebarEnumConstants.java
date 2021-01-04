@@ -14,6 +14,7 @@ package org.akaza.openclinica.controller;
  * Date: Jan 14, 2009
  * Time: 11:50:59 AM
  */
+// TODO duplicate of the version in the web module?
 public enum SidebarEnumConstants {
     OPENALERTS,
     CLOSEALERTS,
