@@ -233,7 +233,6 @@ public class SubjectIdSDVFactory extends AbstractTableFactory {
         tableFacade.setToolbar(new SDVToolbarSubject(showMoreLink));
     }
 
-    @SuppressWarnings("unchecked")
     private Collection<SubjectAggregateContainer> getFilteredItems(StudySubjectSDVFilter filterSet, StudySubjectSDVSort sortSet, int rowStart, int rowEnd) {
 
         List<SubjectAggregateContainer> rows = new ArrayList<SubjectAggregateContainer>();

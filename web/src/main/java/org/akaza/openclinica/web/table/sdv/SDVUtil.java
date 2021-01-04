@@ -91,7 +91,6 @@ public class SDVUtil {
     private final static String ICON_FORCRFSTATUS_SUFFIX = ".gif'/>";
     public final static String CHECKBOX_NAME = "sdvCheck_";
     public final static String VIEW_ICON_HTML = "<img src=\"../images/bt_View.gif\" border=\"0\" />";
-    private ResourceBundle resformat;
     private String pathPrefix;
 
     String getIconForSdvStatusPrefix() {
@@ -297,7 +296,6 @@ public class SDVUtil {
         return eventCRFSDVSort;
     }
 
-    @SuppressWarnings("unchecked")
     private Collection<SubjectSDVContainer> getFilteredItems(EventCRFSDVFilter filterSet, EventCRFSDVSort sortSet, int rowStart, int rowEnd, int studyId,
             HttpServletRequest request) {
 
@@ -380,7 +378,6 @@ public class SDVUtil {
         return getSubjectRows(eventCRFBeans, request);
     }
 
-    @SuppressWarnings("unchecked")
     private Collection<SubjectSDVContainer> getFilteredItemsSubject(FilterSet filterSet, SortSet sortSet, int rowStart, int rowEnd, int studyId,
             int studySubjectId, HttpServletRequest request) {
 
@@ -587,7 +584,6 @@ public class SDVUtil {
         boolean showMoreLink = Boolean.parseBoolean(request.getAttribute("showMoreLink") == null ? "false" : request.getAttribute("showMoreLink").toString());
         TableFacade tableFacade = createTableFacade("sdv", request);
         tableFacade.setStateAttr("sdv_restore");
-        resformat = ResourceBundleProvider.getFormatBundle(LocaleResolver.getLocale(request));
         this.pathPrefix = pathPrefix;
 
         String[] allColumns = new String[] { "sdvStatus", "studySubjectId", "studyIdentifier", "personId", "secondaryId", "eventName", "eventDate",

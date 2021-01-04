@@ -7,9 +7,6 @@
  */
 package org.akaza.openclinica.web.restful;
 
-import java.util.Locale;
-
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.GET;
@@ -25,10 +22,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sun.jersey.api.view.Viewable;
-
-import freemarker.template.Configuration;
-import freemarker.template.ObjectWrapper;
-import freemarker.template.TemplateExceptionHandler;
 /**
  *  Rest service for ODM metadata
  *  usage ROOT_CONTEXT/rest/metadata/{format}/{mode}/{STUDYOID}

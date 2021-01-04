@@ -7,6 +7,14 @@
  */
 package org.akaza.openclinica.web.table.scheduledjobs;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.akaza.openclinica.control.AbstractTableFactory;
 import org.akaza.openclinica.control.DefaultActionsEditor;
 import org.akaza.openclinica.dao.ScheduledJobSort;
@@ -22,15 +30,6 @@ import org.jmesa.view.html.AbstractHtmlView;
 import org.jmesa.view.html.HtmlBuilder;
 import org.jmesa.view.html.HtmlSnippets;
 import org.jmesa.view.html.component.HtmlTable;
-import org.jmesa.web.WebContext;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 /**
  * View builder for the list of scheduled jobs with an ability to cancel the job
  * @author jnyayapathi
@@ -70,7 +69,8 @@ public class ScheduledJobTableFactory extends AbstractTableFactory {
         tableFacade.setStateAttr("restore");
         int maxJobs = (Integer) request.getAttribute("totalJobs");
         tableFacade.setTotalRows(maxJobs);
-        List<ScheduledJobs> jobs = (List<ScheduledJobs>) request.getAttribute("jobs");
+        @SuppressWarnings("unchecked")
+		List<ScheduledJobs> jobs = (List<ScheduledJobs>) request.getAttribute("jobs");
 
         tableFacade.setItems(jobs);
         configureTableFacade(response, tableFacade);
