@@ -334,7 +334,7 @@ public class SignStudySubjectServlet extends SecureController {
                 + studySub.getId());
         }
 
-        HashMap<String, String> args = new HashMap<>();
+        HashMap<String, Object> args = new HashMap<>();
         args.put("id", new Integer(studySubId).toString());
         table.setQuery("ViewStudySubject", args);
         table.setRows(allEventRows);

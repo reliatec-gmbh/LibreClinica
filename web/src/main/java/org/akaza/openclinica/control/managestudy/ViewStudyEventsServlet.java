@@ -283,7 +283,7 @@ public class ViewStudyEventsServlet extends SecureController {
                     resword.getString("actions") };
             table.setColumns(new ArrayList<String>(Arrays.asList(columns)));
             table.hideColumnLink(3);
-            HashMap<String, String> args = new HashMap<>();
+            HashMap<String, Object> args = new HashMap<>();
             args.put("sedId", new Integer(sed.getId()).toString());
             args.put("definitionId", new Integer(definitionId).toString());
             args.put("statusId", new Integer(statusId).toString());

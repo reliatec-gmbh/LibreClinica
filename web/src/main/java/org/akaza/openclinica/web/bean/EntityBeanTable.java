@@ -98,7 +98,7 @@ public class EntityBeanTable {
      * /org/akaza/openclinica/core/EntityBeanRow.html">EntityBeanRow</a>s
      */
     @SuppressWarnings("rawtypes")
-	protected ArrayList<EntityBeanRow> rows;
+	protected ArrayList<? extends EntityBeanRow> rows;
 
     /**
      * An array of EntityBeanColumn objects which represent column headings.
@@ -251,7 +251,7 @@ public class EntityBeanTable {
      * @return Returns the rows.
      */
     @SuppressWarnings("rawtypes")
-	public ArrayList<EntityBeanRow> getRows() {
+	public ArrayList<? extends EntityBeanRow> getRows() {
         return rows;
     }
 
@@ -272,7 +272,7 @@ public class EntityBeanTable {
      * 
      * @param rows
      */
-    public void setRows(@SuppressWarnings("rawtypes") ArrayList<EntityBeanRow> rows) {
+    public void setRows(@SuppressWarnings("rawtypes") ArrayList<? extends EntityBeanRow> rows) {
         this.rows = rows;
         updateTotalPageNumbers();
     }
@@ -432,7 +432,7 @@ public class EntityBeanTable {
     @SuppressWarnings({ "rawtypes", "unchecked" })
 	public void computeDisplay() {
         ArrayList<EntityBeanRow> displayRows;
-        Set<EntityBeanRow<?,?>> temprows = new HashSet<>();
+        Set<EntityBeanRow> temprows = new HashSet<>();
 
         // *****************
         // FILTER BY KEYWORD
@@ -472,7 +472,7 @@ public class EntityBeanTable {
 
                     filterExecuted = true;
 
-                    loopRows: for (EntityBeanRow<?,?> row : rows) {
+                    loopRows: for (EntityBeanRow row : rows) {
                         String searchString = row.getSearchString().toLowerCase();
                         // If the keyword matches the whole search string,
                         // return a match
@@ -544,14 +544,14 @@ public class EntityBeanTable {
                     } // end of loop iterating over rows
                 } // end of loop iterating over keywords
             }
-            Iterator<EntityBeanRow<?,?>> it = temprows.iterator();
+            Iterator<EntityBeanRow> it = temprows.iterator();
             while (it.hasNext()) {
                 displayRows.add(it.next());
             }
         } // end of filtering by keywords
 
         if (!filterExecuted) {
-            displayRows = rows;
+            displayRows = new ArrayList<>(rows);
         }
 
         // this seems redundant, since we set the rows property below before
