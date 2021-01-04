@@ -10,6 +10,7 @@ package org.akaza.openclinica.view;
 /**
  * @author ssachs
  */
+// TODO duplicate of the version in the web module?
 public class StudyInfoPanelLine {
     protected String title;
     protected String info;
