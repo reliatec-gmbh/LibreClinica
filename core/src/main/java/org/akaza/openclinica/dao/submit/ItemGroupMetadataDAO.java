@@ -146,20 +146,20 @@ public class ItemGroupMetadataDAO extends EntityDAO<ItemGroupMetadataBean> {
 
     }
 
-    public List<ItemGroupMetadataBean> findMetaByGroupAndSection(int itemGroupId, int crfVersionId, int sectionId) {
+    public ArrayList<ItemGroupMetadataBean> findMetaByGroupAndSection(int itemGroupId, int crfVersionId, int sectionId) {
     	String queryName = "findMetaByGroupAndSection";
         HashMap<Integer, Object> variables = variables(itemGroupId, crfVersionId, sectionId);
         return executeFindAllQuery(queryName, variables);
     }
 
-    public List<ItemGroupMetadataBean> findMetaByGroupAndCrfVersion(int itemGroupId, int crfVersionId) {
+    public ArrayList<ItemGroupMetadataBean> findMetaByGroupAndCrfVersion(int itemGroupId, int crfVersionId) {
     	String queryName = "findMetaByGroupAndCrfVersion";
         HashMap<Integer, Object> variables = variables(itemGroupId, crfVersionId);
         return executeFindAllQuery(queryName, variables);
     }
     
     
-    public List<ItemGroupMetadataBean> findMetaByGroupAndSectionForPrint(int itemGroupId, int crfVersionId, int sectionId) {
+    public ArrayList<ItemGroupMetadataBean> findMetaByGroupAndSectionForPrint(int itemGroupId, int crfVersionId, int sectionId) {
     	String queryName = "findMetaByGroupAndSectionForPrint";
         HashMap<Integer, Object> variables = variables(itemGroupId, crfVersionId, sectionId);
         return executeFindAllQuery(queryName, variables);

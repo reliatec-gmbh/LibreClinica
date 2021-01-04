@@ -197,7 +197,7 @@ public class ItemGroupDAO extends AuditableEntityDAO<ItemGroupBean> {
         return executeFindByPKQuery(queryName, variables);
     }
 
-    public List<ItemGroupBean> findGroupByCRFVersionID(int Id) {
+    public ArrayList<ItemGroupBean> findGroupByCRFVersionID(int Id) {
     	String queryName = "findGroupByCRFVersionID";
         HashMap<Integer, Object> variables = variables(Id);
         return executeFindAllQuery(queryName, variables);

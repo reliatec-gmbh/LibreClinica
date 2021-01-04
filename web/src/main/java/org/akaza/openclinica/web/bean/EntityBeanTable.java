@@ -35,10 +35,10 @@ import org.akaza.openclinica.view.Link;
  * </ul>
  * 
  * <p>
- * The process for deploying these features is as follows:
+ * The process for deploying these features is as follows:</p>
  * 
  * <ol>
- * <li>Implement an EntityBeanRow class to store the rows of your table.
+ * <li>Implement an EntityBeanRow class to store the rows of your table.</li>
  * 
  * <li>In the servlet, obtain a new EntityBeanTable from the FormProcessor:
  * <br/><code>EntityBeanTable table = fp.getEntityBeanTable();</code> <br/> Note
@@ -46,37 +46,39 @@ import org.akaza.openclinica.view.Link;
  * the first time, and the case where the table has already been displayed, and
  * the user has requested a modification to the display (e.g., go to the next
  * page or sort by a specific column) - the FormProcessor automatically reads in
- * any requested modifications from the request and applies them to the table.
+ * any requested modifications from the request and applies them to the table.</li>
  * 
  * <li>Populate the table with all of the rows you wish to display: <br/> <code>
  * ArrayList allUsers = uadao.findAll();
  * ArrayList allUsersRows = UserAccountRow.generateRows(allUsers);
  * table.setRows(allUsersRows);
- * </code>
+ * </code></li>
  * 
  * <li>Populate the table with the columns you wish to display: <br/> <code>
  * String columns[] = { "username", "first name", "last name", "status", "actions"};
  * table.setColumns(new ArrayList(Arrays.asList(columns)));
- * </code>
+ * </code></li>
  * 
  * <li>Populate the table with the base query which invokes the screen you're
  * about to display: <code>
  * HashMap args = new HashMap();
  * args.put("userId", userBean.getId());
  * table.setBaseQuery("ViewUserAccount", args);
- * </code>
+ * </code></li>
  * 
  * <li>Force the table to compute its display: <br/>
- * <code>table.computeDisplay();</code>
+ * <code>table.computeDisplay();</code></li>
  * 
- * <li>Put the table in the request: <br/><code>setTable(table);
- * <br/>This method is inherited from SecureController.
+ * <li>Put the table in the request: <br/><code>setTable(table);</code>
+ * <br/>This method is inherited from SecureController.</li>
  * 
- * <li> Send the user to the JSP with forwardPage as usual.
- * </ul>
+ * <li> Send the user to the JSP with forwardPage as usual.</li>
+ * </ol>
  * 
  * <p>In the JSP, the table will be displayed by include/showTable.jsp,
- * which
+ * which</p>
+ * 
+ * <p>TODO possible duplicate of {@code org.akaza.openclinica.web.domain.EntityBeanTable}</p>
  * 
  * @author ssachs
  * @see EntityBeanRow

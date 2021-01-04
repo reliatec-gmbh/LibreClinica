@@ -10,33 +10,32 @@
  */
 package org.akaza.openclinica.web.domain;
 
-import org.akaza.openclinica.control.form.FormProcessor;
-import org.akaza.openclinica.view.Link;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
+
+import org.akaza.openclinica.control.form.FormProcessor;
+import org.akaza.openclinica.view.Link;
 
 /**
  * A class for displaying a table of EntityBean objects on the screen.
  *
  * <p>
  * This class facilitates the display of multiple rows with the following UI
- * features:
+ * features:</p>
  * <ul>
- * <li> pagination - ten rows at a time are displayed on the screen
- * <li> sorting - rows are sorted according to any column chosen by the user
- * <li> searching - rows are filtered according to one or more keywords
+ * <li> pagination - ten rows at a time are displayed on the screen</li>
+ * <li> sorting - rows are sorted according to any column chosen by the user</li>
+ * <li> searching - rows are filtered according to one or more keywords</li>
  * </ul>
  *
  * <p>
- * The process for deploying these features is as follows:
+ * The process for deploying these features is as follows:</p>
  *
  * <ol>
- * <li> Implement an EntityBeanRow class to store the rows of your table.
+ * <li> Implement an EntityBeanRow class to store the rows of your table.</li>
  *
  * <li> In the servlet, obtain a new EntityBeanTable from the FormProcessor:
  * <br/><code>EntityBeanTable table = fp.getEntityBeanTable();</code> <br/>
@@ -45,37 +44,39 @@ import java.util.Set;
  * and the user has requested a modification to the display (e.g., go to the
  * next page or sort by a specific column) - the FormProcessor automatically
  * reads in any requested modifications from the request and applies them to the
- * table.
+ * table.</li>
  *
  * <li> Populate the table with all of the rows you wish to display: <br/>
  * <code>
  * ArrayList allUsers = uadao.findAll();
  * ArrayList allUsersRows = UserAccountRow.generateRows(allUsers);
  * table.setRows(allUsersRows);
- * </code>
+ * </code></li>
  *
  * <li> Populate the table with the columns you wish to display: <br/> <code>
  * String columns[] = { "username", "first name", "last name", "status", "actions"};
  * table.setColumns(new ArrayList(Arrays.asList(columns)));
- * </code>
+ * </code></li>
  *
  * <li> Populate the table with the base query which invokes the screen you're
  * about to display: <code>
  * HashMap args = new HashMap();
  * args.put("userId", userBean.getId());
  * table.setBaseQuery("ViewUserAccount", args);
- * </code>
+ * </code></li>
  *
- * <li> Force the table to compute its display: <br/><code>table.computeDisplay();</code>
+ * <li> Force the table to compute its display: <br/><code>table.computeDisplay();</code></li>
  *
- * <li> Put the table in the request: <br/><code>setTable(table);
- * <br/>This method is inherited from SecureController.
+ * <li> Put the table in the request: <br/><code>setTable(table);</code>
+ * <br/>This method is inherited from SecureController.</li>
  *
- * <li> Send the user to the JSP with forwardPage as usual.
- * </ul>
+ * <li> Send the user to the JSP with forwardPage as usual.</li>
+ * </ol>
  *
  * <p>In the JSP, the table will be displayed by include/showTable.jsp,
- * which
+ * which</p>
+ * 
+ * <p>TODO possible duplicate of {@code org.akaza.openclinica.web.bean.EntityBeanTable}</p>
  *
  * @author ssachs
  * @see EntityBeanRow
@@ -96,12 +97,12 @@ public class EntityBeanTable {
      * tabling parameters), after computeDisplay() is called. Each element is an
      * <a href="{@docRoot}/org/akaza/openclinica/core/EntityBeanRow.html">EntityBeanRow</a>s
      */
-    protected ArrayList rows;
+    protected ArrayList<? extends EntityBeanRow<?, ?>> rows;
 
     /**
      * An array of EntityBeanColumn objects which represent column headings.
      */
-    protected ArrayList columns;
+    protected ArrayList<EntityBeanColumn> columns;
 
     /**
      * Always equal to columns.size(); maintained by setColumns.
@@ -160,18 +161,18 @@ public class EntityBeanTable {
      * A set of links to display in the upper-right hand corner. Each element is
      * a Link object.
      */
-    protected ArrayList links;
+    protected ArrayList<Link> links;
 
     protected String postAction;
-    protected HashMap postArgs;
+    protected HashMap<String, String> postArgs;
     protected String baseGetQuery;
 
     protected String noRowsMessage;
     protected String noColsMessage;
 
     public EntityBeanTable() {
-        rows = new ArrayList();
-        columns = new ArrayList();
+        rows = new ArrayList<>();
+        columns = new ArrayList<>();
         numColumns = 0;
 
         currPageNumber = 1;
@@ -182,13 +183,13 @@ public class EntityBeanTable {
         keywordFilter = "";
 
         postAction = "";
-        postArgs = new HashMap();
+        postArgs = new HashMap<>();
         baseGetQuery = "";
 
         noRowsMessage = "";
         noColsMessage = "";
 
-        links = new ArrayList();
+        links = new ArrayList<>();
     }
 
     /**
@@ -201,7 +202,7 @@ public class EntityBeanTable {
     /**
      * @return Returns the columns.
      */
-    public ArrayList getColumns() {
+    public ArrayList<EntityBeanColumn> getColumns() {
         return columns;
     }
 
@@ -210,12 +211,11 @@ public class EntityBeanTable {
      *            The columns to set. Each element is a String with the column
      *            name.
      */
-    public void setColumns(ArrayList columns) {
+    public void setColumns(ArrayList<String> columns) {
         // this.columns = columns;
-        ArrayList newColumns = new ArrayList();
+        ArrayList<EntityBeanColumn> newColumns = new ArrayList<>();
 
-        for (int i = 0; i < columns.size(); i++) {
-            String name = (String) columns.get(i);
+        for(String name : columns) {
             EntityBeanColumn c = new EntityBeanColumn();
             c.setName(name);
             newColumns.add(c);
@@ -249,8 +249,8 @@ public class EntityBeanTable {
     /**
      * @return Returns the rows.
      */
-    public ArrayList getRows() {
-        return rows;
+    public ArrayList<EntityBeanRow<?,?>> getRows() {
+        return new ArrayList<>(rows);
     }
 
     /**
@@ -270,7 +270,7 @@ public class EntityBeanTable {
      *
      * @param rows
      */
-    public void setRows(ArrayList rows) {
+	public void setRows(ArrayList<? extends EntityBeanRow<?,?>> rows) {
         this.rows = rows;
         updateTotalPageNumbers();
     }
@@ -305,17 +305,15 @@ public class EntityBeanTable {
         return numColumns;
     }
 
-    public void setQuery(String baseURL, HashMap args) {
+    public void setQuery(String baseURL, HashMap<String, String> args) {
         postAction = baseURL;
         postArgs = args;
 
         baseGetQuery = baseURL + "?";
         baseGetQuery += FormProcessor.FIELD_SUBMITTED + "=" + 1;
 
-        Iterator it = args.keySet().iterator();
-        while (it.hasNext()) {
-            String key = (String) it.next();
-            String value = (String) args.get(key);
+       	for(String key : args.keySet()) {
+            String value = args.get(key);
             // TODO: provide URL Encoding!
             baseGetQuery += "&" + key + "=" + value;
         }
@@ -339,7 +337,7 @@ public class EntityBeanTable {
     /**
      * @return Returns the postArgs.
      */
-    public HashMap getPostArgs() {
+    public HashMap<String, String> getPostArgs() {
         return postArgs;
     }
 
@@ -418,8 +416,8 @@ public class EntityBeanTable {
      * called!
      */
     public void computeDisplay() {
-        ArrayList displayRows;
-        Set temprows = new HashSet();
+        ArrayList<EntityBeanRow<?, ?>> displayRows;
+        Set<EntityBeanRow<?, ?>> temprows = new HashSet<>();
 
         // *****************
         // FILTER BY KEYWORD
@@ -430,7 +428,7 @@ public class EntityBeanTable {
         // and if there is at least one keyword to search by
         boolean filterExecuted = false;
 
-        displayRows = new ArrayList();
+        displayRows = new ArrayList<>();
         if (filtered) {
 
             String[] keywords = null;
@@ -458,7 +456,7 @@ public class EntityBeanTable {
 
                     loopRows:
                     for (int i = 0; i < rows.size(); i++) {
-                        EntityBeanRow row = (EntityBeanRow) rows.get(i);
+                        EntityBeanRow<?, ?> row = rows.get(i);
 
                         String searchString = row.getSearchString().toLowerCase();
                         //If the keyword matches the whole search string, return a match
@@ -517,14 +515,11 @@ public class EntityBeanTable {
                     } // end of loop iterating over rows
                 } // end of loop iterating over keywords
             }
-            Iterator it = temprows.iterator();
-            while (it.hasNext()) {
-                displayRows.add(it.next());
-            }
+            displayRows.addAll(temprows);
         } // end of filtering by keywords
 
         if (!filterExecuted) {
-            displayRows = rows;
+            displayRows = new ArrayList<>(rows);
         }
 
         // this seems redundant, since we set the rows property below before
@@ -538,7 +533,7 @@ public class EntityBeanTable {
         // *************
 
         for (int i = 0; i < displayRows.size(); i++) {
-            EntityBeanRow row = (EntityBeanRow) displayRows.get(i);
+            EntityBeanRow<?, ?> row = displayRows.get(i);
             row.setSortingColumn(sortingColumnInd);
             row.setAscendingSort(ascendingSort);
             displayRows.set(i, row);
@@ -568,7 +563,7 @@ public class EntityBeanTable {
                 firstInd = 0;
             }
 
-            ArrayList currPage = new ArrayList(displayRows.subList(firstInd, lastInd));
+            ArrayList<EntityBeanRow<?, ?>> currPage = new ArrayList<>(displayRows.subList(firstInd, lastInd));
 
             // it's important not to use setRows here
             // calling setRows will change totalNumPages to be the number of
@@ -584,7 +579,7 @@ public class EntityBeanTable {
     /**
      * @return Returns the links.
      */
-    public ArrayList getLinks() {
+    public ArrayList<Link> getLinks() {
         return links;
     }
 
@@ -592,7 +587,7 @@ public class EntityBeanTable {
      * @param links
      *            The links to set.
      */
-    public void setLinks(ArrayList links) {
+    public void setLinks(ArrayList<Link> links) {
         this.links = links;
     }
 

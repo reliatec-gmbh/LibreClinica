@@ -349,10 +349,6 @@ public class ImportSpringJob extends QuartzJobBean {
                 out.write(firstLine);
                 auditMsg.append(firstLine);
 
-            } else {
-                msg.append("<P>" + respage.getString("unreadable_file") + ": ");
-                out.write("<P>" + respage.getString("unreadable_file") + ": ");
-                auditMsg.append("<P>" + respage.getString("unreadable_file") + ": ");
             }
 
             try {
@@ -660,9 +656,9 @@ public class ImportSpringJob extends QuartzJobBean {
                             String itemOid = displayItemBean.getItem().getOid() + "_" + wrapper.getStudyEventRepeatKey() + "_"
                                     + displayItemBean.getData().getOrdinal() + "_" + wrapper.getStudySubjectOid();
                             if (wrapper.getValidationErrors().containsKey(itemOid)) {
-                                ArrayList messageList = (ArrayList) wrapper.getValidationErrors().get(itemOid);
+                                ArrayList<String> messageList = wrapper.getValidationErrors().get(itemOid);
                                 for (int iter = 0; iter < messageList.size(); iter++) {
-                                    String message = (String) messageList.get(iter);
+                                    String message = messageList.get(iter);
 
                                     DiscrepancyNoteBean parentDn = createDiscrepancyNote(ibean, message, eventCrfBean, displayItemBean, null, ub, dataSource,
                                             studyBean);

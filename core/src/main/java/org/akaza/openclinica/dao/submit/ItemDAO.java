@@ -175,13 +175,13 @@ public class ItemDAO extends AuditableEntityDAO<ItemBean> {
         return eb;
     }
 
-    public List<ItemBean> findByOid(String oid) {
+    public ArrayList<ItemBean> findByOid(String oid) {
         this.setTypesExpected();
         HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, oid);
         ArrayList<HashMap<String, Object>> listofMaps = this.select(digester.getQuery("findItemByOid"), variables, true);
 
-        List<ItemBean> beanList = new ArrayList<ItemBean>();
+        ArrayList<ItemBean> beanList = new ArrayList<ItemBean>();
         ItemBean bean;
         for (HashMap<String, Object> hm : listofMaps) {
             bean = this.getEntityFromHashMap(hm);

@@ -13,6 +13,7 @@ import javax.servlet.ServletContext;
 
 import org.springframework.security.crypto.password.MessageDigestPasswordEncoder;
 
+@SuppressWarnings("deprecation")
 public class PFormCache {
     
     //HashMap of study, HashMap of crfVersionOID, pFormURL
@@ -27,7 +28,8 @@ public class PFormCache {
         
     }
     
-    private PFormCache(ServletContext context)
+    @SuppressWarnings("unchecked")
+	private PFormCache(ServletContext context)
     {
         urlCache = (HashMap<String,HashMap<String,String>>) context.getAttribute("pformURLCache");
         offlineUrlCache = (HashMap<String,HashMap<String,String>>) context.getAttribute("pformOfflineURLCache");

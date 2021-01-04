@@ -7,19 +7,10 @@
  */
 package org.akaza.openclinica.web.job;
 
-import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
-import org.quartz.JobDataMap;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-import org.springframework.scheduling.quartz.QuartzJobBean;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Locale;
-import java.util.ResourceBundle;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.util.Locale;
+
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -27,6 +18,14 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+
+import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
+import org.quartz.JobDataMap;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.quartz.QuartzJobBean;
 
 /**
  * Xalan Transform Job, an XSLT transform job using the Xalan classes

@@ -330,7 +330,7 @@ public class ImportCRFDataService {
         int countEventCRFs = 0;
         int discNotesGenerated = 0;
         for (DisplayItemBeanWrapper wr : wrappers) {
-            HashMap validations = wr.getValidationErrors();
+            HashMap<String, ArrayList<String>> validations = wr.getValidationErrors();
             discNotesGenerated += validations.size();
         }
         ArrayList<SubjectDataBean> subjectDataBeans = odmContainer.getCrfDataPostImportContainer().getSubjectData();
