@@ -224,7 +224,7 @@ public class StudyEndpoint {
 
     private HashMap<Integer, ArrayList<StudyBean>> getStudies() {
 
-        ArrayList<StudyUserRoleBean> studyUserRoleBeans = getUserAccountDao().findStudyByUser(getUserAccount().getName(), (ArrayList) getStudyDao().findAll());
+        ArrayList<StudyUserRoleBean> studyUserRoleBeans = getUserAccountDao().findStudyByUser(getUserAccount().getName(), getStudyDao().findAll());
 
         HashMap<Integer, ArrayList<StudyBean>> validStudySiteMap = new HashMap<Integer, ArrayList<StudyBean>>();
         for (int i = 0; i < studyUserRoleBeans.size(); i++) {
