@@ -11,6 +11,7 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 
+// TODO duplicate of the version in the web module?
 public class ExampleSpringJob extends QuartzJobBean {
     
     @Override

@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.ResourceBundle;
 
+// TODO duplicate of the version in the web module?
 public class TriggerService {
 
     public TriggerService() {

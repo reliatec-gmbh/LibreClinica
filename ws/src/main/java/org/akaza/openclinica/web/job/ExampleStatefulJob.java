@@ -7,14 +7,17 @@
  */
 package org.akaza.openclinica.web.job;
 
-import org.quartz.StatefulJob;
+import org.quartz.DisallowConcurrentExecution;
+import org.quartz.PersistJobDataAfterExecution;
 
 /**
  * establishing stateful-ness on the Java side to avoid locking, etc
  */
+// TODO duplicate of the version in the web module?
+@PersistJobDataAfterExecution
+@DisallowConcurrentExecution
 public class ExampleStatefulJob
-    extends ExampleSpringJob
-    implements StatefulJob {
+    extends ExampleSpringJob {
 
     public ExampleStatefulJob() {
         super();

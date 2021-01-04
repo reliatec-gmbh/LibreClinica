@@ -20,6 +20,7 @@ import org.springframework.scheduling.quartz.QuartzJobBean;
  * @author thickerson, 04/2009
  * 
  */
+// TODO duplicate of the version in the web module?
 public class ImportSpringJob extends QuartzJobBean {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
