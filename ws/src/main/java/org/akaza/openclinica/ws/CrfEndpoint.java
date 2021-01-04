@@ -15,29 +15,18 @@
 package org.akaza.openclinica.ws;
 
 import java.io.FileOutputStream;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Properties;
 
 import javax.sql.DataSource;
 import javax.xml.bind.JAXBElement;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.akaza.openclinica.bean.login.UserAccountBean;
-import org.akaza.openclinica.dao.login.UserAccountDAO;
 import org.akaza.openclinica.service.subject.SubjectServiceInterface;
 import org.openclinica.ws.crf.v1.CreateCrfResponse;
 import org.openclinica.ws.crf.v1.CrfType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.ws.server.endpoint.annotation.Endpoint;
 import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 /**
  * @author Krikor Krumlian
@@ -52,8 +41,6 @@ public class CrfEndpoint {
     private String dateFormat;
     private Properties dataInfo;
 
-    private final DataSource dataSource;
-
     /**
      * Constructor
      * 
@@ -61,7 +48,6 @@ public class CrfEndpoint {
      * @param cctsService
      */
     public CrfEndpoint(SubjectServiceInterface subjectService, DataSource dataSource) {
-        this.dataSource = dataSource;
     }
 
     @PayloadRoot(localPart = "createCrfRequest", namespace = NAMESPACE_URI_V1)
