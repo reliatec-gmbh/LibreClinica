@@ -4,37 +4,34 @@
 		xmlns:tx="http://www.springframework.org/schema/tx"
 		xmlns:util="http://www.springframework.org/schema/util"
 		xsi:schemaLocation="http://www.springframework.org/schema/beans
-							http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+							http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
 							http://www.springframework.org/schema/util
-							http://www.springframework.org/schema/util/spring-util-2.5.xsd">
+							http://www.springframework.org/schema/util/spring-util-4.3.xsd">
 
-
-     
-     <!-- WSDL Definitions -->
-
-     <bean id="dataWsdl" class="org.springframework.ws.wsdl.wsdl11.DefaultWsdl11Definition">
+    <!-- WSDL Definitions -->
+    <bean id="dataWsdl" class="org.springframework.ws.wsdl.wsdl11.DefaultWsdl11Definition">
         <property name="schemaCollection" ref="dataSchemaCollection"/>
         <property name="portTypeName" value="ws"/>
         <property name="locationUri" value="/ws/data/v1"/>
-	<property name="targetNamespace" value="http://openclinica.org/ws/data/v1"/>  
-     </bean>
+        <property name="targetNamespace" value="http://openclinica.org/ws/data/v1"/>
+    </bean>
 
 	<bean id="dataSchemaCollection" class="org.springframework.xml.xsd.commons.CommonsXsdSchemaCollection">
     	<property name="xsds">
-        	<list>
-            	<value>/WEB-INF/schemas/beans.xsd</value>
+            <list>
+                <value>/WEB-INF/schemas/beans.xsd</value>
             	<value>/WEB-INF/schemas/data.xsd</value>
         	</list>
     	</property>
     	<property name="inline" value="true"/>
 	</bean>
 	
-     <bean id="studyEventDefinitionWsdl" class="org.springframework.ws.wsdl.wsdl11.DefaultWsdl11Definition">
+    <bean id="studyEventDefinitionWsdl" class="org.springframework.ws.wsdl.wsdl11.DefaultWsdl11Definition">
         <property name="schemaCollection" ref="studyEventDefinitionSchemaCollection"/>
         <property name="portTypeName" value="ws"/>
         <property name="locationUri" value="/ws/studyEventDefinition/v1"/>
         <property name="targetNamespace" value="http://openclinica.org/ws/studyEventDefiniton/v1"/>
-     </bean>
+    </bean>
 
 	<bean id="studyEventDefinitionSchemaCollection" class="org.springframework.xml.xsd.commons.CommonsXsdSchemaCollection">
     	<property name="xsds">
@@ -46,12 +43,12 @@
     	<property name="inline" value="true"/>
 	</bean>
 
-     <bean id="studyWsdl" class="org.springframework.ws.wsdl.wsdl11.DefaultWsdl11Definition">
+    <bean id="studyWsdl" class="org.springframework.ws.wsdl.wsdl11.DefaultWsdl11Definition">
         <property name="schemaCollection" ref="studySchemaCollection"/>
         <property name="portTypeName" value="ws"/>
         <property name="locationUri" value="/ws/study/v1"/>
         <property name="targetNamespace" value="http://openclinica.org/ws/study/v1"/>
-     </bean>
+    </bean>
 
 	<bean id="studySchemaCollection" class="org.springframework.xml.xsd.commons.CommonsXsdSchemaCollection">
     	<property name="xsds">
@@ -63,12 +60,12 @@
     	<property name="inline" value="true"/>
 	</bean>
 
-     <bean id="studySubjectWsdl" class="org.springframework.ws.wsdl.wsdl11.DefaultWsdl11Definition">
+    <bean id="studySubjectWsdl" class="org.springframework.ws.wsdl.wsdl11.DefaultWsdl11Definition">
         <property name="schemaCollection" ref="studySubjectSchemaCollection"/>
         <property name="portTypeName" value="ws"/>
         <property name="locationUri" value="/ws/studySubject/v1"/>
         <property name="targetNamespace" value="http://openclinica.org/ws/studySubject/v1"/>
-     </bean>
+    </bean>
 
 	<bean id="studySubjectSchemaCollection" class="org.springframework.xml.xsd.commons.CommonsXsdSchemaCollection">
     	<property name="xsds">
@@ -80,12 +77,12 @@
     	<property name="inline" value="true"/>
 	</bean>
 
-     <bean id="eventWsdl" class="org.springframework.ws.wsdl.wsdl11.DefaultWsdl11Definition">
+    <bean id="eventWsdl" class="org.springframework.ws.wsdl.wsdl11.DefaultWsdl11Definition">
         <property name="schemaCollection" ref="eventSchemaCollection"/>
         <property name="portTypeName" value="ws"/>
         <property name="locationUri" value="/ws/event/v1"/>
         <property name="targetNamespace" value="http://openclinica.org/ws/event/v1"/>
-     </bean>
+    </bean>
 
 	<bean id="eventSchemaCollection" class="org.springframework.xml.xsd.commons.CommonsXsdSchemaCollection">
     	<property name="xsds">
@@ -97,7 +94,7 @@
     	<property name="inline" value="true"/>
 	</bean>
 
-     <bean id="crfWsdl" class="org.springframework.ws.wsdl.wsdl11.DefaultWsdl11Definition">
+    <bean id="crfWsdl" class="org.springframework.ws.wsdl.wsdl11.DefaultWsdl11Definition">
         <property name="schema" ref="crfSchema"/>
         <property name="portTypeName" value="ImageRepository"/>
         <property name="locationUri" value="/ws/crf/v1"/>
@@ -109,12 +106,13 @@
 
     <!-- Endpoint Mappings  -->
 
-    <!-- PayloadRootAnnotationMethodEndpointMapping is the mapping that detects and handles the @PayloadRoot
-         annotations  -->
+    <!-- PayloadRootAnnotationMethodEndpointMapping is the mapping that detects and handles the @PayloadRoot annotations  -->
     <bean class="org.springframework.ws.server.endpoint.mapping.PayloadRootAnnotationMethodEndpointMapping">
         <property name="interceptors">
             <list>
+                <!-- SOAP authentication -->
                 <ref bean="wsSecurityInterceptor"/>
+                <!-- Authorisation -->
                 <ref bean="userPermissionInterceptor"/>
             </list>
         </property>
@@ -134,8 +132,7 @@
         </property>
     </bean>
 
-    <!-- The GenericMarshallingMethodEndpointAdapter  converts the incoming XML messages to marshalled
-         objects used as parameters and return value -->
+    <!-- The GenericMarshallingMethodEndpointAdapter  converts the incoming XML messages to marshalled objects used as parameters and return value -->
     <bean class="org.springframework.ws.server.endpoint.adapter.GenericMarshallingMethodEndpointAdapter">
         <constructor-arg ref="jaxb2Marshaller"/>
     </bean>
@@ -157,7 +154,6 @@
     </bean>
 
     <!--  Endpoints -->
-
     <bean id="dataEndpoint" class="org.akaza.openclinica.ws.DataEndpoint">
         <constructor-arg ref="dataSource"/>
         <constructor-arg ref="messageSource"/>
@@ -166,7 +162,7 @@
         <property name="transactionTemplate" ref="sharedTransactionTemplate"/>
     </bean>
 
-     <bean id="studyEventDefinitionEndpoint" class="org.akaza.openclinica.ws.StudyEventDefinitionEndpoint">
+    <bean id="studyEventDefinitionEndpoint" class="org.akaza.openclinica.ws.StudyEventDefinitionEndpoint">
         <constructor-arg ref="dataSource"/>
         <constructor-arg ref="messageSource"/>
     </bean>
@@ -200,29 +196,38 @@
         <property name="dataInfo" ref="dataInfo"/>
     </bean>
 
-    <!-- Security -->
-
+    <!-- Security - userPermissionInterceptor - I dont think it is necessary (or maybe for ws permission?) -->
     <bean id="userPermissionInterceptor" class="org.akaza.openclinica.ws.UserPermissionInterceptor">
-        <constructor-arg ref="dataSource"/>
+        <constructor-arg name="dataSource" ref="dataSource" />
     </bean>
 
+    <bean id="ocUserDetailsService" class="org.akaza.openclinica.web.filter.OpenClinicaJdbcService">
+        <property name="dataSource" ref="dataSource" />
+        <property name="usersByUsernameQuery" value="SELECT user_name,passwd,enabled,account_non_locked FROM user_account WHERE user_name = ?" />
+    </bean>
+
+    <!-- Spring 5 uses by default bcrypt but SOAP client provides already hashed password - no encoding necessary -->
+    <bean id="passwordEncoder" class="org.springframework.security.crypto.password.NoOpPasswordEncoder"/>
+
+    <bean id="authenticationManager" class="org.springframework.security.authentication.ProviderManager">
+        <constructor-arg name="providers">
+            <bean class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
+                <property name="userDetailsService" ref="ocUserDetailsService"/>
+                <property name="passwordEncoder" ref="passwordEncoder"/>
+            </bean>
+        </constructor-arg>
+    </bean>
+
+    <bean id="springSecurityHandler"
+          class="org.springframework.ws.soap.security.xwss.callback.SpringPlainTextPasswordValidationCallbackHandler">
+        <property name="authenticationManager" ref="authenticationManager"/>
+    </bean>
+    
+    <!-- Security - wsSecurityInterceptor -->
     <bean id="wsSecurityInterceptor" class="org.springframework.ws.soap.security.xwss.XwsSecurityInterceptor">
         <property name="secureResponse" value="false"/>
         <property name="policyConfiguration" value="classpath:securityPolicy.xml"/>
         <property name="callbackHandlers" ref="springSecurityHandler"/>
     </bean>
-
-    <bean id="authenticationManager" class="org.springframework.security.authentication.ProviderManager">
-      <property name="providers">
-          <bean class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
-              <property name="userDetailsService" ref="ocUserDetailsService"/>
-          </bean>
-      </property>
-    </bean>
-
-    <bean id="springSecurityHandler"
-      class="org.akaza.openclinica.ws.SpringPlainTextPasswordValidationCallbackHandler">
-    <property name="authenticationManager" ref="authenticationManager"/>
-    </bean>
+    
 </beans>
-

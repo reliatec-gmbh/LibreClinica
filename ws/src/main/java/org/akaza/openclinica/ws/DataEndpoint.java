@@ -300,7 +300,8 @@ public class DataEndpoint {
     /**
      * Create Error Response
      * 
-     * @param confirmation
+     * @param errors
+     * @param message
      * @return
      * @throws Exception
      */
@@ -338,7 +339,10 @@ public class DataEndpoint {
     /**
      * Create Response
      * 
-     * @param confirmation
+     * @param auditMsgs
+     * @param ruleActionMsgs
+     * @param skippedCRFMsgs
+     * @param importCRFs
      * @return
      * @throws Exception
      */

@@ -16,7 +16,7 @@ import org.akaza.openclinica.bean.submit.ItemFormMetadataBean;
 import org.akaza.openclinica.control.form.DiscrepancyValidator;
 import org.akaza.openclinica.control.form.Validation;
 import org.akaza.openclinica.control.form.Validator;
-import org.akaza.openclinica.core.form.StringUtil;
+import org.apache.commons.lang.StringUtils;
 
 /*
  * Helper methods will be placed in this class - DRY
@@ -29,13 +29,15 @@ public class ImportHelper {
      * @return The name of the input in the HTML form.
      */
     public final String getInputName(DisplayItemBean dib) {
+
         ItemBean ib = dib.getItem();
         String inputName = "input" + ib.getId();
+
         return inputName;
     }
 
     /**
-     * Peform validation on a item which has a RADIO or SINGLESELECTresponse
+     * Perform validation on a item which has a RADIO or SINGLE SELECT response
      * type. This function checks that the input isn't blank, and that its value
      * comes from the controlled vocabulary (ResponseSetBean) in the
      * DisplayItemBean.
@@ -47,12 +49,14 @@ public class ImportHelper {
      * @return The DisplayItemBean which is validated.
      */
     public DisplayItemBean validateDisplayItemBeanSingleCV(DiscrepancyValidator v, DisplayItemBean dib, String inputName) {
-        if (StringUtil.isBlank(inputName)) {
+
+        if (StringUtils.isBlank(inputName)) {
             inputName = getInputName(dib);
         }
+
         ItemFormMetadataBean ibMeta = dib.getMetadata();
         ItemDataBean idb = dib.getData();
-        if (StringUtil.isBlank(idb.getValue())) {
+        if (StringUtils.isBlank(idb.getValue())) {
             if (ibMeta.isRequired()) {
                 v.addValidation(inputName, Validator.IS_REQUIRED);
             }
@@ -67,7 +71,7 @@ public class ImportHelper {
     }
 
     /**
-     * Peform validation on a item which has a RADIO or SINGLESELECTresponse
+     * Perform validation on a item which has a RADIO or SINGLE SELECT response
      * type. This function checks that the input isn't blank, and that its value
      * comes from the controlled vocabulary (ResponseSetBean) in the
      * DisplayItemBean.
@@ -79,12 +83,14 @@ public class ImportHelper {
      * @return The DisplayItemBean which is validated.
      */
     public DisplayItemBean validateDisplayItemBeanMultipleCV(DiscrepancyValidator v, DisplayItemBean dib, String inputName) {
-        if (StringUtil.isBlank(inputName)) {
+
+        if (StringUtils.isBlank(inputName)) {
             inputName = getInputName(dib);
         }
+
         ItemFormMetadataBean ibMeta = dib.getMetadata();
         ItemDataBean idb = dib.getData();
-        if (StringUtil.isBlank(idb.getValue())) {
+        if (StringUtils.isBlank(idb.getValue())) {
             if (ibMeta.isRequired()) {
                 v.addValidation(inputName, Validator.IS_REQUIRED);
             }
@@ -94,15 +100,16 @@ public class ImportHelper {
             // v.addValidation(inputName, Validator.IN_RESPONSE_SET,
             // dib.getMetadata().getResponseSet());
         }
+        
         return dib;
     }
 
     /**
-     * Peform validation on a item which has a TEXT or TEXTAREA response type.
+     * Perform validation on a item which has a TEXT or TEXTAREA response type.
      * If the item has a null value, it's automatically validated. Otherwise,
      * it's checked against its data type.
      * 
-     * @param v
+     * @param discValidator
      *            The Validator to add validations to.
      * @param dib
      *            The DisplayItemBean to validate.
@@ -110,9 +117,11 @@ public class ImportHelper {
      */
     public DisplayItemBean validateDisplayItemBeanText(DiscrepancyValidator discValidator, DisplayItemBean dib, String inputName) {
 
-        if (StringUtil.isBlank(inputName)) {// for single items
+        // for single items
+        if (StringUtils.isBlank(inputName)) {
             inputName = getInputName(dib);
         }
+
         ItemBean ib = dib.getItem();
         ItemFormMetadataBean ibMeta = dib.getMetadata();
         ItemDataType idt = ib.getDataType();
@@ -127,7 +136,7 @@ public class ImportHelper {
          */
 
         if (!isNull) {
-            if (StringUtil.isBlank(idb.getValue())) {
+            if (StringUtils.isBlank(idb.getValue())) {
                 // check required first
                 if (ibMeta.isRequired()) {
                 	discValidator.addValidation(inputName, Validator.IS_REQUIRED);
@@ -170,7 +179,7 @@ public class ImportHelper {
                 }
 
                 String customValidationString = dib.getMetadata().getRegexp();
-                if (!StringUtil.isBlank(customValidationString)) {
+                if (!StringUtils.isBlank(customValidationString)) {
                     Validation customValidation = null;
 
                     if (customValidationString.startsWith("func:")) {
@@ -183,6 +192,7 @@ public class ImportHelper {
                         try {
                             customValidation = Validator.processCRFValidationRegex(customValidationString);
                         } catch (Exception e) {
+                            // TODO: Logging of error should be added
                         }
                     }
 
@@ -193,6 +203,8 @@ public class ImportHelper {
                 }
             }
         }
+        
         return dib;
     }
+    
 }
