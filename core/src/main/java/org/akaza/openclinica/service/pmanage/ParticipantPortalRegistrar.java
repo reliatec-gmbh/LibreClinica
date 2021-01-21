@@ -37,9 +37,16 @@ public class ParticipantPortalRegistrar {
         RestTemplate rest = new RestTemplate(requestFactory);
 
         try {
-            Authorization[] response = rest.getForObject(pManageUrl, Authorization[].class);
-            if (response.length > 0 && response[0].getAuthorizationStatus() != null)
-                return response[0];
+            // TODO: this is removed for now but there may be an API for this in enketo-oc fork (need to check)
+            //Authorization[] response = rest.getForObject(pManageUrl, Authorization[].class);
+            //if (response.length > 0 && response[0].getAuthorizationStatus() != null)
+            //    return response[0];
+
+            Study study = new Study();
+            study.setHost(studyOid); // Study identifier used as host in url enketo URL (I am registering each study in enketo with OID)
+            Authorization auth = new Authorization();
+            auth.setStudy(study);
+            return auth;
         } catch (Exception e) {
             logger.error(e.getMessage());
             logger.error(ExceptionUtils.getStackTrace(e));
@@ -67,9 +74,12 @@ public class ParticipantPortalRegistrar {
         requestFactory.setReadTimeout(PARTICIPATE_READ_TIMEOUT);
         RestTemplate rest = new RestTemplate(requestFactory);
         try {
-            Authorization[] response = rest.getForObject(pManageUrl, Authorization[].class);
-            if (response.length > 0 && response[0].getAuthorizationStatus() != null)
-                return response[0].getAuthorizationStatus().getStatus();
+            // TODO: this is removed for now but there may be an API for this in enketo-oc fork (need to check)
+            //Authorization[] response = rest.getForObject(pManageUrl, Authorization[].class);
+            //if (response.length > 0 && response[0].getAuthorizationStatus() != null)
+            //    return response[0].getAuthorizationStatus().getStatus();
+            
+            return "ACTIVE";
         } catch (Exception e) {
             logger.error(e.getMessage());
             logger.debug(ExceptionUtils.getStackTrace(e));
@@ -82,17 +92,23 @@ public class ParticipantPortalRegistrar {
         HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
         requestFactory.setReadTimeout(PARTICIPATE_READ_TIMEOUT);
         RestTemplate rest = new RestTemplate(requestFactory);
-        String response = null;
+        String response;
         try {
-            if (!validHostNameCheck(hostName))
+            if (!validHostNameCheck(hostName)) {
                 return INVALID;
-            response = rest.getForObject(pManageUrl, String.class);
-            if (response.equals("UNAVAILABLE"))
+            }
+            // TODO: this is removed there is no endpoint service for this
+            //response = rest.getForObject(pManageUrl, String.class);
+            response = "AVAILABLE";
+            if (response == null || response.equals("UNAVAILABLE")) {
                 return UNAVAILABLE;
-            else if (response.equals("INVALID"))
+            }
+            else if (response.equals("INVALID")) {
                 return INVALID;
-            else if (response.equals("AVAILABLE"))
+            }
+            else if (response.equals("AVAILABLE")) {
                 return AVAILABLE;
+            }
         } catch (Exception e) {
             logger.error(e.getMessage());
             logger.error(ExceptionUtils.getStackTrace(e));
@@ -102,18 +118,21 @@ public class ParticipantPortalRegistrar {
 
     public boolean validHostNameCheck(String hostName) {
         String pManageBaseUrl = CoreResources.getField("portalURL");
-        if (hostName.contains("."))
+        if (hostName.contains(".")) {
             return false;
+        }
         try {
             URL baseUrl = new URL(pManageBaseUrl);
             String port = "";
-            if (baseUrl.getPort() > 0)
-                port = ":" + String.valueOf(baseUrl.getPort());
+            if (baseUrl.getPort() > 0) {
+                port = ":" + baseUrl.getPort();
+            }
             // Check that hostname makes a valid URL
             URL customerUrl = new URL(baseUrl.getProtocol() + "://" + hostName + "." + baseUrl.getHost() + port);
             // Check that hostname only contains alphanumeric characters and/or hyphens
-            if (hostName.matches("^[A-Za-z0-9-]+$"))
+            if (hostName.matches("^[A-Za-z0-9-]+$")) {
                 return true;
+            }
         } catch (MalformedURLException mue) {
             logger.error("Error validating customer selected Participate subdomain.");
             logger.error(mue.getMessage());
@@ -155,44 +174,55 @@ public class ParticipantPortalRegistrar {
         authStudy.setOpenClinicaVersion(CoreResources.getField("OpenClinica.version"));
         authRequest.setStudy(authStudy);
 
-        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
-        requestFactory.setReadTimeout(PARTICIPATE_READ_TIMEOUT);
-        RestTemplate rest = new RestTemplate(requestFactory);
+        // TODO: this is removed for now but there may be an API for this in enketo-oc fork (need to check)
+        //HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+        //requestFactory.setReadTimeout(PARTICIPATE_READ_TIMEOUT);
+        //RestTemplate rest = new RestTemplate(requestFactory);
 
-        try {
-            Authorization response = rest.postForObject(pManageUrl, authRequest, Authorization.class);
-            if (response != null && response.getAuthorizationStatus() != null)
-                return response.getAuthorizationStatus().getStatus();
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            logger.error(ExceptionUtils.getStackTrace(e));
-        }
-        return "";
+        //try {
+        //    Authorization response = rest.postForObject(pManageUrl, authRequest, Authorization.class);
+        //    if (response != null && response.getAuthorizationStatus() != null)
+        //        return response.getAuthorizationStatus().getStatus();
+        //} catch (Exception e) {
+        //    logger.error(e.getMessage());
+        //    logger.error(ExceptionUtils.getStackTrace(e));
+        //}
+        //return "";
+
+        AuthorizationStatus authStatus = new AuthorizationStatus();
+        authStatus.setStatus("enabled"); // enabled or disabled
+
+        authRequest.setAuthorizationStatus(authStatus);
+
+        return authRequest.getAuthorizationStatus().getStatus();
     }
 
     public String getStudyHost(String studyOid) throws Exception {
 
-        String ocUrl = CoreResources.getField("sysURL.base") + "rest2/openrosa/" + studyOid;
-        String pManageUrl = CoreResources.getField("portalURL");
-        String pManageUrlFull = pManageUrl + "/app/rest/oc/authorizations?studyoid=" + studyOid + "&instanceurl=" + ocUrl;
+        // TODO: this is removed for now but there may be an API for this in enketo-oc fork (need to check)
+        //String ocUrl = CoreResources.getField("sysURL.base") + "rest2/openrosa/" + studyOid;
+        //String pManageUrl = CoreResources.getField("portalURL");
+        //String pManageUrlFull = pManageUrl + "/app/rest/oc/authorizations?studyoid=" + studyOid + "&instanceurl=" + ocUrl;
 
-        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
-        requestFactory.setReadTimeout(PARTICIPATE_READ_TIMEOUT);
-        RestTemplate rest = new RestTemplate(requestFactory);
-        try {
-            Authorization[] response = rest.getForObject(pManageUrlFull, Authorization[].class);
-            if (response.length > 0 && response[0].getStudy() != null && response[0].getStudy().getHost() != null
-                    && !response[0].getStudy().getHost().equals("")) {
-                URL url = new URL(pManageUrl);
-                String port = "";
-                if (url.getPort() > 0)
-                    port = ":" + String.valueOf(url.getPort());
-                return url.getProtocol() + "://" + response[0].getStudy().getHost() + "." + url.getHost() + port + "/app/oauth2";
-            }
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            logger.error(ExceptionUtils.getStackTrace(e));
-        }
+        //HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+        //requestFactory.setReadTimeout(PARTICIPATE_READ_TIMEOUT);
+        //RestTemplate rest = new RestTemplate(requestFactory);
+        //try {
+        //    Authorization[] response = rest.getForObject(pManageUrlFull, Authorization[].class);
+        //    if (response.length > 0 && response[0].getStudy() != null && response[0].getStudy().getHost() != null
+        //            && !response[0].getStudy().getHost().equals("")) {
+        //        URL url = new URL(pManageUrl);
+        //        String port = "";
+        //        if (url.getPort() > 0)
+        //            port = ":" + url.getPort();
+        //        return url.getProtocol() + "://" + response[0].getStudy().getHost() + "." + url.getHost() + port + "/app/oauth2";
+        //    }
+        //} catch (Exception e) {
+        //    logger.error(e.getMessage());
+        //    logger.error(ExceptionUtils.getStackTrace(e));
+        //}
+
+        // I don't have any participate manager
         return "";
     }
 

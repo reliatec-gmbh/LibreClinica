@@ -323,7 +323,9 @@ public class OdmController {
         String contextHash = cache.putSubjectContext(ssoid, String.valueOf(nextEvent.getStudyEventDefinitionId()),
                 String.valueOf(nextEvent.getSampleOrdinal()), crfVersion.getOid());
 
-        String url = enketoURL + "?" + FORM_CONTEXT + "=" + contextHash;
+        // TODO: maybe we can user URL encode for this
+        String separator = (enketoURL != null && enketoURL.contains("?")) ? "&" : "?";
+        String url = enketoURL + separator + FORM_CONTEXT + "=" + contextHash;
         logger.debug("Enketo URL for " + crfVersion.getName() + "= " + url);
         return url;
 
@@ -335,7 +337,9 @@ public class OdmController {
                 String.valueOf(nextEvent.getSampleOrdinal()), crfVersion.getOid());
         String editURL = CoreResources.getField("sysURL.base") + "pages/api/v1/editform/" + studyOID + "/url";
 
-        String url = editURL + "?" + FORM_CONTEXT + "=" + contextHash;
+        // TODO: maybe we can user URL encode for this
+        String separator = (editURL.contains("?")) ? "&" : "?";
+        String url = editURL + separator + FORM_CONTEXT + "=" + contextHash;
         logger.debug("Edit URL for " + crfVersion.getName() + "= " + url);
         return url;
 
@@ -391,9 +395,9 @@ public class OdmController {
             formData.setStatus("Not Started");
         } else {
             EventCrf eventCrf = eventCrfDao.findById(eventCRFBean.getId());
-            if (!itemDataExists){
+            if (!itemDataExists) {
                 formData.setStatus("Not Started");                
-            }else{
+            } else {
                 formData.setStatus(eventCRFBean.getStatus().getName());                
             } 
             

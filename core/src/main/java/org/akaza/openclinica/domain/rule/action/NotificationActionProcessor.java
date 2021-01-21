@@ -203,86 +203,86 @@ public class NotificationActionProcessor implements ActionProcessor, Runnable {
 
 	@Override
 	public void run() {
-
-		String hostname = "";
-		String url = "";
-		participantPortalRegistrar = new ParticipantPortalRegistrar();
-
-		try {
-			hostname = participantPortalRegistrar.getStudyHost(studyBean.getOid());
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-	    url = hostname.substring(0,hostname.indexOf("/app/oauth2")) + "/#/plogin";
-
-		message = message.replaceAll("\\$\\{participant.url}", url);
-		emailSubject = emailSubject.replaceAll("\\$\\{participant.url}", url);
-
-		pDTO = getParticipantInfo(uBean);
-		if (pDTO != null) {
-			String msg = null;
-			String eSubject = null;
-			msg = message.replaceAll("\\$\\{participant.accessCode}", pDTO.getAccessCode());
-			msg = msg.replaceAll("\\$\\{participant.firstname}", pDTO.getfName());
-			eSubject = emailSubject.replaceAll("\\$\\{participant.accessCode}", pDTO.getAccessCode());
-			eSubject = eSubject.replaceAll("\\$\\{participant.firstname}", pDTO.getfName());
-
-			String loginUrl = url + "?access_code=" + pDTO.getAccessCode() + "&auto_login=true";
-			msg = msg.replaceAll("\\$\\{participant.loginurl}", loginUrl);
-			eSubject = eSubject.replaceAll("\\$\\{participant.loginurl}", loginUrl);
-
-			msg = msg.replaceAll("\\\\n", "\n");
-			eSubject = eSubject.replaceAll("\\\\n", "\n");
-			message = message.replaceAll("\\\\n", "\n");
-			emailSubject = emailSubject.replaceAll("\\\\n", "\n");
-			pDTO.setMessage(msg);
-			pDTO.setEmailSubject(eSubject);
-			pDTO.setUrl(url);
-			pDTO.setOrigMessage(message);
-			pDTO.setOrigEmailSubject(emailSubject);
-			pDTO.setParticipantEmailAccount(pDTO.getEmailAccount());
-
-
-		} else {
-			pDTO = buildNewPDTO();
-            message = message.replaceAll("\\\\n", "\n");
-            emailSubject = emailSubject.replaceAll("\\\\n", "\n");
-            pDTO.setOrigMessage(message);
-            pDTO.setOrigEmailSubject(emailSubject);
-		}
-
-		
-		
-		for (String email : listOfEmails) {
-
-			if (email.trim().equals("${participant}") || participateStatus.equals("enabled")) {
-			    if (email.trim().equals("${participant}")){ 
-				pDTO.setEmailAccount(pDTO.getParticipantEmailAccount());
-			    pDTO.setEncryptedEmailAccount(Boolean.TRUE);
-			    }else{
-				pDTO.setEmailAccount(email.trim());
-				pDTO.setPhone(null);
-			    pDTO.setEncryptedEmailAccount(Boolean.FALSE);
-			    }
-				// Send Email thru Mandrill Mail Server
-				try {
-					participantPortalRegistrar.sendEmailThruMandrillViaOcui(pDTO,hostname);
-				} catch (Exception e) {
-					e.getStackTrace();
-				}
-				System.out.println(pDTO.getMessage() + "   (Email Send to Participant from Mandrill :  " + pDTO.getEmailAccount() + ")");
-
-			} else {
-				pDTO.setEmailAccount(email.trim());
-			//	System.out.println();
-				// Send Email thru Local Mail Server
-				execute(ExecutionMode.SAVE, ruleActionBean, pDTO , email.trim());
-				System.out.println(pDTO.getMessage() + "  (Email sent to Hard Coded email address from OC Mail Server :  " + pDTO.getEmailAccount() + ")");
-
-			}
-		}
+		// No email notification necessary
+//		String hostname = "";
+//		String url = "";
+//		participantPortalRegistrar = new ParticipantPortalRegistrar();
+//
+//		try {
+//			hostname = participantPortalRegistrar.getStudyHost(studyBean.getOid());
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//
+//	    url = hostname.substring(0,hostname.indexOf("/app/oauth2")) + "/#/plogin";
+//
+//		message = message.replaceAll("\\$\\{participant.url}", url);
+//		emailSubject = emailSubject.replaceAll("\\$\\{participant.url}", url);
+//
+//		pDTO = getParticipantInfo(uBean);
+//		if (pDTO != null) {
+//			String msg = null;
+//			String eSubject = null;
+//			msg = message.replaceAll("\\$\\{participant.accessCode}", pDTO.getAccessCode());
+//			msg = msg.replaceAll("\\$\\{participant.firstname}", pDTO.getfName());
+//			eSubject = emailSubject.replaceAll("\\$\\{participant.accessCode}", pDTO.getAccessCode());
+//			eSubject = eSubject.replaceAll("\\$\\{participant.firstname}", pDTO.getfName());
+//
+//			String loginUrl = url + "?access_code=" + pDTO.getAccessCode() + "&auto_login=true";
+//			msg = msg.replaceAll("\\$\\{participant.loginurl}", loginUrl);
+//			eSubject = eSubject.replaceAll("\\$\\{participant.loginurl}", loginUrl);
+//
+//			msg = msg.replaceAll("\\\\n", "\n");
+//			eSubject = eSubject.replaceAll("\\\\n", "\n");
+//			message = message.replaceAll("\\\\n", "\n");
+//			emailSubject = emailSubject.replaceAll("\\\\n", "\n");
+//			pDTO.setMessage(msg);
+//			pDTO.setEmailSubject(eSubject);
+//			pDTO.setUrl(url);
+//			pDTO.setOrigMessage(message);
+//			pDTO.setOrigEmailSubject(emailSubject);
+//			pDTO.setParticipantEmailAccount(pDTO.getEmailAccount());
+//
+//
+//		} else {
+//			pDTO = buildNewPDTO();
+//            message = message.replaceAll("\\\\n", "\n");
+//            emailSubject = emailSubject.replaceAll("\\\\n", "\n");
+//            pDTO.setOrigMessage(message);
+//            pDTO.setOrigEmailSubject(emailSubject);
+//		}
+//
+//
+//
+//		for (String email : listOfEmails) {
+//
+//			if (email.trim().equals("${participant}") || participateStatus.equals("enabled")) {
+//			    if (email.trim().equals("${participant}")){
+//				pDTO.setEmailAccount(pDTO.getParticipantEmailAccount());
+//			    pDTO.setEncryptedEmailAccount(Boolean.TRUE);
+//			    }else{
+//				pDTO.setEmailAccount(email.trim());
+//				pDTO.setPhone(null);
+//			    pDTO.setEncryptedEmailAccount(Boolean.FALSE);
+//			    }
+//				// Send Email thru Mandrill Mail Server
+//				try {
+//					participantPortalRegistrar.sendEmailThruMandrillViaOcui(pDTO,hostname);
+//				} catch (Exception e) {
+//					e.getStackTrace();
+//				}
+//				System.out.println(pDTO.getMessage() + "   (Email Send to Participant from Mandrill :  " + pDTO.getEmailAccount() + ")");
+//
+//			} else {
+//				pDTO.setEmailAccount(email.trim());
+//			//	System.out.println();
+//				// Send Email thru Local Mail Server
+//				execute(ExecutionMode.SAVE, ruleActionBean, pDTO , email.trim());
+//				System.out.println(pDTO.getMessage() + "  (Email sent to Hard Coded email address from OC Mail Server :  " + pDTO.getEmailAccount() + ")");
+//
+//			}
+//		}
 	}
 
 	public ParticipantDTO buildNewPDTO() {

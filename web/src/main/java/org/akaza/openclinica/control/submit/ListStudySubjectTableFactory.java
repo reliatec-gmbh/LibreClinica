@@ -776,16 +776,17 @@ public class ListStudySubjectTableFactory extends AbstractTableFactory {
                         url.append(signStudySubjectLinkBuilder(studySubjectBean));
                     }
 
-                    try {
-                        if (getStudyBean().getStatus() == Status.AVAILABLE
-                                && (getCurrentRole().getRole() == Role.RESEARCHASSISTANT || getCurrentRole().getRole() == Role.RESEARCHASSISTANT2)
-                                && studySubjectBean.getStatus() == Status.AVAILABLE && pManageStatus(studySubjectBean).equalsIgnoreCase("ACTIVE")
-                                && participateStatus(studySubjectBean).equalsIgnoreCase("enabled")) {
-                            url.append(viewParticipateBuilder(studySubjectBean));
-                        }
-                    } catch (Exception e) {
-                        logger.error("Error appending StudySubject into URL: ", e);
-                    }
+                    // RPB specific use case - we don't need links to invite participant
+                    //try {
+                    //    if (getStudyBean().getStatus() == Status.AVAILABLE
+                    //            && (getCurrentRole().getRole() == Role.RESEARCHASSISTANT || getCurrentRole().getRole() == Role.RESEARCHASSISTANT2)
+                    //            && studySubjectBean.getStatus() == Status.AVAILABLE && pManageStatus(studySubjectBean).equalsIgnoreCase("ACTIVE")
+                    //            && participateStatus(studySubjectBean).equalsIgnoreCase("enabled")) {
+                    //        url.append(viewParticipateBuilder(studySubjectBean));
+                    //    }
+                    //} catch (Exception e) {
+                    //    logger.error("Error appending StudySubject into URL: ", e);
+                    //}
                 }
                 value = url.toString();
             }

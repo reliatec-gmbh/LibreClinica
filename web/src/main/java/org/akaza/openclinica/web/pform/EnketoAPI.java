@@ -24,9 +24,9 @@ import org.springframework.web.client.RestTemplate;
 
 public class EnketoAPI {
 
-    private String enketoURL = null;
-    private String token = null;
-    private String ocURL = null;
+    private final String enketoURL;
+    private final String token;
+    private final String ocURL;
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
 
     public EnketoAPI(EnketoCredentials credentials) {
@@ -53,10 +53,10 @@ public class EnketoAPI {
     public String getFormURL(String crfOID) throws Exception {
         if (enketoURL == null)
             return "";
-        URL eURL = new URL(enketoURL + "/api/v2/survey/iframe");
+        URL eURL = new URL(enketoURL + "/api/v1/survey/iframe");
         EnketoURLResponse response = getURL(eURL, crfOID);
         if (response != null) {
-            String myUrl = response.getIframe_url();
+            String myUrl = response.getUrl();
             if (enketoURL.toLowerCase().startsWith("https") && !myUrl.toLowerCase().startsWith("https")) {
                 myUrl = myUrl.replaceFirst("http", "https");
             }
@@ -84,13 +84,15 @@ public class EnketoAPI {
             headers.add("Authorization", "Basic " + userPasswdCombo);
             headers.add("Accept-Charset", "UTF-8");
             EnketoURLRequest body = new EnketoURLRequest(ocURL, crfOID);
-            HttpEntity<EnketoURLRequest> request = new HttpEntity<EnketoURLRequest>(body, headers);
+            HttpEntity<EnketoURLRequest> request = new HttpEntity<>(body, headers);
             RestTemplate rest = new RestTemplate();
             ResponseEntity<EnketoURLResponse> response = rest.postForEntity(url.toString(), request, EnketoURLResponse.class);
-            if (response != null)
+            if (response != null) {
                 return response.getBody();
-            else
+            }
+            else {
                 return null;
+            }
 
         } catch (Exception e) {
             logger.error(e.getMessage());
@@ -107,7 +109,8 @@ public class EnketoAPI {
             // Build instanceId to cache populated instance at Enketo with
             Calendar cal = Calendar.getInstance();
             cal.setTime(new Date());
-            String hashString = ecid + "." + String.valueOf(cal.getTimeInMillis());
+            // TODO: careful here, I am not sure if this time hashing is the best approach, can be buggy
+            String hashString = ecid + "." + cal.getTimeInMillis();
             MessageDigestPasswordEncoder encoder = new MessageDigestPasswordEncoder("SHA-256");
             String instanceId = encoder.encode(hashString);
 
@@ -119,13 +122,15 @@ public class EnketoAPI {
             headers.add("Authorization", "Basic " + userPasswdCombo);
             headers.add("Accept-Charset", "UTF-8");
             EnketoEditURLRequest body = new EnketoEditURLRequest(ocURL, crfOid, instanceId, redirect, instance);
-            HttpEntity<EnketoEditURLRequest> request = new HttpEntity<EnketoEditURLRequest>(body, headers);
+            HttpEntity<EnketoEditURLRequest> request = new HttpEntity<>(body, headers);
             RestTemplate rest = new RestTemplate();
             ResponseEntity<EnketoURLResponse> response = rest.postForEntity(eURL.toString(), request, EnketoURLResponse.class);
-            if (response != null)
+            if (response != null) {
                 return response.getBody();
-            else
+            }
+            else {
                 return null;
+            }
 
         } catch (Exception e) {
             logger.error(e.getMessage());
