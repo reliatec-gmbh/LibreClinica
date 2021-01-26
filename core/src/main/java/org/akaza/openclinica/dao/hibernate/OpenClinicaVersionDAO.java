@@ -53,7 +53,7 @@ public class OpenClinicaVersionDAO extends AbstractDomainDao<OpenClinicaVersionB
     @Transactional
     public int deleteDefault() {
         String query = "delete from " + getDomainClassName() + " ocVersion";
-        Query<OpenClinicaVersionBean> q = getCurrentSession().createQuery(query, domainClass());
+        Query<?> q = getCurrentSession().createQuery(query);
         return q.executeUpdate();
     }
 
