@@ -7,6 +7,7 @@
  */
 package org.akaza.openclinica.dao.hibernate;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 
 import org.akaza.openclinica.bean.managestudy.StudyBean;
@@ -158,7 +159,7 @@ public class RuleSetRuleDao extends AbstractDomainDao<RuleSetRuleBean> {
                 + " join rule_expression re on rs.rule_expression_id = re.id " + " join rule r on r.id = rsr.rule_id "
                 + " join rule_expression rer on r.rule_expression_id = rer.id " + " join rule_action ra on ra.rule_set_rule_id = rsr.id " + " where rs.study_id = " + study.getId() + "  AND  rsr.status_id = 1";
 
-        NativeQuery<Long> q = getCurrentSession().createSQLQuery(query);
+        NativeQuery<BigInteger> q = getCurrentSession().createSQLQuery(query);
         return q.uniqueResult().intValue();
     }
 
