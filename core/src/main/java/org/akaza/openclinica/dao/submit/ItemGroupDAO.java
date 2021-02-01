@@ -119,7 +119,7 @@ public class ItemGroupDAO extends AuditableEntityDAO<ItemGroupBean> {
         logger.debug(oid);
         String oidPreRandomization = oid;
         ItemGroupBean findByOid = findByOid(oid);
-		while (!(findByOid == null || findByOid.getOid() != oid) || oidList.contains(oid)) {
+		while ((findByOid != null && oid.equals(findByOid.getOid())) || oidList.contains(oid)) {
             oid = itemGroup.getOidGenerator().randomizeOid(oidPreRandomization);
             findByOid = findByOid(oid);
         }
