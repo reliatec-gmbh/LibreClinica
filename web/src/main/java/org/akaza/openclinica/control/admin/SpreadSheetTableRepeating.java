@@ -880,18 +880,7 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                                         finalRegexp = finalRegexp.substring(1, finalRegexp.length() - 1);
                                         try {
                                             Pattern.compile(finalRegexp);
-                                            // YW 11-21-2007 << add another \ if
-                                            // there is \ in regexp
-                                            char[] chars = regexp1.toCharArray();
-                                            regexp1 = "";
-                                            for (char c : chars) {
-                                                if (c == '\\' && !dbName.equals("oracle")) {
-                                                    regexp1 += c + "\\";
-                                                } else {
-                                                    regexp1 += c;
-                                                }
-                                            }
-                                            // YW >>
+                                            //Removed block, because escaping of backslashes does not work with Postgres9. rhe-reliatec
                                         } catch (PatternSyntaxException pse) {
                                             // errors.add("The VALIDATION column
                                             // has an invalid regular expression

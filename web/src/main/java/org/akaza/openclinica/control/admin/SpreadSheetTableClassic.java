@@ -667,25 +667,7 @@ public class SpreadSheetTableClassic implements SpreadSheetTable {// extends
                                 } else {
                                     if (finalRegexp.startsWith("/") && finalRegexp.endsWith("/")) {
                                         finalRegexp = finalRegexp.substring(1, finalRegexp.length() - 1);
-                                        try {
-                                            // YW 11-21-2007 << add another \ if
-                                            // there is \ in regexp
-                                            char[] chars = regexp1.toCharArray();
-                                            regexp1 = "";
-                                            for (char c : chars) {
-                                                if (c == '\\' && !dbName.equals("oracle")) {
-                                                    regexp1 += c + "\\";
-                                                } else {
-                                                    regexp1 += c;
-                                                }
-                                            }
-                                            // YW >>
-                                        } catch (PatternSyntaxException pse) {
-                                            errors.add(resPageMsg.getString("the") + " " + resPageMsg.getString("VALIDATION_column")
-                                                + resPageMsg.getString("has_an_invalid_regular_expression_at_row") + " " + k + ", "
-                                                + resPageMsg.getString("items_worksheet") + ". " + resPageMsg.getString("Example:") + " regexp: /[0-9]*/ ");
-                                            htmlErrors.put(j + "," + k + ",17", resPageMsg.getString("INVALID_FIELD"));
-                                        }
+                                        //Removed try/catch block, because escaping of backslashes does not work with Postgres9. rhe-reliatec
                                     } else {
                                         // errors.add("The VALIDATION column has
                                         // an invalid regular expression at row
