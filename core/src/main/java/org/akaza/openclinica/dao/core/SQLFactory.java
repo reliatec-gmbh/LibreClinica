@@ -235,8 +235,7 @@ public class SQLFactory {
             fileList.put(this.DAO_EXPRESSION, "expression_dao.xml");
             fileList.put(this.DAO_RULESET_RULE, "rulesetrule_dao.xml");
             fileList.put(this.DAO_RULESET_AUDIT, "ruleset_audit_dao.xml");
-            fileList.put(this.DAO_RULESETRULE_AUDIT, "rulesetrule_audit_dao.xml");
-            fileList.put(this.DAO_SUBJECTTRANSFER, "subjecttransfer_dao.xml");
+            fileList.put(this.DAO_RULESETRULE_AUDIT, "rulesetrule_audit_dao.xml");            
 
             fileList.put(this.DAO_ODM_EXTRACT, "odm_extract_dao.xml");
 
