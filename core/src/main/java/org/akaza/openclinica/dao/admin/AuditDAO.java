@@ -510,7 +510,22 @@ public class AuditDAO extends EntityDAO<AuditBean> {
     }
 
     public ArrayList<AuditBean> checkItemAuditEventsExist(int itemId, String auditTable,int ecbId) {
-        this.setTypesExpected();
+        this.unsetTypeExpected();
+        this.setTypeExpected(1, TypeNames.INT); // audit_id
+        this.setTypeExpected(2, TypeNames.TIMESTAMP); // audit_date
+        this.setTypeExpected(3, TypeNames.STRING); // audit_table
+        this.setTypeExpected(4, TypeNames.INT); // user_id
+        this.setTypeExpected(5, TypeNames.INT); // entity_id
+        this.setTypeExpected(6, TypeNames.STRING); // entity_name
+        this.setTypeExpected(7, TypeNames.STRING); // reason_for_change
+        this.setTypeExpected(8, TypeNames.INT); // audit_event_type_id
+        this.setTypeExpected(9, TypeNames.STRING); // old_value
+        this.setTypeExpected(10, TypeNames.STRING); // new_value
+        this.setTypeExpected(11, TypeNames.INT); // event_crf_id
+        this.setTypeExpected(12, TypeNames.INT); // study_event_id
+        this.setTypeExpected(13, TypeNames.INT); // event_crf_version_id
+        this.setTypeExpected(14, TypeNames.STRING); // item_data_repeat_key
+        
         HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(itemId));
         variables.put(new Integer(2), auditTable);
