@@ -1706,9 +1706,9 @@ public class DiscrepancyNoteDAO extends AuditableEntityDAO<DiscrepancyNoteBean> 
     }
 
     public ArrayList<DiscrepancyNoteBean> findAllTopNotesByEventCRF(int eventCRFId) {
+    	String queryName = "findAllTopNotesByEventCRF";
     	HashMap<Integer, Object> variables = variables(eventCRFId);
-    	String query = digester.getQuery("findAllTopNotesByEventCRF");
-    	return executeFindAllQuery(query, variables);
+    	return executeFindAllQuery(queryName, variables);
     }
 
     public ArrayList<DiscrepancyNoteBean> findOnlyParentEventCRFDNotesFromEventCRF(EventCRFBean eventCRFBean) {
