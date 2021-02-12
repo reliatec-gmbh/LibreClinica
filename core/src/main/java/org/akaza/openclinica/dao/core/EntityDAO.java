@@ -250,6 +250,8 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
                 logger.warn("Exception while executing query, EntityDAO.select: %s:message: %s", query, sqle.getMessage());
                 logger.error(sqle.getMessage(), sqle);
             }
+            // TODO shouldn't it be better to throw an exception?
+            results = new ArrayList<>();
         } finally {
             this.closeIfNecessary(connection, rs, ps);
         }
@@ -314,7 +316,9 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
         }
         
         ArrayList<HashMap<String, Object>> alist = this.select(query, variables, useCache);
-        answer.addAll(alist.stream().map(m -> (B) this.getEntityFromHashMap(m)).collect(Collectors.toList()));
+        if(alist != null) {
+        	answer.addAll(alist.stream().map(m -> (B) this.getEntityFromHashMap(m)).collect(Collectors.toList()));
+        }
         return answer;
     }
 
@@ -354,19 +358,27 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
      * @param query
      *            a static SQL statement which updates or inserts.
      */
-
     public int executeUpdate(String query) {
+    	return executeUpdate(query, true);
+    }
+
+    public int executeUpdate(String query, boolean failOnEmptyUpdate) {
         HashMap<Integer, Object> variables = new HashMap<>();
         HashMap<Integer, Integer> nullVars = new HashMap<>();
         boolean isTransactional = false;
-        return executeUpdate(query, variables, nullVars, isTransactional, null);
+        return executeUpdate(query, variables, nullVars, isTransactional, null, failOnEmptyUpdate);
     }
 
     /*
      * this function is used for transactional updates to allow all updates in
      * one actions to run as one transaction
      */
+
     public int executeUpdate(String query, Connection connection) {
+    	return executeUpdate(query, connection, true);
+    }
+    
+    public int executeUpdate(String query, Connection connection, boolean failOnEmptyUpdate) {
         HashMap<Integer, Object> variables = new HashMap<>();
         HashMap<Integer, Integer> nullVars = new HashMap<>();
     	boolean isTransactional;
@@ -380,15 +392,23 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
         } else {
         	isTransactional = true;
         }
-        return executeUpdate(query, variables, nullVars, isTransactional, connection);
+        return executeUpdate(query, variables, nullVars, isTransactional, connection, failOnEmptyUpdate);
     }
 
     public int executeUpdate(String query, HashMap<Integer, Object> variables) {
+    	return executeUpdate(query, variables, true);
+    }
+
+    public int executeUpdate(String query, HashMap<Integer, Object> variables, boolean failOnEmptyUpdate) {
         HashMap<Integer, Integer> nullVars = new HashMap<>();
-        return executeUpdate(query, variables, nullVars, null);
+        return executeUpdate(query, variables, nullVars, null, failOnEmptyUpdate);
     }
 
     public int executeUpdate(String query, HashMap<Integer, Object> variables, Connection connection) {
+    	return executeUpdate(query, variables, connection, true);
+    }
+
+    public int executeUpdate(String query, HashMap<Integer, Object> variables, Connection connection, boolean failOnEmptyUpdate) {
     	boolean isTransactional;
         if (connection == null) {
         	isTransactional = false;
@@ -401,14 +421,22 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
         	isTransactional = true;
         }
         HashMap<Integer, Integer> nullVars = new HashMap<>();
-        return executeUpdate(query, variables, nullVars, isTransactional, connection);
+        return executeUpdate(query, variables, nullVars, isTransactional, connection, failOnEmptyUpdate);
     }
 
     public int executeUpdate(String query, HashMap<Integer, Object> variables, HashMap<Integer, Integer> nullVars) {
-    	return executeUpdate(query, variables, nullVars, null);
+    	return executeUpdate(query, variables, nullVars, true);
+    }
+
+    public int executeUpdate(String query, HashMap<Integer, Object> variables, HashMap<Integer, Integer> nullVars, boolean failOnEmptyUpdate) {
+    	return executeUpdate(query, variables, nullVars, null, failOnEmptyUpdate);
     }
 
     public int executeUpdate(String query, HashMap<Integer, Object> variables, HashMap<Integer, Integer> nullVars, Connection connection) {
+    	return executeUpdate(query, variables, nullVars, connection, true);
+    }
+
+    public int executeUpdate(String query, HashMap<Integer, Object> variables, HashMap<Integer, Integer> nullVars, Connection connection, boolean failOnEmptyUpdate) {
         boolean isTransactional;
         if (connection == null) {
         	isTransactional = false;
@@ -420,10 +448,14 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
         } else {
         	isTransactional = true;
         }
-        return executeUpdate(query, variables, nullVars, isTransactional, connection);
+        return executeUpdate(query, variables, nullVars, isTransactional, connection, failOnEmptyUpdate);
     }
 
     public int executeUpdate(String query, HashMap<Integer, Object> variables, HashMap<Integer, Integer> nullVars, boolean isTransactional, Connection connection) {
+    	return executeUpdate(query, variables, nullVars, isTransactional, connection, true);
+    }
+
+    public int executeUpdate(String query, HashMap<Integer, Object> variables, HashMap<Integer, Integer> nullVars, boolean isTransactional, Connection connection, boolean failOnEmptyUpdate) {
     	assertConnectionIsValid(connection);
         clearSignals();
         
@@ -433,7 +465,7 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
             ps = connection.prepareStatement(query);
             ps = psf.generate(ps);// enter variables here!
             int rowCount = ps.executeUpdate();
-            if (rowCount < 1) {
+            if (failOnEmptyUpdate && rowCount < 1) {
                 logger.warn("Executing update query did not change anything, EntityDAO: %s", query);
                 throw new SQLException();
             }
@@ -746,7 +778,7 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
         } else {
         	answer = emptyBean();
         	String msg = "found no object for query '%s'"; 
-            logger.warn(String.format(msg,  sql));
+            logger.debug(String.format(msg,  sql));
         }
 
         return answer;

@@ -964,17 +964,19 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
 
     public void setSysAdminRole(UserAccountBean uab, boolean creating) {
         HashMap<Integer, Object> variables = variables(uab.getName());
+        
+        boolean failOnEmptyUpdate = false;
 
         if (uab.isSysAdmin() && !uab.isTechAdmin()) {
             // we remove first so that there are no duplicate roles
-            this.executeUpdate(digester.getQuery("removeSysAdminRole"), variables);
+            this.executeUpdate(digester.getQuery("removeSysAdminRole"), variables, failOnEmptyUpdate);
 
             int ownerId = creating ? uab.getOwnerId() : uab.getUpdaterId();
             variables.put(new Integer(2), new Integer(ownerId));
             variables.put(new Integer(3), new Integer(ownerId));
             this.executeUpdate(digester.getQuery("addSysAdminRole"), variables);
         } else {
-            this.executeUpdate(digester.getQuery("removeSysAdminRole"), variables);
+            this.executeUpdate(digester.getQuery("removeSysAdminRole"), variables, failOnEmptyUpdate);
         }
     }
 

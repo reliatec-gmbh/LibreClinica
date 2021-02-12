@@ -12,6 +12,7 @@ package org.akaza.openclinica.web.domain;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -538,7 +539,24 @@ public class EntityBeanTable {
             row.setAscendingSort(ascendingSort);
             displayRows.set(i, row);
         }
-        Collections.sort(displayRows);
+        Collections.sort(displayRows, new Comparator<EntityBeanRow<?,?>>() {
+			@Override
+			public int compare(EntityBeanRow<?, ?> o1, EntityBeanRow<?, ?> o2) {
+				if(o1 == null && o2 == null) {
+					return 0;
+				} else if (o1 == null) {
+					return 1;
+				} else if (o2 == null) {
+					return -1;
+				} else {
+					if (ascendingSort) {
+			            return o1.compareColumn(o2, sortingColumnInd);
+			        } else {
+			            return -1 * o1.compareColumn(o2, sortingColumnInd);
+			        }
+				}
+			}        	
+		});
 
         // ****************
         // APPLY PAGINATION
