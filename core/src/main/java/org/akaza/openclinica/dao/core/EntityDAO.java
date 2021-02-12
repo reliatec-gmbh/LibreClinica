@@ -235,7 +235,7 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
             
 			if (!useCache || results == null) {            
 				rs = ps.executeQuery();
-				logger.debug("Executing query, EntityDAO.select:query %s", query);
+				logger.debug("Executing query, EntityDAO.select:query {}", query);
 				signalSuccess();
 				results = this.processResultRows(rs);
 			}
@@ -247,7 +247,7 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
         } catch (SQLException sqle) {
             signalFailure(sqle);
             if (logger.isWarnEnabled()) {
-                logger.warn("Exception while executing query, EntityDAO.select: %s:message: %s", query, sqle.getMessage());
+                logger.warn("Exception while executing query, EntityDAO.select: {}:message: {}", query, sqle.getMessage());
                 logger.error(sqle.getMessage(), sqle);
             }
             // TODO shouldn't it be better to throw an exception?
@@ -466,16 +466,16 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
             ps = psf.generate(ps);// enter variables here!
             int rowCount = ps.executeUpdate();
             if (failOnEmptyUpdate && rowCount < 1) {
-                logger.warn("Executing update query did not change anything, EntityDAO: %s", query);
+                logger.warn("Executing update query did not change anything, EntityDAO: {}", query);
                 throw new SQLException();
             }
             signalSuccess();
-            logger.debug("Executing dynamic query, EntityDAO: %s", query);
+            logger.debug("Executing dynamic query, EntityDAO: {}", query);
         	return rowCount;
         } catch (SQLException sqle) {
             signalFailure(sqle);
             if (logger.isWarnEnabled()) {
-                logger.warn("Exeception while executing statement, EntityDAO.executeUpdate: %s: %s", query, sqle.getMessage());
+                logger.warn("Exeception while executing statement, EntityDAO.executeUpdate: {}: {}", query, sqle.getMessage());
                 logger.error(sqle.getMessage(), sqle);
             }
             return -1;
@@ -507,15 +507,15 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
             assertConnectionIsValid(connection);
             int rowCount = executeUpdate(query, variables, nullVars, isTransactional, connection);
             if (rowCount != 1) {
-                logger.warn("Problem with executing query, EntityDAO: %s", query);
+                logger.warn("Problem with executing query, EntityDAO: {}", query);
                 throw new SQLException();
             }
-            logger.debug("Executing query, EntityDAO: %s", query);
+            logger.debug("Executing query, EntityDAO: {}", query);
             this.latestPK = getCurrentPK(connection);
         } catch (SQLException sqle) {
             signalFailure(sqle);
             if (logger.isWarnEnabled()) {
-                logger.warn("Exception while executing statement, EntityDAO.execute: %s: %s", query, sqle.getMessage());
+                logger.warn("Exception while executing statement, EntityDAO.execute: {}: {}", query, sqle.getMessage());
                 logger.error(sqle.getMessage(), sqle);
             }
         } finally {
@@ -770,7 +770,7 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
         B answer;
 
         String sql = digester.getQuery(queryName);
-        logger.debug("query: %s, variables: %s", queryName, variables);
+        logger.debug("query: {}, variables: {}", queryName, variables);
 
         ArrayList<HashMap<String, Object>> rows = this.select(sql, variables, useCache);
         if(rows.size() > 0) {
