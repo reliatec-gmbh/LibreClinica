@@ -283,12 +283,9 @@ public class OdmExtractDAO extends DatasetDAO {
             this.setTypeExpected(12, TypeNames.STRING);// definition_oid;
             this.setTypeExpected(13, TypeNames.BOOL);// definition_repeating
             this.setTypeExpected(14, TypeNames.INT);// sample_ordinal
-            this.setTypeExpected(15, TypeNames.STRING);// se_location (study
-            // event)
-            this.setTypeExpected(16, TypeNames.DATE);// date_start (study
-            // event)
-            this.setTypeExpected(17, TypeNames.DATE);// date_end (study
-            // event)
+            this.setTypeExpected(15, TypeNames.STRING);// se_location (study event)
+            this.setTypeExpected(16, TypeNames.TIMESTAMP);// date_start (study event)
+            this.setTypeExpected(17, TypeNames.TIMESTAMP);// date_end (study event)
             this.setTypeExpected(18, TypeNames.BOOL);// start_time_flag
             this.setTypeExpected(19, TypeNames.BOOL);// end_time_flag
             this.setTypeExpected(20, TypeNames.INT);// event_status_id
@@ -1983,8 +1980,10 @@ public class OdmExtractDAO extends DatasetDAO {
         if (odmVersion.startsWith("oc")) {
             logger.debug("getOCSubjectEventFormSql="
                 + getOCSubjectEventFormSqlSS(studyIds, sedIds, itemIds, dateConstraint, datasetItemStatusId, studySubjectIds));
+            logger.debug("odmVersion " + odmVersion);
             this.setSubjectEventFormDataTypesExpected(odmVersion);
             ArrayList<HashMap<String, Object>> viewRows = select(getOCSubjectEventFormSqlSS(studyIds, sedIds, itemIds, dateConstraint, datasetItemStatusId, studySubjectIds));
+            logger.debug("number of rows: " + viewRows.size());
             this.setDataWithOCAttributes(study, dataset, data, odmVersion, viewRows, oidPoses, odmType);
         } else {
             logger.debug("getSubjectEventFormSql=" + getSubjectEventFormSqlSS(studyIds, sedIds, itemIds, dateConstraint, datasetItemStatusId, studySubjectIds));
