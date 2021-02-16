@@ -48,7 +48,7 @@ public class DisplaySectionBean {
         crfVersion = new CRFVersionBean();
         eventCRF = new EventCRFBean();
         section = new SectionBean();
-        items = new ArrayList();
+        items = new ArrayList<>();
         checkInputs = true;
         firstSection = false;
         lastSection = false;

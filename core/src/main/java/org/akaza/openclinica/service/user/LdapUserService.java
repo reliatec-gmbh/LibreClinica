@@ -78,10 +78,10 @@ public class LdapUserService {
         ldapTemplate = new SpringSecurityLdapTemplate(contextSource);
         ldapTemplate.setIgnorePartialResultException(true);
     }
-    
-    private final AttributesMapper ldapUserAttributesMapper = new AttributesMapper() {
 
-        public Object mapFromAttributes(Attributes attributes) throws NamingException {
+    private final AttributesMapper<LdapUser> ldapUserAttributesMapper = new AttributesMapper<LdapUser>() {
+
+        public LdapUser mapFromAttributes(Attributes attributes) throws NamingException {
             LdapUser u = new LdapUser();
             u.setDistinguishedName(attToString(attributes, keyDistinguishedName));
             u.setUsername(attToString(attributes, keyUsername));
@@ -109,7 +109,6 @@ public class LdapUserService {
      * @param filter LDAP account username to search for in LDAP server
      * @return List of found LdapUser objects matching the filter
      */
-    @SuppressWarnings("unchecked")
     public List<LdapUser> listUsers(String filter) {
         assert(!StringUtils.isEmpty(filter));
         String query = MessageFormat.format(userSearchQuery, filter);
@@ -140,7 +139,7 @@ public class LdapUserService {
      */
     @SuppressWarnings("unchecked")
     public LdapUser loadUser(String dn) {
-        return (LdapUser) ldapTemplate.lookup(dn, ldapUserAttributesMapper);
+        return ldapTemplate.lookup(dn, ldapUserAttributesMapper);
     }
 
     public DirContextOperations searchForUser(String username) {

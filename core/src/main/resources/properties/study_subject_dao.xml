@@ -227,7 +227,7 @@
 	<query>
 		<name>findAllByStudyId</name>
 		<sql>
-	        SELECT  s.unique_identifier, s.gender, ss.*, stu.name
+	        SELECT ss.*, s.unique_identifier, s.gender, stu.name
 	        FROM subject s, study_subject ss, study stu
 	        WHERE s.subject_id = ss.subject_id
 			    AND ss.study_id = stu.study_id
@@ -239,7 +239,7 @@
 	<query>
 		<name>findAllByStudyIdAndLimit</name>
 		<sql>
-	        SELECT  s.unique_identifier, s.gender, ss.*, stu.name
+	        SELECT ss.*, s.unique_identifier, s.gender, stu.name
 	        FROM subject s, study_subject ss, study stu
 	        WHERE s.subject_id = ss.subject_id
 			AND ss.study_id = stu.study_id

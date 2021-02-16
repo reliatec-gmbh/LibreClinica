@@ -74,7 +74,7 @@ public class XmlParser extends DefaultHandler {
 
         logger.info("No of Records '" + allCrfData.size() + "'.");
 
-        Iterator it = allCrfData.iterator();
+        Iterator<HashMap<String, String>> it = allCrfData.iterator();
         while (it.hasNext()) {
             logger.info(it.next().toString());
         }

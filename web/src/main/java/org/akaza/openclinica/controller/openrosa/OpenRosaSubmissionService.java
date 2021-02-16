@@ -33,14 +33,14 @@ public class OpenRosaSubmissionService {
     CrfVersionDao crfVersionDao;
     
     @Transactional
-    public void processRequest(Study study, HashMap<String,String> subjectContext, String requestBody, Errors errors, Locale locale, ArrayList <HashMap> listOfUploadFilePaths) throws Exception {
+    public void processRequest(Study study, HashMap<String,String> subjectContext, String requestBody, Errors errors, Locale locale, ArrayList <HashMap<String,String>> listOfUploadFilePaths) throws Exception {
         // Execute save as Hibernate transaction to avoid partial imports
         CrfVersion crfVersion = crfVersionDao.findByOcOID(subjectContext.get("crfVersionOID"));
         String requestPayload = parseSubmission(requestBody, crfVersion);
         runAsTransaction(study, requestPayload, subjectContext, errors, locale ,listOfUploadFilePaths);
     }
     
-    private void runAsTransaction(Study study, String requestBody, HashMap<String, String> subjectContext, Errors errors, Locale locale,ArrayList <HashMap> listOfUploadFilePaths) throws Exception{
+    private void runAsTransaction(Study study, String requestBody, HashMap<String, String> subjectContext, Errors errors, Locale locale,ArrayList <HashMap<String,String>> listOfUploadFilePaths) throws Exception{
 
         SubmissionContainer container = new SubmissionContainer(study,requestBody,subjectContext,errors,locale ,listOfUploadFilePaths);
         submissionProcessorChain.processSubmission(container);

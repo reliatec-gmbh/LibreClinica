@@ -14,7 +14,11 @@ package org.akaza.openclinica.exception;
  * Preferences - Java - Code Style - Code Templates
  */
 public class PreparedStatementFactoryException extends Exception {
-    public String message;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -8530147809391419915L;
+	public String message;
 
     public PreparedStatementFactoryException() {
         message = "";

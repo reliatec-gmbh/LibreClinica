@@ -10,7 +10,6 @@
 package org.akaza.openclinica.domain.datamap;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -43,9 +42,12 @@ import org.hibernate.annotations.Type;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Study   extends DataMapDomainObject {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1650053070213212481L;
 	private int studyId;
 	private UserAccount userAccount;
-	private StudyType studyType;
 	private Study study;
 	private Status status;
 	private String uniqueIdentifier;
@@ -102,14 +104,9 @@ public class Study   extends DataMapDomainObject {
 	private List<CrfBean> crfs ;
 	private List<StudyEventDefinition> studyEventDefinitions ;
 	private List<Study> studies;
-	private List<StudyUserRole> studyUserRoles;
-	//private Set datasets = new HashSet(0);
-	private List<StudyParameterValue> studyParameterValues;
 	private List<StudySubject> studySubjects ;
 	private List<EventDefinitionCrf> eventDefinitionCrfs;
 	private List<DiscrepancyNote> discrepancyNotes ;
-	private List<StudyModuleStatus> studyModuleStatuses ;
-	private Integer version;
 
 	public Study() {
 	}
@@ -140,13 +137,12 @@ public class Study   extends DataMapDomainObject {
 			String duration, String selection, String timing,
 			String officialTitle, Boolean resultsReference, String ocOid,
 			Integer oldStatusId, List<CrfBean> crfs, List<StudyEventDefinition> studyEventDefinitions,
-			List<Study> studies, List<StudyUserRole> studyUserRoles, Set datasets,
+			List<Study> studies, List<StudyUserRole> studyUserRoles,
 			List<StudyParameterValue> studyParameterValues, List<StudySubject> studySubjects,
 			List<EventDefinitionCrf> eventDefinitionCrfs, List<DiscrepancyNote> discrepancyNotes,
 			List<StudyModuleStatus> studyModuleStatuses) {
 		this.studyId = studyId;
 		this.userAccount = userAccount;
-		this.studyType = studyType;
 		this.study = study;
 		this.status = status;
 		this.uniqueIdentifier = uniqueIdentifier;
@@ -203,13 +199,9 @@ public class Study   extends DataMapDomainObject {
 		this.crfs = crfs;
 		this.studyEventDefinitions = studyEventDefinitions;
 		this.studies = studies;
-		this.studyUserRoles = studyUserRoles;
-	//	this.datasets = datasets;
-		this.studyParameterValues = studyParameterValues;
 		this.studySubjects = studySubjects;
 		this.eventDefinitionCrfs = eventDefinitionCrfs;
 		this.discrepancyNotes = discrepancyNotes;
-		this.studyModuleStatuses = studyModuleStatuses;
 	}
 
 	@Id

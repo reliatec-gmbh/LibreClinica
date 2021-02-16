@@ -22,7 +22,11 @@ import java.util.Date;
 
 public class RuleSetAuditBean extends EntityBean {
 
-    RuleSetBean ruleSetBean;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 897059243940245637L;
+	RuleSetBean ruleSetBean;
     Status status;
     UserAccountBean updater;
     Date dateUpdated;

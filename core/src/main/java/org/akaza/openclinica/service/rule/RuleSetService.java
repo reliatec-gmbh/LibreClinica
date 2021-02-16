@@ -53,15 +53,12 @@ import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDefinitionDAO;
 import org.akaza.openclinica.dao.managestudy.StudySubjectDAO;
-import org.akaza.openclinica.dao.rule.action.RuleActionDAO;
 import org.akaza.openclinica.dao.submit.CRFVersionDAO;
 import org.akaza.openclinica.dao.submit.ItemDAO;
 import org.akaza.openclinica.dao.submit.ItemDataDAO;
 import org.akaza.openclinica.dao.submit.ItemFormMetadataDAO;
 import org.akaza.openclinica.domain.Status;
 import org.akaza.openclinica.domain.crfdata.DynamicsItemFormMetadataBean;
-import org.akaza.openclinica.domain.datamap.StudyEvent;
-import org.akaza.openclinica.domain.datamap.StudyEventDefinition;
 import org.akaza.openclinica.domain.rule.AuditableBeanWrapper;
 import org.akaza.openclinica.domain.rule.RuleBean;
 import org.akaza.openclinica.domain.rule.RuleBulkExecuteContainer;
@@ -84,7 +81,6 @@ import org.akaza.openclinica.logic.rulerunner.ImportDataRuleRunnerContainer;
 import org.akaza.openclinica.logic.rulerunner.MessageContainer;
 import org.akaza.openclinica.logic.rulerunner.RuleSetBulkRuleRunner;
 import org.akaza.openclinica.patterns.ocobserver.StudyEventChangeDetails;
-import org.akaza.openclinica.service.BulkEmailSenderService;
 import org.akaza.openclinica.service.crfdata.BeanPropertyService;
 import org.akaza.openclinica.service.crfdata.DynamicsMetadataService;
 import org.akaza.openclinica.service.rule.expression.ExpressionService;
@@ -106,21 +102,8 @@ public class RuleSetService implements RuleSetServiceInterface {
     private RuleDao ruleDao;
     private RuleSetRuleDao ruleSetRuleDao;
     private JavaMailSenderImpl mailSender;
-    // private RuleSetRuleDAO ruleSetRuleDao;
-    private BulkEmailSenderService bulkEmailSenderService;
 
     // Jdbc based DAOs
-    private StudyDAO studyDao;
-    private StudyEventDefinitionDAO studyEventDefinitionDao;
-    private StudySubjectDAO studySubjecdao;
-    private CRFDAO crfDao;
-    private CRFVersionDAO crfVersionDao;
-
-    private RuleActionDAO ruleActionDao;
-    private StudyEventDAO studyEventDao;
-    private ItemDAO itemDao;
-    private ItemDataDAO itemDataDao;
-    private ItemFormMetadataDAO itemFormMetadataDao;
     private DynamicsItemFormMetadataDao dynamicsItemFormMetadataDao;
     private ExpressionService expressionService;
     private String requestURLMinusServletPath;
@@ -651,7 +634,6 @@ public class RuleSetService implements RuleSetServiceInterface {
      * @see org.akaza.openclinica.service.rule.RuleSetServiceInterface#filterRuleSetsByStudyEventOrdinal(java.util.List)
      */
     
-    @SuppressWarnings("unchecked")
     public List<RuleSetBean> filterRuleSetsByStudySubject(List<RuleSetBean> ruleSets) throws NumberFormatException, ParseException {
         for (RuleSetBean ruleSet : ruleSets) {
             List<ExpressionBean> filteredExpressions = new ArrayList<ExpressionBean>();
@@ -679,8 +661,6 @@ public class RuleSetService implements RuleSetServiceInterface {
         return ruleSets;
     }
     
-        
-    @SuppressWarnings("unchecked")
     public List<RuleSetBean> filterRuleSetsByStudyEventOrdinal(List<RuleSetBean> ruleSets, String crfVersionId) {
         ArrayList<RuleSetBean> validRuleSets = new ArrayList<RuleSetBean>();
         for (RuleSetBean ruleSetBean : ruleSets) {
@@ -962,10 +942,6 @@ public class RuleSetService implements RuleSetServiceInterface {
         return requestURLMinusServletPath;
     }
 
-    public void setStudyDao(StudyDAO studyDao) {
-        this.studyDao = studyDao;
-    }
-
     public RuleSetDao getRuleSetDao() {
         return ruleSetDao;
     }
@@ -1140,10 +1116,6 @@ public class RuleSetService implements RuleSetServiceInterface {
 
 	public StudySubjectDAO getStudySubjecdao() {
         return new StudySubjectDAO(dataSource);
-	}
-
-	public void setStudySubjecdao(StudySubjectDAO studySubjecdao) {
-		this.studySubjecdao = studySubjecdao;
 	}
 
 	public Boolean calculateTimezoneDiff(TimeZone serverZone, TimeZone ssZone, int runTime, int serverTime) {

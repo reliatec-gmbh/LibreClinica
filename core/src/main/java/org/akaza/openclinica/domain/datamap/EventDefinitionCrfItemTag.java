@@ -16,15 +16,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-
 import org.akaza.openclinica.domain.DataMapDomainObject;
 import org.akaza.openclinica.domain.user.UserAccount;
-import org.codehaus.jackson.annotate.JsonAutoDetect;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.GenericGenerator;
@@ -36,7 +30,11 @@ import org.hibernate.annotations.Parameter;
 @GenericGenerator(name = "id-generator", strategy = "native", parameters = { @Parameter(name = "sequence_name", value = "event_definition_crf_item_tag_id_seq") })
 public class EventDefinitionCrfItemTag extends DataMapDomainObject {
 
-    private Integer id;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -5556372188750290925L;
+	private Integer id;
     private String path;
     private int tagId;
     private boolean active;

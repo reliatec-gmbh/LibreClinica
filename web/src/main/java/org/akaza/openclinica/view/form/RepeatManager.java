@@ -7,12 +7,13 @@
  */
 package org.akaza.openclinica.view.form;
 
-import org.jdom.Attribute;
-import org.jdom.Element;
+import static org.akaza.openclinica.core.util.ClassCastHelper.asList;
 
 import java.util.List;
 import java.util.Random;
 
+import org.jdom.Attribute;
+import org.jdom.Element;
 /**
  * This class adds the required repetition-model related attributes to an
  * Element. These attributes involve repeating form elements, and use a
@@ -62,16 +63,15 @@ public class RepeatManager {
         // remove and edit the existing one to add this required repeat
         // information.
         // The child elements have names of input, select, or textarea
-        List<Element> inputs = repeater.getChildren("input");
+        List<Element> inputs = asList(repeater.getChildren("input"), Element.class);
         if (inputs.isEmpty()) {
-            inputs = repeater.getChildren("select");
+            inputs = asList(repeater.getChildren("select"), Element.class);
         }
         if (inputs.isEmpty()) {
-            inputs = repeater.getChildren("textarea");
+            inputs = asList(repeater.getChildren("textarea"), Element.class);
         }
         for (Element input : inputs) {
             // do not include input type="hidden"
-            boolean isHidden;
             Attribute attribute = input.getAttribute("type");
             if (attribute == null || attribute.getValue() == null || !attribute.getValue().equalsIgnoreCase("hidden")) {
                 if (input.getAttribute("name") != null) {

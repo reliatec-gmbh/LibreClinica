@@ -7,14 +7,27 @@
  */
 package org.akaza.openclinica.control.managestudy;
 
+import static org.akaza.openclinica.core.util.ClassCastHelper.asArrayList;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+
+import javax.sql.DataSource;
+
 import org.akaza.openclinica.bean.core.SubjectEventStatus;
 import org.akaza.openclinica.bean.login.StudyUserRoleBean;
 import org.akaza.openclinica.bean.login.UserAccountBean;
+import org.akaza.openclinica.bean.managestudy.DisplayEventDefinitionCRFBean;
 import org.akaza.openclinica.bean.managestudy.DisplayStudyEventBean;
 import org.akaza.openclinica.bean.managestudy.DisplayStudySubjectBean;
+import org.akaza.openclinica.bean.managestudy.EventDefinitionCRFBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
+import org.akaza.openclinica.bean.managestudy.StudyGroupBean;
 import org.akaza.openclinica.bean.managestudy.StudyGroupClassBean;
 import org.akaza.openclinica.bean.managestudy.StudySubjectBean;
 import org.akaza.openclinica.bean.service.StudyParameterValueBean;
@@ -38,22 +51,16 @@ import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.bean.DisplayStudySubjectRow;
 import org.akaza.openclinica.web.bean.EntityBeanTable;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-
-import javax.sql.DataSource;
-
 /**
  * @author jxu
  */
 public abstract class ListStudySubjectServlet extends SecureController {
 
-    // Shaoyu Su
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6119891528224678112L;
+	// Shaoyu Su
     Locale locale;
     // BWP Issue 3195, 3330 <<
     public static String SUBJECT_PAGE_NUMBER = "ebl_page";
@@ -117,7 +124,6 @@ public abstract class ListStudySubjectServlet extends SecureController {
         SubjectGroupMapDAO sgmdao = new SubjectGroupMapDAO(sm.getDataSource());
         StudyGroupClassDAO sgcdao = new StudyGroupClassDAO(sm.getDataSource());
         StudyGroupDAO sgdao = new StudyGroupDAO(sm.getDataSource());
-        StudySubjectDAO ssdao = new StudySubjectDAO(sm.getDataSource());
 
         // YW << update study parameters of current study.
         // "collectDob" and "genderRequired" are set as the same as the parent
@@ -125,8 +131,8 @@ public abstract class ListStudySubjectServlet extends SecureController {
         // tbh, also add the params "subjectPersonIdRequired",
         // "subjectIdGeneration", "subjectIdPrefixSuffix"
         int parentStudyId = currentStudy.getParentStudyId();
-        ArrayList studyGroupClasses = new ArrayList();
-        ArrayList allDefs = new ArrayList();
+        ArrayList<StudyGroupClassBean> studyGroupClasses = new ArrayList<>();
+        ArrayList<StudyEventDefinitionBean> allDefs = new ArrayList<>();
         // allDefs holds the list of study event definitions used in the table,
         // tbh
         if (parentStudyId > 0) {
@@ -153,9 +159,8 @@ public abstract class ListStudySubjectServlet extends SecureController {
         // YW >>
 
         // for all the study groups for each group class
-        for (int i = 0; i < studyGroupClasses.size(); i++) {
-            StudyGroupClassBean sgc = (StudyGroupClassBean) studyGroupClasses.get(i);
-            ArrayList groups = sgdao.findAllByGroupClass(sgc);
+        for (StudyGroupClassBean sgc : studyGroupClasses) {
+            ArrayList<StudyGroupBean> groups = sgdao.findAllByGroupClass(sgc);
             sgc.setStudyGroups(groups);
         }
         request.setAttribute("studyGroupClasses", studyGroupClasses);
@@ -166,21 +171,20 @@ public abstract class ListStudySubjectServlet extends SecureController {
         session.setAttribute("groupSize", new Integer(studyGroupClasses.size()));
 
         // find all the subjects in current study
-        ArrayList subjects = sdao.findAllByStudyId(currentStudy.getId());
+        ArrayList<StudySubjectBean> subjects = sdao.findAllByStudyId(currentStudy.getId());
 
         ArrayList<DisplayStudySubjectBean> displayStudySubs = new ArrayList<DisplayStudySubjectBean>();
         // BEGIN LOOPING THROUGH SUBJECTS
         for (int i = 0; i < subjects.size(); i++) {
             StudySubjectBean studySub = (StudySubjectBean) subjects.get(i);
 
-            ArrayList groups = (ArrayList) sgmdao.findAllByStudySubject(studySub.getId());
+            ArrayList<SubjectGroupMapBean> groups = sgmdao.findAllByStudySubject(studySub.getId());
 
-            ArrayList subGClasses = new ArrayList();
+            ArrayList<SubjectGroupMapBean> subGClasses = new ArrayList<>();
             for (int j = 0; j < studyGroupClasses.size(); j++) {
                 StudyGroupClassBean sgc = (StudyGroupClassBean) studyGroupClasses.get(j);
                 boolean hasClass = false;
-                for (int k = 0; k < groups.size(); k++) {
-                    SubjectGroupMapBean sgmb = (SubjectGroupMapBean) groups.get(k);
+                for (SubjectGroupMapBean sgmb : groups) {
                     if (sgmb.getGroupClassName().equalsIgnoreCase(sgc.getName())) {
                         subGClasses.add(sgmb);
                         hasClass = true;
@@ -194,12 +198,11 @@ public abstract class ListStudySubjectServlet extends SecureController {
 
             }
 
-            ArrayList subEvents = new ArrayList();
+            ArrayList<StudyEventBean> subEvents = new ArrayList<>();
             // find all events order by definition ordinal
-            ArrayList events = sedao.findAllByStudySubject(studySub);
+            ArrayList<StudyEventBean> events = sedao.findAllByStudySubject(studySub);
 
-            for (int j = 0; j < allDefs.size(); j++) {
-                StudyEventDefinitionBean sed = (StudyEventDefinitionBean) allDefs.get(j);
+            for (StudyEventDefinitionBean sed : allDefs) {
                 boolean hasDef = false;
                 // StudyEventBean first = (StudyEventBean) events.get(0);
                 // whack idea to try and set things right with the code
@@ -244,9 +247,8 @@ public abstract class ListStudySubjectServlet extends SecureController {
             // finalEvents:[a(2) b(3) c(2) d e(2)]
             int prevDefId = 0;
             int currDefId = 0;
-            ArrayList finalEvents = new ArrayList();
+            ArrayList<StudyEventBean> finalEvents = new ArrayList<>();
             int repeatingNum = 1;
-            int count = 0;
             StudyEventBean event = new StudyEventBean();
 
             // begin looping through subject events
@@ -260,8 +262,6 @@ public abstract class ListStudySubjectServlet extends SecureController {
                     }
                     finalEvents.add(se); // add current event to final
                     event = se;
-                    count++;
-                    // logger.info("event id? "+event.getId());
                 } else {// repeating event
                     repeatingNum++;
                     event.getRepeatEvents().add(se);
@@ -295,8 +295,8 @@ public abstract class ListStudySubjectServlet extends SecureController {
         // determine whether any uncompleted CRFs are required.
         boolean isRequiredUncomplete = false;
         for (DisplayStudySubjectBean subject : displayStudySubs) {
-            for (Iterator it = subject.getStudyEvents().iterator(); it.hasNext();) {
-                StudyEventBean event = (StudyEventBean) it.next();
+        	ArrayList<StudyEventBean> studyEvents = asArrayList(subject.getStudyEvents(), StudyEventBean.class);
+            for (StudyEventBean event : studyEvents) {
                 if (event.getSubjectEventStatus() != null && event.getSubjectEventStatus().getId() == 3) {
                     // disallow the subject from signing any studies
                     subject.setStudySignable(false);
@@ -315,9 +315,9 @@ public abstract class ListStudySubjectServlet extends SecureController {
 
         fp = new FormProcessor(request);
         EntityBeanTable table = fp.getEntityBeanTable();
-        ArrayList allStudyRows = DisplayStudySubjectRow.generateRowsFromBeans(displayStudySubs);
+        ArrayList<DisplayStudySubjectRow> allStudyRows = DisplayStudySubjectRow.generateRowsFromBeans(displayStudySubs);
 
-        ArrayList columnArray = new ArrayList();
+        ArrayList<String> columnArray = new ArrayList<>();
 
         columnArray.add(resword.getString("study_subject_ID"));
         columnArray.add(resword.getString("subject_status"));
@@ -341,8 +341,8 @@ public abstract class ListStudySubjectServlet extends SecureController {
         // String[] columns = {"ID", "Subject Status", "Gender", "Enrollment
         // Date",
         // "Study Events", "Actions" };
-        table.setColumns(new ArrayList(Arrays.asList(columns)));
-        table.setQuery(getBaseURL(), new HashMap());
+        table.setColumns(new ArrayList<String>(Arrays.asList(columns)));
+        table.setQuery(getBaseURL(), new HashMap<>());
 
         table.hideColumnLink(columnArray.size() - 1);
 
@@ -406,7 +406,6 @@ public abstract class ListStudySubjectServlet extends SecureController {
     public static DisplayStudyEventBean getDisplayStudyEventsForStudySubject(StudySubjectBean studySub, StudyEventBean event, DataSource ds,
             UserAccountBean ub, StudyUserRoleBean currentRole, StudyBean study) {
         StudyEventDefinitionDAO seddao = new StudyEventDefinitionDAO(ds);
-        StudyEventDAO sedao = new StudyEventDAO(ds);
         EventCRFDAO ecdao = new EventCRFDAO(ds);
         EventDefinitionCRFDAO edcdao = new EventDefinitionCRFDAO(ds);
 
@@ -414,16 +413,16 @@ public abstract class ListStudySubjectServlet extends SecureController {
         event.setStudyEventDefinition(sed);
 
         // find all active crfs in the definition
-        ArrayList eventDefinitionCRFs = edcdao.findAllActiveByEventDefinitionId(sed.getId());
+        ArrayList<EventDefinitionCRFBean> eventDefinitionCRFs = edcdao.findAllActiveByEventDefinitionId(sed.getId());
 
-        ArrayList eventCRFs = ecdao.findAllByStudyEvent(event);
+        ArrayList<EventCRFBean> eventCRFs = ecdao.findAllByStudyEvent(event);
 
         // construct info needed on view study event page
         DisplayStudyEventBean de = new DisplayStudyEventBean();
         de.setStudyEvent(event);
         de.setDisplayEventCRFs(ViewStudySubjectServlet.getDisplayEventCRFs(ds, eventCRFs, eventDefinitionCRFs, ub, currentRole, event.getSubjectEventStatus(),
                 study));
-        ArrayList al = ViewStudySubjectServlet.getUncompletedCRFs(ds, eventDefinitionCRFs, eventCRFs, event.getSubjectEventStatus());
+        ArrayList<DisplayEventDefinitionCRFBean> al = ViewStudySubjectServlet.getUncompletedCRFs(ds, eventDefinitionCRFs, eventCRFs, event.getSubjectEventStatus());
         // ViewStudySubjectServlet.populateUncompletedCRFsWithCRFAndVersions(ds,
         // al);
         de.setUncompletedCRFs(al);

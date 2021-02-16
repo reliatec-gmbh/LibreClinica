@@ -7,12 +7,16 @@
  */
 package org.akaza.openclinica.control.admin;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Set;
+
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.control.SpringServletAccess;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
-import org.akaza.openclinica.core.form.StringUtil;
-import org.akaza.openclinica.dao.login.UserAccountDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.view.Page;
@@ -23,25 +27,21 @@ import org.akaza.openclinica.web.job.TriggerService;
 import org.quartz.JobDataMap;
 import org.quartz.JobKey;
 import org.quartz.SchedulerException;
-import org.quartz.SimpleTrigger;
 import org.quartz.Trigger;
 import org.quartz.TriggerKey;
 import org.quartz.impl.StdScheduler;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.springframework.scheduling.quartz.JobDetailFactoryBean;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Set;
-
 public class UpdateJobImportServlet extends SecureController {
 
-    private static String SCHEDULER = "schedulerFactoryBean";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 4553819902500848985L;
+	private static String SCHEDULER = "schedulerFactoryBean";
     private static String TRIGGER_IMPORT_GROUP = "importTrigger";
     private StdScheduler scheduler;
-    private SimpleTrigger trigger;
     private JobDataMap dataMap;
     private static final String IMPORT_DIR = SQLInitServlet.getField("filePath") + CreateJobImportServlet.DIR_PATH + File.separator;
 
@@ -65,15 +65,12 @@ public class UpdateJobImportServlet extends SecureController {
     }
 
     private void setUpServlet(Trigger trigger) throws Exception {
-        FormProcessor fp2 = new FormProcessor(request);
-
         request.setAttribute(CreateJobImportServlet.JOB_NAME, trigger.getKey().getName());
         request.setAttribute(CreateJobImportServlet.JOB_DESC, trigger.getDescription());
 
         dataMap = trigger.getJobDataMap();
         String contactEmail = dataMap.getString(ImportSpringJob.EMAIL);
         logger.debug("found email: " + contactEmail);
-        int userId = dataMap.getInt(ImportSpringJob.USER_ID);
         int hours = dataMap.getInt(CreateJobImportServlet.HOURS);
         int minutes = dataMap.getInt(CreateJobImportServlet.MINUTES);
         String directory = dataMap.getString(ImportSpringJob.DIRECTORY);
@@ -86,9 +83,6 @@ public class UpdateJobImportServlet extends SecureController {
         request.setAttribute("hours", new Integer(hours).toString());
         request.setAttribute("minutes", new Integer(minutes).toString());
 
-        Date jobDate = trigger.getNextFireTime();
-
-        UserAccountDAO udao = new UserAccountDAO(sm.getDataSource());
         StudyDAO sdao = new StudyDAO(sm.getDataSource());
 
         // ArrayList studies = udao.findStudyByUser(ub.getName(), (ArrayList)
@@ -133,13 +127,13 @@ public class UpdateJobImportServlet extends SecureController {
         logger.debug("found trigger name " + triggerName);
         Trigger trigger = scheduler.getTrigger(new TriggerKey(triggerName, TRIGGER_IMPORT_GROUP));
         //System.out.println("found trigger from the other side " + trigger.getFullName());
-        if (StringUtil.isBlank(action)) {
+        if (action == null || action.trim().isEmpty()) {
             setUpServlet(trigger);
             forwardPage(Page.UPDATE_JOB_IMPORT);
         } else if ("confirmall".equalsIgnoreCase(action)) {
             Set<TriggerKey> triggerKeys = scheduler.getTriggerKeys(GroupMatcher.triggerGroupEquals("DEFAULT"));
             String[] triggerNames = triggerKeys.stream().toArray(String[]::new);
-            HashMap errors = triggerService.validateImportJobForm(fp, request, triggerNames, trigger.getKey().getName());
+            HashMap<String, ArrayList<String>> errors = triggerService.validateImportJobForm(fp, request, triggerNames, trigger.getKey().getName());
             
             if (!errors.isEmpty()) {
                 // send back
@@ -164,7 +158,7 @@ public class UpdateJobImportServlet extends SecureController {
 
                 try {
                     scheduler.deleteJob(new JobKey(triggerName, TRIGGER_IMPORT_GROUP));
-                    Date dateStart = scheduler.scheduleJob(jobDetailBean.getObject(), trigger);
+                    scheduler.scheduleJob(jobDetailBean.getObject(), trigger);
 
                     addPageMessage("Your job has been successfully modified.");
                     forwardPage(Page.VIEW_IMPORT_JOB_SERVLET);

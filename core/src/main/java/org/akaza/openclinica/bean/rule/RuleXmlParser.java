@@ -7,22 +7,21 @@
  */
 package org.akaza.openclinica.bean.rule;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 /*
  * A simple xml parser based on SAX. This parser will parse
@@ -75,9 +74,8 @@ public class RuleXmlParser extends DefaultHandler {
 
         logger.info("No of Records '" + allRules.size() + "'.");
 
-        Iterator it = allRules.iterator();
-        while (it.hasNext()) {
-            logger.info(it.next().toString());
+        for (HashMap<String, String> map : allRules) {
+            logger.info(map.toString());
         }
     }
 

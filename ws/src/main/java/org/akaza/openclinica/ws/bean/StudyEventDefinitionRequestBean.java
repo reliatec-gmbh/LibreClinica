@@ -7,8 +7,6 @@
  */
 package org.akaza.openclinica.ws.bean;
 
-import org.akaza.openclinica.bean.login.UserAccountBean;
-
 
 //htaycher deprecated
 public class StudyEventDefinitionRequestBean {

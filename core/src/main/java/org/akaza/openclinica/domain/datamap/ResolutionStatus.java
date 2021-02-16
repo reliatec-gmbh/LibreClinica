@@ -33,6 +33,10 @@ import org.hibernate.annotations.Parameter;
 @Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
 public class ResolutionStatus  extends DataMapDomainObject {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1168586949443326126L;
 	private int resolutionStatusId;
 	private String name;
 	private String description;

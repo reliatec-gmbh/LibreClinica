@@ -8,10 +8,7 @@
 package org.akaza.openclinica.domain.datamap;
 // Generated Jul 31, 2013 2:03:33 PM by Hibernate Tools 3.4.0.CR1
 
-import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
-import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -20,7 +17,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import org.akaza.openclinica.domain.AbstractMutableDomainObject;
 import org.akaza.openclinica.domain.DataMapDomainObject;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -36,6 +32,10 @@ import org.hibernate.annotations.Parameter;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class StudyParameterValue  extends DataMapDomainObject {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3897393464806732472L;
 	private int studyParameterValueId;
 	private Study study;
 	private StudyParameter studyParameter;

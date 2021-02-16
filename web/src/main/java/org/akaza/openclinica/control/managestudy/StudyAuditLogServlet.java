@@ -13,24 +13,15 @@
  */
 package org.akaza.openclinica.control.managestudy;
 
+import java.util.Locale;
+
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.control.core.SecureController;
-import org.akaza.openclinica.control.form.FormProcessor;
-import org.akaza.openclinica.dao.admin.AuditDAO;
-import org.akaza.openclinica.dao.admin.CRFDAO;
 import org.akaza.openclinica.dao.login.UserAccountDAO;
-import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;
-import org.akaza.openclinica.dao.managestudy.StudyDAO;
-import org.akaza.openclinica.dao.managestudy.StudyEventDAO;
-import org.akaza.openclinica.dao.managestudy.StudyEventDefinitionDAO;
 import org.akaza.openclinica.dao.managestudy.StudySubjectDAO;
-import org.akaza.openclinica.dao.submit.CRFVersionDAO;
-import org.akaza.openclinica.dao.submit.EventCRFDAO;
 import org.akaza.openclinica.dao.submit.SubjectDAO;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
-
-import java.util.Locale;
 
 /**
  * @author thickerson
@@ -39,7 +30,11 @@ import java.util.Locale;
  */
 public class StudyAuditLogServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 7756195048190348203L;
+	Locale locale;
 
     // <ResourceBundle resword,resexception,respage;
 
@@ -63,22 +58,9 @@ public class StudyAuditLogServlet extends SecureController {
      */
     @Override
     protected void processRequest() throws Exception {
-        int studyId = currentStudy.getId();
-
         StudySubjectDAO subdao = new StudySubjectDAO(sm.getDataSource());
         SubjectDAO sdao = new SubjectDAO(sm.getDataSource());
-        AuditDAO adao = new AuditDAO(sm.getDataSource());
         UserAccountDAO uadao = new UserAccountDAO(sm.getDataSource());
-
-        FormProcessor fp = new FormProcessor(request);
-
-        StudyEventDAO sedao = new StudyEventDAO(sm.getDataSource());
-        StudyEventDefinitionDAO seddao = new StudyEventDefinitionDAO(sm.getDataSource());
-        EventDefinitionCRFDAO edcdao = new EventDefinitionCRFDAO(sm.getDataSource());
-        EventCRFDAO ecdao = new EventCRFDAO(sm.getDataSource());
-        StudyDAO studydao = new StudyDAO(sm.getDataSource());
-        CRFDAO cdao = new CRFDAO(sm.getDataSource());
-        CRFVersionDAO cvdao = new CRFVersionDAO(sm.getDataSource());
 
         StudyAuditLogTableFactory factory = new StudyAuditLogTableFactory();
         factory.setSubjectDao(sdao);

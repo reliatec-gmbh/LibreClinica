@@ -7,6 +7,17 @@
  */
 package org.akaza.openclinica.control.managestudy;
 
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import org.akaza.openclinica.bean.core.ItemDataType;
 import org.akaza.openclinica.bean.core.ResponseType;
 import org.akaza.openclinica.bean.submit.DisplayItemBean;
@@ -18,20 +29,8 @@ import org.akaza.openclinica.bean.submit.ItemGroupBean;
 import org.akaza.openclinica.bean.submit.ItemGroupMetadataBean;
 import org.akaza.openclinica.bean.submit.ResponseSetBean;
 import org.akaza.openclinica.bean.submit.SectionBean;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * BeanFactory contains methods for generating beans representing non-persistent
@@ -269,7 +268,7 @@ public class BeanFactory {
                 tempValue = groupValues.get("group_repeat_max");
                 // This line is necessary because "0" will not throw an
                 // exception, but is still unacceptable
-                if(StringUtil.isBlank(tempValue)){
+                if(tempValue == null || tempValue.trim().isEmpty()){
                     tempValue = "0";
                 } else if ("0.0".equalsIgnoreCase(tempValue)) {
                     tempValue = "22000";
@@ -283,27 +282,22 @@ public class BeanFactory {
                     // repeats; it could also be -1
                     igMetaBean.setRepeatMax(22000);
                 }
-                // YW >>
-                // YW 10-04-2007 <<
-                // BWP changed to try/catch block
                 tempValue = groupValues.get("group_repeat_number");
                 // This line is necessary because "0" will not throw an
                 // exception, but is still unacceptable
-                if(igMetaBean.isRepeatingGroup() && StringUtil.isBlank(tempValue)){
+                if(igMetaBean.isRepeatingGroup() && (tempValue == null || tempValue.trim().isEmpty())){
                     tempValue = "1";
-                }else if(StringUtil.isBlank(tempValue)){
+                } else if(tempValue == null || tempValue.trim().isEmpty()){
                     tempValue = "0";
-                }else if ("0.0".equalsIgnoreCase(tempValue)) {
+                } else if ("0.0".equalsIgnoreCase(tempValue)) {
                     tempValue = "1";
                 }
                 try {
                     igMetaBean.setRepeatNum(new Integer(numFormatter.format(Double.parseDouble(tempValue))));
 
                 } catch (NumberFormatException nfe) {
-                    // BWP 10-13-07
                     igMetaBean.setRepeatNum(1);
                 }
-                // YW >>
             }
         }
         formGroupBean.setMeta(igMetaBean);
@@ -664,9 +658,9 @@ public class BeanFactory {
     // This has to return an ArrayList (not a List, as it should, if you program
     // to interfaces), because the SectionBean.setitems method takes an
     // ArrayList
-    public ArrayList createItemBeanList(Map<Integer, Map<String, String>> itemsMap, String secLabel, String crfName) {
+    public ArrayList<ItemBean> createItemBeanList(Map<Integer, Map<String, String>> itemsMap, String secLabel, String crfName) {
         if (itemsMap == null)
-            return new ArrayList();
+            return new ArrayList<>();
         ArrayList<ItemBean> itemList = new ArrayList<ItemBean>();
         ItemBean itemBean;
         ItemFormMetadataBean metaBean;
@@ -786,8 +780,8 @@ public class BeanFactory {
     }
 
     // Does an item's section label match a section's section label?
-    private boolean itemSecLabelMatchesSection(Map.Entry me, String sectionLabel) {
-        Map map = (Map) me.getValue();
+    private boolean itemSecLabelMatchesSection(Map.Entry<Integer, Map<String, String>> me, String sectionLabel) {
+        Map<String, String> map = me.getValue();
         String tmp = (String) map.get("section_label");
         return tmp.equalsIgnoreCase(sectionLabel);
     }

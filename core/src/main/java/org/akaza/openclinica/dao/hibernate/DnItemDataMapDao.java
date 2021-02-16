@@ -10,6 +10,7 @@ package org.akaza.openclinica.dao.hibernate;
 import java.util.List;
 
 import org.akaza.openclinica.domain.datamap.DnItemDataMap;
+import org.hibernate.query.Query;
 
 public class DnItemDataMapDao extends AbstractDomainDao<DnItemDataMap> {
 
@@ -18,10 +19,12 @@ public class DnItemDataMapDao extends AbstractDomainDao<DnItemDataMap> {
         return DnItemDataMap.class;
     }
 
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("deprecation")
     public List<DnItemDataMap> findByItemData(Integer itemDataId) {
         String query = "from " + getDomainClassName() + " do where do.itemData.itemDataId = :itemdataid ";
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
+        Query<DnItemDataMap> q = getCurrentSession().createQuery(query, DnItemDataMap.class);
         q.setInteger("itemdataid", itemDataId);
-        return (List<DnItemDataMap>) q.list();
+        return q.list();
     }
 }

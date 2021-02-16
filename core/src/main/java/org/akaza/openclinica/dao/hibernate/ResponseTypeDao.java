@@ -7,8 +7,9 @@
  */
 package org.akaza.openclinica.dao.hibernate;
 
-import org.akaza.openclinica.domain.datamap.CrfVersion;
 import org.akaza.openclinica.domain.datamap.ResponseType;
+import org.hibernate.query.NativeQuery;
+import org.hibernate.query.Query;
 
 public class ResponseTypeDao extends AbstractDomainDao<ResponseType> {
 
@@ -18,17 +19,21 @@ public class ResponseTypeDao extends AbstractDomainDao<ResponseType> {
         return ResponseType.class;
     }
 
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("deprecation")
     public ResponseType findByResponseTypeName(String name) {
         String query = "from " + getDomainClassName() + " response_type  where response_type.name = :name ";
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
+        Query<ResponseType> q = getCurrentSession().createQuery(query, ResponseType.class);
         q.setString("name", name);
-        return (ResponseType) q.uniqueResult();
+        return q.uniqueResult();
     }
 
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("rawtypes")
     public ResponseType findByItemFormMetaDataId(Integer itemFormMetadataId) {
         String query = "select rt.* from response_type rt, response_set rs, item_form_metadata ifm where ifm.response_set_id=rs.response_set_id"
                 + " and rs.response_type_id=rt.response_type_id and ifm.item_form_metadata_id = " + String.valueOf(itemFormMetadataId);
-        org.hibernate.Query q = getCurrentSession().createSQLQuery(query).addEntity(ResponseType.class);
+        NativeQuery q = getCurrentSession().createSQLQuery(query).addEntity(ResponseType.class);
         return (ResponseType) q.uniqueResult();
     }
 

@@ -7,21 +7,19 @@
  */
 package org.akaza.openclinica.dao.core;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Set;
-
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.CacheManager;
 
 import org.akaza.openclinica.dao.cache.EhCacheWrapper;
 import org.springframework.core.io.ResourceLoader;
 import org.xml.sax.SAXException;
+
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.CacheManager;
 
 /**
  * Provides a singleton SQLFactory instance
@@ -86,20 +84,18 @@ public class SQLFactory {
     }
     
     
-    public static EhCacheWrapper ehCacheWrapper;
+    public static EhCacheWrapper<String, ArrayList<HashMap<String, Object>>> ehCacheWrapper;
     
 
-    public EhCacheWrapper getEhCacheWrapper() {
+    public EhCacheWrapper<String, ArrayList<HashMap<String, Object>>> getEhCacheWrapper() {
         return ehCacheWrapper;
     }
 
-    public void setEhCacheWrapper(EhCacheWrapper ehCacheWrapper) {
-        this.ehCacheWrapper = ehCacheWrapper;
+    public void setEhCacheWrapper(EhCacheWrapper<String, ArrayList<HashMap<String, Object>>> ehCacheWrapper) {
+        SQLFactory.ehCacheWrapper = ehCacheWrapper;
     }
 
-    private static Hashtable digesters = new Hashtable();
-
-    private final String dbName = "";
+    private static Hashtable<String, DAODigester> digesters = new Hashtable<>();
 
     /**
      * A handle to the unique SQLFactory instance.
@@ -147,7 +143,7 @@ public class SQLFactory {
 
         // key is the public static final sting used above; value is the actual
         // filename
-        HashMap fileList = new HashMap();
+        HashMap<String, String> fileList = new HashMap<>();
         CacheManager cacheManager = null;
         
         
@@ -162,8 +158,7 @@ public class SQLFactory {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        EhCacheWrapper ehCache = new EhCacheWrapper("com.akaza.openclinica.dao.core.DAOCache",cacheManager);
-        
+        EhCacheWrapper<String, ArrayList<HashMap<String, Object>>> ehCache = new EhCacheWrapper<>("com.akaza.openclinica.dao.core.DAOCache",cacheManager);
         
         setEhCacheWrapper(ehCache);
         
@@ -240,8 +235,7 @@ public class SQLFactory {
             fileList.put(this.DAO_EXPRESSION, "expression_dao.xml");
             fileList.put(this.DAO_RULESET_RULE, "rulesetrule_dao.xml");
             fileList.put(this.DAO_RULESET_AUDIT, "ruleset_audit_dao.xml");
-            fileList.put(this.DAO_RULESETRULE_AUDIT, "rulesetrule_audit_dao.xml");
-            fileList.put(this.DAO_SUBJECTTRANSFER, "subjecttransfer_dao.xml");
+            fileList.put(this.DAO_RULESETRULE_AUDIT, "rulesetrule_audit_dao.xml");            
 
             fileList.put(this.DAO_ODM_EXTRACT, "odm_extract_dao.xml");
 
@@ -252,11 +246,7 @@ public class SQLFactory {
             // throw an exception here, ssachs
         }
 
-        Set DAONames = fileList.keySet();
-        Iterator DAONamesIt = DAONames.iterator();
-
-        while (DAONamesIt.hasNext()) {
-            String DAOName = (String) DAONamesIt.next();
+        for(String DAOName : fileList.keySet()) {
             String DAOFileName = (String) fileList.get(DAOName);
 
             DAODigester newDaoDigester = new DAODigester();
@@ -267,9 +257,7 @@ public class SQLFactory {
                     String path = getPropertiesDir();
                     newDaoDigester.setInputStream(new FileInputStream(path + DAOFileName));
                 } else {
-                    String path = CoreResources.PROPERTIES_DIR;
                     newDaoDigester.setInputStream(resourceLoader.getResource("classpath:properties/" + DAOFileName).getInputStream());
-                    //newDaoDigester.setInputStream(new FileInputStream(path + DAOFileName));
                 }
                 try {
                     newDaoDigester.run();

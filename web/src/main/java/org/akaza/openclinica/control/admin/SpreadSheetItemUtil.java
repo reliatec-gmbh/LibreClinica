@@ -437,7 +437,9 @@ public class SpreadSheetItemUtil {
 					}
 					break;
 				}
-				
+				default:
+					// this is just to overcome the imcomplete switch-statement warning
+					break;
 			}
 		}
 		return null;

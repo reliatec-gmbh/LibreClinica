@@ -30,6 +30,10 @@ import org.hibernate.annotations.Parameter;
 @GenericGenerator(name = "id-generator", strategy = "native", parameters = { @Parameter(name = "sequence_name", value = "item_reference_type_item_reference_type_id_seq") })
 public class ItemReferenceType  extends DataMapDomainObject {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3879396843399932341L;
 	private int itemReferenceTypeId;
 	private String name;
 	private String description;

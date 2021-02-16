@@ -33,6 +33,10 @@ import org.hibernate.annotations.Parameter;
 
 public class ResponseSet  extends DataMapDomainObject {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5690935364976243583L;
 	private int responseSetId;
 	private ResponseType responseType;
 	private String label;

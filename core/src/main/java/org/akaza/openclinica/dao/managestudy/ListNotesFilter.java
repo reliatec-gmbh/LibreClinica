@@ -39,7 +39,7 @@ public class ListNotesFilter implements CriteriaCommand {
         filters.add(new Filter(property, value));
     }
 
-    public String execute(String criteria, HashMap variables) {
+    public String execute(String criteria, HashMap<Integer, Object> variables) {
         String theCriteria = "";
         for (Filter filter : filters) {
             if (columnMapping.get(filter.getProperty()) == null) {
@@ -56,7 +56,7 @@ public class ListNotesFilter implements CriteriaCommand {
         return null;
     }
 
-    private String buildCriteria(String criteria, String property, Object value, HashMap variables) {
+    private String buildCriteria(String criteria, String property, Object value, HashMap<Integer, Object> variables) {
         if (value != null) {
             if (property.equals("studySubject.labelExact")) {
                 criteria = criteria + " and ";

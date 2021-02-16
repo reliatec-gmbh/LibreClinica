@@ -15,7 +15,7 @@ import java.util.ArrayList;
  * @author thickerson
  *
  */
-public class AuditEventRow extends EntityBeanRow {
+public class AuditEventRow extends EntityBeanRow<AuditEventBean, AuditEventRow> {
     public static final int AUDIT_DATE = 0;
     public static final int AUDIT_ACTION = 1;
     public static final int AUDIT_ENTITY = 2;
@@ -29,13 +29,13 @@ public class AuditEventRow extends EntityBeanRow {
     public static final int AUDIT_OTHER_INFO = 6;
 
     @Override
-    protected int compareColumn(Object row, int sortingColumn) {
+    protected int compareColumn(AuditEventRow row, int sortingColumn) {
         if (!row.getClass().equals(AuditEventRow.class)) {
             return 0;
         }
 
-        AuditEventBean thisBean = (AuditEventBean) bean;
-        AuditEventBean argBean = (AuditEventBean) ((AuditEventRow) row).bean;
+        AuditEventBean thisBean = bean;
+        AuditEventBean argBean = row.bean;
 
         int answer = 0;
         switch (sortingColumn) {
@@ -76,20 +76,17 @@ public class AuditEventRow extends EntityBeanRow {
     }
 
     @Override
-    public ArrayList generatRowsFromBeans(ArrayList beans) {
+    public ArrayList<AuditEventRow> generatRowsFromBeans(ArrayList<AuditEventBean> beans) {
         return AuditEventRow.generateRowsFromBeans(beans);
     }
 
-    public static ArrayList generateRowsFromBeans(ArrayList beans) {
-        ArrayList answer = new ArrayList();
-
-        Class[] parameters = null;
-        Object[] arguments = null;
+    public static ArrayList<AuditEventRow> generateRowsFromBeans(ArrayList<AuditEventBean> beans) {
+        ArrayList<AuditEventRow> answer = new ArrayList<>();
 
         for (int i = 0; i < beans.size(); i++) {
             try {
                 AuditEventRow row = new AuditEventRow();
-                row.setBean((AuditEventBean) beans.get(i));
+                row.setBean(beans.get(i));
                 answer.add(row);
             } catch (Exception e) {
             }

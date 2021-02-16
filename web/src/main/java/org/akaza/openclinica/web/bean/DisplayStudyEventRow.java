@@ -18,7 +18,7 @@ import org.akaza.openclinica.bean.managestudy.DisplayStudyEventBean;
  * TODO To change the template for this generated type comment go to Window -
  * Preferences - Java - Code Style - Code Templates
  */
-public class DisplayStudyEventRow extends EntityBeanRow {
+public class DisplayStudyEventRow extends EntityBeanRow<DisplayStudyEventBean, DisplayStudyEventRow> {
 
     // columns:
 
@@ -41,13 +41,13 @@ public class DisplayStudyEventRow extends EntityBeanRow {
      *      int)
      */
     @Override
-    protected int compareColumn(Object row, int sortingColumn) {
+    protected int compareColumn(DisplayStudyEventRow row, int sortingColumn) {
         if (!row.getClass().equals(DisplayStudyEventRow.class)) {
             return 0;
         }
 
-        DisplayStudyEventBean thisEvent = (DisplayStudyEventBean) bean;
-        DisplayStudyEventBean argEvent = (DisplayStudyEventBean) ((DisplayStudyEventRow) row).bean;
+        DisplayStudyEventBean thisEvent = bean;
+        DisplayStudyEventBean argEvent = row.bean;
 
         int answer = 0;
         switch (sortingColumn) {
@@ -89,20 +89,17 @@ public class DisplayStudyEventRow extends EntityBeanRow {
      * @see org.akaza.openclinica.core.EntityBeanRow#generatRowsFromBeans(java.util.ArrayList)
      */
     @Override
-    public ArrayList generatRowsFromBeans(ArrayList beans) {
+    public ArrayList<DisplayStudyEventRow> generatRowsFromBeans(ArrayList<DisplayStudyEventBean> beans) {
         return DisplayStudyEventRow.generateRowsFromBeans(beans);
     }
 
-    public static ArrayList generateRowsFromBeans(List beans) {
-        ArrayList answer = new ArrayList();
-
-        Class[] parameters = null;
-        Object[] arguments = null;
+    public static ArrayList<DisplayStudyEventRow> generateRowsFromBeans(List<DisplayStudyEventBean> beans) {
+        ArrayList<DisplayStudyEventRow> answer = new ArrayList<>();
 
         for (int i = 0; i < beans.size(); i++) {
             try {
                 DisplayStudyEventRow row = new DisplayStudyEventRow();
-                row.setBean((DisplayStudyEventBean) beans.get(i));
+                row.setBean(beans.get(i));
                 answer.add(row);
             } catch (Exception e) {
             }

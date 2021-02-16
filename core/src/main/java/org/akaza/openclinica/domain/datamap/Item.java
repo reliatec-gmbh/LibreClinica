@@ -9,10 +9,7 @@
 // Generated Jul 31, 2013 2:03:33 PM by Hibernate Tools 3.4.0.CR1
 package org.akaza.openclinica.domain.datamap;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -44,6 +41,10 @@ import org.hibernate.annotations.Type;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Item  extends DataMapDomainObject{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 502216204306186588L;
 	private int itemId;
 	private UserAccount userAccount;
 	private ItemReferenceType itemReferenceType;
@@ -79,10 +80,8 @@ public class Item  extends DataMapDomainObject{
 			ItemDataType itemDataType, String name, String description,
 			String units, Boolean phiStatus, Date dateCreated,
 			Date dateUpdated, Integer updateId, String ocOid,
-			List<ItemFormMetadata> itemFormMetadatas, List<ItemData>  itemDatas, /*Set dcSummaryItemMaps,*/
-//			List<VersioningMap>  versioningMaps, Set dcSubstitutionEvents,
-			 List<ItemGroupMetadata> itemGroupMetadatas/*, Set dcPrimitivesForItemId,
-			Set dcPrimitivesForDynamicValueItemId*/) {
+			List<ItemFormMetadata> itemFormMetadatas, List<ItemData>  itemDatas,
+			 List<ItemGroupMetadata> itemGroupMetadatas) {
 		this.itemId = itemId;
 		this.userAccount = userAccount;
 		this.itemReferenceType = itemReferenceType;
@@ -98,12 +97,7 @@ public class Item  extends DataMapDomainObject{
 		this.ocOid = ocOid;
 		this.itemFormMetadatas = itemFormMetadatas;
 		this.itemDatas = itemDatas;
-		//this.dcSummaryItemMaps = dcSummaryItemMaps;
-		this.versioningMaps = versioningMaps;
-		//this.dcSubstitutionEvents = dcSubstitutionEvents;
 		this.itemGroupMetadatas = itemGroupMetadatas;
-		//this.dcPrimitivesForItemId = dcPrimitivesForItemId;
-		//this.dcPrimitivesForDynamicValueItemId = dcPrimitivesForDynamicValueItemId;
 	}
 
 	@Id

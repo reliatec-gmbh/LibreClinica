@@ -82,7 +82,6 @@ public class OdmStudyBase {
             return;
         }
         this.study = study;
-        int parentStudyId = this.study.getParentStudyId() > 0 ? this.study.getParentStudyId() : this.study.getId();
         this.sedBeansInStudy = seds;
     }
     

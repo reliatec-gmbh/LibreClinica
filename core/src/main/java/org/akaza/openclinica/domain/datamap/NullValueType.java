@@ -20,6 +20,10 @@ import org.akaza.openclinica.domain.AbstractMutableDomainObject;
 @Table(name = "null_value_type")
 public class NullValueType  extends AbstractMutableDomainObject {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6093004333162022163L;
 	private int nullValueTypeId;
 	private String code;
 	private String name;

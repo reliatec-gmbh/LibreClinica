@@ -16,7 +16,7 @@ import org.akaza.openclinica.bean.submit.ItemFormMetadataBean;
 import org.akaza.openclinica.dao.core.CoreResources;
 import org.akaza.openclinica.domain.crfdata.DynamicsItemFormMetadataBean;
 import org.apache.commons.collections.CollectionUtils;
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +35,8 @@ public class DynamicsItemFormMetadataDao extends AbstractDomainDao<DynamicsItemF
         return DynamicsItemFormMetadataBean.class;
     }
 
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("deprecation")
     public DynamicsItemFormMetadataBean findByMetadataBean(ItemFormMetadataBean metadataBean, EventCRFBean eventCrfBean,
             ItemDataBean itemDataBean) {
 
@@ -42,15 +44,20 @@ public class DynamicsItemFormMetadataDao extends AbstractDomainDao<DynamicsItemF
         		"metadata.itemId = :item_id and metadata.eventCrfId = :event_crf_id and " +
                 "metadata.itemDataId = :item_data_id order by metadata.id desc ";
 
-        Query q = getCurrentSession().createQuery(query);
+        Query<DynamicsItemFormMetadataBean> q = getCurrentSession().createQuery(query, DynamicsItemFormMetadataBean.class);
         q.setInteger("item_id", new Integer(metadataBean.getItemId()));
         q.setInteger("event_crf_id", new Integer(eventCrfBean.getId()));
         q.setInteger("item_data_id", new Integer(itemDataBean.getId()));
-        ArrayList <DynamicsItemFormMetadataBean> list = (ArrayList<DynamicsItemFormMetadataBean>) q.list();
+        List<DynamicsItemFormMetadataBean> list = q.list();
+        /* TODO use uniqueResult (or something similar), if the
+         * query returns multiple (equivalent results) use distinct also
+         */
         return list.size() !=0 ? list.get(0) : null;
     }
 
-    
+
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("deprecation")
     public ArrayList <DynamicsItemFormMetadataBean> findByItemAndEventCrfShown(EventCRFBean eventCrfBean,
             int itemId) {
 
@@ -58,20 +65,22 @@ public class DynamicsItemFormMetadataDao extends AbstractDomainDao<DynamicsItemF
                 "metadata.itemId = :item_id and metadata.eventCrfId = :event_crf_id and " +
                 "metadata.showItem = true order by metadata.id desc ";
 
-        Query q = getCurrentSession().createQuery(query);
+        Query<DynamicsItemFormMetadataBean> q = getCurrentSession().createQuery(query, DynamicsItemFormMetadataBean.class);
         q.setInteger("item_id", itemId);
         q.setInteger("event_crf_id", new Integer(eventCrfBean.getId()));
-        ArrayList <DynamicsItemFormMetadataBean> list = (ArrayList<DynamicsItemFormMetadataBean>) q.list();
+        ArrayList<DynamicsItemFormMetadataBean> list = new ArrayList<>(q.list());
         return list;
     }
 
-    
+
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("deprecation")
     public DynamicsItemFormMetadataBean findByItemDataBean(ItemDataBean itemDataBean) {
         String query = "from " + getDomainClassName() + " metadata where metadata.itemDataId = :item_data_id ";
-        Query q = getCurrentSession().createQuery(query);
+        Query<DynamicsItemFormMetadataBean> q = getCurrentSession().createQuery(query, DynamicsItemFormMetadataBean.class);
 
         q.setInteger("item_data_id", new Integer(itemDataBean.getId()));
-        return (DynamicsItemFormMetadataBean) q.uniqueResult();
+        return q.uniqueResult();
     }
 
         
@@ -217,6 +226,8 @@ public class DynamicsItemFormMetadataDao extends AbstractDomainDao<DynamicsItemF
      * @param crfVersionId
      * @return
      */
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings({"deprecation", "rawtypes"})
     protected List<Integer> queryForIDs(String oracleQuery, String postgresQuery, Integer groupId, Integer sectionId,
             Integer eventCrfId, Integer crfVersionId) {
         String query = "oracle".equalsIgnoreCase(CoreResources.getDBName()) ? oracleQuery : postgresQuery;
@@ -239,7 +250,7 @@ public class DynamicsItemFormMetadataDao extends AbstractDomainDao<DynamicsItemF
     @Transactional
     public void delete(int eventCrfId) {
         String query = "delete from " + getDomainClassName() + " metadata where metadata.eventCrfId = :eventCrfId";
-        org.hibernate.query.Query q = getCurrentSession().createQuery(query);
+        Query<DynamicsItemFormMetadataBean> q = getCurrentSession().createQuery(query, DynamicsItemFormMetadataBean.class);
         q.setParameter("eventCrfId", eventCrfId);
         q.executeUpdate();
     }

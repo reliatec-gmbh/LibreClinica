@@ -10,6 +10,13 @@
  */
 package org.akaza.openclinica.control.techadmin;
 
+import java.util.ArrayList;
+
+import org.akaza.openclinica.bean.admin.CRFBean;
+import org.akaza.openclinica.bean.login.UserAccountBean;
+import org.akaza.openclinica.bean.managestudy.StudyBean;
+import org.akaza.openclinica.bean.submit.SubjectBean;
+
 //
 // import java.util.ArrayList;
 
@@ -21,8 +28,6 @@ import org.akaza.openclinica.dao.submit.SubjectDAO;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 
-import java.util.ArrayList;
-
 /**
  * @author thickerson
  *
@@ -30,7 +35,12 @@ import java.util.ArrayList;
  */
 public class TechAdminServlet extends SecureController {
 
-    /*
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -3448676041589534973L;
+
+	/*
      * (non-Javadoc)
      *
      * @see org.akaza.openclinica.control.core.SecureController#processRequest()
@@ -41,27 +51,27 @@ public class TechAdminServlet extends SecureController {
         StudyDAO sdao = new StudyDAO(sm.getDataSource());
         // ArrayList studies = (ArrayList) sdao.findAllByLimit(true);
         // request.setAttribute("studies", studies);
-        ArrayList allStudies = (ArrayList) sdao.findAll();
+        ArrayList<StudyBean> allStudies = sdao.findAll();
         // request.setAttribute("allStudyNumber", new
         // Integer(allStudies.size()));
 
         UserAccountDAO udao = new UserAccountDAO(sm.getDataSource());
         // ArrayList users = (ArrayList) udao.findAllByLimit(true);
         // request.setAttribute("users", users);
-        ArrayList allUsers = (ArrayList) udao.findAll();
+        ArrayList<UserAccountBean> allUsers = udao.findAll();
         // request.setAttribute("allUserNumber", new Integer(allUsers.size()));
 
         SubjectDAO subdao = new SubjectDAO(sm.getDataSource());
         // ArrayList subjects = (ArrayList) subdao.findAllByLimit(true);
         // request.setAttribute("subjects", subjects);
-        ArrayList allSubjects = (ArrayList) subdao.findAll();
+        ArrayList<SubjectBean> allSubjects = subdao.findAll();
         // request.setAttribute("allSubjectNumber", new
         // Integer(allSubjects.size()));
 
         CRFDAO cdao = new CRFDAO(sm.getDataSource());
         // ArrayList crfs = (ArrayList) cdao.findAllByLimit(true);
         // request.setAttribute("crfs", subjects);
-        ArrayList allCrfs = (ArrayList) cdao.findAll();
+        ArrayList<CRFBean> allCrfs = cdao.findAll();
         // request.setAttribute("allCrfNumber", new Integer(allCrfs.size()));
 
         resetPanel();

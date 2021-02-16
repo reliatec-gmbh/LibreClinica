@@ -7,9 +7,7 @@
  */
 package org.akaza.openclinica.service.extract;
 
-import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import org.akaza.openclinica.bean.extract.DatasetBean;
 import org.akaza.openclinica.bean.extract.ExtractPropertyBean;
@@ -79,9 +77,6 @@ public class ExtractUtils {
      * to resolve location
      */
     public  String getEndFilePath(String endFilePath, DatasetBean dsBean, SimpleDateFormat sdfDir, String filePath){
-        String simpleDatePattern =  "yyyy" + File.separator + "MM" + File.separator + "dd" + File.separator ;
-        SimpleDateFormat sdpDir = new SimpleDateFormat(simpleDatePattern);
-       
         String datePattern = "yyyy-MM-dd";
         SimpleDateFormat dateDir = new SimpleDateFormat(datePattern);
         

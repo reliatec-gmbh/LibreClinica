@@ -23,7 +23,7 @@ import java.util.Iterator;
  *
  */
 public abstract class BusinessEvaluator implements Runnable {
-    protected ArrayList ruleSet;
+    protected ArrayList<BusinessRule> ruleSet;
     protected boolean hasBeenUpdated;
     protected EntityBean businessObject;
 
@@ -31,7 +31,7 @@ public abstract class BusinessEvaluator implements Runnable {
     // could be subject, crf, etc.
 
     public BusinessEvaluator(EntityBean o) {
-        ruleSet = new ArrayList();
+        ruleSet = new ArrayList<>();
         hasBeenUpdated = true;
         businessObject = o;
     }
@@ -44,8 +44,8 @@ public abstract class BusinessEvaluator implements Runnable {
 
     protected void evaluateRuleSet() {
         synchronized (this) {
-            for (Iterator it = ruleSet.iterator(); it.hasNext();) {
-                BusinessRule bRule = (BusinessRule) it.next();
+            for (Iterator<BusinessRule> it = ruleSet.iterator(); it.hasNext();) {
+                BusinessRule bRule = it.next();
                 if (bRule.isPropertyTrue(bRule.getClass().getName())) {
                     bRule.doAction(businessObject);
                 }

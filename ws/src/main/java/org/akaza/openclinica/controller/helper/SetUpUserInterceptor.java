@@ -25,6 +25,7 @@ import javax.sql.DataSource;
  * An "interceptor" class that sets up a UserAccount and stores it in the Session, before
  * another class is initialized and potentially uses that UserAccount.
  */
+// TODO duplicate of the version in the web module?
 public class SetUpUserInterceptor extends HandlerInterceptorAdapter {
 
     public static final String USER_BEAN_NAME = "userBean";

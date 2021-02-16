@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.ResourceBundle;
 
+// TODO duplicate of the version in the web module?
 public class TriggerService {
 
     public TriggerService() {
@@ -37,8 +38,6 @@ public class TriggerService {
     public static final String STUDY_NAME = "study_name";
     public static final String STUDY_OID = "study_oid";
     public static final String DIRECTORY = "filePathDir";
-
-    private static String IMPORT_TRIGGER = "importTrigger";
 
     public String generateSummaryStatsMessage(SummaryStatsBean ssBean, ResourceBundle respage, HashMap<String, String> validationMsgs) {
         // TODO i18n

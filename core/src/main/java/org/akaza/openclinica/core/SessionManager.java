@@ -9,23 +9,20 @@ package org.akaza.openclinica.core;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.logging.Level;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
-import oracle.jdbc.pool.OracleDataSource;
-
 import org.akaza.openclinica.bean.login.UserAccountBean;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.core.CoreResources;
-import org.akaza.openclinica.dao.core.SQLFactory;
 import org.akaza.openclinica.dao.login.UserAccountDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+
+import oracle.jdbc.pool.OracleDataSource;
 
 ;
 
@@ -41,15 +38,9 @@ import org.springframework.context.ApplicationContext;
  * @author Jun Xu
  */
 public class SessionManager {
-    private Connection con;
-
     private UserAccountBean ub;
 
-    private String logFileName;
-
     private OracleDataSource ods;
-
-    private Level logLevel;
 
     private DataSource ds;
 
@@ -92,10 +83,9 @@ public class SessionManager {
 
     }
     public void setupUser(UserAccountBean userFromSession, String userName) {
-        if (userFromSession == null || StringUtil.isBlank(userFromSession.getName())) {
+    	String userNameFromSession = userFromSession.getName();
+        if (userFromSession == null || userNameFromSession == null || userNameFromSession.trim().isEmpty()) {
             // create a new user account bean form database
-            SQLFactory factory = SQLFactory.getInstance();
-
             uDAO = new UserAccountDAO(ds);
             if (userName == null) {
                 userName = "";
@@ -144,10 +134,6 @@ public class SessionManager {
 
     public UserAccountBean getUserBean() {
         return ub;
-    }
-
-    public void setConnection(Connection con) {
-        this.con = con;
     }
 
     public void setUserBean(UserAccountBean user) {

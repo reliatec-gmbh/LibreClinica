@@ -45,15 +45,22 @@ import org.akaza.openclinica.bean.submit.SubjectBean;
 import org.akaza.openclinica.control.form.DiscrepancyValidator;
 import org.akaza.openclinica.control.form.FormDiscrepancyNotes;
 import org.akaza.openclinica.control.form.FormProcessor;
-import org.akaza.openclinica.control.submit.*;
-import org.akaza.openclinica.core.form.StringUtil;
+import org.akaza.openclinica.control.submit.AddNewSubjectServlet;
+import org.akaza.openclinica.control.submit.DataEntryServlet;
+import org.akaza.openclinica.control.submit.SubmitDataServlet;
+import org.akaza.openclinica.control.submit.TableOfContentsServlet;
+import org.akaza.openclinica.control.submit.VariableSubstitutionHelper;
 import org.akaza.openclinica.dao.managestudy.DiscrepancyNoteDAO;
 import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDefinitionDAO;
 import org.akaza.openclinica.dao.managestudy.StudySubjectDAO;
-import org.akaza.openclinica.dao.submit.*;
+import org.akaza.openclinica.dao.submit.CRFVersionDAO;
+import org.akaza.openclinica.dao.submit.EventCRFDAO;
+import org.akaza.openclinica.dao.submit.ItemGroupDAO;
+import org.akaza.openclinica.dao.submit.SectionDAO;
+import org.akaza.openclinica.dao.submit.SubjectDAO;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
 import org.akaza.openclinica.service.DiscrepancyNoteThread;
@@ -70,7 +77,12 @@ import org.slf4j.LoggerFactory;
  */
 public class ViewSectionDataEntryServlet extends DataEntryServlet {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ViewSectionDataEntryServlet.class);
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -6248751201879760790L;
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(ViewSectionDataEntryServlet.class);
 
     Locale locale;
     public static String EVENT_CRF_ID = "ecId";
@@ -98,7 +110,7 @@ public class ViewSectionDataEntryServlet extends DataEntryServlet {
 
     }
 
-    public Map getErrors() {
+    public Map<String, ArrayList<String>> getErrors() {
         return errors;
     }
 
@@ -156,7 +168,7 @@ public class ViewSectionDataEntryServlet extends DataEntryServlet {
         String action = fp.getString("action");
         HttpSession session = request.getSession();
         String fromResolvingNotes = fp.getString("fromResolvingNotes", true);
-        if (StringUtil.isBlank(fromResolvingNotes)) {
+        if (fromResolvingNotes == null || fromResolvingNotes.trim().isEmpty()) {
             session.removeAttribute(ViewNotesServlet.WIN_LOCATION);
             session.removeAttribute(ViewNotesServlet.NOTES_TABLE);
         }
@@ -322,16 +334,17 @@ public class ViewSectionDataEntryServlet extends DataEntryServlet {
                 formattedInterviewerDate = local_df.format(tmpDate);
             } catch (Exception e) {
                 formattedInterviewerDate = "";
-            }
-            HashMap presetVals = (HashMap) session.getAttribute("presetValues");
+            }            
+            @SuppressWarnings("unchecked")
+			HashMap<String, String> presetVals = (HashMap<String, String>) session.getAttribute("presetValues");
             if (presetVals == null) {
-                presetVals = new HashMap();
+                presetVals = new HashMap<>();
                 session.setAttribute("presetValues", presetVals);
             }
             presetVals.put("interviewDate", formattedInterviewerDate);
             request.setAttribute("toc", displayBean);
 
-            ArrayList sections = displayBean.getSections();
+            ArrayList<SectionBean> sections = displayBean.getSections();
 
             request.setAttribute("sectionNum", sections.size() + "");
             if (!sections.isEmpty()) {
@@ -349,7 +362,7 @@ public class ViewSectionDataEntryServlet extends DataEntryServlet {
         } else if (crfVersionId > 0) {// for viewing blank CRF
             DisplayTableOfContentsBean displayBean = ViewTableOfContentServlet.getDisplayBean(getDataSource(), crfVersionId);
             request.setAttribute("toc", displayBean);
-            ArrayList sections = displayBean.getSections();
+            ArrayList<SectionBean> sections = displayBean.getSections();
 
             request.setAttribute("sectionNum", sections.size() + "");
             if (!sections.isEmpty()) {
@@ -524,7 +537,7 @@ public class ViewSectionDataEntryServlet extends DataEntryServlet {
                     String inputName = getInputName(dib);
                     AddNewSubjectServlet.saveFieldNotes(inputName, discNotes, dndao, dib.getData().getId(), DiscrepancyNoteBean.ITEM_DATA, currentStudy);
 
-                    ArrayList childItems = dib.getChildren();
+                    ArrayList<DisplayItemBean> childItems = dib.getChildren();
                     for (int j = 0; j < childItems.size(); j++) {
                         DisplayItemBean child = (DisplayItemBean) childItems.get(j);
                         inputName = getInputName(child);

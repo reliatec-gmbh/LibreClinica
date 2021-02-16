@@ -10,10 +10,7 @@ package org.akaza.openclinica.domain.datamap;
 //default package
 //Generated Jul 31, 2013 2:03:33 PM by Hibernate Tools 3.4.0.CR1
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -30,6 +27,10 @@ import org.akaza.openclinica.domain.DataMapDomainObject;
 @Table(name = "group_class_types")
 public class GroupClassTypes  extends DataMapDomainObject {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5315561337629518434L;
 	private int groupClassTypeId;
 	private String name;
 	private String description;

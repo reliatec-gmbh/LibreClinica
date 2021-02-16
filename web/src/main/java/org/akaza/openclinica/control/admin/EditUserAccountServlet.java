@@ -9,12 +9,12 @@ package org.akaza.openclinica.control.admin;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Random;
 import java.util.UUID;
 
 import org.akaza.openclinica.bean.core.NumericComparisonOperator;
 import org.akaza.openclinica.bean.core.UserType;
 import org.akaza.openclinica.bean.login.UserAccountBean;
+import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.control.SpringServletAccess;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
@@ -33,7 +33,12 @@ import org.akaza.openclinica.web.SQLInitServlet;
  *         Servlet for creating a user account.
  */
 public class EditUserAccountServlet extends SecureController {
-    public static final String INPUT_FIRST_NAME = "firstName";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -6961254006943513921L;
+
+	public static final String INPUT_FIRST_NAME = "firstName";
 
     public static final String INPUT_LAST_NAME = "lastName";
 
@@ -71,9 +76,9 @@ public class EditUserAccountServlet extends SecureController {
 
     public static final String USER_ACCOUNT_NOTIFICATION = "notifyPassword";
 
-    private ArrayList getAllStudies() {
+    private ArrayList<StudyBean> getAllStudies() {
         StudyDAO sdao = new StudyDAO(sm.getDataSource());
-        return (ArrayList) sdao.findAll();
+        return sdao.findAll();
     }
 
     public static String getLink(int userId) {
@@ -95,7 +100,7 @@ public class EditUserAccountServlet extends SecureController {
         FormProcessor fp = new FormProcessor(request);
 
         // because we need to use this in the confirmation and error parts too
-        ArrayList studies = getAllStudies();
+        ArrayList<StudyBean> studies = getAllStudies();
         request.setAttribute("studies", studies);
 
         int userId = fp.getInt(ARG_USERID);
@@ -132,7 +137,7 @@ public class EditUserAccountServlet extends SecureController {
             v.addValidation(INPUT_INSTITUTION, Validator.NO_BLANKS);
             v.addValidation(INPUT_INSTITUTION, Validator.LENGTH_NUMERIC_COMPARISON, NumericComparisonOperator.LESS_THAN_OR_EQUAL_TO, 255);
 
-            HashMap errors = v.validate();
+            HashMap<String, ArrayList<String>> errors = v.validate();
 
             if (errors.isEmpty()) {
                 loadPresetValuesFromForm(fp);
@@ -289,9 +294,9 @@ public class EditUserAccountServlet extends SecureController {
         // fp.setCurrentBoolValuesAsPreset(chkFields);
     }
 
-    private ArrayList getUserTypes() {
+    private ArrayList<UserType> getUserTypes() {
 
-        ArrayList types = UserType.toArrayList();
+        ArrayList<UserType> types = UserType.toArrayList();
         types.remove(UserType.INVALID);
         if (!ub.isTechAdmin()) {
             types.remove(UserType.TECHADMIN);

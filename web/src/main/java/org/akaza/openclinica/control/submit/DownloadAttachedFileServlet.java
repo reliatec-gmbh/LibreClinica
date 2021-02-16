@@ -7,23 +7,20 @@
  */
 package org.akaza.openclinica.control.submit;
 
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.ArrayList;
+
+import javax.servlet.ServletOutputStream;
+
 import org.akaza.openclinica.bean.core.Utils;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
-import org.akaza.openclinica.dao.submit.EventCRFDAO;
-import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
-
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.util.ArrayList;
-import java.util.Locale;
-
-import javax.servlet.ServletOutputStream;
 
 /**
  * @author ywang (Dec., 2008)
@@ -31,27 +28,15 @@ import javax.servlet.ServletOutputStream;
 public class DownloadAttachedFileServlet extends SecureController {
 
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 3098103596566845378L;
+
+	/**
      * Checks whether the user has the correct privilege
      */
     @Override
     public void mayProceed() throws InsufficientPermissionException {
-        Locale locale = LocaleResolver.getLocale(request);
-        FormProcessor fp = new FormProcessor(request);
-/*        int eventCRFId = fp.getInt("eventCRFId");
-        EventCRFDAO edao = new EventCRFDAO(sm.getDataSource());
-
-        if (eventCRFId > 0) {
-            if (!entityIncluded(eventCRFId, ub.getName(), edao, sm.getDataSource())) {
-                request.setAttribute("downloadStatus", "false");
-                addPageMessage(respage.getString("you_not_have_permission_download_attached_file"));
-                throw new InsufficientPermissionException(Page.DOWNLOAD_ATTACHED_FILE, resexception.getString("no_permission"), "1");
-            }
-        } else {
-            request.setAttribute("downloadStatus", "false");
-            addPageMessage(respage.getString("you_not_have_permission_download_attached_file"));
-            throw new InsufficientPermissionException(Page.DOWNLOAD_ATTACHED_FILE, resexception.getString("no_permission"), "1");
-        }*/
-
         if (ub.isSysAdmin()) {
             return;
         }

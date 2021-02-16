@@ -7,7 +7,6 @@
  */
 package org.akaza.openclinica.domain.enumsupport;
 
-import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.type.IntegerType;
@@ -42,10 +41,11 @@ public class CodedEnumType implements EnhancedUserType, ParameterizedType {
     private Class<CodedEnum> enumClass;
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "deprecation" })
     public void setParameterValues(Properties parameters) {
         String enumClassName = parameters.getProperty("enumClassname");
         try {
+        	// TODO replace deprecated class/method
             enumClass = ReflectHelper.classForName(enumClassName);
         } catch (ClassNotFoundException cnfe) {
             throw new HibernateException("Enum class not found", cnfe);

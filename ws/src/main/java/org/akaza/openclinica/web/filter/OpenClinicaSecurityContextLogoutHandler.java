@@ -30,6 +30,7 @@ import javax.sql.DataSource;
  * 
  * @author Krikor Krumlian
  */
+// TODO duplicate of the version in the web module?
 public class OpenClinicaSecurityContextLogoutHandler extends SecurityContextLogoutHandler {
 
     AuditUserLoginDao auditUserLoginDao;

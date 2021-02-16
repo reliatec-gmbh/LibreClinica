@@ -84,8 +84,6 @@ public class DataImportService {
         this.locales = locale;
     }
 
-    private ImportCRFDataService dataService;
-
     public List<String> validateMetaData(ODMContainer odmContainer, DataSource dataSource, CoreResources resources, StudyBean studyBean,
             UserAccountBean userBean, List<DisplayItemBeanWrapper> displayItemBeanWrappers, HashMap<Integer, String> importedCRFStatuses) {
 

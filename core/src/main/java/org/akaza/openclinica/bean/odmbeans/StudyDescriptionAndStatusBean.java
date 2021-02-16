@@ -40,13 +40,7 @@ public class StudyDescriptionAndStatusBean {
     private String protocolType;
     private String protocolVerificationDate;
     private String purpose;
-    private String duration;
     private String selection;
-    private String timing;
-    private String allocation;
-    private String masking;
-    private String control;
-    private String interventionModel;
     private String studyClassification;
     public String getOfficialTitle() {
         return officialTitle;

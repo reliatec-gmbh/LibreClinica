@@ -30,7 +30,11 @@ import java.util.Date;
  */
 public class ArchivedDatasetFileBean extends EntityBean {
 
-    private int id;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 2636088017952490080L;
+	private int id;
     private int datasetId;
     private int exportFormatId;
     private ExportFormatBean exportFormatBean;

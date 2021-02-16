@@ -7,10 +7,9 @@
  */
 package org.akaza.openclinica.control.admin;
 
-import org.akaza.openclinica.bean.submit.CRFVersionBean;
 import org.akaza.openclinica.bean.core.Role;
+import org.akaza.openclinica.bean.submit.CRFVersionBean;
 import org.akaza.openclinica.control.core.SecureController;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.core.CoreResources;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
@@ -22,6 +21,11 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
  */
 public class InitCreateCRFVersionServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = -628838222201677748L;
+
+	/**
      * 
      */
     @Override
@@ -66,7 +70,7 @@ public class InitCreateCRFVersionServlet extends SecureController {
         request.setAttribute(MODULE, module);
         session.setAttribute("xformEnabled", CoreResources.getField("xform.enabled"));
 
-        if (StringUtil.isBlank(idString) || StringUtil.isBlank(name)) {
+        if ((idString == null || idString.trim().isEmpty()) || (name == null || name.trim().isEmpty())) {
             addPageMessage(respage.getString("please_choose_a_CRF_to_add_new_version_for"));
             forwardPage(Page.CRF_LIST);
         } else {

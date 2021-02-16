@@ -17,7 +17,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
 
-import org.akaza.openclinica.bean.core.DataEntryStage;
 import org.akaza.openclinica.bean.core.DiscrepancyNoteType;
 import org.akaza.openclinica.bean.core.ResolutionStatus;
 import org.akaza.openclinica.bean.core.Role;
@@ -54,13 +53,13 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
  */
 public class ResolveDiscrepancyServlet extends SecureController {
 
-    private static final String INPUT_NOTE_ID = "noteId";
-    private static final String CAN_ADMIN_EDIT = "canAdminEdit";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -8147352696189379536L;
+	private static final String INPUT_NOTE_ID = "noteId";
     private static final String EVENT_CRF_ID = "ecId";
     private static final String STUDY_SUB_ID = "studySubjectId";
-
-    private static final String RESOLVING_NOTE = "resolving_note";
-    private static final String RETURN_FROM_PROCESS_REQUEST = "returnFromProcess";
     
     public static final String ATTR_RESOLVE_DN = "resolveDiscrepancy";
 
@@ -150,10 +149,6 @@ public class ResolveDiscrepancyServlet extends SecureController {
 
             EventCRFBean ecb = (EventCRFBean) ecdao.findByPK(idb.getEventCRFId());
 
-            StudySubjectDAO ssdao = new StudySubjectDAO(sm.getDataSource());
-
-            StudySubjectBean ssb = (StudySubjectBean) ssdao.findByPK(ecb.getStudySubjectId());
-
             ItemFormMetadataDAO ifmdao = new ItemFormMetadataDAO(ds);
             ItemFormMetadataBean ifmb = ifmdao.findByItemIdAndCRFVersionId(idb.getItemId(), ecb.getCRFVersionId());
 
@@ -170,11 +165,6 @@ public class ResolveDiscrepancyServlet extends SecureController {
                 request.setAttribute(DataEntryServlet.INPUT_SECTION_ID, String.valueOf(ifmb.getSectionId()));
 
             }
-            DataEntryStage stage = ecb.getStage();
-
-            // if (!stage.equals(DataEntryStage.DOUBLE_DATA_ENTRY_COMPLETE)) {
-            // return false;
-            // }
         }
 
         return true;
@@ -207,7 +197,7 @@ public class ResolveDiscrepancyServlet extends SecureController {
         }
 
         // check that the note has not already been closed
-        ArrayList children = dndao.findAllByParent(discrepancyNoteBean);
+        ArrayList<DiscrepancyNoteBean> children = dndao.findAllByParent(discrepancyNoteBean);
         discrepancyNoteBean.setChildren(children);
         //This logic has been reverted, issue-7459
 //        if (parentNoteIsClosed(discrepancyNoteBean)) {
@@ -235,7 +225,6 @@ public class ResolveDiscrepancyServlet extends SecureController {
             return;
         }
 
-        boolean toView = false;
         boolean isCompleted = false;
         if ("itemdata".equalsIgnoreCase(entityType)) {
             ItemDataDAO iddao = new ItemDataDAO(sm.getDataSource());
@@ -252,9 +241,6 @@ public class ResolveDiscrepancyServlet extends SecureController {
             if (ecb.getStatus().equals(Status.UNAVAILABLE)) {
                 isCompleted = true;
             }
-
-            toView = true;// we want to go to view note page if the note is
-            // for item data
         }
         // logger.info("set up pop up url: " + createNoteURL);
         // System.out.println("set up pop up url: " + createNoteURL);
@@ -303,7 +289,7 @@ public class ResolveDiscrepancyServlet extends SecureController {
             return true;
         }
 
-        ArrayList children = note.getChildren();
+        ArrayList<DiscrepancyNoteBean> children = note.getChildren();
         for (int i = 0; i < children.size(); i++) {
             DiscrepancyNoteBean child = (DiscrepancyNoteBean) children.get(i);
             if (child.getResolutionStatusId() == ResolutionStatus.CLOSED.getId()) {

@@ -14,7 +14,7 @@ import java.util.TimeZone;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
 import org.akaza.openclinica.service.rule.RuleSetService;
 import org.akaza.openclinica.service.rule.expression.ExpressionService;
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,7 +76,7 @@ public class ReportController {
 	 */
 
 	@RequestMapping(value = "/runonschedule", method = RequestMethod.POST)
-	public ResponseEntity<HashMap> ruleTrigger(@RequestBody HashMap<String, String> hashMap) throws Exception {
+	public ResponseEntity<HashMap<?, ?>> ruleTrigger(@RequestBody HashMap<String, String> hashMap) throws Exception {
 
 		String serverZoneId = hashMap.get("serverZoneId");
 		String ssZoneId = hashMap.get("ssZoneId");
@@ -89,9 +89,9 @@ public class ReportController {
 		map.put("result", result);
 
 		if (result) {
-			return new ResponseEntity<HashMap>(map, org.springframework.http.HttpStatus.OK);
+			return new ResponseEntity<HashMap<?, ?>>(map, org.springframework.http.HttpStatus.OK);
 		} else {
-			return new ResponseEntity<HashMap>(map, org.springframework.http.HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<HashMap<?, ?>>(map, org.springframework.http.HttpStatus.BAD_REQUEST);
 		}
 
 	}
@@ -121,12 +121,12 @@ public class ReportController {
 	 */
 
 	@RequestMapping(value = "/rulecurrentdate", method = RequestMethod.POST)
-	public ResponseEntity<HashMap> getSSZone(@RequestBody HashMap<String, String> hashMap) throws Exception {
+	public ResponseEntity<HashMap<?, ?>> getSSZone(@RequestBody HashMap<String, String> hashMap) throws Exception {
 		ResourceBundleProvider.updateLocale(new Locale("en_US"));
 		String ssZoneId = hashMap.get("ssZoneId");
 		String serverZoneId = hashMap.get("serverZoneId");
 		HashMap<String, String> map = expressionService.getSSDate(ssZoneId, serverZoneId);
-		return new ResponseEntity<HashMap>(map, org.springframework.http.HttpStatus.OK);
+		return new ResponseEntity<HashMap<?, ?>>(map, org.springframework.http.HttpStatus.OK);
 
 	}
 
@@ -145,12 +145,12 @@ public class ReportController {
 	 */
 
 	@RequestMapping(value = "/runtime", method = RequestMethod.POST)
-	public ResponseEntity<HashMap> getRunTime() throws Exception {
+	public ResponseEntity<HashMap<?, ?>> getRunTime() throws Exception {
 		ResourceBundleProvider.updateLocale(new Locale("en_US"));
 		HashMap<String, Integer> map = new HashMap<>();
 		int result = ruleSetService.getRunTimeWhenTimeIsNotSet();
 		map.put("result", result);
-		return new ResponseEntity<HashMap>(map, org.springframework.http.HttpStatus.OK);
+		return new ResponseEntity<HashMap<?, ?>>(map, org.springframework.http.HttpStatus.OK);
 
 	}
 

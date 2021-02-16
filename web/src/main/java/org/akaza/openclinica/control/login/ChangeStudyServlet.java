@@ -7,11 +7,15 @@
  */
 package org.akaza.openclinica.control.login;
 
+import java.util.ArrayList;
+import java.util.Locale;
+
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.login.StudyUserRoleBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.service.StudyParameterValueBean;
+import org.akaza.openclinica.bean.service.StudyParamsConfig;
 import org.akaza.openclinica.control.SpringServletAccess;
 import org.akaza.openclinica.control.admin.EventStatusStatisticsTableFactory;
 import org.akaza.openclinica.control.admin.SiteStatisticsTableFactory;
@@ -21,7 +25,6 @@ import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.control.form.Validator;
 import org.akaza.openclinica.control.submit.ListStudySubjectTableFactory;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.login.UserAccountDAO;
 import org.akaza.openclinica.dao.managestudy.DiscrepancyNoteDAO;
 import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;
@@ -41,11 +44,6 @@ import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.akaza.openclinica.web.table.sdv.SDVUtil;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-
 /**
  * @author jxu
  *
@@ -53,6 +51,10 @@ import java.util.Locale;
  */
 public class ChangeStudyServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1371772469011700414L;
+	/**
      * Checks whether the user has the correct privilege
      */
 
@@ -88,7 +90,7 @@ public class ChangeStudyServlet extends SecureController {
         UserAccountDAO udao = new UserAccountDAO(sm.getDataSource());
         StudyDAO sdao = new StudyDAO(sm.getDataSource());
 
-        ArrayList studies = udao.findStudyByUser(ub.getName(), (ArrayList) sdao.findAll());
+        ArrayList<StudyUserRoleBean> studies = udao.findStudyByUser(ub.getName(), sdao.findAll());
         request.setAttribute("siteRoleMap", Role.siteRoleMap);
         request.setAttribute("studyRoleMap", Role.studyRoleMap);
         if(request.getAttribute("label")!=null) {
@@ -98,7 +100,7 @@ public class ChangeStudyServlet extends SecureController {
             }
         }
 
-        ArrayList validStudies = new ArrayList();
+        ArrayList<StudyUserRoleBean> validStudies = new ArrayList<>();
         for (int i = 0; i < studies.size(); i++) {
             StudyUserRoleBean sr = (StudyUserRoleBean) studies.get(i);
             StudyBean study = (StudyBean) sdao.findByPK(sr.getStudyId());
@@ -109,7 +111,7 @@ public class ChangeStudyServlet extends SecureController {
         }
 
 
-        if (StringUtil.isBlank(action)) {
+        if (action == null || action.trim().isEmpty()) {
             request.setAttribute("studies", validStudies);
 
             forwardPage(Page.CHANGE_STUDY);
@@ -126,7 +128,7 @@ public class ChangeStudyServlet extends SecureController {
 
     }
 
-    private void confirmChangeStudy(ArrayList studies) throws Exception {
+    private void confirmChangeStudy(ArrayList<StudyUserRoleBean> studies) throws Exception {
         Validator v = new Validator(request);
         FormProcessor fp = new FormProcessor(request);
         v.addValidation("studyId", Validator.IS_AN_INTEGER);
@@ -139,8 +141,7 @@ public class ChangeStudyServlet extends SecureController {
         } else {
             int studyId = fp.getInt("studyId");
             logger.info("new study id:" + studyId);
-            for (int i = 0; i < studies.size(); i++) {
-                StudyUserRoleBean studyWithRole = (StudyUserRoleBean) studies.get(i);
+            for (StudyUserRoleBean studyWithRole : studies) {
                 if (studyWithRole.getStudyId() == studyId) {
                     request.setAttribute("studyId", new Integer(studyId));
                     session.setAttribute("studyWithRole", studyWithRole);
@@ -157,7 +158,6 @@ public class ChangeStudyServlet extends SecureController {
     }
 
     private void changeStudy() throws Exception {
-        Validator v = new Validator(request);
         FormProcessor fp = new FormProcessor(request);
         int studyId = fp.getInt("studyId");
         int prevStudyId = currentStudy.getId();
@@ -168,7 +168,7 @@ public class ChangeStudyServlet extends SecureController {
         // reset study parameters -jxu 02/09/2007
         StudyParameterValueDAO spvdao = new StudyParameterValueDAO(sm.getDataSource());
 
-        ArrayList studyParameters = spvdao.findParamConfigByStudy(current);
+        ArrayList<StudyParamsConfig> studyParameters = spvdao.findParamConfigByStudy(current);
         current.setStudyParameters(studyParameters);
         int parentStudyId = currentStudy.getParentStudyId()>0?currentStudy.getParentStudyId():currentStudy.getId();
         StudyParameterValueBean parentSPV = spvdao.findByHandleAndStudy(parentStudyId, "subjectIdGeneration");
@@ -211,9 +211,8 @@ public class ChangeStudyServlet extends SecureController {
                  * The Role decription will be set depending on whether the user
                  * logged in at study lever or site level. issue-2422
                  */
-                List roles = Role.toArrayList();
-                for (Iterator it = roles.iterator(); it.hasNext();) {
-                    Role role = (Role) it.next();
+                ArrayList<Role> roles = Role.toArrayList();
+                for (Role role : roles) {
                     switch (role.getId()) {
                     case 2:
                         role.setDescription("site_Study_Coordinator");
@@ -242,9 +241,8 @@ public class ChangeStudyServlet extends SecureController {
                  * If the current study is a site, we will change the role
                  * description. issue-2422
                  */
-                List roles = Role.toArrayList();
-                for (Iterator it = roles.iterator(); it.hasNext();) {
-                    Role role = (Role) it.next();
+                ArrayList<Role> roles = Role.toArrayList();
+                for (Role role : roles) {
                     switch (role.getId()) {
                     case 2:
                         role.setDescription("Study_Coordinator");

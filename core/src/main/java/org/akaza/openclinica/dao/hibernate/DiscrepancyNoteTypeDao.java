@@ -8,6 +8,7 @@
 package org.akaza.openclinica.dao.hibernate;
 
 import org.akaza.openclinica.domain.datamap.DiscrepancyNoteType;
+import org.hibernate.query.Query;
 
 public class DiscrepancyNoteTypeDao extends AbstractDomainDao<DiscrepancyNoteType> {
 
@@ -15,11 +16,14 @@ public class DiscrepancyNoteTypeDao extends AbstractDomainDao<DiscrepancyNoteTyp
     public Class<DiscrepancyNoteType> domainClass() {
         return DiscrepancyNoteType.class;
     }
+
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("deprecation")
     public DiscrepancyNoteType findByDiscrepancyNoteTypeId(Integer discrepancyNoteTypeId) {
         String query = "from " + getDomainClassName() + " do  where do.discrepancyNoteTypeId = :discrepancynotetypeid";
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
+        Query<DiscrepancyNoteType> q = getCurrentSession().createQuery(query, DiscrepancyNoteType.class);
         q.setInteger("discrepancynotetypeid", discrepancyNoteTypeId);
-        return (DiscrepancyNoteType) q.uniqueResult();
+        return q.uniqueResult();
     }
 
 }

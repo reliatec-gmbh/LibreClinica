@@ -11,6 +11,7 @@ import org.akaza.openclinica.bean.submit.EventCRFBean;
 import org.akaza.openclinica.bean.submit.ItemGroupMetadataBean;
 import org.akaza.openclinica.dao.core.CoreResources;
 import org.akaza.openclinica.domain.crfdata.DynamicsItemGroupMetadataBean;
+import org.hibernate.query.Query;
 import org.springframework.transaction.annotation.Transactional;
 
 public class DynamicsItemGroupMetadataDao extends AbstractDomainDao<DynamicsItemGroupMetadataBean>{
@@ -19,29 +20,35 @@ public class DynamicsItemGroupMetadataDao extends AbstractDomainDao<DynamicsItem
     public Class<DynamicsItemGroupMetadataBean> domainClass() {
         return DynamicsItemGroupMetadataBean.class;
     }
-    
+
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("deprecation")
     public DynamicsItemGroupMetadataBean findByMetadataBean(ItemGroupMetadataBean metadataBean, EventCRFBean eventCrfBean) {
         String query =
             "from " + getDomainClassName()
                 + " metadata where metadata.itemGroupMetadataId = :id and metadata.itemGroupId = :item_group_id and metadata.eventCrfId = :event_crf_id ";
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
+        Query<DynamicsItemGroupMetadataBean> q = getCurrentSession().createQuery(query, DynamicsItemGroupMetadataBean.class);
         q.setInteger("id", new Integer(metadataBean.getId()));
         q.setInteger("item_group_id", new Integer(metadataBean.getItemGroupId()));
         q.setInteger("event_crf_id", new Integer(eventCrfBean.getId()));
         return (DynamicsItemGroupMetadataBean) q.uniqueResult();
     }
-    
+
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("deprecation")
     public DynamicsItemGroupMetadataBean findByMetadataBean(ItemGroupMetadataBean metadataBean, int eventCrfBeanId) {
         String query =
             "from " + getDomainClassName()
                 + " metadata where metadata.itemGroupMetadataId = :id and metadata.itemGroupId = :item_group_id and metadata.eventCrfId = :event_crf_id ";
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
+        Query<DynamicsItemGroupMetadataBean> q = getCurrentSession().createQuery(query, DynamicsItemGroupMetadataBean.class);
         q.setInteger("id", new Integer(metadataBean.getId()));
         q.setInteger("item_group_id", new Integer(metadataBean.getItemGroupId()));
         q.setInteger("event_crf_id", new Integer(eventCrfBeanId));
         return (DynamicsItemGroupMetadataBean) q.uniqueResult();
     }
-    
+
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings({ "deprecation", "rawtypes" })
     public Boolean hasShowingInSection(int sectionId, int crfVersionId, int eventCrfId) {
         String query = "";
         if ("oracle".equalsIgnoreCase(CoreResources.getDBName())) {
@@ -58,18 +65,21 @@ public class DynamicsItemGroupMetadataDao extends AbstractDomainDao<DynamicsItem
                 + " and dg.show_group = 'true' limit 1";
         }
         
-        org.hibernate.Query q = this.getCurrentSession().createSQLQuery(query);
+        org.hibernate.query.Query q = this.getCurrentSession().createSQLQuery(query);
         q.setInteger("eventCrfId", eventCrfId);
         q.setInteger("crfVersionId", crfVersionId);
         q.setInteger("sectionId", sectionId);
         q.setInteger("crfVersionId", crfVersionId);
+        /* TODO use uniqueResult (or something similar), if the
+         * query returns multiple (equivalent results) use distinct also
+         */
         return q.list() != null && q.list().size() > 0;
     }
 
     @Transactional
     public void delete(int eventCrfId) {
         String query = "delete from " + getDomainClassName() + " metadata where metadata.eventCrfId = :eventCrfId";
-        org.hibernate.query.Query q = getCurrentSession().createQuery(query);
+        Query<DynamicsItemGroupMetadataBean> q = getCurrentSession().createQuery(query, DynamicsItemGroupMetadataBean.class);
         q.setParameter("eventCrfId", eventCrfId);
         q.executeUpdate();
     }

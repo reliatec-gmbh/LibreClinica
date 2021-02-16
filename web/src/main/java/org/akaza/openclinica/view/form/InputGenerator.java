@@ -7,6 +7,7 @@
  */
 package org.akaza.openclinica.view.form;
 
+import org.akaza.openclinica.bean.submit.ResponseOptionBean;
 import org.akaza.openclinica.bean.submit.ResponseSetBean;
 import org.jdom.Element;
 
@@ -22,15 +23,15 @@ public interface InputGenerator {
 
     Element createTextareaTag(Element tdCell, Integer itemId, Integer tabNumber, String dbValue, String defaultValue, boolean hasSavedData);
 
-    Element createCheckboxTag(Element tdCell, Integer itemId, List options, Integer tabNumber, boolean includeLabel, String dbValue, String defaultValue,
+    Element createCheckboxTag(Element tdCell, Integer itemId, List<ResponseOptionBean> options, Integer tabNumber, boolean includeLabel, String dbValue, String defaultValue,
             boolean isHorizontal, boolean hasSavedData);
 
-    Element createRadioButtonTag(Element tdCell, Integer itemId, List options, Integer tabNumber, boolean includeLabel, String dbValue, String defaultValue,
+    Element createRadioButtonTag(Element tdCell, Integer itemId, List<ResponseOptionBean> options, Integer tabNumber, boolean includeLabel, String dbValue, String defaultValue,
             boolean isHorizontal, boolean hasSavedData);
 
-    Element createSingleSelectTag(Element tdCell, Integer itemId, List options, Integer tabNumber);
+    Element createSingleSelectTag(Element tdCell, Integer itemId, List<ResponseOptionBean> options, Integer tabNumber);
 
-    Element createMultiSelectTag(Element tdCell, Integer itemId, List options, Integer tabNumber, String dbValue, String defaultValue, boolean hasSavedData);
+    Element createMultiSelectTag(Element tdCell, Integer itemId, List<ResponseOptionBean> options, Integer tabNumber, String dbValue, String defaultValue, boolean hasSavedData);
 
     // YW, 1-10-2007 << response type = calculation
     Element createCaculationTag(Element tdCell, Integer itemId, ResponseSetBean responseSet, boolean isDateType, String dbValue, boolean hasSavedData);

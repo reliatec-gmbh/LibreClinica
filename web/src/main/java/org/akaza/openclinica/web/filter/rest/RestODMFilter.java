@@ -7,7 +7,6 @@
  */
 package org.akaza.openclinica.web.filter.rest;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
@@ -26,7 +25,6 @@ import org.akaza.openclinica.control.SpringServletAccess;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.dao.login.UserAccountDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
-
 
 import com.sun.jersey.server.impl.application.WebApplicationContext;
 import com.sun.jersey.spi.container.ContainerRequest;
@@ -96,9 +94,9 @@ public class RestODMFilter implements ContainerRequestFilter,ResourceFilter {
 	private Boolean checkAuth(UserAccountBean userBean) {
 		Boolean auth = false;
 		
-		  ArrayList userRoles = userBean.getRoles();
+		  ArrayList<StudyUserRoleBean> userRoles = userBean.getRoles();
 	        for (int i = 0; (i < userRoles.size() && auth==false); i++) {
-	            StudyUserRoleBean studyRole = (StudyUserRoleBean) userRoles.get(i);
+	            StudyUserRoleBean studyRole = userRoles.get(i);
 
 				if(studyRole.getRole().equals(Role.ADMIN) || studyRole.getRole().equals(Role.COORDINATOR) ||studyRole.getRole().equals(Role.STUDYDIRECTOR))
 				{

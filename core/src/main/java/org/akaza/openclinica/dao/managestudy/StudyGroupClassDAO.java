@@ -7,7 +7,11 @@
  */
 package org.akaza.openclinica.dao.managestudy;
 
-import org.akaza.openclinica.bean.core.EntityBean;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import javax.sql.DataSource;
+
 import org.akaza.openclinica.bean.core.GroupClassType;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.managestudy.StudyGroupClassBean;
@@ -16,24 +20,18 @@ import org.akaza.openclinica.dao.core.DAODigester;
 import org.akaza.openclinica.dao.core.SQLFactory;
 import org.akaza.openclinica.dao.core.TypeNames;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-
-import javax.sql.DataSource;
-
 /**
  * @author jxu
  *
  * The data access object that users will access the database for study group
  * class objects
  */
-public class StudyGroupClassDAO extends AuditableEntityDAO {
+public class StudyGroupClassDAO extends AuditableEntityDAO<StudyGroupClassBean> {
     protected void setQueryNames() {
         findAllByStudyName = "findAllByStudy";
         findByPKAndStudyName = "findByPKAndStudy";
         getNextPKName = "getNextPK";
+        getCurrentPKName = "getCurrentPrimaryKey";
     }
 
     public StudyGroupClassDAO(DataSource ds) {
@@ -84,7 +82,7 @@ public class StudyGroupClassDAO extends AuditableEntityDAO {
      * getEntityFromHashMap, the method that gets the object from the database
      * query.
      */
-    public Object getEntityFromHashMap(HashMap hm) {
+    public StudyGroupClassBean getEntityFromHashMap(HashMap<String, Object> hm) {
         StudyGroupClassBean eb = new StudyGroupClassBean();
         super.setEntityAuditInformation(eb, hm);
         // STUDY_GROUP_ID NAME STUDY_ID OWNER_ID DATE_CREATED
@@ -99,35 +97,24 @@ public class StudyGroupClassDAO extends AuditableEntityDAO {
         return eb;
     }
 
-    public Collection findAll() {
-        this.setTypesExpected();
-        ArrayList alist = this.select(digester.getQuery("findAll"));
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            StudyGroupClassBean eb = (StudyGroupClassBean) this.getEntityFromHashMap((HashMap) it.next());
-            al.add(eb);
-        }
-        return al;
+    public ArrayList<StudyGroupClassBean> findAll() {
+    	String queryName = "findAll";
+        return executeFindAllQuery(queryName);
     }
 
     @Override
-    public ArrayList findAllByStudy(StudyBean study) {
-        ArrayList answer = new ArrayList();
+    public ArrayList<StudyGroupClassBean> findAllByStudy(StudyBean study) {
+        ArrayList<StudyGroupClassBean> answer = new ArrayList<>();
 
         this.setTypesExpected();
         this.setTypeExpected(11, TypeNames.STRING);
         this.setTypeExpected(12, TypeNames.STRING);
 
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(study.getId()));
-        variables.put(new Integer(2), new Integer(study.getId()));
+        HashMap<Integer, Object> variables = variables(study.getId(), study.getId());
 
-        ArrayList alist = this.select(digester.getQuery("findAllByStudy"), variables);
+        ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findAllByStudy"), variables);
 
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            HashMap hm = (HashMap) it.next();
+        for(HashMap<String, Object> hm : alist) {
             StudyGroupClassBean group = (StudyGroupClassBean) this.getEntityFromHashMap(hm);
             group.setStudyName((String) hm.get("study_name"));
             logger.info("study Name" + group.getStudyName());
@@ -139,22 +126,18 @@ public class StudyGroupClassDAO extends AuditableEntityDAO {
     }
 
     @Override
-    public ArrayList findAllActiveByStudy(StudyBean study) {
-        ArrayList answer = new ArrayList();
+    public ArrayList<StudyGroupClassBean> findAllActiveByStudy(StudyBean study) {
+        ArrayList<StudyGroupClassBean> answer = new ArrayList<>();
 
         this.setTypesExpected();
         this.setTypeExpected(11, TypeNames.STRING);
         this.setTypeExpected(12, TypeNames.STRING);
 
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(study.getId()));
-        variables.put(new Integer(2), new Integer(study.getId()));
+        HashMap<Integer, Object> variables = variables(study.getId(), study.getId());
 
-        ArrayList alist = this.select(digester.getQuery("findAllActiveByStudy"), variables);
+        ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findAllActiveByStudy"), variables);
 
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            HashMap hm = (HashMap) it.next();
+        for(HashMap<String, Object> hm : alist) {
             StudyGroupClassBean group = (StudyGroupClassBean) this.getEntityFromHashMap(hm);
             group.setStudyName((String) hm.get("study_name"));
             // logger.info("study Name " + group.getStudyName());
@@ -166,54 +149,31 @@ public class StudyGroupClassDAO extends AuditableEntityDAO {
         return answer;
     }
 
-    public Collection findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<StudyGroupClassBean> findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+       throw new RuntimeException("Not implemented");
     }
 
-    public EntityBean findByPK(int id) {
-        StudyGroupClassBean eb = new StudyGroupClassBean();
-        this.setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(id));
-
-        String sql = digester.getQuery("findByPK");
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            eb = (StudyGroupClassBean) this.getEntityFromHashMap((HashMap) it.next());
-        }
-
-        return eb;
+    public StudyGroupClassBean findByPK(int id) {
+    	String queryName = "findByPK";
+        HashMap<Integer, Object> variables = variables(id);
+        return executeFindByPKQuery(queryName, variables);
     }
 
-    public EntityBean findByStudyId(int studyId) {
-        StudyGroupClassBean eb = new StudyGroupClassBean();
-        this.setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(studyId));
-
-        String sql = digester.getQuery("findByStudyId");
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            eb = (StudyGroupClassBean) this.getEntityFromHashMap((HashMap) it.next());
-        }
-
-        return eb;
+    public StudyGroupClassBean findByStudyId(int studyId) {
+    	String queryName = "findByStudyId";
+        HashMap<Integer, Object> variables = variables(studyId);
+        return executeFindByPKQuery(queryName, variables);
     }
 
     /**
      * Creates a new StudyGroup
      */
-    public EntityBean create(EntityBean eb) {
-        StudyGroupClassBean sb = (StudyGroupClassBean) eb;
-        HashMap variables = new HashMap();
+    @Override
+    public StudyGroupClassBean create(StudyGroupClassBean sb) {
+        HashMap<Integer, Object> variables = new HashMap<>();
         int id = getNextPK();
         // INSERT INTO study_group_class
         // (NAME,STUDY_ID,OWNER_ID,DATE_CREATED, GROUP_CLASS_TYPE_ID,
@@ -227,7 +187,7 @@ public class StudyGroupClassDAO extends AuditableEntityDAO {
         // Date_created is now()
         variables.put(new Integer(6), new Integer(sb.getStatus().getId()));
         variables.put(new Integer(7), sb.getSubjectAssignment());
-        this.execute(digester.getQuery("create"), variables);
+        this.executeUpdate(digester.getQuery("create"), variables);
         if (isQuerySuccessful()) {
             sb.setId(id);
         }
@@ -238,9 +198,8 @@ public class StudyGroupClassDAO extends AuditableEntityDAO {
     /**
      * Updates a StudyGroupClass
      */
-    public EntityBean update(EntityBean eb) {
-        StudyGroupClassBean sb = (StudyGroupClassBean) eb;
-        HashMap variables = new HashMap();
+    public StudyGroupClassBean update(StudyGroupClassBean sb) {
+        HashMap<Integer, Object> variables = new HashMap<>();
 
         // UPDATE study_group_class SET NAME=?,STUDY_ID=?,
         // GROUP_class_TYPE_ID=?,
@@ -257,37 +216,28 @@ public class StudyGroupClassDAO extends AuditableEntityDAO {
         variables.put(new Integer(8), new Integer(sb.getId()));
 
         String sql = digester.getQuery("update");
-        this.execute(sql, variables);
+        this.executeUpdate(sql, variables);
 
         return sb;
     }
 
-    @Override
-    public int getCurrentPK() {
-        this.unsetTypeExpected();
-        this.setTypeExpected(1, TypeNames.INT);
-
-        int pk = 0;
-        ArrayList al = select(digester.getQuery("getCurrentPrimaryKey"));
-
-        if (al.size() > 0) {
-            HashMap h = (HashMap) al.get(0);
-            pk = ((Integer) h.get("key")).intValue();
-        }
-
-        return pk;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<StudyGroupClassBean> findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+    	throw new RuntimeException("Not implemented");
     }
 
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<StudyGroupClassBean> findAllByPermission(Object objCurrentUser, int intActionType) {
+        throw new RuntimeException("Not implemented");
     }
 
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType) {
-        ArrayList al = new ArrayList();
-
-        return al;
-    }
+	@Override
+	public StudyGroupClassBean emptyBean() {
+		return new StudyGroupClassBean();
+	}
 
 }

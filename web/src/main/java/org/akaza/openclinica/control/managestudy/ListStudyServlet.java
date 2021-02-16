@@ -30,7 +30,11 @@ import org.akaza.openclinica.web.bean.EntityBeanTable;
  */
 public class ListStudyServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1660543632636179574L;
+	Locale locale;
 
     // < ResourceBundle resword,restext,respage,resexception;
 
@@ -61,14 +65,14 @@ public class ListStudyServlet extends SecureController {
     public void processRequest() throws Exception {
 
         StudyDAO sdao = new StudyDAO(sm.getDataSource());
-        ArrayList studies = (ArrayList) sdao.findAll();
+        ArrayList<StudyBean> studies = sdao.findAll();
         // find all parent studies
-        ArrayList parents = (ArrayList) sdao.findAllParents();
-        ArrayList displayStudies = new ArrayList();
+        ArrayList<StudyBean> parents = sdao.findAllParents();
+        ArrayList<DisplayStudyBean> displayStudies = new ArrayList<>();
 
         for (int i = 0; i < parents.size(); i++) {
             StudyBean parent = (StudyBean) parents.get(i);
-            ArrayList children = (ArrayList) sdao.findAllByParent(parent.getId());
+            ArrayList<StudyBean> children = new ArrayList<StudyBean>(sdao.findAllByParent(parent.getId()));
             DisplayStudyBean displayStudy = new DisplayStudyBean();
             displayStudy.setParent(parent);
             displayStudy.setChildren(children);
@@ -78,15 +82,15 @@ public class ListStudyServlet extends SecureController {
 
         FormProcessor fp = new FormProcessor(request);
         EntityBeanTable table = fp.getEntityBeanTable();
-        ArrayList allStudyRows = DisplayStudyRow.generateRowsFromBeans(displayStudies);
+        ArrayList<DisplayStudyRow> allStudyRows = DisplayStudyRow.generateRowsFromBeans(displayStudies);
 
         String[] columns = { resword.getString("name"), resword.getString("unique_identifier"), resword.getString("OID"),
                 resword.getString("principal_investigator"), resword.getString("facility_name"), resword.getString("date_created"), resword.getString("status"),
                 resword.getString("actions") };
-        table.setColumns(new ArrayList(Arrays.asList(columns)));
+        table.setColumns(new ArrayList<String>(Arrays.asList(columns)));
         table.hideColumnLink(2);
         table.hideColumnLink(6);
-        table.setQuery("ListStudy", new HashMap());
+        table.setQuery("ListStudy", new HashMap<>());
         table.setRows(allStudyRows);
         table.computeDisplay();
 

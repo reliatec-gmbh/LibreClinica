@@ -7,10 +7,12 @@
  */
 package org.akaza.openclinica.controller;
 
+import static org.akaza.openclinica.core.util.ClassCastHelper.asArrayList;
+import static org.akaza.openclinica.core.util.ClassCastHelper.asList;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -29,11 +31,9 @@ import org.akaza.openclinica.dao.admin.CRFDAO;
 import org.akaza.openclinica.dao.core.CoreResources;
 import org.akaza.openclinica.dao.hibernate.StudyModuleStatusDao;
 import org.akaza.openclinica.dao.login.UserAccountDAO;
-import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDefinitionDAO;
 import org.akaza.openclinica.dao.managestudy.StudyGroupClassDAO;
-import org.akaza.openclinica.dao.rule.RuleDAO;
 import org.akaza.openclinica.dao.service.StudyParameterValueDAO;
 import org.akaza.openclinica.domain.managestudy.StudyModuleStatus;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
@@ -42,13 +42,12 @@ import org.akaza.openclinica.service.pmanage.Authorization;
 import org.akaza.openclinica.service.pmanage.ParticipantPortalRegistrar;
 import org.akaza.openclinica.service.rule.RuleSetServiceInterface;
 import org.akaza.openclinica.view.StudyInfoPanel;
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -60,7 +59,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
-
 /**
  * @author: sshamim Date: Jan 22, 2009 Time: 6:52:16 PM Manages the Study creation process
  */
@@ -84,20 +82,16 @@ public class StudyModuleController {
     @Qualifier("dataSource")
     private BasicDataSource dataSource;
 
-    private EventDefinitionCRFDAO eventDefinitionCRFDao;
     private StudyEventDefinitionDAO studyEventDefinitionDao;
     private CRFDAO crfDao;
     private StudyGroupClassDAO studyGroupClassDao;
     private StudyDAO studyDao;
     private UserAccountDAO userDao;
-    private org.akaza.openclinica.dao.rule.RuleDAO ruleDao;
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
     public static final String REG_MESSAGE = "regMessages";
     public static ResourceBundle respage;
     @Autowired
     CoreResources coreResources;
-    @Autowired
-    private JavaMailSenderImpl mailSender;
 
     public StudyModuleController() {
 
@@ -260,13 +254,11 @@ public class StudyModuleController {
 
         StudyBean currentStudy = (StudyBean) request.getSession().getAttribute("study");
 
-        eventDefinitionCRFDao = new EventDefinitionCRFDAO(dataSource);
         studyEventDefinitionDao = new StudyEventDefinitionDAO(dataSource);
         crfDao = new CRFDAO(dataSource);
         studyGroupClassDao = new StudyGroupClassDAO(dataSource);
         studyDao = new StudyDAO(dataSource);
         userDao = new UserAccountDAO(dataSource);
-        ruleDao = new RuleDAO(dataSource);
 
         StudyModuleStatus sms = studyModuleStatusDao.findByStudyId(currentStudy.getId());
         if (sms == null) {
@@ -289,10 +281,9 @@ public class StudyModuleController {
 
         int siteCount = studyDao.findOlnySiteIdsByStudy(currentStudy).size();
         int userCount = userDao.findAllUsersByStudy(currentStudy.getId()).size();
-        Collection childStudies = studyDao.findAllByParent(currentStudy.getId());
-        Map childStudyUserCount = new HashMap();
-        for (Object sb : childStudies) {
-            StudyBean childStudy = (StudyBean) sb;
+        ArrayList<StudyBean> childStudies = studyDao.findAllByParent(currentStudy.getId());
+        Map<String, Integer> childStudyUserCount = new HashMap<>();
+        for (StudyBean childStudy : childStudies) {
             childStudyUserCount.put(childStudy.getName(), userDao.findAllUsersByStudy(childStudy.getId()).size());
         }
 
@@ -397,18 +388,18 @@ public class StudyModuleController {
 
         // @pgawade 13-April-2011- #8877: Added the rule designer URL
         if (null != coreResources) {
-            map.addAttribute("ruleDesignerURL", coreResources.getField("designer.url"));
+            map.addAttribute("ruleDesignerURL", CoreResources.getField("designer.url"));
             map.addAttribute("contextPath", getContextPath(request));
             logMe("before checking getHostPath url = " + request.getRequestURL());
             // JN: for the eclinicalhosting the https is not showing up in the request path, going for a fix of taking
             // the hostpath from sysurl
             // map.addAttribute("hostPath", getHostPath(request));
-            map.addAttribute("hostPath", getHostPathFromSysUrl(coreResources.getField("sysURL.base"), request.getContextPath()));
+            map.addAttribute("hostPath", getHostPathFromSysUrl(CoreResources.getField("sysURL.base"), request.getContextPath()));
             map.addAttribute("path", "pages/studymodule");
         }
         // UserAccountBean userBean = (UserAccountBean) request.getSession().getAttribute("userBean");
         request.setAttribute("userBean", userBean);
-        ArrayList statusMap = Status.toStudyUpdateMembersList();
+        ArrayList<Status> statusMap = Status.toStudyUpdateMembersList();
         // statusMap.add(Status.PENDING);
         request.setAttribute("statusMap", statusMap);
 
@@ -417,16 +408,16 @@ public class StudyModuleController {
             request.setAttribute("parentStudy", parentStudy);
         }
 
-        ArrayList pageMessages = new ArrayList();
+        ArrayList<String> pageMessages = new ArrayList<>();
         if (request.getSession().getAttribute("pageMessages") != null) {
-            pageMessages.addAll((ArrayList) request.getSession().getAttribute("pageMessages"));
+            pageMessages.addAll(asList(request.getSession().getAttribute("pageMessages"), String.class));
             request.setAttribute("pageMessages", pageMessages);
             request.getSession().removeAttribute("pageMessages");
         }
 
-        ArrayList regMessages = new ArrayList();
+        ArrayList<String> regMessages = new ArrayList<>();
         if (request.getSession().getAttribute(REG_MESSAGE) != null) {
-            regMessages.addAll((ArrayList) request.getSession().getAttribute(REG_MESSAGE));
+            regMessages.addAll(asList(request.getSession().getAttribute(REG_MESSAGE), String.class));
             request.setAttribute(REG_MESSAGE, regMessages);
             request.getSession().removeAttribute(REG_MESSAGE);
         }
@@ -450,7 +441,7 @@ public class StudyModuleController {
                 studyDao.updateStudyStatus(currentStudy);
             }
 
-            ArrayList siteList = (ArrayList) studyDao.findAllByParent(currentStudy.getId());
+            ArrayList<StudyBean> siteList = studyDao.findAllByParent(currentStudy.getId());
             if (siteList.size() > 0) {
                 studyDao.updateSitesStatus(currentStudy);
             }
@@ -473,31 +464,14 @@ public class StudyModuleController {
     }
 
     private void addRegMessage(HttpServletRequest request, String message) {
-        ArrayList regMessages = (ArrayList) request.getSession().getAttribute(REG_MESSAGE);
+        ArrayList<String> regMessages = asArrayList(request.getSession().getAttribute(REG_MESSAGE), String.class);
         if (regMessages == null) {
-            regMessages = new ArrayList();
+            regMessages = new ArrayList<>();
         }
 
         regMessages.add(message);
         logger.debug(message);
         request.getSession().setAttribute(REG_MESSAGE, regMessages);
-    }
-
-    private void setUpSidebar(HttpServletRequest request) {
-        if (sidebarInit.getAlertsBoxSetup() == SidebarEnumConstants.OPENALERTS) {
-            request.setAttribute("alertsBoxSetup", true);
-        }
-
-        if (sidebarInit.getInfoBoxSetup() == SidebarEnumConstants.OPENINFO) {
-            request.setAttribute("infoBoxSetup", true);
-        }
-        if (sidebarInit.getInstructionsBoxSetup() == SidebarEnumConstants.OPENINSTRUCTIONS) {
-            request.setAttribute("instructionsBoxSetup", true);
-        }
-
-        if (!(sidebarInit.getEnableIconsBoxSetup() == SidebarEnumConstants.DISABLEICONS)) {
-            request.setAttribute("enableIconsBoxSetup", true);
-        }
     }
 
     public SidebarInit getSidebarInit() {

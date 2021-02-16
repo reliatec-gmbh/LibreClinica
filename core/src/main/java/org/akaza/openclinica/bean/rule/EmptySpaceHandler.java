@@ -65,7 +65,7 @@ public class EmptySpaceHandler extends GeneralizedFieldHandler {
      * @return the class type of of the field
      */
     @Override
-    public Class getFieldType() {
+    public Class<?> getFieldType() {
         return String.class;
     }
 

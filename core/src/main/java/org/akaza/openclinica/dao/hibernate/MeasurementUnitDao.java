@@ -8,10 +8,10 @@
 
 package org.akaza.openclinica.dao.hibernate;
 
-import java.util.ArrayList;
 import java.util.TreeSet;
 
 import org.akaza.openclinica.domain.admin.MeasurementUnit;
+import org.hibernate.query.Query;
 
 public class MeasurementUnitDao extends AbstractDomainDao<MeasurementUnit> {
     @Override
@@ -19,26 +19,24 @@ public class MeasurementUnitDao extends AbstractDomainDao<MeasurementUnit> {
         return MeasurementUnit.class;
     }
 
+    // TODO update to CriteriaQuery
     public TreeSet<String> findAllOIDs() {
         String query = "select mu.ocOid from  " + this.getDomainClassName() + " mu order by mu.ocOid asc";
-        org.hibernate.Query q = this.getCurrentSession().createQuery(query);
+        Query<String> q = this.getCurrentSession().createQuery(query, String.class);
         return new TreeSet<String>(q.list());
     }
 
+    // TODO update to CriteriaQuery
     public TreeSet<String> findAllNames() {
         String query = "select distinct mu.name from  " + this.getDomainClassName() + " mu order by mu.name asc";
-        org.hibernate.Query q = this.getCurrentSession().createQuery(query);
+        Query<String> q = this.getCurrentSession().createQuery(query, String.class);
         return new TreeSet<String>(q.list());
     }
 
+    // TODO update to CriteriaQuery 
     public TreeSet<String> findAllNamesInUpperCase() {
         String query = "select upper(mu.name) from  " + this.getDomainClassName() + " mu order by mu.name asc";
-        org.hibernate.Query q = this.getCurrentSession().createQuery(query);
-        ArrayList<String> l = (ArrayList<String>)q.list();
-        TreeSet<String> newSet = new TreeSet<String>();
-        for(String i : l) {
-            newSet.add(i);
-        }
-        return newSet;
+        Query<String> q = this.getCurrentSession().createQuery(query, String.class);
+        return new TreeSet<String>(q.list());
     }
 }

@@ -22,12 +22,11 @@ package org.akaza.openclinica.bean.odmbeans;
  * @author ywang (May, 2008)
  * 
  */
-public class ElementOIDBean implements Comparable {
+public class ElementOIDBean implements Comparable<ElementOIDBean> {
     private String oid;
 
-    public int compareTo(Object o) {
-        ElementOIDBean b = (ElementOIDBean) o;
-        return this.oid.compareTo(b.getOid());
+    public int compareTo(ElementOIDBean o) {
+        return this.oid.compareTo(o.getOid());
     }
 
     public void setOid(String oid) {

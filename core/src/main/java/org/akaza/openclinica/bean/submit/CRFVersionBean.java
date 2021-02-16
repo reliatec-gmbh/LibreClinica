@@ -21,7 +21,11 @@ import java.util.Date;
  */
 public class CRFVersionBean extends AuditableEntityBean {
 
-    private String description = "";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 5514775426871188770L;
+	private String description = "";
     private int crfId = 0;
     private int statusId = 1;
     private String revisionNotes = "";
@@ -29,8 +33,6 @@ public class CRFVersionBean extends AuditableEntityBean {
 
     // not in DB, tells whether the spreadsheet is downloadable
     private boolean downloadable = false;
-    // not in DB, stores a URL for displaying the CRF in Enketo
-    private String enketoURL = "";
 
     private String oid;
     private OidGenerator oidGenerator;

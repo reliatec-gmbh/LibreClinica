@@ -16,11 +16,11 @@ import org.akaza.openclinica.bean.submit.ItemFormMetadataBean;
 import org.akaza.openclinica.control.form.DiscrepancyValidator;
 import org.akaza.openclinica.control.form.Validation;
 import org.akaza.openclinica.control.form.Validator;
-import org.apache.commons.lang.StringUtils;
 
 /*
  * Helper methods will be placed in this class - DRY
  */
+// TODO duplicate of the version in the web module?
 public class ImportHelper {
 
     /**
@@ -49,14 +49,14 @@ public class ImportHelper {
      * @return The DisplayItemBean which is validated.
      */
     public DisplayItemBean validateDisplayItemBeanSingleCV(DiscrepancyValidator v, DisplayItemBean dib, String inputName) {
-
-        if (StringUtils.isBlank(inputName)) {
+        if (inputName == null || inputName.trim().isEmpty()) {
             inputName = getInputName(dib);
         }
 
         ItemFormMetadataBean ibMeta = dib.getMetadata();
         ItemDataBean idb = dib.getData();
-        if (StringUtils.isBlank(idb.getValue())) {
+        String idbValue = idb.getValue();
+		if (idbValue == null || idbValue.trim().isEmpty()) {
             if (ibMeta.isRequired()) {
                 v.addValidation(inputName, Validator.IS_REQUIRED);
             }
@@ -83,14 +83,14 @@ public class ImportHelper {
      * @return The DisplayItemBean which is validated.
      */
     public DisplayItemBean validateDisplayItemBeanMultipleCV(DiscrepancyValidator v, DisplayItemBean dib, String inputName) {
-
-        if (StringUtils.isBlank(inputName)) {
+        if (inputName == null || inputName.trim().isEmpty()) {
             inputName = getInputName(dib);
         }
 
         ItemFormMetadataBean ibMeta = dib.getMetadata();
         ItemDataBean idb = dib.getData();
-        if (StringUtils.isBlank(idb.getValue())) {
+        String idbValue = idb.getValue();
+		if (idbValue == null || idbValue.trim().isEmpty()) {
             if (ibMeta.isRequired()) {
                 v.addValidation(inputName, Validator.IS_REQUIRED);
             }
@@ -116,9 +116,7 @@ public class ImportHelper {
      * @return The DisplayItemBean which is validated.
      */
     public DisplayItemBean validateDisplayItemBeanText(DiscrepancyValidator discValidator, DisplayItemBean dib, String inputName) {
-
-        // for single items
-        if (StringUtils.isBlank(inputName)) {
+        if (inputName == null || inputName.trim().isEmpty()) {
             inputName = getInputName(dib);
         }
 
@@ -136,7 +134,8 @@ public class ImportHelper {
          */
 
         if (!isNull) {
-            if (StringUtils.isBlank(idb.getValue())) {
+            String idbValue = idb.getValue();
+    		if (idbValue == null || idbValue.trim().isEmpty()) {
                 // check required first
                 if (ibMeta.isRequired()) {
                 	discValidator.addValidation(inputName, Validator.IS_REQUIRED);
@@ -179,7 +178,7 @@ public class ImportHelper {
                 }
 
                 String customValidationString = dib.getMetadata().getRegexp();
-                if (!StringUtils.isBlank(customValidationString)) {
+                if (!(customValidationString == null || customValidationString.trim().isEmpty())) {
                     Validation customValidation = null;
 
                     if (customValidationString.startsWith("func:")) {

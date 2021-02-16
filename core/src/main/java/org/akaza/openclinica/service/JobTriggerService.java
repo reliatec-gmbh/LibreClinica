@@ -21,6 +21,7 @@ import org.akaza.openclinica.dao.hibernate.RuleSetDao;
 import org.akaza.openclinica.dao.login.UserAccountDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.managestudy.StudySubjectDAO;
+import org.akaza.openclinica.domain.Status;
 import org.akaza.openclinica.domain.rule.RuleSetBean;
 import org.akaza.openclinica.domain.rule.expression.ExpressionBean;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
@@ -64,7 +65,7 @@ public class JobTriggerService {
         ResourceBundleProvider.updateLocale(new Locale("en_US"));
         ArrayList<RuleSetBean> ruleSets = ruleSetDao.findAllRunOnSchedules(true);
         for (RuleSetBean ruleSet : ruleSets) {
-            if (ruleSet.getStatus().AVAILABLE != null && ruleSet.isRunSchedule()) {
+			if (Status.AVAILABLE != null && ruleSet.isRunSchedule()) {
                 if(ruleSet.getItemId()!=null){ 
                      // item Specific Rule
                     ArrayList<RuleSetBean> ruleSetBeans = new ArrayList<>();

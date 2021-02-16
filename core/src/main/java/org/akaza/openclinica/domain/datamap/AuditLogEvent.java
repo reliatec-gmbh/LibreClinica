@@ -43,11 +43,9 @@ public class AuditLogEvent extends DataMapDomainObject implements Serializable{
 	private int auditId;
 	private Date auditDate;
 	private String auditTable;
-	private Integer userId;
 	private Integer entityId;
 	private String entityName;
 	private String reasonForChange;
-	//private Integer auditLogEventTypeId;
 	private String oldValue;
 	private String newValue;
 	private Integer eventCrfId;
@@ -74,7 +72,6 @@ public class AuditLogEvent extends DataMapDomainObject implements Serializable{
 		this.auditId = auditId;
 		this.auditDate = auditDate;
 		this.auditTable = auditTable;
-		this.userId = userId;
 		this.entityId = entityId;
 		this.entityName = entityName;
 		this.reasonForChange = reasonForChange;

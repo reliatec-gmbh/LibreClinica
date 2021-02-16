@@ -67,7 +67,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 import javax.servlet.http.HttpServletResponse;
-
+import static org.akaza.openclinica.core.util.ClassCastHelper.*;
 public class ListEventsForSubjectTableFactory extends AbstractTableFactory {
 
     private StudyEventDefinitionDAO studyEventDefinitionDao;
@@ -203,7 +203,6 @@ public class ListEventsForSubjectTableFactory extends AbstractTableFactory {
                 addSubjectLinkShow, showMoreLink));
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void setDataAndLimitVariables(TableFacade tableFacade) {
         Limit limit = tableFacade.getLimit();
@@ -237,7 +236,7 @@ public class ListEventsForSubjectTableFactory extends AbstractTableFactory {
             //study group classes
             SubjectGroupMapBean subjectGroupMapBean = new SubjectGroupMapBean();
             for (StudyGroupClassBean studyGroupClass : getStudyGroupClasses()) {
-                subjectGroupMapBean = getSubjectGroupMapDAO().findAllByStudySubjectAndStudyGroupClass(studySubjectBean.getId(), studyGroupClass.getId());
+                subjectGroupMapBean = getSubjectGroupMapDAO().findByStudySubjectAndStudyGroupClass(studySubjectBean.getId(), studyGroupClass.getId());
                 if (null != subjectGroupMapBean) {
                     theItem.put("sgc_" + studyGroupClass.getId(), subjectGroupMapBean.getStudyGroupId());
                     theItem.put("grpName_sgc_" + studyGroupClass.getId(), subjectGroupMapBean.getStudyGroupName());
@@ -380,7 +379,6 @@ public class ListEventsForSubjectTableFactory extends AbstractTableFactory {
         return listEventsForSubjectSort;
     }
 
-    @SuppressWarnings("unchecked")
     private ArrayList<StudyEventDefinitionBean> getStudyEventDefinitions() {
         if (this.studyEventDefinitions == null) {
             if (studyBean.getParentStudyId() > 0) {
@@ -393,7 +391,6 @@ public class ListEventsForSubjectTableFactory extends AbstractTableFactory {
         return this.studyEventDefinitions;
     }
 
-    @SuppressWarnings("unchecked")
     private ArrayList<CRFBean> getCrfs(StudyEventDefinitionBean eventDefinition) {
         if (this.crfBeans == null) {
             crfBeans = new ArrayList<CRFBean>();
@@ -414,7 +411,6 @@ public class ListEventsForSubjectTableFactory extends AbstractTableFactory {
         return crfBeans;
     }
 
-    @SuppressWarnings("unchecked")
     private ArrayList<StudyGroupClassBean> getStudyGroupClasses() {
         if (this.studyGroupClasses == null) {
             if (studyBean.getParentStudyId() > 0) {
@@ -670,7 +666,8 @@ public class ListEventsForSubjectTableFactory extends AbstractTableFactory {
         }
 
         public Object getValue(Object item, String property, int rowcount) {
-            groupName = (String) ((HashMap<Object, Object>) item).get("grpName_sgc_" + studyGroupClass.getId());
+            Object result = asHashMap(item, Object.class, Object.class).get("grpName_sgc_" + studyGroupClass.getId());
+            groupName = getAsType(result, String.class);
             return logic();
         }
     }
@@ -732,8 +729,7 @@ public class ListEventsForSubjectTableFactory extends AbstractTableFactory {
     }
 
     private class EventCrfCellEditor implements CellEditor {
-
-        SubjectEventStatus subjectEventStatus;  
+  
         DataEntryStage dataEntryStage;
         StudyEventBean studyEvent;
         StudySubjectBean studySubjectBean;
@@ -760,7 +756,6 @@ public class ListEventsForSubjectTableFactory extends AbstractTableFactory {
                 crf = (CRFBean) display.getProps().get(property + "_crf");
                 eventDefintionCrf = (EventDefinitionCRFBean) display.getProps().get(property + "_eventDefinitionCrf");
                 eventCrf = (EventCRFBean) display.getProps().get(property + "_eventCrf");
-                subjectEventStatus = (SubjectEventStatus) display.getProps().get("event.status");
                 studyEvent = (StudyEventBean) display.getProps().get("event");
                 studyEvents = new ArrayList<StudyEventBean>();
                

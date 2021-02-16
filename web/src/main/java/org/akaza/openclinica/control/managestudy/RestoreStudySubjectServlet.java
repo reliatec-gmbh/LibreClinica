@@ -7,18 +7,19 @@
  */
 package org.akaza.openclinica.control.managestudy;
 
+import java.util.ArrayList;
+import java.util.Date;
+
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.core.Status;
+import org.akaza.openclinica.bean.managestudy.DisplayStudyEventBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventBean;
 import org.akaza.openclinica.bean.managestudy.StudySubjectBean;
-import org.akaza.openclinica.bean.managestudy.DisplayStudyEventBean;
 import org.akaza.openclinica.bean.submit.EventCRFBean;
 import org.akaza.openclinica.bean.submit.ItemDataBean;
 import org.akaza.openclinica.bean.submit.SubjectBean;
 import org.akaza.openclinica.control.core.SecureController;
-import org.akaza.openclinica.core.EmailEngine;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDAO;
 import org.akaza.openclinica.dao.managestudy.StudySubjectDAO;
@@ -28,9 +29,6 @@ import org.akaza.openclinica.dao.submit.SubjectDAO;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 
-import java.util.ArrayList;
-import java.util.Date;
-
 /**
  * @author jxu
  *
@@ -38,6 +36,11 @@ import java.util.Date;
  */
 public class RestoreStudySubjectServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8873131468994509361L;
+
+	/**
      *
      */
     @Override
@@ -67,7 +70,9 @@ public class RestoreStudySubjectServlet extends SecureController {
         SubjectDAO sdao = new SubjectDAO(sm.getDataSource());
         StudySubjectDAO subdao = new StudySubjectDAO(sm.getDataSource());
 
-        if (StringUtil.isBlank(studySubIdString) || StringUtil.isBlank(subIdString) || StringUtil.isBlank(studyIdString)) {
+        if ((studySubIdString == null || studySubIdString.trim().isEmpty()) 
+        		|| (subIdString == null || subIdString.trim().isEmpty()) 
+        		|| (studyIdString == null || studyIdString.trim().isEmpty())) {
             addPageMessage(respage.getString("please_choose_study_subject_to_restore"));
             forwardPage(Page.LIST_STUDY_SUBJECTS_SERVLET);
         } else {
@@ -123,7 +128,7 @@ public class RestoreStudySubjectServlet extends SecureController {
                         sedao.update(event);
                     }
 
-                    ArrayList eventCRFs = ecdao.findAllByStudyEvent(event);
+                    ArrayList<EventCRFBean> eventCRFs = ecdao.findAllByStudyEvent(event);
 
                     ItemDataDAO iddao = new ItemDataDAO(sm.getDataSource());
                     for (int k = 0; k < eventCRFs.size(); k++) {
@@ -134,7 +139,7 @@ public class RestoreStudySubjectServlet extends SecureController {
                             eventCRF.setUpdatedDate(new Date());
                             ecdao.update(eventCRF);
                             // remove all the item data
-                            ArrayList itemDatas = iddao.findAllByEventCRFId(eventCRF.getId());
+                            ArrayList<ItemDataBean> itemDatas = iddao.findAllByEventCRFId(eventCRF.getId());
                             for (int a = 0; a < itemDatas.size(); a++) {
                                 ItemDataBean item = (ItemDataBean) itemDatas.get(a);
                                 if (item.getStatus().equals(Status.AUTO_DELETED)) {
@@ -161,22 +166,4 @@ public class RestoreStudySubjectServlet extends SecureController {
             }
         }
     }
-
-    /**
-     * Send email to director and administrator
-     *
-     * @param request
-     * @param response
-     */
-    private void sendEmail(String emailBody) throws Exception {
-
-        logger.info("Sending email...");
-        // to study director
-        boolean messageSent = sendEmail(ub.getEmail().trim(), respage.getString("restore_subject_to_study"), emailBody, false);
-        if(messageSent){
-            sendEmail(EmailEngine.getAdminEmail(), respage.getString("restore_subject_to_study"), emailBody, false);
-        }
-        logger.info("Sending email done..");
-    }
-
 }

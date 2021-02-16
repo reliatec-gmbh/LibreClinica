@@ -13,9 +13,9 @@ import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.submit.CRFVersionBean;
+import org.akaza.openclinica.bean.submit.EventCRFBean;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.admin.CRFDAO;
 import org.akaza.openclinica.dao.submit.CRFVersionDAO;
 import org.akaza.openclinica.dao.submit.EventCRFDAO;
@@ -24,6 +24,11 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
 
 public class UnlockCRFVersionServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 4176978527712991207L;
+
+	/**
     *
     */
    @Override
@@ -65,9 +70,9 @@ public class UnlockCRFVersionServlet extends SecureController {
        CRFBean crf = (CRFBean)cdao.findByPK(version.getCrfId());
        
        EventCRFDAO ecdao = new EventCRFDAO(sm.getDataSource());
-       ArrayList eventCRFs = ecdao.findAllStudySubjectByCRFVersion(crfVersionId);
+       ArrayList<EventCRFBean> eventCRFs = ecdao.findAllStudySubjectByCRFVersion(crfVersionId);
        
-       if (StringUtil.isBlank(action)) {
+       if (action == null || action.trim().isEmpty()) {
            request.setAttribute("crfVersionToUnlock", version);
            request.setAttribute("crf", crf);
            request.setAttribute("eventSubjectsUsingVersion", eventCRFs);

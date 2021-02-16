@@ -61,7 +61,7 @@ import org.jmesa.view.editor.BasicCellEditor;
 import org.jmesa.view.editor.CellEditor;
 import org.jmesa.view.html.HtmlBuilder;
 import org.jmesa.view.html.editor.DroplistFilterEditor;
-
+import static org.akaza.openclinica.core.util.ClassCastHelper.*;
 
 public class ViewRuleAssignmentTableFactory extends AbstractTableFactory {
 
@@ -381,17 +381,6 @@ public class ViewRuleAssignmentTableFactory extends AbstractTableFactory {
         this.itemFormMetadataDAO = itemFormMetadataDAO;
     }
 
-    private class AvailableDroplistFilterEditor extends DroplistFilterEditor {
-        @Override
-        protected List<Option> getOptions() {
-            List<Option> options = new ArrayList<Option>();
-            for (LoginStatus loginStatus : LoginStatus.values()) {
-                options.add(new Option(loginStatus.name(), loginStatus.toString()));
-            }
-            return options;
-        }
-    }
-
     private class AvailableFilterMatcher implements FilterMatcher {
         public boolean evaluate(Object itemValue, String filterValue) {
 
@@ -409,14 +398,14 @@ public class ViewRuleAssignmentTableFactory extends AbstractTableFactory {
     private class ItemCellEditor implements CellEditor {
         ItemBean theItem;
 
-        @SuppressWarnings("unchecked")
         public Object getValue(Object item, String property, int rowcount) {
 
             String value = null;
             HtmlBuilder builder = new HtmlBuilder();
             String mouseOver = "this.style.textDecoration='underline';";
             String mouseOut = "this.style.textDecoration='none';";
-            theItem = (ItemBean) ((HashMap<Object, Object>) item).get("item");
+            HashMap<Object,Object> map = asHashMap(item, Object.class, Object.class);
+            theItem = getAsType(map.get("item"), ItemBean.class);
 
             value =
                 builder.a().href("javascript: openDocWindow('ViewItemDetail?itemId=" +(theItem!=null?theItem.getId():"" ) + "')").style("color: #789EC5;text-decoration: none;")
@@ -438,7 +427,6 @@ public class ViewRuleAssignmentTableFactory extends AbstractTableFactory {
             this.isExport = isExport;
         }
 
-        @SuppressWarnings("unchecked")
         public Object getValue(Object item, String property, int rowcount) {
             return isExport ? renderExportValue(item, property, rowcount) : renderHtmlValue(item, property, rowcount);
 
@@ -448,9 +436,10 @@ public class ViewRuleAssignmentTableFactory extends AbstractTableFactory {
 
             String value = null;
             HtmlBuilder builder = new HtmlBuilder();
-            theItem = (ItemBean) ((HashMap<Object, Object>) item).get("item");
-            crf = (CRFBean) ((HashMap<Object, Object>) item).get("crf");
-            crfVersion = (CRFVersionBean) ((HashMap<Object, Object>) item).get("crfVersion");
+            HashMap<Object,Object> map = asHashMap(item, Object.class, Object.class);
+            theItem = getAsType(map.get("item"), ItemBean.class);
+            crf = getAsType(map.get("crf"), CRFBean.class);
+            crfVersion = getAsType(map.get("crfVersion"), CRFVersionBean.class);
 
             if (crfVersion != null) {
                 ItemFormMetadataBean ifm = getItemFormMetadataDAO().findByItemIdAndCRFVersionId(theItem!=null?theItem.getId():0, crfVersion.getId());
@@ -488,9 +477,10 @@ public class ViewRuleAssignmentTableFactory extends AbstractTableFactory {
 
             String value = null;
             HtmlBuilder builder = new HtmlBuilder();
-            theItem = (ItemBean) ((HashMap<Object, Object>) item).get("item");
-            crf = (CRFBean) ((HashMap<Object, Object>) item).get("crf");
-            crfVersion = (CRFVersionBean) ((HashMap<Object, Object>) item).get("crfVersion");
+            HashMap<Object,Object> map = asHashMap(item, Object.class, Object.class);
+            theItem = getAsType(map.get("item"), ItemBean.class);
+            crf = getAsType(map.get("crf"), CRFBean.class);
+            crfVersion = getAsType(map.get("crfVersion"), CRFVersionBean.class);
 
             if (crfVersion != null) {
                 ItemFormMetadataBean ifm = getItemFormMetadataDAO().findByItemIdAndCRFVersionId(theItem.getId(), crfVersion.getId());
@@ -533,7 +523,6 @@ public class ViewRuleAssignmentTableFactory extends AbstractTableFactory {
             // TODO Auto-generated constructor stub
         }
 
-        @SuppressWarnings("unchecked")
         public Object getValue(Object item, String property, int rowcount) {
 
             if (isExport) {
@@ -543,24 +532,22 @@ public class ViewRuleAssignmentTableFactory extends AbstractTableFactory {
             }
         }
 
-        public Object renderHtmlValue(Object item, String property, int rowcount) {
+		public Object renderHtmlValue(Object item, String property, int rowcount) {
 
             HtmlBuilder builder = new HtmlBuilder();
-            actions = (List<RuleActionBean>) ((HashMap<Object, Object>) item).get("theActions");
+            HashMap<Object,Object> map = asHashMap(item, Object.class, Object.class);
+            actions = asList(map.get("theActions"), RuleActionBean.class);
 
-            // builder.table(1).close();
             for (RuleActionBean ruleAction : actions) {
                 builder.append(ruleAction.getExpressionEvaluatesTo() + "<br/>");
-                // builder.tr(1).close().td(1).close().append(ruleAction.getExpressionEvaluatesTo()).tdEnd().trEnd(1);
             }
-            // builder.tableEnd(1);
-
             return builder.toString();
         }
 
-        public Object renderExportValue(Object item, String property, int rowcount) {
+		public Object renderExportValue(Object item, String property, int rowcount) {
 
-            actions = (List<RuleActionBean>) ((HashMap<Object, Object>) item).get("theActions");
+            HashMap<Object,Object> map = asHashMap(item, Object.class, Object.class);
+            actions = asList(map.get("theActions"), RuleActionBean.class);
             String expressionEvaluatesTo = actions.size() > 0 ? String.valueOf(actions.get(0).getExpressionEvaluatesTo()) : "";
             for (int i = 1; i < actions.size(); i++) {
                 expressionEvaluatesTo += " - " + actions.get(i).getExpressionEvaluatesTo();
@@ -580,7 +567,6 @@ public class ViewRuleAssignmentTableFactory extends AbstractTableFactory {
             // TODO Auto-generated constructor stub
         }
 
-        @SuppressWarnings("unchecked")
         public Object getValue(Object item, String property, int rowcount) {
 
             if (isExport) {
@@ -593,7 +579,8 @@ public class ViewRuleAssignmentTableFactory extends AbstractTableFactory {
         public Object renderHtmlValue(Object item, String property, int rowcount) {
 
             HtmlBuilder builder = new HtmlBuilder();
-            actions = (List<RuleActionBean>) ((HashMap<Object, Object>) item).get("theActions");
+            HashMap<Object,Object> map = asHashMap(item, Object.class, Object.class);
+            actions = asList(map.get("theActions"), RuleActionBean.class);
 
             // builder.table(1).close();
             for (RuleActionBean ruleAction : actions) {
@@ -607,7 +594,8 @@ public class ViewRuleAssignmentTableFactory extends AbstractTableFactory {
 
         public Object renderExportValue(Object item, String property, int rowcount) {
 
-            actions = (List<RuleActionBean>) ((HashMap<Object, Object>) item).get("theActions");
+            HashMap<Object,Object> map = asHashMap(item, Object.class, Object.class);
+            actions = asList(map.get("theActions"), RuleActionBean.class);
             String expressionEvaluatesTo = actions.size() > 0 ? String.valueOf(actions.get(0).getActionType().getDescription()) : "";
             for (int i = 1; i < actions.size(); i++) {
                 expressionEvaluatesTo += " ; " + actions.get(i).getActionType().getDescription();
@@ -625,7 +613,6 @@ public class ViewRuleAssignmentTableFactory extends AbstractTableFactory {
             // TODO Auto-generated constructor stub
         }
 
-        @SuppressWarnings("unchecked")
         public Object getValue(Object item, String property, int rowcount) {
 
             if (isExport) {
@@ -638,7 +625,8 @@ public class ViewRuleAssignmentTableFactory extends AbstractTableFactory {
         public Object renderHtmlValue(Object item, String property, int rowcount) {
 
             HtmlBuilder builder = new HtmlBuilder();
-            actions = (List<RuleActionBean>) ((HashMap<Object, Object>) item).get("theActions");
+            HashMap<Object,Object> map = asHashMap(item, Object.class, Object.class);
+            actions = asList(map.get("theActions"), RuleActionBean.class);
 
             builder.table(1).close();
             for (RuleActionBean ruleAction : actions) {
@@ -667,7 +655,8 @@ public class ViewRuleAssignmentTableFactory extends AbstractTableFactory {
 
         public Object renderExportValue(Object item, String property, int rowcount) {
 
-            actions = (List<RuleActionBean>) ((HashMap<Object, Object>) item).get("theActions");
+            HashMap<Object,Object> map = asHashMap(item, Object.class, Object.class);
+            actions = asList(map.get("theActions"), RuleActionBean.class);
             String expressionEvaluatesTo = actions.size() > 0 ? String.valueOf(actions.get(0).getSummary()) : "";
             for (int i = 1; i < actions.size(); i++) {
                 expressionEvaluatesTo += " ; " + actions.get(i).getSummary();
@@ -926,18 +915,6 @@ public class ViewRuleAssignmentTableFactory extends AbstractTableFactory {
         actionLink.img().name("bt_Download").src("images/bt_Download.gif").border("0").alt("Download XML").title("Download XML").append("hspace=\"2\"").end()
                 .aEnd();
         actionLink.append("&nbsp;&nbsp;&nbsp;");
-        return actionLink.toString();
-
-    }
-
-    private String executeLinkBuilder(Integer ruleSetId) {
-        HtmlBuilder actionLink = new HtmlBuilder();
-        actionLink.a().href("RunRuleSet?ruleSetId=" + ruleSetId);
-        actionLink.append("onMouseDown=\"javascript:setImage('bt_run','images/bt_ExexuteRules.gif');\"");
-        actionLink.append("onMouseUp=\"javascript:setImage('bt_run','images/bt_ExexuteRules.gif');\"").close();
-        actionLink.img().name("Run").src("images/bt_ExexuteRules.gif").border("0").alt("Run").title("Run").append("hspace=\"2\"").end().aEnd();
-        actionLink.append("&nbsp;&nbsp;&nbsp;");
-  
         return actionLink.toString();
 
     }

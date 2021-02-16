@@ -134,7 +134,7 @@ public class ResetPasswordServlet extends SecureController {
             }
             errors = v.validate();
             for (String err: pwdErrors) {
-                v.addError(errors, "passwd", err);
+                Validator.addError(errors, "passwd", err);
             }
 
             if (!errors.isEmpty()) {

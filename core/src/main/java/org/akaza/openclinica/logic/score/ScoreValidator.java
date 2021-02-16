@@ -86,7 +86,6 @@ public class ScoreValidator {
         exp = exp.replaceAll("##", ",");
 
         String token = "";
-        String finalExpression = "";
         ScoreUtil.Info info = new ScoreUtil.Info();
         info.pos = 0;
         info.level = 0;
@@ -122,7 +121,6 @@ public class ScoreValidator {
                 if (token.length() > 0 && !isNumber(token) && !allVariables.contains(token)) {
                     allVariables.add(token);
                 }
-                finalExpression += token + c;
                 token = "";
             } else if (c == '(') {
                 if (!noCommaEnds(token)) {
@@ -134,8 +132,6 @@ public class ScoreValidator {
                     if (!isValidFunction(contents, info, token, err, allVariables)) {
                         errors.append(err);
                     }
-                    // fake a result to carry on syntax check
-                    finalExpression += "0";
                 } else {
                     if (token.length() > 1) {
                         // errors.append(token + " " + "is not a valid function
@@ -148,12 +144,9 @@ public class ScoreValidator {
                         if (!isValidFunction(contents, info, token, err, variables)) {
                             errors.append(err);
                         }
-                        // fake a function result to carry on syntax check
-                        finalExpression += "0";
                     } else {
                         // just append it then
                         info.level++;
-                        finalExpression += token + c;
                     }
                 }
                 token = "";
@@ -166,7 +159,6 @@ public class ScoreValidator {
                 if (token.length() > 0 && !isNumber(token) && !allVariables.contains(token)) {
                     allVariables.add(token);
                 }
-                finalExpression += token + c;
                 token = "";
                 info.level--;
             } else if (c == ',') {
@@ -206,7 +198,6 @@ public class ScoreValidator {
             errors.append(resexception.getString("expression") + " " + exp + " " + resexception.getString("is_invalid_because_wrong_paired_parenthesises")
                 + "; ");
         }
-        finalExpression += token;
 
         if (errors != null && errors.length() > 1)
             return false;
@@ -229,14 +220,14 @@ public class ScoreValidator {
         logger.debug("found height: " + height);
         String width = values[3];
         try {
-        	Integer neightInt = new Integer(height);
+        	new Integer(height);
         } catch (NumberFormatException npe) {
         	errors.append("Your expression in getExternalValues is incorrect: the third value should be a number, not '" + height + "'; ");
         }
         width = width.replace(")", "");
         logger.debug("found width: " + width);
         try {
-        	Integer widthInt = new Integer(width);
+        	new Integer(width);
         } catch (NumberFormatException npe) {
         	errors.append("Your expression in getExternalValues is incorrect: the fourth value should be a number, not '" + width + "'; ");
         }
@@ -595,7 +586,7 @@ public class ScoreValidator {
 
     public static boolean isNumber(String variable) {
         try {
-            Double d = Double.parseDouble(variable);
+            Double.parseDouble(variable);
         } catch (Exception e) {
             return false;
         }

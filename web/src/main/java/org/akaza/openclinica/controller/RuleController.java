@@ -34,7 +34,6 @@ import org.akaza.openclinica.domain.rule.RuleBean;
 import org.akaza.openclinica.domain.rule.RuleSetBean;
 import org.akaza.openclinica.domain.rule.RuleSetRuleBean;
 import org.akaza.openclinica.domain.rule.RulesPostImportContainer;
-import org.akaza.openclinica.domain.rule.RunOnSchedule;
 import org.akaza.openclinica.domain.rule.action.*;
 import org.akaza.openclinica.domain.rule.expression.Context;
 import org.akaza.openclinica.domain.rule.expression.ExpressionBean;
@@ -46,7 +45,7 @@ import org.akaza.openclinica.logic.odmExport.AdminDataCollector;
 import org.akaza.openclinica.logic.odmExport.MetaDataCollector;
 import org.akaza.openclinica.service.rule.RuleSetServiceInterface;
 import org.akaza.openclinica.service.rule.RulesPostImportContainerService;
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.joda.time.format.PeriodFormatter;
@@ -235,10 +234,6 @@ public class RuleController {
     public ModelAndView studyMetadata(Model model, HttpSession session, @PathVariable("study") String studyOid, HttpServletResponse response) throws Exception {
         ResourceBundleProvider.updateLocale(new Locale("en_US"));
         StudyBean currentStudy = (StudyBean) session.getAttribute("study");
-        UserAccountBean userAccount = (UserAccountBean) session.getAttribute("userBean");
-
-        UserAccountDAO userAccountDao = new UserAccountDAO(dataSource);
-        userAccount = (UserAccountBean) userAccountDao.findByUserName("root");
 
         StudyDAO studyDao = new StudyDAO(dataSource);
         currentStudy = studyDao.findByOid(studyOid);
@@ -415,7 +410,7 @@ public class RuleController {
             }
         } else if ((rpic.getDuplicateRuleDefs().size() > 0) && !ignoreDuplicates) {
             response.setValid(Boolean.FALSE);
-            for (AuditableBeanWrapper<RuleBean> beanWrapper : rpic.getDuplicateRuleDefs()) {
+            for (int i = 0; i < rpic.getDuplicateRuleDefs().size(); i++) {
                 org.openclinica.ns.response.v31.MessagesType messageType = new MessagesType();
                 messageType.setMessage(DUPLICATE_MESSAGE);
                 response.getMessages().add(messageType);
@@ -481,8 +476,6 @@ public class RuleController {
 
         // Run expression with empty HashMap to check rule validity, because
         // using illegal test values will cause invalidity
-        HashMap<String, String> k = new HashMap<String, String>();
-        HashMap<String, String> theResult = ep.testEvaluateExpression(k);
         ruleTest.getParameters().clear();
         for (Map.Entry<String, String> entry : result.entrySet()) {
             ParameterType parameterType = new ParameterType();

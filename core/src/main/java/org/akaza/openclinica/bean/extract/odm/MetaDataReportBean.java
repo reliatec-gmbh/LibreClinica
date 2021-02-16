@@ -14,6 +14,14 @@
  */
 package org.akaza.openclinica.bean.extract.odm;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.odmbeans.BasicDefinitionsBean;
 import org.akaza.openclinica.bean.odmbeans.CodeListBean;
@@ -59,20 +67,13 @@ import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.ValidationException;
 import org.exolab.castor.xml.XMLContext;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-
 /**
  * Create ODM XML Study Element for a study.
  * 
  * @author ywang (May, 2008)
  */
 
+@SuppressWarnings("deprecation")
 public class MetaDataReportBean extends OdmXmlReportBean {
     private OdmStudyBean odmstudy;
     private LinkedHashMap<String, OdmStudyBean> odmStudyMap;
@@ -135,7 +136,7 @@ public class MetaDataReportBean extends OdmXmlReportBean {
         xml.append(nls);
     }
 
-    private String handleLoadCastor(RulesPostImportContainer rpic) {
+	private String handleLoadCastor(RulesPostImportContainer rpic) {
 
         try {
             // Create Mapping
@@ -232,7 +233,6 @@ public class MetaDataReportBean extends OdmXmlReportBean {
         SymbolBean symbol = unit.getSymbol();
         StringBuffer xml = this.getXmlOutput();
         String indent = this.getIndent();
-        ArrayList<TranslatedTextBean> texts = symbol.getTranslatedText();
         xml.append(currentIndent + "<Symbol>");
         xml.append(nls);
         for (TranslatedTextBean text : symbol.getTranslatedText()) {
@@ -400,8 +400,7 @@ public class MetaDataReportBean extends OdmXmlReportBean {
         }
     }
     
-    
-    public void addItemGroupDef(boolean isStudy, String currentIndent) {
+	public void addItemGroupDef(boolean isStudy, String currentIndent) {
         StringBuffer xml = this.getXmlOutput();
         String indent = this.getIndent();
         ArrayList<ItemGroupDefBean> igs = (ArrayList<ItemGroupDefBean>) odmstudy.getMetaDataVersion().getItemGroupDefs();
@@ -432,7 +431,7 @@ public class MetaDataReportBean extends OdmXmlReportBean {
         }
     }
 
-    public void addItemDef(boolean isStudy, String currentIndent) {
+	public void addItemDef(boolean isStudy, String currentIndent) {
         StringBuffer xml = this.getXmlOutput();
         String indent = this.getIndent();
         ArrayList<ItemDefBean> items = (ArrayList<ItemDefBean>) odmstudy.getMetaDataVersion().getItemDefs();

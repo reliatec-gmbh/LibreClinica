@@ -7,6 +7,8 @@
  */
 package org.akaza.openclinica.control.admin;
 
+import java.util.ArrayList;
+
 import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.core.ResolutionStatus;
 import org.akaza.openclinica.bean.core.Status;
@@ -22,9 +24,6 @@ import org.akaza.openclinica.bean.submit.CRFVersionBean;
 import org.akaza.openclinica.bean.submit.DisplayEventCRFBean;
 import org.akaza.openclinica.bean.submit.EventCRFBean;
 import org.akaza.openclinica.bean.submit.ItemDataBean;
-import org.akaza.openclinica.bean.submit.ItemFormMetadataBean;
-import org.akaza.openclinica.bean.submit.ItemGroupMetadataBean;
-import org.akaza.openclinica.bean.submit.ResponseSetBean;
 import org.akaza.openclinica.control.SpringServletAccess;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
@@ -43,13 +42,8 @@ import org.akaza.openclinica.dao.submit.EventCRFDAO;
 import org.akaza.openclinica.dao.submit.ItemDataDAO;
 import org.akaza.openclinica.dao.submit.ItemFormMetadataDAO;
 import org.akaza.openclinica.dao.submit.ItemGroupMetadataDAO;
-import org.akaza.openclinica.domain.datamap.DnItemDataMap;
-import org.akaza.openclinica.domain.datamap.DnItemDataMapId;
-import org.akaza.openclinica.domain.rule.action.RuleActionRunLogBean;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
-
-import java.util.ArrayList;
 
 /**
  * @author jxu
@@ -57,6 +51,11 @@ import java.util.ArrayList;
  *         TODO To change the template for this generated type comment go to Window - Preferences - Java - Code Style - Code Templates
  */
 public class DeleteEventCRFServlet extends SecureController {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5105738484603763829L;
+
 	public static String STUDY_SUB_ID = "ssId";
 
 	public static String EVENT_CRF_ID = "ecId";
@@ -179,9 +178,6 @@ public class DeleteEventCRFServlet extends SecureController {
 					}
 					iddao = new ItemDataDAO(sm.getDataSource());
 					ifmdao = new ItemFormMetadataDAO(sm.getDataSource());
-					ItemDataBean idBean = (ItemDataBean) iddao.findByPK(itemdata.getId());
-
-					ItemFormMetadataBean ifmBean = ifmdao.findByItemIdAndCRFVersionId(idBean.getItemId(), crfVersionId);
 
 					// Updating Dn_item_data_map actovated column into false for the existing DNs
 					ArrayList<DiscrepancyNoteBean> dnBeans = getDnDao().findExistingNotesForItemData(itemdata.getId());

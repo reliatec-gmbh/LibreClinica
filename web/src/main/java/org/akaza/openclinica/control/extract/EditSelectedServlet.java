@@ -7,6 +7,13 @@
  */
 package org.akaza.openclinica.control.extract;
 
+import static org.akaza.openclinica.core.util.ClassCastHelper.asArrayList;
+
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Locale;
+
 import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.extract.DatasetBean;
@@ -25,13 +32,6 @@ import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Locale;
-
 /**
  * @author jxu
  *
@@ -39,7 +39,11 @@ import java.util.Locale;
  */
 public class EditSelectedServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 7788585798902319150L;
+	Locale locale;
 
     // < ResourceBundlerespage,resexception;
 
@@ -69,7 +73,7 @@ public class EditSelectedServlet extends SecureController {
      * TODO this function exists in four different places... needs to be added to an additional superclass for Submit Data Control Servlets, tbh July 2007
      */
     public void setUpStudyGroups() {
-        ArrayList sgclasses = (ArrayList) session.getAttribute("allSelectedGroups");
+        ArrayList<StudyGroupClassBean> sgclasses = asArrayList(session.getAttribute("allSelectedGroups"), StudyGroupClassBean.class);
         if (sgclasses == null || sgclasses.size() == 0) {
             StudyDAO studydao = new StudyDAO(sm.getDataSource());
             StudyGroupClassDAO sgclassdao = new StudyGroupClassDAO(sm.getDataSource());
@@ -104,7 +108,8 @@ public class EditSelectedServlet extends SecureController {
         // HashMap eventlist = (HashMap) request.getAttribute("eventlist");
         // if (eventlist == null) {
         // System.out.println("TTTTT found the second hashmap!");
-        HashMap eventlist = (LinkedHashMap) session.getAttribute("eventsForCreateDataset");
+        @SuppressWarnings("unchecked")
+		HashMap<StudyEventDefinitionBean, ?> eventlist = (HashMap<StudyEventDefinitionBean, ?>) session.getAttribute("eventsForCreateDataset");
         // }
         ArrayList<String> ids = CreateDatasetServlet.allSedItemIdsInStudy(eventlist, crfdao, idao);
         // >> tbh 11/09, need to fill in a session variable
@@ -146,9 +151,9 @@ public class EditSelectedServlet extends SecureController {
             db.setShowSubjectUniqueIdentifier(true);
 
             // select all groups
-            ArrayList sgclasses = (ArrayList) session.getAttribute("allSelectedGroups");
+            ArrayList<StudyGroupClassBean> sgclasses = asArrayList(session.getAttribute("allSelectedGroups"), StudyGroupClassBean.class);
             //
-            ArrayList newsgclasses = new ArrayList();
+            ArrayList<StudyGroupClassBean> newsgclasses = new ArrayList<>();
             StudyDAO studydao = new StudyDAO(sm.getDataSource());
             StudyGroupClassDAO sgclassdao = new StudyGroupClassDAO(sm.getDataSource());
             StudyBean theStudy = (StudyBean) studydao.findByPK(sm.getUserBean().getActiveStudyId());
@@ -163,12 +168,12 @@ public class EditSelectedServlet extends SecureController {
         }
 
         session.setAttribute("newDataset", db);
-
-        HashMap events = (HashMap) session.getAttribute(CreateDatasetServlet.EVENTS_FOR_CREATE_DATASET);
+    	@SuppressWarnings("unchecked")
+		HashMap<StudyEventDefinitionBean, ?> events = (HashMap<StudyEventDefinitionBean, ?>) session.getAttribute(CreateDatasetServlet.EVENTS_FOR_CREATE_DATASET);
         if (events == null) {
-            events = new HashMap();
+            events = new HashMap<>();
         }
-        ArrayList allSelectItems = selectAll ? selectAll(events, crfdao, idao) : ViewSelectedServlet.getAllSelected(db, idao, imfdao);
+        ArrayList<ItemBean> allSelectItems = selectAll ? selectAll(events, crfdao, idao) : ViewSelectedServlet.getAllSelected(db, idao, imfdao);
         // >> tbh
         session.setAttribute("numberOfStudyItems", new Integer(ids.size()).toString());
         // << tbh 11/2009
@@ -179,18 +184,17 @@ public class EditSelectedServlet extends SecureController {
     }
 
     public DatasetBean selectAll(DatasetBean db) {
-        HashMap events = (HashMap) session.getAttribute(CreateDatasetServlet.EVENTS_FOR_CREATE_DATASET);
+    	@SuppressWarnings("unchecked")
+    	HashMap<StudyEventDefinitionBean, ArrayList<CRFBean>> events = (HashMap<StudyEventDefinitionBean, ArrayList<CRFBean>>) session.getAttribute(CreateDatasetServlet.EVENTS_FOR_CREATE_DATASET);
         if (events == null) {
-            events = new HashMap();
+            events = new HashMap<>();
         }
         request.setAttribute("eventlist", events);
 
         ItemDAO idao = new ItemDAO(sm.getDataSource());
         CRFDAO crfdao = new CRFDAO(sm.getDataSource());
-        ArrayList allItems = selectAll(events, crfdao, idao);
-        Iterator it = events.keySet().iterator();
-        while (it.hasNext()) {
-            StudyEventDefinitionBean sed = (StudyEventDefinitionBean) it.next();
+        ArrayList<ItemBean> allItems = selectAll(events, crfdao, idao);
+        for(StudyEventDefinitionBean sed : events.keySet()) {
             if (!db.getEventIds().contains(new Integer(sed.getId()))) {
                 db.getEventIds().add(new Integer(sed.getId()));
             }
@@ -218,17 +222,14 @@ public class EditSelectedServlet extends SecureController {
      * @param events
      * @return
      */
-    public static ArrayList selectAll(HashMap events, CRFDAO crfdao, ItemDAO idao) {
+    public static ArrayList<ItemBean> selectAll(HashMap<StudyEventDefinitionBean, ?> events, CRFDAO crfdao, ItemDAO idao) {
+        ArrayList<ItemBean> allItems = new ArrayList<>();
 
-        ArrayList allItems = new ArrayList();
-
-        Iterator it = events.keySet().iterator();
-        while (it.hasNext()) {
-            StudyEventDefinitionBean sed = (StudyEventDefinitionBean) it.next();
-            ArrayList crfs = (ArrayList) crfdao.findAllActiveByDefinition(sed);
+        for(StudyEventDefinitionBean sed : events.keySet()) {
+            ArrayList<CRFBean> crfs = crfdao.findAllActiveByDefinition(sed);
             for (int i = 0; i < crfs.size(); i++) {
                 CRFBean crf = (CRFBean) crfs.get(i);
-                ArrayList items = idao.findAllActiveByCRF(crf);
+                ArrayList<ItemBean> items = idao.findAllActiveByCRF(crf);
                 for (int j = 0; j < items.size(); j++) {
                     ItemBean item = (ItemBean) items.get(j);
                     item.setCrfName(crf.getName());

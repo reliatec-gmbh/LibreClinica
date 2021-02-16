@@ -16,7 +16,8 @@ import java.util.Map;
  *
  */
 public interface Preview {
-    Map<String, Map> createCrfMetaObject(HSSFWorkbook workbook);
+	@SuppressWarnings("rawtypes")
+	Map<String, Map> createCrfMetaObject(HSSFWorkbook workbook);
 
     Map<Integer, Map<String, String>> createItemsOrSectionMap(HSSFWorkbook workbook, String itemsOrSection);
 

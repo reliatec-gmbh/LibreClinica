@@ -7,26 +7,24 @@
  */
 package org.akaza.openclinica.dao.submit;
 
-import org.akaza.openclinica.bean.core.EntityBean;
-import org.akaza.openclinica.bean.submit.SubjectGroupMapBean;
-import org.akaza.openclinica.dao.core.AuditableEntityDAO;
-import org.akaza.openclinica.dao.core.DAODigester;
-import org.akaza.openclinica.dao.core.SQLFactory;
-import org.akaza.openclinica.dao.core.TypeNames;
-
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
 
 import javax.sql.DataSource;
 
+import org.akaza.openclinica.bean.submit.SubjectGroupMapBean;
+import org.akaza.openclinica.dao.core.AuditableEntityDAO;
+import org.akaza.openclinica.dao.core.DAODigester;
+import org.akaza.openclinica.dao.core.SQLFactory;
+import org.akaza.openclinica.dao.core.TypeNames;
+
 /**
  * @author jxu
  * 
  */
-public class SubjectGroupMapDAO extends AuditableEntityDAO {
+public class SubjectGroupMapDAO extends AuditableEntityDAO<SubjectGroupMapBean> {
 
     private void setQueryNames() {
         this.getCurrentPKName = "getCurrentPK";
@@ -83,7 +81,6 @@ public class SubjectGroupMapDAO extends AuditableEntityDAO {
 
         this.setTypeExpected(9, TypeNames.INT);
         this.setTypeExpected(10, TypeNames.STRING);
-
     }
 
     /**
@@ -91,7 +88,7 @@ public class SubjectGroupMapDAO extends AuditableEntityDAO {
      * getEntityFromHashMap, the method that gets the object from the database
      * query.
      */
-    public Object getEntityFromHashMap(HashMap hm) {
+    public SubjectGroupMapBean getEntityFromHashMap(HashMap<String, Object> hm) {
         SubjectGroupMapBean eb = new SubjectGroupMapBean();
         super.setEntityAuditInformation(eb, hm);
         // subject_group_map_id serial NOT NULL,
@@ -113,29 +110,20 @@ public class SubjectGroupMapDAO extends AuditableEntityDAO {
         return eb;
     }
 
-    public Collection findAll() {
-        this.setTypesExpected();
-        ArrayList alist = this.select(digester.getQuery("findAll"));
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            SubjectGroupMapBean eb = (SubjectGroupMapBean) this.getEntityFromHashMap((HashMap) it.next());
-            al.add(eb);
-        }
-        return al;
+    public ArrayList<SubjectGroupMapBean> findAll() {
+    	String queryName = "findAll";
+        return executeFindAllQuery(queryName);
     }
 
-    public Collection findAllByStudySubject(int studySubjectId) {
+    public ArrayList<SubjectGroupMapBean> findAllByStudySubject(int studySubjectId) {
         setTypesExpected();
         this.setTypeExpected(11, TypeNames.STRING);
         this.setTypeExpected(12, TypeNames.STRING);
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(studySubjectId));
-        ArrayList alist = this.select(digester.getQuery("findAllByStudySubject"), variables);
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            HashMap hm = (HashMap) it.next();
+        
+        HashMap<Integer, Object> variables = variables(studySubjectId);
+        ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findAllByStudySubject"), variables);
+        ArrayList<SubjectGroupMapBean> al = new ArrayList<>();
+        for(HashMap<String, Object> hm : alist) {
             SubjectGroupMapBean eb = (SubjectGroupMapBean) this.getEntityFromHashMap(hm);
             eb.setStudyGroupName(((String) hm.get("group_name")));
             eb.setGroupClassName(((String) hm.get("class_name")));
@@ -144,18 +132,15 @@ public class SubjectGroupMapDAO extends AuditableEntityDAO {
         return al;
     }
 
-    public SubjectGroupMapBean findAllByStudySubjectAndStudyGroupClass(int studySubjectId, int studyGroupClassId) {
+    public SubjectGroupMapBean findByStudySubjectAndStudyGroupClass(int studySubjectId, int studyGroupClassId) {
         setTypesExpected();
         this.setTypeExpected(11, TypeNames.STRING);
         this.setTypeExpected(12, TypeNames.STRING);
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(studySubjectId));
-        variables.put(new Integer(2), new Integer(studyGroupClassId));
-        ArrayList alist = this.select(digester.getQuery("findByStudySubjectAndStudyGroupClass"), variables);
+        HashMap<Integer, Object> variables = variables(studySubjectId, studyGroupClassId);
+        ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findByStudySubjectAndStudyGroupClass"), variables);
         SubjectGroupMapBean eb = null;
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            HashMap hm = (HashMap) it.next();
+        if(alist != null && alist.size() > 0) {
+            HashMap<String, Object> hm = alist.get(0);
             eb = (SubjectGroupMapBean) this.getEntityFromHashMap(hm);
             eb.setStudyGroupName(((String) hm.get("group_name")));
             eb.setGroupClassName(((String) hm.get("class_name")));
@@ -163,36 +148,24 @@ public class SubjectGroupMapDAO extends AuditableEntityDAO {
         return eb;
     }
 
-    public Collection findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<SubjectGroupMapBean> findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+        throw new RuntimeException("Not implemented");
     }
 
-    public EntityBean findByPK(int ID) {
-        SubjectGroupMapBean eb = new SubjectGroupMapBean();
-        this.setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(ID));
-
-        String sql = digester.getQuery("findByPK");
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            eb = (SubjectGroupMapBean) this.getEntityFromHashMap((HashMap) it.next());
-        }
-
-        return eb;
+    public SubjectGroupMapBean findByPK(int ID) {
+    	String queryName = "findByPK";
+        HashMap<Integer, Object> variables = variables(ID);
+        return executeFindByPKQuery(queryName, variables);
     }
 
     /**
      * Creates a new subject
      */
-    public EntityBean create(EntityBean eb) {
-        SubjectGroupMapBean sb = (SubjectGroupMapBean) eb;
-        HashMap variables = new HashMap();
+    public SubjectGroupMapBean create(SubjectGroupMapBean sb) {
+        HashMap<Integer, Object> variables = new HashMap<>();
         // INSERT INTO SUBJECT_GROUP_MAP (study_group_class_id,
         // study_subject_id, study_group_id,
         // status_id, owner_id,date_created,
@@ -205,7 +178,7 @@ public class SubjectGroupMapDAO extends AuditableEntityDAO {
         variables.put(new Integer(6), sb.getNotes());
         // DATE_CREATED is now()
 
-        this.execute(digester.getQuery("create"), variables);
+        this.executeUpdate(digester.getQuery("create"), variables);
 
         return sb;
     }
@@ -216,9 +189,8 @@ public class SubjectGroupMapDAO extends AuditableEntityDAO {
      * 
      * @return sb, an updated study bean.
      */
-    public EntityBean update(EntityBean eb) {
-        SubjectGroupMapBean sb = (SubjectGroupMapBean) eb;
-        HashMap variables = new HashMap();
+    public SubjectGroupMapBean update(SubjectGroupMapBean sb) {
+        HashMap<Integer, Object> variables = new HashMap<>();
         // UPDATE SUBJECT_GROUP_MAP SET STUDY_GROUP_CLASS_ID=?,
         // STUDY_SUBJECT_ID=?,STUDY_GROUP_ID=?,
         // STATUS_ID=?,DATE_UPDATED=?, UPDATE_ID=? , notes = ?
@@ -234,22 +206,22 @@ public class SubjectGroupMapDAO extends AuditableEntityDAO {
         variables.put(new Integer(7), sb.getNotes());
 
         String sql = digester.getQuery("update");
-        this.execute(sql, variables);
+        this.executeUpdate(sql, variables);
 
         return sb;
     }
 
-    public ArrayList findAllByStudyGroupClassAndGroup(int studyGroupClassId, int studyGroupId) {
+    public ArrayList<SubjectGroupMapBean> findAllByStudyGroupClassAndGroup(int studyGroupClassId, int studyGroupId) {
         setTypesExpected();
         this.setTypeExpected(11, TypeNames.STRING);
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(studyGroupClassId));
         variables.put(new Integer(2), new Integer(studyGroupId));
-        ArrayList alist = this.select(digester.getQuery("findAllByStudyGroupClassAndGroup"), variables);
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
+        ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findAllByStudyGroupClassAndGroup"), variables);
+        ArrayList<SubjectGroupMapBean> al = new ArrayList<>();
+        Iterator<HashMap<String, Object>> it = alist.iterator();
         while (it.hasNext()) {
-            HashMap hm = (HashMap) it.next();
+            HashMap<String, Object> hm = it.next();
             SubjectGroupMapBean eb = (SubjectGroupMapBean) this.getEntityFromHashMap(hm);
             eb.setSubjectLabel(((String) hm.get("label")));
             al.add(eb);
@@ -257,37 +229,40 @@ public class SubjectGroupMapDAO extends AuditableEntityDAO {
         return al;
     }
 
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<SubjectGroupMapBean> findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+       throw new RuntimeException("Not implemented");
     }
 
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<SubjectGroupMapBean> findAllByPermission(Object objCurrentUser, int intActionType) {
+        throw new RuntimeException("Not implemented");
     }
 
-    public ArrayList findAllByStudyGroupId(int studyGroupId) {
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(studyGroupId));
-
-        return executeFindAllQuery("findAllByStudyGroupId", variables);
+    public ArrayList<SubjectGroupMapBean> findAllByStudyGroupId(int studyGroupId) {
+    	String queryName = "findAllByStudyGroupId";
+        HashMap<Integer, Object> variables = variables(studyGroupId);
+        return executeFindAllQuery(queryName, variables);
     }
 
-    public ArrayList findAllByStudyGroupClassId(int studyGroupClassId) {
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(studyGroupClassId));
-
-        return executeFindAllQuery("findAllByStudyGroupClassId", variables);
+    public ArrayList<SubjectGroupMapBean> findAllByStudyGroupClassId(int studyGroupClassId) {
+    	String queryName = "findAllByStudyGroupClassId";
+        HashMap<Integer, Object> variables = variables(studyGroupClassId);
+        return executeFindAllQuery(queryName, variables);
     }
 
     public void deleteTestGroupMap(int id) {
-        HashMap variables = new HashMap();
-        variables.put(1, id);
-        this.execute(digester.getQuery("deleteTestGroupMap"), variables);
-
+        HashMap<Integer, Object> variables = variables(id);
+        this.executeUpdate(digester.getQuery("deleteTestGroupMap"), variables);
     }
+
+	@Override
+	public SubjectGroupMapBean emptyBean() {
+		return new SubjectGroupMapBean();
+	}
 
 }

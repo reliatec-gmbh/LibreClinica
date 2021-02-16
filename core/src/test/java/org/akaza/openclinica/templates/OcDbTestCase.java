@@ -7,22 +7,22 @@
  */
 package org.akaza.openclinica.templates;
 
+import java.util.Locale;
+import java.util.Properties;
+
+import javax.sql.DataSource;
+
 import org.akaza.openclinica.dao.core.SQLFactory;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.dbunit.DataSourceBasedDBTestCase;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import java.util.Locale;
-import java.util.Properties;
-
-import javax.sql.DataSource;
-
+@SuppressWarnings("deprecation")
 public abstract class OcDbTestCase extends DataSourceBasedDBTestCase {
 
     private static final Logger logger= LoggerFactory.getLogger(OcDbTestCase.class);
@@ -49,15 +49,6 @@ public abstract class OcDbTestCase extends DataSourceBasedDBTestCase {
         initializeLocale();
         initializeQueriesInXml();
 
-    }
-
-    private void setUpContext() {
-        // Loading the applicationContext under test/resources first allows
-        // test.properties to be loaded first.Hence we can
-        // use different settings.
-        context =
-            new ClassPathXmlApplicationContext(
-                    new String[] { "classpath*:applicationContext*.xml", "classpath*:org/akaza/openclinica/applicationContext*.xml", });
     }
 
     @Override

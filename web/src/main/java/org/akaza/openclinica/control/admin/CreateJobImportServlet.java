@@ -7,12 +7,16 @@
  */
 package org.akaza.openclinica.control.admin;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Set;
+
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.control.SpringServletAccess;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
-import org.akaza.openclinica.core.form.StringUtil;
-import org.akaza.openclinica.dao.login.UserAccountDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.view.Page;
@@ -27,12 +31,6 @@ import org.quartz.impl.StdScheduler;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.springframework.scheduling.quartz.JobDetailFactoryBean;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Set;
-
 /**
  * Create Job Import Servlet, by Tom Hickerson, 2009
  *
@@ -41,7 +39,11 @@ import java.util.Set;
  */
 public class CreateJobImportServlet extends SecureController {
 
-    private static String SCHEDULER = "schedulerFactoryBean";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 7679741924334031345L;
+	private static String SCHEDULER = "schedulerFactoryBean";
     private static String IMPORT_TRIGGER = "importTrigger";
 
     public static final String DATE_START_JOB = "job";
@@ -91,7 +93,6 @@ public class CreateJobImportServlet extends SecureController {
         // find all the form items and re-populate them if necessary
         FormProcessor fp2 = new FormProcessor(request);
 
-        UserAccountDAO udao = new UserAccountDAO(sm.getDataSource());
         StudyDAO sdao = new StudyDAO(sm.getDataSource());
 
         // ArrayList studies = udao.findStudyByUser(ub.getName(), (ArrayList)
@@ -131,7 +132,7 @@ public class CreateJobImportServlet extends SecureController {
         TriggerService triggerService = new TriggerService();
         scheduler = getScheduler();
         String action = fp.getString("action");
-        if (StringUtil.isBlank(action)) {
+        if (action == null || action.trim().isEmpty()) {
             // set up list of data sets
             // select by ... active study
             setUpServlet();
@@ -141,7 +142,7 @@ public class CreateJobImportServlet extends SecureController {
             // collect form information
             Set<TriggerKey> triggerKeys = scheduler.getTriggerKeys(GroupMatcher.triggerGroupEquals(IMPORT_TRIGGER));
             String[] triggerNames = triggerKeys.stream().toArray(String[]::new);
-            HashMap errors = triggerService.validateImportJobForm(fp, request, triggerNames);
+            HashMap<String, ArrayList<String>> errors = triggerService.validateImportJobForm(fp, request, triggerNames);
 
             if (!errors.isEmpty()) {
                 // set errors to request

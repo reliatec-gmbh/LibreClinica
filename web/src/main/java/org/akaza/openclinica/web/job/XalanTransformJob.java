@@ -7,22 +7,9 @@
  */
 package org.akaza.openclinica.web.job;
 
-import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
-import org.quartz.JobDataMap;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.scheduling.quartz.JobDetailFactoryBean;
-import org.springframework.scheduling.quartz.QuartzJobBean;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Locale;
-import java.util.ResourceBundle;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
+import java.util.Locale;
 
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -31,6 +18,14 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+
+import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
+import org.quartz.JobDataMap;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.quartz.QuartzJobBean;
 
 /**
  * Xalan Transform Job, an XSLT transform job using the Xalan classes
@@ -54,10 +49,8 @@ public class XalanTransformJob extends QuartzJobBean {
         // TODO make dynamic?
         Locale locale = new Locale("en-US");
         ResourceBundleProvider.updateLocale(locale);
-        ResourceBundle pageMessages = ResourceBundleProvider.getPageMessagesBundle();
         JobDataMap dataMap = context.getMergedJobDataMap();
         // get the file information from the job
-        String alertEmail = dataMap.getString(EMAIL);
         try {
             TransformerFactory tFactory = TransformerFactory.newInstance();
             
@@ -72,11 +65,8 @@ public class XalanTransformJob extends QuartzJobBean {
             // Use the Transformer to apply the associated Templates object to an XML document
             // (foo.xml) and write the output to a file (foo.out).
           //  System.out.println("--> job starting: ");
-            final long start = System.currentTimeMillis();
             transformer.transform(new StreamSource(dataMap.getString(XML_FILE_PATH)), 
                     new StreamResult(new FileOutputStream(dataMap.getString(SQL_FILE_PATH))));
-            final long done = System.currentTimeMillis() - start;
-           // System.out.println("--> job completed in " + done + " ms");
         } catch (TransformerConfigurationException e) {
             logger.error("XML Transformer was not configured properly: ", e);
         } catch (FileNotFoundException e) {

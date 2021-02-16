@@ -7,6 +7,8 @@
  */
 package org.akaza.openclinica.control.form;
 
+import static org.akaza.openclinica.core.util.ClassCastHelper.asArrayList;
+
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -15,17 +17,14 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Locale;
 import java.util.ResourceBundle;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.akaza.openclinica.bean.core.AuditableEntityBean;
 import org.akaza.openclinica.bean.core.EntityAction;
 import org.akaza.openclinica.bean.core.EntityBean;
 import org.akaza.openclinica.bean.core.NumericComparisonOperator;
@@ -47,7 +46,6 @@ import org.akaza.openclinica.i18n.util.I18nFormatUtil;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 /**
  *
  * A class to validate form input.
@@ -465,9 +463,9 @@ public class Validator {
      */
     protected String lastField;
 
-    protected HashMap validations;
+    protected HashMap<String, ArrayList<Validation>> validations;
 
-    protected HashMap errors;
+    protected HashMap<String, ArrayList<String>> errors;
 
     protected HttpServletRequest request;
 
@@ -476,8 +474,8 @@ public class Validator {
     //protected Locale format_locale;
 
     public Validator(HttpServletRequest request) {
-        validations = new HashMap();
-        errors = new HashMap();
+        validations = new HashMap<>();
+        errors = new HashMap<>();
         this.request = request;
  //        locale=request.getLocale();
        locale = LocaleResolver.getLocale(request);
@@ -488,20 +486,20 @@ public class Validator {
         lastField = "";
     }
 
-    protected ArrayList getFieldValidations(String fieldName) {
-        ArrayList fieldValidations;
+    protected ArrayList<Validation> getFieldValidations(String fieldName) {
+        ArrayList<Validation> fieldValidations;
 
         if (validations.containsKey(fieldName)) {
-            fieldValidations = (ArrayList) validations.get(fieldName);
+            fieldValidations = validations.get(fieldName);
         } else {
-            fieldValidations = new ArrayList();
+            fieldValidations = new ArrayList<>();
         }
         return fieldValidations;
     }
 
     // function used to squirrel away the validations until validate is called
     public void addValidation(String fieldName, Validation v) {
-        ArrayList fieldValidations = getFieldValidations(fieldName);
+        ArrayList<Validation> fieldValidations = getFieldValidations(fieldName);
         fieldValidations.add(v);
         validations.put(fieldName, fieldValidations);
     }
@@ -568,7 +566,7 @@ public class Validator {
     /*
      * use for: ENTITY_EXISTS_IN_STUDY
      */
-    public void addValidation(String fieldName, int type, AuditableEntityDAO dao, StudyBean study) {
+    public void addValidation(String fieldName, int type, AuditableEntityDAO<?> dao, StudyBean study) {
         // for entity exists validation
         Validation v = new Validation(type);
         v.addArgument(dao);
@@ -580,7 +578,7 @@ public class Validator {
     /*
      * use for: ENTITY_EXISTS
      */
-    public void addValidation(String fieldName, int type, EntityDAO edao) {
+    public void addValidation(String fieldName, int type, EntityDAO<?> edao) {
         // for entity exists validation
         Validation v = new Validation(type);
         v.addArgument(edao);
@@ -593,7 +591,7 @@ public class Validator {
     /*
      * use for: IS_IN_SET and IS_VALID_WIDTH_DECIMAL
      */
-    public void addValidation(String fieldName, int type, ArrayList set) {
+    public void addValidation(String fieldName, int type, ArrayList<?> set) {
         // TODO: assert type == is_in_set
 
         Validation v = new Validation(type);
@@ -660,14 +658,9 @@ public class Validator {
     /*
      * Executes all of the validations which have been requested.
      */
-    public HashMap validate() {
-        Set keys = validations.keySet();
-        Iterator keysIt = keys.iterator();
-
-        while (keysIt.hasNext()) {
-            String fieldName = (String) keysIt.next();
-
-            ArrayList fieldValidations = getFieldValidations(fieldName);
+    public HashMap<String, ArrayList<String>> validate() {
+        for(String fieldName : validations.keySet()) {
+            ArrayList<Validation> fieldValidations = getFieldValidations(fieldName);
             for (int i = 0; i < fieldValidations.size(); i++) {
                 Validation v = (Validation) fieldValidations.get(i);
                 logger.debug("fieldName=" + fieldName);
@@ -689,13 +682,9 @@ public class Validator {
      */
     public String getKeySet() {
         String retMe = "";
-        Set keys = validations.keySet();
-        Iterator keysIt = keys.iterator();
-
-        while (keysIt.hasNext()) {
-            String fieldName = (String) keysIt.next();
+        for(String fieldName : validations.keySet()) {
             retMe += fieldName;
-            ArrayList fieldValidations = getFieldValidations(fieldName);
+            ArrayList<Validation> fieldValidations = getFieldValidations(fieldName);
             retMe += " found " + fieldValidations.size() + " field validations; ";
         }
         return retMe;
@@ -883,13 +872,13 @@ public class Validator {
      * @param errorMessage
      *            The message to add to the field name.
      */
-    public static void addError(HashMap existingErrors, String fieldName, String errorMessage) {
-        ArrayList fieldErrors;
+    public static void addError(HashMap<String, ArrayList<String>> existingErrors, String fieldName, String errorMessage) {
+        ArrayList<String> fieldErrors;
 
         if (existingErrors.containsKey(fieldName)) {
-            fieldErrors = (ArrayList) existingErrors.get(fieldName);
+            fieldErrors = existingErrors.get(fieldName);
         } else {
-            fieldErrors = new ArrayList();
+            fieldErrors = new ArrayList<>();
         }
 
         fieldErrors.add(errorMessage);
@@ -899,7 +888,7 @@ public class Validator {
         return;
     }
 
-    protected HashMap validate(String fieldName, Validation v) {
+    protected HashMap<String, ArrayList<String>> validate(String fieldName, Validation v) {
         switch (v.getType()) {
         case NO_BLANKS:
             if (isBlank(fieldName)) {
@@ -952,14 +941,14 @@ public class Validator {
             }
             break;
         case ENTITY_EXISTS:
-            EntityDAO edao = (EntityDAO) v.getArg(0);
+            EntityDAO<?> edao = (EntityDAO<?>) v.getArg(0);
 
             if (!entityExists(fieldName, edao)) {
                 addError(fieldName, v);
             }
             break;
         case ENTITY_EXISTS_IN_STUDY:
-            AuditableEntityDAO dao = (AuditableEntityDAO) v.getArg(0);
+            AuditableEntityDAO<?> dao = (AuditableEntityDAO<?>) v.getArg(0);
             StudyBean study = (StudyBean) v.getArg(1);
 
             if (!entityExistsInStudy(fieldName, dao, study)) {
@@ -980,7 +969,7 @@ public class Validator {
             break;
        
         case IS_IN_SET:
-            ArrayList set = (ArrayList) v.getArg(0);
+            ArrayList<String> set = asArrayList(v.getArg(0), String.class);
 
             if (!isInSet(fieldName, set)) {
                 addError(fieldName, v);
@@ -1090,7 +1079,7 @@ public class Validator {
             addError(fieldName, v);
             break;
         case IS_AN_RULE:
-            ArrayList<String> messages = (ArrayList<String>) v.getArg(0);
+            ArrayList<String> messages = asArrayList(v.getArg(0), String.class);
             StringBuffer sb = new StringBuffer();
             for (int i = 0; i < messages.size(); i++) {
                 sb.append(messages.get(i));
@@ -1117,7 +1106,7 @@ public class Validator {
             }
             break;
         case IS_VALID_WIDTH_DECIMAL:
-            ArrayList<String> params = (ArrayList<String>) v.getArg(0);
+            ArrayList<String> params = asArrayList(v.getArg(0), String.class);
             String dataType = params.get(0);
             String widthDecimal = params.get(1);
             StringBuffer error = this.validateFieldWidthDecimal(fieldName, dataType, widthDecimal);
@@ -1213,7 +1202,7 @@ break;
             return true;
         }
         try {
-            float f = Float.parseFloat(fieldValue);
+            Float.parseFloat(fieldValue);
         } catch (Exception e) {
             return false;
         }
@@ -1249,7 +1238,7 @@ break;
      */
     protected boolean isDate(String fieldName) {
         String fieldValue = getFieldValue(fieldName);
-        if (StringUtil.isBlank(fieldValue)) {
+        if (fieldValue == null || fieldValue.trim().isEmpty()) {
             return false;
         }
         if (!StringUtil.isDateFormatString(fieldValue, resformat.getString("date_format_string"), locale)) {
@@ -1259,7 +1248,6 @@ break;
         sdf.setLenient(false);
         try {
             java.util.Date date = sdf.parse(fieldValue);
-            String s = date.toString();
             return isYearNotFourDigits(date);
         } catch (ParseException fe) {
             return false;
@@ -1275,7 +1263,7 @@ break;
      */
     protected boolean isDateWithoutRequiredCheck(String fieldName) {
         String fieldValue = request.getParameter(fieldName);
-        if (StringUtil.isBlank(fieldValue)) {
+        if (fieldValue == null || fieldValue.trim().isEmpty()) {
             return true;
         }
         SimpleDateFormat sdf = new SimpleDateFormat(resformat.getString("date_format_string"), locale);
@@ -1455,18 +1443,12 @@ break;
             return true;
         }
 
-        try {
-            int i = Integer.parseInt(fieldValue);
-        } catch (Exception e) {
-            return false;
-        }
-
         return true;
     }
 
     // TODO: is_a_file, IS_OF_FILE_TYPE methods
 
-    protected boolean isInSet(String fieldName, ArrayList set) {
+    protected boolean isInSet(String fieldName, ArrayList<String> set) {
         String fieldValue = getFieldValue(fieldName);
 
         if (fieldValue == null) {
@@ -1593,7 +1575,7 @@ break;
         return false;
     }
 
-    protected boolean entityExists(String fieldName, EntityDAO edao) {
+    protected boolean entityExists(String fieldName, EntityDAO<?> edao) {
         String fieldValue = getFieldValue(fieldName);
 
         if (fieldValue == null) {
@@ -1614,7 +1596,7 @@ break;
         return true;
     }
 
-    protected boolean entityExistsInStudy(String fieldName, AuditableEntityDAO dao, StudyBean study) {
+    protected boolean entityExistsInStudy(String fieldName, AuditableEntityDAO<?> dao, StudyBean study) {
 
         String fieldValue = getFieldValue(fieldName);
 
@@ -1624,7 +1606,7 @@ break;
 
         try {
             int id = Integer.parseInt(fieldValue);
-            AuditableEntityBean e = dao.findByPKAndStudy(id, study);
+            EntityBean e = dao.findByPKAndStudy(id, study);
 
             if (!e.isActive()) {
                 return false;
@@ -1686,9 +1668,9 @@ break;
 
     protected boolean isInResponseSet(String fieldName, ResponseSetBean set, boolean multValues) {
         // prep work - makes checking for a value in the set very fast
-        HashMap values = new HashMap();
+        HashMap<String, Boolean> values = new HashMap<>();
 
-        ArrayList options = set.getOptions();
+        ArrayList<ResponseOptionBean> options = set.getOptions();
         for (int i = 0; i < options.size(); i++) {
             ResponseOptionBean rob = (ResponseOptionBean) options.get(i);
             values.put(rob.getValue(), Boolean.TRUE);
@@ -1729,9 +1711,9 @@ break;
 
     protected boolean isInResponseSetCommaSeperated(String fieldName, ResponseSetBean set, boolean multValues) {
         // prep work - makes checking for a value in the set very fast
-        HashMap values = new HashMap();
+        HashMap<String, Boolean> values = new HashMap<>();
 
-        ArrayList options = set.getOptions();
+        ArrayList<ResponseOptionBean> options = set.getOptions();
         for (int i = 0; i < options.size(); i++) {
             ResponseOptionBean rob = (ResponseOptionBean) options.get(i);
             values.put(rob.getValue(), Boolean.TRUE);
@@ -1859,7 +1841,7 @@ break;
         }
 
         // logger.info("got this far...");
-        ArrayList fieldValidations = (ArrayList) validations.get(lastField);
+        ArrayList<Validation> fieldValidations = validations.get(lastField);
         if (fieldValidations == null) {
             return;
         }
@@ -1887,9 +1869,9 @@ break;
         }
 
         String fname;
-        ArrayList args;
+        ArrayList<String> args;
 
-        HashMap numArgsByFunction = new HashMap();
+        HashMap<String, Integer> numArgsByFunction = new HashMap<>();
         numArgsByFunction.put("range", new Integer(2));
         numArgsByFunction.put("gt", new Integer(1));
         numArgsByFunction.put("lt", new Integer(1));
@@ -1899,7 +1881,7 @@ break;
         numArgsByFunction.put("eq", new Integer(1));
         numArgsByFunction.put("getExternalValue", new Integer(3));
 
-        HashMap valTypeByFunction = new HashMap();
+        HashMap<String, Integer> valTypeByFunction = new HashMap<>();
         valTypeByFunction.put("range", new Integer(Validator.IS_IN_RANGE));
         valTypeByFunction.put("gt", new Integer(Validator.COMPARES_TO_STATIC_VALUE));
         valTypeByFunction.put("lt", new Integer(Validator.COMPARES_TO_STATIC_VALUE));
@@ -1908,7 +1890,7 @@ break;
         valTypeByFunction.put("ne", new Integer(Validator.COMPARES_TO_STATIC_VALUE));
         valTypeByFunction.put("eq", new Integer(Validator.COMPARES_TO_STATIC_VALUE));
 
-        HashMap compareOpByFunction = new HashMap();
+        HashMap<String, NumericComparisonOperator> compareOpByFunction = new HashMap<>();
         compareOpByFunction.put("gt", NumericComparisonOperator.GREATER_THAN);
         compareOpByFunction.put("lt", NumericComparisonOperator.LESS_THAN);
         compareOpByFunction.put("gte", NumericComparisonOperator.GREATER_THAN_OR_EQUAL_TO);
@@ -1933,14 +1915,13 @@ break;
             // fname(arg1,...,argn)
         }
 
-        int numGroups = funcMatcher.groupCount();
         // note that numGroups must be > 1
         fname = funcMatcher.group(1);
-        args = new ArrayList();
+        args = new ArrayList<>();
         for (int i = 2; i <= funcMatcher.groupCount(); i++) {
             String arg = funcMatcher.group(i);
 
-            if (StringUtil.isBlank(arg)) {
+            if (arg == null || arg.trim().isEmpty()) {
                 continue;
             }
 
@@ -1968,7 +1949,7 @@ break;
         for (int i = 0; i < args.size(); i++) {
             int ord = i + 1;
             try {
-                float f = Float.parseFloat((String) args.get(i));
+                Float.parseFloat((String) args.get(i));
             } catch (Exception e) {
                 throw new Exception(resexception.getString("validation_column_invalid_function") + ": " + resexception.getString("argument") + ord + " "
                     + resexception.getString("is_not_a_number"));
@@ -2009,7 +1990,7 @@ break;
         finalRegexp = finalRegexp.substring(1, finalRegexp.length() - 1);
         // YW >>
 
-        if (StringUtil.isBlank(finalRegexp)) {
+        if (finalRegexp == null || finalRegexp.trim().isEmpty()) {
             throw new Exception(resexception.getString("regular_expression_is_blank"));
         }
 
@@ -2129,7 +2110,7 @@ break;
         logger.debug("find locale=" + resexception.getLocale());
         StringBuffer message = new StringBuffer();
         String fieldValue = getFieldValue(fieldName);
-        if (StringUtil.isBlank(fieldValue)) {
+        if (fieldValue == null || fieldValue.trim().isEmpty()) {
             return message;
         }
         int width = Validator.parseWidth(widthDecimal);

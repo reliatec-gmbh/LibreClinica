@@ -7,6 +7,9 @@
  */
 package org.akaza.openclinica.control.admin;
 
+import java.util.ArrayList;
+import java.util.Date;
+
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.extract.DatasetBean;
 import org.akaza.openclinica.bean.login.StudyUserRoleBean;
@@ -28,16 +31,12 @@ import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDefinitionDAO;
 import org.akaza.openclinica.dao.managestudy.StudyGroupClassDAO;
-import org.akaza.openclinica.dao.managestudy.StudyGroupDAO;
 import org.akaza.openclinica.dao.managestudy.StudySubjectDAO;
 import org.akaza.openclinica.dao.submit.EventCRFDAO;
 import org.akaza.openclinica.dao.submit.ItemDataDAO;
 import org.akaza.openclinica.dao.submit.SubjectGroupMapDAO;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
-
-import java.util.ArrayList;
-import java.util.Date;
 
 /**
  * @author jxu
@@ -47,6 +46,11 @@ import java.util.Date;
  */
 public class RemoveStudyServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1535010063336494257L;
+
+	/**
      *
      */
     @Override
@@ -69,19 +73,19 @@ public class RemoveStudyServlet extends SecureController {
 
         StudyBean study = (StudyBean) sdao.findByPK(studyId);
         // find all sites
-        ArrayList sites = (ArrayList) sdao.findAllByParent(studyId);
+        ArrayList<StudyBean> sites = sdao.findAllByParent(studyId);
 
         // find all user and roles in the study, include ones in sites
         UserAccountDAO udao = new UserAccountDAO(sm.getDataSource());
-        ArrayList userRoles = udao.findAllByStudyId(studyId);
+        ArrayList<StudyUserRoleBean> userRoles = udao.findAllByStudyId(studyId);
 
         // find all subjects in the study, include ones in sites
         StudySubjectDAO ssdao = new StudySubjectDAO(sm.getDataSource());
-        ArrayList subjects = ssdao.findAllByStudy(study);
+        ArrayList<StudySubjectBean> subjects = ssdao.findAllByStudy(study);
 
         // find all events in the study, include ones in sites
         StudyEventDefinitionDAO sefdao = new StudyEventDefinitionDAO(sm.getDataSource());
-        ArrayList definitions = sefdao.findAllByStudy(study);
+        ArrayList<StudyEventDefinitionBean> definitions = sefdao.findAllByStudy(study);
 
         String action = request.getParameter("action");
         if (studyId == 0) {
@@ -164,11 +168,10 @@ public class RemoveStudyServlet extends SecureController {
                 // changed by jxu on 08-31-06, to fix the problem of no study_id
                 // in study_group table
                 StudyGroupClassDAO sgcdao = new StudyGroupClassDAO(sm.getDataSource());
-                StudyGroupDAO sgdao = new StudyGroupDAO(sm.getDataSource());
                 SubjectGroupMapDAO sgmdao = new SubjectGroupMapDAO(sm.getDataSource());
 
                 // YW 09-27-2007, enable status updating for StudyGroupClassBean
-                ArrayList groups = sgcdao.findAllByStudy(study);
+                ArrayList<StudyGroupClassBean> groups = sgcdao.findAllByStudy(study);
                 for (int i = 0; i < groups.size(); i++) {
                     StudyGroupClassBean group = (StudyGroupClassBean) groups.get(i);
                     if (!group.getStatus().equals(Status.DELETED)) {
@@ -177,7 +180,7 @@ public class RemoveStudyServlet extends SecureController {
                         group.setUpdatedDate(new Date());
                         sgcdao.update(group);
                         // all subject_group_map
-                        ArrayList subjectGroupMaps = sgmdao.findAllByStudyGroupClassId(group.getId());
+                        ArrayList<SubjectGroupMapBean> subjectGroupMaps = sgmdao.findAllByStudyGroupClassId(group.getId());
                         for (int j = 0; j < subjectGroupMaps.size(); j++) {
                             SubjectGroupMapBean sgMap = (SubjectGroupMapBean) subjectGroupMaps.get(j);
                             if (!sgMap.getStatus().equals(Status.DELETED)) {
@@ -190,7 +193,7 @@ public class RemoveStudyServlet extends SecureController {
                     }
                 }
 
-                ArrayList groupClasses = sgcdao.findAllActiveByStudy(study);
+                ArrayList<StudyGroupClassBean> groupClasses = sgcdao.findAllActiveByStudy(study);
                 for (int i = 0; i < groupClasses.size(); i++) {
                     StudyGroupClassBean gc = (StudyGroupClassBean) groupClasses.get(i);
                     if (!gc.getStatus().equals(Status.DELETED)) {
@@ -211,7 +214,7 @@ public class RemoveStudyServlet extends SecureController {
                         definition.setUpdater(ub);
                         definition.setUpdatedDate(new Date());
                         sefdao.update(definition);
-                        ArrayList edcs = (ArrayList) edcdao.findAllByDefinition(definition.getId());
+                        ArrayList<EventDefinitionCRFBean> edcs = edcdao.findAllByDefinition(definition.getId());
                         for (int j = 0; j < edcs.size(); j++) {
                             EventDefinitionCRFBean edc = (EventDefinitionCRFBean) edcs.get(j);
                             if (!edc.getStatus().equals(Status.DELETED)) {
@@ -222,7 +225,7 @@ public class RemoveStudyServlet extends SecureController {
                             }
                         }
 
-                        ArrayList events = (ArrayList) sedao.findAllByDefinition(definition.getId());
+                        ArrayList<StudyEventBean> events = sedao.findAllByDefinition(definition.getId());
                         EventCRFDAO ecdao = new EventCRFDAO(sm.getDataSource());
 
                         for (int j = 0; j < events.size(); j++) {
@@ -233,7 +236,7 @@ public class RemoveStudyServlet extends SecureController {
                                 event.setUpdatedDate(new Date());
                                 sedao.update(event);
 
-                                ArrayList eventCRFs = ecdao.findAllByStudyEvent(event);
+                                ArrayList<EventCRFBean> eventCRFs = ecdao.findAllByStudyEvent(event);
 
                                 ItemDataDAO iddao = new ItemDataDAO(sm.getDataSource());
                                 for (int k = 0; k < eventCRFs.size(); k++) {
@@ -245,7 +248,7 @@ public class RemoveStudyServlet extends SecureController {
                                         eventCRF.setUpdatedDate(new Date());
                                         ecdao.update(eventCRF);
 
-                                        ArrayList itemDatas = iddao.findAllByEventCRFId(eventCRF.getId());
+                                        ArrayList<ItemDataBean> itemDatas = iddao.findAllByEventCRFId(eventCRF.getId());
                                         for (int a = 0; a < itemDatas.size(); a++) {
                                             ItemDataBean item = (ItemDataBean) itemDatas.get(a);
                                             if (!item.getStatus().equals(Status.DELETED)) {
@@ -264,7 +267,7 @@ public class RemoveStudyServlet extends SecureController {
                 }// for definitions
 
                 DatasetDAO datadao = new DatasetDAO(sm.getDataSource());
-                ArrayList dataset = datadao.findAllByStudyId(study.getId());
+                ArrayList<DatasetBean> dataset = datadao.findAllByStudyId(study.getId());
                 for (int i = 0; i < dataset.size(); i++) {
                     DatasetBean data = (DatasetBean) dataset.get(i);
                     if (!data.getStatus().equals(Status.DELETED)) {

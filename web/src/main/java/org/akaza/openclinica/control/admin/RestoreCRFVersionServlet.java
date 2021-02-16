@@ -7,6 +7,9 @@
  */
 package org.akaza.openclinica.control.admin;
 
+import java.util.ArrayList;
+import java.util.Date;
+
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.submit.CRFVersionBean;
@@ -15,16 +18,12 @@ import org.akaza.openclinica.bean.submit.ItemDataBean;
 import org.akaza.openclinica.bean.submit.SectionBean;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.submit.CRFVersionDAO;
 import org.akaza.openclinica.dao.submit.EventCRFDAO;
 import org.akaza.openclinica.dao.submit.ItemDataDAO;
 import org.akaza.openclinica.dao.submit.SectionDAO;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
-
-import java.util.ArrayList;
-import java.util.Date;
 
 /**
  * @author jxu
@@ -34,6 +33,11 @@ import java.util.Date;
  */
 public class RestoreCRFVersionServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1391742781117218358L;
+
+	/**
      *
      */
     @Override
@@ -67,7 +71,7 @@ public class RestoreCRFVersionServlet extends SecureController {
             addPageMessage(respage.getString("please_choose_a_CRF_version_to_restore"));
             forwardPage(Page.CRF_LIST_SERVLET);
         } else {
-            if (StringUtil.isBlank(action)) {
+            if (action == null || action.trim().isEmpty()) {
                 addPageMessage(respage.getString("no_action_specified"));
                 forwardPage(Page.CRF_LIST_SERVLET);
                 return;
@@ -78,7 +82,7 @@ public class RestoreCRFVersionServlet extends SecureController {
 
             EventCRFDAO evdao = new EventCRFDAO(sm.getDataSource());
             // find all event crfs by version id
-            ArrayList eventCRFs = evdao.findAllByCRFVersion(versionId);
+            ArrayList<EventCRFBean> eventCRFs = evdao.findAllByCRFVersion(versionId);
             if ("confirm".equalsIgnoreCase(action)) {
                 request.setAttribute("versionToRestore", version);
                 request.setAttribute("eventCRFs", eventCRFs);
@@ -91,7 +95,7 @@ public class RestoreCRFVersionServlet extends SecureController {
                 version.setUpdatedDate(new Date());
                 cvdao.update(version);
                 // all sections
-                ArrayList sections = secdao.findAllByCRFVersionId(version.getId());
+                ArrayList<SectionBean> sections = secdao.findAllByCRFVersionId(version.getId());
                 for (int j = 0; j < sections.size(); j++) {
                     SectionBean section = (SectionBean) sections.get(j);
                     if (section.getStatus().equals(Status.AUTO_DELETED)) {
@@ -112,7 +116,7 @@ public class RestoreCRFVersionServlet extends SecureController {
                         eventCRF.setUpdatedDate(new Date());
                         evdao.update(eventCRF);
 
-                        ArrayList items = idao.findAllByEventCRFId(eventCRF.getId());
+                        ArrayList<ItemDataBean> items = idao.findAllByEventCRFId(eventCRF.getId());
                         for (int j = 0; j < items.size(); j++) {
                             ItemDataBean item = (ItemDataBean) items.get(j);
                             if (item.getStatus().equals(Status.AUTO_DELETED)) {

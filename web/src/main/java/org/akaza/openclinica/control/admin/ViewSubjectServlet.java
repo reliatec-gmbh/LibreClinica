@@ -7,6 +7,7 @@
  */
 package org.akaza.openclinica.control.admin;
 
+import org.akaza.openclinica.bean.managestudy.StudySubjectBean;
 import org.akaza.openclinica.bean.submit.SubjectBean;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
@@ -25,6 +26,11 @@ import java.util.ArrayList;
  */
 public class ViewSubjectServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 3921173880398142749L;
+
+	/**
      *
      */
     @Override
@@ -53,7 +59,7 @@ public class ViewSubjectServlet extends SecureController {
 
             // find all study subjects
             StudySubjectDAO ssdao = new StudySubjectDAO(sm.getDataSource());
-            ArrayList studySubs = ssdao.findAllBySubjectId(subjectId);
+            ArrayList<StudySubjectBean> studySubs = ssdao.findAllBySubjectId(subjectId);
 
             request.setAttribute("subject", subject);
             request.setAttribute("studySubs", studySubs);

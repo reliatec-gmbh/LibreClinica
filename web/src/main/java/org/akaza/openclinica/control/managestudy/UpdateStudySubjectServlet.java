@@ -7,11 +7,12 @@
  */
 package org.akaza.openclinica.control.managestudy;
 
+import static org.akaza.openclinica.core.util.ClassCastHelper.asArrayList;
+import static org.akaza.openclinica.core.util.ClassCastHelper.getAsType;
+
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 
 import org.akaza.openclinica.bean.core.NumericComparisonOperator;
 import org.akaza.openclinica.bean.core.Role;
@@ -27,13 +28,11 @@ import org.akaza.openclinica.control.form.FormDiscrepancyNotes;
 import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.control.form.Validator;
 import org.akaza.openclinica.control.submit.AddNewSubjectServlet;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.managestudy.DiscrepancyNoteDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.managestudy.StudyGroupClassDAO;
 import org.akaza.openclinica.dao.managestudy.StudyGroupDAO;
 import org.akaza.openclinica.dao.managestudy.StudySubjectDAO;
-import org.akaza.openclinica.dao.submit.SubjectDAO;
 import org.akaza.openclinica.dao.submit.SubjectGroupMapDAO;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
@@ -43,6 +42,11 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
  */
 public class UpdateStudySubjectServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = -8773308388221272583L;
+
+	/**
      * Checks whether the user has the right permission to proceed function
      */
     @Override
@@ -64,12 +68,11 @@ public class UpdateStudySubjectServlet extends SecureController {
     @Override
     public void processRequest() throws Exception {
         FormDiscrepancyNotes discNotes = null;
-        SubjectDAO sdao = new SubjectDAO(sm.getDataSource());
         StudySubjectDAO subdao = new StudySubjectDAO(sm.getDataSource());
         FormProcessor fp = new FormProcessor(request);
 
         String fromResolvingNotes = fp.getString("fromResolvingNotes",true);
-        if (StringUtil.isBlank(fromResolvingNotes)) {
+        if (fromResolvingNotes == null || fromResolvingNotes.trim().isEmpty()) {
             session.removeAttribute(ViewNotesServlet.WIN_LOCATION);
             session.removeAttribute(ViewNotesServlet.NOTES_TABLE);
             checkStudyLocked(Page.LIST_STUDY_SUBJECTS_SERVLET, respage.getString("current_study_locked"));
@@ -83,7 +86,7 @@ public class UpdateStudySubjectServlet extends SecureController {
             forwardPage(Page.LIST_STUDY_SUBJECTS);
         } else {
             String action = fp.getString("action", true);
-            if (StringUtil.isBlank(action)) {
+            if (action == null || action.trim().isEmpty()) {
                 addPageMessage(respage.getString("no_action_specified"));
                 forwardPage(Page.LIST_STUDY_SUBJECTS);
                 return;
@@ -94,9 +97,9 @@ public class UpdateStudySubjectServlet extends SecureController {
             StudyGroupClassDAO sgcdao = new StudyGroupClassDAO(sm.getDataSource());
             StudyGroupDAO sgdao = new StudyGroupDAO(sm.getDataSource());
             SubjectGroupMapDAO sgmdao = new SubjectGroupMapDAO(sm.getDataSource());
-            ArrayList groupMaps = (ArrayList) sgmdao.findAllByStudySubject(studySubId);
+            ArrayList<SubjectGroupMapBean> groupMaps = sgmdao.findAllByStudySubject(studySubId);
 
-            HashMap gMaps = new HashMap();
+            HashMap<Integer, SubjectGroupMapBean> gMaps = new HashMap<>();
             for (int i = 0; i < groupMaps.size(); i++) {
                 SubjectGroupMapBean groupMap = (SubjectGroupMapBean) groupMaps.get(i);
                 gMaps.put(new Integer(groupMap.getStudyGroupClassId()), groupMap);
@@ -104,7 +107,7 @@ public class UpdateStudySubjectServlet extends SecureController {
             }
 
             StudyDAO stdao = new StudyDAO(sm.getDataSource());
-            ArrayList classes = new ArrayList();
+            ArrayList<StudyGroupClassBean> classes = new ArrayList<>();
             if (!"submit".equalsIgnoreCase(action)) {
                 // YW <<
                 int parentStudyId = currentStudy.getParentStudyId();
@@ -116,10 +119,10 @@ public class UpdateStudySubjectServlet extends SecureController {
                 }
                 // YW >>
                 for (int i = 0; i < classes.size(); i++) {
-                    StudyGroupClassBean group = (StudyGroupClassBean) classes.get(i);
-                    ArrayList studyGroups = sgdao.findAllByGroupClass(group);
+                    StudyGroupClassBean group = classes.get(i);
+                    ArrayList<StudyGroupBean> studyGroups = sgdao.findAllByGroupClass(group);
                     group.setStudyGroups(studyGroups);
-                    SubjectGroupMapBean gMap = (SubjectGroupMapBean) gMaps.get(new Integer(group.getId()));
+                    SubjectGroupMapBean gMap = gMaps.get(new Integer(group.getId()));
                     if (gMap != null) {
                         group.setStudyGroupId(gMap.getStudyGroupId());
                         group.setGroupNotes(gMap.getNotes());
@@ -154,15 +157,15 @@ public class UpdateStudySubjectServlet extends SecureController {
                 DiscrepancyNoteDAO dndao = new DiscrepancyNoteDAO(sm.getDataSource());
                 AddNewSubjectServlet.saveFieldNotes("enrollmentDate", fdn, dndao, subject.getId(), "studySub", currentStudy);
 
-                ArrayList groups = (ArrayList) session.getAttribute("groups");
+                ArrayList<StudyGroupClassBean> groups = asArrayList(session.getAttribute("groups"), StudyGroupClassBean.class);
                 if (!groups.isEmpty()) {
                     for (int i = 0; i < groups.size(); i++) {
                         StudyGroupClassBean sgc = (StudyGroupClassBean) groups.get(i);
                         /*We will be allowing users to remove a subject from all groups. Issue-4524*/
                         if (sgc.getStudyGroupId() == 0) {
-                            Collection subjectGroups = sgmdao.findAllByStudySubject(subject.getId());
-                            for (Iterator it = subjectGroups.iterator(); it.hasNext();) {
-                                sgmdao.deleteTestGroupMap(((SubjectGroupMapBean)it.next()).getId());
+                            ArrayList<SubjectGroupMapBean> subjectGroups = sgmdao.findAllByStudySubject(subject.getId());
+                            for (SubjectGroupMapBean groupBean : subjectGroups) {
+                                sgmdao.deleteTestGroupMap(groupBean.getId());
                             }
                         } else {
                             SubjectGroupMapBean sgm = new SubjectGroupMapBean();
@@ -210,9 +213,9 @@ public class UpdateStudySubjectServlet extends SecureController {
      * @throws Exception
      */
     private void confirm(StudyGroupDAO sgdao) throws Exception {
-        ArrayList classes = (ArrayList) session.getAttribute("groups");
-        StudySubjectBean sub = (StudySubjectBean) session.getAttribute("studySub");
-        FormDiscrepancyNotes discNotes = (FormDiscrepancyNotes) session.getAttribute(AddNewSubjectServlet.FORM_DISCREPANCY_NOTES_NAME);
+        ArrayList<StudyGroupClassBean> classes = asArrayList(session.getAttribute("groups"), StudyGroupClassBean.class);
+        StudySubjectBean sub = getAsType(session.getAttribute("studySub"), StudySubjectBean.class);
+        FormDiscrepancyNotes discNotes = getAsType(session.getAttribute(AddNewSubjectServlet.FORM_DISCREPANCY_NOTES_NAME), FormDiscrepancyNotes.class);
         DiscrepancyValidator v = new DiscrepancyValidator(request, discNotes);
         FormProcessor fp = new FormProcessor(request);
         java.util.Date enrollDate = sub.getEnrollmentDate();
@@ -225,21 +228,22 @@ public class UpdateStudySubjectServlet extends SecureController {
             v.addValidation("secondaryLabel", Validator.DOES_NOT_CONTAIN_HTML_LESSTHAN_GREATERTHAN_ELEMENTS);
 
             String eDateString = fp.getString("enrollmentDate");
-            if (!StringUtil.isBlank(eDateString)) {
+            if (!(eDateString == null || eDateString.trim().isEmpty())) {
                 v.addValidation("enrollmentDate", Validator.IS_A_DATE);
                 v.alwaysExecuteLastValidation("enrollmentDate");
             }
 
             errors = v.validate();
 
-            if (!StringUtil.isBlank(fp.getString("label"))) {
+            String label = fp.getString("label");
+			if (!(label == null || label.trim().isEmpty())) {
                 StudySubjectDAO ssdao = new StudySubjectDAO(sm.getDataSource());
 
-                StudySubjectBean sub1 = (StudySubjectBean) ssdao.findAnotherBySameLabel(fp.getString("label").trim(), currentStudy.getId(), sub.getId());
+                StudySubjectBean sub1 = (StudySubjectBean) ssdao.findAnotherBySameLabel(label.trim(), currentStudy.getId(), sub.getId());
 
                 // JRWS>> Also look for labels in the child studies
                 if (sub1.getId() == 0) {
-                    sub1 = (StudySubjectBean) ssdao.findAnotherBySameLabelInSites(fp.getString("label").trim(), currentStudy.getId(), sub.getId());
+                    sub1 = (StudySubjectBean) ssdao.findAnotherBySameLabelInSites(label.trim(), currentStudy.getId(), sub.getId());
                 }
 
                 if (sub1.getId() > 0) {
@@ -247,12 +251,12 @@ public class UpdateStudySubjectServlet extends SecureController {
                 }
             }
 
-            sub.setLabel(fp.getString("label"));
+            sub.setLabel(label);
             sub.setSecondaryLabel(fp.getString("secondaryLabel"));
 
             try {
                 local_df.setLenient(false);
-                if (!StringUtil.isBlank(eDateString)) {
+                if (!(eDateString == null || eDateString.trim().isEmpty())) {
                     enrollDate = local_df.parse(eDateString);
                 } else {
                     enrollDate = null;
@@ -288,13 +292,14 @@ public class UpdateStudySubjectServlet extends SecureController {
         session.setAttribute("groups", classes);
         if (!errors.isEmpty()) {
             logger.info("has errors");
-            if (StringUtil.isBlank(sub.getLabel())) {
+            String label = sub.getLabel();
+			if (label == null || label.trim().isEmpty()) {
                 addPageMessage(respage.getString("must_enter_subject_ID_for_identifying") + respage.getString("this_may_be_external_ID_number")
                     + respage.getString("you_may_enter_study_subject_ID_listed")
                     + respage.getString("study_subject_ID_should_not_contain_protected_information"));
             } else {
                 StudySubjectDAO subdao = new StudySubjectDAO(sm.getDataSource());
-                StudySubjectBean sub1 = (StudySubjectBean) subdao.findAnotherBySameLabel(sub.getLabel(), sub.getStudyId(), sub.getId());
+                StudySubjectBean sub1 = (StudySubjectBean) subdao.findAnotherBySameLabel(label, sub.getStudyId(), sub.getId());
                 if (sub1.getId() > 0) {
                     addPageMessage(resexception.getString("subject_ID_used_by_another_choose_unique"));
                 }

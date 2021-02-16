@@ -7,6 +7,9 @@
  */
 package org.akaza.openclinica.control.managestudy;
 
+import java.net.MalformedURLException;
+import java.util.ArrayList;
+
 import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.core.Status;
@@ -19,9 +22,7 @@ import org.akaza.openclinica.bean.submit.CRFVersionBean;
 import org.akaza.openclinica.control.SpringServletAccess;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.admin.CRFDAO;
-import org.akaza.openclinica.dao.core.CoreResources;
 import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDefinitionDAO;
@@ -29,14 +30,8 @@ import org.akaza.openclinica.dao.service.StudyParameterValueDAO;
 import org.akaza.openclinica.dao.submit.CRFVersionDAO;
 import org.akaza.openclinica.domain.SourceDataVerification;
 import org.akaza.openclinica.service.managestudy.EventDefinitionCrfTagService;
-import org.akaza.openclinica.service.pmanage.Authorization;
-import org.akaza.openclinica.service.pmanage.ParticipantPortalRegistrar;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
-
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
 
 /**
  * @author jxu
@@ -45,7 +40,11 @@ import java.util.ArrayList;
  *          jxu $
  */
 public class InitUpdateSubStudyServlet extends SecureController {
-    EventDefinitionCrfTagService eventDefinitionCrfTagService = null;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1348293062808929660L;
+	EventDefinitionCrfTagService eventDefinitionCrfTagService = null;
 
     /**
      *
@@ -67,12 +66,10 @@ public class InitUpdateSubStudyServlet extends SecureController {
 
     @Override
     public void processRequest() throws Exception {
-    	//baseUrl();
-        String userName = request.getRemoteUser();
         StudyDAO sdao = new StudyDAO(sm.getDataSource());
         String idString = request.getParameter("id");
         logger.info("study id:" + idString);
-        if (StringUtil.isBlank(idString)) {
+        if (idString == null || idString.trim().isEmpty()) {
             addPageMessage(respage.getString("please_choose_a_study_to_edit"));
             forwardPage(Page.STUDY_LIST_SERVLET);
         } else {
@@ -91,9 +88,9 @@ public class InitUpdateSubStudyServlet extends SecureController {
             }
 
             if (currentStudy.getId() != study.getId()) {
-                ArrayList parentConfigs = currentStudy.getStudyParameters();
+                ArrayList<StudyParamsConfig> parentConfigs = currentStudy.getStudyParameters();
                 // logger.info("parentConfigs size:" + parentConfigs.size());
-                ArrayList configs = new ArrayList();
+                ArrayList<StudyParamsConfig> configs = new ArrayList<>();
                 StudyParameterValueDAO spvdao = new StudyParameterValueDAO(sm.getDataSource());
                 for (int i = 0; i < parentConfigs.size(); i++) {
                     StudyParamsConfig scg = (StudyParamsConfig) parentConfigs.get(i);
@@ -146,7 +143,6 @@ public class InitUpdateSubStudyServlet extends SecureController {
     }
 
     private void createEventDefinitions(StudyBean parentStudy) throws MalformedURLException {
-        FormProcessor fp = new FormProcessor(request);
         StudyParameterValueDAO spvdao = new StudyParameterValueDAO(sm.getDataSource());    
 
         int siteId = Integer.valueOf(request.getParameter("id").trim());
@@ -156,7 +152,6 @@ public class InitUpdateSubStudyServlet extends SecureController {
         CRFVersionDAO cvdao = new CRFVersionDAO(sm.getDataSource());
         CRFDAO cdao = new CRFDAO(sm.getDataSource());
         seds = sedDao.findAllByStudy(parentStudy);
-        int start = 0;
         for (StudyEventDefinitionBean sed : seds) {
             String participateFormStatus = spvdao.findByHandleAndStudy(sed.getStudyId(), "participantPortal").getValue();
               if (participateFormStatus.equals("enabled")) 	baseUrl();
@@ -197,7 +192,6 @@ public class InitUpdateSubStudyServlet extends SecureController {
                     }
                     edcBean.setSelectedVersionIdList(idList);
                     defCrfs.add(edcBean);
-                    ++start;
                 }
             }
             logger.debug("definitionCrfs size=" + defCrfs.size() + " total size=" + edcs.size());

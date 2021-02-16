@@ -12,7 +12,6 @@ import org.akaza.openclinica.bean.login.StudyUserRoleBean;
 import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.control.core.SecureController;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.login.UserAccountDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
@@ -27,6 +26,11 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
  */
 public class ViewStudyUserServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = -3392123982341988217L;
+
+	/**
      *
      */
     @Override
@@ -53,7 +57,7 @@ public class ViewStudyUserServlet extends SecureController {
      //if(request.getParameter("submit")!=null)
      {     
     	 
-    	 if (StringUtil.isBlank(name) || StringUtil.isBlank(studyIdString)) {
+    	 if ((name == null || name.trim().isEmpty()) || (studyIdString == null || studyIdString.trim().isEmpty())) {
             addPageMessage(respage.getString("please_choose_a_user_to_view"));
             forwardPage(Page.LIST_USER_IN_STUDY_SERVLET);
      	} else {

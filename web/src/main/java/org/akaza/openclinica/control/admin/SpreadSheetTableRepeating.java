@@ -14,6 +14,22 @@
  */
 package org.akaza.openclinica.control.admin;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
 import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.admin.NewCRFBean;
 import org.akaza.openclinica.bean.core.ItemDataType;
@@ -34,13 +50,11 @@ import org.akaza.openclinica.control.form.spreadsheet.OnChangeSheetValidator;
 import org.akaza.openclinica.control.form.spreadsheet.SheetCell;
 import org.akaza.openclinica.control.form.spreadsheet.SheetValidationContainer;
 import org.akaza.openclinica.control.form.spreadsheet.SheetValidationType;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.core.util.CrfTemplateColumnNameEnum;
 import org.akaza.openclinica.dao.admin.CRFDAO;
 import org.akaza.openclinica.dao.hibernate.MeasurementUnitDao;
 import org.akaza.openclinica.dao.submit.CRFVersionDAO;
 import org.akaza.openclinica.dao.submit.ItemDAO;
-import org.akaza.openclinica.dao.submit.ItemFormMetadataDAO;
 import org.akaza.openclinica.dao.submit.ItemGroupDAO;
 import org.akaza.openclinica.exception.CRFReadingException;
 import org.akaza.openclinica.logic.score.ScoreValidator;
@@ -51,22 +65,6 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.ResourceBundle;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 /**
  * <P>
@@ -90,8 +88,6 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
 
     private UserAccountBean ub = null;
 
-    private String versionName = null;
-
     private int crfId = 0;
 
     private String crfName = "";
@@ -100,17 +96,15 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
 
     private boolean isRepeating = false;
 
-    private final HashMap itemGroups = new HashMap();
-
-    private final HashMap itemsToGrouplabels = new HashMap();
+    private final HashMap<String, ItemGroupBean> itemGroups = new HashMap<>();
 
     private Locale locale;
 
     private final int studyId;
 
-    private Set<String> existingUnits = new TreeSet<String>();
+    private Set<String> existingUnits = new TreeSet<>();
 
-    private Set<String> existingOIDs = new TreeSet<String>();
+    private Set<String> existingOIDs = new TreeSet<>();
 
     private MeasurementUnitDao measurementUnitDao = new MeasurementUnitDao();
 
@@ -122,13 +116,11 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
 
         this.fs = new POIFSFileSystem(parseStream);
         this.ub = ub;
-        this.versionName = versionName;
         this.locale = locale;
         this.studyId = studyId;
         HSSFWorkbook wb = new HSSFWorkbook(fs);
         int numSheets = wb.getNumberOfSheets();
         for (int j = 0; j < numSheets; j++) {
-            HSSFSheet sheet = wb.getSheetAt(j);// sheetIndex);
             String sheetName = wb.getSheetName(j);
             if (sheetName.equalsIgnoreCase("groups")) {
                 isRepeating = true;
@@ -158,30 +150,26 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
         StringBuffer buf = new StringBuffer();
         HSSFWorkbook wb = new HSSFWorkbook(fs);
         int numSheets = wb.getNumberOfSheets();
-        ArrayList queries = new ArrayList();
-        // ArrayList groupItemMapQueries = new ArrayList();
-        ArrayList errors = new ArrayList();
-       // ArrayList repeats = new ArrayList();
-        HashMap tableNames = new HashMap();
-        HashMap items = new HashMap();
+        ArrayList<String> queries = new ArrayList<>();
+        // ArrayList groupItemMapQueries = new ArrayList<>();
+        ArrayList<String> errors = new ArrayList<>();
+       // ArrayList repeats = new ArrayList<>();
+        HashMap<String, ItemBean> items = new HashMap<>();
         SpreadSheetItemUtil item_from_row = null;
         String pVersion = "";
-        String pVerDesc = "";
         int parentId = 0;
-        int dataTypeId = 5;// default is ST(String) type
-        HashMap itemCheck = ncrf.getItemNames();
-        HashMap GroupCheck = ncrf.getItemGroupNames();
-        HashMap openQueries = new LinkedHashMap();
-        HashMap backupItemQueries = new LinkedHashMap();// save all the item
+        HashMap<String, String> itemCheck = ncrf.getItemNames();
+        HashMap<String, String> GroupCheck = ncrf.getItemGroupNames();
+        HashMap<String, String> openQueries = new LinkedHashMap<>();
+        HashMap<String, String> backupItemQueries = new LinkedHashMap<>();// save all the item
         // queries if
         // deleting item happens
-        ArrayList secNames = new ArrayList(); // check for dupes, also
+        ArrayList<String> secNames = new ArrayList<>(); // check for dupes, also
 
         ArrayList<String> itemGroupOids = new ArrayList<String>();
         ArrayList<String> itemOids = new ArrayList<String>();
 
         CRFDAO cdao = new CRFDAO(ds);
-        CRFBean crf = (CRFBean) cdao.findByPK(crfId);
         ItemDAO idao = new ItemDAO(ds);
         CRFVersionDAO cvdao = new CRFVersionDAO(ds);
         ItemGroupDAO itemGroupDao = new ItemGroupDAO(ds);
@@ -189,13 +177,11 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
         HashMap<String, String> allItems = (HashMap<String, String>)sheetContainer.getAllItems();
         //HashMap<String, String> allItems = new HashMap<String, String>();
         Map<String, String[]> controlValues = new HashMap<String, String[]>();
-        int maxItemFormMetadataId = new ItemFormMetadataDAO(ds).findMaxId();
         OnChangeSheetValidator instantValidator = new OnChangeSheetValidator(sheetContainer, resPageMsg);
 
 
         int validSheetNum = 0;
         for (int j = 0; j < numSheets; j++) {
-            HSSFSheet sheet = wb.getSheetAt(j);// sheetIndex);
             String sheetName = wb.getSheetName(j);
             if (sheetName.equalsIgnoreCase("CRF") || sheetName.equalsIgnoreCase("Sections") || sheetName.equalsIgnoreCase("Items")) {
                 validSheetNum++;
@@ -224,7 +210,6 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                  * be data, tbh, 7/28
                  */
                 int numRows = sheet.getPhysicalNumberOfRows();
-                int lastNumRow = sheet.getLastRowNum();
                 // logger.debug("PhysicalNumberOfRows" +
                 // sheet.getPhysicalNumberOfRows());
                 // great minds apparently think alike...tbh, commented out
@@ -233,11 +218,11 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                 String secName = "";
                 String page = "";
                 // YW << for holding "responseLabel_responseType"
-                ArrayList resPairs = new ArrayList();
+                ArrayList<String> resPairs = new ArrayList<>();
                 // YW >>
-                ArrayList resNames = new ArrayList();// records all the
+                ArrayList<String> resNames = new ArrayList<>();// records all the
                 // response_labels
-                HashMap htmlErrors = new HashMap();
+                HashMap<String, String> htmlErrors = new HashMap<>();
 
                 // the above two need to persist across mult. queries,
                 // and they should be created FIRST anyway, since instrument is
@@ -250,13 +235,13 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                 String itemName=null;String default_value=null;
                 if (sheetName.equalsIgnoreCase("Items")) {
                     logger.debug("read an item in sheet" + sheetName);
-                    Map labelWithOptions = new HashMap();
-                    Map labelWithValues = new HashMap();
-                    Map labelWithType = new HashMap<String, String>();
+                    Map<String, String[]> labelWithOptions = new HashMap<>();
+                    Map<String, String[]> labelWithValues = new HashMap<>();
+                    Map<String, String> labelWithType = new HashMap<String, String>();
                     logger.debug("row20 is: " + getValue(sheet.getRow(0).getCell((short) 20)));
                     boolean hasWDColumn = "width_decimal".equalsIgnoreCase(getValue(sheet.getRow(0).getCell((short) 20))) ? true : false;
                     //Adding itemnames for further use
-                   // HashMap itemNames = new HashMap();
+                   // HashMap itemNames = new HashMap<>();
                     //htaycher : code should be competly refactored to use stucture to hold all data per row
                     
                     ArrayList< SpreadSheetItemUtil> row_items = new ArrayList< SpreadSheetItemUtil>();
@@ -285,7 +270,7 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                         descLabel = descLabel.replaceAll("<[^>]*>", "");
                         item_from_row.setDescriptionLabel(descLabel);
 
-                        if (StringUtil.isBlank(descLabel)) {
+                        if (descLabel == null || descLabel.trim().isEmpty()) {
                             // errors.add("The DESCRIPTION_LABEL column was
                             // blank at row " + k + ", Items worksheet.");
                             errors.add(resPageMsg.getString("the") + " " + resPageMsg.getString("DESCRIPTION_LABEL_column") + " "
@@ -378,17 +363,17 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                         item_from_row.setGroupLabel(getValue(cell));
                      //htaycher: how 'NON-GROUPED' group is processed for 3.1 template?
                         //is it a reason for 13816
-                        if (item_from_row.getItemName().length() > 0) {
-                            if (!StringUtil.isBlank(item_from_row.getGroupLabel())) {
-                                allItems.put(item_from_row.getItemName(), item_from_row.getGroupLabel());
+                        String groupLabel = item_from_row.getGroupLabel();
+						if (item_from_row.getItemName().length() > 0) {
+                            if (!(groupLabel == null || groupLabel.trim().isEmpty())) {
+                                allItems.put(item_from_row.getItemName(), groupLabel);
                             } else {
                                 allItems.put(item_from_row.getItemName(), "Ungrouped");
                             }
                         }
-                        String groupLabel=item_from_row.getGroupLabel();
 
                         sheetContainer.getItemSectionNameMap().put(itemName, secName);
-                        sheetContainer.collectRepGrpItemNameMap(itemName, item_from_row.getGroupLabel());
+                        sheetContainer.collectRepGrpItemNameMap(itemName, groupLabel);
 
                         cell = sheet.getRow(k).getCell((short) 7);//header
                         String header = getValue(cell);
@@ -413,7 +398,7 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                         cell = sheet.getRow(k).getCell((short) 10);//column id
                         int columnNum = 0;
                         String column = getValue(cell);
-                        if (!StringUtil.isBlank(column)) {
+                        if (!(column == null || column.trim().isEmpty())) {
                             try {
                                 columnNum = Integer.parseInt(column);
                             } catch (NumberFormatException ne) {
@@ -432,7 +417,7 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                         cell = sheet.getRow(k).getCell((short) 13);//response type
                          String responseType = getValue(cell);
                         int responseTypeId = 1;
-                        if (StringUtil.isBlank(responseType)) {
+                        if (responseType == null || responseType.trim().isEmpty()) {
                             // errors.add("The RESPONSE_TYPE column was blank at
                             // row " + k + ", items worksheet.");
                             // htmlErrors.put(j + "," + k + ",13", "REQUIRED
@@ -459,7 +444,7 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                             if(responseTypeId == 5){
                                 cell = sheet.getRow(k).getCell((short) 18);
                                 String def = getValue(cell);
-                                if(!StringUtil.isBlank(def)){
+                                if(!(def == null || def.trim().isEmpty())){
                                     errors.add(resPageMsg.getString("radio_with_default")+ item_from_row.getItemName() +resPageMsg.getString("change_radio"));
                                     htmlErrors.put(j + "," + k + ","+CrfTemplateColumnNameEnum.DEFAULT_VALUE.getCellNumber()
                                        	 , resPageMsg.getString("INVALID_FIELD"));
@@ -475,7 +460,7 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                         // responseLabel = responseLabel.replaceAll("<[^>]*>",
                         // "");
 
-                        if (StringUtil.isBlank(responseLabel) && responseTypeId != ResponseType.TEXT.getId()
+                        if ((responseLabel == null || responseLabel.trim().isEmpty()) && responseTypeId != ResponseType.TEXT.getId()
                             && responseTypeId != ResponseType.TEXTAREA.getId()) {
                             // << tbh #4180
                             // errors.add("The RESPONSE_LABEL column was blank
@@ -508,7 +493,7 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                             resOptions = "file";
                         }
                         int numberOfOptions = 0;
-                        if (!resNames.contains(responseLabel) && StringUtil.isBlank(resOptions) && responseTypeId != ResponseType.TEXT.getId()
+                        if (!resNames.contains(responseLabel) && (resOptions == null || resOptions.trim().isEmpty()) && responseTypeId != ResponseType.TEXT.getId()
                             && responseTypeId != ResponseType.TEXTAREA.getId()) {
                             // << tbh #4180
                             // errors.add("The RESPONSE_OPTIONS_TEXT column was
@@ -520,7 +505,7 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                                 + resPageMsg.getString("was_blank_at_row") +" " + k + ", " + resPageMsg.getString("items_worksheet_with_dot"));
                             htmlErrors.put(j + "," + k + ",15", resPageMsg.getString("required_field"));
                         }
-                        if (!resNames.contains(responseLabel) && !StringUtil.isBlank(resOptions)) {
+                        if (!resNames.contains(responseLabel) && !(resOptions == null || resOptions.trim().isEmpty())) {
                             if (responseTypeId == 8 || responseTypeId == 9) {
                                 // YW 1-29-2008 << only one option for
                                 // "calculation" type and "group-calculation"
@@ -548,7 +533,7 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                         item_from_row.setResponseOptions(resArray);
                         logger.debug(item_from_row.getItemName());
                         if (labelWithOptions.containsKey(responseLabel)) {
-                            if (!StringUtil.isBlank(resOptions)) {
+                            if (!(resOptions == null || resOptions.trim().isEmpty())) {
                                 for (int i = 0; i < resArray.length; i++) {
                                     if (!resArray[i].equals(mapResArray[i])) {
                                         errors.add(resPageMsg.getString("resp_label_with_different_resp_options") + " " + k + ", "
@@ -569,7 +554,7 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                         } else if ("file".equalsIgnoreCase(responseType)) {
                             resValues = "file";
                         }
-                        if (!resNames.contains(responseLabel) && StringUtil.isBlank(resValues) && responseTypeId != ResponseType.TEXT.getId()
+                        if (!resNames.contains(responseLabel) && (resValues == null || resValues.trim().isEmpty()) && responseTypeId != ResponseType.TEXT.getId()
                             && responseTypeId != ResponseType.TEXTAREA.getId() && responseTypeId != ResponseType.INSTANT_CALCULATION.getId()) {
                             // << tbh #4180
 
@@ -675,7 +660,7 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                         String value1 = resValues.replaceAll("\\\\,", "##");
                         String[] resValArray = value1.split(",");
                         if (labelWithValues.containsKey(responseLabel)) {
-                            if (!StringUtil.isBlank(resValues)) {
+                            if (!(resValues == null || resValues.trim().isEmpty())) {
 								// @pgawade 31-May-2011 Added the check to
 								// compare the size of resValArray and
 								// mapValArray before comparing the individual
@@ -723,7 +708,7 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                         dataType = dataType.replaceAll("<[^>]*>", "");
                         item_from_row.setDataType(dataType);
                         String dataTypeIdString = "1";
-                        if (StringUtil.isBlank(dataType)) {
+                        if (dataType == null || dataType.trim().isEmpty()) {
                             // errors.add("The DATA_TYPE column was blank at row
                             // " + k + ", items worksheet.");
                             // htmlErrors.put(j + "," + k + ",19", "REQUIRED
@@ -803,7 +788,7 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                                             String st = s != null && s.length() > 0 ? s.trim() : "";
                                             if (st.length() > 0) {
                                                 try {
-                                                    Double I = Double.parseDouble(st);
+                                                    Double.parseDouble(st);
                                                 } catch (Exception e) {
                                                     wrongType = true;
                                                 }
@@ -841,7 +826,7 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                             ++cellIndex;
                             cell = sheet.getRow(k).getCell((short) cellIndex);
                             widthDecimal = getValue(cell);
-                            if (StringUtil.isBlank(widthDecimal)) {
+                            if (widthDecimal == null || widthDecimal.trim().isEmpty()) {
                                 widthDecimal = "";
                             } else {
                                 if ("single-select".equalsIgnoreCase(responseType) || "multi-select".equalsIgnoreCase(responseType)
@@ -867,7 +852,7 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                         cell = sheet.getRow(k).getCell((short) cellIndex);
                         String regexp = getValue(cell);
                         String regexp1 = "";
-                        if (!StringUtil.isBlank(regexp)) {
+                        if (!(regexp == null || regexp.trim().isEmpty())) {
                             // parse the string and get reg exp eg. regexp:
                             // /[0-9]*/
                             regexp1 = regexp.trim();
@@ -894,19 +879,8 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                                     if (finalRegexp.startsWith("/") && finalRegexp.endsWith("/")) {
                                         finalRegexp = finalRegexp.substring(1, finalRegexp.length() - 1);
                                         try {
-                                            Pattern p = Pattern.compile(finalRegexp);
-                                            // YW 11-21-2007 << add another \ if
-                                            // there is \ in regexp
-                                            char[] chars = regexp1.toCharArray();
-                                            regexp1 = "";
-                                            for (char c : chars) {
-                                                if (c == '\\' && !dbName.equals("oracle")) {
-                                                    regexp1 += c + "\\";
-                                                } else {
-                                                    regexp1 += c;
-                                                }
-                                            }
-                                            // YW >>
+                                            Pattern.compile(finalRegexp);
+                                            //Removed block, because escaping of backslashes does not work with Postgres9. rhe-reliatec
                                         } catch (PatternSyntaxException pse) {
                                             // errors.add("The VALIDATION column
                                             // has an invalid regular expression
@@ -936,10 +910,8 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                                 }
 
                             } else if (regexp1.startsWith("func:")) {
-                                boolean isProperFunction = false;
                                 try {
                                     Validator.processCRFValidationFunction(regexp1);
-                                    isProperFunction = true;
                                 } catch (Exception e) {
                                     // errors.add(e.getMessage() + ", at row " +
                                     // k
@@ -967,7 +939,7 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                         cell = sheet.getRow(k).getCell((short) cellIndex);
                         String regexpError = getValue(cell);
                         regexpError = regexpError.replaceAll("<[^>]*>", "");
-                        if (!StringUtil.isBlank(regexp) && StringUtil.isBlank(regexpError)) {
+                        if (!(regexp == null || regexp.trim().isEmpty()) && (regexpError == null || regexpError.trim().isEmpty())) {
                             // errors.add("The VALIDATION_ERROR_MESSAGE column
                             // was blank at row " + k
                             // + ", Items worksheet. It cannot be blank if
@@ -989,7 +961,7 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                         String phi = getValue(cell);
                         // String phi = "";
                         // logger.debug("++ phi: "+getValue(cell));
-                        if (StringUtil.isBlank(phi)) {
+                        if (phi == null || phi.trim().isEmpty()) {
                             phi = "0";
                         } else
                         // throws NPE, so added the guard clause above, tbh
@@ -1021,7 +993,7 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                         String required = getValue(cell);
                         // String required = "";
                         // added to stop NPEs, tbh 06/04/2007
-                        if (StringUtil.isBlank(required)) {
+                        if (required == null || required.trim().isEmpty()) {
                             required = "0";
                         } else if (cell.getCellType() == HSSFCell.CELL_TYPE_NUMERIC) {
                             double dr = cell.getNumericCellValue();
@@ -1051,7 +1023,7 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                         cell = sheet.getRow(k).getCell((short) cellIndex);
                         String showItem = getValue(cell);
 
-                        if (!StringUtil.isBlank(showItem)) {
+                        if (!(showItem == null || showItem.trim().isEmpty())) {
                             isShowItem = "0".equals(showItem) ? false : true;
                             isShowItem = "Hide".equalsIgnoreCase(showItem) ? false : true;
                             // supporting both, tbh 03/2010
@@ -1061,7 +1033,7 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                         cell = sheet.getRow(k).getCell((short) cellIndex);
                         String display = getValue(cell);
                         String controlItemName = "",optionValue="", message="";
-                        if (!StringUtil.isBlank(display)) {
+                        if (!(display == null || display.trim().isEmpty())) {
                             if(isShowItem != false) {
                                 errors.add(resPageMsg.getString("the") + " " + resPageMsg.getString("ITEM_DISPLAY_STATUS_column") + " "
                                         + resPageMsg.getString("was_invalid_at_row") + " " + k + ", " + resPageMsg.getString("items_worksheet_with_dot")
@@ -1205,7 +1177,9 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                                     openQueries.put(itemName, upSql);
                                 } else {
                                	 String upSql = "";
-                             	if(oldItem.getDataType() == oldItem.getDataType().DATE && ib.getDataType() == ib.getDataType().PDATE)//New Feature allow date to pdate even if the data is entered
+                             	oldItem.getDataType();
+								ib.getDataType();
+								if(oldItem.getDataType() == ItemDataType.DATE && ib.getDataType() == ItemDataType.PDATE)//New Feature allow date to pdate even if the data is entered
                              	{
 
                                         if (dbName.equals("oracle")) {
@@ -1293,7 +1267,7 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                         }
 
                         String parentItemString = "0";
-                        if (!StringUtil.isBlank(parentItem)) {
+                        if (!(parentItem == null || parentItem.trim().isEmpty())) {
                             if (dbName.equals("oracle")) {
                                 parentItemString =
                                     "(SELECT MAX(ITEM_ID) FROM ITEM WHERE NAME='" + stripQuotes(parentItem) + "' AND owner_id = " + ownerId + " )";
@@ -1498,7 +1472,7 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                         // //later down the road, tbh
                         // itemsToGrouplabels.put(itemName,groupLabel);
                         // }
-                        if (!StringUtil.isBlank(groupLabel)) {
+                        if (!(groupLabel == null || groupLabel.trim().isEmpty())) {
                             ItemGroupBean itemGroup;
                             ItemGroupMetadataBean igMeta;
 
@@ -1677,7 +1651,7 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                     htmlErrors = (HashMap<String,String>)instantValidator.getSheetErrors().putHtmlErrorsToSheet(htmlErrors);
                 } else if (sheetName.equalsIgnoreCase("Groups")) {
                     logger.debug("read groups, ***comment added 5.14.07");
-                    ArrayList groupNames = new ArrayList();
+                    ArrayList<String> groupNames = new ArrayList<>();
                     // create a group - item relationship with this table? hmm
 
                     // they are in order: group_label, group_layout,
@@ -1723,7 +1697,7 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                         String groupLabel = getValue(cell);
                         groupLabel = groupLabel.replaceAll("<[^>]*>", "");
 
-                        if (StringUtil.isBlank(groupLabel)) {
+                        if (groupLabel == null || groupLabel.trim().isEmpty()) {
                             errors.add(resPageMsg.getString("the") + " " + resPageMsg.getString("GROUP_LABEL_column")
                                 + resPageMsg.getString("was_blank_at_row") +" "+ gk + ", " + resPageMsg.getString("Groups_worksheet") + ".");
                             htmlErrors.put(j + "," + gk + ",0", resPageMsg.getString("required_field"));
@@ -1774,12 +1748,12 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                         String groupRepeatNumber = getValue(cell);
                         // to be switched to int, tbh
                         // adding clause to convert to int, tbh, 06/07
-                        if (newVersionCrf && !isRepeatingGroup && !StringUtil.isBlank(groupRepeatNumber)){
+                        if (newVersionCrf && !isRepeatingGroup && !(groupRepeatNumber == null || groupRepeatNumber.trim().isEmpty())){
                             errors.add(resPageMsg.getString("repeat_number_none_repeating"));
-                        } else if (!isRepeatingGroup && StringUtil.isBlank(groupRepeatNumber)) {
+                        } else if (!isRepeatingGroup && (groupRepeatNumber == null || groupRepeatNumber.trim().isEmpty())) {
                                 groupRepeatNumber = "1";
                         } else {
-                            if (StringUtil.isBlank(groupRepeatNumber)) {
+                            if (groupRepeatNumber == null || groupRepeatNumber.trim().isEmpty()) {
                                 groupRepeatNumber = "1";
                             } else if (cell.getCellType() == HSSFCell.CELL_TYPE_NUMERIC) {
                                 double dr = cell.getNumericCellValue();
@@ -1797,12 +1771,12 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                         String groupRepeatMax = getValue(cell);
                         // to be switched to int, tbh
                         // adding clause to convert to int, tbh 06/07
-                        if (newVersionCrf && !isRepeatingGroup && !StringUtil.isBlank(groupRepeatMax)){
+                        if (newVersionCrf && !isRepeatingGroup && !(groupRepeatMax == null || groupRepeatMax.trim().isEmpty())){
                             errors.add(resPageMsg.getString("repeat_max_none_repeating"));
-                        } else if (!isRepeatingGroup && StringUtil.isBlank(groupRepeatMax)) {
+                        } else if (!isRepeatingGroup && (groupRepeatMax == null || groupRepeatMax.trim().isEmpty())) {
                             groupRepeatMax = "1";
                         } else {
-                            if (StringUtil.isBlank(groupRepeatMax)) {
+                            if (groupRepeatMax == null || groupRepeatMax.trim().isEmpty()) {
                                 groupRepeatMax = "40";// problem, tbh
                             } else if (cell.getCellType() == HSSFCell.CELL_TYPE_NUMERIC) {
                                 double dr = cell.getNumericCellValue();
@@ -1826,7 +1800,7 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                         cell = sheet.getRow(gk).getCell((short) ++cellNo);
                         String showGroup = getValue(cell);
                         boolean isShowGroup = true;
-                        if (!StringUtil.isBlank(showGroup)) {
+                        if (!(showGroup == null || showGroup.trim().isEmpty())) {
 
                             try {
                                 isShowGroup = "0".equals(showGroup) ? false : true;
@@ -2014,7 +1988,7 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                         String secLabel = getValue(cell);
                         secLabel = secLabel.replaceAll("<[^>]*>", "");
 
-                        if (StringUtil.isBlank(secLabel)) {
+                        if (secLabel == null || secLabel.trim().isEmpty()) {
                             // errors.add("The SECTION_LABEL column was blank at
                             // row " + k + ", Sections worksheet.");
                             // htmlErrors.put(j + "," + k + ",0", "REQUIRED
@@ -2044,7 +2018,7 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                         cell = sheet.getRow(k).getCell((short) 1);
                         String title = getValue(cell);
                         title = title.replaceAll("<[^>]*>", "");
-                        if (StringUtil.isBlank(title)) {
+                        if (title == null || title.trim().isEmpty()) {
                             // errors.add("The SECTION_TITLE column was blank at
                             // row " + k + ", Sections worksheet.");
                             // htmlErrors.put(j + "," + k + ",1", "REQUIRED
@@ -2078,7 +2052,7 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                         cell = sheet.getRow(k).getCell((short) 5);
                         String parentSection = getValue(cell);
                         parentSection = parentSection.replaceAll("<[^>]*>", "");
-                        if (!StringUtil.isBlank(parentSection)) {
+                        if (!(parentSection == null || parentSection.trim().isEmpty())) {
                             try {
                                 parentId = Integer.parseInt(parentSection);
                             } catch (NumberFormatException ne) {
@@ -2127,7 +2101,7 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                     crfName = getValue(cell);
                     crfName = crfName.replaceAll("<[^>]*>", "");
 
-                    if (StringUtil.isBlank(crfName)) {
+                    if (crfName == null || crfName.trim().isEmpty()) {
                         // errors.add("The CRF_NAME column was blank in the CRF
                         // worksheet.");
                         // htmlErrors.put(j + ",1,0", "REQUIRED FIELD");
@@ -2216,7 +2190,7 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                     if (revisionNotes != null && revisionNotes.length() > 255) {
                         errors.add(resPageMsg.getString("revision_notes_length_error"));
                     }
-                    if (StringUtil.isBlank(revisionNotes)) {
+                    if (revisionNotes == null || revisionNotes.trim().isEmpty()) {
                         // errors.add("The REVISION_NOTES column was blank in
                         // the CRF worksheet.");
                         // htmlErrors.put(j + ",1,3", "REQUIRED FIELD");
@@ -2285,11 +2259,10 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                     // description
                     // need to stop uploads of same name-description pairs
 
-                    HashMap checkCRFVersions = ncrf.getCrfVersions();
+                    HashMap<String, String> checkCRFVersions = ncrf.getCrfVersions();
 
                     // this now returns a hash map of key:version_name
                     // ->value:version_description
-                    boolean overwrite = false;
 
                     if (checkCRFVersions.containsKey(version)) {
                         logger.debug("found a matching version name..." + version);
@@ -2346,7 +2319,6 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
 
                     queries.add(sql);
                     pVersion = version;
-                    pVerDesc = versionDesc;
                 }
 
                 versionIdString = "(SELECT CRF_VERSION_ID FROM CRF_VERSION WHERE NAME ='" + pVersion + "' AND CRF_ID=" + crfId + ")";
@@ -2391,7 +2363,9 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                             buf.append("<td class=\"table_cell\">" + cell.getNumericCellValue() + " " + error + "</td>");
                             break;
                         case HSSFCell.CELL_TYPE_STRING:
-                            buf.append("<td class=\"table_cell\">" + cell.getStringCellValue() + " " + error + "</td>");
+                            @SuppressWarnings("deprecation") 
+                            String stringCellValue = cell.getStringCellValue();
+							buf.append("<td class=\"table_cell\">" + stringCellValue + " " + error + "</td>");
                             break;
                         default:
                             buf.append("<td class=\"table_cell\">" + error + "</td>");
@@ -2479,7 +2453,9 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
             // logger.debug("found a numeric cell after transfer: "+val);
             break;
         case HSSFCell.CELL_TYPE_STRING:
-            val = cell.getStringCellValue();
+            @SuppressWarnings("deprecation") 
+            String stringCellValue = cell.getStringCellValue();
+			val = stringCellValue;
             if (val.matches("'")) {
                 // logger.debug("Found single quote! "+val);
                 val.replaceAll("'", "''");
@@ -2542,7 +2518,9 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                         buf.append("<td>" + cell.getNumericCellValue() + "</td>");
                         break;
                     case HSSFCell.CELL_TYPE_STRING:
-                        buf.append("<td>" + cell.getStringCellValue() + "</td>");
+                        @SuppressWarnings("deprecation") 
+                        String stringCellValue = cell.getStringCellValue();
+						buf.append("<td>" + stringCellValue + "</td>");
                         break;
                     default:
                         buf.append("<td></td>");

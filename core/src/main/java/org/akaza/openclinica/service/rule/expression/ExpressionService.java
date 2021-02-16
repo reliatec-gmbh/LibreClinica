@@ -44,7 +44,6 @@ import org.akaza.openclinica.bean.submit.ItemFormMetadataBean;
 import org.akaza.openclinica.bean.submit.ItemGroupBean;
 import org.akaza.openclinica.bean.submit.ItemGroupMetadataBean;
 import org.akaza.openclinica.dao.admin.CRFDAO;
-import org.akaza.openclinica.dao.hibernate.DynamicsItemFormMetadataDao;
 import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDefinitionDAO;
@@ -92,19 +91,6 @@ public class ExpressionService {
     Pattern[] ruleActionPattern;
     ExpressionObjectWrapper expressionWrapper;
 
-    private ItemDAO itemDao;
-    private StudyEventDefinitionDAO studyEventDefinitionDao;
-    private EventDefinitionCRFDAO eventDefinitionCRFDao;
-    private DynamicsItemFormMetadataDao dynamicsItemFormMetadataDao;
-    private ItemGroupMetadataDAO itemGroupMetadataDao;
-    private EventCRFDAO eventCRFDao;
-    private ItemGroupDAO itemGroupDao;
-    private CRFDAO crfDao;
-    private CRFVersionDAO crfVersionDao;
-    private ItemDataDAO itemDataDao;
-    private StudyEventDAO studyEventDao;
-    private StudySubjectDAO studySubjectDao;
-    private ItemFormMetadataDAO itemFormMetadataDao;
     public final static String STARTDATE = ".STARTDATE";
     public final static String STATUS = ".STATUS";
     public static final String STUDY_EVENT_OID_START_KEY = "SE_";
@@ -396,8 +382,8 @@ public class ExpressionService {
             if (checkIfExpressionIsForScheduling(expression)) {
                 StudyEvent studyEvent;
 
-                if (expression.endsWith(this.STARTDATE)) {
-                    String oid = expression.substring(0, expression.indexOf(this.STARTDATE));
+                if (expression.endsWith(ExpressionService.STARTDATE)) {
+                    String oid = expression.substring(0, expression.indexOf(ExpressionService.STARTDATE));
                     studyEvent = getStudyEventFromOID(oid);
                     if (studyEvent != null) {
                         logger.debug("Study Event Start Date: "
@@ -406,7 +392,7 @@ public class ExpressionService {
                     } else
                         return "";
                 } else {
-                    String oid = expression.substring(0, expression.indexOf(this.STATUS));
+                    String oid = expression.substring(0, expression.indexOf(ExpressionService.STATUS));
                     studyEvent = getStudyEventFromOID(oid);
                     if (studyEvent != null) {
                         logger.debug("Status: "
@@ -431,12 +417,7 @@ public class ExpressionService {
                     } else {
                         valueFromForm = getValueFromForm(fullExpression, items);
                     }
-                    String valueFromDb = null;
-                    if (itemBeansI == null) {
-                        valueFromDb = getValueFromDb(fullExpression, itemDatas);
-                    } else {
-                        valueFromDb = getValueFromDb(fullExpression, itemDatas, itemBeansI);
-                    }
+                    String valueFromDb = getValueFromDb(fullExpression, itemDatas, itemBeansI);
                     logger.debug("valueFromForm : {} , valueFromDb : {}", valueFromForm, valueFromDb);
                     if (valueFromForm == null && valueFromDb == null) {
                         throw new OpenClinicaSystemException("OCRERR_0017", new Object[] { fullExpression,
@@ -486,34 +467,9 @@ public class ExpressionService {
         return value;
     }
 
-    private String getValueFromDbOrForm(String fullExpression, Map<Integer, ItemBean> itemBeansI) {
-        List<ItemDataBean> itemDatas = getItemDatas(fullExpression);
-        fullExpression = fixGroupOrdinal(fullExpression, expressionWrapper.getRuleSet().getTarget().getValue(),
-                itemDatas, expressionWrapper.getEventCrf());
-        checkSyntax(fullExpression);
-        String valueFromForm = null;
-        if (items == null) {
-            valueFromForm = getValueFromForm(fullExpression);
-        } else {
-            valueFromForm = getValueFromForm(fullExpression, items);
-        }
-        String valueFromDb = null;
-        if (itemBeansI == null) {
-            valueFromDb = getValueFromDb(fullExpression, itemDatas);
-        } else {
-            valueFromDb = getValueFromDb(fullExpression, itemDatas, itemBeansI);
-        }
-        logger.debug("valueFromForm : {} , valueFromDb : {}", valueFromForm, valueFromDb);
-        if (valueFromForm == null && valueFromDb == null) {
-            throw new OpenClinicaSystemException("OCRERR_0017", new Object[] { fullExpression,
-                    expressionWrapper.getRuleSet().getTarget().getValue() });
-        }
-        return valueFromForm == null ? valueFromDb : valueFromForm;
-    }
-
     public boolean checkIfExpressionIsForScheduling(String expression) {
         if (expression.toUpperCase().startsWith("SE_")
-                && (expression.toUpperCase().endsWith(this.STARTDATE) || expression.toUpperCase().endsWith(this.STATUS))) {
+                && (expression.toUpperCase().endsWith(ExpressionService.STARTDATE) || expression.toUpperCase().endsWith(ExpressionService.STATUS))) {
             return true;
         }
         return false;
@@ -771,8 +727,6 @@ public class ExpressionService {
         }
     }
 
-
-    @SuppressWarnings("unchecked")
     private String deContextualizeExpression(int j, String ruleExpression, String ruleSetTargetExpression) {
         String ruleSetExpression = ruleSetTargetExpression;
         String[] splitRuleSetExpression = ruleSetExpression.split(ESCAPED_SEPERATOR);
@@ -1096,7 +1050,7 @@ public class ExpressionService {
                     studyEventDefinitionKey);
             // another way to get at the problem which I fix in the
             // findByOidAndStudy method, tbh
-            if (studyEventDefinition != null) {
+            if (studyEventDefinition != null && studyEventDefinitionKey.equals(studyEventDefinition.getOid())) {
                 studyEventDefinitions.put(studyEventDefinitionKey, studyEventDefinition);
                 return studyEventDefinition;
             } else {
@@ -1365,10 +1319,6 @@ public class ExpressionService {
     }
 
     public String isExpressionValid(String oid, RuleSetBean ruleSet) {
-
-        StudyEventDefinitionBean studyEventDefinition = getStudyEventDefinitionFromExpression(ruleSet.getTarget()
-                .getValue());
-
         String[] theOid = oid.split(ESCAPED_SEPERATOR);
         if (theOid.length == 3) {
             ItemGroupBean itemGroup = getItemGroupDao().findByOid(theOid[0]);

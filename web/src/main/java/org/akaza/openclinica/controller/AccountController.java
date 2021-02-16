@@ -36,9 +36,10 @@ import org.akaza.openclinica.dao.service.StudyParameterValueDAO;
 import org.akaza.openclinica.domain.technicaladmin.AuditUserLoginBean;
 import org.akaza.openclinica.domain.technicaladmin.LoginStatus;
 import org.akaza.openclinica.domain.user.AuthoritiesBean;
+import org.akaza.openclinica.exception.OpenClinicaException;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
 import org.akaza.openclinica.service.pmanage.ParticipantPortalRegistrar;
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -113,7 +114,7 @@ public class AccountController {
      */
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
-    public ResponseEntity<HashMap> getAccountByUserName(@RequestBody HashMap<String, String> requestMap) throws Exception {
+    public ResponseEntity<HashMap<?, ?>> getAccountByUserName(@RequestBody HashMap<String, String> requestMap) throws Exception {
 
         String userName = (requestMap.get("username")).trim();
         String password = (requestMap.get("password")).trim();
@@ -123,7 +124,7 @@ public class AccountController {
         try {
             authentication = authenticationManager.authenticate(authentication);
         } catch (Exception bce) {
-            return new ResponseEntity<HashMap>(new HashMap(), org.springframework.http.HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<HashMap<?, ?>>(new HashMap<>(), org.springframework.http.HttpStatus.UNAUTHORIZED);
         }
 
         ResourceBundleProvider.updateLocale(new Locale("en_US"));
@@ -150,10 +151,10 @@ public class AccountController {
             }
             userDTO.put("roles", rolesDTO);
         } else {
-            return new ResponseEntity<HashMap>(new HashMap(), org.springframework.http.HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<HashMap<?, ?>>(new HashMap<>(), org.springframework.http.HttpStatus.UNAUTHORIZED);
 
         }
-        return new ResponseEntity<HashMap>(userDTO, org.springframework.http.HttpStatus.OK);
+        return new ResponseEntity<HashMap<?, ?>>(userDTO, org.springframework.http.HttpStatus.OK);
     }
 
     /**
@@ -217,9 +218,6 @@ public class AccountController {
 
     public Boolean isCRCHasAccessToStudySubject(String studyOid, String crcUserName, String studySubjectId) {
         uDTO = null;
-        StudyBean parentStudy = getParentStudy(studyOid);
-        Integer pStudyId = parentStudy.getId();
-        String oid = parentStudy.getOid();
 
         if (isStudySubjecAndCRCRolesMatch(studySubjectId, crcUserName, studyOid))
             return true;
@@ -351,7 +349,7 @@ public class AccountController {
         if (isStudySubjectDoesNotExist(studySubjectBean))
             return new ResponseEntity<UserDTO>(uDTO, org.springframework.http.HttpStatus.NOT_ACCEPTABLE);
         // build UserName
-        HashMap<String, String> mapValues = buildParticipantUserName(studySubjectBean);
+        HashMap<String, String> mapValues = new HashMap<String, String>(buildParticipantUserName(studySubjectBean));
         String pUserName = mapValues.get("pUserName"); // Participant User Name
 
         UserAccountDAO udao = new UserAccountDAO(dataSource);
@@ -548,7 +546,6 @@ public class AccountController {
         uDTO = null;
 
         StudyBean parentStudy = getParentStudy(map.get("studyOid"));
-        String oid = parentStudy.getOid();
 
         String studySubjectId = map.get("studySubjectId");
         String timeZone = map.get("timeZone");
@@ -626,12 +623,12 @@ public class AccountController {
         return createdUserAccountBean;
     }
 
-    private void createUserAccount(UserAccountBean userAccountBean) {
+    private void createUserAccount(UserAccountBean userAccountBean) throws OpenClinicaException {
         UserAccountDAO udao = new UserAccountDAO(dataSource);
         udao.create(userAccountBean);
     }
 
-    private void updateUserAccount(UserAccountBean userAccountBean) {
+    private void updateUserAccount(UserAccountBean userAccountBean) throws OpenClinicaException {
         UserAccountDAO udao = new UserAccountDAO(dataSource);
         udao.update(userAccountBean);
     }
@@ -651,12 +648,6 @@ public class AccountController {
         createdUserAccountBean.setLockCounter(3);
         createdUserAccountBean.setAccountNonLocked(false);
         return createdUserAccountBean;
-    }
-
-    private ArrayList<UserAccountBean> getUserAccountByStudy(String userName, ArrayList allStudies) {
-        UserAccountDAO udao = new UserAccountDAO(dataSource);
-        ArrayList<UserAccountBean> userAccountBeans = udao.findStudyByUser(userName, allStudies);
-        return userAccountBeans;
     }
 
     private UserAccountBean getUserAccount(String userName) {
@@ -695,13 +686,7 @@ public class AccountController {
         return studySubjectBean;
     }
 
-    private StudySubjectBean getStudySubject(String oid) {
-        StudySubjectDAO ssdao = new StudySubjectDAO(dataSource);
-        StudySubjectBean studySubjectBean = (StudySubjectBean) ssdao.findByOid(oid);
-        return studySubjectBean;
-    }
-
-    private void updateStudySubjectBean(StudySubjectBean sBean) {
+    private void updateStudySubjectBean(StudySubjectBean sBean) throws OpenClinicaException {
         StudySubjectDAO ssdao = new StudySubjectDAO(dataSource);
         ssdao.update(sBean);
     }
@@ -782,8 +767,8 @@ public class AccountController {
         return false;
     }
 
-    private HashMap buildParticipantUserName(StudySubjectBean studySubjectBean) {
-        HashMap<String, String> map = new HashMap();
+    private HashMap<String, String> buildParticipantUserName(StudySubjectBean studySubjectBean) {
+        HashMap<String, String> map = new HashMap<>();
         String studySubjectOid = studySubjectBean.getOid();
         Integer studyId = studySubjectBean.getStudyId();
         StudyBean study = getParentStudy(studyId);
@@ -853,7 +838,6 @@ public class AccountController {
         // crc is study studySubject is study , pass
 
         StudyBean parentStudy = getParentStudy(studyOid);
-        Integer studyIdFromStudyOid = parentStudy.getId();
         StudySubjectBean studySubjectBean = getStudySubject(studySubjectId, parentStudy);
         Integer studyIdFromStudySubjectId = studySubjectBean.getStudyId();
 
@@ -985,7 +969,6 @@ public class AccountController {
         HashMap<String, String> mapValues = buildParticipantUserName(studySubjectBean);
         String pUserName = mapValues.get("pUserName"); // Participant User Name
         String studySubjectOid = mapValues.get("studySubjectOid");
-        Integer pStudyId = Integer.valueOf(mapValues.get("pStudyId"));
 
         // Participant user account create (if does not exist in user table) or Update(if exist in user table)
         uBean = buildUserAccount(oid, studySubjectOid, fName, lName, mobile, accessCode, ownerUserAccount, pUserName, email);
@@ -1010,8 +993,8 @@ public class AccountController {
     }
 
     @RequestMapping(value = "/auditcrc", method = RequestMethod.POST)
-    public ResponseEntity<HashMap> auditcrc(@RequestBody HashMap<String, String> requestMap) throws Exception {
-        HashMap map = new HashMap();
+    public ResponseEntity<HashMap<String, String>> auditcrc(@RequestBody HashMap<String, String> requestMap) throws Exception {
+        HashMap<String, String> map = new HashMap<>();
 
         String crcUserName = requestMap.get("crcUserName");
         String studyOid = requestMap.get("studyOid");
@@ -1034,7 +1017,7 @@ public class AccountController {
 
         getAuditUserLoginDao().save(auditUserLogin);
 
-        return new ResponseEntity<HashMap>(map, org.springframework.http.HttpStatus.OK);
+        return new ResponseEntity<HashMap<String, String>>(map, org.springframework.http.HttpStatus.OK);
     }
 
     public AuditUserLoginDao getAuditUserLoginDao() {

@@ -12,11 +12,11 @@ import java.util.ArrayList;
 /**
  * @author ywang
  */
-public class XMLReportBean extends ReportBean {
-    private ArrayList dataLines;
+public class XMLReportBean extends ReportBean<String>  {
+    private ArrayList<String> dataLines;
 
-    public XMLReportBean(ArrayList xml) {
-        dataLines = new ArrayList(xml);
+    public XMLReportBean(ArrayList<String>  xml) {
+        dataLines = new ArrayList<>(xml);
     }
 
     @Override
@@ -29,11 +29,11 @@ public class XMLReportBean extends ReportBean {
         return buffer.toString();
     }
 
-    public ArrayList getXML() {
+    public ArrayList<String>  getXML() {
         return dataLines;
     }
 
-    public void setXML(ArrayList xml) {
+    public void setXML(ArrayList<String> xml) {
         dataLines = xml;
     }
 }

@@ -14,17 +14,17 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 
+import org.akaza.openclinica.bean.admin.AuditBean;
 import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.core.DiscrepancyNoteType;
 import org.akaza.openclinica.bean.core.ResolutionStatus;
 import org.akaza.openclinica.bean.core.Role;
+import org.akaza.openclinica.bean.login.StudyUserRoleBean;
 import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.bean.managestudy.DiscrepancyNoteBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
@@ -39,7 +39,6 @@ import org.akaza.openclinica.bean.submit.SubjectBean;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormDiscrepancyNotes;
 import org.akaza.openclinica.control.form.FormProcessor;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.admin.AuditDAO;
 import org.akaza.openclinica.dao.admin.CRFDAO;
 import org.akaza.openclinica.dao.login.UserAccountDAO;
@@ -64,7 +63,12 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
  */
 public class ViewDiscrepancyNoteServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 2458456258172053818L;
+
+	Locale locale;
     // < ResourceBundleresexception,respage;
 
     public static final String ENTITY_ID = "id";
@@ -128,7 +132,7 @@ public class ViewDiscrepancyNoteServlet extends SecureController {
         
         request.setAttribute(DIS_TYPES, DiscrepancyNoteType.list);
         if (currentRole.getRole().equals(Role.RESEARCHASSISTANT) ||currentRole.getRole().equals(Role.RESEARCHASSISTANT2) || currentRole.getRole().equals(Role.INVESTIGATOR)) {
-            ArrayList<ResolutionStatus> resStatuses = new ArrayList();
+            ArrayList<ResolutionStatus> resStatuses = new ArrayList<>();
             resStatuses.add(ResolutionStatus.UPDATED);
             resStatuses.add(ResolutionStatus.RESOLVED);
             request.setAttribute(RES_STATUSES, resStatuses);
@@ -142,7 +146,7 @@ public class ViewDiscrepancyNoteServlet extends SecureController {
             types2.remove(DiscrepancyNoteType.QUERY);
             request.setAttribute(DIS_TYPES2, types2);
         } else if (currentRole.getRole().equals(Role.MONITOR)) {
-            ArrayList<ResolutionStatus> resStatuses = new ArrayList();
+            ArrayList<ResolutionStatus> resStatuses = new ArrayList<>();
             resStatuses.add(ResolutionStatus.OPEN);
             resStatuses.add(ResolutionStatus.UPDATED);
             resStatuses.add(ResolutionStatus.CLOSED);
@@ -213,7 +217,7 @@ public class ViewDiscrepancyNoteServlet extends SecureController {
 
         String isLocked = fp.getString(LOCKED_FLAG);
 
-        if (!StringUtil.isBlank(isLocked) && "yes".equalsIgnoreCase(isLocked)) {
+        if (!(isLocked == null || isLocked.trim().isEmpty()) && "yes".equalsIgnoreCase(isLocked)) {
 
             request.setAttribute(LOCKED_FLAG, "yes");
         } else {
@@ -241,7 +245,7 @@ public class ViewDiscrepancyNoteServlet extends SecureController {
         ItemDataBean itemData = new ItemDataBean();
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yyyy");
         int preUserId = 0;
-        if (!StringUtil.isBlank(name)) {
+        if (!(name == null || name.trim().isEmpty())) {
             if ("itemData".equalsIgnoreCase(name)) {
                 ItemDataDAO iddao = new ItemDataDAO(sm.getDataSource());
                 itemData = (ItemDataBean) iddao.findByPK(entityId);
@@ -276,7 +280,7 @@ public class ViewDiscrepancyNoteServlet extends SecureController {
                 SubjectBean sub = (SubjectBean) sdao.findByPK(ssub.getSubjectId());
                 request.setAttribute("noteSubject", ssub);
 
-                if (!StringUtil.isBlank(column)) {
+                if (!(column == null || column.trim().isEmpty())) {
                     if ("enrollment_date".equalsIgnoreCase(column)) {
                         if (ssub.getEnrollmentDate() != null) {
                             request.setAttribute("entityValue", dateFormatter.format(ssub.getEnrollmentDate()));
@@ -309,7 +313,7 @@ public class ViewDiscrepancyNoteServlet extends SecureController {
                 sub.setLabel(sub.getUniqueIdentifier());
                 request.setAttribute("noteSubject", sub);
 
-                if (!StringUtil.isBlank(column)) {
+                if (!(column == null || column.trim().isEmpty())) {
                     if ("gender".equalsIgnoreCase(column)) {
                         request.setAttribute("entityValue", ssub.getGender() + "");
                         request.setAttribute("entityName", resword.getString("gender"));
@@ -337,7 +341,7 @@ public class ViewDiscrepancyNoteServlet extends SecureController {
                 request.setAttribute("studyEvent", se);
                 request.setAttribute("noteSubject", new StudySubjectDAO(sm.getDataSource()).findByPK(se.getStudySubjectId()));
 
-                if (!StringUtil.isBlank(column)) {
+                if (!(column == null || column.trim().isEmpty())) {
                     if ("location".equalsIgnoreCase(column)) {
                         request.setAttribute("entityValue", se.getLocation());
                         request.setAttribute("entityName", resword.getString("location"));
@@ -361,7 +365,7 @@ public class ViewDiscrepancyNoteServlet extends SecureController {
             } else if ("eventCrf".equalsIgnoreCase(name)) {
                 EventCRFDAO ecdao = new EventCRFDAO(sm.getDataSource());
                 EventCRFBean ec = (EventCRFBean) ecdao.findByPK(entityId);
-                if (!StringUtil.isBlank(column)) {
+                if (!(column == null || column.trim().isEmpty())) {
                     if ("date_interviewed".equals(column)) {
                         if (ec.getDateInterviewed() != null) {
                             request.setAttribute("entityValue", dateFormatter.format(ec.getDateInterviewed()));
@@ -421,7 +425,7 @@ public class ViewDiscrepancyNoteServlet extends SecureController {
 
         request.setAttribute(CreateDiscrepancyNoteServlet.WRITE_TO_DB, writeToDB ? "1" : "0");
 
-        ArrayList notes = (ArrayList) dndao.findAllByEntityAndColumn(name, entityId, column);
+        ArrayList<DiscrepancyNoteBean> notes = dndao.findAllByEntityAndColumn(name, entityId, column);
 
         if (notes.size() > 0) {
             notes.get(0);
@@ -453,7 +457,7 @@ public class ViewDiscrepancyNoteServlet extends SecureController {
         Map<Integer, DiscrepancyNoteBean> noteTree = new LinkedHashMap<Integer, DiscrepancyNoteBean>();
 
         String session_key = eventCRFId+"_"+field;
-        ArrayList newFieldNotes=null;
+        ArrayList<DiscrepancyNoteBean> newFieldNotes=null;
         if (newNotes != null && (!newNotes.getNotes(field).isEmpty() || 
         		!newNotes.getNotes(session_key).isEmpty() ))
         
@@ -567,10 +571,7 @@ public class ViewDiscrepancyNoteServlet extends SecureController {
             }
         }
 
-        Set parents = noteTree.keySet();
-        Iterator it = parents.iterator();
-        while (it.hasNext()) {
-            Integer key = (Integer) it.next();
+        for(Integer key : noteTree.keySet()) {
             DiscrepancyNoteBean note = noteTree.get(key);
             note.setNumChildren(note.getChildren().size());
             note.setEntityType(name);
@@ -642,7 +643,7 @@ public class ViewDiscrepancyNoteServlet extends SecureController {
         StudyDAO studyDAO = new StudyDAO(sm.getDataSource());
         StudyBean subjectStudy = studyDAO.findByStudySubjectId(subjectId);
         int studyId = currentStudy.getId();
-        ArrayList<UserAccountBean> userAccounts = new ArrayList();
+        ArrayList<StudyUserRoleBean> userAccounts = new ArrayList<>();
         if (currentStudy.getParentStudyId() > 0) {
             userAccounts = udao.findAllUsersByStudyOrSite(studyId, currentStudy.getParentStudyId(), subjectId);
         } else if (subjectStudy.getParentStudyId() > 0) {
@@ -650,6 +651,7 @@ public class ViewDiscrepancyNoteServlet extends SecureController {
         } else {
             userAccounts = udao.findAllUsersByStudyOrSite(studyId, 0, subjectId);
         }
+        // TODO it seems like there is no place where the attribute USER_ACCOUNT is read
         request.setAttribute(USER_ACCOUNTS, userAccounts);
         request.setAttribute(VIEW_DN_LINK, this.getPageServletFileName());
 
@@ -664,7 +666,7 @@ public class ViewDiscrepancyNoteServlet extends SecureController {
         } else if (name.equalsIgnoreCase("itemdata")) {
             name = "item_data";
         }
-        ArrayList itemAuditEvents = adao.findItemAuditEvents(entityId, name);
+        ArrayList<AuditBean> itemAuditEvents = adao.findItemAuditEvents(entityId, name);
         request.setAttribute("itemAudits", itemAuditEvents);
 
         forwardPage(Page.VIEW_DISCREPANCY_NOTE);

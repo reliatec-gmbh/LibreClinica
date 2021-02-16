@@ -7,6 +7,11 @@
  */
 package org.akaza.openclinica.control.managestudy;
 
+import static org.akaza.openclinica.core.util.ClassCastHelper.asArrayList;
+
+import java.io.IOException;
+import java.util.ArrayList;
+
 import org.akaza.openclinica.bean.core.GroupClassType;
 import org.akaza.openclinica.bean.core.NumericComparisonOperator;
 import org.akaza.openclinica.bean.core.Role;
@@ -16,23 +21,23 @@ import org.akaza.openclinica.bean.managestudy.StudyGroupClassBean;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.control.form.Validator;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.managestudy.StudyGroupClassDAO;
 import org.akaza.openclinica.dao.managestudy.StudyGroupDAO;
 import org.akaza.openclinica.exception.OpenClinicaException;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
-
-import java.util.ArrayList;
-import java.io.IOException;
-
 /**
  * @author jxu
  *
  * Servlet to create a new subject group class
  */
 public class CreateSubjectGroupClassServlet extends SecureController {
-    @Override
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8536912009639036567L;
+
+	@Override
     public void mayProceed() throws InsufficientPermissionException {
         checkStudyLocked(Page.SUBJECT_GROUP_CLASS_LIST_SERVLET, respage.getString("current_study_locked"));
         checkStudyFrozen(Page.SUBJECT_GROUP_CLASS_LIST_SERVLET, respage.getString("current_study_frozen"));
@@ -56,8 +61,8 @@ public class CreateSubjectGroupClassServlet extends SecureController {
     public void processRequest() throws Exception {
         String action = request.getParameter("action");
 
-        if (StringUtil.isBlank(action)) {
-            ArrayList studyGroups = new ArrayList();
+        if (action == null || action.trim().isEmpty()) {
+            ArrayList<StudyGroupBean> studyGroups = new ArrayList<>();
             for (int i = 0; i < 10; i++) {
                 studyGroups.add(new StudyGroupBean());
             }
@@ -97,11 +102,11 @@ public class CreateSubjectGroupClassServlet extends SecureController {
         v.addValidation("name", Validator.LENGTH_NUMERIC_COMPARISON, NumericComparisonOperator.LESS_THAN_OR_EQUAL_TO, 30);
         v.addValidation("subjectAssignment", Validator.LENGTH_NUMERIC_COMPARISON, NumericComparisonOperator.LESS_THAN_OR_EQUAL_TO, 30);
 
-        ArrayList studyGroups = new ArrayList();
+        ArrayList<StudyGroupBean> studyGroups = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             String name = fp.getString("studyGroup" + i);
             String description = fp.getString("studyGroupDescription" + i);
-            if (!StringUtil.isBlank(name)) {
+            if (!(name == null || name.trim().isEmpty())) {
                 StudyGroupBean group = new StudyGroupBean();
                 group.setName(name);
                 group.setDescription(description);
@@ -155,7 +160,7 @@ public class CreateSubjectGroupClassServlet extends SecureController {
      */
     private void submitGroup() throws OpenClinicaException, IOException {
         StudyGroupClassBean group = (StudyGroupClassBean) session.getAttribute("group");
-        ArrayList studyGroups = (ArrayList) session.getAttribute("studyGroups");
+        ArrayList<StudyGroupBean> studyGroups = asArrayList(session.getAttribute("studyGroups"), StudyGroupBean.class);
         StudyGroupClassDAO sgcdao = new StudyGroupClassDAO(sm.getDataSource());
         group.setStudyId(currentStudy.getId());
         group.setOwner(ub);
@@ -176,7 +181,7 @@ public class CreateSubjectGroupClassServlet extends SecureController {
             }
             addPageMessage(respage.getString("the_subject_group_class_created_succesfully"));
         }
-        ArrayList pageMessages = (ArrayList) request.getAttribute(PAGE_MESSAGE);
+        ArrayList<String> pageMessages = asArrayList(request.getAttribute(PAGE_MESSAGE), String.class);
         session.setAttribute("pageMessages", pageMessages);
         response.sendRedirect(request.getContextPath() + Page.MANAGE_STUDY_MODULE.getFileName());
 

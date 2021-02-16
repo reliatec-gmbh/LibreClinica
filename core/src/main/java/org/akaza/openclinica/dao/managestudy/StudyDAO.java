@@ -7,17 +7,20 @@
  */
 package org.akaza.openclinica.dao.managestudy;
 
-/**
- * <P>
- * StudyDAO.java, the data access object that users will access the database for
- * study objects, tbh.
- * 
- * @author thickerson
- * 
- * 
- */
-import org.akaza.openclinica.bean.core.EntityBean;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toCollection;
+
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.stream.Stream;
+
+import javax.sql.DataSource;
+
 import org.akaza.openclinica.bean.core.Status;
+import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.managestudy.StudyType;
 import org.akaza.openclinica.dao.core.AuditableEntityDAO;
@@ -26,27 +29,19 @@ import org.akaza.openclinica.dao.core.DAODigester;
 import org.akaza.openclinica.dao.core.SQLFactory;
 import org.akaza.openclinica.dao.core.TypeNames;
 
-import java.sql.Types;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Locale;
-
-import javax.sql.DataSource;
-
-public class StudyDAO <K extends String,V extends ArrayList> extends AuditableEntityDAO {
+public class StudyDAO extends AuditableEntityDAO<StudyBean> {
     // private DataSource ds;
     // private DAODigester digester;
 
     public StudyDAO(DataSource ds) {
         super(ds);
+        setQueryNames();
     }
 
     public StudyDAO(DataSource ds, DAODigester digester) {
         super(ds);
         this.digester = digester;
+        setQueryNames();
     }
 
     // This constructor sets up the Locale for JUnit tests; see the locale
@@ -55,6 +50,10 @@ public class StudyDAO <K extends String,V extends ArrayList> extends AuditableEn
 
         this(ds, digester);
         this.locale = locale;
+    }
+    
+    private void setQueryNames() {
+    	getNextPKName = "findNextKey";
     }
 
     @Override
@@ -187,8 +186,8 @@ public class StudyDAO <K extends String,V extends ArrayList> extends AuditableEn
      * 
      * @return sb an updated study bean.
      */
-    public EntityBean update(EntityBean eb) {
-        StudyBean sb = (StudyBean) eb;
+    @Override
+    public StudyBean update(StudyBean sb) {
         sb = this.updateStepOne(sb);
         sb = this.createStepTwo(sb);
         sb = this.createStepThree(sb);
@@ -207,8 +206,8 @@ public class StudyDAO <K extends String,V extends ArrayList> extends AuditableEn
      * @return sb the study bean after it is updated with this phase.
      */
     public StudyBean updateStepOne(StudyBean sb) {
-        HashMap variables = new HashMap();
-        HashMap nullVars = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
+		HashMap<Integer, Integer> nullVars = new HashMap<>();
 
         if (sb.getParentStudyId() == 0) {
             nullVars.put(new Integer(1), new Integer(Types.INTEGER));
@@ -259,7 +258,7 @@ public class StudyDAO <K extends String,V extends ArrayList> extends AuditableEn
         // variables.put(new Integer(22), new Integer(1));
         // stop gap measure for owner and updater id
         variables.put(new Integer(24), new Integer(sb.getId()));// study id
-        this.execute(digester.getQuery("updateStepOne"), variables, nullVars);
+        this.executeUpdate(digester.getQuery("updateStepOne"), variables, nullVars);
         return sb;
     }
 
@@ -273,8 +272,8 @@ public class StudyDAO <K extends String,V extends ArrayList> extends AuditableEn
      * 
      * @return eb the created entity bean.
      */
-    public EntityBean create(EntityBean eb) {
-        StudyBean sb = (StudyBean) eb;
+    @Override
+    public StudyBean create(StudyBean sb) {
         sb = this.createStepOne(sb);
         // in the above step, we will have created a primary key,
         // and in the next steps, we update the study bean
@@ -293,16 +292,7 @@ public class StudyDAO <K extends String,V extends ArrayList> extends AuditableEn
      * @return int, which is the next primary key for creating a study.
      */
     public int findNextKey() {
-        this.unsetTypeExpected();
-        Integer keyInt = new Integer(0);
-        this.setTypeExpected(1, TypeNames.INT);
-        ArrayList alist = this.select(digester.getQuery("findNextKey"));
-        Iterator it = alist.iterator();
-        if (it.hasNext()) {
-            HashMap key = (HashMap) it.next();
-            keyInt = (Integer) key.get("key");
-        }
-        return keyInt.intValue();
+    	return getNextPK();
     }
 
     /**
@@ -319,8 +309,8 @@ public class StudyDAO <K extends String,V extends ArrayList> extends AuditableEn
      * @return same study bean with a primary key in the ID field.
      */
     public StudyBean createStepOne(StudyBean sb) {
-        HashMap variables = new HashMap();
-        HashMap nullVars = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
+        HashMap<Integer, Integer> nullVars = new HashMap<>();
         sb.setId(this.findNextKey());
         variables.put(new Integer(1), new Integer(sb.getId()));
         if (sb.getParentStudyId() == 0) {
@@ -369,7 +359,7 @@ public class StudyDAO <K extends String,V extends ArrayList> extends AuditableEn
         variables.put(new Integer(23), new Integer(sb.getOwnerId()));
         variables.put(new Integer(24), getValidOid(sb));
         // replace this with the owner id
-        this.execute(digester.getQuery("createStepOne"), variables, nullVars);
+        this.executeUpdate(digester.getQuery("createStepOne"), variables, nullVars);
         return sb;
     }
 
@@ -386,72 +376,44 @@ public class StudyDAO <K extends String,V extends ArrayList> extends AuditableEn
     }
 
     private String getValidOid(StudyBean sb) {
-
         String oid = getOid(sb);
         logger.info("*** " + oid);
         String oidPreRandomization = oid;
-        while (findByOid(oid) != null) {
+        while (existStudyWithOid(oid)) {
             oid = sb.getOidGenerator().randomizeOid(oidPreRandomization);
         }
         logger.info("returning the following oid: " + oid);
         return oid;
 
     }
+    
+    /**
+     * Checks whether a study with the given OID already exist.
+     * 
+     * @param oid the study OID
+     * @return true if a study with the given OID exists, false otherwise
+     */
+    public boolean existStudyWithOid(String oid) {
+    	StudyBean foundStudy = findByOid(oid);
+    	return foundStudy != null && oid.equals(foundStudy.getOid());
+    }
 
     public StudyBean findByOid(String oid) {
-        StudyBean sb = null;
-        this.unsetTypeExpected();
-        this.setTypesExpected();
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), oid);
-        ArrayList alist = this.select(digester.getQuery("findByOid"), variables);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            sb = (StudyBean) this.getEntityFromHashMap((HashMap) it.next());
-            return sb;
-        } else {
-            logger.info("returning null from find by oid...");
-            return null;
-        }
-
+    	String queryName = "findByOid";
+        HashMap<Integer, Object> variables = variables(oid);
+        return executeFindByPKQuery(queryName, variables);
     }
 
     public StudyBean findByUniqueIdentifier(String oid) {
-        StudyBean sb = null;
-        this.unsetTypeExpected();
-        this.setTypesExpected();
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), oid);
-        ArrayList alist = this.select(digester.getQuery("findByUniqueIdentifier"), variables);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            sb = (StudyBean) this.getEntityFromHashMap((HashMap) it.next());
-            return sb;
-        } else {
-            logger.info("returning null from find by Unique Identifier...");
-            return null;
-        }
+    	String queryName = "findByUniqueIdentifier";
+        HashMap<Integer, Object> variables = variables(oid);
+        return executeFindByPKQuery(queryName, variables);
     }
 
     public StudyBean findSiteByUniqueIdentifier(String parentUniqueIdentifier, String siteUniqueIdentifier) {
-        StudyBean sb = null;
-        this.unsetTypeExpected();
-        this.setTypesExpected();
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), parentUniqueIdentifier);
-        variables.put(new Integer(2), siteUniqueIdentifier);
-        ArrayList alist = this.select(digester.getQuery("findSiteByUniqueIdentifier"), variables);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            sb = (StudyBean) this.getEntityFromHashMap((HashMap) it.next());
-            return sb;
-        } else {
-            logger.info("returning null from find by Unique Identifier...");
-            return null;
-        }
+    	String queryName = "findSiteByUniqueIdentifier";
+        HashMap<Integer, Object> variables = variables(parentUniqueIdentifier, siteUniqueIdentifier);
+        return executeFindByPKQuery(queryName, variables);
     }
 
     public StudyBean createStepTwo(StudyBean sb) {
@@ -461,8 +423,8 @@ public class StudyDAO <K extends String,V extends ArrayList> extends AuditableEn
         // URL_DESCRIPTION=?, CONDITIONS=?, KEYWORDS=?, ELIGIBILITY=?,
         // GENDER=?, AGE_MAX=?, AGE_MIN=?, HEALTHY_VOLUNTEER_ACCEPTED=?
         // WHERE STUDY_ID=?
-        HashMap variables = new HashMap();
-        HashMap nullVars = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
+        HashMap<Integer, Integer> nullVars = new HashMap<>();
         variables.put(new Integer(1), new Integer(sb.getType().getId()));
         variables.put(new Integer(2), sb.getProtocolTypeKey());
         variables.put(new Integer(3), sb.getProtocolDescription());
@@ -494,12 +456,12 @@ public class StudyDAO <K extends String,V extends ArrayList> extends AuditableEn
         // variables.put(new Integer(21), new
         // Boolean(sb.isDiscrepancyManagement()));
         variables.put(new Integer(20), new Integer(sb.getId()));
-        this.execute(digester.getQuery("createStepTwo"), variables, nullVars);
+        this.executeUpdate(digester.getQuery("createStepTwo"), variables, nullVars);
         return sb;
     }
 
     public StudyBean createStepThree(StudyBean sb) {
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), sb.getPurposeKey());
         variables.put(new Integer(2), sb.getAllocationKey());
         variables.put(new Integer(3), sb.getMaskingKey());
@@ -508,17 +470,17 @@ public class StudyDAO <K extends String,V extends ArrayList> extends AuditableEn
         variables.put(new Integer(6), sb.getEndpointKey());
         variables.put(new Integer(7), sb.getInterventionsKey());
         variables.put(new Integer(8), new Integer(sb.getId()));
-        this.execute(digester.getQuery("createStepThree"), variables);
+        this.executeUpdate(digester.getQuery("createStepThree"), variables);
         return sb;
     }
 
     public StudyBean createStepFour(StudyBean sb) {
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), sb.getDurationKey());
         variables.put(new Integer(2), sb.getSelectionKey());
         variables.put(new Integer(3), sb.getTimingKey());
         variables.put(new Integer(4), new Integer(sb.getId()));
-        this.execute(digester.getQuery("createStepFour"), variables);
+        this.executeUpdate(digester.getQuery("createStepFour"), variables);
         return sb;
     }
 
@@ -534,7 +496,8 @@ public class StudyDAO <K extends String,V extends ArrayList> extends AuditableEn
      * getEntityFromHashMap, the method that gets the object from the database
      * query.
      */
-    public Object getEntityFromHashMap(HashMap hm) {
+    @Override
+    public StudyBean getEntityFromHashMap(HashMap<String, Object> hm) {
         StudyBean eb = new StudyBean();
 
         // first set all the strings
@@ -600,9 +563,11 @@ public class StudyDAO <K extends String,V extends ArrayList> extends AuditableEn
             eb.setParentStudyId(parentStudyId.intValue());
         }
         Integer ownerId = (Integer) hm.get("owner_id");
-        eb.setOwnerId(ownerId.intValue());
+        UserAccountBean owner = (UserAccountBean) getUserAccountDAO().findByPK(ownerId);
+        eb.setOwner(owner);
         Integer updateId = (Integer) hm.get("update_id");
-        eb.setUpdaterId(updateId.intValue());
+        UserAccountBean updater = (UserAccountBean) getUserAccountDAO().findByPK(updateId);
+        eb.setUpdater(updater);
         Integer typeId = (Integer) hm.get("type_id");
         eb.setType(StudyType.get(typeId.intValue()));
         Integer statusId = (Integer) hm.get("status_id");
@@ -628,74 +593,42 @@ public class StudyDAO <K extends String,V extends ArrayList> extends AuditableEn
         return eb;
     }
 
-    public Collection findAllByUser(String username) {
-        this.unsetTypeExpected();
-        this.setTypesExpected();
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), username);
-        ArrayList alist = this.select(digester.getQuery("findAllByUser"), variables);
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            StudyBean eb = (StudyBean) this.getEntityFromHashMap((HashMap) it.next());
-            al.add(eb);
-        }
-        return al;
+    public ArrayList<StudyBean> findAllByUser(String username) {
+    	String queryName = "findAllByUser";
+        HashMap<Integer, Object> variables = variables(username);
+        return executeFindAllQuery(queryName, variables);
     }
 
     public ArrayList<Integer> getStudyIdsByCRF(int crfId) {
         this.unsetTypeExpected();
         this.setTypeExpected(1, TypeNames.INT);
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
-        variables.put(1, crfId);
-        ArrayList alist = this.select(digester.getQuery("getStudyIdsByCRF"), variables);
+        HashMap<Integer, Object> variables = variables(crfId);
+        ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("getStudyIdsByCRF"), variables);
         ArrayList<Integer> al = new ArrayList<Integer>();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            HashMap h = (HashMap) it.next();
-            al.add((Integer) h.get("study_id"));
+        for(HashMap<String, Object> hm : alist) {
+            al.add((Integer) hm.get("study_id"));
         }
         return al;
     }
 
     // YW 10-18-2007
-    public Collection findAllByUserNotRemoved(String username) {
-        this.unsetTypeExpected();
-        this.setTypesExpected();
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), username);
-        ArrayList alist = this.select(digester.getQuery("findAllByUserNotRemoved"), variables);
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            StudyBean eb = (StudyBean) this.getEntityFromHashMap((HashMap) it.next());
-            al.add(eb);
-        }
-        return al;
+    public  ArrayList<StudyBean> findAllByUserNotRemoved(String username) { 
+    	String queryName = "findAllByUserNotRemoved";
+        HashMap<Integer, Object> variables = variables(username);
+        return executeFindAllQuery(queryName, variables);
     }
 
-    public ArrayList findAllByStatus(Status status) {
-        this.unsetTypeExpected();
-        this.setTypesExpected();
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(status.getId()));
-        String sql = digester.getQuery("findAllByStatus");
-        ArrayList alist = this.select(sql, variables);
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            StudyBean eb = (StudyBean) this.getEntityFromHashMap((HashMap) it.next());
-            al.add(eb);
-        }
-        return al;
+    public ArrayList<StudyBean> findAllByStatus(Status status) { 
+    	String queryName = "findAllByStatus";
+        HashMap<Integer, Object> variables = variables(status.getId());
+        return executeFindAllQuery(queryName, variables);
     }
 
-    public Collection findAll() {
-
+    public ArrayList<StudyBean> findAll() {
         return findAllByLimit(false);
     }
 
-    public Collection findAllByLimit(boolean isLimited) {
+    public ArrayList<StudyBean> findAllByLimit(boolean isLimited) {
         this.setTypesExpected();
         String sql = null;
         // Updated for ORACLE and PGSQL compatibility
@@ -708,28 +641,13 @@ public class StudyDAO <K extends String,V extends ArrayList> extends AuditableEn
         } else {
             sql = digester.getQuery("findAll");
         }
-        ArrayList alist = this.select(sql);
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            StudyBean eb = (StudyBean) this.getEntityFromHashMap((HashMap) it.next());
-            al.add(eb);
-        }
-        return al;
+        ArrayList<HashMap<String, Object>> alist = this.select(sql);
+        return alist.stream().map(hm -> this.getEntityFromHashMap(hm)).collect(toCollection(ArrayList::new));
     }
 
-    public Collection findAllParents() {
-        this.setTypesExpected();
-
-        String sql = digester.getQuery("findAllParents");
-        ArrayList alist = this.select(sql);
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            StudyBean eb = (StudyBean) this.getEntityFromHashMap((HashMap) it.next());
-            al.add(eb);
-        }
-        return al;
+    public ArrayList<StudyBean> findAllParents() {
+    	String queryName = "findAllParents";
+        return executeFindAllQuery(queryName);
     }
 
     /**
@@ -738,98 +656,48 @@ public class StudyDAO <K extends String,V extends ArrayList> extends AuditableEn
      * @return a boolean
      */
     public boolean isAParent(int studyId) {
-        boolean ret = false;
-        Collection col = findAllByParent(studyId);
-        if (col != null && col.size() > 0) {
-            ret = true;
-        }
-        return ret;
+        ArrayList<StudyBean> parents = findAllByParent(studyId);
+        return parents != null && parents.size() > 0;
     }
 
-    public Collection findAllByParent(int parentStudyId) {
+    public ArrayList<StudyBean> findAllByParent(int parentStudyId) {
         return findAllByParentAndLimit(parentStudyId, false);
     }
 
-    public Collection findAllByParentAndLimit(int parentStudyId, boolean isLimited) {
-        this.setTypesExpected();
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(parentStudyId));
-        ArrayList alist = null;
+    public ArrayList<StudyBean> findAllByParentAndLimit(int parentStudyId, boolean isLimited) {
+    	String queryName;
         if (isLimited) {
-            alist = this.select(digester.getQuery("findAllByParentLimit5"), variables);
+        	queryName = "findAllByParentLimit5";
         } else {
-            alist = this.select(digester.getQuery("findAllByParent"), variables);
+        	queryName = "findAllByParent";
         }
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            StudyBean eb = (StudyBean) this.getEntityFromHashMap((HashMap) it.next());
-            al.add(eb);
-        }
-        return al;
-
+        HashMap<Integer, Object> variables = variables(parentStudyId);
+        return executeFindAllQuery(queryName, variables);
     }
 
-    public Collection findAll(int studyId) {
-        this.setTypesExpected();
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(studyId));
-        variables.put(new Integer(2), new Integer(studyId));
-        ArrayList alist = null;
-        alist = this.select(digester.getQuery("findAllByStudyId"), variables);
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            StudyBean eb = (StudyBean) this.getEntityFromHashMap((HashMap) it.next());
-            al.add(eb);
-        }
-        return al;
-
+    public ArrayList<StudyBean> findAll(int studyId) {
+        String queryName = "findAllByStudyId";
+        HashMap<Integer, Object> variables = variables(studyId, studyId);
+        return executeFindAllQuery(queryName, variables);
     }
 
-    public Collection findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
-
-        return al;
-    }
-
-    public EntityBean findByPK(int ID) {
-        StudyBean eb = new StudyBean();
-        this.setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(ID));
-
-        String sql = digester.getQuery("findByPK");
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            eb = (StudyBean) this.getEntityFromHashMap((HashMap) it.next());
-        }
-
-        return eb;
-    }
-
-    /*
-     * added 02/2008, tbh
+    /**
+     * NOT IMPLEMENTED
      */
-    public EntityBean findByName(String name) {
-        StudyBean eb = new StudyBean();
-        this.setTypesExpected();
+    public ArrayList<StudyBean> findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+       throw new RuntimeException("Not implemented");
+    }
 
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), name);
+    public StudyBean findByPK(int ID) {
+    	String queryName = "findByPK";
+        HashMap<Integer, Object> variables = variables(ID);
+        return executeFindByPKQuery(queryName, variables);
+    }
 
-        String sql = digester.getQuery("findByName");
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            eb = (StudyBean) this.getEntityFromHashMap((HashMap) it.next());
-        }
-
-        return eb;
+    public StudyBean findByName(String name) {
+    	String queryName = "findByName";
+        HashMap<Integer, Object> variables = variables(name);
+        return executeFindByPKQuery(queryName, variables);
     }
 
     /**
@@ -838,45 +706,25 @@ public class StudyDAO <K extends String,V extends ArrayList> extends AuditableEn
      * @param name
      */
     public void deleteTestOnly(String name) {
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), name);
-        this.execute(digester.getQuery("deleteTestOnly"), variables);
-    }
-
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
-
-        return al;
-    }
-
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType) {
-        ArrayList al = new ArrayList();
-
-        return al;
+        this.executeUpdate(digester.getQuery("deleteTestOnly"), variables);
     }
 
     /**
-     * Only for use by getChildrenByParentIds
-     * 
-     * @param answer
-     * @param parentId
-     * @param child
-     * @return
+     * NOT IMPLEMENTED
      */
-    private HashMap addChildToParent(HashMap answer, int parentId, StudyBean child) {
-        Integer key = new Integer(parentId);
-        ArrayList children = (ArrayList) answer.get(key);
-
-        if (children == null) {
-            children = new ArrayList();
-        }
-
-        children.add(child);
-        answer.put(key, children);
-
-        return answer;
+    public ArrayList<StudyBean> findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+      throw new RuntimeException("Not implemented");
     }
 
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<StudyBean> findAllByPermission(Object objCurrentUser, int intActionType) {
+        throw new RuntimeException("Not implemented");
+    }
+    
     /**
      * @param allStudies
      *            The result of findAll().
@@ -888,119 +736,81 @@ public class StudyDAO <K extends String,V extends ArrayList> extends AuditableEn
      *         h where h.get(A.getId()) returns an ArrayList whose elements are
      *         B and C
      */
-    public HashMap getChildrenByParentIds(ArrayList allStudies) {
-        HashMap answer = new HashMap();
-
+    public HashMap<Integer, ArrayList<StudyBean>> getChildrenByParentIds(ArrayList<StudyBean> allStudies) {
         if (allStudies == null) {
-            return answer;
+            return new HashMap<>();
         }
-
-        for (int i = 0; i < allStudies.size(); i++) {
-            StudyBean study = (StudyBean) allStudies.get(i);
-
-            int parentStudyId = study.getParentStudyId();
-            if (parentStudyId > 0) { // study is a child
-                answer = addChildToParent(answer, parentStudyId, study);
-            }
-        }
-
-        return answer;
+        
+        Stream<StudyBean> stream = allStudies.stream();
+        // filter for child studies (studies with a parent study id)
+        stream = stream.filter(s -> s.getParentStudyId() > 0);
+        // group by parent study id
+        return stream.collect(groupingBy(StudyBean::getParentStudyId, HashMap::new, toCollection(ArrayList::new)));
     }
 
-    public Collection<Integer> findAllSiteIdsByStudy(StudyBean study) {
+    public ArrayList<Integer> findAllSiteIdsByStudy(StudyBean study) {
         this.unsetTypeExpected();
         this.setTypeExpected(1, TypeNames.INT);// sid
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
-        variables.put(new Integer(1), new Integer(study.getId()));
-        variables.put(new Integer(2), new Integer(study.getId()));
-        ArrayList alist = this.select(digester.getQuery("findAllSiteIdsByStudy"), variables);
+        HashMap<Integer, Object> variables = variables(study.getId(), study.getId());
+        ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findAllSiteIdsByStudy"), variables);
         ArrayList<Integer> al = new ArrayList<Integer>();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            HashMap h = (HashMap) it.next();
-            al.add((Integer) h.get("study_id"));
+        for(HashMap<String, Object> hm : alist) {
+            al.add((Integer) hm.get("study_id"));
         }
         return al;
     }
 
-    public Collection<Integer> findOlnySiteIdsByStudy(StudyBean study) {
+    public ArrayList<Integer> findOlnySiteIdsByStudy(StudyBean study) {
         this.unsetTypeExpected();
         this.setTypeExpected(1, TypeNames.INT);// sid
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
-        variables.put(new Integer(1), new Integer(study.getId()));
-        ArrayList alist = this.select(digester.getQuery("findOlnySiteIdsByStudy"), variables);
+        HashMap<Integer, Object> variables = variables(study.getId());
+        ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findOlnySiteIdsByStudy"), variables);
         ArrayList<Integer> al = new ArrayList<Integer>();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            HashMap h = (HashMap) it.next();
-            al.add((Integer) h.get("study_id"));
+        for(HashMap<String, Object> hm : alist) {
+            al.add((Integer) hm.get("study_id"));
         }
         return al;
     }
 
     public StudyBean updateSitesStatus(StudyBean sb) {
-        HashMap variables = new HashMap();
-        HashMap nullVars = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
+        HashMap<Integer, Integer> nullVars = new HashMap<>();
 
         variables.put(new Integer(1), sb.getStatus().getId());
         variables.put(new Integer(2), sb.getOldStatus().getId());
         variables.put(new Integer(3), sb.getId());
 
-        this.execute(digester.getQuery("updateSitesStatus"), variables, nullVars);
+        this.executeUpdate(digester.getQuery("updateSitesStatus"), variables, nullVars);
         return sb;
     }
 
     public StudyBean updateStudyStatus(StudyBean sb) {
-        HashMap variables = new HashMap();
-        HashMap nullVars = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
+        HashMap<Integer, Integer> nullVars = new HashMap<>();
 
         variables.put(new Integer(1), sb.getStatus().getId());
         variables.put(new Integer(2), sb.getOldStatus().getId());
         variables.put(new Integer(3), sb.getId());
 
-
-        this.execute(digester.getQuery("updateStudyStatus"), variables, nullVars);
+        this.executeUpdate(digester.getQuery("updateStudyStatus"), variables, nullVars);
         return sb;
     }
 
     public StudyBean findByStudySubjectId(int studySubjectId) {
-        StudyBean sb = new StudyBean();
-        HashMap variables = new HashMap();
-        this.setTypesExpected();
-
-        variables.put(new Integer(1), studySubjectId);
-
-        // >> tbh
-        // String sql = digester.getQuery("findByStudySubjectId");
-        // ArrayList alist = this.select(sql, variables);
-        // Iterator it = alist.iterator();
-
-        // if (it.hasNext()) {
-        // sb = (StudyBean) this.getEntityFromHashMap((HashMap) it.next());
-        // }
-        // was not returning anything?
-        ArrayList alist = this.select(digester.getQuery("findByStudySubjectId"), variables);
-        Iterator it = alist.iterator();
-        if (it.hasNext()) {
-            sb = (StudyBean) this.getEntityFromHashMap((HashMap) it.next());
-        }
-        return sb;
+    	String queryName = "findByStudySubjectId";
+        HashMap<Integer, Object> variables = variables(studySubjectId);
+        return executeFindByPKQuery(queryName, variables);
     }
 
-    public Collection findAllByParentStudyIdOrderedByIdAsc(int parentStudyId) {
-        this.setTypesExpected();
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(parentStudyId));
-        variables.put(new Integer(2), new Integer(parentStudyId));
-        ArrayList alist = this.select(digester.getQuery("findAllByParentStudyIdOrderedByIdAsc"), variables);
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            StudyBean eb = (StudyBean) this.getEntityFromHashMap((HashMap) it.next());
-            al.add(eb);
-        }
-        return al;
-
+    public ArrayList<StudyBean> findAllByParentStudyIdOrderedByIdAsc(int parentStudyId) {
+    	String queryName = "findAllByParentStudyIdOrderedByIdAsc";
+        HashMap<Integer, Object> variables = variables(parentStudyId, parentStudyId);
+        return executeFindAllQuery(queryName, variables);
     }
+
+	@Override
+	public StudyBean emptyBean() {
+		return new StudyBean();
+	}
 
 }

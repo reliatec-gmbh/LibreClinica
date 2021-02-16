@@ -15,7 +15,11 @@ import javax.persistence.Embeddable;
 @Embeddable
 public class DatabaseChangeLogBeanPk implements Serializable {
 
-    private String id;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 9162019914317317695L;
+	private String id;
     private String author;
     private String fileName;
 

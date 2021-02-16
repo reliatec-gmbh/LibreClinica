@@ -13,12 +13,9 @@ import java.io.FileReader;
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
-
-import javax.xml.transform.TransformerConfigurationException;
 
 import org.akaza.openclinica.bean.extract.ExtractPropertyBean;
 import org.akaza.openclinica.core.util.ScriptRunner;
@@ -31,7 +28,11 @@ import org.akaza.openclinica.core.util.ScriptRunner;
  */
 public class SqlProcessingFunction extends ProcessingFunction implements Serializable {
 
-    private ExtractPropertyBean extractPropertyBean;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8694451077765381245L;
+	private ExtractPropertyBean extractPropertyBean;
     private String databaseUrl;
     private String databaseUsername;
     private String databasePassword;
@@ -161,33 +162,5 @@ public class SqlProcessingFunction extends ProcessingFunction implements Seriali
 
     public void setDatabaseType(String databaseType) {
         this.databaseType = databaseType;
-    }
-
-    /*
-     * getFileContents(sqlFile): pulls out all the contents and assembles a
-     * string with all the SQL statements to be executed on the datamart.
-     */
-    private String[] getFileContents(File sqlFile) throws Exception {
-        String value = "";
-        StringBuffer sb = new StringBuffer();
-        int bufSize = 1024;
-        BufferedReader br = new BufferedReader(new FileReader(sqlFile));
-        char[] buffer = new char[bufSize];
-        int amt = 0;
-        while ((amt = br.read(buffer)) >= 0) {
-            // value = value.concat(buffer);
-            sb.append(buffer, 0, amt);
-        }
-        br.close();
-        // sending sql statement by sql statement for error checking, tbh
-        // since we have plpsql functions we need to ignore semis that are
-        // included
-        // in quotes
-
-        // return sb.toString().split(";[^as \'.*\']");
-        // JN: Changing this to use tokenizer
-        // String[] ret = new String[1];
-        String[] ret = sb.toString().split(";");
-        return ret;
     }
 }

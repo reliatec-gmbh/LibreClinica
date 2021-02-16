@@ -20,6 +20,10 @@ import org.akaza.openclinica.domain.DataMapDomainObject;
 @Embeddable
 public class VersioningMapId extends DataMapDomainObject {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7124609831795227927L;
 	private Integer crfVersionId;
 	private Integer itemId;
 

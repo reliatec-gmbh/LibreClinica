@@ -15,7 +15,12 @@ package org.akaza.openclinica.bean.service;
  */
 public class SasProcessingFunction extends ProcessingFunction {
 
-    public SasProcessingFunction() {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8857284892637732961L;
+
+	public SasProcessingFunction() {
         fileType = "sas";
     }
     

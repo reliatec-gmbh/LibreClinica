@@ -7,6 +7,14 @@
  */
 package org.akaza.openclinica.control.managestudy;
 
+import static org.akaza.openclinica.core.util.ClassCastHelper.asArrayList;
+
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.NoSuchElementException;
+import java.util.StringTokenizer;
+
 import org.akaza.openclinica.bean.core.NumericComparisonOperator;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.login.UserAccountBean;
@@ -16,17 +24,10 @@ import org.akaza.openclinica.bean.service.StudyParameterValueBean;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.control.form.Validator;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.service.StudyParameterValueDAO;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
-
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.NoSuchElementException;
-import java.util.StringTokenizer;
 
 /**
  * Updates a top-level study
@@ -37,7 +38,11 @@ import java.util.StringTokenizer;
  * 
  */
 public class UpdateStudyServlet extends SecureController {
-    public static final String INPUT_START_DATE = "startDate";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6165286395419877159L;
+	public static final String INPUT_START_DATE = "startDate";
     public static final String INPUT_END_DATE = "endDate";
     public static final String INPUT_VER_DATE = "protocolDateVerification";
 
@@ -66,7 +71,6 @@ public class UpdateStudyServlet extends SecureController {
         panel.setIconInfoShown(true);
         panel.setManageSubject(false);
 
-        StudyDAO sdao = new StudyDAO(sm.getDataSource());
         StudyBean study = (StudyBean) session.getAttribute("newStudy");
 
         if (study == null) {
@@ -81,7 +85,7 @@ public class UpdateStudyServlet extends SecureController {
 
         String action = request.getParameter("action");
 
-        if (StringUtil.isBlank(action)) {
+        if(action == null || action.trim().isEmpty()) {
             // request.setAttribute("facRecruitStatusMap",
             // CreateStudyServlet.facRecruitStatusMap);
             request.setAttribute("statuses", Status.toActiveArrayList());
@@ -193,7 +197,8 @@ public class UpdateStudyServlet extends SecureController {
         FormProcessor fp = new FormProcessor(request);
 
         v.addValidation(INPUT_START_DATE, Validator.IS_A_DATE);
-        if (!StringUtil.isBlank(fp.getString(INPUT_END_DATE))) {
+        String endDate = fp.getString(INPUT_END_DATE);
+		if (!(endDate == null || endDate.trim().isEmpty())) {
             v.addValidation(INPUT_END_DATE, Validator.IS_A_DATE);
         }
         v.addValidation(INPUT_VER_DATE, Validator.IS_A_DATE);
@@ -203,7 +208,7 @@ public class UpdateStudyServlet extends SecureController {
 
         if (errors.isEmpty()) {
             logger.info("no errors");
-            ArrayList interventionArray = new ArrayList();
+            ArrayList<InterventionBean> interventionArray = new ArrayList<>();
             if (isInterventional) {
                 interventionArray = parseInterventions((StudyBean) session.getAttribute("newStudy"));
                 setMaps(isInterventional, interventionArray);
@@ -228,10 +233,10 @@ public class UpdateStudyServlet extends SecureController {
                 fp.addPresetValue(INPUT_VER_DATE, fp.getString(INPUT_VER_DATE));
             }
             try {
-                local_df.parse(fp.getString(INPUT_END_DATE));
+                local_df.parse(endDate);
                 fp.addPresetValue(INPUT_END_DATE, local_df.format(fp.getDate(INPUT_END_DATE)));
             } catch (ParseException pe) {
-                fp.addPresetValue(INPUT_END_DATE, fp.getString(INPUT_END_DATE));
+                fp.addPresetValue(INPUT_END_DATE, endDate);
             }
             setPresetValues(fp.getPresetValues());
             request.setAttribute("formMessages", errors);
@@ -255,12 +260,12 @@ public class UpdateStudyServlet extends SecureController {
         for (int i = 0; i < 10; i++) {
             String type = fp.getString("interType" + i);
             String name = fp.getString("interName" + i);
-            if (!StringUtil.isBlank(type) && StringUtil.isBlank(name)) {
+            if (!(type == null || type.trim().isEmpty()) && (name == null || name.trim().isEmpty())) {
                 v.addValidation("interName", Validator.NO_BLANKS);
                 request.setAttribute("interventionError", respage.getString("name_cannot_be_blank_if_type"));
                 break;
             }
-            if (!StringUtil.isBlank(name) && StringUtil.isBlank(type)) {
+            if (!(name == null || name.trim().isEmpty()) && (type == null || type.trim().isEmpty())) {
                 v.addValidation("interType", Validator.NO_BLANKS);
                 request.setAttribute("interventionError", respage.getString("name_cannot_be_blank_if_name"));
                 break;
@@ -278,7 +283,7 @@ public class UpdateStudyServlet extends SecureController {
         } else {
             logger.info("has validation errors");
             request.setAttribute("formMessages", errors);
-            setMaps(isInterventional, (ArrayList) session.getAttribute("interventions"));
+            setMaps(isInterventional, asArrayList(session.getAttribute("interventions"), InterventionBean.class));
             if (isInterventional) {
                 forwardPage(Page.UPDATE_STUDY3);
             } else {
@@ -336,7 +341,8 @@ public class UpdateStudyServlet extends SecureController {
     private void confirmStudy5() throws Exception {
         FormProcessor fp = new FormProcessor(request);
         Validator v = new Validator(request);
-        if (!StringUtil.isBlank(fp.getString("facConEmail"))) {
+        String contactEmail = fp.getString("facConEmail");
+		if (!(contactEmail == null || contactEmail.trim().isEmpty())) {
             v.addValidation("facConEmail", Validator.IS_A_EMAIL);
         }
         v.addValidation("facName", Validator.LENGTH_NUMERIC_COMPARISON, NumericComparisonOperator.LESS_THAN_OR_EQUAL_TO, 255);
@@ -355,7 +361,7 @@ public class UpdateStudyServlet extends SecureController {
         newStudy.setFacilityCity(fp.getString("facCity"));
         newStudy.setFacilityContactDegree(fp.getString("facConDrgree"));
         newStudy.setFacilityName(fp.getString("facName"));
-        newStudy.setFacilityContactEmail(fp.getString("facConEmail"));
+        newStudy.setFacilityContactEmail(contactEmail);
         newStudy.setFacilityContactPhone(fp.getString("facConPhone"));
         newStudy.setFacilityContactName(fp.getString("facConName"));
         newStudy.setFacilityCountry(fp.getString("facCountry"));
@@ -506,7 +512,7 @@ public class UpdateStudyServlet extends SecureController {
             session.setAttribute("study", study1);
         }
         // update manage_pedigrees for all sites
-        ArrayList children = (ArrayList) sdao.findAllByParent(study1.getId());
+        ArrayList<StudyBean> children = sdao.findAllByParent(study1.getId());
         for (int i = 0; i < children.size(); i++) {
             StudyBean child = (StudyBean) children.get(i);
             child.setType(study1.getType());// same as parent's type
@@ -572,7 +578,8 @@ public class UpdateStudyServlet extends SecureController {
 
         newStudy.setDatePlannedStart(fp.getDate(INPUT_START_DATE));
 
-        if (StringUtil.isBlank(fp.getString(INPUT_END_DATE))) {
+        String endDate = fp.getString(INPUT_END_DATE);
+		if (endDate == null || endDate.trim().isEmpty()) {
             newStudy.setDatePlannedEnd(null);
         } else {
             newStudy.setDatePlannedEnd(fp.getDate(INPUT_END_DATE));
@@ -597,7 +604,7 @@ public class UpdateStudyServlet extends SecureController {
         FormProcessor fp = new FormProcessor(request);
         StudyBean study = (StudyBean) session.getAttribute("newStudy");
         study.setPurpose(fp.getString("purpose"));
-        ArrayList interventionArray = new ArrayList();
+        ArrayList<InterventionBean> interventionArray = new ArrayList<>();
         if (isInterventional) {
             study.setAllocation(fp.getString("allocation"));
             study.setMasking(fp.getString("masking"));
@@ -612,7 +619,8 @@ public class UpdateStudyServlet extends SecureController {
             for (int i = 0; i < 10; i++) {
                 String type = fp.getString("interType" + i);
                 String name = fp.getString("interName" + i);
-                if (!StringUtil.isBlank(type) && !StringUtil.isBlank(name)) {
+                if (!(type == null || type.trim().isEmpty()) 
+                		&& !(name == null || name.trim().isEmpty())) {
                     InterventionBean ib = new InterventionBean(fp.getString("interType" + i), fp.getString("interName" + i));
                     interventionArray.add(ib);
                     interventions.append(ib.toString()).append(",");
@@ -637,11 +645,11 @@ public class UpdateStudyServlet extends SecureController {
      * @param sb
      * @return
      */
-    private ArrayList parseInterventions(StudyBean sb) {
-        ArrayList inters = new ArrayList();
+    private ArrayList<InterventionBean> parseInterventions(StudyBean sb) {
+        ArrayList<InterventionBean> inters = new ArrayList<>();
         String interventions = sb.getInterventions();
         try {
-            if (!StringUtil.isBlank(interventions)) {
+            if (!(interventions == null || interventions.trim().isEmpty())) {
                 StringTokenizer st = new StringTokenizer(interventions, ",");
                 while (st.hasMoreTokens()) {
                     String s = st.nextToken();
@@ -654,7 +662,7 @@ public class UpdateStudyServlet extends SecureController {
                 }
             }
         } catch (NoSuchElementException nse) {
-            return new ArrayList();
+            return new ArrayList<>();
         }
         return inters;
 
@@ -666,7 +674,7 @@ public class UpdateStudyServlet extends SecureController {
      * @param request
      * @param isInterventional
      */
-    private void setMaps(boolean isInterventional, ArrayList interventionArray) {
+    private void setMaps(boolean isInterventional, ArrayList<InterventionBean> interventionArray) {
         if (isInterventional) {
             request.setAttribute("interPurposeMap", CreateStudyServlet.interPurposeMap);
             request.setAttribute("allocationMap", CreateStudyServlet.allocationMap);

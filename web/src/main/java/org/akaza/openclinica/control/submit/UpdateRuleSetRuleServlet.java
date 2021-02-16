@@ -43,7 +43,6 @@ public class UpdateRuleSetRuleServlet extends SecureController {
 
     private static String RULESET_ID = "ruleSetId";
     private static String RULESETRULE_ID = "ruleSetRuleId";
-    private static String RULESET = "ruleSet";
     private static String ACTION = "action";
 
     @Override

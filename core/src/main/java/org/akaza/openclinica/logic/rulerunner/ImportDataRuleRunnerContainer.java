@@ -7,6 +7,14 @@
  */
 package org.akaza.openclinica.logic.rulerunner;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.sql.DataSource;
+
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
@@ -30,22 +38,9 @@ import org.akaza.openclinica.domain.rule.RuleSetRuleBean;
 import org.akaza.openclinica.domain.rule.action.RuleActionBean;
 import org.akaza.openclinica.domain.rule.action.RuleActionRunBean.Phase;
 import org.akaza.openclinica.service.rule.RuleSetServiceInterface;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.sql.DataSource;
-
 public class ImportDataRuleRunnerContainer {
-    private final Logger logger = LoggerFactory.getLogger(getClass().getName());
     /**
      * Key is target itemOID
      */
@@ -75,7 +70,7 @@ public class ImportDataRuleRunnerContainer {
         studyOid = studyBean.getOid();
         studySubjectOid = subjectDataBean.getSubjectOID();
         StudySubjectBean studySubject =
-                new StudySubjectDAO<String, ArrayList>(ds).findByOid(studySubjectOid);
+                new StudySubjectDAO(ds).findByOid(studySubjectOid);
 
         HashMap<String, StudyEventDefinitionBean> seds = new HashMap<String, StudyEventDefinitionBean>();
         HashMap<String, CRFVersionBean> cvs = new HashMap<String, CRFVersionBean>();
@@ -86,7 +81,7 @@ public class ImportDataRuleRunnerContainer {
             if(seds.containsKey(sedOid))
                 sed = seds.get(sedOid);
             else {
-                sed = new StudyEventDefinitionDAO<String, ArrayList>(ds).findByOid(sedOid);
+                sed = new StudyEventDefinitionDAO(ds).findByOid(sedOid);
                 seds.put(sedOid, sed);
             }
             ArrayList<FormDataBean> formDataBeans = studyEventDataBean.getFormData();
@@ -96,7 +91,7 @@ public class ImportDataRuleRunnerContainer {
                 if(cvs.containsKey(cvOid))
                     crfVersion = cvs.get(cvOid);
                 else {
-                    crfVersion = new CRFVersionDAO<String, ArrayList>(ds).findByOid(cvOid);
+                    crfVersion = new CRFVersionDAO(ds).findByOid(cvOid);
                     cvs.put(cvOid, crfVersion);
                 }
                 String sedOrd = studyEventDataBean.getStudyEventRepeatKey();
@@ -121,7 +116,7 @@ public class ImportDataRuleRunnerContainer {
                                 ArrayList<ImportItemDataBean> itemDataBeans = itemGroupDataBean.getItemData();
                                 for (ImportItemDataBean importItemDataBean : itemDataBeans) {
                                     //if(targetItemOids.contains(importItemDataBean.getItemOID())) {
-                                        ItemBean item = new ItemDAO<String, ArrayList>(ds).findByOid(importItemDataBean.getItemOID()).get(0);
+                                        ItemBean item = new ItemDAO(ds).findByOid(importItemDataBean.getItemOID()).get(0);
                                         String igOid = itemGroupDataBean.getItemGroupOID();
                                         String igOrd = itemGroupDataBean.getItemGroupRepeatKey();
                                         Integer igOrdinal = igOrd != null && !igOrd.isEmpty() ? Integer.valueOf(igOrd) : 1;
@@ -177,23 +172,13 @@ public class ImportDataRuleRunnerContainer {
         return ruleSets;
     }
 
-    private Set<String> collectTargetItemOids(List<RuleSetBean> ruleSets) {
-        Set<String> itemOids = new HashSet<String>();
-        if(ruleSets != null) {
-            for(RuleSetBean ruleSetBean : ruleSets) {
-                itemOids.add(ruleSetBean.getItem().getOid());
-            }
-        }
-        return itemOids;
-    }
-
     private boolean isRepeatIGForSure(DataSource ds, Integer crfVersionId,  String itemGroupOid, Integer igOrdinal, Integer itemId) {
         boolean isRepeatForSure = igOrdinal != null && igOrdinal > 1 ? true : false;
         if(!isRepeatForSure) {
             if(itemGroupOid.endsWith("_UNGROUPED") || itemGroupOid.contains("_UNGROUPED_")) isRepeatForSure = false;
             else {
                 ItemGroupMetadataBean itemGroupMetadataBean =
-                    (ItemGroupMetadataBean)new ItemGroupMetadataDAO<String, ArrayList>(ds).findByItemAndCrfVersion(itemId, crfVersionId);
+                    (ItemGroupMetadataBean)new ItemGroupMetadataDAO(ds).findByItemAndCrfVersion(itemId, crfVersionId);
                 isRepeatForSure = itemGroupMetadataBean.isRepeatingGroup();
             }
         }

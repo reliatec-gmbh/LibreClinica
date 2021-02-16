@@ -28,6 +28,11 @@ public class UserAccountBean extends AuditableEntityBean {
      */
 
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 5521122073133301334L;
+
+	/**
      * LDAP/Active Directory users are identified by having this password stored in the database
      */
     public static final String LDAP_PASSWORD = "*";
@@ -72,7 +77,7 @@ public class UserAccountBean extends AuditableEntityBean {
     private boolean sysAdmin; // this is true if the user is the business
     // dmin, false otherwise
     private boolean techAdmin;
-    private final ArrayList userTypes;
+    private final ArrayList<UserType> userTypes;
 
     //
     // the following invariant is maintained at all times:
@@ -89,11 +94,11 @@ public class UserAccountBean extends AuditableEntityBean {
     //
 
     // elements are StudyUserRoleBeans
-    private ArrayList roles = new ArrayList();
+    private ArrayList<StudyUserRoleBean> roles = new ArrayList<>();
 
     // key is Integer whose intValue is a studyId, value is StudyUserRoleBean
     // for that study
-    private final HashMap rolesByStudy = new HashMap();
+    private final HashMap<Integer, Integer> rolesByStudy = new HashMap<>();
 
     private String notes; // not in the DB, only for showing some notes for
 
@@ -115,7 +120,7 @@ public class UserAccountBean extends AuditableEntityBean {
         sysAdmin = false;
         techAdmin = false;
 
-        userTypes = new ArrayList();
+        userTypes = new ArrayList<>();
         status = Status.AVAILABLE;
         numVisitsToMainMenu = 0;
         notes = "";
@@ -352,10 +357,10 @@ public class UserAccountBean extends AuditableEntityBean {
     }
 
     public boolean hasUserType(UserType u) {
-        Iterator userTypesIt = userTypes.iterator();
+        Iterator<UserType> userTypesIt = userTypes.iterator();
 
         while (userTypesIt.hasNext()) {
-            UserType myType = (UserType) userTypesIt.next();
+            UserType myType = userTypesIt.next();
             if (myType.equals(u)) {
                 return true;
             }
@@ -451,7 +456,7 @@ public class UserAccountBean extends AuditableEntityBean {
     /**
      * @return Returns the roles.
      */
-    public ArrayList getRoles() {
+    public ArrayList<StudyUserRoleBean> getRoles() {
         return roles;
     }
 
@@ -459,12 +464,12 @@ public class UserAccountBean extends AuditableEntityBean {
      * @param roles
      *            The roles to set.
      */
-    public void setRoles(ArrayList roles) {
-        this.roles = new ArrayList();
+    public void setRoles(ArrayList<StudyUserRoleBean> roles) {
+        this.roles = new ArrayList<>();
         rolesByStudy.clear();
 
         for (int i = 0; i < roles.size(); i++) {
-            StudyUserRoleBean sur = (StudyUserRoleBean) roles.get(i);
+            StudyUserRoleBean sur = roles.get(i);
 
             if (sur.getRole().equals(Role.ADMIN)) {
                 addUserType(UserType.SYSADMIN);

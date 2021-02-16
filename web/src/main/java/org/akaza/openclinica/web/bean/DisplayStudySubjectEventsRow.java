@@ -8,7 +8,6 @@
 package org.akaza.openclinica.web.bean;
 
 import org.akaza.openclinica.bean.core.DataEntryStage;
-import org.akaza.openclinica.bean.core.SubjectEventStatus;
 import org.akaza.openclinica.bean.managestudy.DisplayStudyEventBean;
 import org.akaza.openclinica.bean.managestudy.DisplayStudySubjectBean;
 import org.akaza.openclinica.bean.submit.DisplayEventCRFBean;
@@ -21,7 +20,7 @@ import java.util.ArrayList;
  * Date: Nov 17, 2008
  * Time: 7:57:23 PM
  */
-public class DisplayStudySubjectEventsRow extends EntityBeanRow {
+public class DisplayStudySubjectEventsRow extends EntityBeanRow<DisplayStudySubjectBean, DisplayStudySubjectEventsRow> {
 
     // columns:
     public static final int COL_SUBJECT_LABEL = 0;
@@ -33,13 +32,13 @@ public class DisplayStudySubjectEventsRow extends EntityBeanRow {
     public static final int COL_STUDYGROUP = 6;
 
     @Override
-    protected int compareColumn(Object row, int sortingColumn) {
+    protected int compareColumn(DisplayStudySubjectEventsRow row, int sortingColumn) {
         if (!row.getClass().equals(DisplayStudySubjectEventsRow.class)) {
             return 0;
         }
 
-        DisplayStudySubjectBean thisStudy = (DisplayStudySubjectBean) bean;
-        DisplayStudySubjectBean argStudy = (DisplayStudySubjectBean) ((DisplayStudySubjectEventsRow) row).bean;
+        DisplayStudySubjectBean thisStudy = bean;
+        DisplayStudySubjectBean argStudy = row.bean;
         int answer = 0;
         // YW <<
         int groupSize = thisStudy.getStudyGroups().size();
@@ -101,8 +100,8 @@ public class DisplayStudySubjectEventsRow extends EntityBeanRow {
                     answer = 1;
                     break;
                 }
-                ArrayList thisAllEventCRFs = ((DisplayStudyEventBean)thisStudy.getStudyEvents().get(0)).getAllEventCRFs();
-                ArrayList argAllEventCRFs  = ((DisplayStudyEventBean)argStudy.getStudyEvents().get(0)).getAllEventCRFs();
+                ArrayList<DisplayEventCRFBean> thisAllEventCRFs = ((DisplayStudyEventBean)thisStudy.getStudyEvents().get(0)).getAllEventCRFs();
+                ArrayList<DisplayEventCRFBean> argAllEventCRFs  = ((DisplayStudyEventBean)argStudy.getStudyEvents().get(0)).getAllEventCRFs();
 
                 if (thisAllEventCRFs == null || thisAllEventCRFs.isEmpty()) {
                     answer = -1;
@@ -231,20 +230,17 @@ public class DisplayStudySubjectEventsRow extends EntityBeanRow {
      * @see org.akaza.openclinica.core.EntityBeanRow#generatRowsFromBeans(java.util.ArrayList)
      */
     @Override
-    public ArrayList generatRowsFromBeans(ArrayList beans) {
+    public ArrayList<DisplayStudySubjectEventsRow> generatRowsFromBeans(ArrayList<DisplayStudySubjectBean> beans) {
         return DisplayStudySubjectEventsRow.generateRowsFromBeans(beans);
     }
 
-    public static ArrayList generateRowsFromBeans(ArrayList beans) {
-        ArrayList answer = new ArrayList();
-
-        Class[] parameters = null;
-        Object[] arguments = null;
+    public static ArrayList<DisplayStudySubjectEventsRow> generateRowsFromBeans(ArrayList<DisplayStudySubjectBean> beans) {
+        ArrayList<DisplayStudySubjectEventsRow> answer = new ArrayList<>();
 
         for (int i = 0; i < beans.size(); i++) {
             try {
                 DisplayStudySubjectEventsRow row = new DisplayStudySubjectEventsRow();
-                row.setBean((DisplayStudySubjectBean) beans.get(i));
+                row.setBean(beans.get(i));
                 answer.add(row);
             } catch (Exception e) {
             }

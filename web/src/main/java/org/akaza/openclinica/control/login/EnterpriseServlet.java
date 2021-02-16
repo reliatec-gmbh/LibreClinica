@@ -23,7 +23,12 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
  */
 public class EnterpriseServlet extends SecureController {
 
-    @Override
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 3332626368916404656L;
+
+	@Override
     public void mayProceed() throws InsufficientPermissionException {
 
     }

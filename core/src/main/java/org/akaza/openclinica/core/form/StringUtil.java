@@ -82,7 +82,7 @@ public class StringUtil {
         return Pattern.matches("[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*@[A-Za-z]+(\\.[A-Za-z]+)*", s) ? true : false;
     }
 
-    public static String join(String glue, ArrayList a) {
+    public static String join(String glue, ArrayList<String> a) {
         String answer = "";
         String join = "";
 
