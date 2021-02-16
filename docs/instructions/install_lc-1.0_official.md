@@ -10,7 +10,7 @@ in this instruction.
 to secure your server like configuring the firewall or enabling https. But it is sufficient for your system administrator
 to get you a working copy of LibreClinica.**
 
-_This installation instruction is a blue print for a successfull LibreClinica installation. If you follow these steps
+_This installation instruction is a blue print for a successful LibreClinica installation. If you follow these steps
 literally you end up with a working LibreClinica instance. Experienced users can modify the instructions to their needs
 when necessary but should be aware that there are dependencies between the steps and that changes to one step might require
 changes to another step._
@@ -38,6 +38,13 @@ changes to another step._
     *context name is the name that comes usually after the slash  
     e.g. for https://libreclinica.org/libreclinica it is
     /var/lib/tomcat9/webapps/libreclinica.war*
+1. **create datainfo.properties**  
+   You can create your own version of datainfo.properties or copy a template from LibreClinica by executing the command  
+   ```
+   sudo -u tomcat cp \
+      /var/lib/tomcat9/webapps/libreclinica/WEB-INF/classes/datainfo.properties \
+      /usr/share/tomcat9/libreclinica.config/
+   ```
 1. **configure datainfo.properties**  
     Edit /usr/share/tomcat9/libreclinica.config/datainfo.properties to match your requirements.  
     _Detailed instructions on how to configure it properly can be found in the different 
@@ -69,15 +76,57 @@ changes to another step._
         * mailErrorMsg=support@example.com
         * adminEmail=admin@example.com
         * sysURL=https://example.com/libreclinica/MainMenu
+             
+    For an enterprise installation you may want to additionally enable user authentication against an LDAP/Active Directory server:
+    1. **LDAP/Active Directory server**
+        * ldap.enabled=true
+        
+        LDAP/ActiveDirectory server host can be configured with standard (usually port 389) or encrypted communication (usually port 636):
+        
+        * ldap.host=ldap://dc.example.com:389|ldaps://dc.example.com:636
+        
+        Distinguished name of LDAP/ActiveDirectory service user account and its password. The actual components of distinguished name depends on object organisation hierarchy that your LDAP/ActiveDirectory server uses: 
+        
+        * ldap.userDn=cn=SecretLdapServiceUser,ou=service,ou=department,dc=example,dc=com                        
+        * ldap.password=SecretLdapServiceUserPassword
+                	
+        Query that returns LDAP/ActiveDirectory account based on user name entered on login screen:
+        
+        * ldap.loginQuery=(sAMAccountName={0})
+   
+        Base DN where discoverable LDAP/ActiveDirectory user accounts needs to belong to:       
+        
+        * ldap.userSearch.baseDn=ou=department,dc=example,dc=com
+       
+        Query that returns LDAP/ActiveDirectory user account based on user name entered on add LDAP user screen    
+       
+        * ldap.userSearch.query=(&(objectClass=person)(sAMAccountName=\*{0}*)) 
+        
+        Properties that define parameters mapping between LDAP/ActiveDirectory user account and associated LibreClinica user account:
+        
+        * ldap.userData.distinguishedName=distinguishedName         
+        * ldap.userData.username=sAMAccountName         
+        * ldap.userData.firstName=givenName        
+        * ldap.userData.lastName=sn         
+        * ldap.userData.email=mail     
+        * ldap.userData.organization=company      
+    
+    If you choose to use encrypted LDAPS communication you may need to perform additional steps depending on certificate that your LDAP/Active Directory server uses. If it is globally trusted then it should work directly. However more common is situation in which LDAP/Active Directory server provides self singed certificate and Java application such as LibreClinica will not consider this as trusted which results to SSL handshake breakage. If this is the case, it is necessary to obtain the certificate of LDAP server and import it into java cacerts default keystore (e.g. using the keytool):
+    
+    `JAVA_HOME/bin/keytool -importcert -file serverca.cer -keystore JAVA_HOME/jre/lib/security/cacerts -alias "serveraliasca"`
+    
+    One can check if the certificate was installed (e.g. using keytool):
+    
+    `JAVA_HOME/bin/keytool -list -keystore JAVA_HOME/jre/lib/security/cacerts`
+    
 1. **setup ReadWritePaths**  
     edit /etc/systemd/system/multi-user.target.wants/tomcat9.service and  
     add `ReadWritePaths=/usr/share/tomcat9/libreclinica`  
     and reload the unit files with `systemctl daemon-reload`
 1. **restart tomcat** `systemctl restart tomcat9`
 
-
 You now should be able to access your LibreClinica installation port 8080. e.g.  
-http://<ip of your machine>:8080/libreclinica
+http://\<ip of your machine\>:8080/libreclinica with the default credentials (user: root, password: 12345678).
 
 In a productive environment your system administrator should configure a web server 
 like nginx or apache to act as a reverse proxy for your LibreClinica installation so that

@@ -175,12 +175,11 @@ public class StudySubjectEndpoint {
             throw eee;
         }
     }
-
     
     /**
-       * Use this method to find if studysubject exists by study/site/subject lable.
+       * Use this method to find if study subject exists by study/site/subject table.
      * 
-     * @param requestElement
+     * @param subject
      * @return studySubjectOID
      * @throws Exception
   */
@@ -388,7 +387,7 @@ public class StudySubjectEndpoint {
     /**
      * Process createStudySubject request by creating SubjectStudyDefinitionBean from received payload.
      * 
-     * @param subjectElement
+     * @param subjectStudyElement
      * @return SubjectTransferBean
      * @throws ParseException
      */
@@ -557,7 +556,7 @@ public class StudySubjectEndpoint {
         Calendar c = Calendar.getInstance();
         c.setTime(dd);
         if (c.get(Calendar.YEAR) < 1900 || c.get(Calendar.YEAR) > 9999) {
-        	throw new Exception("Unparsable date: "+dateAsString);
+        	throw new Exception("Unparseable date: " + dateAsString);
         }
         return dd;
     }

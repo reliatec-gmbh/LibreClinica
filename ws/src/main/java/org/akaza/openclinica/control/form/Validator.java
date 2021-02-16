@@ -862,8 +862,6 @@ public class Validator {
         fieldErrors.add(errorMessage);
 
         existingErrors.put(fieldName, fieldErrors);
-
-        return;
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })

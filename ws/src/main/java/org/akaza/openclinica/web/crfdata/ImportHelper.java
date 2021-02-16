@@ -29,13 +29,15 @@ public class ImportHelper {
      * @return The name of the input in the HTML form.
      */
     public final String getInputName(DisplayItemBean dib) {
+
         ItemBean ib = dib.getItem();
         String inputName = "input" + ib.getId();
+
         return inputName;
     }
 
     /**
-     * Peform validation on a item which has a RADIO or SINGLESELECTresponse
+     * Perform validation on a item which has a RADIO or SINGLE SELECT response
      * type. This function checks that the input isn't blank, and that its value
      * comes from the controlled vocabulary (ResponseSetBean) in the
      * DisplayItemBean.
@@ -50,6 +52,7 @@ public class ImportHelper {
         if (inputName == null || inputName.trim().isEmpty()) {
             inputName = getInputName(dib);
         }
+
         ItemFormMetadataBean ibMeta = dib.getMetadata();
         ItemDataBean idb = dib.getData();
         String idbValue = idb.getValue();
@@ -68,7 +71,7 @@ public class ImportHelper {
     }
 
     /**
-     * Peform validation on a item which has a RADIO or SINGLESELECTresponse
+     * Perform validation on a item which has a RADIO or SINGLE SELECT response
      * type. This function checks that the input isn't blank, and that its value
      * comes from the controlled vocabulary (ResponseSetBean) in the
      * DisplayItemBean.
@@ -83,6 +86,7 @@ public class ImportHelper {
         if (inputName == null || inputName.trim().isEmpty()) {
             inputName = getInputName(dib);
         }
+
         ItemFormMetadataBean ibMeta = dib.getMetadata();
         ItemDataBean idb = dib.getData();
         String idbValue = idb.getValue();
@@ -96,15 +100,16 @@ public class ImportHelper {
             // v.addValidation(inputName, Validator.IN_RESPONSE_SET,
             // dib.getMetadata().getResponseSet());
         }
+        
         return dib;
     }
 
     /**
-     * Peform validation on a item which has a TEXT or TEXTAREA response type.
+     * Perform validation on a item which has a TEXT or TEXTAREA response type.
      * If the item has a null value, it's automatically validated. Otherwise,
      * it's checked against its data type.
      * 
-     * @param v
+     * @param discValidator
      *            The Validator to add validations to.
      * @param dib
      *            The DisplayItemBean to validate.
@@ -114,6 +119,7 @@ public class ImportHelper {
         if (inputName == null || inputName.trim().isEmpty()) {
             inputName = getInputName(dib);
         }
+
         ItemBean ib = dib.getItem();
         ItemFormMetadataBean ibMeta = dib.getMetadata();
         ItemDataType idt = ib.getDataType();
@@ -185,6 +191,7 @@ public class ImportHelper {
                         try {
                             customValidation = Validator.processCRFValidationRegex(customValidationString);
                         } catch (Exception e) {
+                            // TODO: Logging of error should be added
                         }
                     }
 
@@ -195,6 +202,8 @@ public class ImportHelper {
                 }
             }
         }
+        
         return dib;
     }
+    
 }
