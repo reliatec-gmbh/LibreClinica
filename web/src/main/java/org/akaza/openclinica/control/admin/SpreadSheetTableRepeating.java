@@ -5,13 +5,7 @@
  * For details see: https://libreclinica.org/license
  * LibreClinica, copyright (C) 2020
  */
-/*
- * LibreClinica is distributed under the
- * GNU Lesser General Public License (GNU LGPL).
 
- * For details see: https://libreclinica.org/license
- * copyright 2003-2011 Akaza Research
- */
 package org.akaza.openclinica.control.admin;
 
 import java.io.FileInputStream;
@@ -59,6 +53,7 @@ import org.akaza.openclinica.dao.submit.ItemGroupDAO;
 import org.akaza.openclinica.exception.CRFReadingException;
 import org.akaza.openclinica.logic.score.ScoreValidator;
 import org.akaza.openclinica.web.SQLInitServlet;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -204,7 +199,7 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                 // totally ignore instructions
             } else {
                 /*
-                 * current strategem: build out the queries by hand and revisit
+                 * current strategy: build out the queries by hand and revisit
                  * this as part of the data loading module. We begin to check
                  * for errors here and look for blank cells where there should
                  * be data, tbh, 7/28
@@ -224,7 +219,7 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                 // response_labels
                 HashMap<String, String> htmlErrors = new HashMap<>();
 
-                // the above two need to persist across mult. queries,
+                // the above two need to persist across multiple queries,
                 // and they should be created FIRST anyway, since instrument is
                 // first
                 // also need to add to VERSIONING_MAP, tbh, 6-6-3
@@ -349,19 +344,19 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                             errors.add(resPageMsg.getString("right_item_length_error"));
                         }
 
-                        cell = sheet.getRow(k).getCell((short) 5);//section label
-                        item_from_row.setSectionLabel(getValue(cell));
+                        cell = sheet.getRow(k).getCell((short) 5); // section label
+                        item_from_row.setSectionLabel(stripQuotes(getValue(cell)));
                         item_from_row.verifySectionLabel(row_items, errors, secNames, htmlErrors, j, resPageMsg);
-                        secName=item_from_row.getSectionLabel();
+                        secName = item_from_row.getSectionLabel();
                         // *******************************************
                         // group_label will go here, tbh in place 6
                         // have to advance all the rest by one at least (if
                         // there are
                         // no other columns) tbh, 5-14-2007
 
-                        cell = sheet.getRow(k).getCell((short) 6);//group label
-                        item_from_row.setGroupLabel(getValue(cell));
-                     //htaycher: how 'NON-GROUPED' group is processed for 3.1 template?
+                        cell = sheet.getRow(k).getCell((short) 6); // group label
+                        item_from_row.setGroupLabel(stripQuotes(getValue(cell)));
+                        //htaycher: how 'NON-GROUPED' group is processed for 3.1 template?
                         //is it a reason for 13816
                         String groupLabel = item_from_row.getGroupLabel();
 						if (item_from_row.getItemName().length() > 0) {
@@ -1641,10 +1636,9 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                     
                     //validate that items of one group are not spread over several sections
                     
-                    SpreadSheetItemUtil.verifySectionGroupPlacementForItems( row_items, errors,  htmlErrors, j,resPageMsg,  itemGroups);
+                    SpreadSheetItemUtil.verifySectionGroupPlacementForItems(row_items, errors,  htmlErrors, j,resPageMsg, itemGroups);
                     
-                    SpreadSheetItemUtil.verifyUniqueItemPlacementInGroups( row_items, errors,  htmlErrors, j,resPageMsg, 
-                    		crfName, ds);
+                    SpreadSheetItemUtil.verifyUniqueItemPlacementInGroups(row_items, errors,  htmlErrors, j,resPageMsg, crfName, ds);
                   
         			instantValidator.validate();
                     errors = (ArrayList<String>)instantValidator.getSheetErrors().addErrorsToSheet(errors);
@@ -1689,28 +1683,40 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                        
                         if (sheet.getRow(gk) == null) {
                             blankRowCount++;
-                            if (blankRowCount == 5) { break;
+                            if (blankRowCount == 5) {
+                                break;
                             }
                             continue;
                         }
+
+                        // GROUP_LABEL column
                         HSSFCell cell = sheet.getRow(gk).getCell((short) 0);
                         String groupLabel = getValue(cell);
                         groupLabel = groupLabel.replaceAll("<[^>]*>", "");
+                        groupLabel = stripQuotes(groupLabel);
 
                         if (groupLabel == null || groupLabel.trim().isEmpty()) {
-                            errors.add(resPageMsg.getString("the") + " " + resPageMsg.getString("GROUP_LABEL_column")
-                                + resPageMsg.getString("was_blank_at_row") +" "+ gk + ", " + resPageMsg.getString("Groups_worksheet") + ".");
+                            errors.add(
+                                resPageMsg.getString("the") + " " +
+                                resPageMsg.getString("GROUP_LABEL_column") +
+                                resPageMsg.getString("was_blank_at_row") +" "+ gk + ", " +
+                                resPageMsg.getString("Groups_worksheet") + "."
+                            );
                             htmlErrors.put(j + "," + gk + ",0", resPageMsg.getString("required_field"));
                         }
 
                         if (groupLabel != null && groupLabel.length() > 255) {
                             errors.add(resPageMsg.getString("group_label_length_error"));
                         }
-                        // must these be unique? probably so, tbh
+                        // Group label needs to be unique (will be used for ItemGroup OID generation)
                         if (groupNames.contains(groupLabel)) {
-                            errors.add(resPageMsg.getString("the") + " " + resPageMsg.getString("GROUP_LABEL_column")
-                                + resPageMsg.getString("was_a_duplicate_of") + " " + groupLabel + resPageMsg.getString("at_row") + gk + ", "
-                                + resPageMsg.getString("Groups_worksheet") + ".");
+                            errors.add(
+                                resPageMsg.getString("the") + " " +
+                                resPageMsg.getString("GROUP_LABEL_column") +
+                                resPageMsg.getString("was_a_duplicate_of") + " " + groupLabel +
+                                resPageMsg.getString("at_row") + gk + ", " +
+                                resPageMsg.getString("Groups_worksheet") + "."
+                            );
                             htmlErrors.put(j + "," + gk + ",0", resPageMsg.getString("DUPLICATE_FIELD"));
                         } else {
                             groupNames.add(groupLabel);
@@ -1720,9 +1726,10 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                         boolean isRepeatingGroup = true;
                         boolean newVersionCrf = false;
                         int cellNo = 0;
-                        if(!(versionNo.equalsIgnoreCase("Version: 2.2")
-                               || versionNo.equalsIgnoreCase("Version: 2.5")
-                               || versionNo.equalsIgnoreCase("Version: 3.0"))){
+                        
+                        if (!(versionNo.equalsIgnoreCase("Version: 2.2") ||
+                              versionNo.equalsIgnoreCase("Version: 2.5") ||
+                              versionNo.equalsIgnoreCase("Version: 3.0"))) {
                             cellNo = 1;
                             cell = sheet.getRow(gk).getCell((short) cellNo);
                             try {
@@ -1740,7 +1747,7 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                         if (groupHeader != null && groupHeader.length() > 255) {
                             errors.add(resPageMsg.getString("group_header_length_error"));
                         }
-                        if(isRepeatingGroup) {
+                        if (isRepeatingGroup) {
                             sheetContainer.getRepeatingGroupLabels().add(groupLabel);
                         }
 
@@ -1918,7 +1925,6 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                             // group name is unique
                             // and shared within CRF
                             queries.add(gsql);
-
                         }
                         // if (!StringUtil.isBlank(groupLabel)) {
                         // String itemName =
@@ -1984,74 +1990,88 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                             blankRowCount++;
                             continue;
                         }
+
+                        // SECTION_LABEL column
                         HSSFCell cell = sheet.getRow(k).getCell((short) 0);
                         String secLabel = getValue(cell);
                         secLabel = secLabel.replaceAll("<[^>]*>", "");
+                        secLabel = stripQuotes(secLabel);
 
                         if (secLabel == null || secLabel.trim().isEmpty()) {
-                            // errors.add("The SECTION_LABEL column was blank at
-                            // row " + k + ", Sections worksheet.");
-                            // htmlErrors.put(j + "," + k + ",0", "REQUIRED
-                            // FIELD");
-                            errors.add(resPageMsg.getString("the") + " " + resPageMsg.getString("SECTION_LABEL_column") + " "
-                                + resPageMsg.getString("was_blank_at_row")+" " + k + " " + ", " + resPageMsg.getString("sections_worksheet") + ".");
+                            errors.add(
+                                resPageMsg.getString("the") + " " +
+                                resPageMsg.getString("SECTION_LABEL_column") + " " +
+                                resPageMsg.getString("was_blank_at_row") + " " + k + " " + ", " +
+                                resPageMsg.getString("sections_worksheet") + "."
+                            );
                             htmlErrors.put(j + "," + k + ",0", resPageMsg.getString("required_field"));
                         }
                         if (secLabel != null && secLabel.length() > 2000) {
                             errors.add(resPageMsg.getString("section_label_length_error"));
                         }
-
                         if (secNames.contains(secLabel)) {
-                            // errors.add("The SECTION_LABEL column was a
-                            // duplicate of " + secLabel + " at row " + k
-                            // + ", sections worksheet.");
-                            // htmlErrors.put(j + "," + k + ",0", "DUPLICATE
-                            // FIELD");
-                            errors.add(resPageMsg.getString("the") + " " + resPageMsg.getString("SECTION_LABEL_column")
-                                + resPageMsg.getString("was_a_duplicate_of") + secLabel + " " + resPageMsg.getString("at_row") + " " + k + ", "
-                                + resPageMsg.getString("sections_worksheet") + ".");
+                            errors.add(
+                                resPageMsg.getString("the") + " " +
+                                resPageMsg.getString("SECTION_LABEL_column") +
+                                resPageMsg.getString("was_a_duplicate_of") + secLabel + " " +
+                                resPageMsg.getString("at_row") + " " + k + ", " +
+                                resPageMsg.getString("sections_worksheet") + "."
+                            );
                             htmlErrors.put(j + "," + k + ",0", resPageMsg.getString("DUPLICATE_FIELD"));
                         }
-                        // logger.debug("section name:" + secLabel + "row num:"
-                        // +k);
+
+                        // logger.debug("section name:" + secLabel + "row num:" + k);
                         secNames.add(secLabel);
+
+                        // SECTION_TITLE column
                         cell = sheet.getRow(k).getCell((short) 1);
                         String title = getValue(cell);
                         title = title.replaceAll("<[^>]*>", "");
+                        
                         if (title == null || title.trim().isEmpty()) {
-                            // errors.add("The SECTION_TITLE column was blank at
-                            // row " + k + ", Sections worksheet.");
-                            // htmlErrors.put(j + "," + k + ",1", "REQUIRED
-                            // FIELD");
-                            errors.add(resPageMsg.getString("the") + " " + resPageMsg.getString("SECTION_TITLE_column") + " "
-                                + resPageMsg.getString("was_blank_at_row")  +" "+ k + ", " + resPageMsg.getString("sections_worksheet") + ".");
+                            errors.add(
+                                resPageMsg.getString("the") + " " +
+                                resPageMsg.getString("SECTION_TITLE_column") + " " +
+                                resPageMsg.getString("was_blank_at_row")  +" "+ k + ", " +
+                                resPageMsg.getString("sections_worksheet") + "."
+                            );
                             htmlErrors.put(j + "," + k + ",1", resPageMsg.getString("required_field"));
                         }
                         if (title != null && title.length() > 2000) {
                             errors.add(resPageMsg.getString("section_title_length_error"));
                         }
 
+                        // SUBTITLE column
                         cell = sheet.getRow(k).getCell((short) 2);
                         String subtitle = getValue(cell);
+                        
                         if (subtitle != null && subtitle.length() > 2000) {
                             errors.add(resPageMsg.getString("section_subtitle_length_error"));
                         }
 
+                        // INSTRUCTIONS column
                         cell = sheet.getRow(k).getCell((short) 3);
                         String instructions = getValue(cell);
+                        
                         if (instructions != null && instructions.length() > 2000) {
                             errors.add(resPageMsg.getString("section_instruction_length_error"));
                         }
 
+                        // TODO: Deprecated - not existing in eCRF definition spreadsheet template
+                        // PAGE_NUMBER column
                         cell = sheet.getRow(k).getCell((short) 4);
                         String pageNumber = getValue(cell);
+                        
                         if (pageNumber != null && pageNumber.length() > 5) {
                             errors.add(resPageMsg.getString("section_page_number_length_error"));
                         }
 
+                        // TODO: Deprecated - not existing in eCRF definition spreadsheet template
+                        // PARENT_SECTION column
                         cell = sheet.getRow(k).getCell((short) 5);
                         String parentSection = getValue(cell);
                         parentSection = parentSection.replaceAll("<[^>]*>", "");
+
                         if (!(parentSection == null || parentSection.trim().isEmpty())) {
                             try {
                                 parentId = Integer.parseInt(parentSection);
@@ -2059,19 +2079,19 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                                 parentId = 0;
                             }
                         }
-                        // below added 06/2007, tbh
+
+                        // TODO: Deprecated - not existing in eCRF definition spreadsheet template
+                        // BORDERS column
                         cell = sheet.getRow(k).getCell((short) 6);
                         String strBorder = getValue(cell);
                         strBorder = strBorder.replaceAll("<[^>]*>", "");
 
-                        Integer intBorder = new Integer(0);
+                        int intBorder = 0;
                         try {
-                            intBorder = new Integer(strBorder);
+                            intBorder = Integer.parseInt(strBorder);
                         } catch (NumberFormatException npe) {
-                            // let it pass here, tbh 06/18/2007
+                            logger.error("Sections BORDER column is not valid integer", npe);
                         }
-                        // change to sql 06/2007; change to section table in
-                        // svn? tbh
 
                         String sql = "";
                         // BWP added borders column 4/24/2008
@@ -2084,7 +2104,7 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
                         } else {
                             sql =
                                 "INSERT INTO SECTION (CRF_VERSION_ID," + "STATUS_ID,LABEL, TITLE, INSTRUCTIONS, SUBTITLE, PAGE_NUMBER_LABEL,"
-                                    + "ORDINAL, PARENT_ID, OWNER_ID, DATE_CREATED,BORDERS) " + "VALUES (" + versionIdString + ",1,'" + secLabel + "','"
+                                    + "ORDINAL, PARENT_ID, OWNER_ID, DATE_CREATED, BORDERS) " + "VALUES (" + versionIdString + ",1,'" + secLabel + "','"
                                     + stripQuotes(title) + "', '" + stripQuotes(instructions) + "', '" + stripQuotes(subtitle) + "','" + pageNumber + "'," + k
                                     + "," + parentId + "," + ub.getId() + ",NOW()," + intBorder + ")";
                         }
@@ -2398,28 +2418,13 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
 
     /**
      * stripQuotes, utility function meant to replace single quotes in strings
-     * with double quotes for SQL compatability. Don't -> Don''t, for example.
+     * with double quotes for SQL compatibility. Don't -> Don''t, for example.
      *
-     * @param subj
-     *            the subject line
+     * @param unescapedText the row string that should be escaped
      * @return A string with all the quotes escaped.
      */
-    public String stripQuotes(String subj) {
-        if (subj == null) {
-            return null;
-        }
-        String returnme = "";
-        String[] subjarray = subj.split("'");
-        if (subjarray.length == 1) {
-            returnme = subjarray[0];
-        } else {
-            for (int i = 0; i < subjarray.length - 1; i++) {
-                returnme += subjarray[i];
-                returnme += "''";
-            }
-            returnme += subjarray[subjarray.length - 1];
-        }
-        return returnme;
+    public String stripQuotes(String unescapedText) {
+        return StringEscapeUtils.escapeSql(unescapedText);
     }
 
     public String getValue(HSSFCell cell) {
@@ -2546,14 +2551,7 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
         // }
         return muSql;
     }
-
-
-
-    /**
-     * Checks whether the parent_item is valid a name
-     *
-     */
-
+    
     public boolean isRepeating() {
         return isRepeating;
     }
