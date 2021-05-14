@@ -68,29 +68,23 @@ import org.springframework.util.Assert;
  * @since 3.0
  */
 public class OpenClinicaUsernamePasswordAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
-    //~ Static fields/initializers =====================================================================================
-
+    private static final String BAD_CREDENTIALS_MESSAGE = "Bad Credentials";
     public static final String SPRING_SECURITY_FORM_USERNAME_KEY = "j_username";
     public static final String SPRING_SECURITY_FORM_PASSWORD_KEY = "j_password";
+    public static final String SPRING_SECURITY_FORM_FACTOR = "j_factor";
     public static final String SPRING_SECURITY_LAST_USERNAME_KEY = "SPRING_SECURITY_LAST_USERNAME";
-
     private String usernameParameter = SPRING_SECURITY_FORM_USERNAME_KEY;
     private String passwordParameter = SPRING_SECURITY_FORM_PASSWORD_KEY;
     private boolean postOnly = true;
-
     private AuditUserLoginDao auditUserLoginDao;
     private ConfigurationDao configurationDao;
     private UserAccountDAO userAccountDao;
     private DataSource dataSource;
-    private org.akaza.openclinica.core.CRFLocker crfLocker; 
-
-    //~ Constructors ===================================================================================================
+    private CRFLocker crfLocker;
 
     public OpenClinicaUsernamePasswordAuthenticationFilter() {
         super("/j_spring_security_check");
     }
-
-    //~ Methods ========================================================================================================
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
@@ -101,17 +95,12 @@ public class OpenClinicaUsernamePasswordAuthenticationFilter extends AbstractAut
         String username = obtainUsername(request);
         String password = obtainPassword(request);
 
-        if (username == null) {
-            username = "";
+        // Fail fast if anything mandatory is missing for authentification
+        if (username == null || null == password) {
+            throw new BadCredentialsException(BAD_CREDENTIALS_MESSAGE);
         }
 
-        if (password == null) {
-            password = "";
-        }
-
-        username = username.trim();
-
-        UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, password);
+        UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username.trim(), password);
 
         // Place the last username attempted into HttpSession for views
         HttpSession session = request.getSession(false);
@@ -126,13 +115,15 @@ public class OpenClinicaUsernamePasswordAuthenticationFilter extends AbstractAut
         Authentication authentication = null;
         UserAccountBean userAccountBean = null;
         ResourceBundleProvider.updateLocale(new Locale("en_US"));
+
         try {
-            EntityBean eb = getUserAccountDao().findByUserName(username);
-            userAccountBean = eb.getId() != 0 ? (UserAccountBean) eb : null;
+            EntityBean entityBean = getUserAccountDao().findByUserName(username);
+            userAccountBean = entityBean.getId() != 0 ? (UserAccountBean) entityBean : null;
 
             if (userAccountBean == null) {
-                throw new BadCredentialsException("Bad Credentials");
+                throw new BadCredentialsException(BAD_CREDENTIALS_MESSAGE);
             }
+
             // Manually Checking if the user is locked which should be thrown by authenticate. Mantis Issue: 9016
             // ToDo somebody should find why getAuthenticationManager().authenticate is not working!
             if (userAccountBean != null && userAccountBean.getStatus().isLocked()) {

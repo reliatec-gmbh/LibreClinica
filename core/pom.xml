@@ -1,14 +1,37 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <artifactId>LibreClinica-core</artifactId>
-    <packaging>jar</packaging>
-    <name>LibreClinica Core</name>
-    <parent>
-        <groupId>org.libreclinica</groupId>
-        <artifactId>LibreClinica</artifactId>
-      <version>1.1.0-snapshot</version>
-    </parent>
-    <dependencies>
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>LibreClinica-core</artifactId>
+	<packaging>jar</packaging>
+	<name>LibreClinica Core</name>
+	<parent>
+		<groupId>org.libreclinica</groupId>
+		<artifactId>LibreClinica</artifactId>
+		<version>1.1.0-snapshot</version>
+	</parent>
+	
+	<profiles>
+		<!-- Maven profiles for building artifact for a specific target database [postgres (default), oracle]. 
+		This is to avoid the inclusion of unnecessary JDBC drivers. -->
+		<profile>
+			<id>postgres</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<postgres.scope>runtime</postgres.scope>
+				<oracle.scope>provided</oracle.scope>
+			</properties>
+		</profile>
+		<profile>
+			<id>oracle</id>
+			<properties>
+				<postgres.scope>provided</postgres.scope>
+				<oracle.scope>runtime</oracle.scope>
+			</properties>
+		</profile>
+	</profiles>
+	
+	<dependencies>
 		<dependency>
 			<groupId>javax.transaction</groupId>
 			<artifactId>transaction-api</artifactId>
@@ -16,28 +39,28 @@
 		</dependency>
 		<!--@pgawade 16-NOV-2010 spring security dependency for unit tests -->
 		<dependency>
-             <groupId>commons-httpclient</groupId>
-              <artifactId>commons-httpclient</artifactId>
-              <version>3.1</version>
-              <scope>test</scope>
-         </dependency>
-		<dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-web</artifactId>
-            <version>${spring.version}</version>
+			<groupId>commons-httpclient</groupId>
+			<artifactId>commons-httpclient</artifactId>
+			<version>3.1</version>
 			<scope>test</scope>
-        </dependency>
-        <dependency>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-web</artifactId>
+			<version>${spring.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-all</artifactId>
 			<version>1.9.5</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-webmvc</artifactId>
-            <version>${spring.version}</version>
-        </dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>org.apache.xmlgraphics</groupId>
 			<artifactId>fop</artifactId>
@@ -73,7 +96,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
-    		<artifactId>commons-dbcp2</artifactId>
+			<artifactId>commons-dbcp2</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>commons-validator</groupId>
@@ -116,11 +139,11 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		  <dependency>
-            <groupId>com.ecyrd.speed4j</groupId>
-            <artifactId>speed4j</artifactId>
-            <version>0.12</version>
-        </dependency>
+		<dependency>
+			<groupId>com.ecyrd.speed4j</groupId>
+			<artifactId>speed4j</artifactId>
+			<version>0.12</version>
+		</dependency>
 		<dependency>
 			<groupId>commons-fileupload</groupId>
 			<artifactId>commons-fileupload</artifactId>
@@ -204,15 +227,16 @@
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 			<version>42.2.5</version>
-			<scope>runtime</scope>
+			<scope>${postgres.scope}</scope>
 		</dependency>
         <!-- Oracle JDBC driver -->
-        <dependency>
-            <groupId>oracle.ojdbc14</groupId>
-            <artifactId>ojdbc14</artifactId>
-            <version>10g</version>
-        </dependency>
-        <dependency>
+		<dependency>
+			<groupId>oracle.ojdbc14</groupId>
+			<artifactId>ojdbc14</artifactId>
+			<version>10g</version>
+			<scope>${oracle.scope}</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.codehaus.castor</groupId>
 			<artifactId>castor-xml</artifactId>
 			<version>1.3.1</version>
@@ -222,38 +246,38 @@
 			<groupId>org.jmesa</groupId>
 			<artifactId>jmesa</artifactId>
 		</dependency>
-        <dependency>
-            <groupId>org.apache.xmlgraphics</groupId>
-            <artifactId>xmlgraphics-commons</artifactId>
-            <version>1.4</version>
-        </dependency>
 		<dependency>
-    		<groupId>org.libreclinica.odm</groupId>
+			<groupId>org.apache.xmlgraphics</groupId>
+			<artifactId>xmlgraphics-commons</artifactId>
+			<version>1.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.libreclinica.odm</groupId>
 			<artifactId>LibreClinica-odm</artifactId>
 		</dependency>
-		 <dependency>
+		<dependency>
 			<groupId>org.mvel</groupId>
 			<artifactId>mvel2</artifactId>
 			<version>2.0.19</version>
 		</dependency>
 
 		<dependency>
-		    <groupId>org.quartz-scheduler</groupId>
-		    <artifactId>quartz</artifactId>
+			<groupId>org.quartz-scheduler</groupId>
+			<artifactId>quartz</artifactId>
 		</dependency>
 		<dependency>
-		    <groupId>org.quartz-scheduler</groupId>
-		    <artifactId>quartz-oracle</artifactId>
+			<groupId>org.quartz-scheduler</groupId>
+			<artifactId>quartz-oracle</artifactId>
 		</dependency>
 		<dependency>
-		    <groupId>log4jdbc</groupId>
-		    <artifactId>log4jdbc4</artifactId>
+			<groupId>log4jdbc</groupId>
+			<artifactId>log4jdbc4</artifactId>
 		</dependency>
 
 		<dependency>
-    		<groupId>org.codehaus.jackson</groupId>
-    		<artifactId>jackson-core-lgpl</artifactId>
-    		<version>1.8.1</version>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-core-lgpl</artifactId>
+			<version>1.8.1</version>
 		</dependency>
 
 		<dependency>
@@ -272,21 +296,20 @@
 	</dependencies>
 	<!-- @pgawade 16-NOV-2010 unit tests through maven -->
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.liquibase</groupId>
-                <artifactId>liquibase-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.zeroturnaround</groupId>
-                <artifactId>jrebel-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>buildnumber-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
-
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.liquibase</groupId>
+				<artifactId>liquibase-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.zeroturnaround</groupId>
+				<artifactId>jrebel-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>buildnumber-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
 </project>

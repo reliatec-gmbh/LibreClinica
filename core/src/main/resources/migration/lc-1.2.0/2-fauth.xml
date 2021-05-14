@@ -1,0 +1,26 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+	
+	<changeSet id="1" author="thillger">
+		<comment>Creating new attributes for 2-factor authentication.</comment>
+	
+		<addColumn tableName="user_account">
+			<column name="authtype" type="java.sql.Types.VARCHAR(255)" defaultValue="STANDARD">
+				<constraints nullable="false" />
+			</column>
+			<column name="authsecret" type="java.sql.Types.VARCHAR(255)" />
+		</addColumn>
+	</changeSet>
+	
+	<changeSet id="2" author="thillger">
+		<comment>Creating indexes on 'user_account' for newly created attributes.</comment>
+	
+		<createIndex indexName="ix1_user_account" tableName="user_account" unique="false">
+			<column name="authtype" />
+		</createIndex> 
+		<createIndex indexName="ix2_user_account" tableName="user_account" unique="false">
+			<column name="authsecret" />
+		</createIndex> 
+	</changeSet>
+</databaseChangeLog>

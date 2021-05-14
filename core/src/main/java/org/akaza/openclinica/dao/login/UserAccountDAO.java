@@ -28,6 +28,7 @@ import org.akaza.openclinica.dao.core.SQLFactory;
 import org.akaza.openclinica.dao.core.TypeNames;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * <P>
@@ -57,6 +58,7 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
         getNextPKName = "getNextPK";
     }
 
+    @Autowired
     public UserAccountDAO(DataSource ds) {
         super(ds);
         setQueryNames();
@@ -100,6 +102,8 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
         this.setTypeExpected(25, TypeNames.STRING);    // timezone
         this.setTypeExpected(26, TypeNames.BOOL);      // enable_api_key 
         this.setTypeExpected(27, TypeNames.STRING);    // api_key
+        this.setTypeExpected(28, TypeNames.STRING);    // authtype
+        this.setTypeExpected(29, TypeNames.STRING);    // authsecret
     }
 
     public void setPrivilegeTypesExpected() {
@@ -407,6 +411,8 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
         String time_zone = (String) hm.get("time_zone");
         Boolean enableApiKey = (Boolean) hm.get("enable_api_key");
         String apiKey = (String) hm.get("api_key");
+        String authtype = (String) hm.get("authtype");
+        String authsecret = (String) hm.get("authsecret");
         
 
         // begin to set objects in the bean
@@ -428,6 +434,8 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
         eb.setTime_zone(time_zone);
         eb.setEnableApiKey(enableApiKey);
         eb.setApiKey(apiKey);
+        eb.setAuthsecret(authsecret);
+        eb.setAuthtype(authtype);
         
         // for testing, tbh
         if (eb.isTechAdmin()) {
@@ -439,9 +447,9 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
 
         // below block is set up to avoid recursion, etc.
         if (findOwner && !userName.contains(".")) {
-            UserAccountBean owner = (UserAccountBean) this.findByPK(ownerId.intValue(), false);
+            UserAccountBean owner = this.findByPK(ownerId.intValue(), false);
             eb.setOwner(owner);
-            UserAccountBean updater = (UserAccountBean) this.findByPK(updateId.intValue(), false);
+            UserAccountBean updater = this.findByPK(updateId.intValue(), false);
             eb.setUpdater(updater);
         }
         // end of if block to avoid recursion
@@ -504,7 +512,7 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
         ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
         UserAccountBean eb = new UserAccountBean();
         if (alist != null && alist.size() > 0) {
-            eb = (UserAccountBean) this.getEntityFromHashMap(alist.get(0), true);
+            eb = this.getEntityFromHashMap(alist.get(0), true);
         }
 
         return eb;
@@ -531,7 +539,7 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
         ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findByUserName"), variables);
         UserAccountBean eb = new UserAccountBean();
         if (alist != null && alist.size() > 0) {
-            eb = (UserAccountBean) this.getEntityFromHashMap(alist.get(0), true);
+            eb = this.getEntityFromHashMap(alist.get(0), true);
         }
         return eb;
     }
@@ -544,7 +552,7 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
         ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findByAccessCode"), variables);
         UserAccountBean eb = new UserAccountBean();
         if (alist != null && alist.size() > 0) {
-            eb = (UserAccountBean) this.getEntityFromHashMap(alist.get(0), true);
+            eb = this.getEntityFromHashMap(alist.get(0), true);
         }
         return eb;
     }
@@ -556,7 +564,7 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
         ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findByApiKey"), variables);
         UserAccountBean eb = new UserAccountBean();
         if (alist != null && alist.size() > 0) {
-            eb = (UserAccountBean) this.getEntityFromHashMap(alist.get(0), true);
+            eb = this.getEntityFromHashMap(alist.get(0), true);
         }
         return eb;
     }
@@ -569,7 +577,7 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
 
         ArrayList<UserAccountBean> al = new ArrayList<>();
         for(HashMap<String, Object> hm : alist) {
-            UserAccountBean eb = (UserAccountBean)this.getEntityFromHashMap(hm,false);
+            UserAccountBean eb = this.getEntityFromHashMap(hm,false);
             al.add(eb);
         }
         return al;
@@ -653,7 +661,7 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
             }
 
             for (int j = 0; j < children.size(); j++) {
-                StudyBean child = (StudyBean) children.get(j);
+                StudyBean child = children.get(j);
                 Integer childId = new Integer(child.getId());
 
                 if (allStudyUserRoleBeans.containsKey(childId)) {
@@ -991,7 +999,7 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
         alist = this.select(digester.getQuery("findAllByRole"), variables);
         ArrayList<UserAccountBean> al = new ArrayList<>();
         for(HashMap<String, Object> hm : alist) {
-            UserAccountBean eb = (UserAccountBean) this.getEntityFromHashMap(hm, true);
+            UserAccountBean eb = this.getEntityFromHashMap(hm, true);
             al.add(eb);
         }
         return al;
