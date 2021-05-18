@@ -293,6 +293,11 @@
 			<groupId>net.sf.saxon</groupId>
 			<artifactId>saxon-dom</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>dev.samstevens.totp</groupId>
+			<artifactId>totp</artifactId>
+			<version>1.7.1</version>
+		</dependency>
 	</dependencies>
 	<!-- @pgawade 16-NOV-2010 unit tests through maven -->
 

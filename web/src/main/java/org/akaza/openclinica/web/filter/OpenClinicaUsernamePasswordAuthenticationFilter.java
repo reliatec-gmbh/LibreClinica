@@ -7,6 +7,8 @@
  */
 package org.akaza.openclinica.web.filter;
 
+import static org.apache.commons.lang.StringUtils.isBlank;
+
 /* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,6 +42,7 @@ import org.akaza.openclinica.dao.login.UserAccountDAO;
 import org.akaza.openclinica.domain.technicaladmin.AuditUserLoginBean;
 import org.akaza.openclinica.domain.technicaladmin.LoginStatus;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
+import org.akaza.openclinica.service.otp.TwoFactorService;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.LockedException;
@@ -68,22 +71,27 @@ import org.springframework.util.Assert;
  * @since 3.0
  */
 public class OpenClinicaUsernamePasswordAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
-    private static final String BAD_CREDENTIALS_MESSAGE = "Bad Credentials";
+    public static final String SPRING_SECURITY_LAST_USERNAME_KEY = "SPRING_SECURITY_LAST_USERNAME";
     public static final String SPRING_SECURITY_FORM_USERNAME_KEY = "j_username";
     public static final String SPRING_SECURITY_FORM_PASSWORD_KEY = "j_password";
     public static final String SPRING_SECURITY_FORM_FACTOR = "j_factor";
-    public static final String SPRING_SECURITY_LAST_USERNAME_KEY = "SPRING_SECURITY_LAST_USERNAME";
+    private static final String BAD_CREDENTIALS_MESSAGE = "Bad Credentials";
     private String usernameParameter = SPRING_SECURITY_FORM_USERNAME_KEY;
     private String passwordParameter = SPRING_SECURITY_FORM_PASSWORD_KEY;
     private boolean postOnly = true;
     private AuditUserLoginDao auditUserLoginDao;
     private ConfigurationDao configurationDao;
+    private TwoFactorService factorService;
     private UserAccountDAO userAccountDao;
     private DataSource dataSource;
     private CRFLocker crfLocker;
 
     public OpenClinicaUsernamePasswordAuthenticationFilter() {
         super("/j_spring_security_check");
+    }
+
+    public void setFactorService(TwoFactorService factorService) {
+        this.factorService = factorService;
     }
 
     @Override
@@ -94,9 +102,10 @@ public class OpenClinicaUsernamePasswordAuthenticationFilter extends AbstractAut
 
         String username = obtainUsername(request);
         String password = obtainPassword(request);
+        String factor = request.getParameter(SPRING_SECURITY_FORM_FACTOR);
 
         // Fail fast if anything mandatory is missing for authentification
-        if (username == null || null == password) {
+        if (isBlank(username) || isBlank(password)) {
             throw new BadCredentialsException(BAD_CREDENTIALS_MESSAGE);
         }
 
@@ -122,6 +131,12 @@ public class OpenClinicaUsernamePasswordAuthenticationFilter extends AbstractAut
 
             if (userAccountBean == null) {
                 throw new BadCredentialsException(BAD_CREDENTIALS_MESSAGE);
+            }
+
+            if (factorService.getTwoFactorActivated()) {
+                if (!factorService.verify(userAccountBean.getAuthsecret(), factor)) {
+                    throw new BadCredentialsException(BAD_CREDENTIALS_MESSAGE);
+                }
             }
 
             // Manually Checking if the user is locked which should be thrown by authenticate. Mantis Issue: 9016

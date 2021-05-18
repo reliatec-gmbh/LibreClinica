@@ -17,7 +17,9 @@
 
     <!--  Service layer supports legacy DAOs via constructor injection of dataSource
           and Hibernate DAO injection via autowiring -->
-
+	<!-- 
+	<context:annotation-config />
+	-->
 
     <bean id="dynamicsMetadataService" class="org.akaza.openclinica.service.crfdata.DynamicsMetadataService" autowire="byName">
         <constructor-arg ref="dataSource"/>
@@ -141,6 +143,9 @@
        <constructor-arg ref="dataSource"/>
     </bean>
 
+    <bean id="factorService" class="org.akaza.openclinica.service.otp.TwoFactorService">
+       <property name="coreResources" ref="coreResources" />
+    </bean>
+    
     <context:component-scan base-package="org.akaza.openclinica.controller.openrosa"/>
-
 </beans>

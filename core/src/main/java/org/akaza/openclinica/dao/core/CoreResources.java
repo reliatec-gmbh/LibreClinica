@@ -909,11 +909,4 @@ public class CoreResources implements ResourceLoaderAware {
     public Properties getDATAINFO() {
         return DATAINFO;
     }
-
-    // // TODO comment out system out after dev
-    // private static void logMe(String message) {
-    // System.out.println(message);
-    // logger.info(message);
-    // }
-
 }

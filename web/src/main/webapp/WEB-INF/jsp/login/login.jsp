@@ -1,4 +1,8 @@
 <%@ include file="/WEB-INF/jsp/taglibs.jsp" %>
+<%@ page import="org.springframework.web.servlet.support.RequestContextUtils" %>
+<%@ page import="org.springframework.context.ApplicationContext" %>
+<%@ page import="org.akaza.openclinica.service.otp.TwoFactorService" %>
+
 <!-- For Mantis Issue 6099 -->
 <jsp:useBean scope='session' id='userBean' class='org.akaza.openclinica.bean.login.UserAccountBean'/>
     <c:if test="${userBean.name!=''}">
@@ -37,6 +41,14 @@
     <%--<c:when test="${resword.locale == null}"><fmt:setLocale value="en" scope="session"/></c:when>--%>
     <%--<c:otherwise><fmt:setLocale value="${resword.locale}" scope="session"/></c:otherwise>--%>
 <%--</c:choose>--%>
+
+<%
+ApplicationContext appContext = RequestContextUtils.findWebApplicationContext(request);
+TwoFactorService factorService = (TwoFactorService) appContext.getBean("factorService");
+
+request.setAttribute("factorService", factorService);
+session.setAttribute("factorService", factorService);
+%>
 
 <body class="login_BG" onLoad="document.getElementById('username').focus();">
     <div class="login_BG">
@@ -78,7 +90,7 @@
             </table>
 
     <table border="0" cellpadding="0" cellspacing="0" class="loginBoxes">
-        <tr>
+       <tr>
             <td class="loginBox_T">&nbsp;</td>
        </tr>
        <tr>
@@ -89,14 +101,22 @@
                     <form action="<c:url value='/j_spring_security_check'/>" method="post">
                     <h1><fmt:message key="login" bundle="${resword}"/></h1>
                     <b><fmt:message key="user_name" bundle="${resword}"/></b>
-                        <div class="formfieldM_BG">
-                            <input type="text" id="username" name="j_username" class="formfieldM">
-                        </div>
+                    <div class="formfieldM_BG">
+                        <input type="text" id="username" name="j_username" class="formfieldM" />
+                    </div>
 
                     <b><fmt:message key="password" bundle="${resword}"/></b>
+                    <div class="formfieldM_BG">
+                        <input type="password" id="j_password" name="j_password"  class="formfieldM" autocomplete="off" />
+                    </div>
+                    
+                    <c:if test="${factorService.twoFactorActivated}">
+	                    <b><fmt:message key="factor" bundle="${resword}"/></b>
                         <div class="formfieldM_BG">
-                            <input type="password" id="j_password" name="j_password"  class="formfieldM"  autocomplete="off">
+                            <input type="text" id="j_factor" name="j_factor"  class="formfieldM" autocomplete="off" />
                         </div>
+                    </c:if>
+                        
                     <input type="submit" name="submit" value="<fmt:message key='login' bundle='${resword}'/>" class="loginbutton" />
                     <a href="#" id="requestPassword"> <fmt:message key="forgot_password" bundle="${resword}"/></a>
                    </form>

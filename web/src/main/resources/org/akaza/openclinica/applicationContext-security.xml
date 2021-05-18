@@ -73,6 +73,7 @@
         <property name="allowSessionCreation" value="true" />
         <property name="sessionAuthenticationStrategy" ref="sas"/>
         <property name="crfLocker" ref="crfLocker"/>
+        <property name="factorService" ref="factorService"/>
     </bean>
     
     <bean id="successHandler" class="org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler" >
