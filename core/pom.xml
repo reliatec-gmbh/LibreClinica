@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.libreclinica</groupId>
         <artifactId>LibreClinica</artifactId>
-      <version>0.8.1</version>
+      <version>1.1.0-snapshot</version>
     </parent>
     <dependencies>
 		<dependency>
@@ -72,9 +72,8 @@
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
-			<groupId>commons-dbcp</groupId>
-			<artifactId>commons-dbcp</artifactId>
-			<version>1.4</version>
+			<groupId>org.apache.commons</groupId>
+    		<artifactId>commons-dbcp2</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>commons-validator</groupId>
@@ -231,7 +230,6 @@
 		<dependency>
     		<groupId>org.libreclinica.odm</groupId>
 			<artifactId>LibreClinica-odm</artifactId>
-			<version>2.2</version>
 		</dependency>
 		 <dependency>
 			<groupId>org.mvel</groupId>

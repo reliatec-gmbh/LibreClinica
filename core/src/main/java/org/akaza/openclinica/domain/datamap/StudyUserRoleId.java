@@ -20,6 +20,10 @@ import javax.persistence.Embeddable;
 @Embeddable
 public class StudyUserRoleId implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5935889924324766077L;
 	private String roleName;
 	private Integer studyId;
 	private Integer statusId;

@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.libreclinica</groupId>
 		<artifactId>LibreClinica</artifactId>
-		  <version>0.8.1</version>
+		  <version>1.1.0-snapshot</version>
 	</parent>
 	<dependencies>
 		<dependency>
@@ -17,12 +17,10 @@
 		<dependency>
 			<groupId>net.sf.saxon</groupId>
 			<artifactId>saxon</artifactId>
-			<version>8.7</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.saxon</groupId>
 			<artifactId>saxon-dom</artifactId>
-			<version>8.7</version>
 		</dependency>
 
 		<dependency>
@@ -109,6 +107,10 @@
 			<artifactId>commons-beanutils</artifactId>
 			<version>1.8.0</version>
 			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+    		<artifactId>commons-dbcp2</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>commons-validator</groupId>

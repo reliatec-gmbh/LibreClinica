@@ -51,7 +51,6 @@ public class DiscrepancyNote  extends DataMapDomainObject {
 	private String description;
 	private String detailedNotes;
 	private Date dateCreated;
-	private Integer parentDnId;
 	private String entityType;
 	private List<DnStudyEventMap> dnStudyEventMaps;
 	private List<DnEventCrfMap> dnEventCrfMaps ;
@@ -85,7 +84,6 @@ public class DiscrepancyNote  extends DataMapDomainObject {
 		this.description = description;
 		this.detailedNotes = detailedNotes;
 		this.dateCreated = dateCreated;
-		this.parentDnId = parentDnId;
 		this.entityType = entityType;
 		this.dnStudyEventMaps = dnStudyEventMaps;
 		this.dnEventCrfMaps = dnEventCrfMaps;

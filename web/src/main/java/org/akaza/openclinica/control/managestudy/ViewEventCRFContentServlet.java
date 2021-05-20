@@ -32,7 +32,11 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
  */
 public class ViewEventCRFContentServlet extends SecureController {
 
-    public static final String BEAN_STUDY_EVENT = "studyEvent";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6312222590107479913L;
+	public static final String BEAN_STUDY_EVENT = "studyEvent";
 
     /**
      * Checks whether the user has the correct privilege

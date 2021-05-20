@@ -32,6 +32,10 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class DnStudySubjectMap extends DataMapDomainObject {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2974425156631941758L;
 	private DnStudySubjectMapId dnStudySubjectMapId;
 	private StudySubject studySubject;
 	private DiscrepancyNote discrepancyNote;

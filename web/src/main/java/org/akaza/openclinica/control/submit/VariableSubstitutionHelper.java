@@ -65,7 +65,6 @@ public class VariableSubstitutionHelper {
         return subst.replace(value).replaceAll(TOKEN_REGEX, StringUtils.EMPTY);
     }
 
-    @SuppressWarnings("unchecked")
     private static Map<String, String> buildTokensMap(DisplaySectionBean section, StudySubjectBean studySubject,
                                                       StudyBean study, StudyEventDefinitionBean eventDef,
                                                       StudyEventBean event, DataSource dataSource) {

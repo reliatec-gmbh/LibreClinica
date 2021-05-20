@@ -90,7 +90,7 @@ public class ParticipantEventService {
         EventDefinitionCRFBean selectedEventDefCrf = null;
         if (eventDefCrf.getParentId() > 0) selectedEventDefCrf = (EventDefinitionCRFBean)getEventDefCRFDAO().findByPK(eventDefCrf.getParentId());
         else selectedEventDefCrf = eventDefCrf;
-        versions = (ArrayList) getCRFVersionDAO().findAllByCRF(selectedEventDefCrf.getCrfId());
+        versions = getCRFVersionDAO().findAllByCRF(selectedEventDefCrf.getCrfId());
         
         return versions;
        }

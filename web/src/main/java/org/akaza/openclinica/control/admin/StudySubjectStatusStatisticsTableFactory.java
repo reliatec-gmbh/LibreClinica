@@ -10,7 +10,6 @@ package org.akaza.openclinica.control.admin;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.control.AbstractTableFactory;
-import org.akaza.openclinica.control.StatisticsView;
 import org.akaza.openclinica.control.StudySubjectStatusView;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.managestudy.StudySubjectDAO;
@@ -68,7 +67,6 @@ public class StudySubjectStatusStatisticsTableFactory extends AbstractTableFacto
         tableFacade.addFilterMatcher(new MatcherKey(Date.class, "loginAttemptDate"), new DateFilterMatcher("yyyy-MM-dd hh:mm"));
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void setDataAndLimitVariables(TableFacade tableFacade) {
 
@@ -88,9 +86,6 @@ public class StudySubjectStatusStatisticsTableFactory extends AbstractTableFacto
             int totalRows = statuses.length;
             tableFacade.setTotalRows(totalRows);
         }
-
-        int rowStart = limit.getRowSelect().getRowStart();
-        int rowEnd = limit.getRowSelect().getRowEnd();
 
         Integer totalStudySubjects = studySubjectDao.getCountofStudySubjects(currentStudy);
 

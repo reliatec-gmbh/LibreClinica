@@ -22,7 +22,11 @@ import java.io.Serializable;
  */
 public class GenericOidGenerator extends OidGenerator implements Serializable {
 
-    private final int argumentLength = 1;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -2545386297047178606L;
+	private final int argumentLength = 1;
 
     @Override
     void verifyArgumentLength(String... keys) throws Exception {

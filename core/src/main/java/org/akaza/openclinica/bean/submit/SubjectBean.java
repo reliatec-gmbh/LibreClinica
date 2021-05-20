@@ -15,7 +15,11 @@ import java.util.Date;
  * @author jxu
  */
 public class SubjectBean extends AuditableEntityBean {
-    /*
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -784879689514928654L;
+	/*
      * since we extend entity bean, we already have the following: subject_id,
      * date_created, date_updated, update_id
      */

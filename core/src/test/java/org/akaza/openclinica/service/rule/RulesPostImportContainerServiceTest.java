@@ -7,19 +7,14 @@
  */
 package org.akaza.openclinica.service.rule;
 
-import org.akaza.openclinica.bean.managestudy.StudyBean;
-import org.akaza.openclinica.dao.managestudy.StudyDAO;
-import org.akaza.openclinica.domain.rule.RuleBean;
-import org.akaza.openclinica.domain.rule.RuleSetBean;
-import org.akaza.openclinica.domain.rule.RuleSetRuleBean;
-import org.akaza.openclinica.domain.rule.RulesPostImportContainer;
-import org.akaza.openclinica.domain.rule.action.DiscrepancyNoteActionBean;
-import org.akaza.openclinica.domain.rule.action.EventActionBean;
-import org.akaza.openclinica.domain.rule.expression.Context;
-import org.akaza.openclinica.domain.rule.expression.ExpressionBean;
-import org.akaza.openclinica.templates.HibernateOcDbTestCase;
-
-import java.util.ArrayList;
+//import org.akaza.openclinica.domain.rule.RuleBean;
+//import org.akaza.openclinica.domain.rule.RuleSetBean;
+//import org.akaza.openclinica.domain.rule.RuleSetRuleBean;
+//import org.akaza.openclinica.domain.rule.RulesPostImportContainer;
+//import org.akaza.openclinica.domain.rule.action.EventActionBean;
+//import org.akaza.openclinica.domain.rule.expression.Context;
+//import org.akaza.openclinica.domain.rule.expression.ExpressionBean;
+//import java.util.ArrayList;
 
 import junit.framework.TestCase;
 
@@ -49,27 +44,15 @@ public class RulesPostImportContainerServiceTest extends TestCase {
         assertEquals(0, container.getInValidRuleSetDefs().size());
         assertEquals(0, container.getValidRuleSetDefs().size());
     }
-    **/
-    
-    public void testCreateObj(){
-    	RulesPostImportContainerService service = new RulesPostImportContainerService(null);
-  //  	service.runValidationInList("SE_REG2.STARTDATE","SE_REG.STARTDATE",null,prepareContainer());    // Commented out this line due to failing when running unit test
-    	
-    }
 
     private  ArrayList<RuleSetBean> prepareContainer() {
-        RulesPostImportContainer container = new RulesPostImportContainer();
         ArrayList<RuleSetBean> ruleSets = new ArrayList<RuleSetBean>();
-        ArrayList<RuleBean> ruleDefs = new ArrayList<RuleBean>();
 
         RuleBean rule = createRuleBean();
         RuleSetBean ruleSet = getRuleSet(rule.getOid(),"SE_REG.STARTDATE","SE_REG3");
         RuleSetBean ruleSet2 = getRuleSet(rule.getOid(),"SE_REG3.STARTDATE","SE_REG2");
         ruleSets.add(ruleSet);
         ruleSets.add(ruleSet2);
-        //ruleDefs.add(rule);
-        //container.setRuleSets(ruleSets);
-        //container.setRuleDefs(ruleDefs);
         return ruleSets;
 
     }
@@ -113,5 +96,6 @@ public class RulesPostImportContainerServiceTest extends TestCase {
         expression.setContext(context);
         expression.setValue(value);
         return expression;
-    }
+    }    
+    */
 }

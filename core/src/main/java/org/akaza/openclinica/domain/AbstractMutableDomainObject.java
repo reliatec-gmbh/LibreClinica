@@ -16,7 +16,12 @@ import javax.persistence.Version;
 
 @MappedSuperclass
 public abstract class AbstractMutableDomainObject implements MutableDomainObject, Serializable {
-    @Override
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 2535820830129761255L;
+
+	@Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;

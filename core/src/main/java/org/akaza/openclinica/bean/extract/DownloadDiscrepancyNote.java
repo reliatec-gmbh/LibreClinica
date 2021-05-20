@@ -10,7 +10,6 @@ package org.akaza.openclinica.bean.extract;
 import java.awt.Color;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,18 +56,7 @@ public class DownloadDiscrepancyNote implements DownLoadBean{
         RESOLUTION_STATUS_MAP.put(5,"Not Applicable");
     }
 
-    //Does the user want the first line of the CSV to be column headers
-    private final boolean firstColumnHeaderLine;
-    //A list of DiscrepancyNoteBeans to be downloaded together
-    private final List<DiscrepancyNoteBean> discrepancyBeanList =
-      new ArrayList<DiscrepancyNoteBean>();
-
     public DownloadDiscrepancyNote() {
-        this.firstColumnHeaderLine = false;
-    }
-
-    public DownloadDiscrepancyNote(boolean firstColumnHeaderLine) {
-        this.firstColumnHeaderLine = firstColumnHeaderLine;
     }
 
     public void downLoad(EntityBean bean,
@@ -707,24 +695,6 @@ public class DownloadDiscrepancyNote implements DownLoadBean{
         Paragraph para = new Paragraph(content.toString(),
           new Font(Font.HELVETICA, 14, Font.BOLD, new Color(0, 0, 0)));
         return new Cell(para);
-    }
-
-    private Paragraph createThreadHeader(DiscrepancyNoteThread discNoteThread){
-        String content ="";
-        int size = discNoteThread.getLinkedNoteList().size();
-        int counter=0;
-        for(DiscrepancyNoteBean discBean : discNoteThread.getLinkedNoteList()){
-            ++counter;
-            content += discBean.getEntityName()+"; "+
-              RESOLUTION_STATUS_MAP.get(discBean.getResolutionStatusId());
-            if(size > 1 && counter != size) {
-                content +=" --->";
-            }
-
-        }
-        Paragraph para = new Paragraph(content,
-          new Font(Font.HELVETICA, 16, Font.BOLD, new Color(0, 0, 0)));
-        return para;
     }
 
     private Table createTableFromBean(DiscrepancyNoteBean discBean) throws

@@ -15,23 +15,14 @@
 package org.akaza.openclinica.service.rule.expression;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.sql.DataSource;
 
 import org.akaza.openclinica.bean.managestudy.StudySubjectBean;
-import org.akaza.openclinica.bean.submit.ItemBean;
-import org.akaza.openclinica.bean.submit.ItemGroupBean;
-import org.akaza.openclinica.dao.admin.CRFDAO;
-import org.akaza.openclinica.dao.hibernate.DynamicsItemFormMetadataDao;
-import org.akaza.openclinica.dao.hibernate.StudyEventDefinitionDao;
 import org.akaza.openclinica.dao.managestudy.StudySubjectDAO;
 import org.akaza.openclinica.domain.datamap.StudyEvent;
-import org.akaza.openclinica.domain.datamap.StudyEventDefinition;
 import org.akaza.openclinica.domain.rule.expression.ExpressionBeanObjectWrapper;
 import org.apache.commons.lang.time.DateUtils;
 //import org.mvel2.MVEL;
@@ -41,40 +32,18 @@ import org.slf4j.LoggerFactory;
 public class ExpressionBeanService {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
-    private final String SEPERATOR = ".";
-    private final String ESCAPED_SEPERATOR = "\\.";
     @SuppressWarnings("unused")
 	private final String STUDY_EVENT_DEFINITION_OR_ITEM_GROUP_PATTERN = "[A-Z_0-9]+|[A-Z_0-9]+\\[(ALL|[1-9]\\d*)\\]$";
-    private final String STUDY_EVENT_DEFINITION_OR_ITEM_GROUP_PATTERN_NO_ALL = "[A-Z_0-9]+|[A-Z_0-9]+\\[[1-9]\\d*\\]$";
     @SuppressWarnings("unused")
 	private final String STUDY_EVENT_DEFINITION_OR_ITEM_GROUP_PATTERN_WITH_ORDINAL = "[A-Z_0-9]+\\[(END|ALL|[1-9]\\d*)\\]$";
-    private final String STUDY_EVENT_DEFINITION_OR_ITEM_GROUP_PATTERN_WITH_END = "[A-Z_0-9]+|[A-Z_0-9]+\\[(END|ALL|[1-9]\\d*)\\]$";
-    private final String PRE = "[A-Z_0-9]+\\[";
-    private final String POST = "\\]";
-    private final String CRF_OID_OR_ITEM_DATA_PATTERN = "[A-Z_0-9]+";
-    private final String BRACKETS_AND_CONTENTS = "\\[(END|ALL|[1-9]\\d*)\\]";
-    private final String ALL_IN_BRACKETS = "ALL";
-    private final String OPENNIG_BRACKET = "[";
-    private final String CLOSING_BRACKET = "]";
 
     DataSource ds;
     Pattern[] pattern;
     Pattern[] rulePattern;
     Pattern[] ruleActionPattern;
     ExpressionBeanObjectWrapper expressionBeanWrapper;
-    private StudySubjectDAO studySubjectDao;
 
     public static String STUDYEVENTKEY="SE";
-
-    /*
-     * The variables below are used as a small Cache so that we don't go to the
-     * database every time we want to get an Object by it's OID. This is a very
-     * stripped down cache which will help performance in a single
-     * request/response cycle.
-     */
-    private HashMap<String, StudyEventDefinition> studyEventDefinitions;
-    private HashMap<String, ItemGroupBean> itemGroups;
-    private HashMap<String, ItemBean> items;
 
     public ExpressionBeanService(DataSource ds) {
         init(ds, null);
@@ -141,12 +110,6 @@ public class ExpressionBeanService {
         	else studyEvent= expressionBeanWrapper.getStudyEventDaoHib().fetchByStudyEventDefOIDAndOrdinal(oid, 1, subjectId);
         return studyEvent;
     }
-  
-    private boolean match(String input, Pattern pattern) {
-        Matcher matcher = pattern.matcher(input);
-        return matcher.matches();
-    }
-
   
     public void setExpressionBeanWrapper(ExpressionBeanObjectWrapper expressionBeanWrapper) {
         this.expressionBeanWrapper = expressionBeanWrapper;

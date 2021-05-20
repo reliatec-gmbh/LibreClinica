@@ -9,8 +9,6 @@ package org.akaza.openclinica.bean.submit;
 
 import org.akaza.openclinica.bean.core.EntityBean;
 
-import java.util.ArrayList;
-
 /**
  * @author jxu
  *
@@ -18,8 +16,11 @@ import java.util.ArrayList;
  * Preferences - Java - Code Style - Code Templates
  */
 public class DisplaySubjectBean extends EntityBean {
-    private SubjectBean subject;
-    private ArrayList studySubjects;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 578926067350657106L;
+	private SubjectBean subject;
     private String studySubjectIds;
 
     /**
@@ -35,21 +36,6 @@ public class DisplaySubjectBean extends EntityBean {
      */
     public void setStudySubjectIds(String studySubjectIds) {
         this.studySubjectIds = studySubjectIds;
-    }
-
-    /**
-     * @return Returns the studySubjects.
-     */
-    public ArrayList getStudySubjects() {
-        return studySubjects;
-    }
-
-    /**
-     * @param studySubjects
-     *            The studySubjects to set.
-     */
-    public void setStudySubjects(ArrayList studySubjects) {
-        this.studySubjects = studySubjects;
     }
 
     /**

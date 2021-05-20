@@ -39,7 +39,6 @@ import org.akaza.openclinica.dao.submit.ItemDAO;
 import org.akaza.openclinica.dao.submit.ItemFormMetadataDAO;
 import org.akaza.openclinica.dao.submit.ItemGroupDAO;
 import org.akaza.openclinica.dao.submit.ItemGroupMetadataDAO;
-import org.akaza.openclinica.dao.submit.SectionDAO;
 import org.akaza.openclinica.domain.rule.action.PropertyBean;
 import org.akaza.openclinica.domain.rule.action.RuleActionBean;
 import org.akaza.openclinica.domain.rule.expression.ExpressionBean;
@@ -81,7 +80,6 @@ public class OpenRosaXmlGenerator {
     private ItemGroupDAO igdao;
     private ItemGroupMetadataDAO igmdao;
     private ItemFormMetadataDAO itemFormMetadataDAO;
-    private SectionDAO sdao;
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
 
     public OpenRosaXmlGenerator(CoreResources core, DataSource dataSource, RuleActionPropertyDao ruleActionPropertyDao) throws Exception {
@@ -138,62 +136,36 @@ public class OpenRosaXmlGenerator {
         }
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    private ArrayList<ItemGroupBean> getItemGroupBeans(SectionBean section) throws Exception {
-        ArrayList<ItemGroupBean> itemGroupBeans = null;
-
-        igdao = new ItemGroupDAO(dataSource);
-        itemGroupBeans = (ArrayList<ItemGroupBean>) igdao.findGroupBySectionId(section.getId());
-        return itemGroupBeans;
-    }
-
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     private ArrayList<ItemGroupBean> getItemGroupBeansByCrfVersion(CRFVersionBean crfVersion) throws Exception {
         ArrayList<ItemGroupBean> itemGroupBeans = null;
 
         igdao = new ItemGroupDAO(dataSource);
-        itemGroupBeans = (ArrayList<ItemGroupBean>) igdao.findGroupByCRFVersionID(crfVersion.getId());
+        itemGroupBeans = igdao.findGroupByCRFVersionID(crfVersion.getId());
         return itemGroupBeans;
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     private ItemGroupBean getItemGroupBeanByItemId(Integer itemId) {
         ArrayList<ItemGroupBean> itemGroupBean = null;
         igdao = new ItemGroupDAO(dataSource);
 
-        itemGroupBean = (ArrayList<ItemGroupBean>) igdao.findGroupsByItemID(itemId);
+        itemGroupBean = igdao.findGroupsByItemID(itemId);
         return itemGroupBean.get(0);
     }
 
-    private SectionBean getSectionBean(Integer ID) {
-        sdao = new SectionDAO(dataSource);
-        SectionBean sBean = (SectionBean) sdao.findByPK(ID);
-        return sBean;
-    }
-
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     private ItemBean getItemBean(String itemOid) {
         ArrayList<ItemBean> itemBean = null;
         idao = new ItemDAO(dataSource);
-        itemBean = (ArrayList<ItemBean>) idao.findByOid(itemOid);
+        itemBean = idao.findByOid(itemOid);
         return itemBean.get(0);
     }
 
-    private ItemBean getItemBean(int itemId) {
-        ItemBean itemBean = null;
-        idao = new ItemDAO(dataSource);
-        itemBean = (ItemBean) idao.findByPK(itemId);
-        return itemBean;
-    }
-
-    @SuppressWarnings({ "unused", "rawtypes" })
+    @SuppressWarnings("unused")
     private ItemFormMetadataBean getItemFormMetadataBeanById(Integer id) throws OpenClinicaException {
         itemFormMetadataDAO = new ItemFormMetadataDAO(dataSource);
-        ItemFormMetadataBean itemFormMetadataBean = (ItemFormMetadataBean) itemFormMetadataDAO.findByPK(id);
+        ItemFormMetadataBean itemFormMetadataBean = itemFormMetadataDAO.findByPK(id);
         return itemFormMetadataBean;
     }
 
-    @SuppressWarnings("rawtypes")
     private ItemFormMetadataBean getItemFormMetadata(ItemBean item, CRFVersionBean crfVersion) throws Exception {
         ItemFormMetadataBean itemFormMetadataBean = null;
 
@@ -203,23 +175,21 @@ public class OpenRosaXmlGenerator {
         return itemFormMetadataBean;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     private ItemGroupMetadataBean getItemGroupMetadata(ItemGroupBean itemGroupBean, CRFVersionBean crfVersion, SectionBean section) throws Exception {
         ArrayList<ItemGroupMetadataBean> itemGroupMetadataBean = null;
 
         ItemGroupMetadataDAO itemGroupMetadataDAO = new ItemGroupMetadataDAO(dataSource);
-        itemGroupMetadataBean = (ArrayList<ItemGroupMetadataBean>) itemGroupMetadataDAO.findMetaByGroupAndSection(itemGroupBean.getId(), crfVersion.getId(),
+        itemGroupMetadataBean = itemGroupMetadataDAO.findMetaByGroupAndSection(itemGroupBean.getId(), crfVersion.getId(),
                 section.getId());
 
         return itemGroupMetadataBean.get(0);
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     private ItemGroupMetadataBean getItemGroupMetadataByGroup(ItemGroupBean itemGroupBean, CRFVersionBean crfVersion) throws Exception {
         ArrayList<ItemGroupMetadataBean> itemGroupMetadataBean = null;
 
         ItemGroupMetadataDAO itemGroupMetadataDAO = new ItemGroupMetadataDAO(dataSource);
-        itemGroupMetadataBean = (ArrayList<ItemGroupMetadataBean>) itemGroupMetadataDAO.findMetaByGroupAndCrfVersion(itemGroupBean.getId(), crfVersion.getId());
+        itemGroupMetadataBean = itemGroupMetadataDAO.findMetaByGroupAndCrfVersion(itemGroupBean.getId(), crfVersion.getId());
 
         return itemGroupMetadataBean.get(0);
     }
@@ -527,28 +497,6 @@ public class OpenRosaXmlGenerator {
         DOMSource source = new DOMSource(doc);
         transformer.transform(source, result);
         return writer.toString();
-
-    }
-
-    /**
-     * To Set Default Values for Item Fields
-     * 
-     * @param item
-     * @param crfVersion
-     * @param question
-     * @throws Exception
-     */
-    private void setDefaultElement(ItemBean item, CRFVersionBean crfVersion, Element question) throws Exception {
-        Integer responseTypeId = getItemFormMetadata(item, crfVersion).getResponseSet().getResponseTypeId();
-
-        if (responseTypeId == 3 || responseTypeId == 7) {
-            String defaultValue = getItemFormMetadata(item, crfVersion).getDefaultValue();
-            defaultValue = defaultValue.replace(" ", "");
-            defaultValue = defaultValue.replace(",", " ");
-            question.setTextContent(defaultValue);
-        } else {
-            question.setTextContent(getItemFormMetadata(item, crfVersion).getDefaultValue());
-        }
 
     }
 

@@ -74,7 +74,7 @@ public class UserAccountTable extends Table {
         row += "<tr>\n";
         row += "<td>&nbsp;</td>\n";
 
-        ArrayList userRoles = u.getRoles();
+        ArrayList<StudyUserRoleBean> userRoles = u.getRoles();
         row += "<td colspan='3'>"; // study user roles cell
 
         if (userRoles.size() <= 0) {

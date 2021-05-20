@@ -7,6 +7,10 @@
  */
 package org.akaza.openclinica.control.admin;
 
+import java.util.ArrayList;
+
+import org.akaza.openclinica.bean.login.StudyUserRoleBean;
+import org.akaza.openclinica.bean.managestudy.EventDefinitionCRFBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
 import org.akaza.openclinica.control.core.SecureController;
@@ -17,14 +21,11 @@ import org.akaza.openclinica.dao.login.UserAccountDAO;
 import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDefinitionDAO;
-import org.akaza.openclinica.dao.managestudy.StudySubjectDAO;
 import org.akaza.openclinica.dao.service.StudyConfigService;
 import org.akaza.openclinica.dao.service.StudyParameterValueDAO;
 import org.akaza.openclinica.service.pmanage.ParticipantPortalRegistrar;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
-
-import java.util.ArrayList;
 
 /**
  * @author jxu
@@ -33,6 +34,11 @@ import java.util.ArrayList;
  */
 public class ViewStudyServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8704563921353967108L;
+
+	/**
      * Checks whether the user has the correct privilege
      */
     @Override
@@ -72,7 +78,6 @@ public class ViewStudyServlet extends SecureController {
             study = scs.setParametersForStudy(study);
 
             StudyParameterValueDAO spvdao = new StudyParameterValueDAO(sm.getDataSource());
-            String randomizationStatusInOC = spvdao.findByHandleAndStudy(study.getId(), "randomization").getValue();
             String participantStatusInOC = spvdao.findByHandleAndStudy(study.getId(), "participantPortal").getValue();
             if(participantStatusInOC=="") participantStatusInOC="disabled";
             // Randomization is removed from LibreClinica
@@ -90,18 +95,14 @@ public class ViewStudyServlet extends SecureController {
             request.setAttribute("studyToView", study);
             if ("yes".equalsIgnoreCase(viewFullRecords)) {
                 UserAccountDAO udao = new UserAccountDAO(sm.getDataSource());
-                StudySubjectDAO ssdao = new StudySubjectDAO(sm.getDataSource());
-                ArrayList sites = new ArrayList();
-                ArrayList userRoles = new ArrayList();
-                ArrayList subjects = new ArrayList();
+                ArrayList<StudyBean> sites = new ArrayList<>();
+                ArrayList<StudyUserRoleBean> userRoles = new ArrayList<>();
                 if (this.currentStudy.getParentStudyId() > 0 && this.currentRole.getRole().getId() > 3) {
                     sites.add(this.currentStudy);
                     userRoles = udao.findAllUsersByStudy(currentStudy.getId());
-                    subjects = ssdao.findAllByStudy(currentStudy);
                 } else {
-                    sites = (ArrayList) sdao.findAllByParent(studyId);
+                    sites = sdao.findAllByParent(studyId);
                     userRoles = udao.findAllUsersByStudy(studyId);
-                    subjects = ssdao.findAllByStudy(study);
                 }
 
                 // find all subjects in the study, include ones in sites
@@ -125,11 +126,11 @@ public class ViewStudyServlet extends SecureController {
 //                }
 
                 // find all events in the study, include ones in sites
-                ArrayList definitions = seddao.findAllByStudy(study);
+                ArrayList<StudyEventDefinitionBean> definitions = seddao.findAllByStudy(study);
 
                 for (int i = 0; i < definitions.size(); i++) {
                     StudyEventDefinitionBean def = (StudyEventDefinitionBean) definitions.get(i);
-                    ArrayList crfs = (ArrayList) edcdao.findAllActiveParentsByEventDefinitionId(def.getId());
+                    ArrayList<EventDefinitionCRFBean> crfs = edcdao.findAllActiveParentsByEventDefinitionId(def.getId());
                     def.setCrfNum(crfs.size());
 
                 }

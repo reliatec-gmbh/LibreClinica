@@ -25,7 +25,11 @@ import java.util.List;
 
 public class RuleSetRuleBean extends AuditableEntityBean {
 
-    protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 7561559207727031015L;
+	protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
     RuleSetBean ruleSetBean;
     RuleBean ruleBean;
     List<RuleActionBean> actions;

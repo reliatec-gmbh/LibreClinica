@@ -7,14 +7,13 @@
  */
 package org.akaza.openclinica.view.form;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.akaza.openclinica.bean.submit.DisplayItemBean;
 import org.akaza.openclinica.bean.submit.ItemBean;
 import org.akaza.openclinica.bean.submit.ResponseOptionBean;
 import org.jdom.Element;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * The class responsible for adding different types of input elements or tags to
@@ -156,10 +155,9 @@ public class CellFactory {
         Element td;
         List<ResponseOptionBean> list = new ArrayList<ResponseOptionBean>();
         int indx = 0;
-        ResponseOptionBean reOptBean;
+        ;
 
-        for (Iterator iter = displayBean.getMetadata().getResponseSet().getOptions().iterator(); iter.hasNext();) {
-            reOptBean = (ResponseOptionBean) iter.next();
+        for (ResponseOptionBean reOptBean : displayBean.getMetadata().getResponseSet().getOptions()) {
             list.add(reOptBean);
             td = new Element("td");
             if (responseName.equalsIgnoreCase("checkbox")) {

@@ -7,31 +7,28 @@
  */
 package org.akaza.openclinica.control.admin;
 
-import org.akaza.openclinica.bean.admin.CRFBean;
+import java.util.ArrayList;
+
 import org.akaza.openclinica.bean.admin.NewCRFBean;
-import org.akaza.openclinica.bean.submit.CRFVersionBean;
-import org.akaza.openclinica.bean.submit.EventCRFBean;
-import org.akaza.openclinica.bean.submit.ItemDataBean;
+import org.akaza.openclinica.bean.managestudy.EventDefinitionCRFBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
-import org.akaza.openclinica.bean.managestudy.EventDefinitionCRFBean;
 import org.akaza.openclinica.bean.managestudy.StudySubjectBean;
+import org.akaza.openclinica.bean.submit.CRFVersionBean;
+import org.akaza.openclinica.bean.submit.EventCRFBean;
+import org.akaza.openclinica.bean.submit.ItemBean;
+import org.akaza.openclinica.bean.submit.ItemDataBean;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
-import org.akaza.openclinica.dao.admin.CRFDAO;
 import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDefinitionDAO;
 import org.akaza.openclinica.dao.managestudy.StudySubjectDAO;
 import org.akaza.openclinica.dao.submit.CRFVersionDAO;
 import org.akaza.openclinica.dao.submit.EventCRFDAO;
-import org.akaza.openclinica.dao.submit.ItemDAO;
 import org.akaza.openclinica.dao.submit.ItemDataDAO;
-import org.akaza.openclinica.domain.datamap.VersioningMap;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
-
-import java.util.ArrayList;
 
 /**
  * @author jxu
@@ -40,7 +37,12 @@ import java.util.ArrayList;
  * Preferences - Java - Code Style - Code Templates
  */
 public class DeleteCRFVersionServlet extends SecureController {
-    public static final String VERSION_ID = "verId";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -8472820655058098368L;
+
+	public static final String VERSION_ID = "verId";
 
     public static final String VERSION_TO_DELETE = "version";
 
@@ -67,7 +69,6 @@ public class DeleteCRFVersionServlet extends SecureController {
             forwardPage(Page.CRF_LIST_SERVLET);
         } else {
             CRFVersionDAO cvdao = new CRFVersionDAO(sm.getDataSource());
-            CRFDAO cdao = new CRFDAO(sm.getDataSource());
             EventDefinitionCRFDAO edcdao = new EventDefinitionCRFDAO(sm.getDataSource());
             StudyEventDefinitionDAO sedDao = new StudyEventDefinitionDAO(sm.getDataSource());
             StudyEventDAO seDao = new StudyEventDAO(sm.getDataSource());
@@ -77,7 +78,7 @@ public class DeleteCRFVersionServlet extends SecureController {
             CRFVersionBean version = (CRFVersionBean) cvdao.findByPK(versionId);
 
             // find definitions using this version
-            ArrayList definitions = edcdao.findByDefaultVersion(version.getId());
+            ArrayList<EventDefinitionCRFBean> definitions = edcdao.findByDefaultVersion(version.getId());
             for (Object edcBean: definitions) {
                 StudyEventDefinitionBean sedBean = (StudyEventDefinitionBean)sedDao.findByPK(((EventDefinitionCRFBean)edcBean).getStudyEventDefinitionId());
                 ((EventDefinitionCRFBean)edcBean).setEventName(sedBean.getName());
@@ -97,7 +98,7 @@ public class DeleteCRFVersionServlet extends SecureController {
                    eCRF.setStudyEvent(seBean);
                }
             
-            ArrayList eventCRFs = ecdao.findAllByCRFVersion(versionId);
+            ArrayList<EventCRFBean> eventCRFs = ecdao.findAllByCRFVersion(versionId);
             boolean canDelete = true;
             if (!definitions.isEmpty()) {// used in definition
                 canDelete = false;
@@ -122,7 +123,7 @@ public class DeleteCRFVersionServlet extends SecureController {
             } else {
                 // submit
                 if (canDelete) {
-                    ArrayList items = cvdao.findNotSharedItemsByVersion(versionId);
+                    ArrayList<ItemBean> items = cvdao.findNotSharedItemsByVersion(versionId);
                     NewCRFBean nib = new NewCRFBean(sm.getDataSource(), version.getCrfId());
                     nib.setDeleteQueries(cvdao.generateDeleteQueries(versionId, items));
                     nib.deleteFromDB();

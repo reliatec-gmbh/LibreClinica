@@ -39,7 +39,11 @@ import java.util.Locale;
  */
 public class ShowFileServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 4497795033976495218L;
+	Locale locale;
 
     // < ResourceBundlerestext,resword,respage,resexception;
 
@@ -58,17 +62,16 @@ public class ShowFileServlet extends SecureController {
         ArchivedDatasetFileDAO asdfdao = new ArchivedDatasetFileDAO(sm.getDataSource());
         ArchivedDatasetFileBean asdfBean = (ArchivedDatasetFileBean) asdfdao.findByPK(fileId);
 
-        ArrayList newFileList = new ArrayList();
+        ArrayList<ArchivedDatasetFileBean> newFileList = new ArrayList<>();
         newFileList.add(asdfBean);
-        // request.setAttribute("filelist",newFileList);
 
-        ArrayList filterRows = ArchivedDatasetFileRow.generateRowsFromBeans(newFileList);
+        ArrayList<ArchivedDatasetFileRow> filterRows = ArchivedDatasetFileRow.generateRowsFromBeans(newFileList);
         EntityBeanTable table = fp.getEntityBeanTable();
         String[] columns =
             { resword.getString("file_name"), resword.getString("run_time"), resword.getString("file_size"), resword.getString("created_date"),
                 resword.getString("created_by") };
 
-        table.setColumns(new ArrayList(Arrays.asList(columns)));
+        table.setColumns(new ArrayList<String>(Arrays.asList(columns)));
         table.hideColumnLink(0);
         table.hideColumnLink(1);
         table.hideColumnLink(2);

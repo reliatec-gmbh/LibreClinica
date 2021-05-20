@@ -199,8 +199,6 @@ public class ImportCRFDataService {
      * purpose: returns false if any of the forms/EventCRFs fail the UpsertOnBean rules.
      */
     public boolean eventCRFStatusesValid(ODMContainer odmContainer, UserAccountBean ub) {
-        ArrayList<EventCRFBean> eventCRFBeans = new ArrayList<EventCRFBean>();
-        ArrayList<Integer> eventCRFBeanIds = new ArrayList<Integer>();
         EventCRFDAO eventCrfDAO = new EventCRFDAO(ds);
         StudySubjectDAO studySubjectDAO = new StudySubjectDAO(ds);
         StudyEventDefinitionDAO studyEventDefinitionDAO = new StudyEventDefinitionDAO(ds);
@@ -262,7 +260,6 @@ public class ImportCRFDataService {
                         // below to prevent duplicates
 
                         for (EventCRFBean ecb : eventCrfBeans) {
-                            Integer ecbId = new Integer(ecb.getId());
                             if (!(ecb.getStage().equals(DataEntryStage.INITIAL_DATA_ENTRY) && upsert.isDataEntryStarted())
                                     && !(ecb.getStage().equals(DataEntryStage.DOUBLE_DATA_ENTRY_COMPLETE) && upsert.isDataEntryComplete()))
                                 return false;
@@ -333,7 +330,7 @@ public class ImportCRFDataService {
         int countEventCRFs = 0;
         int discNotesGenerated = 0;
         for (DisplayItemBeanWrapper wr : wrappers) {
-            HashMap validations = wr.getValidationErrors();
+            HashMap<String, ArrayList<String>> validations = wr.getValidationErrors();
             discNotesGenerated += validations.size();
         }
         ArrayList<SubjectDataBean> subjectDataBeans = odmContainer.getCrfDataPostImportContainer().getSubjectData();
@@ -344,9 +341,7 @@ public class ImportCRFDataService {
             for (StudyEventDataBean studyEventDataBean : studyEventDataBeans) {
                 ArrayList<FormDataBean> formDataBeans = studyEventDataBean.getFormData();
                 // this would be the place to add more stats
-                for (FormDataBean formDataBean : formDataBeans) {
-                    countEventCRFs += 1;
-                }
+                countEventCRFs += formDataBeans.size();
             }
         }
 
@@ -363,7 +358,7 @@ public class ImportCRFDataService {
             throws OpenClinicaException {
 
         DisplayItemBeanWrapper displayItemBeanWrapper = null;
-        HashMap validationErrors = new HashMap();
+        HashMap<String, ArrayList<String>> validationErrors = new HashMap<>();
         List<DisplayItemBeanWrapper> wrappers = new ArrayList<DisplayItemBeanWrapper>();
         ImportHelper importHelper = new ImportHelper();
         FormDiscrepancyNotes discNotes = new FormDiscrepancyNotes();
@@ -377,7 +372,6 @@ public class ImportCRFDataService {
         StudySubjectDAO studySubjectDAO = new StudySubjectDAO(ds);
         StudyEventDefinitionDAO sedDao = new StudyEventDefinitionDAO(ds);
         HashMap<String, ItemDataBean> blankCheck = new HashMap<String, ItemDataBean>();
-        String hardValidatorErrorMsgs = "";
 
         ArrayList<SubjectDataBean> subjectDataBeans = odmContainer.getCrfDataPostImportContainer().getSubjectData();
         int totalEventCRFCount = 0;
@@ -562,7 +556,6 @@ public class ImportCRFDataService {
                                                 // displayItemBean.setMetadata(metadataBean);
                                                 // set event def crf?
                                                 displayItemBean.setEventDefinitionCRF(eventDefinitionCRF);
-                                                String eventCRFRepeatKey = studyEventDataBean.getStudyEventRepeatKey();
                                                 // if you do indeed leave off this in the XML it will pass but return
                                                 // 'null'
 
@@ -599,8 +592,6 @@ public class ImportCRFDataService {
                         for (Object errorKey : hardValidator.keySet()) {
                             logger.debug(errorKey.toString() + " -- " + hardValidator.get(errorKey));
                             hardValidationErrors.put(errorKey.toString(), hardValidator.get(errorKey));
-                            // updating here 'statically' tbh 06/2008
-                            hardValidatorErrorMsgs += hardValidator.get(errorKey) + "<br/><br/>";
                         }
 
                         String studyEventId = studyEvent.getId() + "";
@@ -612,7 +603,6 @@ public class ImportCRFDataService {
                                 + hardValidator.size());
                         // check if we need to overwrite
                         DataEntryStage dataEntryStage = eventCRFBean.getStage();
-                        Status eventCRFStatus = eventCRFBean.getStatus();
                         boolean overwrite = false;
                         // tbh >>
                         // //JN: Commenting out the following 2 lines, coz the prompt should come in the cases on
@@ -643,7 +633,7 @@ public class ImportCRFDataService {
                         // validationErrors would get overwritten and the
                         // older errors will be overriden. Moving it after the form.
                         // Removing the comments for now, since it seems to be creating duplicate Discrepancy Notes.
-                        validationErrors = new HashMap();
+                        validationErrors = new HashMap<>();
                         discValidator = new DiscrepancyValidator(request, discNotes);
                         // reset to allow for new errors...
                     }
@@ -709,7 +699,7 @@ public class ImportCRFDataService {
                     SimpleDateFormat sdf_sqldate = new SimpleDateFormat("yyyy-MM-dd");
                     try {
                         Date originalDate = sdf_sqldate.parse(dateValue);
-                        String replacementValue = new SimpleDateFormat("MM/dd/yyyy").format(originalDate);
+                        new SimpleDateFormat("MM/dd/yyyy").format(originalDate);
                         displayItemBean.getData().setValue(dateValue);
                     } catch (ParseException pe1) {
 
@@ -732,7 +722,7 @@ public class ImportCRFDataService {
             // what if it's a number? should be only numbers
             else if (displayItemBean.getItem().getDataType().equals(ItemDataType.INTEGER)) {
                 try {
-                    Integer testInt = new Integer(displayItemBean.getData().getValue());
+                    new Integer(displayItemBean.getData().getValue());
                     int width = Validator.parseWidth(widthDecimal);
                     if (width > 0 && displayItemBean.getData().getValue().length() > width) {
                         hardv.put(itemOid, "This value exceeds required width=" + width);
@@ -748,7 +738,7 @@ public class ImportCRFDataService {
             // what if it's a float? should be only numbers
             else if (displayItemBean.getItem().getDataType().equals(ItemDataType.REAL)) {
                 try {
-                    Float testFloat = new Float(displayItemBean.getData().getValue());
+                    new Float(displayItemBean.getData().getValue());
                     int width = Validator.parseWidth(widthDecimal);
                     if (width > 0 && displayItemBean.getData().getValue().length() > width) {
                         hardv.put(itemOid, "This value exceeds required width=" + width);
@@ -828,16 +818,13 @@ public class ImportCRFDataService {
         }
     }
 
-    private String matchValueWithOptions(DisplayItemBean displayItemBean, String value, List options) {
+    private String matchValueWithOptions(DisplayItemBean displayItemBean, String value, List<ResponseOptionBean> options) {
         String returnedValue = null;
         if (!options.isEmpty()) {
-            for (Object responseOption : options) {
-                ResponseOptionBean responseOptionBean = (ResponseOptionBean) responseOption;
+            for(ResponseOptionBean responseOptionBean : options) {
                 if (responseOptionBean.getValue().equals(value)) {
-                    // if (((ResponseOptionBean)
-                    // responseOption).getText().equals(value)) {
-                    displayItemBean.getData().setValue(((ResponseOptionBean) responseOption).getValue());
-                    return ((ResponseOptionBean) responseOption).getValue();
+                    displayItemBean.getData().setValue(responseOptionBean.getValue());
+                    return responseOptionBean.getValue();
 
                 }
             }
@@ -849,7 +836,7 @@ public class ImportCRFDataService {
      * difference from the above is only a 'contains' in the place of an 'equals'. and a few other switches...also need
      * to keep in mind that there are non-null values that need to be taken into account
      */
-    private String matchValueWithManyOptions(DisplayItemBean displayItemBean, String value, List options) {
+    private String matchValueWithManyOptions(DisplayItemBean displayItemBean, String value, List<ResponseOptionBean> options) {
         String returnedValue = null;
         // boolean checkComplete = true;
         String entireOptions = "";
@@ -862,29 +849,14 @@ public class ImportCRFDataService {
         simValue = simValue.replace(" ", "");
         boolean checkComplete = true;
         if (!options.isEmpty()) {
-            for (Object responseOption : options) {
-                ResponseOptionBean responseOptionBean = (ResponseOptionBean) responseOption;
-                // logger.debug("testing response option bean get value: " + responseOptionBean.getValue());
-                // entireOptions += responseOptionBean.getValue() + "{0,1}|";//
-                // once, or not at all
+            for(ResponseOptionBean responseOptionBean : options) {
                 entireOptions += responseOptionBean.getValue();
-                // trying smth new, tbh 01/2009
-
-                // logger.debug("checking on this string: " +
-                // entireOptions + " versus this value " + simValue);
-                // checkComplete = Pattern.matches(entireOptions, simValue); //
-                // switch values, tbh
-
-                // if (!checkComplete) {
-                // return returnedValue;
-                // }
-
             }
             // remove spaces, since they are causing problems:
             entireOptions = entireOptions.replace(" ", "");
             // following may be superfluous, tbh
 
-            ArrayList nullValues = displayItemBean.getEventDefinitionCRF().getNullValuesList();
+            ArrayList<NullValue> nullValues = displayItemBean.getEventDefinitionCRF().getNullValuesList();
 
             for (Object nullValue : nullValues) {
                 NullValue nullValueTerm = (NullValue) nullValue;
@@ -958,7 +930,7 @@ public class ImportCRFDataService {
                 for (SubjectDataBean subjectDataBean : subjectDataBeans) {
                     String oid = subjectDataBean.getSubjectOID();
                     StudySubjectBean studySubjectBean = studySubjectDAO.findByOidAndStudy(oid, studyBean.getId());
-                    if (studySubjectBean == null) {
+                    if (studySubjectBean == null || !oid.equals(studySubjectBean.getOid())) {
                         mf.applyPattern(respage.getString("your_subject_oid_does_not_reference"));
                         Object[] arguments = { oid };
                         errors.add(mf.format(arguments));

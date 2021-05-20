@@ -31,7 +31,11 @@ import org.hibernate.annotations.Parameter;
 @GenericGenerator(name = "id-generator", strategy = "native", parameters = { @Parameter(name = "sequence_name", value = "tag_id_seq") })
 public class Tag extends DataMapDomainObject {
 
-    private Integer id;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -7376265780312393656L;
+	private Integer id;
     private String tag_name;
     private String workflow;
     private UserAccount userAccount;

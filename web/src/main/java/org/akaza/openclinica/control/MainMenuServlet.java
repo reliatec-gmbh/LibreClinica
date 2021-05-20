@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import org.akaza.openclinica.bean.login.UserAccountBean;
+import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.service.StudyParameterValueBean;
 import org.akaza.openclinica.control.admin.EventStatusStatisticsTableFactory;
 import org.akaza.openclinica.control.admin.SiteStatisticsTableFactory;
@@ -50,7 +51,11 @@ import org.akaza.openclinica.web.table.sdv.SDVUtil;
  */
 public class MainMenuServlet extends SecureController {
 
-    //Shaoyu Su
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -7373300139315967558L;
+	//Shaoyu Su
     Locale locale;
     private StudyEventDefinitionDAO studyEventDefinitionDAO;
 	private SubjectDAO subjectDAO;
@@ -90,7 +95,7 @@ public class MainMenuServlet extends SecureController {
         }
 
         StudyDAO sdao = new StudyDAO(sm.getDataSource());
-        ArrayList studies = null;
+        ArrayList<StudyBean> studies = null;
 
         long pwdExpireDay = new Long(SQLInitServlet.getField("passwd_expiration_time")).longValue();
         Date lastPwdChangeDate = ub.getPasswdTimestamp();
@@ -132,7 +137,7 @@ public class MainMenuServlet extends SecureController {
 	
 	            if (!ub.isLdapUser() && pwdExpireDay > 0 && days >= pwdExpireDay) {// password expired, need to be changed
 			System.out.println("here");
-			studies = (ArrayList) sdao.findAllByUser(ub.getName());
+			studies = sdao.findAllByUser(ub.getName());
 	                request.setAttribute("studies", studies);
 	                session.setAttribute("userBean1", ub);
 	                addPageMessage(respage.getString("password_expired"));
@@ -216,7 +221,7 @@ public class MainMenuServlet extends SecureController {
 //            }
 
         } else {// a new user's first log in
-            studies = (ArrayList) sdao.findAllByUser(ub.getName());
+            studies = sdao.findAllByUser(ub.getName());
             request.setAttribute("studies", studies);
             session.setAttribute("userBean1", ub);
 //            addPageMessage(respage.getString("welcome") + " " + ub.getFirstName() + " " + ub.getLastName() + ". " + respage.getString("password_set"));
@@ -309,7 +314,7 @@ public class MainMenuServlet extends SecureController {
 	}
 
 	public void setStudyParameterValueDAO(StudyParameterValueDAO studyParameterValueDAO) {
-		studyParameterValueDAO = studyParameterValueDAO;
+		this.studyParameterValueDAO = studyParameterValueDAO;
 	}
 
 	public StudyEventDefinitionDAO getStudyEventDefinitionDao() {

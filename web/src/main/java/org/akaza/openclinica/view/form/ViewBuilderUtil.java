@@ -249,12 +249,12 @@ public class ViewBuilderUtil {
     }
 
 
-    public List generatePersistentMatrixRowsNew(SortedMap<Integer, List<ItemDataBean>> sortedDataMap, List<DisplayItemBean> rowContentBeans,
+    public List<List<Element>> generatePersistentMatrixRowsNew(SortedMap<Integer, List<ItemDataBean>> sortedDataMap, List<DisplayItemBean> rowContentBeans,
                                                       int tabIndex, String repeatParentId,
                                                       boolean hasDiscrepancyMgt, boolean forPrinting,
                                                       boolean hasDarkBorders, int maxColRows) {
 
-        List newRows = new ArrayList();
+        List<List<Element>> newRows = new ArrayList<>();
         List<ItemDataBean> tempList;
         Element tr;
         Element td;
@@ -265,7 +265,7 @@ public class ViewBuilderUtil {
         String forcedParentId = "";
         // for each repeated row of the matrix table..
         for (Integer ordinal : sortedDataMap.keySet()) {
-            List<Element> rowList = new ArrayList();
+            List<Element> rowList = new ArrayList<>();
             tr = new Element("tr");
             tempList = sortedDataMap.get(ordinal);
             forcedParentId = ordinal - 1 + "";

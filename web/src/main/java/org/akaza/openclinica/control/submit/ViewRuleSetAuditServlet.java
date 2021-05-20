@@ -35,7 +35,11 @@ import java.util.List;
  */
 public class ViewRuleSetAuditServlet extends SecureController {
 
-    private static String RULESET_ID = "ruleSetId";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 3803476433129250131L;
+	private static String RULESET_ID = "ruleSetId";
     private static String RULESET = "ruleSet";
     private static String RULESETAUDITS = "ruleSetAudits";
     private static String RULESETRULEAUDITS = "ruleSetRuleAudits";

@@ -18,7 +18,7 @@ import java.util.ArrayList;
  *
  *
  */
-public class DatasetRow extends EntityBeanRow {
+public class DatasetRow extends EntityBeanRow<DatasetBean, DatasetRow> {
 
     public static final int COL_DATASETNAME = 0;
     public static final int COL_DATASETDESC = 1;
@@ -29,13 +29,13 @@ public class DatasetRow extends EntityBeanRow {
 
     // TODO l10n dates, tbh
     @Override
-    protected int compareColumn(Object row, int sortingColumn) {
+    protected int compareColumn(DatasetRow row, int sortingColumn) {
         if (!row.getClass().equals(DatasetRow.class)) {
             return 0;
         }
 
-        DatasetBean thisAccount = (DatasetBean) bean;
-        DatasetBean argAccount = (DatasetBean) ((DatasetRow) row).bean;
+        DatasetBean thisAccount = bean;
+        DatasetBean argAccount = row.bean;
 
         int answer = 0;
         switch (sortingColumn) {
@@ -66,16 +66,13 @@ public class DatasetRow extends EntityBeanRow {
             + sdf.format(thisAccount.getCreatedDate());
     }
 
-    public static ArrayList generateRowsFromBeans(ArrayList beans) {
-        ArrayList answer = new ArrayList();
-
-        Class[] parameters = null;
-        Object[] arguments = null;
+    public static ArrayList<DatasetRow> generateRowsFromBeans(ArrayList<DatasetBean> beans) {
+        ArrayList<DatasetRow> answer = new ArrayList<>();
 
         for (int i = 0; i < beans.size(); i++) {
             try {
                 DatasetRow row = new DatasetRow();
-                row.setBean((DatasetBean) beans.get(i));
+                row.setBean(beans.get(i));
                 answer.add(row);
             } catch (Exception e) {
             }
@@ -84,8 +81,8 @@ public class DatasetRow extends EntityBeanRow {
         return answer;
     }
 
-    public static ArrayList generateRowFromBean(DatasetBean db) {
-        ArrayList answer = new ArrayList();
+    public static ArrayList<DatasetRow> generateRowFromBean(DatasetBean db) {
+        ArrayList<DatasetRow> answer = new ArrayList<>();
         DatasetRow row = new DatasetRow();
         row.setBean(db);
         answer.add(row);
@@ -93,7 +90,7 @@ public class DatasetRow extends EntityBeanRow {
     }
 
     @Override
-    public ArrayList generatRowsFromBeans(ArrayList beans) {
+    public ArrayList<DatasetRow> generatRowsFromBeans(ArrayList<DatasetBean> beans) {
         return DatasetRow.generateRowsFromBeans(beans);
     }
 }

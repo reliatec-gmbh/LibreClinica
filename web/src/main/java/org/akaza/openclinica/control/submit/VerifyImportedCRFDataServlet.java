@@ -17,11 +17,8 @@ import javax.sql.DataSource;
 
 import org.akaza.openclinica.bean.core.DataEntryStage;
 import org.akaza.openclinica.bean.core.DiscrepancyNoteType;
-import org.akaza.openclinica.bean.core.ItemDataType;
 import org.akaza.openclinica.bean.core.ResolutionStatus;
 import org.akaza.openclinica.bean.core.Role;
-import org.akaza.openclinica.bean.core.Status;
-import org.akaza.openclinica.bean.core.Utils;
 import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.bean.managestudy.DiscrepancyNoteBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
@@ -57,7 +54,11 @@ import org.akaza.openclinica.web.job.ImportSpringJob;
  */
 public class VerifyImportedCRFDataServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1843157148541450797L;
+	Locale locale;
 
     /**
      *
@@ -263,7 +264,7 @@ public class VerifyImportedCRFDataServlet extends SecureController {
                         String itemOid = displayItemBean.getItem().getOid() + "_" + wrapper.getStudyEventRepeatKey() + "_"
                                 + displayItemBean.getData().getOrdinal() + "_" + wrapper.getStudySubjectOid();
                         if (wrapper.getValidationErrors().containsKey(itemOid)) {
-                            ArrayList messageList = (ArrayList) wrapper.getValidationErrors().get(itemOid);
+                            ArrayList<String> messageList = wrapper.getValidationErrors().get(itemOid);
                             // if
                             // (wrapper.getValidationErrors().containsKey(ibean
                             // .getName())) {

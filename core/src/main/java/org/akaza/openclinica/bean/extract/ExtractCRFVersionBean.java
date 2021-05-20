@@ -19,7 +19,11 @@ import org.slf4j.LoggerFactory;
  */
 public class ExtractCRFVersionBean extends EntityBean {
 
-    protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 5282415582783697195L;
+	protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
     private String code;
     private String crfName;
 

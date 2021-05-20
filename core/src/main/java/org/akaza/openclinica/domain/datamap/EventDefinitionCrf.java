@@ -10,8 +10,6 @@ package org.akaza.openclinica.domain.datamap;
 // Generated Jul 31, 2013 2:03:33 PM by Hibernate Tools 3.4.0.CR1
 
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -41,6 +39,10 @@ import org.hibernate.annotations.Parameter;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class EventDefinitionCrf extends DataMapDomainObject {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -565599177189139260L;
 	private int eventDefinitionCrfId;
 	private UserAccount userAccount;
 	private StudyEventDefinition studyEventDefinition;
@@ -62,7 +64,6 @@ public class EventDefinitionCrf extends DataMapDomainObject {
 	private Integer sourceDataVerificationCode;
 	private String selectedVersionIds;
 	private Integer parentId;
-	private Set datasetCrfVersionMaps = new HashSet(0);
 	private Boolean paricipantForm;
 	private Boolean allowAnonymousSubmission;
 	private String submissionUrl;
@@ -76,8 +77,7 @@ public class EventDefinitionCrf extends DataMapDomainObject {
 
 	public EventDefinitionCrf(int eventDefinitionCrfId, UserAccount userAccount, StudyEventDefinition studyEventDefinition, CrfVersion crfVersion, Study study, Integer statusId, CrfBean crf,
 			Boolean requiredCrf, Boolean doubleEntry, Boolean requireAllTextFilled, Boolean decisionConditions, String nullValues, Date dateCreated, Date dateUpdated, Integer updateId,
-			Integer ordinal, Boolean electronicSignature, Boolean hideCrf, Boolean participantForm, Integer sourceDataVerificationCode, String selectedVersionIds, Integer parentId,
-			Set datasetCrfVersionMaps) {
+			Integer ordinal, Boolean electronicSignature, Boolean hideCrf, Boolean participantForm, Integer sourceDataVerificationCode, String selectedVersionIds, Integer parentId) {
 		this.eventDefinitionCrfId = eventDefinitionCrfId;
 		this.userAccount = userAccount;
 		this.studyEventDefinition = studyEventDefinition;
@@ -100,7 +100,6 @@ public class EventDefinitionCrf extends DataMapDomainObject {
 		this.sourceDataVerificationCode = sourceDataVerificationCode;
 		this.selectedVersionIds = selectedVersionIds;
 		this.parentId = parentId;
-		this.datasetCrfVersionMaps = datasetCrfVersionMaps;
 	}
 
 	@Id

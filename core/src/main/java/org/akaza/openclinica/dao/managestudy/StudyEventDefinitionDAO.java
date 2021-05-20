@@ -8,17 +8,14 @@
 package org.akaza.openclinica.dao.managestudy;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
 import org.akaza.openclinica.bean.admin.CRFBean;
-import org.akaza.openclinica.bean.core.EntityBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
 import org.akaza.openclinica.dao.core.AuditableEntityDAO;
@@ -30,12 +27,13 @@ import org.akaza.openclinica.dao.core.TypeNames;
  * @author thickerson
  * @author jsampson
  */
-public class StudyEventDefinitionDAO<K extends String,V extends ArrayList> extends AuditableEntityDAO {
+public class StudyEventDefinitionDAO extends AuditableEntityDAO<StudyEventDefinitionBean> {
 
     private void setQueryNames() {
         findAllByStudyName = "findAllByStudy";
         findAllActiveByStudyName = "findAllActiveByStudy";
         findByPKAndStudyName = "findByPKAndStudy";
+    	getNextPKName = "findNextKey";
     }
 
     public StudyEventDefinitionDAO(DataSource ds) {
@@ -90,16 +88,7 @@ public class StudyEventDefinitionDAO<K extends String,V extends ArrayList> exten
      *         definition.
      */
     public int findNextKey() {
-        this.unsetTypeExpected();
-        Integer keyInt = new Integer(0);
-        this.setTypeExpected(1, TypeNames.INT);
-        ArrayList alist = this.select(digester.getQuery("findNextKey"));
-        Iterator it = alist.iterator();
-        if (it.hasNext()) {
-            HashMap key = (HashMap) it.next();
-            keyInt = (Integer) key.get("key");
-        }
-        return keyInt.intValue();
+    	return getNextPK();
     }
 
     private String getOid(StudyEventDefinitionBean sedb) {
@@ -118,21 +107,20 @@ public class StudyEventDefinitionDAO<K extends String,V extends ArrayList> exten
         String oid = getOid(sedb);
         logger.debug(oid);
         String oidPreRandomization = oid;
-        while (findByOid(oid) != null) {
+        while (existStudyEventDefinitionWithOid(oid)) {
             oid = sedb.getOidGenerator().randomizeOid(oidPreRandomization);
         }
         return oid;
 
     }
 
-    public EntityBean create(EntityBean eb) {
+    public StudyEventDefinitionBean create(StudyEventDefinitionBean sedb) {
         // study_event_definition_id ,
         // STUDY_ID, NAME,DESCRIPTION, REPEATING, TYPE, CATEGORY, OWNER_ID,
         // STATUS_ID, DATE_CREATED,ordinal,oid
-        StudyEventDefinitionBean sedb = (StudyEventDefinitionBean) eb;
         sedb.setId(this.findNextKey());
         logger.debug("***id:" + sedb.getId());
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(sedb.getId()));
         variables.put(new Integer(2), new Integer(sedb.getStudyId()));
         variables.put(new Integer(3), sedb.getName());
@@ -144,14 +132,13 @@ public class StudyEventDefinitionDAO<K extends String,V extends ArrayList> exten
         variables.put(new Integer(9), new Integer(sedb.getStatus().getId()));
         variables.put(new Integer(10), new Integer(sedb.getOrdinal()));
         variables.put(new Integer(11), getValidOid(sedb));
-        this.execute(digester.getQuery("create"), variables);
+        this.executeUpdate(digester.getQuery("create"), variables);
 
         return sedb;
     }
 
-    public EntityBean update(EntityBean eb) {
-        StudyEventDefinitionBean sedb = (StudyEventDefinitionBean) eb;
-        HashMap variables = new HashMap();
+    public StudyEventDefinitionBean update(StudyEventDefinitionBean sedb) {
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(sedb.getStudyId()));
         variables.put(new Integer(2), sedb.getName());
         variables.put(new Integer(3), sedb.getDescription());
@@ -162,11 +149,11 @@ public class StudyEventDefinitionDAO<K extends String,V extends ArrayList> exten
         variables.put(new Integer(8), new Integer(sedb.getUpdaterId()));
         variables.put(new Integer(9), new Integer(sedb.getOrdinal()));
         variables.put(new Integer(10), new Integer(sedb.getId()));
-        this.execute(digester.getQuery("update"), variables);
-        return eb;
+        this.executeUpdate(digester.getQuery("update"), variables);
+        return sedb;
     }
 
-    public Object getEntityFromHashMap(HashMap hm) {
+    public StudyEventDefinitionBean getEntityFromHashMap(HashMap<String, Object> hm) {
         StudyEventDefinitionBean eb = new StudyEventDefinitionBean();
 
         this.setEntityAuditInformation(eb, hm);
@@ -202,24 +189,22 @@ public class StudyEventDefinitionDAO<K extends String,V extends ArrayList> exten
         eb.setOid((String) hm.get("oc_oid"));
         return eb;
     }
+    
+    /**
+    * Checks whether a study event definition with the given OID already exist.
+    * 
+    * @param oid the study event definition OID
+    * @return true if a study event definition with the given OID exists, false otherwise
+    */
+    public boolean existStudyEventDefinitionWithOid(String oid) {
+        StudyEventDefinitionBean foundBean = findByOid(oid);
+        return foundBean != null && oid.equals(foundBean.getOid());    	
+    }
 
     public StudyEventDefinitionBean findByOid(String oid) {
-        StudyEventDefinitionBean studyEventDefinitionBean = new StudyEventDefinitionBean();
-        setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), oid);
-        String sql = digester.getQuery("findByOid");
-
-        ArrayList rows = this.select(sql, variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            studyEventDefinitionBean = (StudyEventDefinitionBean) this.getEntityFromHashMap((HashMap) it.next());
-            return studyEventDefinitionBean;
-        } else {
-            return null;
-        }
+    	String queryName = "findByOid";
+        HashMap<Integer, Object> variables = variables(oid);
+        return executeFindByPKQuery(queryName, variables);
     }
 
     /*
@@ -230,124 +215,61 @@ public class StudyEventDefinitionDAO<K extends String,V extends ArrayList> exten
      */
     public StudyEventDefinitionBean findByOidAndStudy(String oid, int studyId, int parentStudyId) {
         StudyEventDefinitionBean studyEventDefinitionBean = this.findByOidAndStudy(oid, studyId);
-        if (studyEventDefinitionBean == null) {
+        if (studyEventDefinitionBean == null || !oid.equals(studyEventDefinitionBean.getOid())) {
+        	// this is an empty bean since no matching study event definition was found
             studyEventDefinitionBean = this.findByOidAndStudy(oid, parentStudyId);
         }
         return studyEventDefinitionBean;
     }
 
     private StudyEventDefinitionBean findByOidAndStudy(String oid, int studyId) {
-        StudyEventDefinitionBean studyEventDefinitionBean = new StudyEventDefinitionBean();
-        setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), oid);
-        variables.put(new Integer(2), new Integer(studyId));
-        variables.put(new Integer(3), new Integer(studyId));
-        String sql = digester.getQuery("findByOidAndStudy");
-
-        ArrayList rows = this.select(sql, variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            studyEventDefinitionBean = (StudyEventDefinitionBean) this.getEntityFromHashMap((HashMap) it.next());
-            return studyEventDefinitionBean;
-        } else {
-            logger.info("WARNING: cannot find sed bean by oid " + oid + " and study id " + studyId);
-            // throw new
-            // RuntimeException("cannot find sed bean by oid and study id");
-            return null;
-        }
+    	String queryName = "findByOidAndStudy";
+        HashMap<Integer, Object> variables = variables(oid, studyId, studyId);
+        return executeFindByPKQuery(queryName, variables);
     }
 
     @Override
-    public ArrayList findAllByStudy(StudyBean study) {
-
+    public ArrayList<StudyEventDefinitionBean> findAllByStudy(StudyBean study) {
         StudyDAO studyDao = new StudyDAO(this.getDs());
 
         if (study.getParentStudyId() > 0) {
             // If the study has a parent than it is a site, in this case we
             // should get the event definitions of the parent
-            StudyBean parentStudy = new StudyBean();
-            parentStudy = (StudyBean) studyDao.findByPK(study.getParentStudyId());
+            StudyBean parentStudy = studyDao.findByPK(study.getParentStudyId());
             return super.findAllByStudy(parentStudy);
         } else {
             return super.findAllByStudy(study);
         }
     }
 
-    public ArrayList findAllWithStudyEvent(StudyBean currentStudy) {
-        ArrayList answer = new ArrayList();
-
-        this.setTypesExpected();
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(currentStudy.getId()));
-        variables.put(new Integer(2), new Integer(currentStudy.getId()));
-
-        ArrayList alist = this.select(digester.getQuery("findAllWithStudyEvent"), variables);
-
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            StudyEventDefinitionBean seb = (StudyEventDefinitionBean) this.getEntityFromHashMap((HashMap) it.next());
-            answer.add(seb);
-        }
-
-        return answer;
+    public ArrayList<StudyEventDefinitionBean> findAllWithStudyEvent(StudyBean currentStudy) {
+    	String queryName = "findAllWithStudyEvent";
+        HashMap<Integer, Object> variables = variables(currentStudy.getId(), currentStudy.getId());
+        return executeFindAllQuery(queryName, variables);
     }
 
     public ArrayList<StudyEventDefinitionBean> findAllByCrf(CRFBean crf) {
-        ArrayList answer = new ArrayList();
-
-        this.setTypesExpected();
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(crf.getId()));
-
-        ArrayList alist = this.select(digester.getQuery("findAllByCrf"), variables);
-
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            StudyEventDefinitionBean seb = (StudyEventDefinitionBean) this.getEntityFromHashMap((HashMap) it.next());
-            answer.add(seb);
-        }
-
-        return answer;
+    	String queryName = "findAllByCrf";
+        HashMap<Integer, Object> variables = variables(crf.getId());
+        return executeFindAllQuery(queryName, variables);
     }
 
-    public Collection findAll() {
-        this.setTypesExpected();
-        ArrayList alist = this.select(digester.getQuery("findAll"));
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            StudyEventDefinitionBean eb = (StudyEventDefinitionBean) this.getEntityFromHashMap((HashMap) it.next());
-            al.add(eb);
-        }
-        return al;
+    public ArrayList<StudyEventDefinitionBean> findAll() {
+    	String queryName = "findAll";
+        return executeFindAllQuery(queryName);
     }
 
-    public Collection findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<StudyEventDefinitionBean> findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+        throw new RuntimeException("Not implemented");
     }
 
-    public EntityBean findByPK(int ID) {
-
-        StudyEventDefinitionBean eb = new StudyEventDefinitionBean();
-        this.setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(ID));
-
-        String sql = digester.getQuery("findByPK");
-
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            eb = (StudyEventDefinitionBean) this.getEntityFromHashMap((HashMap) it.next());
-        }
-        return eb;
+    public StudyEventDefinitionBean findByPK(int ID) {
+    	String queryName = "findByPK";
+        HashMap<Integer, Object> variables = variables(ID);
+        return executeFindByPKQuery(queryName, variables);
     }
 
     /*
@@ -355,35 +277,24 @@ public class StudyEventDefinitionDAO<K extends String,V extends ArrayList> exten
      *
      * @see org.akaza.openclinica.dao.core.DAOInterface#findByPK(int)
      */
-    public EntityBean findByName(String name) {
-
-        StudyEventDefinitionBean eb = new StudyEventDefinitionBean();
-        this.setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), name);
-
-        String sql = digester.getQuery("findByName");
-
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            eb = (StudyEventDefinitionBean) this.getEntityFromHashMap((HashMap) it.next());
-        }
-        return eb;
+    public StudyEventDefinitionBean findByName(String name) {
+    	String queryName = "findByName";
+        HashMap<Integer, Object> variables = variables(name);
+        return executeFindByPKQuery(queryName, variables);
     }
 
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<StudyEventDefinitionBean> findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+        throw new RuntimeException("Not implemented");
     }
 
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<StudyEventDefinitionBean> findAllByPermission(Object objCurrentUser, int intActionType) {
+       throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -393,51 +304,21 @@ public class StudyEventDefinitionDAO<K extends String,V extends ArrayList> exten
      *         definition crf.
      */
     public StudyEventDefinitionBean findByEventDefinitionCRFId(int eventDefinitionCRFId) {
-        StudyEventDefinitionBean answer = new StudyEventDefinitionBean();
-        this.setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(eventDefinitionCRFId));
-
-        String sql = digester.getQuery("findByEventDefinitionCRFId");
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            answer = (StudyEventDefinitionBean) this.getEntityFromHashMap((HashMap) it.next());
-        }
-
-        return answer;
+    	String queryName = "findByEventDefinitionCRFId";
+        HashMap<Integer, Object> variables = variables(eventDefinitionCRFId);
+        return executeFindByPKQuery(queryName, variables);
     }
 
-    public Collection findAllByStudyAndLimit(int studyId) {
-        this.setTypesExpected();
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(studyId));
-        variables.put(new Integer(2), new Integer(studyId));
-        ArrayList alist = this.select(digester.getQuery("findAllByStudyAndLimit"), variables);
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            StudyEventDefinitionBean eb = (StudyEventDefinitionBean) this.getEntityFromHashMap((HashMap) it.next());
-            al.add(eb);
-        }
-        return al;
-
+    public ArrayList<StudyEventDefinitionBean> findAllByStudyAndLimit(int studyId) {
+    	String queryName = "findAllByStudyAndLimit";
+        HashMap<Integer, Object> variables = variables(studyId, studyId);
+        return executeFindAllQuery(queryName, variables);
     }
 
     public ArrayList<StudyEventDefinitionBean> findAllActiveByParentStudyId(int parentStudyId) {
-        this.setTypesExpected();
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(parentStudyId));
-        ArrayList alist = this.select(digester.getQuery("findAllActiveByParentStudyId"), variables);
-        ArrayList<StudyEventDefinitionBean> al = new ArrayList<StudyEventDefinitionBean>();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            StudyEventDefinitionBean eb = (StudyEventDefinitionBean) this.getEntityFromHashMap((HashMap) it.next());
-            al.add(eb);
-        }
-        return al;
+    	String queryName = "findAllActiveByParentStudyId";
+        HashMap<Integer, Object> variables = variables(parentStudyId);
+        return executeFindAllQuery(queryName, variables);
     }
 
     /**
@@ -446,20 +327,11 @@ public class StudyEventDefinitionDAO<K extends String,V extends ArrayList> exten
      * @return
      */
     public Map<Integer, StudyEventDefinitionBean> findByStudySubject(int studySubjectId) {
-        this.setTypesExpected(); // <== Must be called first
-        HashMap<Integer, Object> param = new HashMap<Integer, Object>();
-        param.put(1, studySubjectId);
-
-        List selectResult = select(digester.getQuery("findByStudySubject"), param);
-
-        Map<Integer,StudyEventDefinitionBean> result = new HashMap<Integer, StudyEventDefinitionBean>();
-
-        Iterator it = selectResult.iterator();
-        while (it.hasNext()) {
-            StudyEventDefinitionBean bean = (StudyEventDefinitionBean) this.getEntityFromHashMap((HashMap) it.next());
-            result.put(bean.getId(), bean);
-        }
-        return result;
+    	String queryName = "findByStudySubject";
+        HashMap<Integer, Object> variables = variables(studySubjectId);
+        ArrayList<StudyEventDefinitionBean> beans = executeFindAllQuery(queryName, variables);
+        
+        return beans.stream().collect(Collectors.toMap(StudyEventDefinitionBean::getId, b -> b));
     }
 
     /**
@@ -467,20 +339,23 @@ public class StudyEventDefinitionDAO<K extends String,V extends ArrayList> exten
      * @param studySubjectId
      * @return
      */
-    public Map<Integer, Integer> buildMaxOrdinalByStudyEvent(int studySubjectId) {
+    public HashMap<Integer, Integer> buildMaxOrdinalByStudyEvent(int studySubjectId) {
         HashMap<Integer, Object> param = new HashMap<Integer, Object>();
         param.put(1, studySubjectId);
 
-        List selectResult = select(digester.getQuery("buildMaxOrdinalByStudyEvent"), param);
+        ArrayList<HashMap<String, Object>> selectResult = select(digester.getQuery("buildMaxOrdinalByStudyEvent"), param);
 
-        Map<Integer,Integer> result = new HashMap<Integer, Integer>();
+        HashMap<Integer,Integer> result = new HashMap<Integer, Integer>();
 
-        Iterator it = selectResult.iterator();
-        while (it.hasNext()) {
-            HashMap hm = (HashMap) it.next();
+        for(HashMap<String, Object> hm : selectResult) {
             result.put((Integer) hm.get("study_event_definition_id"), (Integer) hm.get("max_ord"));
         }
         return result;
     }
+
+	@Override
+	public StudyEventDefinitionBean emptyBean() {
+		return new StudyEventDefinitionBean();
+	}
 
 }

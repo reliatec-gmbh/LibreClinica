@@ -10,7 +10,6 @@ package org.akaza.openclinica.bean.service;
 import org.akaza.openclinica.dao.core.CoreResources;
 import org.apache.fop.apps.FOUserAgent;
 import org.apache.fop.apps.Fop;
-import org.apache.fop.apps.FOPException;
 import org.apache.fop.apps.FopFactory;
 import org.apache.fop.apps.FormattingResults;
 import org.apache.fop.apps.MimeConstants;
@@ -22,9 +21,8 @@ import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.OutputStream;
-import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -34,6 +32,7 @@ import javax.xml.transform.Source;
 import javax.xml.transform.Result;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.transform.sax.SAXResult;
+import static org.akaza.openclinica.core.util.ClassCastHelper.asArrayList;
 /**
  * PdfProcessingFunction, a post-processing function for Extract Data
  * By Tom Hickerson, 09/2010
@@ -43,6 +42,10 @@ import javax.xml.transform.sax.SAXResult;
 public class PdfProcessingFunction extends ProcessingFunction  {
 
   
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8414001916556227876L;
 	protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
 	   
     public PdfProcessingFunction() {
@@ -73,7 +76,6 @@ public class PdfProcessingFunction extends ProcessingFunction  {
             // where fo is the transformed file
             
             File procExportDirectory;
-            File oldFiles[] = null;
          
             if(this.getExportFileName()!=null && this.getLocation()!=null)
             {
@@ -110,9 +112,8 @@ public class PdfProcessingFunction extends ProcessingFunction  {
 
             // Result processing
             FormattingResults foResults = fop.getResults();
-            java.util.List pageSequences = foResults.getPageSequences();
-            for (java.util.Iterator it = pageSequences.iterator(); it.hasNext();) {
-                PageSequenceResults pageSequenceResults = (PageSequenceResults)it.next();
+            ArrayList<PageSequenceResults> pageSequences = asArrayList(foResults.getPageSequences(), PageSequenceResults.class);
+            for(PageSequenceResults pageSequenceResults : pageSequences) {
                 logger.debug("PageSequence "
                         + (String.valueOf(pageSequenceResults.getID()).length() > 0
                                 ? pageSequenceResults.getID() : "<no id>")

@@ -7,12 +7,10 @@
  */
 package org.akaza.openclinica.dao.hibernate;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.akaza.openclinica.domain.datamap.IdtView;
-import org.akaza.openclinica.domain.datamap.ItemData;
 import org.akaza.openclinica.domain.datamap.EventDefinitionCrfItemTag;
+import org.hibernate.query.Query;
 
 public class EventDefinitionCrfItemTagDao extends AbstractDomainDao<EventDefinitionCrfItemTag> {
 
@@ -22,20 +20,22 @@ public class EventDefinitionCrfItemTagDao extends AbstractDomainDao<EventDefinit
         return EventDefinitionCrfItemTag.class;
     }
 
+    // TODO update to CriteriaQuery 
     public List<EventDefinitionCrfItemTag> findAllByCrfPath(int tag_id, String crfPath, boolean active) {
 
         String query = " from " + getDomainClassName() + "  where " + " tag_id= " + tag_id + " and active=" + active + " and path LIKE '" + crfPath + ".%'";
 
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
-        return (List<EventDefinitionCrfItemTag>) q.list();
+        Query<EventDefinitionCrfItemTag> q = getCurrentSession().createQuery(query, EventDefinitionCrfItemTag.class);
+        return q.list();
     }
 
+    // TODO update to CriteriaQuery 
     public EventDefinitionCrfItemTag findByItemPath(int tag_id, boolean active, String itemPath) {
 
         String query = " from " + getDomainClassName() + "  where " + " tag_id= " + tag_id + " and active=" + active + " and path= '" + itemPath + "'";
 
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
-        return (EventDefinitionCrfItemTag) q.uniqueResult();
+        Query<EventDefinitionCrfItemTag> q = getCurrentSession().createQuery(query, EventDefinitionCrfItemTag.class);
+        return q.uniqueResult();
     }
 
 }

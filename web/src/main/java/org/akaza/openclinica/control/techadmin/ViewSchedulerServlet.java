@@ -34,7 +34,11 @@ import java.util.Locale;
  */
 public class ViewSchedulerServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -4488744121360370880L;
+	Locale locale;
 
     // < ResourceBundleresexception;
 

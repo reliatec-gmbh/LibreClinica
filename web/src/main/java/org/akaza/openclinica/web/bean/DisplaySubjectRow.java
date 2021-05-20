@@ -17,7 +17,7 @@ import java.util.ArrayList;
  * TODO To change the template for this generated type comment go to Window -
  * Preferences - Java - Code Style - Code Templates
  */
-public class DisplaySubjectRow extends EntityBeanRow {
+public class DisplaySubjectRow extends EntityBeanRow<DisplaySubjectBean, DisplaySubjectRow> {
     // columns:
     public static final int COL_NAME = 0;
 
@@ -42,13 +42,13 @@ public class DisplaySubjectRow extends EntityBeanRow {
      *      int)
      */
     @Override
-    protected int compareColumn(Object row, int sortingColumn) {
+    protected int compareColumn(DisplaySubjectRow row, int sortingColumn) {
         if (!row.getClass().equals(DisplaySubjectRow.class)) {
             return 0;
         }
 
-        DisplaySubjectBean thisSubject = (DisplaySubjectBean) bean;
-        DisplaySubjectBean argSubject = (DisplaySubjectBean) ((DisplaySubjectRow) row).bean;
+        DisplaySubjectBean thisSubject = bean;
+        DisplaySubjectBean argSubject = row.bean;
 
         int answer = 0;
         switch (sortingColumn) {
@@ -93,20 +93,17 @@ public class DisplaySubjectRow extends EntityBeanRow {
      * @see org.akaza.openclinica.core.EntityBeanRow#generatRowsFromBeans(java.util.ArrayList)
      */
     @Override
-    public ArrayList generatRowsFromBeans(ArrayList beans) {
+    public ArrayList<DisplaySubjectRow> generatRowsFromBeans(ArrayList<DisplaySubjectBean> beans) {
         return DisplaySubjectRow.generateRowsFromBeans(beans);
     }
 
-    public static ArrayList generateRowsFromBeans(ArrayList beans) {
-        ArrayList answer = new ArrayList();
-
-        Class[] parameters = null;
-        Object[] arguments = null;
+    public static ArrayList<DisplaySubjectRow> generateRowsFromBeans(ArrayList<DisplaySubjectBean> beans) {
+        ArrayList<DisplaySubjectRow> answer = new ArrayList<>();
 
         for (int i = 0; i < beans.size(); i++) {
             try {
                 DisplaySubjectRow row = new DisplaySubjectRow();
-                row.setBean((DisplaySubjectBean) beans.get(i));
+                row.setBean(beans.get(i));
                 answer.add(row);
             } catch (Exception e) {
             }

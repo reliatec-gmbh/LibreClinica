@@ -9,12 +9,13 @@
  */
 package org.akaza.openclinica.control.managestudy;
 
+import static org.akaza.openclinica.core.util.ClassCastHelper.asHashSet;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.akaza.openclinica.bean.core.DiscrepancyNoteType;
 import org.akaza.openclinica.bean.core.ResolutionStatus;
@@ -44,7 +45,6 @@ import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.jmesa.facade.TableFacade;
 import org.springframework.web.context.support.WebApplicationContextUtils;
-
 /**
  *
  * View a list of all discrepancy notes in current study
@@ -53,7 +53,11 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  * @author jxu
  */
 public class ViewNotesServlet extends SecureController {
-    public static final String PRINT = "print";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6196337101804576598L;
+	public static final String PRINT = "print";
     public static final String RESOLUTION_STATUS = "resolutionStatus";
     public static final String TYPE = "discNoteType";
     public static final String WIN_LOCATION = "window_location";
@@ -96,7 +100,6 @@ public class ViewNotesServlet extends SecureController {
         session.setAttribute("subjectId", oneSubjectId);
         // >>
 
-        int resolutionStatusSubj = fp.getInt(RESOLUTION_STATUS);
         int discNoteType = 0;
         try {
             discNoteType = Integer.parseInt(request.getParameter("type"));
@@ -115,10 +118,8 @@ public class ViewNotesServlet extends SecureController {
 
         // Do we only want to view the notes for 1 subject?
         String viewForOne = fp.getString("viewForOne");
-        boolean isForOneSubjectsNotes = "y".equalsIgnoreCase(viewForOne);
 
         DiscrepancyNoteDAO dndao = new DiscrepancyNoteDAO(sm.getDataSource());
-        StudyDAO studyDAO = new StudyDAO(sm.getDataSource());
         dndao.setFetchMapping(true);
 
         int resolutionStatus = 0;
@@ -140,7 +141,7 @@ public class ViewNotesServlet extends SecureController {
         session.setAttribute(WIN_LOCATION, "ViewNotes?viewForOne=" + viewForOne + "&id=" + oneSubjectId + "&module=" + module + " &removeSession=1");
 
         boolean hasAResolutionStatus = resolutionStatus >= 1 && resolutionStatus <= 5;
-        Set<Integer> resolutionStatusIds = (HashSet) session.getAttribute(RESOLUTION_STATUS);
+        HashSet<Integer> resolutionStatusIds = asHashSet(session.getAttribute(RESOLUTION_STATUS), Integer.class);
         // remove the session if there is no resolution status
         if (!hasAResolutionStatus && resolutionStatusIds != null) {
             session.removeAttribute(RESOLUTION_STATUS);

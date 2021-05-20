@@ -9,6 +9,7 @@ package org.akaza.openclinica.control.managestudy;
 
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
+import org.akaza.openclinica.bean.managestudy.StudyGroupBean;
 import org.akaza.openclinica.bean.managestudy.StudyGroupClassBean;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
@@ -34,7 +35,11 @@ import java.util.Locale;
  */
 public class ListSubjectGroupClassServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 4441881774413551129L;
+	Locale locale;
 
     // < ResourceBundleresexception,respage,resword;
 
@@ -74,7 +79,7 @@ public class ListSubjectGroupClassServlet extends SecureController {
         // YW <<
         StudyDAO stdao = new StudyDAO(sm.getDataSource());
         int parentStudyId = currentStudy.getParentStudyId();
-        ArrayList groups = new ArrayList();
+        ArrayList<StudyGroupClassBean> groups = new ArrayList<>();
         if (parentStudyId > 0) {
             StudyBean parentStudy = (StudyBean) stdao.findByPK(parentStudyId);
             groups = sgcdao.findAllByStudy(parentStudy);
@@ -82,31 +87,25 @@ public class ListSubjectGroupClassServlet extends SecureController {
             groups = sgcdao.findAllByStudy(currentStudy);
         }
         // YW >>
-        String isReadOnly = request.getParameter("read");
 
         StudyGroupDAO sgdao = new StudyGroupDAO(sm.getDataSource());
-        for (int i = 0; i < groups.size(); i++) {
-            StudyGroupClassBean group = (StudyGroupClassBean) groups.get(i);
-            ArrayList studyGroups = sgdao.findAllByGroupClass(group);
+        for (StudyGroupClassBean group : groups) {
+            ArrayList<StudyGroupBean> studyGroups = sgdao.findAllByGroupClass(group);
             group.setStudyGroups(studyGroups);
 
         }
         EntityBeanTable table = fp.getEntityBeanTable();
-        ArrayList allGroupRows = StudyGroupClassRow.generateRowsFromBeans(groups);
+        ArrayList<StudyGroupClassRow> allGroupRows = StudyGroupClassRow.generateRowsFromBeans(groups);
         boolean isParentStudy = currentStudy.getParentStudyId() > 0 ? false : true;
         request.setAttribute("isParentStudy", isParentStudy);
 
         String[] columns =
             { resword.getString("subject_group_class"), resword.getString("type"), resword.getString("subject_assignment"), resword.getString("study_name"),
                 resword.getString("subject_groups"), resword.getString("status"), resword.getString("actions") };
-        table.setColumns(new ArrayList(Arrays.asList(columns)));
+        table.setColumns(new ArrayList<String>(Arrays.asList(columns)));
         table.hideColumnLink(4);
         table.hideColumnLink(6);
-        table.setQuery("ListSubjectGroupClass", new HashMap());
-        // if (isParentStudy && (!currentStudy.getStatus().isLocked())) {
-        // table.addLink(resword.getString("create_a_subject_group_class"),
-        // "CreateSubjectGroupClass");
-        // }
+        table.setQuery("ListSubjectGroupClass", new HashMap<>());
         table.setRows(allGroupRows);
         table.computeDisplay();
 

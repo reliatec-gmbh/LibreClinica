@@ -109,7 +109,6 @@ public class ViewPersistanceHandler {
         List<ItemDataBean> innerDataBeanList = new ArrayList<ItemDataBean>();
         int tracker = 0;
         List<Integer> listOrdinal = new ArrayList<Integer>();
-        int currentOrdinal = 0;
         int tempOrdinal;
         // Populate the SortedMap with ordinal --> List of ItemDataBeans
         for (ItemDataBean itemDataBean : dataBeans) {
@@ -187,16 +186,6 @@ public class ViewPersistanceHandler {
         }
 
         return rowMap;
-    }
-
-    private boolean listContainsDisplayItem(List<DisplayItemBean> beanList, DisplayItemBean singleBean) {
-
-        for (DisplayItemBean disBean : beanList) {
-            if (singleBean.getItem().getId() == disBean.getItem().getId()) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public List<ItemDataBean> getItemDataBeans() {

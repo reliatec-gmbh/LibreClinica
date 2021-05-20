@@ -7,6 +7,7 @@
  */
 package org.akaza.openclinica.control.managestudy;
 
+import org.akaza.openclinica.bean.managestudy.StudyEventBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
 import org.akaza.openclinica.web.bean.EntityBeanTable;
 
@@ -25,7 +26,7 @@ public class ViewEventDefinitionBean {
     private int subjectCompleted;
     private int subjectDiscontinued;
     private EntityBeanTable studyEventTable;
-    private ArrayList studyEvents;
+    private ArrayList<StudyEventBean> studyEvents;
     private Date firstScheduledStartDate;
     private Date lastCompletionDate;
 
@@ -137,7 +138,7 @@ public class ViewEventDefinitionBean {
     /**
      * @return Returns the studyEvents.
      */
-    public ArrayList getStudyEvents() {
+    public ArrayList<StudyEventBean> getStudyEvents() {
         return studyEvents;
     }
 
@@ -145,7 +146,7 @@ public class ViewEventDefinitionBean {
      * @param studyEvents
      *            The studyEvents to set.
      */
-    public void setStudyEvents(ArrayList studyEvents) {
+    public void setStudyEvents(ArrayList<StudyEventBean> studyEvents) {
         this.studyEvents = studyEvents;
     }
 }

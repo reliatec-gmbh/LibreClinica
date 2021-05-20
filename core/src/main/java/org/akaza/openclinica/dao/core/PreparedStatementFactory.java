@@ -29,15 +29,15 @@ import java.util.Set;
  * 
  */
 public class PreparedStatementFactory {
-    private HashMap variables = new HashMap();              
-    private HashMap nullVars = new HashMap();// to handle null
+    private HashMap<Integer, Object> variables = new HashMap<>();              
+    private HashMap<Integer, Integer> nullVars = new HashMap<>();// to handle null
     // inputs,jxu,2004-10-28
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
 
     public PreparedStatementFactory() {
     }
 
-    public PreparedStatementFactory(HashMap variables) {
+    public PreparedStatementFactory(HashMap<Integer, Object> variables) {
         this.variables = variables;
     }
 
@@ -47,7 +47,7 @@ public class PreparedStatementFactory {
      * @param variables
      * @param nullVars
      */
-    public PreparedStatementFactory(HashMap variables, HashMap nullVars) {
+    public PreparedStatementFactory(HashMap<Integer, Object> variables, HashMap<Integer, Integer> nullVars) {
         this.variables = variables;
         this.nullVars = nullVars;
     }
@@ -58,15 +58,15 @@ public class PreparedStatementFactory {
 
     public PreparedStatement generate(PreparedStatement ps) throws SQLException, NullPointerException {
 
-        Set varSet = variables.entrySet();
-        for (Iterator varIt = varSet.iterator(); varIt.hasNext();) {
-            Map.Entry varMe = (Map.Entry) varIt.next();
-            Integer order = (Integer) varMe.getKey();
+        Set<Map.Entry<Integer, Object>> varSet = variables.entrySet();
+        for (Iterator<Map.Entry<Integer, Object>> varIt = varSet.iterator(); varIt.hasNext();) {
+            Map.Entry<Integer, Object> varMe = varIt.next();
+            Integer order = varMe.getKey();
             Object objParam = varMe.getValue();
             if (objParam == null) {
                 logger.debug("found null object! " + order);
                 if (nullVars.get(order) != null) {
-                    Integer nullType = (Integer) nullVars.get(order);
+                    Integer nullType = nullVars.get(order);
                     ps.setNull(order.intValue(), nullType.intValue());
                 } else {
                     throw new NullPointerException("No type found for this null object at order:" + order + ", make sure you set the type in your DAO.");

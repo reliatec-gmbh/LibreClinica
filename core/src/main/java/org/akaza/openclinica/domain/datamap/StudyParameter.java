@@ -7,18 +7,12 @@
  */
 package org.akaza.openclinica.domain.datamap;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import org.akaza.openclinica.domain.AbstractMutableDomainObject;
 import org.akaza.openclinica.domain.DataMapDomainObject;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -34,6 +28,10 @@ import org.hibernate.annotations.Parameter;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class StudyParameter  extends DataMapDomainObject {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2608974270233081887L;
 	private int studyParameterId;
 	private String handle;
 	private String name;
@@ -41,7 +39,6 @@ public class StudyParameter  extends DataMapDomainObject {
 	private String defaultValue;
 	private Boolean inheritable;
 	private Boolean overridable;
-	private Set studyParameterValues = new HashSet(0);
 
 	public StudyParameter() {
 	}
@@ -52,7 +49,7 @@ public class StudyParameter  extends DataMapDomainObject {
 
 	public StudyParameter(int studyParameterId, String handle, String name,
 			String description, String defaultValue, Boolean inheritable,
-			Boolean overridable, Set studyParameterValues) {
+			Boolean overridable) {
 		this.studyParameterId = studyParameterId;
 		this.handle = handle;
 		this.name = name;
@@ -60,7 +57,6 @@ public class StudyParameter  extends DataMapDomainObject {
 		this.defaultValue = defaultValue;
 		this.inheritable = inheritable;
 		this.overridable = overridable;
-		this.studyParameterValues = studyParameterValues;
 	}
 
 	@Id

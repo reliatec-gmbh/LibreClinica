@@ -34,7 +34,6 @@ import org.akaza.openclinica.bean.submit.DisplayItemGroupBean;
 import org.akaza.openclinica.bean.submit.DisplaySectionBean;
 import org.akaza.openclinica.bean.submit.DisplayTableOfContentsBean;
 import org.akaza.openclinica.bean.submit.EventCRFBean;
-import org.akaza.openclinica.bean.submit.ItemBean;
 import org.akaza.openclinica.bean.submit.ItemFormMetadataBean;
 import org.akaza.openclinica.bean.submit.SectionBean;
 import org.akaza.openclinica.bean.submit.SubjectBean;
@@ -50,7 +49,6 @@ import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 /**
  * @author Bruce W. Perry
  *
@@ -58,9 +56,18 @@ import org.slf4j.LoggerFactory;
  * on ViewSectionDataEntryServlet; Except that it's designed to provide a
  * preview of a crf before the crfversion is inserted into the database.
  */
+/**
+ * TODO get rid  of this map casting nightmare
+ */
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class ViewSectionDataEntryPreview extends DataEntryServlet {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ViewSectionDataEntryPreview.class);
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -354876433251037369L;
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(ViewSectionDataEntryPreview.class);
 
     public static String SECTION_TITLE = "section_title";
     public static String SECTION_LABEL = "section_label";
@@ -105,7 +112,7 @@ public class ViewSectionDataEntryPreview extends DataEntryServlet {
         // All the data on the uploaded Excel file
         // see org.akaza.openclinica.control.admin.SpreadsheetPreview
         // createCrfMetaObject() method
-        Map<String, Map> crfMap = (Map) session.getAttribute("preview_crf");
+		Map<String, Map<?,?>> crfMap = (Map<String, Map<?,?>>) session.getAttribute("preview_crf");
         if (crfMap == null) {
             // addPageMessage
             String msg = respage.getString("preview_data_has_timed_out");
@@ -116,7 +123,7 @@ public class ViewSectionDataEntryPreview extends DataEntryServlet {
 
         Map<String, String> crfIdnameInfo = null;
         if (crfMap != null) {
-            crfIdnameInfo = crfMap.get("crf_info");
+            crfIdnameInfo = (Map<String, String>) crfMap.get("crf_info");
         }
         // Get the CRF name and version String
         if (crfIdnameInfo != null) {
@@ -149,7 +156,7 @@ public class ViewSectionDataEntryPreview extends DataEntryServlet {
         // All the groups data, if it's present in the CRF
         Map<Integer, Map<String, String>> groupsMap = null;
         if (crfMap != null)
-            groupsMap = crfMap.get("groups");
+            groupsMap = (Map<Integer, Map<String, String>>) crfMap.get("groups");
         // Find out whether this CRF involves groups
         // At least one group is involved if the groups Map is not null or
         // empty, and the first group entry (there may be only one) has a
@@ -164,7 +171,7 @@ public class ViewSectionDataEntryPreview extends DataEntryServlet {
         // section headers/values (contained in a Map) as the value
         Map<Integer, Map<String, String>> sectionsMap = null;
         if (crfMap != null)
-            sectionsMap = crfMap.get("sections");
+            sectionsMap = (Map<Integer, Map<String, String>>) crfMap.get("sections");
         // The itemsMap contains the spreadsheet table items row number as a
         // key,
         // followed by a map of the column names/values; it contains values for
@@ -172,7 +179,7 @@ public class ViewSectionDataEntryPreview extends DataEntryServlet {
         // such as 'left item text'
         Map<Integer, Map<String, String>> itemsMap = null;
         if (crfMap != null)
-            itemsMap = crfMap.get("items");
+            itemsMap = (Map<Integer, Map<String, String>>) crfMap.get("items");
 
         // Create a list of FormGroupBeans from Maps of groups,
         // items, and sections
@@ -506,7 +513,6 @@ public class ViewSectionDataEntryPreview extends DataEntryServlet {
      */
     @Override
     protected DisplayItemBean validateDisplayItemBean(DiscrepancyValidator v, DisplayItemBean dib, String inputName, HttpServletRequest request) {
-        ItemBean ib = dib.getItem();
         org.akaza.openclinica.bean.core.ResponseType rt = dib.getMetadata().getResponseSet().getResponseType();
 
         // note that this step sets us up both for

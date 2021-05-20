@@ -34,7 +34,11 @@ import org.hibernate.annotations.Parameter;
 @GenericGenerator(name = "id-generator", strategy = "native", parameters = { @Parameter(name = "sequence_name", value = "rule_action_run_id_seq") })
 public class RuleActionRunBean extends AbstractMutableDomainObject implements Serializable{
 
-    Boolean administrativeDataEntry;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1667279862015683650L;
+	Boolean administrativeDataEntry;
     Boolean initialDataEntry;
     Boolean doubleDataEntry;
     Boolean importDataEntry;

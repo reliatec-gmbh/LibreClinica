@@ -111,18 +111,6 @@ public class RelationalOpNode extends ExpressionNode {
         }
     }
     
-    /*
-     * Precondition: both l and r are not empty.
-     * Return true only if one is dd-MMM-yyyy format, another is ExpressionTreeHelper.isDateyyyyMMdd
-     */
-    private boolean preValidateOnddMMMyyyyDashes(String l, String r) {
-        if(ExpressionTreeHelper.isDateddMMMyyyyDashes(l)&&ExpressionTreeHelper.isDateyyyyMMdd(r)
-            ||ExpressionTreeHelper.isDateddMMMyyyyDashes(r)&&ExpressionTreeHelper.isDateyyyyMMdd(l)) {
-            return true;
-        }
-        return false;
-    }
-    
     private boolean blankAgainstDateyyyyMMdd(String l, String r) {
         return l.isEmpty() && ExpressionTreeHelper.isDateyyyyMMdd(r) 
                 || r.isEmpty() && ExpressionTreeHelper.isDateyyyyMMdd(l);

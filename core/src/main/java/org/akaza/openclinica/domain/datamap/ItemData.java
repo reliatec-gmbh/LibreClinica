@@ -44,6 +44,10 @@ import org.hibernate.annotations.Type;
 
 public class ItemData  extends DataMapDomainObject {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1415232970732161834L;
 	private int itemDataId;
 	private UserAccount userAccount;
 	private EventCrf eventCrf;

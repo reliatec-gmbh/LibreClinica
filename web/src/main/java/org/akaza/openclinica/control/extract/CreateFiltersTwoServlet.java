@@ -7,7 +7,16 @@
  */
 package org.akaza.openclinica.control.extract;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+
 import org.akaza.openclinica.bean.admin.CRFBean;
+import org.akaza.openclinica.bean.core.EntityBean;
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.extract.FilterBean;
@@ -18,7 +27,6 @@ import org.akaza.openclinica.bean.submit.ItemFormMetadataBean;
 import org.akaza.openclinica.bean.submit.SectionBean;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.admin.CRFDAO;
 import org.akaza.openclinica.dao.extract.FilterDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDAO;
@@ -31,14 +39,7 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.akaza.openclinica.web.bean.EntityBeanTable;
 import org.akaza.openclinica.web.bean.FilterRow;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
+import static org.akaza.openclinica.core.util.ClassCastHelper.*;
 
 /**
  * <P>
@@ -50,7 +51,11 @@ import java.util.Locale;
  */
 public class CreateFiltersTwoServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -8081287405364144709L;
+	Locale locale;
 
     // < ResourceBundle restext,resword,respage,resexception;
 
@@ -76,12 +81,12 @@ public class CreateFiltersTwoServlet extends SecureController {
             studyWithEventDefs.setId(currentStudy.getParentStudyId());
         }
 
-        if (StringUtil.isBlank(action)) {
+        if (action == null || action.trim().isEmpty()) {
             // throw an error
 
         } else if ("begin".equalsIgnoreCase(action)) {
             StudyEventDAO sedao = new StudyEventDAO(sm.getDataSource());
-            HashMap events = sedao.findCRFsByStudy(studyWithEventDefs);
+            HashMap<EntityBean, ArrayList<EntityBean>> events = sedao.findCRFsByStudy(studyWithEventDefs);
             // if events are empty -- resend to first filter page with message
             if (events.isEmpty()) {
                 addPageMessage(respage.getString("no_CRF_assigned_pick_another"));
@@ -89,17 +94,17 @@ public class CreateFiltersTwoServlet extends SecureController {
                 FilterDAO fdao = new FilterDAO(sm.getDataSource());
                 EntityBeanTable table = fp.getEntityBeanTable();
 
-                ArrayList filters = (ArrayList) fdao.findAll();
-                ArrayList filterRows = FilterRow.generateRowsFromBeans(filters);
+                ArrayList<FilterBean> filters = fdao.findAll();
+                ArrayList<FilterRow> filterRows = FilterRow.generateRowsFromBeans(filters);
 
                 String[] columns =
                     { resword.getString("filter_name"), resword.getString("description"), resword.getString("created_by"), resword.getString("created_date"),
                         resword.getString("status"), resword.getString("actions") };
 
-                table.setColumns(new ArrayList(Arrays.asList(columns)));
+                table.setColumns(new ArrayList<String>(Arrays.asList(columns)));
                 table.hideColumnLink(5);
                 table.addLink(resword.getString("create_new_filter"), "CreateFiltersOne?action=begin");
-                table.setQuery("CreateFiltersOne", new HashMap());
+                table.setQuery("CreateFiltersOne", new HashMap<>());
                 table.setRows(filterRows);
                 table.computeDisplay();
 
@@ -115,13 +120,12 @@ public class CreateFiltersTwoServlet extends SecureController {
             // get the crf id, return to a new page with sections
             // and parameters attached, tbh
             FormProcessor fp = new FormProcessor(request);
-            HashMap errors = new HashMap();
             int crfId = fp.getInt("crfId");
             if (crfId > 0) {
                 CRFVersionDAO cvDAO = new CRFVersionDAO(sm.getDataSource());
                 CRFDAO cDAO = new CRFDAO(sm.getDataSource());
                 SectionDAO secDAO = new SectionDAO(sm.getDataSource());
-                Collection sections = secDAO.findByVersionId(crfId);
+                ArrayList<SectionBean> sections = secDAO.findByVersionId(crfId);
                 CRFVersionBean cvBean = (CRFVersionBean) cvDAO.findByPK(crfId);
                 CRFBean cBean = (CRFBean) cDAO.findByPK(cvBean.getCrfId());
                 request.setAttribute("sections", sections);
@@ -133,7 +137,7 @@ public class CreateFiltersTwoServlet extends SecureController {
             } else {
                 addPageMessage(respage.getString("select_a_CRF_before_picking"));
                 StudyEventDAO sedao = new StudyEventDAO(sm.getDataSource());
-                HashMap events = sedao.findCRFsByStudy(studyWithEventDefs);
+                HashMap<EntityBean, ArrayList<EntityBean>> events = sedao.findCRFsByStudy(studyWithEventDefs);
 
                 request.setAttribute("events", events);
                 forwardPage(Page.CREATE_FILTER_SCREEN_3);
@@ -150,7 +154,7 @@ public class CreateFiltersTwoServlet extends SecureController {
                 SectionBean secBean = (SectionBean) secDAO.findByPK(sectionId);
                 session.setAttribute("secBean", secBean);
                 ItemFormMetadataDAO ifmDAO = new ItemFormMetadataDAO(sm.getDataSource());
-                Collection metadatas = ifmDAO.findAllBySectionId(sectionId);
+                ArrayList<ItemFormMetadataBean> metadatas = ifmDAO.findAllBySectionId(sectionId);
                 if (metadatas.size() > 0) {
                     request.setAttribute("metadatas", metadatas);
                     forwardPage(Page.CREATE_FILTER_SCREEN_3_2);
@@ -158,7 +162,7 @@ public class CreateFiltersTwoServlet extends SecureController {
                     CRFVersionBean cvBean = (CRFVersionBean) session.getAttribute("cvBean");
                     addPageMessage(respage.getString("section_not_have_questions_select_another"));
                     // SectionDAO secDAO = new SectionDAO(sm.getDataSource());
-                    Collection sections = secDAO.findByVersionId(cvBean.getId());
+                    ArrayList<SectionBean> sections = secDAO.findByVersionId(cvBean.getId());
 
                     request.setAttribute("sections", sections);
 
@@ -168,14 +172,14 @@ public class CreateFiltersTwoServlet extends SecureController {
                 CRFVersionBean cvBean = (CRFVersionBean) session.getAttribute("cvBean");
                 addPageMessage(respage.getString("select_section_before_select_question"));
                 SectionDAO secDAO = new SectionDAO(sm.getDataSource());
-                Collection sections = secDAO.findByVersionId(cvBean.getId());
+                ArrayList<SectionBean> sections = secDAO.findByVersionId(cvBean.getId());
 
                 request.setAttribute("sections", sections);
 
                 forwardPage(Page.CREATE_FILTER_SCREEN_3_1);
             }
         } else if ("questionsselected".equalsIgnoreCase(action)) {
-            ArrayList alist = this.extractIdsFromForm();
+            ArrayList<Integer> alist = this.extractIdsFromForm();
 
             // TODO this is where we begin the 'specify criteria' phase
             // of the servlet; we grab the list of questions, get each
@@ -183,14 +187,14 @@ public class CreateFiltersTwoServlet extends SecureController {
             // and send the user to create_filter_screen_4
             if (alist.size() > 0) {
                 ItemFormMetadataDAO ifmDAO = new ItemFormMetadataDAO(sm.getDataSource());
-                Collection questions = ifmDAO.findByMultiplePKs(alist);
+                ArrayList<ItemFormMetadataBean> questions = ifmDAO.findByMultiplePKs(alist);
                 session.setAttribute("questions", questions);
                 forwardPage(Page.CREATE_FILTER_SCREEN_4);
             } else {
                 SectionBean secBean = (SectionBean) session.getAttribute("secBean");
                 addPageMessage(respage.getString("select_questions_before_set_parameters"));
                 ItemFormMetadataDAO ifmDAO = new ItemFormMetadataDAO(sm.getDataSource());
-                Collection metadatas = ifmDAO.findAllBySectionId(secBean.getId());
+                ArrayList<ItemFormMetadataBean> metadatas = ifmDAO.findAllBySectionId(secBean.getId());
                 request.setAttribute("metadatas", metadatas);
                 forwardPage(Page.CREATE_FILTER_SCREEN_3_2);
             }
@@ -203,10 +207,10 @@ public class CreateFiltersTwoServlet extends SecureController {
             // them forward into the createServletThree process
             FormProcessor fp = new FormProcessor(request);
             String logical = fp.getString("logical");
-            ArrayList questions = (ArrayList) session.getAttribute("questions");
-            ArrayList filterobjects = new ArrayList();
+            ArrayList<?> questions = (ArrayList<?>) session.getAttribute("questions");
+            ArrayList<FilterObjectBean> filterobjects = new ArrayList<FilterObjectBean>();
             // (ArrayList)session.getAttribute("filterobjects");
-            Iterator q_it = questions.iterator();
+            Iterator<?> q_it = questions.iterator();
             int arrCnt = 0;
             while (q_it.hasNext()) {
                 ItemFormMetadataBean ifmBean = (ItemFormMetadataBean) q_it.next();
@@ -255,10 +259,10 @@ public class CreateFiltersTwoServlet extends SecureController {
             // session.setAttribute("filterobjects",filterobjects);
             FilterDAO fDAO = new FilterDAO(sm.getDataSource());
             String newSQL = (String) session.getAttribute("newSQL");
-            ArrayList newExp = (ArrayList) session.getAttribute("newExp");
+            ArrayList<String> newExp = asArrayList(session.getAttribute("newExp"), String.class);
             // human readable explanation
             String newNewSQL = fDAO.genSQLStatement(newSQL, logical, filterobjects);
-            ArrayList newNewExp = fDAO.genExplanation(newExp, logical, filterobjects);
+            ArrayList<String> newNewExp = fDAO.genExplanation(newExp, logical, filterobjects);
             if (arrCnt == questions.size()) {
                 newNewSQL = newSQL;
                 newNewExp = newExp;
@@ -290,7 +294,7 @@ public class CreateFiltersTwoServlet extends SecureController {
                 session.setAttribute("newExp", newNewExp);
                 // add new params, and go back
                 StudyEventDAO sedao = new StudyEventDAO(sm.getDataSource());
-                HashMap events = sedao.findCRFsByStudy(currentStudy);
+                HashMap<?, ?> events = sedao.findCRFsByStudy(currentStudy);
                 //
                 request.setAttribute("events", events);
                 forwardPage(Page.CREATE_FILTER_SCREEN_3);
@@ -324,9 +328,9 @@ public class CreateFiltersTwoServlet extends SecureController {
 
     }
 
-    public ArrayList extractIdsFromForm() {
-        ArrayList retMe = new ArrayList();
-        Enumeration en = request.getParameterNames();
+    public ArrayList<Integer> extractIdsFromForm() {
+        ArrayList<Integer> retMe = new ArrayList<>();
+        Enumeration<?> en = request.getParameterNames();
         while (en.hasMoreElements()) {
             String title = (String) en.nextElement();
             if (title.startsWith("ID")) {
@@ -339,10 +343,10 @@ public class CreateFiltersTwoServlet extends SecureController {
         return retMe;
     }
 
-    private ArrayList getStatuses() {
+    private ArrayList<Status> getStatuses() {
         Status statusesArray[] = { Status.AVAILABLE, Status.PENDING, Status.PRIVATE, Status.UNAVAILABLE };
-        List statuses = Arrays.asList(statusesArray);
-        return new ArrayList(statuses);
+        List<Status> statuses = Arrays.asList(statusesArray);
+        return new ArrayList<>(statuses);
     }
 
 }

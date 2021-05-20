@@ -17,7 +17,7 @@ import java.util.ArrayList;
  * 
  * @author Jun Xu
  */
-public class DisplayStudyRow extends EntityBeanRow {
+public class DisplayStudyRow extends EntityBeanRow<DisplayStudyBean, DisplayStudyRow> {
     // columns:
     public static final int COL_NAME = 0;
 
@@ -41,13 +41,13 @@ public class DisplayStudyRow extends EntityBeanRow {
      * int)
      */
     @Override
-    protected int compareColumn(Object row, int sortingColumn) {
+    protected int compareColumn(DisplayStudyRow row, int sortingColumn) {
         if (!row.getClass().equals(DisplayStudyRow.class)) {
             return 0;
         }
 
-        DisplayStudyBean thisStudy = (DisplayStudyBean) bean;
-        DisplayStudyBean argStudy = (DisplayStudyBean) ((DisplayStudyRow) row).bean;
+        DisplayStudyBean thisStudy = bean;
+        DisplayStudyBean argStudy = row.bean;
 
         int answer = 0;
         switch (sortingColumn) {
@@ -93,20 +93,17 @@ public class DisplayStudyRow extends EntityBeanRow {
      * .ArrayList)
      */
     @Override
-    public ArrayList generatRowsFromBeans(ArrayList beans) {
+    public ArrayList<DisplayStudyRow> generatRowsFromBeans(ArrayList<DisplayStudyBean> beans) {
         return DisplayStudyRow.generateRowsFromBeans(beans);
     }
 
-    public static ArrayList generateRowsFromBeans(ArrayList beans) {
-        ArrayList answer = new ArrayList();
-
-        Class[] parameters = null;
-        Object[] arguments = null;
+    public static ArrayList<DisplayStudyRow> generateRowsFromBeans(ArrayList<DisplayStudyBean> beans) {
+        ArrayList<DisplayStudyRow> answer = new ArrayList<>();
 
         for (int i = 0; i < beans.size(); i++) {
             try {
                 DisplayStudyRow row = new DisplayStudyRow();
-                row.setBean((DisplayStudyBean) beans.get(i));
+                row.setBean(beans.get(i));
                 answer.add(row);
             } catch (Exception e) {
             }

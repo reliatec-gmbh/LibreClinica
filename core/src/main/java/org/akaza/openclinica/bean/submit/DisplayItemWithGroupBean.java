@@ -10,7 +10,7 @@ package org.akaza.openclinica.bean.submit;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DisplayItemWithGroupBean implements Comparable {
+public class DisplayItemWithGroupBean implements Comparable<DisplayItemWithGroupBean> {
     private DisplayItemBean singleItem;
 
     private DisplayItemGroupBean itemGroup;
@@ -194,13 +194,8 @@ public class DisplayItemWithGroupBean implements Comparable {
         this.singleItem = singleItem;
     }
 
-    public int compareTo(Object o) {
-        if (!o.getClass().equals(this.getClass())) {
-            return 0;
-        }
-
-        DisplayItemWithGroupBean arg = (DisplayItemWithGroupBean) o;
-        return getOrdinal() - arg.getOrdinal();
+    public int compareTo(DisplayItemWithGroupBean o) {
+        return getOrdinal() - o.getOrdinal();
     }
 
 }

@@ -7,7 +7,6 @@
  */
 package org.akaza.openclinica.control.admin;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -100,7 +99,6 @@ public class ListSubjectTableFactory extends AbstractTableFactory {
 		tableFacade.addFilterMatcher(new MatcherKey(UserAccountBean.class, "subject.updater"), new GenericFilterMatecher());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void setDataAndLimitVariables(TableFacade tableFacade) {
 		// initialize i18n
@@ -339,12 +337,6 @@ public class ListSubjectTableFactory extends AbstractTableFactory {
 		builder.img().name("bt_Restore3").src("images/bt_Restore.gif").border("0").alt(resword.getString("restore")).title(resword.getString("restore")).align("left").append("hspace=\"6\"").close();
 		builder.aEnd();
 		return builder.toString();
-	}
-
-	private String formatDate(Date date) {
-		String format = resformat.getString("date_format_string");
-		SimpleDateFormat sdf = new SimpleDateFormat(format);
-		return sdf.format(date);
 	}
 
 	private String getDateFormat() {

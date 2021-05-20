@@ -16,9 +16,11 @@ package org.akaza.openclinica.control.admin;
 
 import static org.jmesa.facade.TableFacadeFactory.createTableFacade;
 
+import java.util.List;
+import java.util.Locale;
+
 import org.akaza.openclinica.control.SpringServletAccess;
 import org.akaza.openclinica.control.core.SecureController;
-import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.dao.hibernate.DatabaseChangeLogDao;
 import org.akaza.openclinica.domain.technicaladmin.DatabaseChangeLogBean;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
@@ -29,9 +31,6 @@ import org.jmesa.view.editor.DateCellEditor;
 import org.jmesa.view.html.component.HtmlColumn;
 import org.jmesa.view.html.component.HtmlRow;
 import org.jmesa.view.html.component.HtmlTable;
-
-import java.util.List;
-import java.util.Locale;
 
 /**
  * Servlet for creating a user account.
@@ -66,7 +65,6 @@ public class AuditDatabaseServlet extends SecureController {
 
     @Override
     protected void processRequest() throws Exception {
-        FormProcessor fp = new FormProcessor(request);
         String auditDatabaseHtml = renderAuditDatabaseTable(getDatabaseChangeLogDao().findAll());
         request.setAttribute("auditDatabaseHtml", auditDatabaseHtml);
         forwardPage(Page.AUDIT_DATABASE);

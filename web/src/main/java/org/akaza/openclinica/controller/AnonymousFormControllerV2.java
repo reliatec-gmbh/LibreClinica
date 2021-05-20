@@ -31,7 +31,7 @@ import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
 import org.akaza.openclinica.service.managestudy.EventDefinitionCrfTagService;
 import org.akaza.openclinica.service.pmanage.ParticipantPortalRegistrar;
 import org.akaza.openclinica.web.pform.PFormCache;
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -179,8 +179,57 @@ public class AnonymousFormControllerV2 {
 
         return accessPermission;
     }
+    
+    @Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((context == null) ? 0 : context.hashCode());
+		result = prime * result + ((dataSource == null) ? 0 : dataSource.hashCode());
+		result = prime * result + ((participantPortalRegistrar == null) ? 0 : participantPortalRegistrar.hashCode());
+		result = prime * result + ((sdao == null) ? 0 : sdao.hashCode());
+		result = prime * result + ((udao == null) ? 0 : udao.hashCode());
+		return result;
+	}
 
-    private class AnonymousUrlResponse {
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AnonymousFormControllerV2 other = (AnonymousFormControllerV2) obj;
+		if (context == null) {
+			if (other.context != null)
+				return false;
+		} else if (!context.equals(other.context))
+			return false;
+		if (dataSource == null) {
+			if (other.dataSource != null)
+				return false;
+		} else if (!dataSource.equals(other.dataSource))
+			return false;
+		if (participantPortalRegistrar == null) {
+			if (other.participantPortalRegistrar != null)
+				return false;
+		} else if (!participantPortalRegistrar.equals(other.participantPortalRegistrar))
+			return false;
+		if (sdao == null) {
+			if (other.sdao != null)
+				return false;
+		} else if (!sdao.equals(other.sdao))
+			return false;
+		if (udao == null) {
+			if (other.udao != null)
+				return false;
+		} else if (!udao.equals(other.udao))
+			return false;
+		return true;
+	}
+
+	private class AnonymousUrlResponse {
         private String url = null;
         private String offline = null;
         private String name = null;
@@ -193,39 +242,61 @@ public class AnonymousFormControllerV2 {
             this.description = description;
         }
 
-        public String getUrl() {
-            return url;
-        }
+		@Override
+		public String toString() {
+			return "AnonymousUrlResponse [url=" + url + ", offline=" + offline + ", name=" + name + ", description="
+					+ description + "]";
+		}
 
-        public void setUrl(String url) {
-            this.url = url;
-        }
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + getEnclosingInstance().hashCode();
+			result = prime * result + ((description == null) ? 0 : description.hashCode());
+			result = prime * result + ((name == null) ? 0 : name.hashCode());
+			result = prime * result + ((offline == null) ? 0 : offline.hashCode());
+			result = prime * result + ((url == null) ? 0 : url.hashCode());
+			return result;
+		}
 
-        public String getOffline() {
-            return offline;
-        }
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			AnonymousUrlResponse other = (AnonymousUrlResponse) obj;
+			if (!getEnclosingInstance().equals(other.getEnclosingInstance()))
+				return false;
+			if (description == null) {
+				if (other.description != null)
+					return false;
+			} else if (!description.equals(other.description))
+				return false;
+			if (name == null) {
+				if (other.name != null)
+					return false;
+			} else if (!name.equals(other.name))
+				return false;
+			if (offline == null) {
+				if (other.offline != null)
+					return false;
+			} else if (!offline.equals(other.offline))
+				return false;
+			if (url == null) {
+				if (other.url != null)
+					return false;
+			} else if (!url.equals(other.url))
+				return false;
+			return true;
+		}
 
-        public void setOffline(String offline) {
-            this.offline = offline;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        public void setDescription(String description) {
-            this.description = description;
-        }
-
-
+		private AnonymousFormControllerV2 getEnclosingInstance() {
+			return AnonymousFormControllerV2.this;
+		}
     }
 
 }

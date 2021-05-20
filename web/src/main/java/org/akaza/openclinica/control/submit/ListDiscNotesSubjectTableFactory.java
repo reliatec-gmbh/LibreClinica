@@ -7,10 +7,8 @@
  */
 package org.akaza.openclinica.control.submit;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -20,7 +18,6 @@ import java.util.Set;
 import javax.servlet.http.HttpServletResponse;
 
 import org.akaza.openclinica.bean.core.ResolutionStatus;
-import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.core.SubjectEventStatus;
 import org.akaza.openclinica.bean.login.StudyUserRoleBean;
@@ -28,10 +25,8 @@ import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
-import org.akaza.openclinica.bean.managestudy.StudyGroupClassBean;
 import org.akaza.openclinica.bean.managestudy.StudySubjectBean;
 import org.akaza.openclinica.bean.submit.EventCRFBean;
-import org.akaza.openclinica.bean.submit.SubjectBean;
 import org.akaza.openclinica.control.AbstractTableFactory;
 import org.akaza.openclinica.control.DefaultActionsEditor;
 import org.akaza.openclinica.dao.managestudy.DiscrepancyNoteDAO;
@@ -79,11 +74,9 @@ public class ListDiscNotesSubjectTableFactory extends AbstractTableFactory {
     private StudyBean studyBean;
     private String[] columnNames = new String[] {};
     private ArrayList<StudyEventDefinitionBean> studyEventDefinitions;
-    private ArrayList<StudyGroupClassBean> studyGroupClasses;
     private StudyUserRoleBean currentRole;
     private UserAccountBean currentUser;
     private ResourceBundle resword;
-    private ResourceBundle resformat;
     private ResourceBundle resterm;
     private String module;
     private Integer resolutionStatus;
@@ -126,7 +119,6 @@ public class ListDiscNotesSubjectTableFactory extends AbstractTableFactory {
     @Override
     protected void configureColumns(TableFacade tableFacade, Locale locale) {
         resword = ResourceBundleProvider.getWordsBundle(locale);
-        resformat = ResourceBundleProvider.getFormatBundle(locale);
         tableFacade.setColumnProperties(columnNames);
         Row row = tableFacade.getTable().getRow();
         configureColumn(row.getColumn(columnNames[0]), resword.getString("study_subject_ID"), null, null);
@@ -286,7 +278,6 @@ public class ListDiscNotesSubjectTableFactory extends AbstractTableFactory {
         return isSignable;
     }
 
-    @SuppressWarnings("unchecked")
     private boolean eventHasRequiredUncompleteCRFs(StudyEventBean studyEventBean) {
 
         List<EventCRFBean> eventCrfBeans = new ArrayList<EventCRFBean>();
@@ -353,7 +344,6 @@ public class ListDiscNotesSubjectTableFactory extends AbstractTableFactory {
         return listDiscNotesSubjectSort;
     }
 
-    @SuppressWarnings("unchecked")
     private ArrayList<StudyEventDefinitionBean> getStudyEventDefinitions() {
         if (this.studyEventDefinitions == null) {
             if (studyBean.getParentStudyId() > 0) {
@@ -609,10 +599,8 @@ public class ListDiscNotesSubjectTableFactory extends AbstractTableFactory {
     private class StudyEventDefinitionMapCellEditor implements CellEditor {
 
         StudyEventDefinitionBean studyEventDefinition;
-        StudySubjectBean studySubjectBean;
         SubjectEventStatus subjectEventStatus;
         List<StudyEventBean> studyEvents;
-        SubjectBean subject;
         HashMap<ResolutionStatus, Integer> discCounts;
 
         private String getCount() {
@@ -625,8 +613,6 @@ public class ListDiscNotesSubjectTableFactory extends AbstractTableFactory {
             studyEvents = (List<StudyEventBean>) ((HashMap<Object, Object>) item).get(property + "_studyEvents");
             studyEventDefinition = (StudyEventDefinitionBean) ((HashMap<Object, Object>) item).get(property + "_object");
             subjectEventStatus = SubjectEventStatus.get((Integer) ((HashMap<Object, Object>) item).get(property));
-            subject = (SubjectBean) ((HashMap<Object, Object>) item).get("subject");
-            studySubjectBean = (StudySubjectBean) ((HashMap<Object, Object>) item).get("studySubject");
             discCounts = (HashMap<ResolutionStatus, Integer>) ((HashMap<Object, Object>) item).get(property + "_discCounts");
 
             StringBuilder url = new StringBuilder();
@@ -719,527 +705,6 @@ public class ListDiscNotesSubjectTableFactory extends AbstractTableFactory {
             }
         }
         return actionLink.toString();
-    }
-
-    private String reAssignStudySubjectLinkBuilder(StudySubjectBean studySubject) {
-        HtmlBuilder actionLink = new HtmlBuilder();
-        actionLink.a().href("ReassignStudySubject?id=" + studySubject.getId());
-        actionLink.append("onMouseDown=\"javascript:setImage('bt_Reassign1','images/bt_Reassign_d.gif');\"");
-        actionLink.append("onMouseUp=\"javascript:setImage('bt_Reassign1','images/bt_Reassign.gif');\"").close();
-        actionLink.img().name("bt_Reassign1").src("images/bt_Reassign.gif").border("0").alt(resword.getString("reassign")).title(resword.getString("reassign")).append("hspace=\"2\"").end().aEnd();
-        actionLink.append("&nbsp;&nbsp;&nbsp;");
-        return actionLink.toString();
-
-    }
-
-    private String restoreStudySubjectLinkBuilder(StudySubjectBean studySubject) {
-        HtmlBuilder actionLink = new HtmlBuilder();
-        actionLink.a().href(
-                "RestoreStudySubject?action=confirm&id=" + studySubject.getId() + "&subjectId=" + studySubject.getSubjectId() + "&studyId="
-                    + studySubject.getStudyId());
-        actionLink.append("onMouseDown=\"javascript:setImage('bt_Restor3','images/bt_Restore_d.gif');\"");
-        actionLink.append("onMouseUp=\"javascript:setImage('bt_Restor3','images/bt_Restore_d.gif');\"").close();
-        actionLink.img().name("bt_Restore1").src("images/bt_Remove.gif").border("0").alt(resword.getString("restore")).title(resword.getString("restore")).align("left").append("hspace=\"6\"").end()
-                .aEnd();
-        return actionLink.toString();
-
-    }
-
-    private String eventDivBuilder(SubjectBean subject, Integer rowCount, List<StudyEventBean> studyEvents, StudyEventDefinitionBean sed,
-            StudySubjectBean studySubject) {
-
-        String studySubjectLabel = studySubject.getLabel();
-
-        String divWidth = studyEvents.size() >= 3 ? "540" : studyEvents.size() == 2 ? "360" : "180";
-
-        HtmlBuilder eventDiv = new HtmlBuilder();
-
-        eventDiv.table(0).border("0").cellpadding("0").cellspacing("0").close();
-        // Lock Div
-        eventDiv.div().id("Lock_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount).style(
-                "position: absolute; visibility: hidden; z-index: 3; width: 50px; height: 30px; top: 0px;").close();
-        lockLinkBuilder(eventDiv, studySubjectLabel, rowCount, studyEvents, sed);
-        eventDiv.divEnd();
-
-        eventDiv.tr(0).valign("top").close().td(0).close();
-        // Event Div
-        eventDiv.div().id("Event_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount).style(
-                "position: absolute; visibility: hidden; z-index: 3;width:" + divWidth + "px; top: 0px; float: left;").close();
-        eventDiv.div().styleClass("box_T").close().div().styleClass("box_L").close().div().styleClass("box_R").close().div().styleClass("box_B").close().div()
-                .styleClass("box_TL").close().div().styleClass("box_TR").close().div().styleClass("box_BL").close().div().styleClass("box_BR").close();
-
-        eventDiv.div().styleClass("tablebox_center").close();
-        eventDiv.div().styleClass("ViewSubjectsPopup").style("color: rgb(91, 91, 91);").close();
-
-        eventDiv.table(0).border("0").cellpadding("0").cellspacing("0").close();
-        eventDiv.tr(0).valign("top").close();
-
-        if (studyEvents.size() > 1) {
-            repeatingEventDivBuilder(eventDiv, subject, rowCount, studyEvents, sed, studySubject);
-        } else {
-            singleEventDivBuilder(eventDiv, subject, rowCount, studyEvents, sed, studySubject);
-        }
-
-        return eventDiv.toString();
-    }
-
-    private void repeatingEventDivBuilder(HtmlBuilder eventDiv, SubjectBean subject, Integer rowCount, List<StudyEventBean> studyEvents,
-            StudyEventDefinitionBean sed, StudySubjectBean studySubject) {
-
-        String tableHeaderRowStyleClass = "table_header_row";
-        String tableHeaderRowLeftStyleClass = "table_header_row_left";
-        String add_another_occurrence = resword.getString("add_another_occurrence");
-        String click_for_more_options = resword.getString("click_for_more_options");
-        String schedule = resword.getString("schedule");
-        String view = resword.getString("view")+"/"+resword.getString("enter_data");
-        String edit = resword.getString("edit");
-        String remove = resword.getString("remove");
-        String occurrence_x_of = resword.getString("ocurrence");
-        String subjectText = resword.getString("subject");
-        String eventText = resword.getString("event");
-        String status = resword.getString("status");
-
-        StudyEventBean defaultEvent = studyEvents.get(0);
-        String studySubjectLabel = studySubject.getLabel();
-        Status eventSysStatus = studySubject.getStatus();
-        Integer studyEventsSize = studyEvents.size();
-
-        eventDiv.td(0).styleClass(tableHeaderRowLeftStyleClass).colspan("2").close();
-        eventDiv.append(subjectText).append(": ").append(studySubjectLabel).br();
-        eventDiv.append(eventText).append(": ").append(sed.getName()).br();
-        eventDiv.tdEnd();
-
-        eventDiv.td(0).styleClass(tableHeaderRowLeftStyleClass).align("right").colspan("3").close();
-        divCloseRepeatinglinkBuilder(eventDiv, studySubjectLabel, rowCount, studyEvents, sed);
-        eventDiv.br();
-        if (eventSysStatus != Status.DELETED && eventSysStatus != Status.AUTO_DELETED && studyBean.getStatus() == Status.AVAILABLE) {
-            eventDiv.span().styleClass("font-weight: normal;").close();
-            eventDiv.ahref("CreateNewStudyEvent?studySubjectId=" + studySubject.getId() + "&studyEventDefinition=" + sed.getId(), add_another_occurrence);
-        }
-        eventDiv.nbsp().nbsp().nbsp();
-        for (int i = 1; i <= studyEventsSize; i++) {
-            eventDiv.ahref("javascript:StatusBoxSkip('" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "'," + studyEventsSize + "," + i + ");",
-                    String.valueOf(i));
-            if (i < studyEventsSize) {
-                eventDiv.append("|");
-            }
-        }
-        eventDiv.spanEnd();
-        eventDiv.tdEnd().trEnd(0);
-        eventDiv.tr(0).close();
-        // <td>...</td>
-        eventDiv.td(0).id("Scroll_off_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "_back").styleClass("statusbox_scroll_L_dis").width("20")
-                .close();
-        eventDiv.img().src("images/arrow_status_back_dis.gif").border("0").close();
-        eventDiv.tdEnd();
-        // <td>...</td>
-        eventDiv.td(0).id("Scroll_on_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "_back").styleClass("statusbox_scroll_L").width("20").style(
-                "display: none;").close();
-        // <div>...</div>
-        eventDiv.div().id("bt_Scroll_Event_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "_back").style("display: none;").close();
-        eventDiv.a().href("javascript:StatusBoxBack('" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "'," + studyEventsSize + ");").close();
-        eventDiv.img().src("images/arrow_status_back.gif").border("0").close();
-        eventDiv.aEnd();
-        eventDiv.divEnd();
-        // <div>...</div>
-        eventDiv.div().id("bt_Scroll_Event_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "_back_dis").close();
-        eventDiv.img().src("images/arrow_status_back_dis.gif").border("0").close();
-        eventDiv.divEnd();
-        eventDiv.tdEnd();
-
-        for (int i = 0; i < studyEvents.size(); i++) {
-            StudyEventBean studyEventBean = studyEvents.get(i);
-            // <td>...</td>
-            eventDiv.td(0).id("Event_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "_" + (i + 1)).valign("top").width("180");
-            if (i + 1 > 3) {
-                eventDiv.style("display: none;");
-            }
-            eventDiv.close();
-            // <table>...</table>
-            eventDiv.table(0).border("0").cellpadding("0").cellspacing("0").close();
-            // <tr><td>...</td></tr>
-            eventDiv.tr(0).valign("top").close();
-            eventDiv.td(0).styleClass(tableHeaderRowStyleClass).colspan("2").close();
-            eventDiv.bold().append(occurrence_x_of).append("#" + (i + 1) + " of " + studyEventsSize).br();
-            eventDiv.append(formatDate(studyEventBean.getDateStarted())).br();
-            eventDiv.append(status + ": " + studyEventBean.getSubjectEventStatus().getName());
-            eventDiv.boldEnd().tdEnd().trEnd(0);
-            // <tr><td><table>...</table></td></tr>
-            eventDiv.tr(0).id("Menu_on_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "_" + (i + 1)).styleClass("display: none").close();
-            eventDiv.td(0).colspan("2").close();
-            eventDiv.table(0).border("0").cellpadding("0").cellspacing("0").close();
-
-            linksDivBuilder(eventDiv, subject, rowCount, studyEvents, sed, studySubject, studyEventBean);
-            eventDiv.tableEnd(0).tdEnd().trEnd(0);
-            eventDiv.tableEnd(0);
-            eventDiv.tdEnd();
-        }
-
-        // <td>...</td>
-        eventDiv.td(0).id("Scroll_off_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "_next").styleClass("statusbox_scroll_R_dis").width("20")
-                .close();
-        eventDiv.img().src("images/arrow_status_next_dis.gif").border("0").close();
-        eventDiv.tdEnd();
-        // <td>...</td>
-        eventDiv.td(0).id("Scroll_on_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "_next").styleClass("statusbox_scroll_R").width("20").style(
-                "display: none;").close();
-        // <div>...</div>
-        eventDiv.div().id("bt_Scroll_Event_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "_next").close();
-        eventDiv.a().href("javascript:StatusBoxNext('" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "'," + studyEventsSize + ");").close();
-        eventDiv.img().src("images/arrow_status_next.gif").border("0").close();
-        eventDiv.aEnd();
-        eventDiv.divEnd();
-        // <div>...</div>
-        eventDiv.div().id("bt_Scroll_Event_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "_next_dis").style("display: none;").close();
-        eventDiv.img().src("images/arrow_status_next_dis.gif").border("0").close();
-        eventDiv.divEnd();
-        eventDiv.tdEnd().trEnd(0);
-
-        eventDiv.tr(0).id("Menu_off_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount).style("").close();
-        eventDiv.td(0).styleClass("table_cell_left").colspan(String.valueOf(studyEventsSize)).close().append("<i>").append(click_for_more_options).append(
-                "</i>").tdEnd();
-        eventDiv.trEnd(0);
-
-        eventDiv.tableEnd(0);
-        eventDiv.divEnd().divEnd().divEnd().divEnd().divEnd().divEnd().divEnd().divEnd().divEnd().divEnd().divEnd();
-        repeatingIconLinkBuilder(eventDiv, studySubjectLabel, rowCount, studyEvents, sed);
-
-    }
-
-    private void linksDivBuilder(HtmlBuilder eventDiv, SubjectBean subject, Integer rowCount, List<StudyEventBean> studyEvents, StudyEventDefinitionBean sed,
-            StudySubjectBean studySubject, StudyEventBean currentEvent) {
-
-        Status eventSysStatus = studySubject.getStatus();
-        SubjectEventStatus eventStatus = currentEvent.getSubjectEventStatus();
-        String studyEventId = String.valueOf(currentEvent.getId());
-
-        String view = resword.getString("view")+"/"+resword.getString("enter_data");
-        String edit = resword.getString("edit");
-        String remove = resword.getString("remove");;
-
-        if (eventSysStatus.getId() == Status.AVAILABLE.getId() || eventSysStatus == Status.SIGNED) {
-
-            if (eventStatus == SubjectEventStatus.COMPLETED) {
-                eventDiv.tr(0).valign("top").close();
-                eventDiv.td(0).styleClass("table_cell").close();
-                enterDataForStudyEventLinkBuilder(eventDiv, studyEventId, view);
-                eventDiv.tdEnd().trEnd(0);
-
-                if ((currentRole.getRole() == Role.STUDYDIRECTOR || currentUser.isSysAdmin()) && studyBean.getStatus() == Status.AVAILABLE) {
-                    eventDiv.tr(0).valign("top").close();
-                    eventDiv.td(0).styleClass("table_cell").close();
-                    updateStudyEventLinkBuilder(eventDiv, studySubject.getId(), studyEventId, edit);
-                    eventDiv.tdEnd().trEnd(0);
-                    eventDiv.tr(0).valign("top").close();
-                    eventDiv.td(0).styleClass("table_cell").close();
-                    removeStudyEventLinkBuilder(eventDiv, studySubject.getId(), studyEventId, remove);
-                    eventDiv.tdEnd().trEnd(0);
-                }
-            } else if (eventStatus == SubjectEventStatus.LOCKED) {
-                if (currentRole.getRole() == Role.STUDYDIRECTOR || currentUser.isSysAdmin()) {
-                    eventDiv.tr(0).valign("top").close();
-                    eventDiv.td(0).styleClass("table_cell").close();
-                    enterDataForStudyEventLinkBuilder(eventDiv, studyEventId, view);
-                    eventDiv.tdEnd().trEnd(0);
-                    if (studyBean.getStatus() == Status.AVAILABLE) {
-                        eventDiv.tr(0).valign("top").close();
-                        eventDiv.td(0).styleClass("table_cell").close();
-                        removeStudyEventLinkBuilder(eventDiv, studySubject.getId(), studyEventId, remove);
-                        eventDiv.tdEnd().trEnd(0);
-                    }
-                }
-            } else {
-                eventDiv.tr(0).valign("top").close();
-                eventDiv.td(0).styleClass("table_cell_left");
-                enterDataForStudyEventLinkBuilder(eventDiv, studyEventId, view);
-                eventDiv.tdEnd().trEnd(0);
-                if ((currentRole.getRole() == Role.STUDYDIRECTOR || currentUser.isSysAdmin()) && studyBean.getStatus() == Status.AVAILABLE) {
-                    eventDiv.tr(0).valign("top").close();
-                    eventDiv.td(0).styleClass("table_cell_left").close();
-                    updateStudyEventLinkBuilder(eventDiv, studySubject.getId(), studyEventId, edit);
-                    eventDiv.tdEnd().trEnd(0);
-                    eventDiv.tr(0).valign("top").close();
-                    eventDiv.td(0).styleClass("table_cell_left").close();
-                    removeStudyEventLinkBuilder(eventDiv, studySubject.getId(), studyEventId, remove);
-                    eventDiv.tdEnd().trEnd(0);
-                }
-            }
-        }
-
-        if (eventSysStatus == Status.DELETED || eventSysStatus == Status.AUTO_DELETED) {
-            eventDiv.tr(0).valign("top").close();
-            eventDiv.td(0).styleClass("table_cell").close();
-            enterDataForStudyEventLinkBuilder(eventDiv, studyEventId, view);
-            eventDiv.tdEnd().trEnd(0);
-        }
-
-    }
-
-    private void singleEventDivBuilder(HtmlBuilder eventDiv, SubjectBean subject, Integer rowCount, List<StudyEventBean> studyEvents,
-            StudyEventDefinitionBean sed, StudySubjectBean studySubject) {
-
-        String tableHeaderRowStyleClass = "table_header_row";
-        String tableHeaderRowLeftStyleClass = "table_header_row_left";
-        String add_another_occurrence = resword.getString("add_another_occurrence");
-        String click_for_more_options = resword.getString("click_for_more_options");
-        String schedule = resword.getString("schedule");
-        String view = resword.getString("view")+"/"+resword.getString("enter_data");
-        String edit = resword.getString("edit");
-        String remove = resword.getString("remove");
-        String occurrence_x_of = resword.getString("ocurrence");
-        String subjectText = resword.getString("subject");
-        String eventText = resword.getString("event");
-        String status = resword.getString("status");
-
-        SubjectEventStatus eventStatus = studyEvents.size() == 0 ? SubjectEventStatus.NOT_SCHEDULED : studyEvents.get(0).getSubjectEventStatus();
-        String studyEventName = studyEvents.size() == 0 ? "" : studyEvents.get(0).getName();
-        String studyEventId = studyEvents.size() == 0 ? "" : String.valueOf(studyEvents.get(0).getId());
-        Status eventSysStatus = studySubject.getStatus();
-        String studySubjectLabel = studySubject.getLabel();
-
-        eventDiv.td(0).styleClass(tableHeaderRowLeftStyleClass).close();
-        eventDiv.append(subjectText).append(": ").append(studySubjectLabel).br();
-        eventDiv.append(eventText).append(": ").append(sed.getName()).br();
-
-        if (!sed.isRepeating()) {
-            eventDiv.append(resword.getString("status")).append(":").append(eventStatus.getName()).br();
-            eventDiv.tdEnd();
-            eventDiv.td(0).styleClass(tableHeaderRowLeftStyleClass).align("right").close();
-            linkBuilder(eventDiv, studySubjectLabel, rowCount, studyEvents, sed);
-            eventDiv.tdEnd();
-
-        } else {
-            eventDiv.tdEnd();
-            eventDiv.td(0).styleClass(tableHeaderRowLeftStyleClass).align("right").close();
-            linkBuilder(eventDiv, studySubjectLabel, rowCount, studyEvents, sed);
-            eventDiv.tdEnd();
-
-            eventDiv.tr(0).valign("top").close();
-            eventDiv.td(0).styleClass(tableHeaderRowStyleClass).colspan("2").close();
-            eventDiv.bold().append(occurrence_x_of).append("#1 of 1").br();
-            if (studyEvents.size() > 0) {
-                eventDiv.append(formatDate(studyEvents.get(0).getDateStarted())).br();
-                eventDiv.append(status + " : " + studyEvents.get(0).getSubjectEventStatus().getName());
-            } else {
-                eventDiv.append(status + " : " + SubjectEventStatus.NOT_SCHEDULED.getName());
-            }
-            eventDiv.boldEnd().tdEnd().trEnd(0);
-            if (eventStatus != SubjectEventStatus.NOT_SCHEDULED && eventSysStatus != Status.DELETED && eventSysStatus != Status.AUTO_DELETED) {
-                eventDiv.tr(0).close().td(0).styleClass("table_cell_left").close();
-                eventDiv.ahref("CreateNewStudyEvent?studySubjectId=" + studySubject.getId() + "&studyEventDefinition=" + sed.getId(), add_another_occurrence);
-                eventDiv.tdEnd().trEnd(0);
-            }
-
-        }
-        eventDiv.trEnd(0);
-        eventDiv.tr(0).id("Menu_off_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount).style("display: all").close();
-        eventDiv.td(0).styleClass("table_cell_left").colspan("2").close().append("<i>").append(click_for_more_options).append("</i>").tdEnd();
-        eventDiv.trEnd(0);
-
-        eventDiv.tr(0).id("Menu_on_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount).style("display: none").close();
-        eventDiv.td(0).colspan("2").close();
-        eventDiv.table(0).border("0").cellpadding("0").cellspacing("0").close();
-
-        if (eventSysStatus.getId() == Status.AVAILABLE.getId() || eventSysStatus == Status.SIGNED) {
-
-            if (eventStatus == SubjectEventStatus.NOT_SCHEDULED && currentRole.getRole() != Role.MONITOR) {
-                eventDiv.tr(0).valign("top").close();
-                eventDiv.td(0).styleClass("table_cell_left").close();
-                createNewStudyEventLinkBuilder(eventDiv, studySubject.getId(), sed, schedule);
-                eventDiv.tdEnd().trEnd(0);
-            }
-
-            else if (eventStatus == SubjectEventStatus.COMPLETED) {
-                eventDiv.tr(0).valign("top").close();
-                eventDiv.td(0).styleClass("table_cell_left").close();
-                enterDataForStudyEventLinkBuilder(eventDiv, studyEventId, view);
-                eventDiv.tdEnd().trEnd(0);
-                if ((currentRole.getRole() == Role.STUDYDIRECTOR || currentUser.isSysAdmin()) && studyBean.getStatus() == Status.AVAILABLE) {
-                    eventDiv.tr(0).valign("top").close();
-                    eventDiv.td(0).styleClass("table_cell_left").close();
-                    updateStudyEventLinkBuilder(eventDiv, studySubject.getId(), studyEventId, edit);
-                    eventDiv.tdEnd().trEnd(0);
-                    eventDiv.tr(0).valign("top").close();
-                    eventDiv.td(0).styleClass("table_cell_left").close();
-                    removeStudyEventLinkBuilder(eventDiv, studySubject.getId(), studyEventId, remove);
-                    eventDiv.tdEnd().trEnd(0);
-                }
-            }
-
-            else if (eventStatus == SubjectEventStatus.LOCKED) {
-                eventDiv.tdEnd().trEnd(0);
-                if (currentRole.getRole() == Role.STUDYDIRECTOR || currentUser.isSysAdmin()) {
-                    eventDiv.tr(0).valign("top").close();
-                    eventDiv.td(0).styleClass("table_cell_left").close();
-                    enterDataForStudyEventLinkBuilder(eventDiv, studyEventId, view);
-                    eventDiv.tdEnd().trEnd(0);
-                    if (studyBean.getStatus() == Status.AVAILABLE) {
-                        eventDiv.tr(0).valign("top").close();
-                        eventDiv.td(0).styleClass("table_cell_left").close();
-                        removeStudyEventLinkBuilder(eventDiv, studySubject.getId(), studyEventId, remove);
-                        eventDiv.tdEnd().trEnd(0);
-                    }
-                }
-            } else {
-                eventDiv.tr(0).valign("top").close();
-                eventDiv.td(0).styleClass("table_cell_left");
-                enterDataForStudyEventLinkBuilder(eventDiv, studyEventId, view);
-                eventDiv.tdEnd().trEnd(0);
-                if ((currentRole.getRole() == Role.STUDYDIRECTOR || currentUser.isSysAdmin()) && studyBean.getStatus() == Status.AVAILABLE) {
-                    eventDiv.tr(0).valign("top").close();
-                    eventDiv.td(0).styleClass("table_cell_left").close();
-                    updateStudyEventLinkBuilder(eventDiv, studySubject.getId(), studyEventId, edit);
-                    eventDiv.tdEnd().trEnd(0);
-                    eventDiv.tr(0).valign("top").close();
-                    eventDiv.td(0).styleClass("table_cell_left").close();
-                    removeStudyEventLinkBuilder(eventDiv, studySubject.getId(), studyEventId, remove);
-                    eventDiv.tdEnd().trEnd(0);
-                }
-            }
-        }
-
-        if (eventSysStatus == Status.DELETED || eventSysStatus == Status.AUTO_DELETED) {
-            eventDiv.tr(0).valign("top").close();
-            eventDiv.td(0).styleClass("table_cell_left").close();
-            enterDataForStudyEventLinkBuilder(eventDiv, studyEventId, view);
-            eventDiv.tdEnd().trEnd(0);
-        }
-        eventDiv.tableEnd(0).tdEnd().trEnd(0);
-
-        eventDiv.tableEnd(0);
-        eventDiv.divEnd().divEnd().divEnd().divEnd().divEnd().divEnd().divEnd().divEnd().divEnd().divEnd().divEnd();
-        iconLinkBuilder(eventDiv, studySubjectLabel, rowCount, studyEvents, sed);
-
-    }
-
-    private void updateStudyEventLinkBuilder(HtmlBuilder builder, Integer studySubjectId, String studyEventId, String edit) {
-        String href1 = "UpdateStudyEvent?event_id=" + studyEventId + "&ss_id=" + studySubjectId;
-        builder.a().href(href1);
-        builder.close();
-        builder.img().src("images/bt_Edit.gif").border("0").align("left").close().aEnd();
-        builder.nbsp().nbsp().a().href(href1);
-        builder.close().append(edit).aEnd();
-
-    }
-
-    private void removeStudyEventLinkBuilder(HtmlBuilder builder, Integer studySubjectId, String studyEventId, String remove) {
-        String href1 = "RemoveStudyEvent?action=confirm&id=" + studyEventId + "&studySubId=" + studySubjectId;
-        builder.a().href(href1);
-        builder.close();
-        builder.img().src("images/bt_Remove.gif").border("0").align("left").close().aEnd();
-        builder.nbsp().nbsp().a().href(href1);
-        builder.close().append(remove).aEnd();
-
-    }
-
-    private void createNewStudyEventLinkBuilder(HtmlBuilder builder, Integer studySubjectId, StudyEventDefinitionBean sed, String schedule) {
-        String href1 = "CreateNewStudyEvent?studySubjectId=" + studySubjectId + "&studyEventDefinition=" + sed.getId();
-        builder.a().href(href1);
-        builder.close();
-        builder.img().src("images/bt_Schedule.gif").border("0").align("left").close().aEnd();
-        builder.nbsp().nbsp().a().href(href1);
-        builder.close().append(schedule).aEnd();
-
-    }
-
-    private void enterDataForStudyEventLinkBuilder(HtmlBuilder builder, String studyEventId, String view) {
-        String href1 = "EnterDataForStudyEvent?eventId=" + studyEventId;
-        builder.a().href(href1);
-        builder.close();
-        builder.img().src("images/bt_View.gif").border("0").align("left").close().aEnd();
-        builder.nbsp().nbsp().a().href(href1);
-        builder.close().append(view).aEnd();
-
-    }
-
-    private void lockLinkBuilder(HtmlBuilder builder, String studySubjectLabel, Integer rowCount, List<StudyEventBean> studyEvents, StudyEventDefinitionBean sed) {
-        String href1 = "javascript:leftnavExpand('Menu_on_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "'); ";
-        String href2 = "javascript:leftnavExpand('Menu_off_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "'); ";
-        String onmouseover = "layersShowOrHide('visible','Event_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "'); ";
-        onmouseover += "javascript:setImage('ExpandIcon_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "','images/icon_collapse.gif');";
-        String onClick1 = "layersShowOrHide('hidden','Lock_all'); ";
-        String onClick2 = "layersShowOrHide('hidden','Event_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "'); ";
-        String onClick3 = "layersShowOrHide('hidden','Lock_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "'); ";
-        String onClick4 = "javascript:setImage('ExpandIcon_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "','images/icon_blank.gif'); ";
-        builder.a().href(href1 + href2);
-        builder.onmouseover(onmouseover);
-        builder.onclick(onClick1 + onClick2 + onClick3 + onClick4);
-        builder.close();
-        builder.img().src("images/spacer.gif").border("0").append("height=\"30\"").width("50").close().aEnd();
-
-    }
-
-    private void repeatingIconLinkBuilder(HtmlBuilder builder, String studySubjectLabel, Integer rowCount, List<StudyEventBean> studyEvents,
-            StudyEventDefinitionBean sed) {
-        String href1 = "javascript:ExpandEventOccurrences('" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "'," + studyEvents.size() + "); ";
-        // String href1 = "javascript:leftnavExpand('Menu_on_" +
-        // studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "'); ";
-        String href2 = "javascript:leftnavExpand('Menu_off_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "'); ";
-        String onmouseover = "moveObject('Event_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "', event); ";
-        onmouseover += "setImage('ExpandIcon_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "','images/icon_expand.gif');";
-        String onmouseout = "layersShowOrHide('hidden','Event_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "'); ";
-        onmouseout += "setImage('ExpandIcon_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "','images/icon_blank.gif');";
-        String onClick1 = "layersShowOrHide('visible','Lock_all'); ";
-        String onClick2 = "LockObject('Lock_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "',event); ";
-        builder.a().href(href1 + href2);
-        builder.onmouseover(onmouseover);
-        builder.onmouseout(onmouseout);
-        builder.onclick(onClick1 + onClick2);
-        builder.close();
-
-    }
-
-    private void iconLinkBuilder(HtmlBuilder builder, String studySubjectLabel, Integer rowCount, List<StudyEventBean> studyEvents, StudyEventDefinitionBean sed) {
-        String href1Repeating =
-            "javascript:ExpandEventOccurrences('" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "'," + studyEvents.size() + "); ";
-        String href1 = "javascript:leftnavExpand('Menu_on_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "'); ";
-        String href2 = "javascript:leftnavExpand('Menu_off_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "'); ";
-        String onmouseover = "moveObject('Event_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "', event); ";
-        onmouseover += "setImage('ExpandIcon_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "','images/icon_expand.gif');";
-        String onmouseout = "layersShowOrHide('hidden','Event_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "'); ";
-        onmouseout += "setImage('ExpandIcon_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "','images/icon_blank.gif');";
-        String onClick1 = "layersShowOrHide('visible','Lock_all'); ";
-        String onClick2 = "LockObject('Lock_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "',event); ";
-        String href = studyEvents.size() > 1 ? href1Repeating + href2 : href1 + href2;
-        builder.a().href(href);
-        builder.onmouseover(onmouseover);
-        builder.onmouseout(onmouseout);
-        builder.onclick(onClick1 + onClick2);
-        builder.close();
-
-    }
-
-    private void divCloseRepeatinglinkBuilder(HtmlBuilder builder, String studySubjectLabel, Integer rowCount, List<StudyEventBean> studyEvents,
-            StudyEventDefinitionBean sed) {
-        String href1 = "javascript:ExpandEventOccurrences('" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "'," + studyEvents.size() + "); ";
-        String href2 = "javascript:leftnavExpand('Menu_off_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "'); ";
-        String onClick1 = "layersShowOrHide('hidden','Lock_all'); ";
-        String onClick2 = "layersShowOrHide('hidden','Event_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "'); ";
-        String onClick3 = "layersShowOrHide('hidden','Lock_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "'); ";
-        String onClick4 = "javascript:setImage('ExpandIcon_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "','images/icon_blank.gif'); ";
-        builder.a().href(href1 + href2);
-        builder.onclick(onClick1 + onClick2 + onClick3 + onClick4);
-        builder.close().append("X").aEnd();
-
-    }
-
-    private void linkBuilder(HtmlBuilder builder, String studySubjectLabel, Integer rowCount, List<StudyEventBean> studyEvents, StudyEventDefinitionBean sed) {
-        String href1 = "javascript:leftnavExpand('Menu_on_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "'); ";
-        String href2 = "javascript:leftnavExpand('Menu_off_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "'); ";
-        String onClick1 = "layersShowOrHide('hidden','Lock_all'); ";
-        String onClick2 = "layersShowOrHide('hidden','Event_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "'); ";
-        String onClick3 = "layersShowOrHide('hidden','Lock_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "'); ";
-        String onClick4 = "javascript:setImage('ExpandIcon_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "','images/icon_blank.gif'); ";
-        builder.a().href(href1 + href2);
-        builder.onclick(onClick1 + onClick2 + onClick3 + onClick4);
-        builder.close().append("X").aEnd();
-
-    }
-
-    private String formatDate(Date date) {
-        String format = resformat.getString("date_format_string");
-        SimpleDateFormat sdf = new SimpleDateFormat(format);
-        return sdf.format(date);
     }
 
     public Set<Integer> getResolutionStatusIds() {

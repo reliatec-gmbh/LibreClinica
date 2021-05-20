@@ -7,6 +7,10 @@
  */
 package org.akaza.openclinica.view.form;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
+
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.Format;
@@ -14,21 +18,12 @@ import org.jdom.output.XMLOutputter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.util.Map;
-
 /**
  * Created by IntelliJ IDEA. User: bruceperry Date: May 4, 2007
  */
 public class FormBuilderTest {
 
     private static final Logger logger= LoggerFactory.getLogger(FormBuilderTest.class);
-
-    public void setFormContents(Map contentsMap) {
-
-    }
 
     public String createTable() {
         Element root = new Element("table");

@@ -7,11 +7,12 @@
  */
 package org.akaza.openclinica.bean.login;
 
-import org.akaza.openclinica.bean.core.Term;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+
+import org.akaza.openclinica.bean.core.Term;
 
 /**
  * @author jxu
@@ -23,7 +24,12 @@ import java.util.List;
 // Internationalized name and description in Term.getName and
 // Term.getDescription()
 public class PwdChallengeQuestion extends Term {
-    public static final PwdChallengeQuestion MAIDEN_NAME = new PwdChallengeQuestion(1, "Mother_Maiden_Name");
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -3257460938361987325L;
+
+	public static final PwdChallengeQuestion MAIDEN_NAME = new PwdChallengeQuestion(1, "Mother_Maiden_Name");
 
     public static final PwdChallengeQuestion FARORITE_PET = new PwdChallengeQuestion(2, "Favorite_Pet");
 
@@ -31,7 +37,7 @@ public class PwdChallengeQuestion extends Term {
 
     private static final PwdChallengeQuestion[] members = { MAIDEN_NAME, FARORITE_PET, CITY_OF_BIRTH };
 
-    public static final List list = Arrays.asList(members);
+    public static final List<PwdChallengeQuestion> list = Arrays.asList(members);
 
     private PwdChallengeQuestion(int id, String name) {
         super(id, name);
@@ -45,11 +51,12 @@ public class PwdChallengeQuestion extends Term {
     }
 
     public static PwdChallengeQuestion get(int id) {
-        return (PwdChallengeQuestion) Term.get(id, list);
+    	Optional<PwdChallengeQuestion> o = list.stream().filter(r -> r.getId() == id).findFirst();
+    	return o.orElse(new PwdChallengeQuestion());
     }
 
-    public static ArrayList toArrayList() {
-        return new ArrayList(list);
+    public static ArrayList<PwdChallengeQuestion> toArrayList() {
+        return new ArrayList<>(list);
     }
 
 }

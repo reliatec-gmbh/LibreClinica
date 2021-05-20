@@ -22,7 +22,12 @@ import java.util.HashMap;
  * @author ssachs
  */
 public class ExtractStudySubjectBean extends EntityBean {
-    private String studyProtocolId;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -3358250864687592664L;
+
+	private String studyProtocolId;
 
     private String siteUniqueIdentifier;
 
@@ -32,7 +37,7 @@ public class ExtractStudySubjectBean extends EntityBean {
 
     private String yearOfBirth;
 
-    private HashMap studyEvents = new HashMap();
+    private HashMap<String, StudyEventBean> studyEvents = new HashMap<>();
 
     /**
      * Key is String comprised of studyEventDefinitionId + "-" + sampleNum + "-" +
@@ -40,7 +45,7 @@ public class ExtractStudySubjectBean extends EntityBean {
      * drawn from the values of numSamplesByStudyEventDefinitionAndDBOrdinal)
      * Value is String with corresponding item's value.
      */
-    private HashMap itemValues = new HashMap();
+    private HashMap<String, String> itemValues = new HashMap<>();
 
     /**
      * Key is String comprised of studyEventDefinitionId + "-" + dbOrdinal
@@ -49,14 +54,14 @@ public class ExtractStudySubjectBean extends EntityBean {
      * Integer whose intValue represents the sampleNum which corresponds to the
      * StudyEventDefinition/dbOrdinal combination.
      */
-    private HashMap sampleNumByStudyEventDefinitionAndDBOrdinal = new HashMap();
+    private HashMap<String, Integer> sampleNumByStudyEventDefinitionAndDBOrdinal = new HashMap<>();
 
     /**
      * Key is an Integer whose intValue() is a studyEventDefinitionId Value is
      * Integer whose intValue() represents the number of events the studySubject
      * has for the given event def.
      */
-    private HashMap numSamplesByStudyEventDefinition = new HashMap();
+    private HashMap<Integer, Integer> numSamplesByStudyEventDefinition = new HashMap<>();
 
     /**
      * For SPSS coding; we generate a var-label listing for name and study label
@@ -68,7 +73,7 @@ public class ExtractStudySubjectBean extends EntityBean {
     private int intLabelResultSet = 0;
 
     public ExtractStudySubjectBean() {
-        itemValues = new HashMap();
+        itemValues = new HashMap<>();
         studyProtocolId = "";
         siteUniqueIdentifier = "";
     }

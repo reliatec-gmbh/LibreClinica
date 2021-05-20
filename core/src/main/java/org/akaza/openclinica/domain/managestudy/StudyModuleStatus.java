@@ -14,7 +14,6 @@ import org.akaza.openclinica.domain.AbstractAuditableMutableDomainObject;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import java.util.Date;
 
 /**
  * @author: Shamim
@@ -27,7 +26,11 @@ import java.util.Date;
 @Table(name = "study_module_status")
 @GenericGenerator(name = "id-generator", strategy = "native", parameters = { @Parameter(name = "sequence_name", value = "study_module_status_id_seq") })
 public class StudyModuleStatus extends AbstractAuditableMutableDomainObject {
-    public static final int NOT_STARTED = 1;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -3852650749122796823L;
+	public static final int NOT_STARTED = 1;
     public static final int IN_PROGRESS = 2;
     public static final int COMPLETED = 3; 
 

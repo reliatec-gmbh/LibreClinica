@@ -7,6 +7,10 @@
  */
 package org.akaza.openclinica.controller;
 
+import static org.akaza.openclinica.core.util.ClassCastHelper.asArrayList;
+import static org.akaza.openclinica.core.util.ClassCastHelper.asHashMap;
+import static org.akaza.openclinica.core.util.ClassCastHelper.getAsType;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -35,7 +39,7 @@ import org.akaza.openclinica.control.form.Validator;
 import org.akaza.openclinica.dao.login.UserAccountDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDefinitionDAO;
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +50,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-
 @Controller
 @RequestMapping(value = "/auth/api/v1/studies")
 public class StudyController {
@@ -136,7 +139,7 @@ public class StudyController {
 
 	@RequestMapping(value = "/", method = RequestMethod.POST)
 	public ResponseEntity<Object> createNewStudy(HttpServletRequest request, @RequestBody HashMap<String, Object> map) throws Exception {
-		ArrayList<ErrorObject> errorObjects = new ArrayList();
+		ArrayList<ErrorObject> errorObjects = new ArrayList<>();
 		StudyBean studyBean = null;
 		logger.debug("I'm in Create Study");
 		ResponseEntity<Object> response = null;
@@ -144,26 +147,27 @@ public class StudyController {
 		String validation_failed_message = "VALIDATION FAILED";
 		String validation_passed_message = "SUCCESS";
 
-		String uniqueProtocolID = (String) map.get("uniqueProtocolID");
-		String name = (String) map.get("briefTitle");
-		String principalInvestigator = (String) map.get("principalInvestigator");
-		String briefSummary = (String) map.get("briefSummary");
-		String sponsor = (String) map.get("sponsor");
-		String protocolType = (String) map.get("protocolType");
-		String startDate = (String) map.get("startDate");
-		String expectedTotalEnrollment = (String) map.get("expectedTotalEnrollment");
-		String status = (String) map.get("status");
-		ArrayList<UserRole> assignUserRoles = (ArrayList<UserRole>) map.get("assignUserRoles");
+		String uniqueProtocolID = getAsType(map.get("uniqueProtocolID"), String.class);
+		String name = getAsType(map.get("briefTitle"), String.class);
+		String principalInvestigator = getAsType(map.get("principalInvestigator"), String.class);
+		String briefSummary = getAsType(map.get("briefSummary"), String.class);
+		String sponsor = getAsType(map.get("sponsor"), String.class);
+		String protocolType = getAsType(map.get("protocolType"), String.class);
+		String startDate = getAsType(map.get("startDate"), String.class);
+		String expectedTotalEnrollment = getAsType(map.get("expectedTotalEnrollment"), String.class);
+		String status = getAsType(map.get("status"), String.class);
+		ArrayList<Object> assignUserRoles = asArrayList(map.get("assignUserRoles"), Object.class);
 
 		ArrayList<UserRole> userList = new ArrayList<>();
 
 		if (assignUserRoles != null) {
+			udao = new UserAccountDAO(dataSource);
 			for (Object userRole : assignUserRoles) {
 				UserRole uRole = new UserRole();
-				uRole.setUsername((String) ((HashMap<String, Object>) userRole).get("username"));
-				uRole.setRole((String) ((HashMap<String, Object>) userRole).get("role"));
-				udao = new UserAccountDAO(dataSource);
-				UserAccountBean assignedUserBean = (UserAccountBean) udao.findByUserName(uRole.getUsername());
+				HashMap<String, Object> userRoleMap = asHashMap(userRole, String.class, Object.class);
+				uRole.setUsername(getAsType(userRoleMap.get("username"), String.class));
+				uRole.setRole(getAsType(userRoleMap.get("role"), String.class));
+				UserAccountBean assignedUserBean = udao.findByUserName(uRole.getUsername());
 				if (assignedUserBean == null || !assignedUserBean.isActive()) {
 					ErrorObject errorOBject = createErrorObject("Study Object", "The Assigned Username " + uRole.getUsername() + " is not a Valid User", "Assigned User");
 					errorObjects.add(errorOBject);
@@ -283,7 +287,7 @@ public class StudyController {
 
 		Validator v0 = new Validator(request);
 		v0.addValidation("name", Validator.NO_BLANKS);
-		HashMap vError0 = v0.validate();
+		HashMap<String, ArrayList<String>> vError0 = v0.validate();
 		if (!vError0.isEmpty()) {
 			ErrorObject errorOBject = createErrorObject("Study Object", "This field cannot be blank.", "BriefTitle");
 			errorObjects.add(errorOBject);
@@ -291,42 +295,42 @@ public class StudyController {
 
 		Validator v1 = new Validator(request);
 		v1.addValidation("uniqueProId", Validator.NO_BLANKS);
-		HashMap vError1 = v1.validate();
+		HashMap<String, ArrayList<String>> vError1 = v1.validate();
 		if (!vError1.isEmpty()) {
 			ErrorObject errorOBject = createErrorObject("Study Object", "This field cannot be blank.", "UniqueProtocolId");
 			errorObjects.add(errorOBject);
 		}
 		Validator v2 = new Validator(request);
 		v2.addValidation("description", Validator.NO_BLANKS);
-		HashMap vError2 = v2.validate();
+		HashMap<String, ArrayList<String>> vError2 = v2.validate();
 		if (!vError2.isEmpty()) {
 			ErrorObject errorOBject = createErrorObject("Study Object", "This field cannot be blank.", "BriefSummary");
 			errorObjects.add(errorOBject);
 		}
 		Validator v3 = new Validator(request);
 		v3.addValidation("prinInvestigator", Validator.NO_BLANKS);
-		HashMap vError3 = v3.validate();
+		HashMap<String, ArrayList<String>> vError3 = v3.validate();
 		if (!vError3.isEmpty()) {
 			ErrorObject errorOBject = createErrorObject("Study Object", "This field cannot be blank.", "PrincipleInvestigator");
 			errorObjects.add(errorOBject);
 		}
 		Validator v4 = new Validator(request);
 		v4.addValidation("sponsor", Validator.NO_BLANKS);
-		HashMap vError4 = v4.validate();
+		HashMap<String, ArrayList<String>> vError4 = v4.validate();
 		if (!vError4.isEmpty()) {
 			ErrorObject errorOBject = createErrorObject("Study Object", "This field cannot be blank.", "Sponsor");
 			errorObjects.add(errorOBject);
 		}
 		Validator v5 = new Validator(request);
 		v5.addValidation("startDate", Validator.NO_BLANKS);
-		HashMap vError5 = v5.validate();
+		HashMap<String, ArrayList<String>> vError5 = v5.validate();
 		if (!vError5.isEmpty()) {
 			ErrorObject errorOBject = createErrorObject("Study Object", "This field cannot be blank.", "StartDate");
 			errorObjects.add(errorOBject);
 		}
 
 		Validator v6 = new Validator(request);
-		HashMap vError6 = v6.validate();
+		HashMap<String, ArrayList<String>> vError6 = v6.validate();
 		if (uniqueProtocolID != null)
 			validateUniqueProId(request, vError6);
 		if (!vError6.isEmpty()) {
@@ -336,7 +340,7 @@ public class StudyController {
 
 		Validator v7 = new Validator(request);
 		v7.addValidation("expectedTotalEnrollment", Validator.NO_BLANKS);
-		HashMap vError7 = v7.validate();
+		HashMap<String, ArrayList<String>> vError7 = v7.validate();
 		if (!vError7.isEmpty()) {
 			ErrorObject errorOBject = createErrorObject("Study Object", "This field cannot be blank.", "ExpectedTotalEnrollment");
 			errorObjects.add(errorOBject);
@@ -351,7 +355,7 @@ public class StudyController {
 
 		if (errorObjects != null && errorObjects.size() != 0) {
 			studyDTO.setMessage(validation_failed_message);
-			response = new ResponseEntity(studyDTO, org.springframework.http.HttpStatus.BAD_REQUEST);
+			response = new ResponseEntity<>(studyDTO, org.springframework.http.HttpStatus.BAD_REQUEST);
 		} else {
 			studyBean = buildStudyBean(uniqueProtocolID, name, briefSummary, principalInvestigator, sponsor, Integer.valueOf(expectedTotalEnrollment), protocolType, status, formattedDate,
 					ownerUserAccount);
@@ -365,7 +369,7 @@ public class StudyController {
 			sub.setStudyId(sBean.getId());
 			sub.setStatus(Status.AVAILABLE);
 			sub.setOwner(ownerUserAccount);
-			StudyUserRoleBean surb = createRole(ownerUserAccount, sub);
+			createRole(ownerUserAccount, sub);
 
 			ResourceBundle resterm = org.akaza.openclinica.i18n.util.ResourceBundleProvider.getTermsBundle();
 
@@ -377,14 +381,14 @@ public class StudyController {
 				sub.setOwner(ownerUserAccount);
 				udao = new UserAccountDAO(dataSource);
 				UserAccountBean assignedUserBean = (UserAccountBean) udao.findByUserName(userRole.getUsername());
-				surb = createRole(assignedUserBean, sub);
+				createRole(assignedUserBean, sub);
 			}
             ResponseSuccessStudyDTO responseSuccess = new ResponseSuccessStudyDTO();
             responseSuccess.setMessage(studyDTO.getMessage());
             responseSuccess.setStudyOid(studyDTO.getStudyOid());
             responseSuccess.setUniqueProtocolID(studyDTO.getUniqueProtocolID());
 
-			response = new ResponseEntity(responseSuccess, org.springframework.http.HttpStatus.OK);
+			response = new ResponseEntity<>(responseSuccess, org.springframework.http.HttpStatus.OK);
 		}
 		return response;
 
@@ -457,7 +461,7 @@ public class StudyController {
 	@RequestMapping(value = "/{uniqueProtocolID}/sites", method = RequestMethod.POST)
 	public ResponseEntity<Object> createNewSites(HttpServletRequest request, @RequestBody HashMap<String, Object> map, @PathVariable("uniqueProtocolID") String uniqueProtocolID) throws Exception {
 		logger.debug("I'm in Create Sites ");
-		ArrayList<ErrorObject> errorObjects = new ArrayList();
+		ArrayList<ErrorObject> errorObjects = new ArrayList<>();
 		StudyBean siteBean = null;
 		ResponseEntity<Object> response = null;
 
@@ -471,14 +475,15 @@ public class StudyController {
 		String startDate = (String) map.get("startDate");
 		String protocolDateVerification = (String) map.get("protocolDateVerification");
 		String secondaryProId = (String) map.get("secondaryProtocolID");
-		ArrayList<UserRole> assignUserRoles = (ArrayList<UserRole>) map.get("assignUserRoles");
+		ArrayList<UserRole> assignUserRoles = asArrayList(map.get("assignUserRoles"), UserRole.class);
 
 		ArrayList<UserRole> userList = new ArrayList<>();
 		if (assignUserRoles != null) {
 			for (Object userRole : assignUserRoles) {
 				UserRole uRole = new UserRole();
-				uRole.setUsername((String) ((HashMap<String, Object>) userRole).get("username"));
-				uRole.setRole((String) ((HashMap<String, Object>) userRole).get("role"));
+				HashMap<String, Object> userRoleMap = asHashMap(userRole, String.class, Object.class);
+				uRole.setUsername(getAsType(userRoleMap.get("username"), String.class));
+				uRole.setRole(getAsType(userRoleMap.get("role"), String.class));
 				udao = new UserAccountDAO(dataSource);
 				UserAccountBean assignedUserBean = (UserAccountBean) udao.findByUserName(uRole.getUsername());
 				if (assignedUserBean == null || !assignedUserBean.isActive()) {
@@ -609,28 +614,28 @@ public class StudyController {
 
 		Validator v1 = new Validator(request);
 		v1.addValidation("uniqueProId", Validator.NO_BLANKS);
-		HashMap vError1 = v1.validate();
+		HashMap<String, ArrayList<String>> vError1 = v1.validate();
 		if (!vError1.isEmpty()) {
 			ErrorObject errorOBject = createErrorObject("Site Object", "This field cannot be blank.", "UniqueProtocolId");
 			errorObjects.add(errorOBject);
 		}
 		Validator v2 = new Validator(request);
 		v2.addValidation("name", Validator.NO_BLANKS);
-		HashMap vError2 = v2.validate();
+		HashMap<String, ArrayList<String>> vError2 = v2.validate();
 		if (!vError2.isEmpty()) {
 			ErrorObject errorOBject = createErrorObject("Site Object", "This field cannot be blank.", "BriefTitle");
 			errorObjects.add(errorOBject);
 		}
 		Validator v3 = new Validator(request);
 		v3.addValidation("prinInvestigator", Validator.NO_BLANKS);
-		HashMap vError3 = v3.validate();
+		HashMap<String, ArrayList<String>> vError3 = v3.validate();
 		if (!vError3.isEmpty()) {
 			ErrorObject errorOBject = createErrorObject("Site Object", "This field cannot be blank.", "PrincipleInvestigator");
 			errorObjects.add(errorOBject);
 		}
 
 		Validator v6 = new Validator(request);
-		HashMap vError6 = v6.validate();
+		HashMap<String, ArrayList<String>> vError6 = v6.validate();
 		if (uniqueProtocolID != null)
 			validateUniqueProId(request, vError6);
 		if (!vError6.isEmpty()) {
@@ -640,7 +645,7 @@ public class StudyController {
 
 		Validator v7 = new Validator(request);
 		v7.addValidation("expectedTotalEnrollment", Validator.NO_BLANKS);
-		HashMap vError7 = v7.validate();
+		HashMap<String, ArrayList<String>> vError7 = v7.validate();
 		if (!vError7.isEmpty()) {
 			ErrorObject errorOBject = createErrorObject("Site Object", "This field cannot be blank.", "ExpectedTotalEnrollment");
 			errorObjects.add(errorOBject);
@@ -667,7 +672,7 @@ public class StudyController {
 
 		if (errorObjects != null && errorObjects.size() != 0) {
 			siteDTO.setMessage(validation_failed_message);
-			response = new ResponseEntity(siteDTO, org.springframework.http.HttpStatus.BAD_REQUEST);
+			response = new ResponseEntity<>(siteDTO, org.springframework.http.HttpStatus.BAD_REQUEST);
 		} else {
 			siteBean = buildSiteBean(uniqueSiteProtocolID, name, principalInvestigator, Integer.valueOf(expectedTotalEnrollment), formattedStartDate, formattedProtocolDate, secondaryProId,
 					ownerUserAccount, parentStudy.getId());
@@ -685,14 +690,14 @@ public class StudyController {
 				sub.setOwner(ownerUserAccount);
 				udao = new UserAccountDAO(dataSource);
 				UserAccountBean assignedUserBean = (UserAccountBean) udao.findByUserName(userRole.getUsername());
-				StudyUserRoleBean surb = createRole(assignedUserBean, sub);
+				createRole(assignedUserBean, sub);
 			}
             ResponseSuccessSiteDTO responseSuccess = new ResponseSuccessSiteDTO();
             responseSuccess.setMessage(siteDTO.getMessage());
             responseSuccess.setSiteOid(siteDTO.getSiteOid());
             responseSuccess.setUniqueSiteProtocolID(siteDTO.getUniqueSiteProtocolID());
 
-			response = new ResponseEntity(responseSuccess, org.springframework.http.HttpStatus.OK);
+			response = new ResponseEntity<>(responseSuccess, org.springframework.http.HttpStatus.OK);
 
 		}
 		return response;
@@ -748,7 +753,7 @@ public class StudyController {
 	public ResponseEntity<Object> createEventDefinition(HttpServletRequest request, @RequestBody HashMap<String, Object> map, @PathVariable("uniqueProtocolID") String uniqueProtocolID)
 			throws Exception {
 		logger.debug("I'm in Create Event Definition ");
-		ArrayList<ErrorObject> errorObjects = new ArrayList();
+		ArrayList<ErrorObject> errorObjects = new ArrayList<>();
 		StudyEventDefinitionBean eventBean = null;
 		ResponseEntity<Object> response = null;
 
@@ -830,7 +835,7 @@ public class StudyController {
 
 		Validator v1 = new Validator(request);
 		v1.addValidation("name", Validator.NO_BLANKS);
-		HashMap vError1 = v1.validate();
+		HashMap<String, ArrayList<String>> vError1 = v1.validate();
 		if (!vError1.isEmpty()) {
 			ErrorObject errorOBject = createErrorObject("Event Definition Object", "This field cannot be blank.", "Name");
 			errorObjects.add(errorOBject);
@@ -839,7 +844,7 @@ public class StudyController {
 		if (name != null) {
 			Validator v2 = new Validator(request);
 			v2.addValidation("name", Validator.LENGTH_NUMERIC_COMPARISON, NumericComparisonOperator.LESS_THAN_OR_EQUAL_TO, 2000);
-			HashMap vError2 = v2.validate();
+			HashMap<String, ArrayList<String>> vError2 = v2.validate();
 			if (!vError2.isEmpty()) {
 				ErrorObject errorOBject = createErrorObject("Event Definition Object", "The Length Should not exceed 2000.", "Name");
 				errorObjects.add(errorOBject);
@@ -848,7 +853,7 @@ public class StudyController {
 		if (description != null) {
 			Validator v3 = new Validator(request);
 			v3.addValidation("description", Validator.LENGTH_NUMERIC_COMPARISON, NumericComparisonOperator.LESS_THAN_OR_EQUAL_TO, 2000);
-			HashMap vError3 = v3.validate();
+			HashMap<String, ArrayList<String>> vError3 = v3.validate();
 			if (!vError3.isEmpty()) {
 				ErrorObject errorOBject = createErrorObject("Event Definition Object", "The Length Should not exceed 2000.", "Description");
 				errorObjects.add(errorOBject);
@@ -857,7 +862,7 @@ public class StudyController {
 		if (category != null) {
 			Validator v4 = new Validator(request);
 			v4.addValidation("category", Validator.LENGTH_NUMERIC_COMPARISON, NumericComparisonOperator.LESS_THAN_OR_EQUAL_TO, 2000);
-			HashMap vError4 = v4.validate();
+			HashMap<String, ArrayList<String>> vError4 = v4.validate();
 			if (!vError4.isEmpty()) {
 				ErrorObject errorOBject = createErrorObject("Event Definition Object", "The Length Should not exceed 2000.", "Category");
 				errorObjects.add(errorOBject);
@@ -865,7 +870,7 @@ public class StudyController {
 		}
 		Validator v5 = new Validator(request);
 		v5.addValidation("repeating", Validator.NO_BLANKS);
-		HashMap vError5 = v5.validate();
+		HashMap<String, ArrayList<String>> vError5 = v5.validate();
 		if (!vError5.isEmpty()) {
 			ErrorObject errorOBject = createErrorObject("Event Definition Object", "This field cannot be blank.", "Repeating");
 			errorObjects.add(errorOBject);
@@ -873,7 +878,7 @@ public class StudyController {
 
 		Validator v6 = new Validator(request);
 		v6.addValidation("type", Validator.NO_BLANKS);
-		HashMap vError6 = v6.validate();
+		HashMap<String, ArrayList<String>> vError6 = v6.validate();
 		if (!vError6.isEmpty()) {
 			ErrorObject errorOBject = createErrorObject("Event Definition Object", "This field cannot be blank.", "Type");
 			errorObjects.add(errorOBject);
@@ -883,7 +888,7 @@ public class StudyController {
 
 		if (errorObjects != null && errorObjects.size() != 0) {
 			eventDefinitionDTO.setMessage(validation_failed_message);
-			response = new ResponseEntity(eventDefinitionDTO, org.springframework.http.HttpStatus.BAD_REQUEST);
+			response = new ResponseEntity<>(eventDefinitionDTO, org.springframework.http.HttpStatus.BAD_REQUEST);
 		} else {
 			eventBean = buildEventDefBean(name, description, category, type, repeating, ownerUserAccount, parentStudy);
 
@@ -897,7 +902,7 @@ public class StudyController {
         responseSuccess.setName(eventDefinitionDTO.getName());
 
 
-		response = new ResponseEntity(responseSuccess, org.springframework.http.HttpStatus.OK);
+		response = new ResponseEntity<>(responseSuccess, org.springframework.http.HttpStatus.OK);
 		return response;
 
 	}
@@ -915,7 +920,7 @@ public class StudyController {
 
 		StudyEventDefinitionBean sed = new StudyEventDefinitionBean();
         seddao = new StudyEventDefinitionDAO(dataSource);
-        ArrayList defs = seddao.findAllByStudy(parentStudy);
+        ArrayList<StudyEventDefinitionBean> defs = seddao.findAllByStudy(parentStudy);
         if (defs == null || defs.isEmpty()) {
             sed.setOrdinal(1);
         } else {
@@ -939,8 +944,7 @@ public class StudyController {
 			String secondaryProId, UserAccountBean owner, int parentStudyId) {
 
 		StudyBean study = new StudyBean();
-		ResourceBundle resadmin = org.akaza.openclinica.i18n.util.ResourceBundleProvider.getAdminBundle();
-
+		
 		study.setDatePlannedStart(startDate);
 		study.setProtocolDateVerification(protocolDateVerification);
 		study.setSecondaryIdentifier(secondaryProId);
@@ -995,19 +999,13 @@ public class StudyController {
 
 	}
 
-	private UserAccountBean getUserAccount(String userName) {
-		udao = new UserAccountDAO(dataSource);
-		UserAccountBean userAccountBean = (UserAccountBean) udao.findByUserName(userName);
-		return userAccountBean;
-	}
-
 	private StudyBean getStudyByUniqId(String uniqueId) {
 		sdao = new StudyDAO(dataSource);
 		StudyBean studyBean = (StudyBean) sdao.findByUniqueIdentifier(uniqueId);
 		return studyBean;
 	}
 
-	public void validateUniqueProId(HttpServletRequest request, HashMap errors) {
+	public void validateUniqueProId(HttpServletRequest request, HashMap<String, ArrayList<String>> errors) {
 		StudyDAO studyDAO = new StudyDAO(dataSource);
 		ArrayList<StudyBean> allStudies = (ArrayList<StudyBean>) studyDAO.findAll();
 		for (StudyBean thisBean : allStudies) {

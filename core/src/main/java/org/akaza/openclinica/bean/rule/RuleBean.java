@@ -26,7 +26,11 @@ import java.util.List;
  */
 public class RuleBean extends AuditableEntityBean {
 
-    private String oid;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6836960662728524106L;
+	private String oid;
     private String type;
     private String description;
     private boolean enabled;

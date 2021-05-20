@@ -26,7 +26,6 @@ import org.akaza.openclinica.bean.core.ResolutionStatus;
 import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.bean.managestudy.DiscrepancyNoteBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
-import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
 import org.akaza.openclinica.bean.managestudy.StudySubjectBean;
 import org.akaza.openclinica.control.AbstractTableFactory;
 import org.akaza.openclinica.control.DefaultActionsEditor;
@@ -63,13 +62,8 @@ import org.jmesa.view.component.Row;
 import org.jmesa.view.editor.CellEditor;
 import org.jmesa.view.editor.DateCellEditor;
 import org.jmesa.view.html.HtmlBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ListNotesTableFactory extends AbstractTableFactory {
-
-    private static final Logger LOG = LoggerFactory.getLogger(ListNotesTableFactory.class.getName());
-
     private AuditUserLoginDao auditUserLoginDao;
     private StudySubjectDAO studySubjectDao;
     private UserAccountDAO userAccountDao;
@@ -88,7 +82,6 @@ public class ListNotesTableFactory extends AbstractTableFactory {
     private ResourceBundle resword;
     private ResourceBundle resformat;
     private List<DiscrepancyNoteBean> allNotes = new ArrayList<DiscrepancyNoteBean>();
-    private ArrayList<StudyEventDefinitionBean> studyEventDefinitions;
     private String module;
     private Integer resolutionStatus;
     private Integer discNoteType;
@@ -267,43 +260,43 @@ public class ListNotesTableFactory extends AbstractTableFactory {
      * @param limit
      *            The Limit to use.
      */
-    public ListNotesFilter getListNoteFilter(Limit limit) {
-        ListNotesFilter listNotesFilter = new ListNotesFilter();
-        FilterSet filterSet = limit.getFilterSet();
-        Collection<Filter> filters = filterSet.getFilters();
-        for (Filter filter : filters) {
-            String property = filter.getProperty();
-            String value = filter.getValue();
-            //Checking if the given date format is valid
-            if("discrepancyNoteBean.createdDate".equalsIgnoreCase(property)
-                    || "discrepancyNoteBean.updatedDate".equalsIgnoreCase(property)){
-                 try{
-                    String date = formatDate(new Date(value));
-                     value = date;
-                   }catch(Exception ex){
-                     value = "01-Jan-1700";
-                   }
-            }else if("discrepancyNoteBean.disType".equalsIgnoreCase(property)) {
-                ResourceBundle reterm = ResourceBundleProvider.getTermsBundle();
-                if(reterm.getString("Query_and_Failed_Validation_Check").equals(value)) {
-                    value = 31 + "";
-                } else {
-                    value = DiscrepancyNoteType.getByName(value).getId()+"";
-                }
-            }else if("discrepancyNoteBean.resolutionStatus".equalsIgnoreCase(property)) {
-                ResourceBundle reterm = ResourceBundleProvider.getTermsBundle();
-                if(reterm.getString("New_and_Updated").equalsIgnoreCase(value)){
-                    value = 21 + "";
-                } else {
-                    value = ResolutionStatus.getByName(value).getId()+"";
-                }
-            }
-            //
-            listNotesFilter.addFilter(property, value);
-        }
+	public ListNotesFilter getListNoteFilter(Limit limit) {
+		ListNotesFilter listNotesFilter = new ListNotesFilter();
+		FilterSet filterSet = limit.getFilterSet();
+		Collection<Filter> filters = filterSet.getFilters();
+		for (Filter filter : filters) {
+			String property = filter.getProperty();
+			String value = filter.getValue();
+			// Checking if the given date format is valid
+			if ("discrepancyNoteBean.createdDate".equalsIgnoreCase(property)
+					|| "discrepancyNoteBean.updatedDate".equalsIgnoreCase(property)) {
+				try {
+					Date date = SimpleDateFormat.getDateInstance().parse(value);
+					value = formatDate(date);
+				} catch (Exception ex) {
+					value = "01-Jan-1700";
+				}
+			} else if ("discrepancyNoteBean.disType".equalsIgnoreCase(property)) {
+				ResourceBundle reterm = ResourceBundleProvider.getTermsBundle();
+				if (reterm.getString("Query_and_Failed_Validation_Check").equals(value)) {
+					value = 31 + "";
+				} else {
+					value = DiscrepancyNoteType.getByName(value).getId() + "";
+				}
+			} else if ("discrepancyNoteBean.resolutionStatus".equalsIgnoreCase(property)) {
+				ResourceBundle reterm = ResourceBundleProvider.getTermsBundle();
+				if (reterm.getString("New_and_Updated").equalsIgnoreCase(value)) {
+					value = 21 + "";
+				} else {
+					value = ResolutionStatus.getByName(value).getId() + "";
+				}
+			}
+			//
+			listNotesFilter.addFilter(property, value);
+		}
 
-        return listNotesFilter;
-    }
+		return listNotesFilter;
+	}
 
     /**
      * A very custom way to sort the items. The AuditUserLoginSort acts as a command for the Hibernate criteria object. Take the Limit information and sort the
@@ -443,7 +436,6 @@ public class ListNotesTableFactory extends AbstractTableFactory {
         @Override
         @SuppressWarnings("unchecked")
         public Object getValue(Object item, String property, int rowcount) {
-            String value = "";
             DiscrepancyNoteBean dnb = (DiscrepancyNoteBean) ((HashMap<Object, Object>) item).get("discrepancyNoteBean");
             HtmlBuilder builder = new HtmlBuilder();
             //for "view" as action
@@ -477,7 +469,6 @@ public class ListNotesTableFactory extends AbstractTableFactory {
             if (studySubjectId != null) {
                 StringBuilder url = new StringBuilder();
                 url.append(downloadNotesLinkBuilder(studySubjectBean));
-                value = url.toString();
             }
 
 
@@ -516,7 +507,7 @@ public class ListNotesTableFactory extends AbstractTableFactory {
     }
 
     private String formatDate(Date date) {
-        String format = resformat.getString("date_format_string");
+        String format = getDateFormat();
         SimpleDateFormat sdf = new SimpleDateFormat(format);
         return sdf.format(date);
     }

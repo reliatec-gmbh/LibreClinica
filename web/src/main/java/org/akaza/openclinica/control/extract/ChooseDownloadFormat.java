@@ -8,7 +8,6 @@
 package org.akaza.openclinica.control.extract;
 
 import org.akaza.openclinica.control.core.SecureController;
-import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 
@@ -20,7 +19,12 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
  * To change this template use File | Settings | File Templates.
  */
 public class ChooseDownloadFormat extends SecureController{
-    protected void processRequest() throws Exception {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8667766472280862827L;
+
+	protected void processRequest() throws Exception {
         //FormProcessor fp = new FormProcessor(request);
         String subjectId=request.getParameter("subjectId");
         request.setAttribute("subjectId",subjectId);

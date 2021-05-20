@@ -16,12 +16,10 @@ import org.springframework.validation.Validator;
 
 public class ItemValidator implements Validator {
 
-    private ItemDao itemDao = null;
     private ItemDataType newDataType = null;
     private ItemDataType oldDataType = null;
 
     public ItemValidator(ItemDao itemDao, ItemDataType oldDataType, ItemDataType newDataType) {
-        this.itemDao = itemDao;
         this.oldDataType = oldDataType;
         this.newDataType = newDataType;
     }

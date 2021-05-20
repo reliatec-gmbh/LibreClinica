@@ -14,13 +14,20 @@
  */
 package org.akaza.openclinica.control.submit;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.MessageFormat;
+import java.util.Locale;
+
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.rule.FileProperties;
 import org.akaza.openclinica.bean.rule.FileUploadHelper;
 import org.akaza.openclinica.bean.rule.XmlSchemaValidationHelper;
 import org.akaza.openclinica.control.SpringServletAccess;
 import org.akaza.openclinica.control.core.SecureController;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.core.CoreResources;
 import org.akaza.openclinica.domain.rule.RulesPostImportContainer;
 import org.akaza.openclinica.exception.OpenClinicaSystemException;
@@ -37,14 +44,6 @@ import org.exolab.castor.xml.ValidationException;
 import org.exolab.castor.xml.XMLContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.MessageFormat;
-import java.util.Locale;
 
 /**
  * Verify the Rule import , show records that have Errors as well as records that will be saved.
@@ -70,7 +69,7 @@ public class ImportRuleServlet extends SecureController {
         // request.setAttribute("designerURL",
         // getCoreResources().getField("designer.url"));
 
-        if (StringUtil.isBlank(action)) {
+        if (action == null || action.trim().isEmpty()) {
             forwardPage(Page.IMPORT_RULES);
 
         }
@@ -131,7 +130,6 @@ public class ImportRuleServlet extends SecureController {
         int duplicateRuleSetDefs = rulesContainer.getDuplicateRuleSetDefs().size();
         int invalidRuleSetDefs = rulesContainer.getInValidRuleSetDefs().size();
 
-        int validRuleDefs = rulesContainer.getValidRuleDefs().size();
         int duplicateRuleDefs = rulesContainer.getDuplicateRuleDefs().size();
         int invalidRuleDefs = rulesContainer.getInValidRuleDefs().size();
 

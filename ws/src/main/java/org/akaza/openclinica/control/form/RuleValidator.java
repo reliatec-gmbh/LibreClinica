@@ -9,6 +9,7 @@
  */
 package org.akaza.openclinica.control.form;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
@@ -30,12 +31,11 @@ import javax.servlet.http.HttpServletRequest;
  * 
  * @author ssachs
  */
+// TODO duplicate of the version in the web module?
 public class RuleValidator extends Validator {
-    private FormDiscrepancyNotes notes;
 
     public RuleValidator(HttpServletRequest request, FormDiscrepancyNotes notes) {
         super(request);
-        this.notes = notes;
     }
 
     public RuleValidator(HttpServletRequest request) {
@@ -43,7 +43,7 @@ public class RuleValidator extends Validator {
     }
 
     @Override
-    protected HashMap validate(String fieldName, Validation v) {
+    protected HashMap<String, ArrayList<String>> validate(String fieldName, Validation v) {
         /*
          * if (!v.isAlwaysExecuted()) { if (notes.hasNote(fieldName) ||
          * notes.getNumExistingFieldNotes(fieldName) > 0) { return errors; } }

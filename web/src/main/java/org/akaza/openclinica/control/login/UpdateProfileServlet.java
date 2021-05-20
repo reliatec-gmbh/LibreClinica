@@ -8,8 +8,6 @@
 package org.akaza.openclinica.control.login;
 
 import java.util.ArrayList;
-import java.util.Collection;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -57,7 +55,7 @@ public class UpdateProfileServlet extends SecureController {
         UserAccountDAO udao = new UserAccountDAO(sm.getDataSource());
         UserAccountBean userBean1 = (UserAccountBean) udao.findByUserName(ub.getName());
 
-        Collection studies = sdao.findAllByUser(ub.getName());
+        ArrayList<StudyBean> studies = sdao.findAllByUser(ub.getName());
 
         if (StringUtils.isBlank(action)) {
             request.setAttribute("studies", studies);
@@ -126,7 +124,7 @@ public class UpdateProfileServlet extends SecureController {
         v.addValidation("phone", Validator.NO_BLANKS);
         errors = v.validate();
         for (String err: pwdErrors) {
-            v.addError(errors, "passwd", err);
+            Validator.addError(errors, "passwd", err);
         }
 
         userBean1.setFirstName(fp.getString("firstName"));

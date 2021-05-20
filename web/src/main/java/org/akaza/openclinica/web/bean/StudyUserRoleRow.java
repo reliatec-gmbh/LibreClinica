@@ -17,7 +17,7 @@ import java.util.ArrayList;
  * TODO To change the template for this generated type comment go to Window -
  * Preferences - Java - Code Style - Code Templates
  */
-public class StudyUserRoleRow extends EntityBeanRow {
+public class StudyUserRoleRow extends EntityBeanRow<StudyUserRoleBean, StudyUserRoleRow> {
     // columns:
     public static final int COL_USERNAME = 0;
     public static final int COL_FIRSTNAME = 1;
@@ -33,13 +33,13 @@ public class StudyUserRoleRow extends EntityBeanRow {
      *      int)
      */
     @Override
-    protected int compareColumn(Object row, int sortingColumn) {
+    protected int compareColumn(StudyUserRoleRow row, int sortingColumn) {
         if (!row.getClass().equals(StudyUserRoleRow.class)) {
             return 0;
         }
 
-        StudyUserRoleBean thisAccount = (StudyUserRoleBean) bean;
-        StudyUserRoleBean argAccount = (StudyUserRoleBean) ((StudyUserRoleRow) row).bean;
+        StudyUserRoleBean thisAccount = bean;
+        StudyUserRoleBean argAccount = row.bean;
 
         int answer = 0;
         switch (sortingColumn) {
@@ -68,7 +68,7 @@ public class StudyUserRoleRow extends EntityBeanRow {
 
     @Override
     public String getSearchString() {
-        StudyUserRoleBean thisAccount = (StudyUserRoleBean) bean;
+        StudyUserRoleBean thisAccount = bean;
         return thisAccount.getUserName() + " " + thisAccount.getFirstName() + " " + thisAccount.getLastName() + " " + thisAccount.getRoleName() + " "
             + thisAccount.getStudyName();
     }
@@ -79,20 +79,17 @@ public class StudyUserRoleRow extends EntityBeanRow {
      * @see org.akaza.openclinica.core.EntityBeanRow#generatRowsFromBeans(java.util.ArrayList)
      */
     @Override
-    public ArrayList generatRowsFromBeans(ArrayList beans) {
+    public ArrayList<StudyUserRoleRow> generatRowsFromBeans(ArrayList<StudyUserRoleBean> beans) {
         return StudyUserRoleRow.generateRowsFromBeans(beans);
     }
 
-    public static ArrayList generateRowsFromBeans(ArrayList beans) {
-        ArrayList answer = new ArrayList();
-
-        Class[] parameters = null;
-        Object[] arguments = null;
+    public static ArrayList<StudyUserRoleRow> generateRowsFromBeans(ArrayList<StudyUserRoleBean> beans) {
+        ArrayList<StudyUserRoleRow> answer = new ArrayList<>();
 
         for (int i = 0; i < beans.size(); i++) {
             try {
                 StudyUserRoleRow row = new StudyUserRoleRow();
-                row.setBean((StudyUserRoleBean) beans.get(i));
+                row.setBean( beans.get(i));
                 answer.add(row);
             } catch (Exception e) {
             }

@@ -7,23 +7,21 @@
  */
 package org.akaza.openclinica.controller.helper;
 
-import org.akaza.openclinica.dao.managestudy.StudyDAO;
-import org.akaza.openclinica.dao.service.StudyParameterValueDAO;
-import org.akaza.openclinica.dao.service.StudyConfigService;
-import org.akaza.openclinica.bean.managestudy.StudyBean;
+import java.util.ArrayList;
+
+import javax.servlet.http.HttpSession;
+import javax.sql.DataSource;
+
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.login.StudyUserRoleBean;
 import org.akaza.openclinica.bean.login.UserAccountBean;
+import org.akaza.openclinica.bean.managestudy.StudyBean;
+import org.akaza.openclinica.bean.service.StudyParamsConfig;
+import org.akaza.openclinica.dao.managestudy.StudyDAO;
+import org.akaza.openclinica.dao.service.StudyConfigService;
+import org.akaza.openclinica.dao.service.StudyParameterValueDAO;
 import org.akaza.openclinica.view.StudyInfoPanel;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-
-import javax.servlet.http.HttpSession;
-import javax.sql.DataSource;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Iterator;
 
 /**
  *This class has been created from the existing SecureController to implement the
@@ -61,7 +59,7 @@ public class SetUpStudyRole {
             StudyParameterValueDAO spvdao = new StudyParameterValueDAO(dataSource);
             currentStudy = (StudyBean) sdao.findByPK(userAccountBean.getActiveStudyId());
 
-            ArrayList studyParameters = spvdao.findParamConfigByStudy(currentStudy);
+            ArrayList<StudyParamsConfig> studyParameters = spvdao.findParamConfigByStudy(currentStudy);
 
             currentStudy.setStudyParameters(studyParameters);
 
@@ -103,9 +101,8 @@ public class SetUpStudyRole {
         if (currentStudy.getParentStudyId() > 0) {
             /*The Role decription will be set depending on whether the user logged in at
        study lever or site level. issue-2422*/
-            List roles = Role.toArrayList();
-            for (Iterator it = roles.iterator(); it.hasNext();) {
-                Role role = (Role) it.next();
+            ArrayList<Role> roles = Role.toArrayList();
+            for (Role role : roles) {
                 switch (role.getId()) {
                     case 2:
                         role.setDescription("site_Study_Coordinator");
@@ -131,9 +128,8 @@ public class SetUpStudyRole {
             }
         } else {
             /*If the current study is a site, we will change the role description. issue-2422*/
-            List roles = Role.toArrayList();
-            for (Iterator it = roles.iterator(); it.hasNext();) {
-                Role role = (Role) it.next();
+            ArrayList<Role> roles = Role.toArrayList();
+            for (Role role : roles) {
                 switch (role.getId()) {
                     case 2:
                         role.setDescription("Study_Coordinator");

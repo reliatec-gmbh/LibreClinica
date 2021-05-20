@@ -19,8 +19,12 @@ import org.akaza.openclinica.bean.login.UserAccountBean;
  * @author jxu
  *
  */
-public class DiscrepancyNoteBean extends AuditableEntityBean implements Comparable {
-    // discrepancy_note_id serial NOT NULL,
+public class DiscrepancyNoteBean extends AuditableEntityBean implements Comparable<DiscrepancyNoteBean> {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 761123091715493594L;
+	// discrepancy_note_id serial NOT NULL,
     // description varchar(255),
     // discrepancy_note_type_id numeric,
     // resolution_status_id numeric,
@@ -40,7 +44,7 @@ public class DiscrepancyNoteBean extends AuditableEntityBean implements Comparab
     private String column = "";// not in DB
     private int entityId = 0;
     private String field = "";
-    private ArrayList children = new ArrayList();// not in DB
+    private ArrayList<DiscrepancyNoteBean> children = new ArrayList<>();// not in DB
     private int studyId = 0;
     // added by BWP; 5/09/08;
     private int eventCRFId = 0;
@@ -143,7 +147,7 @@ public class DiscrepancyNoteBean extends AuditableEntityBean implements Comparab
     	activated = true;
         disType = DiscrepancyNoteType.QUERY;
         resStatus = ResolutionStatus.OPEN;
-        children = new ArrayList();
+        children = new ArrayList<>();
         lastUpdator = new UserAccountBean();
     }
 
@@ -225,7 +229,7 @@ public class DiscrepancyNoteBean extends AuditableEntityBean implements Comparab
     /**
      * @return Returns the children.
      */
-    public ArrayList getChildren() {
+    public ArrayList<DiscrepancyNoteBean> getChildren() {
         return children;
     }
 
@@ -233,7 +237,7 @@ public class DiscrepancyNoteBean extends AuditableEntityBean implements Comparab
      * @param children
      *            The children to set.
      */
-    public void setChildren(ArrayList children) {
+    public void setChildren(ArrayList<DiscrepancyNoteBean> children) {
         this.children = children;
     }
 
@@ -548,13 +552,8 @@ public class DiscrepancyNoteBean extends AuditableEntityBean implements Comparab
         this.studySub = studySub;
     }
 
-    public int compareTo(Object o) {
-        if (!o.getClass().equals(this.getClass())) {
-            return 0;
-        }
-
-        DiscrepancyNoteBean discBean2 = (DiscrepancyNoteBean) o;
-        return this.getId() > discBean2.getId() ? 1 : -1;
+    public int compareTo(DiscrepancyNoteBean o) {
+        return Integer.valueOf(this.getId()).compareTo(o.getId());
     }
 
     public UserAccountBean getAssignedUser() {

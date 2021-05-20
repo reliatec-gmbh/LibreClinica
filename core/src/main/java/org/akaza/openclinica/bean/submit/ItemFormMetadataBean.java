@@ -8,13 +8,16 @@
 package org.akaza.openclinica.bean.submit;
 
 import org.akaza.openclinica.bean.core.EntityBean;
-import org.akaza.openclinica.core.form.StringUtil;
 
 /**
  * @author ssachs
  */
-public class ItemFormMetadataBean extends EntityBean implements Comparable {
-    //
+public class ItemFormMetadataBean extends EntityBean implements Comparable<ItemFormMetadataBean> {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6978568484486189104L;
+	//
     private int itemId;
     private int crfVersionId;
     private String header;
@@ -267,7 +270,7 @@ public class ItemFormMetadataBean extends EntityBean implements Comparable {
      */
     public void setDefaultValue(String defaults) {
 
-        if (!StringUtil.isBlank(defaults)) {
+        if (!(defaults == null || defaults.trim().isEmpty())) {
             String[] defaults2 = defaults.split(",", -1);
 
             for (int i = 0; i < defaults2.length; i++) {
@@ -657,11 +660,8 @@ public class ItemFormMetadataBean extends EntityBean implements Comparable {
         this.responseLayout = responseLayout;
     }
 
-    public int compareTo(Object o) {
-        if (o == null || !(o instanceof ItemFormMetadataBean)) {
-            return 1;
-        }
-        int ordinal = ((ItemFormMetadataBean) o).getOrdinal();
+    public int compareTo(ItemFormMetadataBean o) {
+        int ordinal = o.getOrdinal();
         return Integer.valueOf(this.getOrdinal()).compareTo(ordinal);
     }
 

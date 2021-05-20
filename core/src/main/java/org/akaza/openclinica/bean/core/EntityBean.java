@@ -14,7 +14,11 @@ package org.akaza.openclinica.bean.core;
  */
 public class EntityBean implements java.io.Serializable {
 
-    // ss - changed visibility of these fields so Term could see them
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 2103889188534560541L;
+	// ss - changed visibility of these fields so Term could see them
     // think we should change all fields to protected here
     protected String name;
     protected int id;

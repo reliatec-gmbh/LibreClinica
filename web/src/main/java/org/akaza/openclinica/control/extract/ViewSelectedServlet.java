@@ -7,14 +7,22 @@
  */
 package org.akaza.openclinica.control.extract;
 
+import static org.akaza.openclinica.core.util.ClassCastHelper.asArrayList;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Locale;
+
+import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.extract.DatasetBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
+import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
+import org.akaza.openclinica.bean.managestudy.StudyGroupClassBean;
 import org.akaza.openclinica.bean.submit.ItemBean;
 import org.akaza.openclinica.bean.submit.ItemFormMetadataBean;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.admin.CRFDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.managestudy.StudyGroupClassDAO;
@@ -24,10 +32,6 @@ import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Locale;
-
 /**
  * @author jxu
  *
@@ -36,7 +40,11 @@ import java.util.Locale;
  */
 public class ViewSelectedServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 5458397988268565354L;
+	Locale locale;
 
     // < ResourceBundlerestext,resexception,respage;
 
@@ -69,7 +77,7 @@ public class ViewSelectedServlet extends SecureController {
      * of code -- need to create a superclass which will contain this class, tbh
      */
     public void setUpStudyGroups() {
-        ArrayList sgclasses = (ArrayList) session.getAttribute("allSelectedGroups");
+        ArrayList<StudyGroupClassBean> sgclasses = asArrayList(session.getAttribute("allSelectedGroups"), StudyGroupClassBean.class);
         if (sgclasses == null || sgclasses.size() == 0) {
             StudyDAO studydao = new StudyDAO(sm.getDataSource());
             StudyGroupClassDAO sgclassdao = new StudyGroupClassDAO(sm.getDataSource());
@@ -85,16 +93,17 @@ public class ViewSelectedServlet extends SecureController {
     public void processRequest() throws Exception {
 
         DatasetBean db = (DatasetBean) session.getAttribute("newDataset");
-        HashMap events = (HashMap) session.getAttribute(CreateDatasetServlet.EVENTS_FOR_CREATE_DATASET);
+        @SuppressWarnings("unchecked")
+		HashMap<StudyEventDefinitionBean, ArrayList<CRFBean>> events = (HashMap<StudyEventDefinitionBean, ArrayList<CRFBean>>) session.getAttribute(CreateDatasetServlet.EVENTS_FOR_CREATE_DATASET);
         if (events == null) {
-            events = new HashMap();
+            events = new HashMap<>();
         }
         request.setAttribute("eventlist", events);
 
         CRFDAO crfdao = new CRFDAO(sm.getDataSource());
         ItemDAO idao = new ItemDAO(sm.getDataSource());
         ItemFormMetadataDAO imfdao = new ItemFormMetadataDAO(sm.getDataSource());
-        ArrayList ids = CreateDatasetServlet.allSedItemIdsInStudy(events, crfdao, idao);// new
+        ArrayList<String> ids = CreateDatasetServlet.allSedItemIdsInStudy(events, crfdao, idao);// new
                                                                                         // ArrayList();
         // ArrayList allItemsInStudy = EditSelectedServlet.selectAll(events,
         // crfdao, idao);
@@ -107,7 +116,7 @@ public class ViewSelectedServlet extends SecureController {
         // }
         session.setAttribute("numberOfStudyItems", new Integer(ids.size()).toString());
 
-        ArrayList items = new ArrayList();
+        ArrayList<ItemBean> items = new ArrayList<>();
         if (db == null || db.getItemIds().size() == 0) {
             session.setAttribute("allSelectedItems", items);
             setUpStudyGroups();// FIXME can it be that we have no selected
@@ -123,7 +132,7 @@ public class ViewSelectedServlet extends SecureController {
 
         FormProcessor fp = new FormProcessor(request);
         String status = fp.getString("status");
-        if (!StringUtil.isBlank(status) && "html".equalsIgnoreCase(status)) {
+        if (!(status == null || status.trim().isEmpty()) && "html".equalsIgnoreCase(status)) {
             forwardPage(Page.CREATE_DATASET_VIEW_SELECTED_HTML);
         } else {
             setUpStudyGroups();
@@ -132,20 +141,15 @@ public class ViewSelectedServlet extends SecureController {
 
     }
 
-    public static ArrayList getAllSelected(DatasetBean db, ItemDAO idao, ItemFormMetadataDAO imfdao) throws Exception {
-        ArrayList items = new ArrayList();
+    public static ArrayList<ItemBean> getAllSelected(DatasetBean db, ItemDAO idao, ItemFormMetadataDAO imfdao) throws Exception {
+        ArrayList<ItemBean> items = new ArrayList<>();
         // ArrayList itemIds = db.getItemIds();
-        ArrayList itemDefCrfs = db.getItemDefCrf();
+        ArrayList<ItemBean> itemDefCrfs = db.getItemDefCrf();
 
         for (int i = 0; i < itemDefCrfs.size(); i++) {
             ItemBean item = (ItemBean) itemDefCrfs.get(i);
             item.setSelected(true);
-            ArrayList metas = imfdao.findAllByItemId(item.getId());
-            for (int h = 0; h < metas.size(); h++) {
-                ItemFormMetadataBean ifmb = (ItemFormMetadataBean) metas.get(h);
-                // logger.info("group name found:
-                // "+ifmb.getGroupLabel());
-            }
+            ArrayList<ItemFormMetadataBean> metas = imfdao.findAllByItemId(item.getId());
             item.setItemMetas(metas);
             items.add(item);
         }

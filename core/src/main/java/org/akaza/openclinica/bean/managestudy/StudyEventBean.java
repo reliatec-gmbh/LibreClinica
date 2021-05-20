@@ -11,6 +11,7 @@ import org.akaza.openclinica.bean.core.AuditableEntityBean;
 import org.akaza.openclinica.bean.core.DataEntryStage;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.core.SubjectEventStatus;
+import org.akaza.openclinica.bean.submit.EventCRFBean;
 import org.akaza.openclinica.patterns.ocobserver.Listener;
 import org.akaza.openclinica.patterns.ocobserver.Observer;
 
@@ -22,7 +23,12 @@ import java.util.Date;
  *
  */
 public class StudyEventBean extends AuditableEntityBean implements Listener {
-    // STUDY_EVENT_ID STUDY_EVENT_DEFINITION_ID SUBJECT_ID
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -5869857926912602370L;
+
+	// STUDY_EVENT_ID STUDY_EVENT_DEFINITION_ID SUBJECT_ID
     // LOCATION SAMPLE_ORDINAL DATE_START DATE_END
     // OWNER_ID STATUS_ID DATE_CREATED DATE_UPDATED
     // UPDATE_ID
@@ -44,7 +50,7 @@ public class StudyEventBean extends AuditableEntityBean implements Listener {
     private StudyEventDefinitionBean studyEventDefinition =
       new StudyEventDefinitionBean();
 
-    private ArrayList eventCRFs = new ArrayList();// not in DB
+    private ArrayList<EventCRFBean> eventCRFs = new ArrayList<>();// not in DB
 
     private DataEntryStage stage;
 
@@ -282,7 +288,7 @@ public class StudyEventBean extends AuditableEntityBean implements Listener {
     /**
      * @return Returns the eventCRFs.
      */
-    public ArrayList getEventCRFs() {
+    public ArrayList<EventCRFBean> getEventCRFs() {
         return eventCRFs;
     }
 
@@ -290,7 +296,7 @@ public class StudyEventBean extends AuditableEntityBean implements Listener {
      * @param eventCRFs
      *            The eventCRFs to set.
      */
-    public void setEventCRFs(ArrayList eventCRFs) {
+    public void setEventCRFs(ArrayList<EventCRFBean> eventCRFs) {
         this.eventCRFs = eventCRFs;
     }
 

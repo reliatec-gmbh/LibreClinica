@@ -17,7 +17,12 @@ package org.akaza.openclinica.exception;
  */
 
 public class MultipleItemValuesFoundInXMLParsingException extends Exception {
-    public MultipleItemValuesFoundInXMLParsingException() {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -8856306424785385578L;
+
+	public MultipleItemValuesFoundInXMLParsingException() {
         super();
     }
 

@@ -59,11 +59,11 @@ import java.util.Date;
  * @see EntityBeanTable
  * @see UserAccountRow
  */
-public abstract class EntityBeanRow implements Comparable {
+public abstract class EntityBeanRow<B extends EntityBean, R> implements Comparable<R> {
     /**
      * The object which will be displayed.
      */
-    protected EntityBean bean;
+    protected B bean;
 
     /**
      * The column we are sorting by.
@@ -77,7 +77,6 @@ public abstract class EntityBeanRow implements Comparable {
     private boolean ascendingSort;
 
     public EntityBeanRow() {
-        bean = new EntityBean();
         sortingColumn = 0;
         ascendingSort = true;
     }
@@ -105,14 +104,15 @@ public abstract class EntityBeanRow implements Comparable {
      *         the specified column 1 if this row has a value in the specified
      *         column that is greater than the argument row's
      */
-    protected abstract int compareColumn(Object row, int sortingColumn);
+    protected abstract int compareColumn(R row, int sortingColumn);
 
     /*
      * (non-Javadoc)
      *
      * @see java.lang.Comparable#compareTo(java.lang.Object)
      */
-    public int compareTo(Object row) {
+    @Override
+    public int compareTo(R row) {
         if (ascendingSort) {
             return compareColumn(row, sortingColumn);
         } else {
@@ -185,12 +185,12 @@ public abstract class EntityBeanRow implements Comparable {
      *         element in the result has its bean property set to the
      *         corresponding value in the beans argument.
      */
-    public abstract ArrayList generatRowsFromBeans(ArrayList beans);
+    public abstract ArrayList<R> generatRowsFromBeans(ArrayList<B> beans);
 
     /**
      * @return Returns the bean.
      */
-    public EntityBean getBean() {
+    public B getBean() {
         return bean;
     }
 
@@ -198,7 +198,7 @@ public abstract class EntityBeanRow implements Comparable {
      * @param bean
      *            The bean to set.
      */
-    public void setBean(EntityBean bean) {
+    public void setBean(B bean) {
         this.bean = bean;
     }
 

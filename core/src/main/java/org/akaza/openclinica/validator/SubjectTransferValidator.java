@@ -36,7 +36,7 @@ public class SubjectTransferValidator implements Validator {
         this.dataSource = dataSource;
     }
 
-    public boolean supports(Class clazz) {
+    public boolean supports(Class<?> clazz) {
         return SubjectTransferBean.class.equals(clazz);
     }
 

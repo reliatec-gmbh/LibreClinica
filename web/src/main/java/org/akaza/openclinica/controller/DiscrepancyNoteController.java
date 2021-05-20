@@ -7,9 +7,6 @@
  */
 package org.akaza.openclinica.controller;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 
@@ -31,7 +28,7 @@ import org.akaza.openclinica.dao.managestudy.StudyEventDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDefinitionDAO;
 import org.akaza.openclinica.dao.managestudy.StudySubjectDAO;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,7 +59,7 @@ public class DiscrepancyNoteController {
 	DiscrepancyNoteDAO dnDao;
 
 	@RequestMapping(value = "/dnote", method = RequestMethod.POST)
-	public ResponseEntity buidDiscrepancyNote(@RequestBody HashMap<String, String> map, HttpServletRequest request) throws Exception {
+	public ResponseEntity<?> buidDiscrepancyNote(@RequestBody HashMap<String, String> map, HttpServletRequest request) throws Exception {
 		ResourceBundleProvider.updateLocale(new Locale("en_US"));
 		logger.debug("I'm in EnketoForm DN Rest Method");
 		org.springframework.http.HttpStatus httpStatus = null;
@@ -74,7 +71,6 @@ public class DiscrepancyNoteController {
 		String noteType = map.get("NoteType");
 		String resolutionStatus = map.get("Status");
 		String assignedUser = map.get("AssignedUser");
-		String owner = map.get("Owner");
 		String description = map.get("Description");
 		String detailedNotes = map.get("DetailedNote");
 		String dn_id = map.get("DN_Id");
@@ -98,7 +94,7 @@ public class DiscrepancyNoteController {
 		
 		if (!mayProceed(resolutionStatus, noteType, seBean, entityName, parent, ownerBean)) {
 			httpStatus = org.springframework.http.HttpStatus.BAD_REQUEST;
-			return new ResponseEntity(httpStatus);
+			return new ResponseEntity<>(httpStatus);
 		}
 
 		if (!parent.isActive()){
@@ -108,51 +104,13 @@ public class DiscrepancyNoteController {
 			createDiscrepancyNoteBean(description, detailedNotes, seBean.getId(), entityType, studyBean, ownerBean, assignedUserBean, parent.getId(), resolutionStatus, noteType, entityName);
 			httpStatus = org.springframework.http.HttpStatus.OK;
 		}
-		return new ResponseEntity(httpStatus);
-	}
-
-	private StudyBean getParentStudy(Integer studyId) {
-		StudyBean study = getStudy(studyId);
-		if (study.getParentStudyId() == 0) {
-			return study;
-		} else {
-			StudyBean parentStudy = (StudyBean) sdao.findByPK(study.getParentStudyId());
-			return parentStudy;
-		}
-
-	}
-
-	private StudyBean getParentStudy(String studyOid) {
-		StudyBean study = getStudy(studyOid);
-		if (study.getParentStudyId() == 0) {
-			return study;
-		} else {
-			StudyBean parentStudy = (StudyBean) sdao.findByPK(study.getParentStudyId());
-			return parentStudy;
-		}
-
+		return new ResponseEntity<>(httpStatus);
 	}
 
 	private StudyBean getStudy(Integer id) {
 		sdao = new StudyDAO(dataSource);
 		StudyBean studyBean = (StudyBean) sdao.findByPK(id);
 		return studyBean;
-	}
-
-	private StudyBean getStudy(String oid) {
-		sdao = new StudyDAO(dataSource);
-		StudyBean studyBean = (StudyBean) sdao.findByOid(oid);
-		return studyBean;
-	}
-
-	private Date getDate(String dateInString) throws ParseException {
-		SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy");
-		Date date = formatter.parse(dateInString);
-
-		logger.debug("{}", date);
-		logger.debug("{}", formatter.format(date));
-
-		return date;
 	}
 
 	public void saveFieldNotes(String description, String detailedNotes, int entityId, String entityType, StudyBean sb, UserAccountBean ownerBean, UserAccountBean assignedUserBean,

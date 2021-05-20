@@ -15,12 +15,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 import javax.sql.DataSource;
 
+import org.akaza.openclinica.bean.submit.ItemBean;
 import org.akaza.openclinica.dao.core.DAODigester;
 import org.akaza.openclinica.dao.core.SQLFactory;
 import org.akaza.openclinica.exception.OpenClinicaException;
@@ -28,34 +27,36 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * <P>
  * The workhorse for instrument generation, the NewInstrumentBean holds some
  * information, but also updates and inserts rows in the database, using the
  * insertToDB method.
  * </p>
- * <P>
- * Currently, we do not make use of dbInstructions yet.
  * 
  * @author thickerson
  * @version 1.1 modified by jxu
  */
 public class NewCRFBean extends Object implements java.io.Serializable {
 
-    private DataSource ds;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -944286331687109855L;
+	private DataSource ds;
     private DAODigester digester;
 
-    private ArrayList queries = new ArrayList();
-    private ArrayList errors = new ArrayList();
-    private ArrayList deleteQueries = new ArrayList();
-    private ArrayList deleteErrors = new ArrayList();
+    private ArrayList<String> queries = new ArrayList<>();
+    private ArrayList<String> errors = new ArrayList<>();
+    private ArrayList<String> deleteQueries = new ArrayList<>();
+    private ArrayList<String> deleteErrors = new ArrayList<>();
     private String htmlTable = null;
-    private HashMap dbInstructions = new HashMap();
-    private HashMap itemNames = new HashMap();
-    private HashMap itemQueries = new HashMap();// queries to insert items
-    private HashMap crfVersions = new HashMap();
-    private HashMap items = new HashMap();// construct itemBeans and save them
-    private HashMap backupItemQueries = new HashMap();
+    private HashMap<String, String> itemNames = new HashMap<>();
+    private HashMap<String, String> itemQueries = new HashMap<>();// queries to insert items
+    private HashMap<String, String> crfVersions = new HashMap<>();
+    private HashMap<String, ItemBean> items = new HashMap<>();// construct itemBeans and save them
+    private HashMap<String, String> backupItemQueries = new HashMap<>();
     private int crfId = 0;
-    private HashMap itemGroupNames = new HashMap();
+    private HashMap<String, String> itemGroupNames = new HashMap<>();
     // YW 08-22-2007, version name for this new CRF version
     private String versionName = "";
 
@@ -72,20 +73,20 @@ public class NewCRFBean extends Object implements java.io.Serializable {
         } catch (Exception pe) {
             pe.printStackTrace();
             logger.debug("hit an exception in creating new crf bean;" + " empty item name list exists");
-            this.setItemNames(new HashMap());
-            this.setCrfVersions(new HashMap());
+            this.setItemNames(new HashMap<>());
+            this.setCrfVersions(new HashMap<>());
         }
     }
 
-    public void setQueries(ArrayList q) {
+    public void setQueries(ArrayList<String> q) {
         this.queries = q;
     }
 
-    public void setDeleteQueries(ArrayList q) {
+    public void setDeleteQueries(ArrayList<String> q) {
         this.deleteQueries = q;
     }
 
-    public void setBackupItemQueries(HashMap q) {
+    public void setBackupItemQueries(HashMap<String, String> q) {
         this.backupItemQueries = q;
     }
 
@@ -103,7 +104,7 @@ public class NewCRFBean extends Object implements java.io.Serializable {
     /**
      * @return the itemGroupNames
      */
-    public HashMap getItemGroupNames() {
+    public HashMap<String, String> getItemGroupNames() {
         return itemGroupNames;
     }
 
@@ -111,15 +112,15 @@ public class NewCRFBean extends Object implements java.io.Serializable {
      * @param itemGroupNames
      *            the itemGroupNames to set
      */
-    public void setItemGroupNames(HashMap itemGroupNames) {
+    public void setItemGroupNames(HashMap<String, String> itemGroupNames) {
         this.itemGroupNames = itemGroupNames;
     }
 
-    public void setErrors(ArrayList e) {
+    public void setErrors(ArrayList<String> e) {
         this.errors = e;
     }
 
-    public void setDeleteErrors(ArrayList e) {
+    public void setDeleteErrors(ArrayList<String> e) {
         this.deleteErrors = e;
     }
 
@@ -127,27 +128,23 @@ public class NewCRFBean extends Object implements java.io.Serializable {
         this.htmlTable = h;
     }
 
-    public void setDbInstructions(HashMap d) {
-        this.dbInstructions = d;
-    }
-
-    public void setCrfVersions(HashMap hm) {
+    public void setCrfVersions(HashMap<String, String> hm) {
         this.crfVersions = hm;
     }
 
-    public ArrayList getQueries() {
+    public ArrayList<String> getQueries() {
         return queries;
     }
 
-    public ArrayList getDeleteQueries() {
+    public ArrayList<String> getDeleteQueries() {
         return deleteQueries;
     }
 
-    public ArrayList getErrors() {
+    public ArrayList<String> getErrors() {
         return errors;
     }
 
-    public ArrayList getDeleteErrors() {
+    public ArrayList<String> getDeleteErrors() {
         return deleteErrors;
     }
 
@@ -155,39 +152,35 @@ public class NewCRFBean extends Object implements java.io.Serializable {
         return htmlTable;
     }
 
-    public HashMap getDbInstructions() {
-        return dbInstructions;
-    }
-
-    public void setItemNames(HashMap hm) {
+    public void setItemNames(HashMap<String, String> hm) {
         this.itemNames = hm;
     }
 
-    public HashMap getItemNames() {
+    public HashMap<String, String> getItemNames() {
         return itemNames;
     }
 
-    public void setItems(HashMap hm) {
+    public void setItems(HashMap<String, ItemBean> hm) {
         this.items = hm;
     }
 
-    public HashMap getItems() {
+    public HashMap<String, ItemBean> getItems() {
         return items;
     }
 
-    public void setItemQueries(HashMap hm) {
+    public void setItemQueries(HashMap<String, String> hm) {
         this.itemQueries = hm;
     }
 
-    public HashMap getItemQueries() {
+    public HashMap<String, String> getItemQueries() {
         return itemQueries;
     }
 
-    public HashMap getBackupItemQueries() {
+    public HashMap<String, String> getBackupItemQueries() {
         return backupItemQueries;
     }
 
-    public HashMap getCrfVersions() {
+    public HashMap<String, String> getCrfVersions() {
         return crfVersions;
     }
 
@@ -199,7 +192,7 @@ public class NewCRFBean extends Object implements java.io.Serializable {
         this.versionName = vn;
     }
 
-    public HashMap listVersionNames() throws OpenClinicaException {
+    public HashMap<String, String> listVersionNames() throws OpenClinicaException {
         /*
          * serves up a list of all crf names and versions, necessary for
          * checking for duplicates. Added by tbh, 7-25-03
@@ -207,7 +200,7 @@ public class NewCRFBean extends Object implements java.io.Serializable {
         PreparedStatement ps = null;
         Connection con = null;
         ResultSet rs = null;
-        HashMap returnMe = new HashMap();
+        HashMap<String, String> returnMe = new HashMap<>();
         String sql = digester.getQuery("findVersionNamesForCRF");
 
         try {
@@ -249,7 +242,7 @@ public class NewCRFBean extends Object implements java.io.Serializable {
 
     }
 
-    public HashMap listItemNames(int crfId) throws OpenClinicaException {
+    public HashMap<String, String> listItemNames(int crfId) throws OpenClinicaException {
         /*
          * serves up a list of all item names in a CRF, necessary for checking
          * for duplicates and creating new items. Added by tbh, 7-25-03
@@ -257,7 +250,7 @@ public class NewCRFBean extends Object implements java.io.Serializable {
         PreparedStatement ps = null;
         Connection con = null;
         ResultSet rs = null;
-        HashMap returnMe = new HashMap();
+        HashMap<String, String> returnMe = new HashMap<>();
         String sql = digester.getQuery("findItemNamesByCRF");
         logger.debug("crf id: *******" + crfId);
         try {
@@ -299,7 +292,7 @@ public class NewCRFBean extends Object implements java.io.Serializable {
 
     }
 
-    public HashMap listGroupNames(int crfId) throws OpenClinicaException {
+    public HashMap<String, String> listGroupNames(int crfId) throws OpenClinicaException {
         /*
          * serves up a list of all item group names in a CRF, necessary for
          * checking for duplicates and creating new items.
@@ -307,7 +300,7 @@ public class NewCRFBean extends Object implements java.io.Serializable {
         PreparedStatement ps = null;
         Connection con = null;
         ResultSet rs = null;
-        HashMap returnMe = new HashMap();
+        HashMap<String, String> returnMe = new HashMap<>();
         String sql = digester.getQuery("findItemGroupNamesByCRF");
         try {
             con = ds.getConnection();
@@ -356,10 +349,11 @@ public class NewCRFBean extends Object implements java.io.Serializable {
          */
         PreparedStatement s = null;
         PreparedStatement ps = null;
+        PreparedStatement ps_update = null;
         Connection con = null;
         ResultSet rs = null;
         ResultSet rs2 = null;
-        ArrayList error = new ArrayList();
+        ArrayList<String> error = new ArrayList<>();
         int count = 0;
         try {
 
@@ -372,10 +366,8 @@ public class NewCRFBean extends Object implements java.io.Serializable {
             // commenting this out temporarily so that mistakes are not made,
             // tbh 8-13
             con.setAutoCommit(false);
-            Set mySet = itemQueries.entrySet();
             logger.debug("---start of item query generation here---");
-            for (Iterator itvl = mySet.iterator(); itvl.hasNext();) {
-                Map.Entry ment = (Map.Entry) itvl.next();
+            for(Map.Entry<String, String> ment : itemQueries.entrySet()) {
                 String pQuery = (String) ment.getValue();
                 s = con.prepareStatement(pQuery);
                 logger.debug(pQuery);
@@ -417,14 +409,14 @@ public class NewCRFBean extends Object implements java.io.Serializable {
                 if (rs.next()) {
                     // do nothing on purpose? no, we check to see if it was null
                     // first
-                    int test = rs.getInt(1);
+                    rs.getInt(1);
                     if (rs.wasNull()) {
 
                         String sql2 = digester.getQuery("updateDefaultVersion");
-                        ps = con.prepareStatement(sql2);
-                        ps.setInt(1, crfId);
-                        ps.setInt(2, crfId);
-                        if (ps.executeUpdate() != 1) {
+                        ps_update = con.prepareStatement(sql2);
+                        ps_update.setInt(1, crfId);
+                        ps_update.setInt(2, crfId);
+                        if (ps_update.executeUpdate() != 1) {
                             throw new OpenClinicaException("error, updated more than one row, smart assigner part of insertToDB, NewCRFBean", "");
                         }
                         // }
@@ -481,6 +473,8 @@ public class NewCRFBean extends Object implements java.io.Serializable {
                     s.close();
                 if (ps != null)
                     ps.close();
+                if (ps_update != null)
+                	ps.close();
                 if (rs != null)
                     rs.close();
                 if (rs2 != null)
@@ -499,7 +493,7 @@ public class NewCRFBean extends Object implements java.io.Serializable {
         Connection con = null;
         ResultSet rs = null;
         ResultSet rs2 = null;
-        ArrayList error = new ArrayList();
+        ArrayList<String> error = new ArrayList<>();
         int count = 0;
         try {
 
@@ -515,7 +509,7 @@ public class NewCRFBean extends Object implements java.io.Serializable {
             // delete version and related info
             int last = deleteQueries.size();
             for (int th = 0; th < last; th++) {
-                String query = (String) deleteQueries.get(th);// it.next();
+                String query = deleteQueries.get(th);// it.next();
                 count = th;
                 s = con.prepareStatement(query);
                 // logger.info(query);
@@ -606,6 +600,7 @@ public class NewCRFBean extends Object implements java.io.Serializable {
         Connection con = null;
         ResultSet rs = null;
         PreparedStatement prep_statement = null;
+        PreparedStatement update_statement = null;
         ArrayList<String> error = new ArrayList<String>();
         String cur_query = null;
         try {
@@ -617,7 +612,7 @@ public class NewCRFBean extends Object implements java.io.Serializable {
             con.setAutoCommit(false);
 
             // delete version and related info
-            for (String dQuery : (ArrayList<String>) deleteQueries) {
+            for (String dQuery : deleteQueries) {
                 logger.debug(dQuery);
                 cur_query = dQuery;
                 if (cur_query == null || cur_query.trim().length() < 1) {
@@ -674,10 +669,10 @@ public class NewCRFBean extends Object implements java.io.Serializable {
                     // first
                     if (rs.wasNull()) {
                         String sql2 = digester.getQuery("updateDefaultVersion");
-                        prep_statement = con.prepareStatement(sql2);
-                        prep_statement.setInt(1, crfId);
-                        prep_statement.setInt(2, crfId);
-                        if (prep_statement.executeUpdate() != 1) {
+                        update_statement = con.prepareStatement(sql2);
+                        update_statement.setInt(1, crfId);
+                        update_statement.setInt(2, crfId);
+                        if (update_statement.executeUpdate() != 1) {
                             throw new OpenClinicaException("error, updated more than one row, smart assigner part of insertToDB, NewCRFBean", "");
                         }
                     }
@@ -729,6 +724,8 @@ public class NewCRFBean extends Object implements java.io.Serializable {
                     statement.close();
                 if (prep_statement != null)
                     prep_statement.close();
+                if (update_statement != null)
+                	update_statement.close();
                 if (rs != null)
                     rs.close();
 

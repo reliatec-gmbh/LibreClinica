@@ -10,6 +10,7 @@ package org.akaza.openclinica.view.display;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.ServletContext;
 import javax.sql.DataSource;
 
 import org.akaza.openclinica.bean.managestudy.EventDefinitionCRFBean;
@@ -21,13 +22,9 @@ import org.akaza.openclinica.bean.submit.SectionBean;
 import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDAO;
-import org.akaza.openclinica.dao.submit.CRFVersionDAO;
 import org.akaza.openclinica.dao.submit.EventCRFDAO;
 import org.akaza.openclinica.dao.submit.SectionDAO;
 import org.akaza.openclinica.view.form.FormBeanUtil;
-import org.akaza.openclinica.view.form.ViewPersistanceHandler;
-
-import javax.servlet.ServletContext;
 
 /**
  * This class handles the responsibility for generating a List of
@@ -35,7 +32,6 @@ import javax.servlet.ServletContext;
  * class is used by PrintCRFServlet and PrintDataEntryServlet.
  */
 public class DisplaySectionBeanHandler {
-    private boolean hasStoredData = false;
     private int crfVersionId;
     private int eventCRFId;
     private List<DisplaySectionBean> displaySectionBeans;
@@ -43,7 +39,6 @@ public class DisplaySectionBeanHandler {
     private DataSource dataSource;
 
     public DisplaySectionBeanHandler(boolean dataEntry) {
-        this.hasStoredData = dataEntry;
     }
 
     public DisplaySectionBeanHandler(boolean dataEntry, DataSource dataSource, ServletContext context) {
@@ -83,17 +78,13 @@ public class DisplaySectionBeanHandler {
      */
     public List<DisplaySectionBean> getDisplaySectionBeans() {
         FormBeanUtil formBeanUtil;
-        ViewPersistanceHandler persistanceHandler;
         ArrayList<SectionBean> allCrfSections;
         // DAO classes for getting item definitions
         SectionDAO sectionDao;
-        CRFVersionDAO crfVersionDao;
 
         if (displaySectionBeans == null) {
             displaySectionBeans = new ArrayList<DisplaySectionBean>();
             formBeanUtil = new FormBeanUtil();
-            if (hasStoredData)
-                persistanceHandler = new ViewPersistanceHandler();
 
             // We need a CRF version id to populate the form display
             if (this.crfVersionId == 0) {
@@ -101,7 +92,7 @@ public class DisplaySectionBeanHandler {
             }
 
             sectionDao = new SectionDAO(dataSource);
-            allCrfSections = (ArrayList) sectionDao.findByVersionId(this.crfVersionId);
+            allCrfSections = sectionDao.findByVersionId(this.crfVersionId);
 
             // for the purposes of null values, try to obtain a valid
             // eventCrfDefinition id

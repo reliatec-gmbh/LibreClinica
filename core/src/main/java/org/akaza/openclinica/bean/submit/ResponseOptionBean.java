@@ -14,6 +14,11 @@ import java.io.Serializable;
  */
 public class ResponseOptionBean implements Serializable {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 949231303630146100L;
+
+	/**
      * This will be displayed to the user.
      */
     private String text;

@@ -7,12 +7,12 @@
  */
 package org.akaza.openclinica.view.form;
 
+import java.util.List;
+import java.util.Random;
+
 import org.akaza.openclinica.bean.submit.ResponseOptionBean;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
 import org.jdom.Element;
-
-import java.util.List;
-import java.util.Random;
 
 /**
  * Using the Decorator design pattern, this class adds functionality to
@@ -21,14 +21,13 @@ import java.util.Random;
 public class DataEntryDecorator {
     private final DataEntryInputGenerator inputGenerator = new DataEntryInputGenerator();
 
-    public Element createCheckboxTag(Element tdCell, Integer itemId, List options, Integer tabNumber, boolean includeLabel, String dbValue,
+    public Element createCheckboxTag(Element tdCell, Integer itemId, List<ResponseOptionBean> options, Integer tabNumber, boolean includeLabel, String dbValue,
             String defaultValue, boolean isHorizontal, boolean hasSavedData) {
         // The input element
         Element element;
         // the span element that contains the input element
         Element spanElement;
         String[] arrayOfValues = new String[] {};
-        int count = 0;
         // Handles lone Strings, or Strings separated by commas
         if (dbValue != null && dbValue.length() > 0) {
             synchronized (inputGenerator) {
@@ -39,7 +38,7 @@ public class DataEntryDecorator {
                 arrayOfValues = inputGenerator.handleSplitString(defaultValue);
             }
         }
-        for (Object responseOptBean : options) {
+        for (ResponseOptionBean responseOptBean : options) {
 
             spanElement = new Element("span");
             spanElement.setAttribute("style", "float:left;clear:both");
@@ -47,8 +46,8 @@ public class DataEntryDecorator {
                 element = inputGenerator.initializeInputElement("checkbox", itemId, tabNumber);
             }
             spanElement.addContent(element);
-            String value = ((ResponseOptionBean) responseOptBean).getValue();
-            String forDefVal = ((ResponseOptionBean) responseOptBean).getText();
+            String value = responseOptBean.getValue();
+            String forDefVal = responseOptBean.getText();
             element.setAttribute("value", value);
             // It's checked if its value equals the DB value
             if (dbValue != null && dbValue.length() > 0) {
@@ -76,7 +75,7 @@ public class DataEntryDecorator {
         return tdCell;
     }
 
-    public Element createRadioButtonTag(Element tdCell, Integer itemId, List options, Integer tabNumber, boolean includeLabel, String dbValue,
+    public Element createRadioButtonTag(Element tdCell, Integer itemId, List<ResponseOptionBean> options, Integer tabNumber, boolean includeLabel, String dbValue,
             String defaultValue, boolean isHorizontal, boolean hasSavedData) {
         // the input element
         Element element;
@@ -91,8 +90,7 @@ public class DataEntryDecorator {
         }
 
         // Do not use the default value if there is a valid database value
-        boolean hasData = dbValue != null && dbValue.length() > 0;
-        for (Object responseOptBean : options) {
+        for (ResponseOptionBean responseOptBean : options) {
 
             spanElement = new Element("span");
             spanElement.setAttribute("style", "float:left;clear:both");
@@ -101,8 +99,8 @@ public class DataEntryDecorator {
             }
             spanElement.addContent(element);
 
-            String value = ((ResponseOptionBean) responseOptBean).getValue();
-            String forDefVal = ((ResponseOptionBean) responseOptBean).getText();
+            String value = responseOptBean.getValue();
+            String forDefVal = responseOptBean.getText();
             element.setAttribute("value", value);
             // It's checked if its value equals the DB value
             if (dbValue != null && dbValue.length() > 0 && value.equalsIgnoreCase(dbValue)) {

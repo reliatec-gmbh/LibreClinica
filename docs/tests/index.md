@@ -1,5 +1,5 @@
 
-test documentation for LibreClinica 0.8.1 pre-release
+test documentation for LibreClinica 1.0.0
 
 # LibreClinica test documentation {docsify-ignore}
 
@@ -16,5 +16,9 @@ test documentation for LibreClinica 0.8.1 pre-release
 | [T008](tests/t008.md) | rule management |
 | [T009](tests/t009.md) | site management |
 | [T010](tests/t010.md) | study user management |
+| [T011](tests/t011.md) | subject matrix |
+| [T012](tests/t012.md) | subjects |
+| [T013](tests/t013.md) | study events |
 | [T014](tests/t014.md) | data entry |
+| [T015](tests/t015.md) | double data entry |
 | [T031](tests/t031.md) | study audit log |

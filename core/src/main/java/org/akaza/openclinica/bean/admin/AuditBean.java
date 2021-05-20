@@ -20,7 +20,11 @@ import java.util.Date;
 
 public class AuditBean extends EntityBean {
 
-    private Date auditDate;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6015778166567641855L;
+	private Date auditDate;
     private String auditTable;
     private int userId;
     private int entityId;

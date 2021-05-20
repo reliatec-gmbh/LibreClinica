@@ -140,65 +140,52 @@ int selectedValue;
 <script type="text/javascript" language="JavaScript" src="includes/jmesa/jquery.blockUI.js"></script>
 <script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jquery-migrate-1.1.1.js"></script> 
 
+<%-- Adapt the visible and mandatory new user accunt attribute rows based on the selected user soruce (DB or LDAP) --%>
 <script type="text/javascript">
-jQuery.noConflict();
-
-function handleUserSource() {
-    var userTypeVal = jQuery("input[name='userSource']:checked").val();
-    if (userTypeVal == "ldap") {
-        jQuery(".passwordRow").hide();
-        jQuery(".webservicesRow").hide();
-        jQuery(".ldapSelect").show();
-        jQuery("#userName").attr('readonly', 'true');
-    } else {
-        jQuery(".passwordRow").show();
-        jQuery(".webservicesRow").show();
-        jQuery(".ldapSelect").hide();
-        jQuery("#userName").removeAttr('readonly');
-    }
-}
+	jQuery.noConflict();
+	function handleUserSource() {
+		let userTypeVal = jQuery("input[name='userSource']:checked").val();
+		if (userTypeVal === "ldap") {
+			jQuery(".passwordRow").hide();
+			jQuery(".webservicesRow").hide();
+			jQuery(".ldapSelect").show();
+			jQuery("#userName").attr('readonly', 'true');
+		} else {
+			jQuery(".passwordRow").show();
+			jQuery(".webservicesRow").show();
+			jQuery(".ldapSelect").hide();
+			jQuery("#userName").removeAttr('readonly');
+		}
+	}
 </script>
+
+<%-- When LDAP is enabled in system configuration adapt the GUI to allow LDAP account selection --%>
 <c:if test="${ldapEnabled}">
-<script type="text/javascript">
+	<script type="text/javascript">
+		jQuery(document).ready(function() {
+			jQuery("input[name='userSource']").click(function() {
+					handleUserSource();
+				jQuery("#userName").val('');
+			});
 
-jQuery(document).ready(function() {
-    jQuery("input[name='userSource']").click(function() {
-        	handleUserSource();
-    	jQuery("#userName").val('');
-    });
-    
-    jQuery(".ldapSelect").click(function() {
-        jQuery.blockUI({
-            message: jQuery("#listLdapUsersForm"), css:{
-                left: "300px",
-                top: "10px"
-            }
-        });
-    });
-    
-    jQuery("#closeLdapSelect").click(function() {
-        jQuery.unblockUI();
-    });
-    handleUserSource();   
-   
-});
-function handleUserSource() {
-    var userTypeVal = jQuery("input:radio[name='userSource']:checked").val();
-   
-    if (userTypeVal == "ldap") {
-        jQuery(".passwordRow").hide();
-        jQuery(".webservicesRow").hide();
-        jQuery(".ldapSelect").show();
-        jQuery("#userName").attr('readonly', 'true');
-    } else {
-        jQuery(".passwordRow").show();
-        jQuery(".webservicesRow").show();
-        jQuery(".ldapSelect").hide();
-        jQuery("#userName").removeAttr('readonly');
-    }
-}
-</script>
+			// jQuery(".ldapSelect").click(function() {
+			// 	jQuery.blockUI({
+			// 		message: jQuery("#listLdapUsersForm"), css:{
+			// 			left: "300px",
+			// 			top: "10px"
+			// 		}
+			// 	});
+			// });
+			//
+			// jQuery("#closeLdapSelect").click(function() {
+			// 	jQuery.unblockUI();
+			// });
+			handleUserSource();
+
+		});
+	</script>
 </c:if>
+			
 		<!-- Table Contents -->
 <input type="hidden" id="changeRoles" name="changeRoles">
 <table border="0" cellpadding="0" cellspacing="0" width="100%">
@@ -227,7 +214,7 @@ function handleUserSource() {
 					<td valign="top"><div class="formfieldM_BG">
 						<input type="text" id="userName" name="userName" value="<c:out value="${userName}"/>" size="20" class="formfieldM" />
 					</div></td>
-					<td><c:if test="${ldapEnabled}"><a class="ldapSelect" href="#"><img alt="<fmt:message key="createUserAccount.user.lookupLdap.tooltip" bundle="${resword}"/>" 
+					<td><c:if test="${ldapEnabled}"><a class="ldapSelect" href="<c:url value="pages/admin/listLdapUsers"/>"><img alt="<fmt:message key="createUserAccount.user.lookupLdap.tooltip" bundle="${resword}"/>"
 					   title="<fmt:message key="createUserAccount.user.lookupLdap.tooltip" bundle="${resword}"/>" src="images/create_new.gif" border="0"></a>
 					   </c:if>
 					   *</td>
@@ -459,10 +446,4 @@ function handleUserSource() {
 </table>
 </form>
 
-<div id="listLdapUsersForm" style="display:none;">
-<div style="background:#FFFFFF;">
-<iframe src="pages/listLdapUsers" width="500" height="350" frameborder="0">
-</iframe>
-</div>
-</div>
 <jsp:include page="../include/footer.jsp"/>

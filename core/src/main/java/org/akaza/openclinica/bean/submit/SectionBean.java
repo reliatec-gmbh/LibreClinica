@@ -21,7 +21,12 @@ import org.akaza.openclinica.bean.core.AuditableEntityBean;
  *
  */
 public class SectionBean extends AuditableEntityBean {
-    private int CRFVersionId;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 3559932641033223424L;
+
+	private int CRFVersionId;
 
     private String label;
 
@@ -45,7 +50,8 @@ public class SectionBean extends AuditableEntityBean {
      */
     private int numItems = 0;
 
-    private ArrayList items;// no in DB
+    // TODO this is either ItemBean or DisplayItemBean, try to fix this
+    private ArrayList<?> items;// no in DB
 
     private ArrayList<ItemGroupBean> groups; // YW, 08-21-2007, not in DB
 
@@ -87,7 +93,7 @@ public class SectionBean extends AuditableEntityBean {
         // however in getParent() we guarantee that the returned value
         // is never null
         parent = null;
-        items = new ArrayList();
+        items = new ArrayList<>();
         groups = new ArrayList<ItemGroupBean>();
         borders=0;
     }
@@ -296,7 +302,7 @@ public class SectionBean extends AuditableEntityBean {
     /**
      * @return Returns the items.
      */
-    public ArrayList getItems() {
+    public ArrayList<?> getItems() {
         return items;
     }
 
@@ -304,7 +310,10 @@ public class SectionBean extends AuditableEntityBean {
      * @param items
      *            The items to set.
      */
-    public void setItems(ArrayList items) {
+    /* TODO in some cases this is a list of <ItemBean> 
+     * and in other cases this is a list of <DisplayItemBean>
+     */
+    public void setItems(ArrayList<?> items) {
         this.items = items;
     }
 

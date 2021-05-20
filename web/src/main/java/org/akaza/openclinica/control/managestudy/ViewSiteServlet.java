@@ -7,33 +7,28 @@
  */
 package org.akaza.openclinica.control.managestudy;
 
+import java.net.MalformedURLException;
+import java.util.ArrayList;
+
 import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.managestudy.EventDefinitionCRFBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
+import org.akaza.openclinica.bean.service.StudyParamsConfig;
 import org.akaza.openclinica.bean.submit.CRFVersionBean;
 import org.akaza.openclinica.control.SpringServletAccess;
 import org.akaza.openclinica.control.core.SecureController;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.admin.CRFDAO;
-import org.akaza.openclinica.dao.core.CoreResources;
 import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDefinitionDAO;
 import org.akaza.openclinica.dao.service.StudyParameterValueDAO;
 import org.akaza.openclinica.dao.submit.CRFVersionDAO;
-import org.akaza.openclinica.dao.login.UserAccountDAO;
 import org.akaza.openclinica.domain.SourceDataVerification;
 import org.akaza.openclinica.service.managestudy.EventDefinitionCrfTagService;
-import org.akaza.openclinica.service.pmanage.Authorization;
-import org.akaza.openclinica.service.pmanage.ParticipantPortalRegistrar;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
-
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
 
 /**
  * @author jxu
@@ -42,7 +37,11 @@ import java.util.ArrayList;
  * Preferences - Java - Code Style - Code Templates
  */
 public class ViewSiteServlet extends SecureController {
-    EventDefinitionCrfTagService eventDefinitionCrfTagService = null;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -432895800917682385L;
+	EventDefinitionCrfTagService eventDefinitionCrfTagService = null;
 
     /**
      * Checks whether the user has the correct privilege
@@ -75,7 +74,7 @@ public class ViewSiteServlet extends SecureController {
             idString = request.getAttribute("siteId").toString();
         }
         logger.info("site id:" + idString);
-        if (StringUtil.isBlank(idString)) {
+        if (idString == null || idString.trim().isEmpty()) {
             addPageMessage(respage.getString("please_choose_a_site_to_edit"));
             forwardPage(Page.SITE_LIST_SERVLET);
         } else {
@@ -85,7 +84,7 @@ public class ViewSiteServlet extends SecureController {
             checkRoleByUserAndStudy(ub, study.getParentStudyId(), study.getId());
             // if (currentStudy.getId() != study.getId()) {
 
-            ArrayList configs = new ArrayList();
+            ArrayList<StudyParamsConfig> configs = new ArrayList<>();
             StudyParameterValueDAO spvdao = new StudyParameterValueDAO(sm.getDataSource());
             configs = spvdao.findParamConfigByStudy(study);
             study.setStudyParameters(configs);
@@ -114,7 +113,6 @@ public class ViewSiteServlet extends SecureController {
         CRFVersionDAO cvdao = new CRFVersionDAO(sm.getDataSource());
         CRFDAO cdao = new CRFDAO(sm.getDataSource());
         seds = sedDao.findAllByStudy(siteToView);
-        int start = 0;
         for (StudyEventDefinitionBean sed : seds) {
             StudyParameterValueDAO spvdao = new StudyParameterValueDAO(sm.getDataSource());    
             String participateFormStatus = spvdao.findByHandleAndStudy(sed.getStudyId(), "participantPortal").getValue();       
@@ -132,9 +130,7 @@ public class ViewSiteServlet extends SecureController {
                 String crfPath=sed.getOid()+"."+cBean.getOid();
                 edcBean.setOffline(getEventDefinitionCrfTagService().getEventDefnCrfOfflineStatus(2,crfPath,true));
                 
-                int edcStatusId = edcBean.getStatus().getId();
                 CRFBean crf = (CRFBean) cdao.findByPK(edcBean.getCrfId());
-                int crfStatusId = crf.getStatusId();
                 ArrayList<CRFVersionBean> versions = (ArrayList<CRFVersionBean>) cvdao.findAllActiveByCRF(edcBean.getCrfId());
                 edcBean.setVersions(versions);
                 edcBean.setCrfName(crf.getName());
@@ -162,7 +158,6 @@ public class ViewSiteServlet extends SecureController {
                 edcBean.setSelectedVersionIdList(idList);
                 edcBean.setSelectedVersionNames(idNames);
                 defCrfs.add(edcBean);
-                ++start;
             }
             sed.setCrfs(defCrfs);
             sed.setCrfNum(defCrfs.size());

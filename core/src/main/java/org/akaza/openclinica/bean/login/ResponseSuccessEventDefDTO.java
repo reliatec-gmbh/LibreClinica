@@ -7,8 +7,6 @@
  */
 package org.akaza.openclinica.bean.login;
 
-import java.util.ArrayList;
-
 public class ResponseSuccessEventDefDTO {
 
 	private String name;

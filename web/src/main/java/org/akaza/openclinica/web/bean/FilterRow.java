@@ -24,7 +24,7 @@ import java.util.ArrayList;
  * @author thickerson
  *
  */
-public class FilterRow extends EntityBeanRow {
+public class FilterRow extends EntityBeanRow<FilterBean, FilterRow> {
     // declare columns first
     public static final int COL_FILTERNAME = 0;
     public static final int COL_FILTERDESC = 1;
@@ -33,13 +33,13 @@ public class FilterRow extends EntityBeanRow {
     public static final int COL_STATUS = 4;
 
     @Override
-    protected int compareColumn(Object row, int sortingColumn) {
+    protected int compareColumn(FilterRow row, int sortingColumn) {
         if (!row.getClass().equals(FilterRow.class)) {
             return 0;
         }
 
-        FilterBean thisAccount = (FilterBean) bean;
-        FilterBean argAccount = (FilterBean) ((FilterRow) row).bean;
+        FilterBean thisAccount = bean;
+        FilterBean argAccount = row.bean;
 
         int answer = 0;
         switch (sortingColumn) {
@@ -69,16 +69,13 @@ public class FilterRow extends EntityBeanRow {
         return thisAccount.getName() + " " + thisAccount.getDescription();
     }
 
-    public static ArrayList generateRowsFromBeans(ArrayList beans) {
-        ArrayList answer = new ArrayList();
-
-        Class[] parameters = null;
-        Object[] arguments = null;
+    public static ArrayList<FilterRow> generateRowsFromBeans(ArrayList<FilterBean> beans) {
+        ArrayList<FilterRow> answer = new ArrayList<>();
 
         for (int i = 0; i < beans.size(); i++) {
             try {
                 FilterRow row = new FilterRow();
-                row.setBean((FilterBean) beans.get(i));
+                row.setBean(beans.get(i));
                 answer.add(row);
             } catch (Exception e) {
             }
@@ -88,7 +85,7 @@ public class FilterRow extends EntityBeanRow {
     }
 
     @Override
-    public ArrayList generatRowsFromBeans(ArrayList beans) {
+    public ArrayList<FilterRow> generatRowsFromBeans(ArrayList<FilterBean> beans) {
         return FilterRow.generateRowsFromBeans(beans);
     }
 }

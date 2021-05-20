@@ -7,6 +7,12 @@
  */
 package org.akaza.openclinica.validator.rule.action;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import javax.sql.DataSource;
+
 import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.core.NullValue;
 import org.akaza.openclinica.bean.core.ResponseType;
@@ -32,12 +38,6 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import javax.sql.DataSource;
-
 public class InsertActionValidator implements Validator {
 
     ItemDAO itemDAO;
@@ -57,7 +57,7 @@ public class InsertActionValidator implements Validator {
     /**
      * This Validator validates just Person instances
      */
-    public boolean supports(Class clazz) {
+    public boolean supports(Class<?> clazz) {
         return InsertActionBean.class.equals(clazz);
     }
 
@@ -84,10 +84,12 @@ public class InsertActionValidator implements Validator {
                 targetCrf = getCrfDAO().findByItemOid(item.getOid());
 
             }
+            // TODO let the database calculate the 'intersection' this will be much faster and will consume less resources
             // Get All event definitions the selected CRF belongs to
             List<StudyEventDefinitionBean> destinationPropertyStudyEventDefinitions = getStudyEventDefinitionDAO().findAllByCrf(destinationPropertyOidCrf);
             List<StudyEventDefinitionBean> targetStudyEventDefinitions = getStudyEventDefinitionDAO().findAllByCrf(targetCrf);
-            Collection intersection = CollectionUtils.intersection(destinationPropertyStudyEventDefinitions, targetStudyEventDefinitions);
+            @SuppressWarnings("rawtypes")
+			Collection intersection = CollectionUtils.intersection(destinationPropertyStudyEventDefinitions, targetStudyEventDefinitions);
             if (intersection.size() == 0) {
                 e.rejectValue(p + "oid", "oid.invalid", "OID: " + propertyBean.getOid() + " is Invalid.");
             }
@@ -163,7 +165,6 @@ public class InsertActionValidator implements Validator {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private void checkValidity(ItemBean itemBean, String value, String index, Errors e) {
         Boolean result = false;
         List<ItemFormMetadataBean> itemFormMetadataBeans = getItemFormMetadataDAO().findAllByItemId(itemBean.getId());
@@ -239,7 +240,6 @@ public class InsertActionValidator implements Validator {
         return returnedValue;
     }
 
-    @SuppressWarnings("unchecked")
     private String matchValueWithManyOptions(String value, List<ResponseOptionBean> options) {
         String returnedValue = null;
         String entireOptions = "";
@@ -255,7 +255,7 @@ public class InsertActionValidator implements Validator {
             // remove spaces, since they are causing problems:
             entireOptions = entireOptions.replace(" ", "");
 
-            ArrayList nullValues = getEventDefinitionCRFBean().getNullValuesList();
+            ArrayList<NullValue> nullValues = getEventDefinitionCRFBean().getNullValuesList();
 
             for (Object nullValue : nullValues) {
                 NullValue nullValueTerm = (NullValue) nullValue;

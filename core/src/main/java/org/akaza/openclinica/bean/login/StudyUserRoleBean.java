@@ -32,7 +32,12 @@ public class StudyUserRoleBean extends AuditableEntityBean {
      * entitybean, name->username
      */
 
-    private Role role;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -6618017307375291254L;
+
+	private Role role;
 
     private int studyId;
 

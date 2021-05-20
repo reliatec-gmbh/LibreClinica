@@ -8,10 +8,8 @@
 package org.akaza.openclinica.web.job;
 
 import java.io.File;
-import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -38,24 +36,14 @@ import org.akaza.openclinica.web.SQLInitServlet;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.quartz.Scheduler;
 import org.quartz.SimpleTrigger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
-import org.springframework.scheduling.quartz.JobDetailFactoryBean;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 
+@SuppressWarnings("deprecation")
 public class ExampleSpringJob extends QuartzJobBean {
-
-    // example code here
-    private String message;
-
-    // example code here
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
 
     // variables to pull out
@@ -80,11 +68,10 @@ public class ExampleSpringJob extends QuartzJobBean {
     private DataSource dataSource;
     private GenerateExtractFileService generateFileService;
     private UserAccountBean userBean;
-    private JobDetailFactoryBean jobDetailBean;
     private CoreResources coreResources;
     private RuleSetRuleDao ruleSetRuleDao;
 
-    @Override
+	@Override
     protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
         // need to generate a Locale so that user beans and other things will
         // generate normally
@@ -98,7 +85,7 @@ public class ExampleSpringJob extends QuartzJobBean {
         SimpleTrigger trigger = (SimpleTrigger) context.getTrigger();
         try {
             ApplicationContext appContext = (ApplicationContext) context.getScheduler().getContext().get("applicationContext");
-            String studySubjectNumber = ((CoreResources) appContext.getBean("coreResources")).getField("extract.number");
+            String studySubjectNumber = CoreResources.getField("extract.number");
             coreResources = (CoreResources) appContext.getBean("coreResources");
             ruleSetRuleDao = (RuleSetRuleDao) appContext.getBean("ruleSetRuleDao");
             dataSource = (DataSource) appContext.getBean("dataSource");
@@ -160,7 +147,7 @@ public class ExampleSpringJob extends QuartzJobBean {
             // // logger.debug("-- found datamap property: " + key.toString() +
             // // " : " + value.toString());
             // }
-            HashMap fileName = new HashMap<String, Integer>();
+            HashMap<String, Integer> fileName = new HashMap<>();
             if (dsId > 0) {
                 // trying to not throw an error if there's no dataset id
                 DatasetDAO dsdao = new DatasetDAO(dataSource);
@@ -205,7 +192,6 @@ public class ExampleSpringJob extends QuartzJobBean {
                 logger.debug("-- found extract bean ");
 
                 ExtractBean eb = generateFileService.generateExtractBean(datasetBean, activeStudy, parentStudy);
-                MessageFormat mf = new MessageFormat("");
                 StringBuffer message = new StringBuffer();
                 StringBuffer auditMessage = new StringBuffer();
                 // use resource bundle page messages to generate the email, tbh
@@ -380,44 +366,34 @@ public class ExampleSpringJob extends QuartzJobBean {
         }
     }
 
-    private String getFileNameStr(HashMap fileName) {
+    /**
+     * TODO It looks like the fileName should contain at most one entry that maps a file name (String) to 
+     * a file id (Integer). IMPLEMENT A BETTER WAY OF ACHIEVING THIS
+     *  
+     * @param fileName mapping of a file name to its file id
+     * @return file name (key of the entry or the empty string if the mapping is empty)
+     */
+    private String getFileNameStr(HashMap<String, Integer> fileName) {
         String fileNameStr = "";
-        for (Iterator it = fileName.entrySet().iterator(); it.hasNext();) {
-            java.util.Map.Entry entry = (java.util.Map.Entry) it.next();
-            Object key = entry.getKey();
-            Object value = entry.getValue();
-            fileNameStr = (String) key;
-            Integer fileID = (Integer) value;
-            // fId = fileID.intValue();
+        for (String key : fileName.keySet()) {
+            fileNameStr = key;
         }
         return fileNameStr;
     }
 
-    private int getFileIdInt(HashMap fileName) {
-        // String fileNameStr = "";
+    /**
+     * TODO It looks like the fileName should contain at most one entry that maps a file name (String) to 
+     * a file id (Integer). IMPLEMENT A BETTER WAY OF ACHIEVING THIS
+     *  
+     * @param fileName mapping of a file name to its file id
+     * @return file id (value of the entry or 0 if the mapping is empty)
+     */
+    private int getFileIdInt(HashMap<String, Integer> fileName) {
         Integer fileID = new Integer(0);
-        for (Iterator it = fileName.entrySet().iterator(); it.hasNext();) {
-            java.util.Map.Entry entry = (java.util.Map.Entry) it.next();
-            Object key = entry.getKey();
-            Object value = entry.getValue();
-            // fileNameStr = (String) key;
-            fileID = (Integer) value;
-            // fId = fileID.intValue();
+        for (Integer value : fileName.values()) {
+            fileID = value;
         }
         return fileID.intValue();
-    }
-
-    private DataSource getDataSource(Scheduler scheduler) {
-        try {
-            ApplicationContext context = (ApplicationContext) scheduler.getContext().get("applicationContext");// dataMap
-            // : (BasicDataSource) context.getBean("dataSource");
-            dataSource = this.dataSource != null ? dataSource : (DataSource) context.getBean("dataSource"); // basicDataSource
-
-        } catch (Exception e) {
-            logger.error("Error while accessing application context: ", e);
-        }
-
-        return dataSource;
     }
 
 }

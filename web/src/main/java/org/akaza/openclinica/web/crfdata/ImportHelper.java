@@ -16,7 +16,6 @@ import org.akaza.openclinica.bean.submit.ItemFormMetadataBean;
 import org.akaza.openclinica.control.form.DiscrepancyValidator;
 import org.akaza.openclinica.control.form.Validation;
 import org.akaza.openclinica.control.form.Validator;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,12 +50,13 @@ public class ImportHelper {
      * @return The DisplayItemBean which is validated.
      */
     public DisplayItemBean validateDisplayItemBeanSingleCV(DiscrepancyValidator v, DisplayItemBean dib, String inputName) {
-        if (StringUtil.isBlank(inputName)) {
+        if (inputName == null || inputName.trim().isEmpty()) {
             inputName = getInputName(dib);
         }
         ItemFormMetadataBean ibMeta = dib.getMetadata();
         ItemDataBean idb = dib.getData();
-        if (StringUtil.isBlank(idb.getValue())) {
+        String idbValue = idb.getValue();
+		if (idbValue == null || idbValue.trim().isEmpty()) {
             if (ibMeta.isRequired()) {
                 v.addValidation(inputName, Validator.IS_REQUIRED);
             }
@@ -83,12 +83,13 @@ public class ImportHelper {
      * @return The DisplayItemBean which is validated.
      */
     public DisplayItemBean validateDisplayItemBeanMultipleCV(DiscrepancyValidator v, DisplayItemBean dib, String inputName) {
-        if (StringUtil.isBlank(inputName)) {
+        if (inputName == null || inputName.trim().isEmpty()) {
             inputName = getInputName(dib);
         }
         ItemFormMetadataBean ibMeta = dib.getMetadata();
         ItemDataBean idb = dib.getData();
-        if (StringUtil.isBlank(idb.getValue())) {
+        String idbValue = idb.getValue();
+		if (idbValue == null || idbValue.trim().isEmpty()) {
             if (ibMeta.isRequired()) {
                 v.addValidation(inputName, Validator.IS_REQUIRED);
             }
@@ -114,7 +115,7 @@ public class ImportHelper {
      */
     public DisplayItemBean validateDisplayItemBeanText(DiscrepancyValidator v, DisplayItemBean dib, String inputName) {
 
-        if (StringUtil.isBlank(inputName)) {// for single items
+        if (inputName == null || inputName.trim().isEmpty()) {// for single items
             inputName = getInputName(dib);
         }
         ItemBean ib = dib.getItem();
@@ -131,7 +132,8 @@ public class ImportHelper {
          */
 
         if (!isNull) {
-            if (StringUtil.isBlank(idb.getValue())) {
+            String idbValue = idb.getValue();
+			if (idbValue == null || idbValue.trim().isEmpty()) {
                 // check required first
                 if (ibMeta.isRequired()) {
                     v.addValidation(inputName, Validator.IS_REQUIRED);
@@ -174,7 +176,7 @@ public class ImportHelper {
                 }
 
                 String customValidationString = dib.getMetadata().getRegexp();
-                if (!StringUtil.isBlank(customValidationString)) {
+                if (!(customValidationString == null || customValidationString.trim().isEmpty())) {
                     Validation customValidation = null;
 
                     if (customValidationString.startsWith("func:")) {

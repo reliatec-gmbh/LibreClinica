@@ -35,9 +35,12 @@ public class EventActionBean extends RuleActionBean implements Serializable {
 
 	
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7578520914910137778L;
 	private String oc_oid_reference;
     private List<PropertyBean> properties;
-    private RuleActionRunEventBean ruleActionRunEvent;
     
     @Transient
 	public RuleActionRunEventBean getRuleActionRunEvent() {
@@ -53,16 +56,7 @@ public class EventActionBean extends RuleActionBean implements Serializable {
  		 return ruleActionRunEventBean;
 
 	}
-
-	public void setRuleActionRunEvent(RuleActionRunEventBean ruleActionRunEvent) {
-		this.ruleActionRunEvent = ruleActionRunEvent;
-	}
-     
     
-
-        
-    
-	
         public EventActionBean() {
 	        setActionType(ActionType.EVENT);
 	        setRuleActionRun(new RuleActionRunBean(null, null, null, null, null, true,true,false,false,false,false));

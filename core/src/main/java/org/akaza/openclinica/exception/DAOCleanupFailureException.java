@@ -14,7 +14,11 @@ package org.akaza.openclinica.exception;
  * Preferences - Java - Code Style - Code Templates
  */
 public class DAOCleanupFailureException extends Exception {
-    public String message;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1154837643190835688L;
+	public String message;
 
     public DAOCleanupFailureException() {
         message = "";

@@ -16,6 +16,7 @@ package org.akaza.openclinica.control.form;
 
 import java.util.ArrayList;
 
+// TODO duplicate of the version in the web module?
 public class Validation {
     private int type;
 
@@ -23,13 +24,13 @@ public class Validation {
 
     private boolean errorMessageSet;
 
-    private ArrayList arguments;
+    private ArrayList<Object> arguments;
 
     private boolean alwaysExecuted;
 
     public Validation(int type) {
         this.type = type;
-        arguments = new ArrayList();
+        arguments = new ArrayList<>();
         errorMessage = "";
         alwaysExecuted = false;
     }
@@ -37,7 +38,7 @@ public class Validation {
     /**
      * @return Returns the arguments.
      */
-    public ArrayList getArguments() {
+    public ArrayList<Object> getArguments() {
         return arguments;
     }
 
@@ -45,7 +46,7 @@ public class Validation {
      * @param arguments
      *            The arguments to set.
      */
-    public void setArguments(ArrayList arguments) {
+    public void setArguments(ArrayList<Object> arguments) {
         this.arguments = arguments;
     }
 

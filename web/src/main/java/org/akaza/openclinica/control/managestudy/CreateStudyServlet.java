@@ -7,6 +7,15 @@
  */
 package org.akaza.openclinica.control.managestudy;
 
+import static org.akaza.openclinica.core.util.ClassCastHelper.asArrayList;
+
+import java.text.MessageFormat;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+
 import org.akaza.openclinica.bean.core.NumericComparisonOperator;
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.core.Status;
@@ -18,22 +27,12 @@ import org.akaza.openclinica.bean.service.StudyParameterValueBean;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.control.form.Validator;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.login.UserAccountDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.service.StudyParameterValueDAO;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.akaza.openclinica.web.SQLInitServlet;
-
-import java.text.MessageFormat;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Locale;
 
 /**
  * Processes request to create a new study
@@ -44,7 +43,12 @@ import java.util.Locale;
  *
  */
 public class CreateStudyServlet extends SecureController {
-    public static final String INPUT_START_DATE = "startDate";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6458728290365303810L;
+
+	public static final String INPUT_START_DATE = "startDate";
 
     public static final String INPUT_END_DATE = "endDate";
 
@@ -243,8 +247,6 @@ public class CreateStudyServlet extends SecureController {
      * timingMap.put("Prospective", "Prospective"); }
      */
 
-    private Locale current_maps_locale;
-
     /**
      *
      */
@@ -275,13 +277,13 @@ public class CreateStudyServlet extends SecureController {
         panel.setIconInfoShown(true);
         panel.setManageSubject(false);
 
-        if (StringUtil.isBlank(action)) {
+        if (action == null || action.trim().isEmpty()) {
             session.setAttribute("newStudy", new StudyBean());
 
             // request.setAttribute("facRecruitStatusMap", facRecruitStatusMap);
             // request.setAttribute("statuses", Status.toActiveArrayList());
             UserAccountDAO udao = new UserAccountDAO(sm.getDataSource());
-            Collection users = udao.findAllByRole("coordinator", "director");
+            ArrayList<UserAccountBean> users = udao.findAllByRole("coordinator", "director");
             request.setAttribute("users", users);
 
             forwardPage(Page.CREATE_STUDY1);
@@ -321,8 +323,8 @@ public class CreateStudyServlet extends SecureController {
                 addPageMessage(respage.getString("the_new_study_created_succesfully_current"));
                 // forwardPage(Page.STUDY_LIST_SERVLET);
 
-                ArrayList pageMessages = (ArrayList) request.getAttribute(PAGE_MESSAGE);
-                session.setAttribute("pageMessages", pageMessages);
+                ArrayList<String> pageMessages = asArrayList(request.getAttribute(PAGE_MESSAGE), String.class);
+                session.setAttribute(PAGE_MESSAGE, pageMessages);
                 response.sendRedirect(request.getContextPath() + Page.MANAGE_STUDY_MODULE.getFileName());
             } else if ("next".equalsIgnoreCase(action)) {
                 Integer pageNumber = Integer.valueOf(request.getParameter("pageNum"));
@@ -347,7 +349,7 @@ public class CreateStudyServlet extends SecureController {
                     }
 
                     UserAccountDAO udao = new UserAccountDAO(sm.getDataSource());
-                    Collection users = udao.findAllByRole("coordinator", "director");
+                    ArrayList<UserAccountBean> users = udao.findAllByRole("coordinator", "director");
                     request.setAttribute("users", users);
 
                     forwardPage(Page.CREATE_STUDY1);
@@ -472,7 +474,7 @@ public class CreateStudyServlet extends SecureController {
             request.setAttribute("formMessages", errors);
             // request.setAttribute("facRecruitStatusMap", facRecruitStatusMap);
             UserAccountDAO udao = new UserAccountDAO(sm.getDataSource());
-            Collection users = udao.findAllByRole("coordinator", "director");
+            ArrayList<UserAccountBean> users = udao.findAllByRole("coordinator", "director");
             request.setAttribute("users", users);
 
             forwardPage(Page.CREATE_STUDY1);
@@ -490,12 +492,14 @@ public class CreateStudyServlet extends SecureController {
         FormProcessor fp = new FormProcessor(request);
 
         v.addValidation(INPUT_START_DATE, Validator.IS_A_DATE);
-        if (!StringUtil.isBlank(fp.getString(INPUT_END_DATE))) {
+        String endDate = fp.getString(INPUT_END_DATE);
+		if (!(endDate == null || endDate.trim().isEmpty())) {
             v.addValidation(INPUT_END_DATE, Validator.IS_A_DATE);
         }
 
         v.addValidation("protocolType", Validator.NO_BLANKS);
-        if (!StringUtil.isBlank(fp.getString(INPUT_VER_DATE))) {
+        String verDate = fp.getString(INPUT_VER_DATE);
+		if (!(verDate == null || verDate.trim().isEmpty())) {
             v.addValidation(INPUT_VER_DATE, Validator.IS_A_DATE_WITHOUT_REQUIRED_CHECK);
         }
 
@@ -521,16 +525,16 @@ public class CreateStudyServlet extends SecureController {
                 fp.addPresetValue(INPUT_START_DATE, fp.getString(INPUT_START_DATE));
             }
             try {
-                local_df.parse(fp.getString(INPUT_VER_DATE));
+                local_df.parse(verDate);
                 fp.addPresetValue(INPUT_VER_DATE, local_df.format(fp.getDate(INPUT_VER_DATE)));
             } catch (ParseException pe) {
-                fp.addPresetValue(INPUT_VER_DATE, fp.getString(INPUT_VER_DATE));
+                fp.addPresetValue(INPUT_VER_DATE, verDate);
             }
             try {
-                local_df.parse(fp.getString(INPUT_END_DATE));
+                local_df.parse(endDate);
                 fp.addPresetValue(INPUT_END_DATE, local_df.format(fp.getDate(INPUT_END_DATE)));
             } catch (ParseException pe) {
-                fp.addPresetValue(INPUT_END_DATE, fp.getString(INPUT_END_DATE));
+                fp.addPresetValue(INPUT_END_DATE, endDate);
             }
             setPresetValues(fp.getPresetValues());
             request.setAttribute("formMessages", errors);
@@ -555,12 +559,12 @@ public class CreateStudyServlet extends SecureController {
         for (int i = 0; i < 10; i++) {
             String type = fp.getString("interType" + i);
             String name = fp.getString("interName" + i);
-            if (!StringUtil.isBlank(type) && StringUtil.isBlank(name)) {
+            if (!(type == null || type.trim().isEmpty()) && (name == null || name.trim().isEmpty())) {
                 v.addValidation("interName", Validator.NO_BLANKS);
                 request.setAttribute("interventionError", respage.getString("name_cannot_be_blank_if_type"));
                 break;
             }
-            if (!StringUtil.isBlank(name) && StringUtil.isBlank(type)) {
+            if (!(name == null || name.trim().isEmpty()) && (type == null || type.trim().isEmpty())) {
                 v.addValidation("interType", Validator.NO_BLANKS);
                 request.setAttribute("interventionError", respage.getString("name_cannot_be_blank_if_name"));
                 break;
@@ -578,7 +582,7 @@ public class CreateStudyServlet extends SecureController {
         if (errors.isEmpty()) {
             logger.info("no errors");
             if (session.getAttribute("interventionArray") == null) {
-                request.setAttribute("interventions", new ArrayList());
+                request.setAttribute("interventions", new ArrayList<>());
             } else {
                 request.setAttribute("interventions", session.getAttribute("interventionArray"));
             }
@@ -663,7 +667,8 @@ public class CreateStudyServlet extends SecureController {
     private void confirmStudy5() throws Exception {
         FormProcessor fp = new FormProcessor(request);
         Validator v = new Validator(request);
-        if (!StringUtil.isBlank(fp.getString("facConEmail"))) {
+        String contactEmail = fp.getString("facConEmail");
+		if (!(contactEmail == null || contactEmail.trim().isEmpty())) {
             v.addValidation("facConEmail", Validator.IS_A_EMAIL);
         }
         v.addValidation("facName", Validator.LENGTH_NUMERIC_COMPARISON, NumericComparisonOperator.LESS_THAN_OR_EQUAL_TO, 255);
@@ -682,7 +687,7 @@ public class CreateStudyServlet extends SecureController {
         newStudy.setFacilityCity(fp.getString("facCity"));
         newStudy.setFacilityContactDegree(fp.getString("facConDrgree"));
         newStudy.setFacilityName(fp.getString("facName"));
-        newStudy.setFacilityContactEmail(fp.getString("facConEmail"));
+        newStudy.setFacilityContactEmail(contactEmail);
         newStudy.setFacilityContactPhone(fp.getString("facConPhone"));
         newStudy.setFacilityContactName(fp.getString("facConName"));
         newStudy.setFacilityCountry(fp.getString("facCountry"));
@@ -727,7 +732,7 @@ public class CreateStudyServlet extends SecureController {
 
         if (errors.isEmpty()) {
             if (session.getAttribute("interventionArray") == null) {
-                request.setAttribute("interventions", new ArrayList());
+                request.setAttribute("interventions", new ArrayList<>());
             } else {
                 request.setAttribute("interventions", session.getAttribute("interventionArray"));
             }
@@ -775,7 +780,7 @@ public class CreateStudyServlet extends SecureController {
 
         if (errors.isEmpty()) {
             if (session.getAttribute("interventionArray") == null) {
-                request.setAttribute("interventions", new ArrayList());
+                request.setAttribute("interventions", new ArrayList<>());
             } else {
                 request.setAttribute("interventions", session.getAttribute("interventionArray"));
             }
@@ -914,7 +919,8 @@ public class CreateStudyServlet extends SecureController {
         // or private...
         newStudy.setStatus(Status.get(fp.getInt("statusId")));
 
-        if (StringUtil.isBlank(fp.getString(INPUT_VER_DATE))) {
+        String verDate = fp.getString(INPUT_VER_DATE);
+		if (verDate == null || verDate.trim().isEmpty()) {
             newStudy.setProtocolDateVerification(null);
         } else {
             newStudy.setProtocolDateVerification(fp.getDate(INPUT_VER_DATE));
@@ -922,7 +928,8 @@ public class CreateStudyServlet extends SecureController {
 
         newStudy.setDatePlannedStart(fp.getDate(INPUT_START_DATE));
 
-        if (StringUtil.isBlank(fp.getString(INPUT_END_DATE))) {
+        String endDate = fp.getString(INPUT_END_DATE);
+		if (endDate == null || endDate.trim().isEmpty()) {
             newStudy.setDatePlannedEnd(null);
         } else {
             newStudy.setDatePlannedEnd(fp.getDate(INPUT_END_DATE));
@@ -963,12 +970,12 @@ public class CreateStudyServlet extends SecureController {
             // repeat 10 times for each pair on the web page
             StringBuffer interventions = new StringBuffer();
 
-            ArrayList interventionArray = new ArrayList();
+            ArrayList<InterventionBean> interventionArray = new ArrayList<>();
 
             for (int i = 0; i < 10; i++) {
                 String type = fp.getString("interType" + i);
                 String name = fp.getString("interName" + i);
-                if (!StringUtil.isBlank(type) && !StringUtil.isBlank(name)) {
+                if (!(type == null || type.trim().isEmpty()) && !(name == null || name.trim().isEmpty())) {
                     InterventionBean ib = new InterventionBean(fp.getString("interType" + i), fp.getString("interName" + i));
                     interventionArray.add(ib);
                     interventions.append(ib.toString()).append(",");
@@ -1002,7 +1009,7 @@ public class CreateStudyServlet extends SecureController {
             request.setAttribute("endpointMap", endpointMap);
             request.setAttribute("interTypeMap", interTypeMap);
             if (session.getAttribute("interventionArray") == null) {
-                session.setAttribute("interventions", new ArrayList());
+                session.setAttribute("interventions", new ArrayList<>());
             } else {
                 session.setAttribute("interventions", session.getAttribute("interventionArray"));
             }
@@ -1012,81 +1019,6 @@ public class CreateStudyServlet extends SecureController {
             request.setAttribute("timingMap", timingMap);
         }
 
-    }
-
-    // its not necessary its use.
-    private void updateMaps() {
-        if (current_maps_locale != resadmin.getLocale()) {
-            current_maps_locale = resadmin.getLocale();
-            facRecruitStatusMap.put("not_yet_recruiting", resadmin.getString("not_yet_recruiting"));
-            facRecruitStatusMap.put("recruiting", resadmin.getString("recruiting"));
-            facRecruitStatusMap.put("no_longer_recruiting", resadmin.getString("no_longer_recruiting"));
-            facRecruitStatusMap.put("completed", resadmin.getString("completed"));
-            facRecruitStatusMap.put("suspended", resadmin.getString("suspended"));
-            facRecruitStatusMap.put("terminated", resadmin.getString("terminated"));
-
-            studyPhaseMap.put("n_a", resadmin.getString("n_a"));
-            studyPhaseMap.put("phaseI", resadmin.getString("phaseI"));
-            studyPhaseMap.put("phaseI_II", resadmin.getString("phaseI_II"));
-            studyPhaseMap.put("phaseII", resadmin.getString("phaseII"));
-            studyPhaseMap.put("phaseII_III", resadmin.getString("phaseII_III"));
-            studyPhaseMap.put("phaseIII", resadmin.getString("phaseIII"));
-            studyPhaseMap.put("phaseIII_IV", resadmin.getString("phaseIII_IV"));
-            studyPhaseMap.put("phaseIV", resadmin.getString("phaseIV"));
-
-            interPurposeMap.put("treatment", resadmin.getString("treatment"));
-            interPurposeMap.put("prevention", resadmin.getString("prevention"));
-            interPurposeMap.put("diagnosis", resadmin.getString("diagnosis"));
-            interPurposeMap.put("educ_couns_train", resadmin.getString("educ_couns_train"));
-
-            allocationMap.put("randomized", resadmin.getString("randomized"));
-            allocationMap.put("non_randomized", resadmin.getString("non_randomized"));
-
-            maskingMap.put("open", resadmin.getString("open"));
-            maskingMap.put("single_blind", resadmin.getString("single_blind"));
-            maskingMap.put("double_blind", resadmin.getString("double_blind"));
-
-            controlMap.put("placebo", resadmin.getString("placebo"));
-            controlMap.put("active", resadmin.getString("active"));
-            controlMap.put("uncontrolled", resadmin.getString("uncontrolled"));
-            controlMap.put("historical", resadmin.getString("historical"));
-            controlMap.put("dose_comparison", resadmin.getString("dose_comparison"));
-
-            assignmentMap.put("single_group", resadmin.getString("single_group"));
-            assignmentMap.put("parallel", resadmin.getString("parallel"));
-            assignmentMap.put("cross_over", resadmin.getString("cross_over"));
-            assignmentMap.put("factorial", resadmin.getString("factorial"));
-            assignmentMap.put("expanded_access", resadmin.getString("expanded_access"));
-
-            endpointMap.put("safety", resadmin.getString("safety"));
-            endpointMap.put("efficacy", resadmin.getString("efficacy"));
-            endpointMap.put("safety_efficacy", resadmin.getString("safety_efficacy"));
-            endpointMap.put("bio_equivalence", resadmin.getString("bio_equivalence"));
-            endpointMap.put("bio_availability", resadmin.getString("bio_availability"));
-            endpointMap.put("pharmacokinetics", resadmin.getString("pharmacokinetics"));
-            endpointMap.put("pharmacodynamics", resadmin.getString("pharmacodynamics"));
-            endpointMap.put("pharmacokinetics_pharmacodynamics", resadmin.getString("pharmacokinetics_pharmacodynamics"));
-
-            interTypeMap.put("drug", resadmin.getString("drug"));
-            interTypeMap.put("gene_transfer", resadmin.getString("gene_transfer"));
-            interTypeMap.put("vaccine", resadmin.getString("vaccine"));
-            interTypeMap.put("behavior", resadmin.getString("behavior"));
-            interTypeMap.put("device", resadmin.getString("device"));
-            interTypeMap.put("procedure", resadmin.getString("procedure"));
-            interTypeMap.put("other", resadmin.getString("other"));
-
-            obserPurposeMap.put("natural_history", resadmin.getString("natural_history"));
-            obserPurposeMap.put("screening", resadmin.getString("screening"));
-            obserPurposeMap.put("psychosocial", resadmin.getString("psychosocial"));
-
-            selectionMap.put("convenience_sample", resadmin.getString("convenience_sample"));
-            selectionMap.put("defined_population", resadmin.getString("defined_population"));
-            selectionMap.put("random_sample", resadmin.getString("random_sample"));
-            selectionMap.put("case_control", resadmin.getString("case_control"));
-
-            timingMap.put("retrospective", resadmin.getString("retrospective"));
-            timingMap.put("prospective", resadmin.getString("prospective"));
-        }
     }
 
     @Override

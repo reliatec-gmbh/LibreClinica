@@ -65,24 +65,27 @@ public class StudyEndpoint {
   
     private final Locale locale;
 
-    public StudyEndpoint(DataSource dataSource, MessageSource messages, 
-    		CoreResources coreResources, RuleSetRuleDao ruleSetRuleDao) {
+    public StudyEndpoint(DataSource dataSource,
+                         MessageSource messages,
+                         CoreResources coreResources,
+                         RuleSetRuleDao ruleSetRuleDao) {
+        
         this.dataSource = dataSource;
         this.messages = messages;
         this.locale = new Locale("en_US");
         this.coreResources = coreResources;
         this.ruleSetRuleDao = ruleSetRuleDao;
-        
     }
 
     /**
      * if NAMESPACE_URI_V1:getStudyListRequest execute this method
      * 
-     * @return
-     * @throws Exception
+     * @return Source
+     * @throws Exception exception
      */
     @PayloadRoot(localPart = "getMetadataRequest", namespace = NAMESPACE_URI_V1)
     public Source getStudyMetadata(@XPathParam("//study:studyMetadata") NodeList studyNodeList) throws Exception {
+        
         ResourceBundleProvider.updateLocale(new Locale("en_US"));
         Element studyRefElement = (Element) studyNodeList.item(0);
 
@@ -92,16 +95,30 @@ public class StudyEndpoint {
         Errors errors = dataBinder.getBindingResult();
         StudyMetadataRequestValidator studyMetadataRequestValidator = new StudyMetadataRequestValidator(dataSource);
         studyMetadataRequestValidator.validate((studyMetadataRequestBean), errors);
-        if (!errors.hasErrors()) {
 
-            return new DOMSource(mapSuccessConfirmation(getStudy(studyMetadataRequestBean),
-                    messages.getMessage("studyEndpoint.success", null, "Success", locale)));
-        } else {
-            return new DOMSource(mapConfirmation(messages.getMessage("studyEndpoint.fail", null, "Fail", locale), errors));
+        Source result = null;
+        try {
+            if (!errors.hasErrors()) {
+                result = new DOMSource(
+                        mapSuccessConfirmation(getStudy(studyMetadataRequestBean),
+                                messages.getMessage("studyEndpoint.success", null, "Success", locale))
+                );
+            } else {
+                result = new DOMSource(
+                        mapConfirmation(
+                                messages.getMessage("studyEndpoint.fail", null, "Fail", locale), errors
+                        )
+                );
+            }
+        } catch (Exception err) {
+            this.logger.debug("aarg", err);
         }
+
+        return result;
     }
 
     private Element mapSuccessConfirmation(StudyBean study, String confirmation) throws Exception {
+        
         DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = dbfac.newDocumentBuilder();
         Document document = docBuilder.newDocument();
@@ -117,20 +134,17 @@ public class StudyEndpoint {
         responseElement.appendChild(odmElement);
 
         return responseElement;
-
     }
-
     
-    private String getReport(StudyBean currentStudy){
-//    	ServletContext servletContext =
-//    	    (ServletContext) context.getMessageContext().get(MessageContext.SERVLET_CONTEXT);
+    private String getReport(StudyBean currentStudy) {
+
         MetaDataCollector mdc = new MetaDataCollector(dataSource, currentStudy,ruleSetRuleDao);
         AdminDataCollector adc = new AdminDataCollector(dataSource, currentStudy);
         MetaDataCollector.setTextLength(200);
 
         ODMBean odmb = mdc.getODMBean();
         odmb.setSchemaLocation("http://www.cdisc.org/ns/odm/v1.3 OpenClinica-ODM1-3-0-OC2-0.xsd");
-        ArrayList<String> xmlnsList = new ArrayList<String>();
+        ArrayList<String> xmlnsList = new ArrayList<>();
         xmlnsList.add("xmlns=\"http://www.cdisc.org/ns/odm/v1.3\"");
         //xmlnsList.add("xmlns:OpenClinica=\"http://www.openclinica.org/ns/openclinica_odm/v1.3\"");
         xmlnsList.add("xmlns:OpenClinica=\"http://www.openclinica.org/ns/odm_ext_v130/v3.1\"");
@@ -152,7 +166,9 @@ public class StudyEndpoint {
        
         return  report.getXmlOutput().toString().trim();
     }
+
     private Element mapConfirmation(String confirmation, Errors errors) throws Exception {
+        
         DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = dbfac.newDocumentBuilder();
         Document document = docBuilder.newDocument();
@@ -168,42 +184,48 @@ public class StudyEndpoint {
             errorElement.setTextContent(theMessage);
             responseElement.appendChild(errorElement);
         }
+
         return responseElement;
-
     }
-
-    //private StudyMetadataRequestBean unMarshallRequest(Element studyEventDefinitionListAll) {
-    	private BaseStudyDefinitionBean unMarshallRequest(Element studyEventDefinitionListAll) {
+    
+    private BaseStudyDefinitionBean unMarshallRequest(Element studyEventDefinitionListAll) {
 
         Element studyIdentifierElement = DomUtils.getChildElementByTagName(studyEventDefinitionListAll, "identifier");
         String studyIdentifier = studyIdentifierElement == null ? null : DomUtils.getTextValue(studyIdentifierElement).trim();   
         BaseStudyDefinitionBean studyMetadataRequest = new BaseStudyDefinitionBean(studyIdentifier,  getUserAccount());
-        return studyMetadataRequest;
 
+        return studyMetadataRequest;
     }
 
     StudyBean getStudy(BaseStudyDefinitionBean studyMetadataRequest) {
+
         StudyBean study = null;
+        
         if (studyMetadataRequest.getStudyUniqueId() != null && studyMetadataRequest.getSiteUniqueId() == null) {
             study = getStudyDao().findByUniqueIdentifier(studyMetadataRequest.getStudyUniqueId());
         }
         if (studyMetadataRequest.getStudyUniqueId() != null && studyMetadataRequest.getSiteUniqueId() != null) {
             study = getStudyDao().findByUniqueIdentifier(studyMetadataRequest.getSiteUniqueId());
         }
+
         return study;
-
     }
-
+    
     /**
      * if NAMESPACE_URI_V1:getStudyListRequest execute this method
      * 
-     * @return
-     * @throws Exception
+     * @return Source
+     * @throws Exception exception
      */
     @PayloadRoot(localPart = "listAllRequest", namespace = NAMESPACE_URI_V1)
     public Source getStudyList() throws Exception {
+
         ResourceBundleProvider.updateLocale(new Locale("en_US"));
-        return new DOMSource(mapConfirmation(messages.getMessage("studyEndpoint.success", null, "Success", locale)));
+        Source result = new DOMSource(
+            mapConfirmation(messages.getMessage("studyEndpoint.success", null, "Success", locale))
+        );
+
+        return result;
     }
 
     /**
@@ -212,53 +234,59 @@ public class StudyEndpoint {
      * @return UserAccountBean
      */
     private UserAccountBean getUserAccount() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
         String username = null;
-        if (principal instanceof UserDetails) {
-            username = ((UserDetails) principal).getUsername();
-        } else {
-            username = principal.toString();
+        if (SecurityContextHolder.getContext().getAuthentication() != null) {
+            Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+            if (principal instanceof UserDetails) {
+                username = ((UserDetails) principal).getUsername();
+            } else {
+                username = principal.toString();
+            }
         }
+
         return (UserAccountBean) getUserAccountDao().findByUserName(username);
     }
 
     private HashMap<Integer, ArrayList<StudyBean>> getStudies() {
 
-        ArrayList<StudyUserRoleBean> studyUserRoleBeans = getUserAccountDao().findStudyByUser(getUserAccount().getName(), (ArrayList) getStudyDao().findAll());
+        ArrayList<StudyUserRoleBean> studyUserRoleBeans = getUserAccountDao().findStudyByUser(getUserAccount().getName(), getStudyDao().findAll());
 
-        HashMap<Integer, ArrayList<StudyBean>> validStudySiteMap = new HashMap<Integer, ArrayList<StudyBean>>();
-        for (int i = 0; i < studyUserRoleBeans.size(); i++) {
-            StudyUserRoleBean sr = studyUserRoleBeans.get(i);
+        HashMap<Integer, ArrayList<StudyBean>> validStudySiteMap = new HashMap<>();
+        for (StudyUserRoleBean sr : studyUserRoleBeans) {
             StudyBean study = (StudyBean) studyDao.findByPK(sr.getStudyId());
             if (study != null && study.getStatus().equals(Status.PENDING)) {
                 sr.setStatus(study.getStatus());
             }
-            if (study.isSite(study.getParentStudyId()) && !sr.isInvalid()) {
+            if (study != null && study.isSite(study.getParentStudyId()) && !sr.isInvalid()) {
                 if (validStudySiteMap.get(study.getParentStudyId()) == null) {
-                    ArrayList<StudyBean> sites = new ArrayList<StudyBean>();
+                    ArrayList<StudyBean> sites = new ArrayList<>();
                     sites.add(study);
                     validStudySiteMap.put(study.getParentStudyId(), sites);
                 } else {
                     validStudySiteMap.get(study.getParentStudyId()).add(study);
                 }
-            } else if (!study.isSite(study.getParentStudyId())) {
+            } else if (study != null && !study.isSite(study.getParentStudyId())) {
                 if (validStudySiteMap.get(study.getId()) == null) {
-                    ArrayList<StudyBean> sites = new ArrayList<StudyBean>();
+                    ArrayList<StudyBean> sites = new ArrayList<>();
                     validStudySiteMap.put(study.getId(), sites);
                 }
             }
         }
+        
         return validStudySiteMap;
     }
 
     /**
      * Create Response
      * 
-     * @param confirmation
-     * @return
-     * @throws Exception
+     * @param confirmation String confirmation
+     * @return Element
+     * @throws Exception exception
      */
     private Element mapConfirmation(String confirmation) throws Exception {
+        
         DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = dbfac.newDocumentBuilder();
         Document document = docBuilder.newDocument();
@@ -310,7 +338,6 @@ public class StudyEndpoint {
         studyElement.appendChild(element);
 
         return studyElement;
-
     }
 
     public StudyDAO getStudyDao() {
@@ -323,6 +350,4 @@ public class StudyEndpoint {
         return userAccountDao;
     }
     
-   
-
 }

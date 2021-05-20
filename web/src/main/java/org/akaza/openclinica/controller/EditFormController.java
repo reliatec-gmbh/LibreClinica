@@ -24,7 +24,6 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.service.StudyParameterValueBean;
-import org.akaza.openclinica.bean.submit.CRFVersionBean;
 import org.akaza.openclinica.dao.core.CoreResources;
 import org.akaza.openclinica.dao.hibernate.CrfVersionDao;
 import org.akaza.openclinica.dao.hibernate.EventCrfDao;
@@ -34,7 +33,6 @@ import org.akaza.openclinica.dao.hibernate.ItemFormMetadataDao;
 import org.akaza.openclinica.dao.hibernate.ItemGroupDao;
 import org.akaza.openclinica.dao.hibernate.ItemGroupMetadataDao;
 import org.akaza.openclinica.dao.hibernate.ResponseTypeDao;
-import org.akaza.openclinica.dao.hibernate.SectionDao;
 import org.akaza.openclinica.dao.hibernate.StudyEventDao;
 import org.akaza.openclinica.dao.hibernate.StudyEventDefinitionDao;
 import org.akaza.openclinica.dao.hibernate.StudySubjectDao;
@@ -57,7 +55,7 @@ import org.akaza.openclinica.service.pmanage.ParticipantPortalRegistrar;
 import org.akaza.openclinica.web.pform.EnketoAPI;
 import org.akaza.openclinica.web.pform.EnketoCredentials;
 import org.akaza.openclinica.web.pform.PFormCache;
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,9 +83,6 @@ public class EditFormController {
 
     @Autowired
     private CrfVersionDao crfVersionDao;
-
-    @Autowired
-    private SectionDao sectionDao;
 
     @Autowired
     private StudyEventDao studyEventDao;
@@ -237,7 +232,6 @@ public class EditFormController {
             // Get max repeat in item data
             int maxGroupRepeat = itemDataDao.getMaxGroupRepeat(eventCrf.getEventCrfId(), items.get(0).getItemId());
             // loop thru each repeat creating items in instance
-            String repeatGroupMin = itemGroupMetadata.getRepeatNumber().toString();
             Boolean isrepeating = itemGroupMetadata.isRepeatingGroup();
 
             // TODO: Test empty group here (no items). make sure doesn't get nullpointer exception
@@ -299,17 +293,6 @@ public class EditFormController {
         return instance;
     }
 
-    private StudyBean getParentStudy(Integer studyId) {
-        StudyBean study = getStudy(studyId);
-        if (study.getParentStudyId() == 0) {
-            return study;
-        } else {
-            StudyBean parentStudy = (StudyBean) sdao.findByPK(study.getParentStudyId());
-            return parentStudy;
-        }
-
-    }
-
     private StudyBean getParentStudy(String studyOid) {
         StudyBean study = getStudy(studyOid);
         if (study.getParentStudyId() == 0) {
@@ -321,28 +304,10 @@ public class EditFormController {
 
     }
 
-    private StudyBean getStudy(Integer id) {
-        sdao = new StudyDAO(dataSource);
-        StudyBean studyBean = (StudyBean) sdao.findByPK(id);
-        return studyBean;
-    }
-
     private StudyBean getStudy(String oid) {
         sdao = new StudyDAO(dataSource);
         StudyBean studyBean = (StudyBean) sdao.findByOid(oid);
         return studyBean;
-    }
-
-    private String fetchEditUrl(String studyOID, CRFVersionBean crfVersion, int studyEventDefinitionId) throws Exception {
-        StudyBean parentStudyBean = getParentStudy(studyOID);
-        PFormCache cache = PFormCache.getInstance(context);
-        String enketoURL = cache.getPFormURL(parentStudyBean.getOid(), crfVersion.getOid());
-        String contextHash = cache.putAnonymousFormContext(studyOID, crfVersion.getOid(), studyEventDefinitionId);
-
-        String url = enketoURL + "&" + FORM_CONTEXT + "=" + contextHash;
-        logger.debug("Enketo URL for " + crfVersion.getName() + "= " + url);
-        return url;
-
     }
 
     private boolean mayProceed(String studyOid) throws Exception {

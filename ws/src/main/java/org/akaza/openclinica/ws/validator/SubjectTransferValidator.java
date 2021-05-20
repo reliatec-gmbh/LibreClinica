@@ -29,6 +29,7 @@ import org.akaza.openclinica.ws.bean.SubjectStudyDefinitionBean;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
+// TODO duplicate of the version in the core module?
 public class SubjectTransferValidator implements Validator {
 
     DataSource dataSource;
@@ -45,7 +46,7 @@ public class SubjectTransferValidator implements Validator {
     }
 
     @Override
-    public boolean supports(Class clazz) {
+    public boolean supports(Class<?> clazz) {
         return SubjectTransferBean.class.equals(clazz);
     }
 

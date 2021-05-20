@@ -9,7 +9,7 @@ package org.akaza.openclinica.templates;
 
 import org.akaza.openclinica.dao.core.SQLFactory;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.dbunit.DataSourceBasedDBTestCase;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
@@ -17,17 +17,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
-import java.io.File;
 import java.util.Locale;
 import java.util.Properties;
 
 import javax.sql.DataSource;
 
+@SuppressWarnings("deprecation")
 public abstract class HibernateOcDbTestCase extends DataSourceBasedDBTestCase {
 
     protected static final Logger logger = LoggerFactory.getLogger(HibernateOcDbTestCase.class);
@@ -94,24 +92,6 @@ public abstract class HibernateOcDbTestCase extends DataSourceBasedDBTestCase {
        // setUpContext();
         // TODO Auto-generated method stub
         super.setUp();
-        
-    }
-
-    private void setUpContext() {
-        // Loading the applicationContext under test/resources first allows
-        // test.properties to be loaded first.Hence we can
-        // use different settings.
-       /* context =
-            new ClassPathXmlApplicationContext(
-                    new String[] { "classpath*:applicationContext-core-s*.xml", "classpath*:org/akaza/openclinica/applicationContext-core-db.xml",
-                        "classpath*:org/akaza/openclinica/applicationContext-core-email.xml",
-                        "classpath*:org/akaza/openclinica/applicationContext-core-hibernate.xml",
-                        "classpath*:org/akaza/openclinica/applicationContext-core-scheduler.xml",
-                        "classpath*:org/akaza/openclinica/applicationContext-core-service.xml",
-                       " classpath*:org/akaza/openclinica/applicationContext-core-timer.xml",
-                        "classpath*:org/akaza/openclinica/applicationContext-security.xml" });
-        transactionManager = (PlatformTransactionManager) context.getBean("transactionManager");
-        transactionManager.getTransaction(new DefaultTransactionDefinition());*/
         
     }
 

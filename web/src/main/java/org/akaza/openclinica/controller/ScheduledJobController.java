@@ -8,12 +8,13 @@
 package org.akaza.openclinica.controller;
 
 
+import static org.akaza.openclinica.core.util.ClassCastHelper.asArrayList;
 import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 import static org.quartz.TriggerBuilder.newTrigger;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -90,7 +91,7 @@ public class ScheduledJobController {
         * @RequestParam("studySubjectId") int studySubjectId,*/
         request.setAttribute("imagePathPrefix", "../");
 
-        ArrayList<String> pageMessages = (ArrayList<String>) request.getAttribute("pageMessages");
+        ArrayList<String> pageMessages = asArrayList(request.getAttribute("pageMessages"), String.class);
         if (pageMessages == null) {
             pageMessages = new ArrayList<String>();
         }
@@ -99,7 +100,6 @@ public class ScheduledJobController {
 
         List<JobExecutionContext> listCurrentJobs = new ArrayList<JobExecutionContext>();
         listCurrentJobs = scheduler.getCurrentlyExecutingJobs();
-        Iterator<JobExecutionContext> itCurrentJobs = listCurrentJobs.iterator();
         List<JobKey> currentJobList = listCurrentJobs.stream().map(job -> job.getTrigger().getJobKey()).collect(Collectors.toList());
         
         List<String> triggerGroups =  scheduler.getTriggerGroupNames();

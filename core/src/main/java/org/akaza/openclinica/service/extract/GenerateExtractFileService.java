@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -38,40 +37,34 @@ import org.akaza.openclinica.bean.extract.TabReportBean;
 import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.submit.ItemBean;
+import org.akaza.openclinica.bean.submit.ItemFormMetadataBean;
 import org.akaza.openclinica.dao.core.CoreResources;
 import org.akaza.openclinica.dao.extract.ArchivedDatasetFileDAO;
 import org.akaza.openclinica.dao.extract.DatasetDAO;
 import org.akaza.openclinica.dao.hibernate.RuleSetRuleDao;
-import org.akaza.openclinica.dao.submit.ItemDAO;
 import org.akaza.openclinica.dao.submit.ItemFormMetadataDAO;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@SuppressWarnings("deprecation")
 public class GenerateExtractFileService {
 
     private static final Logger logger = LoggerFactory.getLogger(GenerateExtractFileService.class);
     private final DataSource ds;
     private HttpServletRequest request;
     public static ResourceBundle resword;
-    private final CoreResources coreResources;
 
-    private static File files[]=null;
     private static List<File> oldFiles = new LinkedList<File>();
-    private final RuleSetRuleDao ruleSetRuleDao;
 
     public GenerateExtractFileService(DataSource ds, HttpServletRequest request, CoreResources coreResources,
             RuleSetRuleDao ruleSetRuleDao) {
         this.ds = ds;
         this.request = request;
-        this.coreResources = coreResources;
-        this.ruleSetRuleDao = ruleSetRuleDao;
     }
 
     public GenerateExtractFileService(DataSource ds, CoreResources coreResources,RuleSetRuleDao ruleSetRuleDao) {
-        this.ds = ds;
-        this.coreResources = coreResources;
-        this.ruleSetRuleDao = ruleSetRuleDao;
+        this(ds, null, coreResources, ruleSetRuleDao);
     }
 
     public void setUpResourceBundles() {
@@ -105,22 +98,13 @@ public class GenerateExtractFileService {
 
         int fId = this.createFile(TXTFileName, generalFileDir, answer.toString(), datasetBean, sysTimeEnd, ExportFormatBean.TXTFILE, true, userBean);
         if (!"".equals(generalFileDirCopy)) {
-            int fId2 = this.createFile(TXTFileName, generalFileDirCopy, answer.toString(), datasetBean, sysTimeEnd, ExportFormatBean.TXTFILE, false, userBean);
+            this.createFile(TXTFileName, generalFileDirCopy, answer.toString(), datasetBean, sysTimeEnd, ExportFormatBean.TXTFILE, false, userBean);
         }
         logger.info("created txt file");
         // return TXTFileName;
-        HashMap answerMap = new HashMap<String, Integer>();
+        HashMap<String, Integer> answerMap = new HashMap<>();
         answerMap.put(TXTFileName, new Integer(fId));
         return answerMap;
-    }
-
-    private Integer getStudySubjectNumber(String studySubjectNumber){
-        try{
-        Integer value = Integer.valueOf(studySubjectNumber);
-        return value > 0 ? value : 99;
-        }catch (NumberFormatException e) {
-            return 99;
-        }
     }
 
     /**
@@ -163,7 +147,7 @@ public class GenerateExtractFileService {
      * @param parentstudy
      * @return
      */
-    public HashMap<String, Integer> createSPSSFile(DatasetBean db, ExtractBean eb2, StudyBean currentStudy, StudyBean parentStudy, long sysTimeBegin,
+	public HashMap<String, Integer> createSPSSFile(DatasetBean db, ExtractBean eb2, StudyBean currentStudy, StudyBean parentStudy, long sysTimeBegin,
             String generalFileDir, SPSSReportBean answer, String generalFileDirCopy, UserAccountBean userBean) {
         setUpResourceBundles();
 
@@ -190,13 +174,12 @@ public class GenerateExtractFileService {
         // itemMetadata
 
         // set up response sets for each item here
-        ItemDAO itemdao = new ItemDAO(ds);
         ItemFormMetadataDAO imfdao = new ItemFormMetadataDAO(ds);
-        ArrayList items = answer.getItems();
+        ArrayList<DisplayItemHeaderBean> items = answer.getItems();
         for (int i = 0; i < items.size(); i++) {
             DisplayItemHeaderBean dih = (DisplayItemHeaderBean) items.get(i);
             ItemBean item = dih.getItem();
-            ArrayList metas = imfdao.findAllByItemId(item.getId());
+            ArrayList<ItemFormMetadataBean> metas = imfdao.findAllByItemId(item.getId());
             // for (int h = 0; h < metas.size(); h++) {
             // ItemFormMetadataBean ifmb = (ItemFormMetadataBean)
             // metas.get(h);
@@ -209,7 +192,7 @@ public class GenerateExtractFileService {
 
         }
 
-        HashMap eventDescs = new HashMap<String, String>();
+        HashMap<String, String> eventDescs = new HashMap<>();
 
         eventDescs = eb2.getEventDescriptions();
 
@@ -220,7 +203,7 @@ public class GenerateExtractFileService {
         eventDescs.put("Gender", resword.getString("gender"));
         answer.setDescriptions(eventDescs);
 
-        ArrayList generatedReports = new ArrayList<String>();
+        ArrayList<String> generatedReports = new ArrayList<>();
         try {
             // YW <<
             generatedReports.add(answer.getMetadataFile(svnv, eb2).toString());
@@ -233,7 +216,7 @@ public class GenerateExtractFileService {
 
         long sysTimeEnd = System.currentTimeMillis() - sysTimeBegin;
 
-        ArrayList titles = new ArrayList();
+        ArrayList<String> titles = new ArrayList<>();
         // YW <<
         titles.add(DDLFileName);
         titles.add(SPSSFileName);
@@ -243,15 +226,15 @@ public class GenerateExtractFileService {
         // put into zip files
         int fId = this.createFile(ZIPFileName, titles, generalFileDir, generatedReports, db, sysTimeEnd, ExportFormatBean.TXTFILE, true, userBean);
         if (!"".equals(generalFileDirCopy)) {
-            int fId2 = this.createFile(ZIPFileName, titles, generalFileDirCopy, generatedReports, db, sysTimeEnd, ExportFormatBean.TXTFILE, false, userBean);
+            this.createFile(ZIPFileName, titles, generalFileDirCopy, generatedReports, db, sysTimeEnd, ExportFormatBean.TXTFILE, false, userBean);
         }
         // return DDLFileName;
-        HashMap answerMap = new HashMap<String, Integer>();
+        HashMap<String, Integer> answerMap = new HashMap<>();
         answerMap.put(DDLFileName, new Integer(fId));
         return answerMap;
     }
 
-    public int createFile(String zipName, ArrayList names, String dir, ArrayList contents, DatasetBean datasetBean, long time,
+    public int createFile(String zipName, ArrayList<String> names, String dir, ArrayList<String> contents, DatasetBean datasetBean, long time,
             ExportFormatBean efb, boolean saveToDB, UserAccountBean userBean) {
         ArchivedDatasetFileBean fbFinal = new ArchivedDatasetFileBean();
         // >> tbh #4915
@@ -466,19 +449,6 @@ public class GenerateExtractFileService {
         return fbFinal.getId();
     }
 
-    private void deleteOldFiles(List oldFiles2) {
-
-            //File[] files = complete.listFiles();
-
-            Iterator<File> fileIt = oldFiles2.iterator();
-            while(fileIt.hasNext())
-            {
-                fileIt.next().delete();
-            }
-
-
-    }
-
     public int createFile(String name, String dir, String content, DatasetBean datasetBean, long time,
             ExportFormatBean efb, boolean saveToDB, UserAccountBean userBean) {
         ArchivedDatasetFileBean fbFinal = new ArchivedDatasetFileBean();
@@ -493,43 +463,47 @@ public class GenerateExtractFileService {
             File newFile = new File(complete, name);
             newFile.setLastModified(System.currentTimeMillis());
 
-            BufferedWriter w = new BufferedWriter(new FileWriter(newFile));
-            w.write(content);
-            w.close();
+            try (BufferedWriter w = new BufferedWriter(new FileWriter(newFile))) {
+            	w.write(content);
+            	w.close();
+            }
             logger.info("finished writing the text file...");
             // now, we write the file to the zip file
-            FileInputStream is = new FileInputStream(newFile);
-            ZipOutputStream z = new ZipOutputStream(new FileOutputStream(new File(complete, name + ".zip")));
-            logger.info("created zip output stream...");
-            // we write over the content no matter what
-            // we then check to make sure there are no duplicates
-            // TODO need to change the above -- save all content!
-            // z.write(content);
-            z.putNextEntry(new java.util.zip.ZipEntry(name));
-            // int length = (int) newFile.length();
-            int bytesRead;
-            byte[] buff = new byte[512];
-            // read from buffered input stream and put into zip file
-            // while (-1 != (bytesRead = bis.read(buff, 0, buff.length))) {
-            while ((bytesRead = is.read(buff)) != -1) {
-                z.write(buff, 0, bytesRead);
-            }
-            logger.info("writing buffer...");
-            // }
-            z.closeEntry();
-            z.finish();
-            // newFile = new File(complete, name+".zip");
-            // newFile.setLastModified(System.currentTimeMillis());
-            //
-            // BufferedWriter w2 = new BufferedWriter(new FileWriter(newFile));
-            // w2.write(newOut.toString());
-            // w2.close();
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (java.io.IOException ie) {
-                    ie.printStackTrace();
-                }
+            try (
+            		FileInputStream is = new FileInputStream(newFile);
+            		ZipOutputStream z = new ZipOutputStream(new FileOutputStream(new File(complete, name + ".zip")));
+			) {
+	            logger.info("created zip output stream...");
+	            // we write over the content no matter what
+	            // we then check to make sure there are no duplicates
+	            // TODO need to change the above -- save all content!
+	            // z.write(content);
+	            z.putNextEntry(new java.util.zip.ZipEntry(name));
+	            // int length = (int) newFile.length();
+	            int bytesRead;
+	            byte[] buff = new byte[512];
+	            // read from buffered input stream and put into zip file
+	            // while (-1 != (bytesRead = bis.read(buff, 0, buff.length))) {
+	            while ((bytesRead = is.read(buff)) != -1) {
+	                z.write(buff, 0, bytesRead);
+	            }
+	            logger.info("writing buffer...");
+	            // }
+	            z.closeEntry();
+	            z.finish();
+	            // newFile = new File(complete, name+".zip");
+	            // newFile.setLastModified(System.currentTimeMillis());
+	            //
+	            // BufferedWriter w2 = new BufferedWriter(new FileWriter(newFile));
+	            // w2.write(newOut.toString());
+	            // w2.close();
+	            if (is != null) {
+	                try {
+	                    is.close();
+	                } catch (java.io.IOException ie) {
+	                    ie.printStackTrace();
+	                }
+	            }
             }
             logger.info("finished zipping up file...");
             // set up the zip to go into the database
@@ -596,8 +570,6 @@ public class GenerateExtractFileService {
 
     public void zipFile(String name, String dir) throws IOException
     {
-        //if (zipped) {
-        String zipFileName = null;
         File complete = new File(dir);
         if (!complete.isDirectory()) {
             complete.mkdirs();

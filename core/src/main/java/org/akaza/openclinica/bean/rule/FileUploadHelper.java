@@ -78,7 +78,6 @@ public class FileUploadHelper {
         return isMultipart ? getFiles(request, context, createDirectoryIfDoesntExist(dirToSaveUploadedFileIn)) : new ArrayList<File>();
     }
 
-    @SuppressWarnings("unchecked")
     private List<File> getFiles(HttpServletRequest request, ServletContext context, String dirToSaveUploadedFileIn) {
         List<File> files = new ArrayList<File>();
 

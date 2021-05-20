@@ -11,7 +11,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -29,14 +28,13 @@ import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
  */
 public class OpenClinicaJdbcService extends JdbcDaoImpl {
 
-    private MappingSqlQuery ocUsersByUsernameMapping;
+    private MappingSqlQuery<UserDetails> ocUsersByUsernameMapping;
 
     /**
      * Executes the <tt>usersByUsernameQuery</tt> and returns a list of UserDetails objects (there should normally only be one matching user).
      */
-    @SuppressWarnings("unchecked")
     @Override
-    protected List loadUsersByUsername(String username) {
+    protected List<UserDetails> loadUsersByUsername(String username) {
         this.ocUsersByUsernameMapping = new OcUsersByUsernameMapping(getDataSource());
         return ocUsersByUsernameMapping.execute(username);
     }
@@ -67,7 +65,7 @@ public class OpenClinicaJdbcService extends JdbcDaoImpl {
     /**
      * Query object to look up a user.
      */
-    private class OcUsersByUsernameMapping extends MappingSqlQuery {
+    private class OcUsersByUsernameMapping extends MappingSqlQuery<UserDetails> {
         protected OcUsersByUsernameMapping(DataSource ds) {
             super(ds, getUsersByUsernameQuery());
             declareParameter(new SqlParameter(Types.VARCHAR));
@@ -75,7 +73,7 @@ public class OpenClinicaJdbcService extends JdbcDaoImpl {
         }
 
         @Override
-        protected Object mapRow(ResultSet rs, int rownum) throws SQLException {
+        protected UserDetails mapRow(ResultSet rs, int rownum) throws SQLException {
             String username = rs.getString(1);
             String password = rs.getString(2);
             boolean enabled = rs.getBoolean(3);

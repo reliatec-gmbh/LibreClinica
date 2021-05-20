@@ -18,7 +18,11 @@ import org.akaza.openclinica.web.pform.EnketoCredentials;
 
 public class ParticipantFormServlet extends SecureController {
 
-    public static final String CRF_ID = "crfOID";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1870794659352123090L;
+	public static final String CRF_ID = "crfOID";
     public static final String FORM_URL = "formURL";
 
     @Override
@@ -58,7 +62,8 @@ public class ParticipantFormServlet extends SecureController {
 
     private EnketoCredentials getCredentials() throws Exception {
         EnketoCredentials credentials = null;
-        Map<String, EnketoCredentials> credentialsMap = (Map<String, EnketoCredentials>) session.getAttribute("EnketoCredentialsMap");
+        @SuppressWarnings("unchecked")
+		Map<String, EnketoCredentials> credentialsMap = (Map<String, EnketoCredentials>) session.getAttribute("EnketoCredentialsMap");
         if (credentialsMap == null) {
             credentialsMap = new HashMap<String, EnketoCredentials>();
             credentials = EnketoCredentials.getInstance(currentStudy.getOid());

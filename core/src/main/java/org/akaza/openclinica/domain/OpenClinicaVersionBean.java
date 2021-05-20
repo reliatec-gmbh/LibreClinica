@@ -34,7 +34,11 @@ import org.hibernate.annotations.Parameter;
 @GenericGenerator(name = "id-generator", strategy = "native", parameters = { @Parameter(name = "sequence_name", value = "openclinica_version_id_seq") })
 public class OpenClinicaVersionBean extends AbstractMutableDomainObject {
 
-    private String name;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1980137452185565907L;
+	private String name;
     private String build_number;
     private Timestamp update_timestamp;
 
