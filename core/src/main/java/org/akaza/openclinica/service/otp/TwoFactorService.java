@@ -12,7 +12,6 @@ import dev.samstevens.totp.code.DefaultCodeGenerator;
 import dev.samstevens.totp.code.DefaultCodeVerifier;
 import dev.samstevens.totp.exceptions.QrGenerationException;
 import dev.samstevens.totp.qr.QrData;
-import dev.samstevens.totp.qr.QrGenerator;
 import dev.samstevens.totp.qr.ZxingPngQrGenerator;
 import dev.samstevens.totp.secret.DefaultSecretGenerator;
 import dev.samstevens.totp.time.SystemTimeProvider;
@@ -34,14 +33,16 @@ public class TwoFactorService {
     }
 
     /**
-     * Returns true if 2-FA is activated system wide - false otherwise.
+     * Returns true if 2-FA is activated system wide - false otherwise (also
+     * default).
      */
     public boolean getTwoFactorActivated() {
         return Boolean.valueOf(coreResources.getDATAINFO().getProperty(TWO_FACTOR_ACTIVATED_SETTING, "false"));
     }
 
     /**
-     * Verifies a 2-fa internat secret against a provided one-time password.
+     * Verifies a 2-FA internal secret against a provided one-time password.
+     * Return true if valid - false otherwise.
      * 
      * @param secret The private key (inside the system).
      * @param oneTimePassword The user's one-time password.
@@ -52,11 +53,23 @@ public class TwoFactorService {
 
     /**
      * Generates a {@link TowFactorBean} holding specifc 2-FA information needed
-     * for user configuration.
+     * for client user configuration (secret, QR-code as image url).
+     * 
+     * @throws Exception In cases of errors.
      */
     public TowFactorBean generate() throws Exception {
+        return generate(secretGenerator.generate());
+    }
+
+    /**
+     * Like {@link #generate()} but generates {@link TowFactorBean} with image
+     * of an already existing or given secret.
+     * 
+     * @param secret The secret to use for QR-code.
+     * @throws Exception In cases of errors.
+     */
+    public TowFactorBean generate(String secret) throws Exception {
         try {
-            String secret = secretGenerator.generate();
 
             // @formatter:off
             QrData data = new QrData.Builder().

@@ -131,94 +131,92 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
     }
 
     @Override
-    public UserAccountBean update(UserAccountBean uab) {
+    public UserAccountBean update(UserAccountBean useAccountBean) {
         HashMap<Integer, Object> variables = new HashMap<>();
 		HashMap<Integer, Integer> nullVars = new HashMap<>();
 
-        /*
-         * update user_account set date_lastvisit=?, passwd_timestamp=?, passwd_challenge_question=?, passwd_challenge_answer=?, phone=? where user_name=?
-         */
-
-        variables.put(new Integer(1), uab.getName());
-        variables.put(new Integer(2), uab.getPasswd());
-        variables.put(new Integer(3), uab.getFirstName());
-        variables.put(new Integer(4), uab.getLastName());
-        variables.put(new Integer(5), uab.getEmail());
-        if (uab.getActiveStudyId() == 0) {
+        variables.put(new Integer(1), useAccountBean.getName());
+        variables.put(new Integer(2), useAccountBean.getPasswd());
+        variables.put(new Integer(3), useAccountBean.getFirstName());
+        variables.put(new Integer(4), useAccountBean.getLastName());
+        variables.put(new Integer(5), useAccountBean.getEmail());
+        if (useAccountBean.getActiveStudyId() == 0) {
             nullVars.put(new Integer(6), new Integer(TypeNames.INT));
             variables.put(new Integer(6), null);
         } else {
-            variables.put(new Integer(6), new Integer(uab.getActiveStudyId()));
+            variables.put(new Integer(6), new Integer(useAccountBean.getActiveStudyId()));
         }
-        variables.put(new Integer(7), uab.getInstitutionalAffiliation());
-        variables.put(new Integer(8), new Integer(uab.getStatus().getId()));
-        variables.put(new Integer(9), new Integer(uab.getUpdaterId()));
-        if (uab.getLastVisitDate() == null) {
+        variables.put(new Integer(7), useAccountBean.getInstitutionalAffiliation());
+        variables.put(new Integer(8), new Integer(useAccountBean.getStatus().getId()));
+        variables.put(new Integer(9), new Integer(useAccountBean.getUpdaterId()));
+        if (useAccountBean.getLastVisitDate() == null) {
             nullVars.put(new Integer(10), new Integer(TypeNames.TIMESTAMP));
             variables.put(new Integer(10), null);
         } else {
-            variables.put(new Integer(10), new Timestamp(uab.getLastVisitDate().getTime()));
+            variables.put(new Integer(10), new Timestamp(useAccountBean.getLastVisitDate().getTime()));
         }
-        if (uab.getPasswdTimestamp() == null) {
+        if (useAccountBean.getPasswdTimestamp() == null) {
             nullVars.put(new Integer(11), new Integer(TypeNames.DATE));
             variables.put(new Integer(11), null);
         } else {
-            variables.put(new Integer(11), uab.getPasswdTimestamp());
+            variables.put(new Integer(11), useAccountBean.getPasswdTimestamp());
         }
-        variables.put(new Integer(12), uab.getPasswdChallengeQuestion());
-        variables.put(new Integer(13), uab.getPasswdChallengeAnswer());
-        variables.put(new Integer(14), uab.getPhone());
+        variables.put(new Integer(12), useAccountBean.getPasswdChallengeQuestion());
+        variables.put(new Integer(13), useAccountBean.getPasswdChallengeAnswer());
+        variables.put(new Integer(14), useAccountBean.getPhone());
 
-        if (uab.isTechAdmin()) {
+        if (useAccountBean.isTechAdmin()) {
             variables.put(new Integer(15), new Integer(UserType.TECHADMIN.getId()));
-        } else if (uab.isSysAdmin()) {
+        } else if (useAccountBean.isSysAdmin()) {
             variables.put(new Integer(15), new Integer(UserType.SYSADMIN.getId()));
         } else {
             variables.put(new Integer(15), new Integer(UserType.USER.getId()));
         }
 
-        variables.put(new Integer(16), uab.getAccountNonLocked());
-        variables.put(new Integer(17), uab.getLockCounter());
-        variables.put(new Integer(18), uab.getRunWebservices());
+        variables.put(new Integer(16), useAccountBean.getAccountNonLocked());
+        variables.put(new Integer(17), useAccountBean.getLockCounter());
+        variables.put(new Integer(18), useAccountBean.getRunWebservices());
 
-        if (uab.getAccessCode() == null || uab.getAccessCode().equals("") || uab.getAccessCode().equals("null")) {
+        if (useAccountBean.getAccessCode() == null || useAccountBean.getAccessCode().equals("") || useAccountBean.getAccessCode().equals("null")) {
             nullVars.put(new Integer(19), new Integer(TypeNames.STRING));
             variables.put(new Integer(19), null);
         } else {
-            variables.put(new Integer(19), uab.getAccessCode());
+            variables.put(new Integer(19), useAccountBean.getAccessCode());
         }
         
-        if (uab.getTime_zone() == null || uab.getTime_zone().equals("")) {
+        if (useAccountBean.getTime_zone() == null || useAccountBean.getTime_zone().equals("")) {
             nullVars.put(new Integer(20), new Integer(TypeNames.STRING));
             variables.put(new Integer(20), null);
         } else {
-            variables.put(new Integer(20), uab.getTime_zone());
+            variables.put(new Integer(20), useAccountBean.getTime_zone());
         }
-        variables.put(new Integer(21), uab.isEnableApiKey());
+        variables.put(new Integer(21), useAccountBean.isEnableApiKey());
         
-        if (uab.getApiKey() == null || uab.getApiKey().equals("")) {
+        if (useAccountBean.getApiKey() == null || useAccountBean.getApiKey().equals("")) {
             nullVars.put(new Integer(22), new Integer(TypeNames.STRING));
             variables.put(new Integer(22), null);        
-        }else{
-        variables.put(new Integer(22), uab.getApiKey());
+        } else {
+            variables.put(new Integer(22), useAccountBean.getApiKey());
         }
         
-        variables.put(new Integer(23), new Integer(uab.getId()));
-
+        variables.put(23, useAccountBean.getAuthtype());
+        variables.put(24, useAccountBean.getAuthsecret());
+        // Identifier at last position!!!
+        variables.put(new Integer(25), new Integer(useAccountBean.getId()));
 
         String sql = digester.getQuery("update");
         this.executeUpdate(sql, variables, nullVars);
 
-        if (!uab.isTechAdmin()) {
-            setSysAdminRole(uab, false);
+        if (!useAccountBean.isTechAdmin()) {
+            setSysAdminRole(useAccountBean, false);
         }
 
         if (!this.isQuerySuccessful()) {
-            uab.setId(0);
+            useAccountBean.setId(0);
             logger.warn("query failed: " + sql);
         }
 
-        return uab;
+        return useAccountBean;
     }
 
     /**
