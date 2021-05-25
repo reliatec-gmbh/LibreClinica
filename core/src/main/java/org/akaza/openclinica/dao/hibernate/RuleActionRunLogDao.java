@@ -33,7 +33,7 @@ public class RuleActionRunLogDao extends AbstractDomainDao<RuleActionRunLogBean>
     @Transactional
     public void delete(int itemDataId) {
         String query = "delete from " + getDomainClassName() + " rarl where rarl.itemDataId = :itemDataId";
-        Query<RuleActionRunLogBean> q = getCurrentSession().createQuery(query, domainClass());
+        Query<?> q = getCurrentSession().createQuery(query);
         q.setParameter("itemDataId", itemDataId);
         q.executeUpdate();
     }
