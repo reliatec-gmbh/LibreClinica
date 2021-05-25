@@ -223,7 +223,7 @@
 	<input type="submit" name="Submit" value="<fmt:message key="confirm_profile_changes" bundle="${resword}"/>" class="button_long">
 	<input type="button" onclick="confirmCancel('MainMenu');"  name="cancel" value="   <fmt:message key="cancel" bundle="${resword}"/>   " class="button_medium"/>
 	<c:if test="${factorService.twoFactorActivated}">
-		<input type="button" id="qrButton" value="QR-Code" onClick="qrButtonClick();" style="visibility:hidden;" class="button_medium" title="Click here to request a QR-Code which can be scanned with your Athenticator-App." />
+		<input type="button" id="qrButton" value="QR-Code" onClick="qrButtonClick();" style="visibility:hidden;" class="button_medium" title="Click to request a QR-code which can be scanned with your Athenticator-App." />
 	</c:if>
 </form>
 <jsp:include page="../include/footer.jsp"/>
