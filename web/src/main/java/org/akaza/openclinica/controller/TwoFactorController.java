@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
  * Simple Spring Controller used as bridge between client side and service stack
- * providing access to the 2-FA related use cases of generating .
+ * providing access to the 2-FA related use cases of generating 2-fa secrets.
  * 
  * @author thillger
  */

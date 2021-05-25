@@ -132,7 +132,7 @@ public class OpenClinicaUsernamePasswordAuthenticationFilter extends AbstractAut
                 throw new BadCredentialsException(BAD_CREDENTIALS_MESSAGE);
             }
 
-            if (factorService.getTwoFactorActivated()) {
+            if (factorService.getTwoFactorActivated() && userAccountBean.isTwoFactorActivated()) {
                 String factor = request.getParameter(SPRING_SECURITY_FORM_FACTOR);
 
                 if (!factorService.verify(userAccountBean.getAuthsecret(), factor)) {

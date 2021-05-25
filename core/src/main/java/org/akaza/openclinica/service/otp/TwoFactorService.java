@@ -1,6 +1,7 @@
 package org.akaza.openclinica.service.otp;
 
 import static dev.samstevens.totp.code.HashingAlgorithm.SHA1;
+import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
 
 import java.util.Base64;
 
@@ -48,7 +49,7 @@ public class TwoFactorService {
      * @param oneTimePassword The user's one-time password.
      */
     public boolean verify(String secret, String oneTimePassword) {
-        return verifier.isValidCode(secret, oneTimePassword);
+        return verifier.isValidCode(secret, defaultIfEmpty(oneTimePassword, ""));
     }
 
     /**

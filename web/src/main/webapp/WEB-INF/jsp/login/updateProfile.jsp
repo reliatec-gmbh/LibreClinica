@@ -139,8 +139,8 @@
 	  <tr>
 	  	<td class="formlabel"><fmt:message key="auth_type" bundle="${resword}"/>:</td>
 	  	<td>
-  			<input type="radio" id="authtypeStandard" name="authtype" style="display:inline-block;" id="standard" value="STANDARD" on onchange="enableDisableQrCodeButton();" <c:if test="${userBean1.authtype eq 'STANDARD'}">checked</c:if> /> Standard
-			<input type="radio" id="authtypeTwoFactor" name="authtype" style="display:inline-block;" id="twofactor" value="TWO_FACTOR" onchange="enableDisableQrCodeButton();" <c:if test="${userBean1.authtype ne 'STANDARD'}">checked</c:if>/> 2-Factor Authentication
+  			<input type="radio" id="authtypeStandard" name="authtype" style="display:inline-block;" value="STANDARD" on onchange="enableDisableQrCodeButton();" <c:if test="${userBean1.authtype eq 'STANDARD'}">checked</c:if> /> Standard
+			<input type="radio" id="authtypeTwoFactor" name="authtype" style="display:inline-block;" value="TWO_FACTOR" onchange="enableDisableQrCodeButton();" <c:if test="${userBean1.authtype ne 'STANDARD'}">checked</c:if>/> 2-Factor Authentication
 
 			<jsp:include page="../showMessage.jsp">
 				<jsp:param name="key" value="auth_type"/>
