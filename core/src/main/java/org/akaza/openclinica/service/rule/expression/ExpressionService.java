@@ -1135,14 +1135,13 @@ public class ExpressionService {
         logger.debug("Expression : " + expression);
         logger.debug("Expression : " + getCrfOidFromExpression(expression));
         CRFVersionBean crfVersion = getCrfVersionDao().findByOid(getCrfOidFromExpression(expression));
-        if (crfVersion != null) {
+        if (crfVersion != null && crfVersion.isActive()) {
             int crfId = getCrfVersionDao().getCRFIdFromCRFVersionId(crfVersion.getId());
-            crf = (CRFBean) getCrfDao().findByPK(crfId);
+            crf = getCrfDao().findByPK(crfId);
         } else {
             crf = getCrfDao().findByOid(getCrfOidFromExpression(expression));
         }
         return crf;
-        // return crfVersions.size() > 0 ? crfVersions.get(0) : null;
     }
 
     public CRFVersionBean getCRFVersionFromExpression(String expression) {
