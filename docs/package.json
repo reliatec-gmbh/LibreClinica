@@ -1,0 +1,32 @@
+{
+  "name": "markdownToPdfConversion",
+  "version": "1.2.0",
+  "private": true,
+  "scripts": {
+	"pdf-manual": "md-to-pdf ./manuals/monitor-manual.md > ../web/target/monitor-manual.pdf && md-to-pdf ./manuals/investigator-manual.md > ../web/target/investigator-manual.pdf"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended"
+    ],
+    "rules": {
+      "no-console": "off"
+    },
+    "parserOptions": {
+      "parser": "babel-eslint"
+    }
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions"
+  ]
+}
