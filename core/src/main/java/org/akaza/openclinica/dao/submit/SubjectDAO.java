@@ -27,9 +27,6 @@ import org.akaza.openclinica.dao.core.TypeNames;
  * @author jxu
  */
 public class SubjectDAO extends AuditableEntityDAO<SubjectBean> {
-    // private DataSource ds;
-    // private DAODigester digester;
-    // protected String
 
     protected void setQueryNames() {
         getCurrentPKName = "getCurrentPrimaryKey";
@@ -78,7 +75,6 @@ public class SubjectDAO extends AuditableEntityDAO<SubjectBean> {
         this.setTypeExpected(11, TypeNames.INT);
         this.setTypeExpected(12, TypeNames.BOOL);
         this.setTypeExpected(13, TypeNames.STRING);
-
     }
 
     /**
@@ -87,7 +83,6 @@ public class SubjectDAO extends AuditableEntityDAO<SubjectBean> {
      * For every subject find all studies that subject belongs to.
      *
      * smw
-     *
      */
     public ArrayList<SubjectBean> findAllSubjectsAndStudies() {
 
@@ -100,7 +95,7 @@ public class SubjectDAO extends AuditableEntityDAO<SubjectBean> {
         ArrayList<HashMap<String, Object>> alist = this.select(sql);
         ArrayList<SubjectBean> answer = new ArrayList<>();
         for(HashMap<String, Object> hm : alist) {
-            SubjectBean sb = (SubjectBean) this.getEntityFromHashMap(hm);
+            SubjectBean sb = this.getEntityFromHashMap(hm);
             sb.setLabel((String) hm.get("label"));
             sb.setStudyIdentifier((String) hm.get("study_unique_identifier"));
 
@@ -111,8 +106,7 @@ public class SubjectDAO extends AuditableEntityDAO<SubjectBean> {
     }
 
     /**
-     * @param gender
-     *            Use 'm' for males, 'f' for females.
+     * @param gender Use 'm' for males, 'f' for females.
      * @return All subjects who are male, if <code>gender == 'm'</code>, or all
      *         subjects who are female, if <code>gender == 'f'</code>, or a
      *         blank list, otherwise.
@@ -141,8 +135,7 @@ public class SubjectDAO extends AuditableEntityDAO<SubjectBean> {
     }
 
     /**
-     * @param gender
-     *            Use 'm' for males, 'f' for females, not include himself.
+     * @param gender Use 'm' for males, 'f' for females, not include himself.
      * @return All subjects who are male, if <code>gender == 'm'</code>, or all
      *         subjects who are female, if <code>gender == 'f'</code>, or a
      *         blank list, otherwise.
@@ -174,7 +167,7 @@ public class SubjectDAO extends AuditableEntityDAO<SubjectBean> {
         return executeFindAllQuery(queryName, variables);
     }
 
-    // TODO remove unused parameter 'currentStudy'
+    // TODO: remove unused parameter 'currentStudy'
     public ArrayList<SubjectBean> getWithFilterAndSort(StudyBean currentStudy, ListSubjectFilter filter, ListSubjectSort sort, int rowStart, int rowEnd) {
         setTypesExpected();
 
@@ -190,50 +183,46 @@ public class SubjectDAO extends AuditableEntityDAO<SubjectBean> {
         }
 
         ArrayList<HashMap<String, Object>> rows = this.select(sql);
-        ArrayList<SubjectBean> subjects = new ArrayList<SubjectBean>();
+        ArrayList<SubjectBean> subjects = new ArrayList<>();
         for(HashMap<String, Object> hm : rows) {
-            SubjectBean subjectBean = (SubjectBean) this.getEntityFromHashMap(hm);
+            SubjectBean subjectBean = this.getEntityFromHashMap(hm);
             subjects.add(subjectBean);
         }
         return subjects;
     }
 
+    // TODO: remove unused parameter 'currentStudy'
     public Integer getCountWithFilter(ListSubjectFilter filter, StudyBean currentStudy) {
         String query = digester.getQuery("getCountWithFilter");
         query += filter.execute("");
-        return getCountByQuery(query, new HashMap<Integer, Object>());
+        return getCountByQuery(query, new HashMap<>());
     }
 
     /**
-     * <p>
-     * getEntityFromHashMap, the method that gets the object from the database
-     * query.
+     * getEntityFromHashMap, the method that gets the object from the database query.
      */
     public SubjectBean getEntityFromHashMap(HashMap<String, Object> hm) {
         SubjectBean eb = new SubjectBean();
         super.setEntityAuditInformation(eb, hm);
-        eb.setId(((Integer) hm.get("subject_id")).intValue());
+        eb.setId((Integer) hm.get("subject_id"));
         Date birthday = (Date) hm.get("date_of_birth");
         eb.setDateOfBirth(birthday);
-        try {
-            String gender = (String) hm.get("gender");
-            char[] genderarr = gender.toCharArray();
-            eb.setGender(genderarr[0]);
-        } catch (ClassCastException ce) {
-            eb.setGender(' ');
+        String gender = (String) hm.get("gender");
+        if (gender != null && !gender.isEmpty()) {
+            eb.setGender(gender.charAt(0));
+        } else {
+            eb.setGender(' ');    
         }
         eb.setUniqueIdentifier((String) hm.get("unique_identifier"));
-        eb.setDobCollected(((Boolean) hm.get("dob_collected")).booleanValue());
+        eb.setDobCollected((Boolean) hm.get("dob_collected"));
 
         return eb;
     }
 
     public ArrayList<SubjectBean> findAll() {
-
         return findAllByLimit(false);
     }
 
-    
     public ArrayList<SubjectBean> findAllByLimit(boolean hasLimit) {
     	String queryName;
         if (hasLimit) {
@@ -257,12 +246,11 @@ public class SubjectDAO extends AuditableEntityDAO<SubjectBean> {
     }
 
     /**
-     * Finds the subject which has the given identifier and is inside given
-     * study
+     * Finds the subject which has the given identifier and is inside given study
      *
-     * @param uniqueIdentifier
-     * @param studyId
-     * @return
+     * @param uniqueIdentifier subject unique identifier
+     * @param studyId study id
+     * @return Subject
      */
     public SubjectBean findByUniqueIdentifierAndAnyStudy(String uniqueIdentifier, int studyId) {
     	String queryName = "findByUniqueIdentifierAndAnyStudy";
@@ -270,7 +258,6 @@ public class SubjectDAO extends AuditableEntityDAO<SubjectBean> {
         return executeFindByPKQuery(queryName, variables);
     }
 
-    
     public SubjectBean findByUniqueIdentifierAndStudy(String uniqueIdentifier, int studyId) {
     	String queryName = "findByUniqueIdentifierAndStudy";
         HashMap<Integer, Object> variables = variables(uniqueIdentifier, studyId);
@@ -278,12 +265,11 @@ public class SubjectDAO extends AuditableEntityDAO<SubjectBean> {
     }
 
     /**
-     * Finds the subject which has the given identifier and is inside given
-     * study
+     * Finds the subject which has the given identifier and is inside given study
      *
-     * @param uniqueIdentifier
-     * @param studyId
-     * @return
+     * @param uniqueIdentifier subject unique identifier
+     * @param studyId study id
+     * @return Subject
      */
     public SubjectBean findByUniqueIdentifierAndParentStudy(String uniqueIdentifier, int studyId) {
     	String queryName = "findByUniqueIdentifierAndParentStudy";
@@ -292,7 +278,7 @@ public class SubjectDAO extends AuditableEntityDAO<SubjectBean> {
     }
 
     /**
-     * NOT IMPLEMENTED
+     * TODO: NOT IMPLEMENTED
      */
     public ArrayList<SubjectBean> findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
         throw new RuntimeException("Not implemented");
@@ -305,15 +291,14 @@ public class SubjectDAO extends AuditableEntityDAO<SubjectBean> {
     }
 
     /**
-     * Create a subject.
+     * Create a new subject.
      *
-     * @param sb
-     *            The subject to create. <code>true</code> if the father and
-     *            mother id have been properly set; primarily for use with
-     *            genetic studies. <code>false</code> if the father and mother
-     *            id have not been properly set; primarily for use with
-     *            non-genetic studies.
-     * @return
+     * @param sb The subject to create. <code>true</code> if the father and
+     *           mother id have been properly set; primarily for use with
+     *           genetic studies. <code>false</code> if the father and mother
+     *           id have not been properly set; primarily for use with
+     *           non-genetic studies.
+     * @return Newly crated subject
      */
     @Override
     public SubjectBean create(SubjectBean sb) {
@@ -360,8 +345,7 @@ public class SubjectDAO extends AuditableEntityDAO<SubjectBean> {
     }
 
     /**
-     * <b>update </b>, the method that returns an updated subject bean after it
-     * updates the database.
+     * <b>Update </b>, the method that returns an updated subject bean after it updates the database.
      *
      * @return sb, an updated study bean.
      */
@@ -407,14 +391,14 @@ public class SubjectDAO extends AuditableEntityDAO<SubjectBean> {
     }
 
     /**
-     * NOT IMPLEMENTED
+     * TODO: NOT IMPLEMENTED
      */
     public ArrayList<SubjectBean> findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
         throw new RuntimeException("Not implemented");
     }
 
     /**
-     * NOT IMPLEMENTED
+     * TODO: NOT IMPLEMENTED
      */
     public ArrayList<SubjectBean> findAllByPermission(Object objCurrentUser, int intActionType) {
     	throw new RuntimeException("Not implemented");
@@ -429,4 +413,5 @@ public class SubjectDAO extends AuditableEntityDAO<SubjectBean> {
 	public SubjectBean emptyBean() {
 		return new SubjectBean();
 	}
+	
 }
