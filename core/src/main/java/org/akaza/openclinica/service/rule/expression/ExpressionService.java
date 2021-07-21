@@ -72,8 +72,8 @@ public class ExpressionService {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
     
-    private final String SEPERATOR = ".";
-    private final String ESCAPED_SEPERATOR = "\\.";
+    private final String SEPARATOR = ".";
+    private final String ESCAPED_SEPARATOR = "\\.";
     private final String STUDY_EVENT_DEFINITION_OR_ITEM_GROUP_PATTERN = "[A-Z_0-9]+|[A-Z_0-9]+\\[(ALL|[1-9]\\d*)\\]$";
     private final String STUDY_EVENT_DEFINITION_OR_ITEM_GROUP_PATTERN_NO_ALL = "[A-Z_0-9]+|[A-Z_0-9]+\\[[1-9]\\d*\\]$";
     private final String STUDY_EVENT_DEFINITION_OR_ITEM_GROUP_PATTERN_WITH_ORDINAL = "[A-Z_0-9]+\\[(END|ALL|[1-9]\\d*)\\]$";
@@ -83,7 +83,7 @@ public class ExpressionService {
     private final String CRF_OID_OR_ITEM_DATA_PATTERN = "[A-Z_0-9]+";
     private final String BRACKETS_AND_CONTENTS = "\\[(END|ALL|[1-9]\\d*)\\]";
     private final String ALL_IN_BRACKETS = "ALL";
-    private final String OPENNIG_BRACKET = "[";
+    private final String OPENING_BRACKET = "[";
     private final String CLOSING_BRACKET = "]";
 
     DataSource ds;
@@ -173,8 +173,10 @@ public class ExpressionService {
         String theFinalValue = value;
 
         if (value != null && itemBean.getDataType() == ItemDataType.DATE) {
-            value = Utils.convertedItemDateValue(value,
-                    ResourceBundleProvider.getFormatBundle().getString("date_format_string"), "MM/dd/yyyy");
+            value = Utils.convertedItemDateValue(
+                value,
+                ResourceBundleProvider.getFormatBundle().getString("date_format_string"), "MM/dd/yyyy"
+            );
             theFinalValue = ExpressionTreeHelper.isValidDateMMddyyyy(value);
         }
         return theFinalValue;
@@ -183,34 +185,34 @@ public class ExpressionService {
     private String getValueFromDb(String expression, List<ItemDataBean> itemData, Map<Integer, ItemBean> itemBeans)
             throws OpenClinicaSystemException {
         if (isExpressionPartial(expression)) {
-            throw new OpenClinicaSystemException("getValueFromDb:We cannot get the Value of a PARTIAL expression : "
-                    + expression);
+            throw new OpenClinicaSystemException(
+                "getValueFromDb:We cannot get the Value of a PARTIAL expression : " + expression
+            );
         }
+        String value = null;
         try {
             int index = getItemGroupOidOrdinalFromExpression(expression).equals("") ? 0 : Integer
                     .parseInt(getItemGroupOidOrdinalFromExpression(expression)) - 1;
             ItemDataBean itemDataBean = itemData.get(index);
-            String value = itemData.get(index).getValue();
+            value = itemData.get(index).getValue();
             if (itemBeans.containsKey(itemDataBean.getItemId())) {
                 value = ifValueIsDate(itemBeans.get(itemDataBean.getItemId()), value);
             }
-
-            return value;
         } catch (NullPointerException npe) {
             logger.error("NullPointerException was thrown ");
-            return null;
         } catch (IndexOutOfBoundsException ioobe) {
             logger.error("IndexOutOfBoundsException was thrown ");
-            return null;
         }
 
+        return value;
     }
 
     public String getSSZoneId() {
         Integer subjectId = expressionWrapper.getStudySubjectId();
         logger.debug("subjectId {} : ", subjectId);
-        if (subjectId == null)
+        if (subjectId == null) {
             return null;
+        }
         StudySubjectBean ssBean = getStudySubjectDao().findByPK(subjectId);
         return ssBean.getTime_zone().trim();
     }
@@ -290,11 +292,11 @@ public class ExpressionService {
             String value = itemData.get(index).getValue();
             value = ifValueIsDate(itemBean, value);
             map.put("value", value);
-
-            return map;
         } catch (Exception e) {
-            return map;
+            logger.debug("Exception was thrown", e);
         }
+
+        return map;
     }
 
     public ItemDataBean getItemDataBeanFromDb(String expression) throws OpenClinicaSystemException {
@@ -515,8 +517,7 @@ public class ExpressionService {
                 return returnedRuleExpression;
             }
 
-            Integer itemId = itemData.isEmpty() ? ((EntityBean) getItemDao().findByOid(getItemOid(ruleExpression)).get(
-                    0)).getId() : itemData.get(0).getItemId();
+            Integer itemId = itemData.isEmpty() ? (getItemDao().findByOid(getItemOid(ruleExpression)).get(0)).getId() : itemData.get(0).getItemId();
 
             ItemGroupMetadataBean itemGroupMetadataBean = getItemGroupMetadataDao().findByItemAndCrfVersion(
                 itemId,
@@ -651,31 +652,31 @@ public class ExpressionService {
     }
 
     public Integer getExpressionSize(String expression) {
-        String[] splitExpression = expression.split(ESCAPED_SEPERATOR);
+        String[] splitExpression = expression.split(ESCAPED_SEPARATOR);
         return splitExpression.length;
     }
 
     public Boolean isExpressionPartial(String expression) {
-        String[] splitExpression = expression.split(ESCAPED_SEPERATOR);
+        String[] splitExpression = expression.split(ESCAPED_SEPARATOR);
         return splitExpression.length != 4;
     }
 
     public String constructFullExpressionIfPartialProvided(String expression, CRFVersionBean crfVersion, StudyEventDefinitionBean studyEventDefinition) {
-        String[] splitExpression = expression.split(ESCAPED_SEPERATOR);
+        String[] splitExpression = expression.split(ESCAPED_SEPARATOR);
         String resultingExpression = null;
         if (splitExpression.length == 1) {
             ItemGroupMetadataBean itemGroupMetadata = getItemGroupMetadataDao()
                     .findByItemAndCrfVersion(getItemBeanFromExpression(expression).getId(), crfVersion.getId());
             ItemGroupBean itemGroup = (ItemGroupBean) getItemGroupDao().findByPK(itemGroupMetadata.getItemGroupId());
-            resultingExpression = studyEventDefinition.getOid() + SEPERATOR + crfVersion.getOid() + SEPERATOR
-                    + itemGroup.getOid() + SEPERATOR + expression;
+            resultingExpression = studyEventDefinition.getOid() + SEPARATOR + crfVersion.getOid() + SEPARATOR
+                    + itemGroup.getOid() + SEPARATOR + expression;
         }
         if (splitExpression.length == 2) {
-            resultingExpression = studyEventDefinition.getOid() + SEPERATOR + crfVersion.getOid() + SEPERATOR
+            resultingExpression = studyEventDefinition.getOid() + SEPARATOR + crfVersion.getOid() + SEPARATOR
                     + expression;
         }
         if (splitExpression.length == 3) {
-            resultingExpression = studyEventDefinition.getOid() + SEPERATOR + expression;
+            resultingExpression = studyEventDefinition.getOid() + SEPARATOR + expression;
         }
         return resultingExpression;
     }
@@ -685,7 +686,7 @@ public class ExpressionService {
             logger.debug("expression is null.");
             return expression;
         } else {
-            String[] splitExpression = expression.split(ESCAPED_SEPERATOR);
+            String[] splitExpression = expression.split(ESCAPED_SEPARATOR);
             switch (splitExpression.length) {
             case 1:
                 return deContextualizeExpression(3, expression, ruleSetTargetExpression);
@@ -704,7 +705,7 @@ public class ExpressionService {
     }
 
     private String deContextualizeExpression(int j, String ruleExpression, String ruleSetTargetExpression) {
-        String[] splitRuleSetExpression = ruleSetTargetExpression.split(ESCAPED_SEPERATOR);
+        String[] splitRuleSetExpression = ruleSetTargetExpression.split(ESCAPED_SEPARATOR);
         String buildExpression = "";
         ItemBean item = null;
         String groupOidWithoutOrdinal = "";
@@ -731,9 +732,9 @@ public class ExpressionService {
                 if (!itemGroupMetadataBeans.get(0).isRepeatingGroup()) {
                     repeatOrdinal = "[1]";
                 }
-                buildExpression = buildExpression + groupOidFromItem + repeatOrdinal + SEPERATOR;
+                buildExpression = buildExpression + groupOidFromItem + repeatOrdinal + SEPARATOR;
             } else {
-                buildExpression = buildExpression + splitRuleSetExpression[i] + SEPERATOR;
+                buildExpression = buildExpression + splitRuleSetExpression[i] + SEPARATOR;
             }
 
         }
@@ -762,7 +763,7 @@ public class ExpressionService {
     }
 
     private String getItemGroupPLusItem(String expression) throws OpenClinicaSystemException {
-        return getItemGroupOidWithOrdinalFromExpression(expression) + SEPERATOR + getItemOidFromExpression(expression);
+        return getItemGroupOidWithOrdinalFromExpression(expression) + SEPARATOR + getItemOidFromExpression(expression);
     }
 
     private String getCrfOidFromExpression(String expression) throws OpenClinicaSystemException {
@@ -773,13 +774,12 @@ public class ExpressionService {
         return getOidFromExpression(expression, 3, 3).replaceAll(BRACKETS_AND_CONTENTS, "");
     }
 
-    private String getStudyEventDefinitionOidWithOrdinalFromExpression(String expression)
-            throws OpenClinicaSystemException {
+    private String getStudyEventDefinitionOidWithOrdinalFromExpression(String expression) throws OpenClinicaSystemException {
         return getOidFromExpression(expression, 3, 3);
     }
 
     public String getItemGroupNameAndOrdinal(String expression) {
-        return getItemGroupExpression(expression).getName() + " " + OPENNIG_BRACKET
+        return getItemGroupExpression(expression).getName() + " " + OPENING_BRACKET
                 + getItemGroupOidOrdinalFromExpression(expression) + CLOSING_BRACKET;
     }
 
@@ -794,8 +794,7 @@ public class ExpressionService {
     }
 
     /**
-     * Use this method to create 1ItemOID or ItemOID Used in Data Entry Rule
-     * Execution
+     * Use this method to create 1ItemOID or ItemOID Used in Data Entry Rule Execution
      *
      * @param expression expression
      * @return GroupOrdinal + ItemOID
@@ -803,14 +802,14 @@ public class ExpressionService {
     public String getGroupOrdninalConcatWithItemOid(String expression) {
         String ordinal = getGroupOrdninalCurated(expression);
         logger.debug(
-            " orginigal expression {} , post getGroupOrdninalConcatWithItemOid : {} ",
+            " original expression {} , post getGroupOrdninalConcatWithItemOid : {} ",
             expression, ordinal + getItemOidFromExpression(expression)
         );
         return ordinal + getItemOidFromExpression(expression);
     }
 
     public String getGroupOidWithItemOid(String expression) {
-        return getItemGroupOidWithOrdinalFromExpression(expression) + SEPERATOR + getItemOidFromExpression(expression);
+        return getItemGroupOidWithOrdinalFromExpression(expression) + SEPARATOR + getItemOidFromExpression(expression);
     }
 
     public String getItemOid(String expression) {
@@ -818,21 +817,21 @@ public class ExpressionService {
     }
 
     public String getItemGroupOid(String expression) {
-        if (expression.split(ESCAPED_SEPERATOR).length < 2) {
+        if (expression.split(ESCAPED_SEPARATOR).length < 2) {
             return null;
         }
         return getItemGroupOidFromExpression(expression);
     }
 
     public String getCrfOid(String expression) {
-        if (expression.split(ESCAPED_SEPERATOR).length < 3) {
+        if (expression.split(ESCAPED_SEPARATOR).length < 3) {
             return null;
         }
         return getCrfOidFromExpression(expression);
     }
 
     public String getStudyEventDefenitionOid(String expression) {
-        if (expression.split(ESCAPED_SEPERATOR).length < 4) {
+        if (expression.split(ESCAPED_SEPARATOR).length < 4) {
             return null;
         }
         return getStudyEventDefinitionOidFromExpression(expression);
@@ -844,7 +843,7 @@ public class ExpressionService {
     }
 
     public String getStudyEventDefinitionOrdninalCurated(String expression) {
-        if (expression.split(ESCAPED_SEPERATOR).length < 4) {
+        if (expression.split(ESCAPED_SEPARATOR).length < 4) {
             return "";
         }
         String originalOrdinal = getStudyEventDefinitionOidOrdinalFromExpression(expression);
@@ -865,7 +864,7 @@ public class ExpressionService {
     }
 
     public String getGroupOidConcatWithItemOid(String expression) {
-        String result = getItemGroupOidFromExpression(expression) + SEPERATOR + getItemOidFromExpression(expression);
+        String result = getItemGroupOidFromExpression(expression) + SEPARATOR + getItemOidFromExpression(expression);
         logger.debug("getGroupOidConcatWithItemOid returns : {} ", result);
         return result;
     }
@@ -877,41 +876,40 @@ public class ExpressionService {
     }
 
     public String replaceGroupOidOrdinalInExpression(String expression, Integer ordinal) {
-        String replacement = getStudyEventDefinitionOidWithOrdinalFromExpression(expression) + SEPERATOR
-                + getCrfOidFromExpression(expression) + SEPERATOR;
+        String replacement = getStudyEventDefinitionOidWithOrdinalFromExpression(expression) + SEPARATOR
+                + getCrfOidFromExpression(expression) + SEPARATOR;
         if (ordinal == null) {
-            replacement += getItemGroupOidWithOrdinalFromExpression(expression) + SEPERATOR
+            replacement += getItemGroupOidWithOrdinalFromExpression(expression) + SEPARATOR
                     + getItemOidFromExpression(expression);
         } else {
-            replacement += getItemGroupOidFromExpression(expression) + OPENNIG_BRACKET + ordinal + CLOSING_BRACKET
-                    + SEPERATOR + getItemOidFromExpression(expression);
+            replacement += getItemGroupOidFromExpression(expression) + OPENING_BRACKET + ordinal + CLOSING_BRACKET
+                    + SEPARATOR + getItemOidFromExpression(expression);
         }
         logger.debug("Original Expression : {} , Rewritten as {} .", expression, replacement);
         return replacement;
     }
 
     public String replaceCRFOidInExpression(String expression, String replacementCrfOid) {
-        if (expression.split(ESCAPED_SEPERATOR).length < 4) {
-            if (expression.split(ESCAPED_SEPERATOR).length == 3) {
-                return replacementCrfOid + SEPERATOR + getItemGroupOidWithOrdinalFromExpression(expression) + SEPERATOR
+        if (expression.split(ESCAPED_SEPARATOR).length < 4) {
+            if (expression.split(ESCAPED_SEPARATOR).length == 3) {
+                return replacementCrfOid + SEPARATOR + getItemGroupOidWithOrdinalFromExpression(expression) + SEPARATOR
                         + getItemOidFromExpression(expression);
             }
             return expression;
         }
-        return getStudyEventDefinitionOidWithOrdinalFromExpression(expression) + SEPERATOR + replacementCrfOid
-                + SEPERATOR + getItemGroupOidWithOrdinalFromExpression(expression) + SEPERATOR
+        return getStudyEventDefinitionOidWithOrdinalFromExpression(expression) + SEPARATOR + replacementCrfOid
+                + SEPARATOR + getItemGroupOidWithOrdinalFromExpression(expression) + SEPARATOR
                 + getItemOidFromExpression(expression);
     }
 
     public String getCustomExpressionUsedToCreateView(String expression, int sampleOrdinal) {
         return getStudyEventDefenitionOid(expression) +
-            OPENNIG_BRACKET + sampleOrdinal + CLOSING_BRACKET +
-            SEPERATOR + "XXX" + SEPERATOR + getGroupOidWithItemOid(expression);
+            OPENING_BRACKET + sampleOrdinal + CLOSING_BRACKET +
+            SEPARATOR + "XXX" + SEPARATOR + getGroupOidWithItemOid(expression);
     }
 
     public String replaceStudyEventDefinitionOIDWith(String expression, String replacement) {
-        replacement = getStudyEventDefinitionOidFromExpression(expression) +
-                OPENNIG_BRACKET + replacement + CLOSING_BRACKET;
+        replacement = getStudyEventDefinitionOidFromExpression(expression) + OPENING_BRACKET + replacement + CLOSING_BRACKET;
         String studyEventDefinitionOID = getStudyEventDefinitionOidWithOrdinalFromExpression(expression);
         return expression.replace(studyEventDefinitionOID, replacement);
     }
@@ -923,7 +921,7 @@ public class ExpressionService {
      */
 
     private String getOidFromExpression(String expression, int patternIndex, int expressionIndex)  throws OpenClinicaSystemException {
-        String[] splitExpression = expression.split(ESCAPED_SEPERATOR);
+        String[] splitExpression = expression.split(ESCAPED_SEPARATOR);
         // int patternIndex = ?;
         if (!match(splitExpression[splitExpression.length - 1 - expressionIndex], pattern[patternIndex])) {
             if (!match(splitExpression[splitExpression.length - 1 - expressionIndex], ruleActionPattern[patternIndex])) {
@@ -939,9 +937,9 @@ public class ExpressionService {
     }
 
     public StudyEventDefinitionBean getStudyEventDefinitionFromExpression(String expression) {
-        if (expression.split(ESCAPED_SEPERATOR).length == 4) {
+        if (expression.split(ESCAPED_SEPARATOR).length == 4) {
             return getStudyEventDefinitionFromExpression(expression, expressionWrapper.getStudyBean());
-        } else if (expression.split(ESCAPED_SEPERATOR).length == 2 &&
+        } else if (expression.split(ESCAPED_SEPARATOR).length == 2 &&
                   (expression.endsWith(STARTDATE) || expression.endsWith(STATUS))) {
             return getStudyEventDefinitionFromExpressionForEvents(expression, expressionWrapper.getStudyBean());
         } else {
@@ -991,8 +989,7 @@ public class ExpressionService {
             StudyEventDefinitionBean studyEventDefinition = getStudyEventDefinitionDao().findByOidAndStudy(
                     studyEventDefinitionKey, studyId, studyId);
             // another way to get at the problem which I fix in the findByOidAndStudy method, tbh
-            // TODO: because of DAO refactoring we may need to also check studyEventDefinition.isActive()
-            if (studyEventDefinition != null) {
+            if (studyEventDefinition != null && studyEventDefinition.isActive()) {
                 studyEventDefinitions.put(studyEventDefinitionKey, studyEventDefinition);
                 return studyEventDefinition;
             } else {
@@ -1002,8 +999,7 @@ public class ExpressionService {
     }
 
     public StudyEventDefinitionBean getStudyEventDefinitionFromExpressionForEventScheduling(String expression) {
-        return expression.split(ESCAPED_SEPERATOR).length == 2 ? getStudyEventDefinitionFromExpressionForEventScheduling(
-                expression, false) : null;
+        return expression.split(ESCAPED_SEPARATOR).length == 2 ? getStudyEventDefinitionFromExpressionForEventScheduling(expression, false) : null;
     }
 
     public StudyEventDefinitionBean getStudyEventDefinitionFromExpressionForEventScheduling(String expression, boolean onlyOID) {
@@ -1036,7 +1032,7 @@ public class ExpressionService {
     }
 
     public ItemGroupBean getItemGroupExpression(String expression) {
-        if (expression.split(ESCAPED_SEPERATOR).length < 2) {
+        if (expression.split(ESCAPED_SEPARATOR).length < 2) {
             return null;
         }
         String itemGroupKey = getItemGroupOidFromExpression(expression);
@@ -1045,8 +1041,7 @@ public class ExpressionService {
             return itemGroups.get(itemGroupKey);
         } else {
             ItemGroupBean itemGroup = getItemGroupDao().findByOid(itemGroupKey);
-            // TODO: because of DAO refactoring we may need to also check itemGroup.isActive()
-            if (itemGroup != null) {
+            if (itemGroup != null && itemGroup.isActive()) {
                 itemGroups.put(itemGroupKey, itemGroup);
                 return itemGroup;
             } else {
@@ -1075,8 +1070,7 @@ public class ExpressionService {
             return items.get(itemKey);
         } else {
             ItemBean item = getItemDao().findItemByGroupIdandItemOid(itemGroup.getId(), itemKey);
-            // TODO: because of DAO refactoring we may need to also check item.isActive()
-            if (item != null) {
+            if (item != null && item.isActive()) {
                 items.put(itemKey, item);
                 return item;
             } else {
@@ -1093,8 +1087,7 @@ public class ExpressionService {
         } else {
             List<ItemBean> persistentItems = getItemDao().findByOid(itemKey);
             ItemBean item = persistentItems.size() > 0 ? persistentItems.get(0) : null;
-            // TODO: because of DAO refactoring we may need to also check item.isActive()
-            if (item != null) {
+            if (item != null && item.isActive()) {
                 items.put(itemKey, item);
                 return item;
             } else {
@@ -1104,8 +1097,7 @@ public class ExpressionService {
     }
 
     public CRFBean getCRFFromExpression(String expression) {
-
-        if (expression.split(ESCAPED_SEPERATOR).length < 3) {
+        if (expression.split(ESCAPED_SEPARATOR).length < 3) {
             return null;
         }
         CRFBean crf;
@@ -1123,8 +1115,7 @@ public class ExpressionService {
 
     public CRFVersionBean getCRFVersionFromExpression(String expression) {
         logger.debug("Expression : " + expression);
-        return expression.split(ESCAPED_SEPERATOR).length < 3 ? null : getCrfVersionDao().findByOid(
-                getCrfOidFromExpression(expression));
+        return expression.split(ESCAPED_SEPARATOR).length < 3 ? null : getCrfVersionDao().findByOid(getCrfOidFromExpression(expression));
     }
 
     /**
@@ -1178,7 +1169,7 @@ public class ExpressionService {
      */
     public void isExpressionValid(String expression) {
 
-        int length = expression.split(ESCAPED_SEPERATOR).length;
+        int length = expression.split(ESCAPED_SEPARATOR).length;
         ItemBean item = null;
         ItemGroupBean itemGroup = null;
         CRFBean crf = null;
@@ -1243,7 +1234,7 @@ public class ExpressionService {
     }
 
     public EventDefinitionCRFBean getEventDefinitionCRF(String expression) {
-        if (expression.split(ESCAPED_SEPERATOR).length < 4) {
+        if (expression.split(ESCAPED_SEPARATOR).length < 4) {
             return null;
         }
         StudyEventDefinitionBean studyEventDefinition = getStudyEventDefinitionFromExpression(expression);
@@ -1261,13 +1252,11 @@ public class ExpressionService {
     }
 
     public String checkValidityOfItemOrItemGroupOidInCrf(String oid, RuleSetBean ruleSet) {
-
         oid = oid.trim();
-        String[] theOid = oid.split(ESCAPED_SEPERATOR);
+        String[] theOid = oid.split(ESCAPED_SEPARATOR);
         if (theOid.length == 2) {
             ItemGroupBean itemGroup = getItemGroupDao().findByOid(theOid[0]);
-            boolean isItemGroupBePartOfCrfOrNull = ruleSet.getCrfId() != null ? itemGroup.getCrfId().equals(
-                    ruleSet.getCrfId()) : true;
+            boolean isItemGroupBePartOfCrfOrNull = ruleSet.getCrfId() == null || itemGroup.getCrfId().equals(ruleSet.getCrfId());
             // TODO: because of DAO refactoring we may need to also check itemGroup.isActive()
             if (itemGroup != null && isItemGroupBePartOfCrfOrNull) {
                 if (ruleSet.getCrfId() != null && itemGroup.getCrfId().equals(ruleSet.getCrfId())) {
@@ -1310,10 +1299,10 @@ public class ExpressionService {
     }
 
     public boolean checkSyntax(String expression) {
-        if (expression.startsWith(SEPERATOR) || expression.endsWith(SEPERATOR)) {
+        if (expression.startsWith(SEPARATOR) || expression.endsWith(SEPARATOR)) {
             return false;
         }
-        String[] splitExpression = expression.split(ESCAPED_SEPERATOR);
+        String[] splitExpression = expression.split(ESCAPED_SEPARATOR);
         int patternIndex = 0;
         for (int i = splitExpression.length - 1; i >= 0; i--) {
             if (!match(splitExpression[i], pattern[patternIndex++])) {
@@ -1324,10 +1313,10 @@ public class ExpressionService {
     }
 
     public boolean checkInsertActionExpressionSyntax(String expression) {
-        if (expression.startsWith(SEPERATOR) || expression.endsWith(SEPERATOR)) {
+        if (expression.startsWith(SEPARATOR) || expression.endsWith(SEPARATOR)) {
             return false;
         }
-        String[] splitExpression = expression.split(ESCAPED_SEPERATOR);
+        String[] splitExpression = expression.split(ESCAPED_SEPARATOR);
         int patternIndex = 0;
         for (int i = splitExpression.length - 1; i >= 0; i--) {
             if (!match(splitExpression[i], ruleActionPattern[patternIndex++])) {
@@ -1338,10 +1327,10 @@ public class ExpressionService {
     }
 
     public boolean checkRuleExpressionSyntax(String expression) {
-        if (expression.startsWith(SEPERATOR) || expression.endsWith(SEPERATOR)) {
+        if (expression.startsWith(SEPARATOR) || expression.endsWith(SEPARATOR)) {
             return false;
         }
-        String[] splitExpression = expression.split(ESCAPED_SEPERATOR);
+        String[] splitExpression = expression.split(ESCAPED_SEPARATOR);
         int patternIndex = 0;
         for (int i = splitExpression.length - 1; i >= 0; i--) {
             if (!match(splitExpression[i], rulePattern[patternIndex++])) {
@@ -1357,58 +1346,38 @@ public class ExpressionService {
     }
 
     private ItemDAO getItemDao() {
-        // itemDao = this.itemDao != null ? itemDao : new ItemDAO(ds);
         return new ItemDAO(ds);
     }
 
     private ItemDataDAO getItemDataDao() {
-        // itemDataDao = this.itemDataDao != null ? itemDataDao : new
-        // ItemDataDAO(ds);
         return new ItemDataDAO(ds);
     }
 
     private CRFVersionDAO getCrfVersionDao() {
-        // crfVersionDao = this.crfVersionDao != null ? crfVersionDao : new
-        // CRFVersionDAO(ds);
         return new CRFVersionDAO(ds);
     }
 
     private CRFDAO getCrfDao() {
-        // crfDao = this.crfDao != null ? crfDao : new CRFDAO(ds);
         return new CRFDAO(ds);
     }
 
     private ItemGroupDAO getItemGroupDao() {
-        // itemGroupDao = this.itemGroupDao != null ? itemGroupDao : new
-        // ItemGroupDAO(ds);
         return new ItemGroupDAO(ds);
     }
 
     private ItemGroupMetadataDAO getItemGroupMetadataDao() {
-        // itemGroupMetadataDao = this.itemGroupMetadataDao != null ?
-        // itemGroupMetadataDao : new ItemGroupMetadataDAO(ds);
-        // return itemGroupMetadataDao;
         return new ItemGroupMetadataDAO(ds);
     }
 
     private EventDefinitionCRFDAO getEventDefinitionCRFDao() {
-        // eventDefinitionCRFDao = this.eventDefinitionCRFDao != null ?
-        // eventDefinitionCRFDao : new EventDefinitionCRFDAO(ds);
-        // return eventDefinitionCRFDao;
         return new EventDefinitionCRFDAO(ds);
     }
 
     private StudyEventDefinitionDAO getStudyEventDefinitionDao() {
-        // studyEventDefinitionDao = this.studyEventDefinitionDao != null ?
-        // studyEventDefinitionDao : new StudyEventDefinitionDAO(ds);
-        // return studyEventDefinitionDao;
         return new StudyEventDefinitionDAO(ds);
     }
 
     private StudyEventDAO getStudyEventDao() {
-        // studyEventDao = this.studyEventDao != null ? studyEventDao : new
-        // StudyEventDAO(ds);
-        // return studyEventDao;
         return new StudyEventDAO(ds);
     }
 
@@ -1417,9 +1386,6 @@ public class ExpressionService {
     }
 
     private EventCRFDAO getEventCRFDao() {
-        // eventCRFDao = this.eventCRFDao != null ? eventCRFDao : new
-        // EventCRFDAO(ds);
-        // return eventCRFDao;
         return new EventCRFDAO(ds);
     }
 
