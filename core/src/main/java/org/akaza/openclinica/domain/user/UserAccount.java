@@ -378,20 +378,20 @@ public class UserAccount extends DataMapDomainObject {
         this.apiKey = apiKey;
     }
 
-    public AuthType getAuthType() {
+    public AuthType getAuthtype() {
         return authtype;
     }
 
-    public void setAuthType(AuthType authType) {
-        this.authtype = authType;
+    public void setAuthtype(AuthType authtype) {
+        this.authtype = authtype;
     }
 
-    public String getAuthSecret() {
+    public String getAuthsecret() {
         return authsecret;
     }
 
-    public void setAuthSecret(String authSecret) {
-        this.authsecret = authSecret;
+    public void setAuthsecret(String authsecret) {
+        this.authsecret = authsecret;
     }
 
     @OneToMany(mappedBy = "userAccount")
