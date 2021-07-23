@@ -7,6 +7,10 @@
  */
 package org.akaza.openclinica.bean.login;
 
+import static org.akaza.openclinica.domain.user.AuthType.MARKED;
+import static org.akaza.openclinica.domain.user.AuthType.STANDARD;
+import static org.akaza.openclinica.domain.user.AuthType.TWO_FACTOR;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -52,7 +56,7 @@ public class UserAccountBean extends AuditableEntityBean {
     private String time_zone;
     private boolean enableApiKey;
     private String apiKey;
-    private String authtype;
+    private String authtype = AuthType.STANDARD.name();
     private String authsecret;
 
     /**
@@ -569,11 +573,26 @@ public class UserAccountBean extends AuditableEntityBean {
 	}
 
     public String getAuthtype() {
+        if (!AuthType.isValid(this.authtype)) {
+            this.authtype = STANDARD.name();
+        }
         return authtype;
     }
 
     public void setAuthtype(String authtype) {
+        if (!AuthType.isValid(authtype)) {
+            this.authtype = STANDARD.name();
+            return;
+        }
         this.authtype = authtype;
+    }
+
+    public boolean isAuthsecretPresent() {
+        return !isAuthsecretAbsent();
+    }
+
+    public boolean isAuthsecretAbsent() {
+        return null == authsecret || "".equals(authsecret);
     }
 
     public String getAuthsecret() {
@@ -585,9 +604,28 @@ public class UserAccountBean extends AuditableEntityBean {
     }
 
     /**
-     * Returns true if according user has actives 2-fa - false otherwise.
-     */
+	 * Returns true if according user has actives 2-FA - false otherwise.
+	 */
     public boolean isTwoFactorActivated() {
-        return AuthType.TWO_FACTOR.name().equals(this.authtype);
+        return TWO_FACTOR.name().equals(this.authtype);
+    }
+
+	/**
+	 * Returns true if according user is deactivated for 2-FA.
+	 */
+	public boolean isTwoFactorDeactivated() {
+        return STANDARD.name().equals(this.authtype);
+	}
+
+	/**
+	 * Returns true if according user is marked to use 2-FA in the future - false
+	 * otherwise.
+	 */
+	public boolean isTwoFactorMarked() {
+        return MARKED.name().equals(this.authtype);
+	}
+
+    public boolean isTwoFactorMarkedOrActivated() {
+        return isTwoFactorMarked() || isTwoFactorActivated();
     }
 }

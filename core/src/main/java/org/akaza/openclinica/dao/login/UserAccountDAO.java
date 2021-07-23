@@ -7,6 +7,8 @@
  */
 package org.akaza.openclinica.dao.login;
 
+import static org.akaza.openclinica.dao.core.TypeNames.STRING;
+
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
@@ -257,44 +259,56 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
 
     @SuppressWarnings({ "unlikely-arg-type" })
 	@Override
-    public UserAccountBean create(UserAccountBean uab) {
+    public UserAccountBean create(UserAccountBean userAccountBean) {
         HashMap<Integer, Object> variables = new HashMap<>();
         int id = getNextPK();
         variables.put(new Integer(1), new Integer(id));
-        variables.put(new Integer(2), uab.getName());
-        variables.put(new Integer(3), uab.getPasswd());
-        variables.put(new Integer(4), uab.getFirstName());
-        variables.put(new Integer(5), uab.getLastName());
-        variables.put(new Integer(6), uab.getEmail());
-        variables.put(new Integer(7), new Integer(uab.getActiveStudyId()));
-        variables.put(new Integer(8), uab.getInstitutionalAffiliation());
-        variables.put(new Integer(9), new Integer(uab.getStatus().getId()));
-        variables.put(new Integer(10), new Integer(uab.getOwnerId()));
-        variables.put(new Integer(11), uab.getPasswdChallengeQuestion());
-        variables.put(new Integer(12), uab.getPasswdChallengeAnswer());
-        variables.put(new Integer(13), uab.getPhone());
+        variables.put(new Integer(2), userAccountBean.getName());
+        variables.put(new Integer(3), userAccountBean.getPasswd());
+        variables.put(new Integer(4), userAccountBean.getFirstName());
+        variables.put(new Integer(5), userAccountBean.getLastName());
+        variables.put(new Integer(6), userAccountBean.getEmail());
+        variables.put(new Integer(7), new Integer(userAccountBean.getActiveStudyId()));
+        variables.put(new Integer(8), userAccountBean.getInstitutionalAffiliation());
+        variables.put(new Integer(9), new Integer(userAccountBean.getStatus().getId()));
+        variables.put(new Integer(10), new Integer(userAccountBean.getOwnerId()));
+        variables.put(new Integer(11), userAccountBean.getPasswdChallengeQuestion());
+        variables.put(new Integer(12), userAccountBean.getPasswdChallengeAnswer());
+        variables.put(new Integer(13), userAccountBean.getPhone());
 
-        if (uab.isTechAdmin()) {
+        if (userAccountBean.isTechAdmin()) {
             variables.put(new Integer(14), new Integer(UserType.TECHADMIN.getId()));
-        } else if (uab.isSysAdmin()) {
+        } else if (userAccountBean.isSysAdmin()) {
             variables.put(new Integer(14), new Integer(UserType.SYSADMIN.getId()));
         } else {
             variables.put(new Integer(14), new Integer(UserType.USER.getId()));
         }
 
-        variables.put(new Integer(15), uab.getRunWebservices());
-        variables.put(new Integer(16), uab.getAccessCode());
-        variables.put(new Integer(17), uab.isEnableApiKey());
-        variables.put(new Integer(18), uab.getApiKey());
-
+        variables.put(new Integer(15), userAccountBean.getRunWebservices());
+        variables.put(new Integer(16), userAccountBean.getAccessCode());
+        variables.put(new Integer(17), userAccountBean.isEnableApiKey());
+        variables.put(new Integer(18), userAccountBean.getApiKey());
+        variables.put(19, userAccountBean.getAuthtype());
+        variables.put(20, userAccountBean.getAuthsecret());
         
+        HashMap<Integer, Integer> nullables = new HashMap<>();
+        if (userAccountBean.isAuthsecretAbsent()) {
+            nullables.put(20, STRING);
+        }
+
         boolean success = true;
-        this.executeUpdate(digester.getQuery("insert"), variables);
+        this.executeUpdate(digester.getQuery("insert"), variables, nullables);
         success = success && isQuerySuccessful();
 
-        setSysAdminRole(uab, true);
+        // thillger (22.07.2021): Avoid role handling in cases of any errors.
+        // Otherwise multiple entries can occure.
+        if (!success) {
+            return userAccountBean;
+        }
 
-        ArrayList<StudyUserRoleBean> userRoles = uab.getRoles();
+        setSysAdminRole(userAccountBean, true);
+
+        ArrayList<StudyUserRoleBean> userRoles = userAccountBean.getRoles();
         for (int i = 0; i < userRoles.size(); i++) {
             StudyUserRoleBean studyRole = userRoles.get(i);
 
@@ -303,15 +317,15 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
                 continue;
             }
 
-            createStudyUserRole(uab, studyRole);
+            createStudyUserRole(userAccountBean, studyRole);
             success = success && isQuerySuccessful();
         }
 
         if (success) {
-            uab.setId(id);
+            userAccountBean.setId(id);
         }
 
-        return uab;
+        return userAccountBean;
     }
 
     public StudyUserRoleBean createStudyUserRole(UserAccountBean user, StudyUserRoleBean studyRole) {
@@ -385,14 +399,14 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
     // TODO remove SuppressWarnings when a solution for the recursion problem with 'owner' and 'updater' is found
     @SuppressWarnings("deprecation")
 	public UserAccountBean getEntityFromHashMap(HashMap<String, Object> hm, boolean findOwner) {
-        UserAccountBean eb = new UserAccountBean();
+        UserAccountBean userAccountBean = new UserAccountBean();
 
         // pull out objects from hashmap
         String firstName = (String) hm.get("first_name");
         String lastName = (String) hm.get("last_name");
         String userName = (String) hm.get("user_name");
-        eb.setEmail((String) hm.get("email"));
-        eb.setPasswd((String) hm.get("passwd"));
+        userAccountBean.setEmail((String) hm.get("email"));
+        userAccountBean.setPasswd((String) hm.get("passwd"));
         Integer userId = (Integer) hm.get("user_id");
         Integer activeStudy = (Integer) hm.get("active_study");
         Integer statusId = (Integer) hm.get("status_id");
@@ -414,57 +428,57 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
         
 
         // begin to set objects in the bean
-        eb.setId(userId.intValue());
-        eb.setActiveStudyId(activeStudy.intValue());
-        eb.setInstitutionalAffiliation((String) hm.get("institutional_affiliation"));
-        eb.setStatus(Status.get(statusId.intValue()));
-        eb.setCreatedDate(dateCreated);
-        eb.setUpdatedDate(dateUpdated);
-        eb.setLastVisitDate(dateLastVisit);
-        eb.setPasswdTimestamp(pwdTimestamp);
-        eb.setPhone((String) hm.get("phone"));
-        eb.addUserType(UserType.get(userTypeId.intValue()));
-        eb.setEnabled(((Boolean) hm.get("enabled")).booleanValue());
-        eb.setAccountNonLocked(((Boolean) hm.get("account_non_locked")).booleanValue());
-        eb.setLockCounter(((Integer) hm.get("lock_counter")));
-        eb.setRunWebservices(((Boolean) hm.get("run_webservices")).booleanValue());
-        eb.setAccessCode(accessCode);
-        eb.setTime_zone(time_zone);
-        eb.setEnableApiKey(enableApiKey);
-        eb.setApiKey(apiKey);
-        eb.setAuthsecret(authsecret);
-        eb.setAuthtype(authtype);
+        userAccountBean.setId(userId.intValue());
+        userAccountBean.setActiveStudyId(activeStudy.intValue());
+        userAccountBean.setInstitutionalAffiliation((String) hm.get("institutional_affiliation"));
+        userAccountBean.setStatus(Status.get(statusId.intValue()));
+        userAccountBean.setCreatedDate(dateCreated);
+        userAccountBean.setUpdatedDate(dateUpdated);
+        userAccountBean.setLastVisitDate(dateLastVisit);
+        userAccountBean.setPasswdTimestamp(pwdTimestamp);
+        userAccountBean.setPhone((String) hm.get("phone"));
+        userAccountBean.addUserType(UserType.get(userTypeId.intValue()));
+        userAccountBean.setEnabled(((Boolean) hm.get("enabled")).booleanValue());
+        userAccountBean.setAccountNonLocked(((Boolean) hm.get("account_non_locked")).booleanValue());
+        userAccountBean.setLockCounter(((Integer) hm.get("lock_counter")));
+        userAccountBean.setRunWebservices(((Boolean) hm.get("run_webservices")).booleanValue());
+        userAccountBean.setAccessCode(accessCode);
+        userAccountBean.setTime_zone(time_zone);
+        userAccountBean.setEnableApiKey(enableApiKey);
+        userAccountBean.setApiKey(apiKey);
+        userAccountBean.setAuthsecret(authsecret);
+        userAccountBean.setAuthtype(authtype);
         
         // for testing, tbh
-        if (eb.isTechAdmin()) {
+        if (userAccountBean.isTechAdmin()) {
             // logger.warn("&&& is TECH ADMIN &&&");
         }
         
-        eb.setOwnerId(ownerId.intValue());
-        eb.setUpdaterId(updateId.intValue());
+        userAccountBean.setOwnerId(ownerId.intValue());
+        userAccountBean.setUpdaterId(updateId.intValue());
 
         // below block is set up to avoid recursion, etc.
         if (findOwner && !userName.contains(".")) {
             UserAccountBean owner = this.findByPK(ownerId.intValue(), false);
-            eb.setOwner(owner);
+            userAccountBean.setOwner(owner);
             UserAccountBean updater = this.findByPK(updateId.intValue(), false);
-            eb.setUpdater(updater);
+            userAccountBean.setUpdater(updater);
         }
         // end of if block to avoid recursion
 
-        eb.setFirstName(firstName);
-        eb.setLastName(lastName);
-        eb.setName(userName);
-        eb.setPasswdChallengeQuestion(passwdChallengeQuestion);
-        eb.setPasswdChallengeAnswer(passwdChallengeAnswer);
+        userAccountBean.setFirstName(firstName);
+        userAccountBean.setLastName(lastName);
+        userAccountBean.setName(userName);
+        userAccountBean.setPasswdChallengeQuestion(passwdChallengeQuestion);
+        userAccountBean.setPasswdChallengeAnswer(passwdChallengeAnswer);
 
         // pull out the roles and privs here, tbh
         if (!userName.contains(".")){
-        	ArrayList<StudyUserRoleBean> userRoleBeans = this.findAllRolesByUserName(eb.getName());
-        	eb.setRoles(userRoleBeans);
+        	ArrayList<StudyUserRoleBean> userRoleBeans = this.findAllRolesByUserName(userAccountBean.getName());
+        	userAccountBean.setRoles(userRoleBeans);
         }
-        eb.setActive(true);
-        return eb;
+        userAccountBean.setActive(true);
+        return userAccountBean;
     }
 
     @Override

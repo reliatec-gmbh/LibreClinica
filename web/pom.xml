@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>LibreClinica-web</artifactId>
 	<packaging>war</packaging>
@@ -27,7 +29,11 @@
 			<groupId>net.sf.saxon</groupId>
 			<artifactId>saxon-dom</artifactId>
 		</dependency>
-
+		<dependency>
+			<groupId>xml-apis</groupId>
+			<artifactId>xml-apis</artifactId>
+			<version>1.4.01</version>
+		</dependency>
 		<dependency>
 			<groupId>com.mockrunner.jdk15.jee5</groupId>
 			<artifactId>mockrunner</artifactId>
@@ -253,6 +259,12 @@
 			<groupId>xom</groupId>
 			<artifactId>xom</artifactId>
 			<version>1.2.5</version>
+			<exclusions>
+				<exclusion>
+					<groupId>xml-apis</groupId>
+					<artifactId>xml-apis</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.ezmorph</groupId>
@@ -340,7 +352,7 @@
 				<npm-phase>NONE</npm-phase>
 			</properties>
 		</profile>
-		<profile>		
+		<profile>
 			<activation>
 				<activeByDefault>false</activeByDefault>
 			</activation>

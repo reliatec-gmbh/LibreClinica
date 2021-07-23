@@ -7,6 +7,8 @@
  */
 package org.akaza.openclinica.control.admin;
 
+import static org.springframework.web.context.support.WebApplicationContextUtils.getWebApplicationContext;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -33,8 +35,10 @@ import org.akaza.openclinica.dao.hibernate.AuthoritiesDao;
 import org.akaza.openclinica.dao.login.UserAccountDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.domain.user.AuthoritiesBean;
-import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.domain.user.LdapUser;
+import org.akaza.openclinica.i18n.core.LocaleResolver;
+import org.akaza.openclinica.service.otp.TowFactorBean;
+import org.akaza.openclinica.service.otp.TwoFactorService;
 import org.akaza.openclinica.service.user.LdapUserService;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
@@ -46,15 +50,9 @@ import org.akaza.openclinica.web.SQLInitServlet;
  * @author ssachs
  */
 public class CreateUserAccountServlet extends SecureController {
-
-    /**
-	 * 
-	 */
 	private static final long serialVersionUID = -3015174087186096328L;
-
 	// < ResourceBundle restext;
     Locale locale;
-
     public static final String INPUT_USER_SOURCE = "userSource";
     public static final String INPUT_USERNAME = "userName";
     public static final String INPUT_FIRST_NAME = "firstName";
@@ -67,6 +65,7 @@ public class CreateUserAccountServlet extends SecureController {
     public static final String INPUT_DISPLAY_PWD = "displayPwd";
     public static final String INPUT_RUN_WEBSERVICES = "runWebServices";
     public static final String USER_ACCOUNT_NOTIFICATION = "notifyPassword";
+    public static final String INPUT_AUTHTYPE = "authtype";
 
     /*
      * (non-Javadoc)
@@ -74,7 +73,6 @@ public class CreateUserAccountServlet extends SecureController {
      */
     @Override
     protected void mayProceed() throws InsufficientPermissionException {
-
         locale = LocaleResolver.getLocale(request);
         // < restext =
         // ResourceBundle.getBundle("org.akaza.openclinica.i18n.notes",locale);
@@ -92,7 +90,7 @@ public class CreateUserAccountServlet extends SecureController {
 
         StudyDAO sdao = new StudyDAO(sm.getDataSource());
         // YW 11-28-2007 << list sites under their studies
-        ArrayList<StudyBean> all = (ArrayList<StudyBean>) sdao.findAll();
+        ArrayList<StudyBean> all = sdao.findAll();
         ArrayList<StudyBean> finalList = new ArrayList<StudyBean>();
         for (StudyBean sb : all) {
             if (!(sb.getParentStudyId() > 0)) {
@@ -121,13 +119,13 @@ public class CreateUserAccountServlet extends SecureController {
         Boolean changeRoles = request.getParameter("changeRoles") == null ? false : Boolean.parseBoolean(request.getParameter("changeRoles"));
         int activeStudy = fp.getInt(INPUT_STUDY);
         if (changeRoles) {
-            StudyBean study = (StudyBean) sdao.findByPK(activeStudy);
+            StudyBean study = sdao.findByPK(activeStudy);
             roleMap = new LinkedHashMap<>();
             ResourceBundle resterm = org.akaza.openclinica.i18n.util.ResourceBundleProvider.getTermsBundle();
 
             if (study.getParentStudyId() > 0) {
                 for (Iterator<Role> it = getRoles().iterator(); it.hasNext();) {
-                    Role role = (Role) it.next();
+                    Role role = it.next();
                     switch (role.getId()) {
                     // case 2: roleMap.put(role.getId(), resterm.getString("site_Study_Coordinator").trim());
                     // break;
@@ -151,7 +149,7 @@ public class CreateUserAccountServlet extends SecureController {
                 }
             } else {
                 for (Iterator<Role> it = getRoles().iterator(); it.hasNext();) {
-                    Role role = (Role) it.next();
+                    Role role = it.next();
                     switch (role.getId()) {
                     case 2:
                         roleMap.put(role.getId(), resterm.getString("Study_Coordinator").trim());
@@ -179,7 +177,7 @@ public class CreateUserAccountServlet extends SecureController {
         request.setAttribute("activeStudy", activeStudy);
         if (!fp.isSubmitted() || changeRoles) {
             String textFields[] = { INPUT_USER_SOURCE, INPUT_USERNAME, INPUT_FIRST_NAME, INPUT_LAST_NAME, INPUT_EMAIL,
-                    INPUT_INSTITUTION, INPUT_DISPLAY_PWD };
+                    INPUT_INSTITUTION, INPUT_DISPLAY_PWD, INPUT_AUTHTYPE};
             fp.setCurrentStringValuesAsPreset(textFields);
 
             String ddlbFields[] = { INPUT_STUDY, INPUT_ROLE, INPUT_TYPE, INPUT_RUN_WEBSERVICES };
@@ -229,21 +227,20 @@ public class CreateUserAccountServlet extends SecureController {
                 createdUserAccountBean.setLastName(fp.getString(INPUT_LAST_NAME));
                 createdUserAccountBean.setEmail(fp.getString(INPUT_EMAIL));
                 createdUserAccountBean.setInstitutionalAffiliation(fp.getString(INPUT_INSTITUTION));
+                createdUserAccountBean.setAuthtype(fp.getString(INPUT_AUTHTYPE));
 
                 boolean isLdap = fp.getString(INPUT_USER_SOURCE).equals("ldap");
                 String password = null;
                 String passwordHash = UserAccountBean.LDAP_PASSWORD;
                 if (!isLdap){
-        SecurityManager secm = (SecurityManager) SpringServletAccess.getApplicationContext(context).getBean("securityManager");
+                    SecurityManager secm = (SecurityManager) SpringServletAccess.getApplicationContext(context).getBean("securityManager");
                     password = secm.genPassword();
                     passwordHash = secm.encrytPassword(password, getUserDetails());
                 }
 
                 createdUserAccountBean.setPasswd(passwordHash);
-
                 createdUserAccountBean.setPasswdTimestamp(null);
                 createdUserAccountBean.setLastVisitDate(null);
-
                 createdUserAccountBean.setStatus(Status.AVAILABLE);
                 createdUserAccountBean.setPasswdChallengeQuestion("");
                 createdUserAccountBean.setPasswdChallengeAnswer("");
@@ -253,6 +250,14 @@ public class CreateUserAccountServlet extends SecureController {
                 createdUserAccountBean.setAccessCode("null");
                 createdUserAccountBean.setEnableApiKey(true);
                 
+                if (createdUserAccountBean.isTwoFactorMarked()) {
+                    TwoFactorService factorService = (TwoFactorService) getWebApplicationContext(getServletContext()).getBean("factorService");
+                    if (factorService.isTwoFactorLetter()) {
+                        TowFactorBean bean = factorService.generate();
+                        createdUserAccountBean.setAuthsecret(bean.getAuthSecret());
+                    }
+                }
+
                 String apiKey=null; 		
                 do{
                  	apiKey=getRandom32ChApiKey() ;
@@ -266,7 +271,7 @@ public class CreateUserAccountServlet extends SecureController {
                 logger.debug("*** found type: " + fp.getInt("type"));
                 logger.debug("*** setting type: " + type.getDescription());
                 createdUserAccountBean.addUserType(type);
-                createdUserAccountBean = (UserAccountBean) udao.create(createdUserAccountBean);
+                createdUserAccountBean = udao.create(createdUserAccountBean);
                 AuthoritiesDao authoritiesDao = (AuthoritiesDao) SpringServletAccess.getApplicationContext(context).getBean("authoritiesDao");
                 authoritiesDao.saveOrUpdate(new AuthoritiesBean(createdUserAccountBean.getName()));
                 String displayPwd = fp.getString(INPUT_DISPLAY_PWD);
@@ -297,7 +302,7 @@ public class CreateUserAccountServlet extends SecureController {
                     forwardPage(Page.LIST_USER_ACCOUNTS_SERVLET);
                 }
             } else {
-                String textFields[] = { INPUT_USERNAME, INPUT_FIRST_NAME, INPUT_LAST_NAME, INPUT_EMAIL, INPUT_INSTITUTION, INPUT_DISPLAY_PWD,INPUT_USER_SOURCE };
+                String textFields[] = {INPUT_USERNAME, INPUT_FIRST_NAME, INPUT_LAST_NAME, INPUT_EMAIL, INPUT_INSTITUTION, INPUT_DISPLAY_PWD, INPUT_USER_SOURCE, INPUT_AUTHTYPE};
                 fp.setCurrentStringValuesAsPreset(textFields);
 
                 String ddlbFields[] = { INPUT_STUDY, INPUT_ROLE, INPUT_TYPE, INPUT_RUN_WEBSERVICES };
@@ -390,7 +395,7 @@ public class CreateUserAccountServlet extends SecureController {
 
 	public Boolean isApiKeyExist(String uuid) {
 		UserAccountDAO udao = new UserAccountDAO(sm.getDataSource());
-		UserAccountBean uBean = (UserAccountBean) udao.findByApiKey(uuid);
+		UserAccountBean uBean = udao.findByApiKey(uuid);
 		if (uBean == null || !uBean.isActive()) {
 			return false;
 		} else {

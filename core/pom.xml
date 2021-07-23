@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>LibreClinica-core</artifactId>
 	<packaging>jar</packaging>
@@ -8,7 +10,7 @@
 		<artifactId>LibreClinica</artifactId>
 		<version>1.1.0-snapshot</version>
 	</parent>
-	
+
 	<profiles>
 		<!-- Maven profiles for building artifact for a specific target database [postgres (default), oracle]. 
 		This is to avoid the inclusion of unnecessary JDBC drivers. -->
@@ -30,7 +32,14 @@
 			</properties>
 		</profile>
 	</profiles>
-	
+
+	<repositories>
+		<repository>
+			<id>jitpack.io</id>
+			<url>https://jitpack.io</url>
+		</repository>
+	</repositories>
+
 	<dependencies>
 		<dependency>
 			<groupId>javax.transaction</groupId>
@@ -132,10 +141,6 @@
 				<exclusion>
 					<artifactId>commons-collections</artifactId>
 					<groupId>commons-collections</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>xml-apis</artifactId>
-					<groupId>xml-apis</groupId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -260,7 +265,6 @@
 			<artifactId>mvel2</artifactId>
 			<version>2.0.19</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.quartz-scheduler</groupId>
 			<artifactId>quartz</artifactId>
@@ -273,13 +277,11 @@
 			<groupId>log4jdbc</groupId>
 			<artifactId>log4jdbc4</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-core-lgpl</artifactId>
 			<version>1.8.1</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-mapper-lgpl</artifactId>
@@ -298,6 +300,24 @@
 			<artifactId>totp</artifactId>
 			<version>1.7.1</version>
 		</dependency>
+		<dependency>
+			<groupId>com.github.ralfstuckert.pdfbox-layout</groupId>
+			<artifactId>pdfbox2-layout</artifactId>
+			<version>1.0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>30.0-jre</version>
+		</dependency>
+		 <dependency>
+			<groupId>org.hamcrest</groupId>
+			<artifactId>hamcrest</artifactId>
+			<version>2.2</version>
+			<scope>test</scope>
+		</dependency>
+		<!-- 
+		-->
 	</dependencies>
 	<!-- @pgawade 16-NOV-2010 unit tests through maven -->
 

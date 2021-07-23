@@ -32,6 +32,7 @@ import javax.sql.DataSource;
 import org.akaza.openclinica.bean.core.EntityBean;
 import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.control.core.SecureController;
+import org.akaza.openclinica.control.login.AccountConfigurationException;
 import org.akaza.openclinica.core.CRFLocker;
 import org.akaza.openclinica.dao.hibernate.AuditUserLoginDao;
 import org.akaza.openclinica.dao.hibernate.ConfigurationDao;
@@ -138,6 +139,9 @@ public class OpenClinicaUsernamePasswordAuthenticationFilter extends AbstractAut
                 if (!factorService.verify(userAccountBean.getAuthsecret(), factor)) {
                     throw new BadCredentialsException(BAD_CREDENTIALS_MESSAGE);
                 }
+            }
+            if (factorService.isTwoFactorActivatedLetterAndOutDated() && !userAccountBean.isTwoFactorActivated()) {
+                throw new AccountConfigurationException();
             }
 
             // Manually Checking if the user is locked which should be thrown by

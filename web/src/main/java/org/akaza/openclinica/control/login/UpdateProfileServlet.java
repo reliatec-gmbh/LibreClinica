@@ -8,6 +8,7 @@ package org.akaza.openclinica.control.login;
 
 import static org.akaza.openclinica.view.Page.MENU_SERVLET;
 import static org.akaza.openclinica.view.Page.UPDATE_PROFILE;
+import static org.akaza.openclinica.view.Page.UPDATE_PROFILE_CONFIRM;
 import static org.apache.commons.lang.StringUtils.isBlank;
 
 import java.util.ArrayList;
@@ -28,7 +29,6 @@ import org.akaza.openclinica.dao.login.UserAccountDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
-import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.apache.commons.lang.StringUtils;
 
@@ -145,20 +145,20 @@ public class UpdateProfileServlet extends SecureController {
                     Validator.addError(errors, "oldPasswd", resexception.getString("wrong_old_password"));
                     request.setAttribute("formMessages", errors);
                     // addPageMessage("Wrong old password. Please try again.");
-                    forwardPage(Page.UPDATE_PROFILE);
+                    forwardPage(UPDATE_PROFILE);
                 } else {
                     if (!StringUtils.isBlank(formProcessor.getString("passwd"))) {
                         userBean1.setPasswd(newDigestPass);
                         userBean1.setPasswdTimestamp(new Date());
                     }
                     session.setAttribute("userBean1", userBean1);
-                    forwardPage(Page.UPDATE_PROFILE_CONFIRM);
+                    forwardPage(UPDATE_PROFILE_CONFIRM);
                 }
             } else {
                 logger.info("has validation errors");
                 session.setAttribute("userBean1", userBean1);
                 request.setAttribute("formMessages", errors);
-                forwardPage(Page.UPDATE_PROFILE);
+                forwardPage(UPDATE_PROFILE);
             }
         }
     }

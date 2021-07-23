@@ -90,42 +90,40 @@ session.setAttribute("factorService", factorService);
             </table>
 
     <table border="0" cellpadding="0" cellspacing="0" class="loginBoxes">
-       <tr>
-            <td class="loginBox_T">&nbsp;</td>
-       </tr>
-       <tr>
-            <td class="loginBox">
+    <tr>
+         <td class="loginBox_T">&nbsp;</td>
+    </tr>
+	<tr>
+		<td class="loginBox">
             <div ID="loginBox">
-            <!-- Login box contents -->
-                <div ID="login">
+            	<div ID="login">
                     <form action="<c:url value='/j_spring_security_check'/>" method="post">
-                    <h1><fmt:message key="login" bundle="${resword}"/></h1>
-                    <b><fmt:message key="user_name" bundle="${resword}"/></b>
-                    <div class="formfieldM_BG">
-                        <input type="text" id="username" name="j_username" class="formfieldM" />
-                    </div>
-
-                    <b><fmt:message key="password" bundle="${resword}"/></b>
-                    <div class="formfieldM_BG">
-                        <input type="password" id="j_password" name="j_password"  class="formfieldM" autocomplete="off" />
-                    </div>
-                    
-                    <c:if test="${factorService.twoFactorActivated}">
-	                    <b><fmt:message key="factor" bundle="${resword}"/></b>
-                        <div class="formfieldM_BG">
-                            <input type="text" id="j_factor" name="j_factor"  class="formfieldM" autocomplete="off" />
-                        </div>
-                    </c:if>
-                        
-                    <input type="submit" name="submit" value="<fmt:message key='login' bundle='${resword}'/>" class="loginbutton" />
-                    <a href="#" id="requestPassword"> <fmt:message key="forgot_password" bundle="${resword}"/></a>
+	                    <h1><fmt:message key="login" bundle="${resword}"/></h1>
+	                    <b><fmt:message key="user_name" bundle="${resword}"/></b>
+	                    <div class="formfieldM_BG">
+	                        <input type="text" id="username" name="j_username" class="formfieldM" />
+	                    </div>
+	
+	                    <b><fmt:message key="password" bundle="${resword}"/></b>
+	                    <div class="formfieldM_BG">
+	                        <input type="password" id="j_password" name="j_password"  class="formfieldM" autocomplete="off" />
+	                    </div>
+	                    
+	                    <c:if test="${factorService.twoFactorActivated}">
+		                    <b><fmt:message key="factor" bundle="${resword}"/></b>
+	                        <div class="formfieldM_BG">
+	                            <input type="text" id="j_factor" name="j_factor"  class="formfieldM" autocomplete="off" />
+	                        </div>
+	                    </c:if>
+	                        
+	                    <input type="submit" name="submit" value="<fmt:message key='login' bundle='${resword}'/>" class="loginbutton" />
+	                    <a href="#" id="requestPassword"> <fmt:message key="forgot_password" bundle="${resword}"/></a>
                    </form>
                    <br/><jsp:include page="../login-include/login-alertbox.jsp"/>
                    <%-- <a href="<c:url value="/RequestPassword"/>"> <fmt:message key="forgot_password" bundle="${resword}"/></a> --%>
-               </div>
-            <!-- End Login box contents -->
+               	</div>
             </div>
-            </td>
+		</td>
       </tr>
     </table>
 

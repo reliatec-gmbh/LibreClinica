@@ -5,7 +5,6 @@
 <fmt:setBundle basename="org.akaza.openclinica.i18n.words" var="resword"/>
 <jsp:include page="../include/admin-header.jsp"/>
 
-
 <!-- move the alert message to the sidebar-->
 <jsp:include page="../include/sideAlert.jsp"/>
 <!-- then instructions-->
@@ -33,8 +32,6 @@
 		</td>
   </tr>
 <jsp:include page="../include/sideInfo.jsp"/>
-
-
 
 <jsp:useBean scope='session' id='userBean' class='org.akaza.openclinica.bean.login.UserAccountBean'/>
 <jsp:useBean scope='request' id='studies' class='java.util.ArrayList'/>
@@ -226,7 +223,6 @@ int selectedValue;
 		</td>
 	</tr>
 
-
 	<tr valign="top">
 		<td class="formlabel"><fmt:message key="first_name" bundle="${resword}"/>:</td>
 		<td valign="top">
@@ -261,7 +257,6 @@ int selectedValue;
 		</td>
 	</tr>
 
-
 	<tr valign="top">
 		<td class="formlabel"><fmt:message key="email" bundle="${resword}"/>:</td>
 		<td valign="top">
@@ -278,7 +273,6 @@ int selectedValue;
 			</table>
 		</td>
 	</tr>
-
 
 	<tr valign="top">
 		<td class="formlabel"><fmt:message key="institutional_affiliation" bundle="${resword}"/>:</td>
@@ -305,29 +299,28 @@ int selectedValue;
 				<tr>
 					<td valign="top">
                         <div class="formfieldXL_BG">
-                        <select name="activeStudy" id="activeStudy" class="formfieldXL" onchange="sendUrl();">
+                        <select name="activeStudy" id="activeStudy" class="formfieldM" onchange="sendUrl();">
 							<option value="0">-<fmt:message key="select" bundle="${resword}"/>-</option>
-
                             <c:forEach var="study" items="${studies}">
 								<c:choose>
 									<c:when test="${activeStudy == study.id}">
 										<c:choose>
-										<c:when test="${study.parentStudyId>0}">
-											<option value='<c:out value="${study.id}" />' selected>&nbsp;&nbsp;&nbsp;&nbsp;<c:out value="${study.name}" /></option>
-										</c:when>
-										<c:otherwise>
-											<option value='<c:out value="${study.id}" />' selected><c:out value="${study.name}" /></option>
-										</c:otherwise>
+											<c:when test="${study.parentStudyId>0}">
+												<option value='<c:out value="${study.id}" />' selected>&nbsp;&nbsp;&nbsp;&nbsp;<c:out value="${study.name}" /></option>
+											</c:when>
+											<c:otherwise>
+												<option value='<c:out value="${study.id}" />' selected><c:out value="${study.name}" /></option>
+											</c:otherwise>
 										</c:choose>
 									</c:when>
 									<c:otherwise>
 										<c:choose>
-										<c:when test="${study.parentStudyId>0}">
-											<option value='<c:out value="${study.id}" />'>&nbsp;&nbsp;&nbsp;&nbsp;<c:out value="${study.name}" /></option>
-										</c:when>
-										<c:otherwise>
-											<option value='<c:out value="${study.id}" />'><c:out value="${study.name}" /></option>
-										</c:otherwise>
+											<c:when test="${study.parentStudyId>0}">
+												<option value='<c:out value="${study.id}" />'>&nbsp;&nbsp;&nbsp;&nbsp;<c:out value="${study.name}" /></option>
+											</c:when>
+											<c:otherwise>
+												<option value='<c:out value="${study.id}" />'><c:out value="${study.name}" /></option>
+											</c:otherwise>
 										</c:choose>
 									</c:otherwise>
 								</c:choose>
@@ -396,6 +389,27 @@ int selectedValue;
 			</table>
 		</td>
 	</tr>
+	<c:if test="${factorService.twoFactorActivated}">
+		<tr valign="top">
+		  	<td class="formlabel"><fmt:message key="auth_type" bundle="${resword}"/>:</td>
+			<td valign="top">
+				<table border="0" cellpadding="0" cellspacing="0">
+					<tr>
+						<td valign="top">
+							<div class="formfieldM_BG">
+								<input type="radio" name="authtype" style="display:inline-block;" value="STANDARD" checked /> Standard Authentication <br/>
+								<c:if test="${factorService.twoFactorActivatedLetter}">
+									<input type="radio" name="authtype" style="display:inline-block;" value="MARKED" /> Marked for 2-Factor Authentication <br/>
+								</c:if>
+								<input type="radio" name="authtype" style="display:inline-block;" value="TWO_FACTOR" /> 2-Factor Authentication <br/>
+							</div>
+						</td>
+						<td>*</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</c:if>
 	<tr valign="top" class="webservicesRow">
         <td class="formlabel"><fmt:message key="can_run_web_services" bundle="${resword}"/>:</td>
         <td valign="top">

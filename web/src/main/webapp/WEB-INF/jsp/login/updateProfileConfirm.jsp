@@ -62,11 +62,13 @@
 		  <tr valign="top">
 		  	<td class="table_header_column"><fmt:message key="phone" bundle="${resword}"/>:</td>
 		  	<td class="table_cell"><c:out value="${userBean1.phone}"/></td>
-		  </tr>		  
-		  <tr valign="top">
-			<td class="table_header_column"><fmt:message key="auth_type" bundle="${resword}" />:</td>
-		  	<td class="table_cell"><fmt:message key="auth_type.${userBean1.authtype}" bundle="${resword}" /></td>
 		  </tr>
+		  <c:if test="${factorService.twoFactorActivated}">
+			  <tr valign="top">
+				<td class="table_header_column"><fmt:message key="auth_type" bundle="${resword}" />:</td>
+			  	<td class="table_cell"><fmt:message key="auth_type.${userBean1.authtype}" bundle="${resword}" /></td>
+			  </tr>
+		 </c:if>
 		</table>
 	</div>
 		  	<%-- <t d class="table_cell"><form:label path="authtype" /></t d> --%>

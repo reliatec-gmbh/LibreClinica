@@ -23,4 +23,14 @@
 			<column name="authsecret" />
 		</createIndex> 
 	</changeSet>
+	
+	<!-- 
+	<changeSet id="3" author="thillger">
+		<comment>Adding check constraint to ensure present auth secret when not standard authtype.</comment>
+	
+		<sql>
+		alter table user_account add constraint ch1_user_account check (authtype = 'STANDARD' or (authtype in ('MARKED, 'TWO_FACTOR') and authsecret is not null));
+		</sql>
+	</changeSet>
+	-->
 </databaseChangeLog>

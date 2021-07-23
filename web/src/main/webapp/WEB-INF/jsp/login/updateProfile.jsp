@@ -135,12 +135,34 @@
 	</td>
 	<td class="formlabel">*</td>
   </tr>
-  <c:if test="${factorService.twoFactorActivated}">
+  <c:if test="${factorService.twoFactorActivatedLetter}">
 	  <tr>
-	  	<td class="formlabel"><fmt:message key="auth_type" bundle="${resword}"/>:</td>
+	  	<td class="formlabel"><fmt:message key="auth_type" bundle="${resword}" />:</td>
 	  	<td>
-  			<input type="radio" id="authtypeStandard" name="authtype" style="display:inline-block;" value="STANDARD" on onchange="enableDisableQrCodeButton();" <c:if test="${userBean1.authtype eq 'STANDARD'}">checked</c:if> /> Standard
-			<input type="radio" id="authtypeTwoFactor" name="authtype" style="display:inline-block;" value="TWO_FACTOR" onchange="enableDisableQrCodeButton();" <c:if test="${userBean1.authtype ne 'STANDARD'}">checked</c:if>/> 2-Factor Authentication
+			<c:set var="editable" scope="request" value= "" />
+			<c:if test="${userBean1.twoFactorActivated}">
+				<c:set var="editable" scope="request" value= "disabled" />
+			</c:if>
+			<input type="radio" id="authtypeStandard" name="authtype" style="display:inline-block;" value="STANDARD" disabled <c:if test="${userBean1.authtype eq 'STANDARD'}">checked</c:if>/> Standard Authentication<br/>
+			<input type="radio" id="authtypeMarked" name="authtype" style="display:inline-block;" value="MARKED" disabled <c:if test="${userBean1.authtype eq 'MARKED'}">checked</c:if>/> Marked for 2-Factor Authentication<br/>
+			<input type="radio" id="authtypeTwoFactor" name="authtype" style="display:inline-block;" value="TWO_FACTOR" ${userBean1.twoFactorMarked ? "": "disabled"} <c:if test="${userBean1.authtype eq 'TWO_FACTOR'}">checked</c:if>/> 2-Factor Authentication<br/>
+			<!-- Need 'authsecret' and 'authtype' as hidden to avoid getting information lost. -->
+			<input type="hidden" name="authtype" value="${userBean1.authtype}" />
+			<input type="hidden" name="authsecret" value="${userBean1.authsecret}" />
+
+			<jsp:include page="../showMessage.jsp">
+				<jsp:param name="key" value="auth_type"/>
+			</jsp:include>
+		</td>
+		<td class="formlabel">* </td>
+	</tr>
+  </c:if>
+  <c:if test="${factorService.twoFactorActivatedApplication}">
+	  <tr>
+	  	<td class="formlabel"><fmt:message key="auth_type" bundle="${resword}" />:</td>
+	  	<td>
+  			<input type="radio" id="authtypeStandard" name="authtype" style="display:inline-block;" value="STANDARD" onchange="enableDisableQrCodeButton();" <c:if test="${userBean1.authtype eq 'STANDARD'}">checked</c:if> /> Standard Authentication
+			<input type="radio" id="authtypeTwoFactor" name="authtype" style="display:inline-block;" value="TWO_FACTOR" onchange="enableDisableQrCodeButton();" <c:if test="${userBean1.authtype eq 'TWO_FACTOR'}">checked</c:if>/> 2-Factor Authentication
 
 			<jsp:include page="../showMessage.jsp">
 				<jsp:param name="key" value="auth_type"/>
@@ -163,7 +185,7 @@
 			<input type=text id="authsecret" name="authsecret" class="formfieldXL" value="${userBean1.authsecret}" readonly />
 		</td>
     </tr>
-	<c:if test="${factorService.twoFactorActivated}">
+	<c:if test="${factorService.twoFactorActivatedApplication}">
 		<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 		<script type="text/javascript">
 			window.onload = function() {
@@ -220,10 +242,10 @@
 </div></div></div></div></div></div></div></div>
 
 </div>
-	<input type="submit" name="Submit" value="<fmt:message key="confirm_profile_changes" bundle="${resword}"/>" class="button_long">
-	<input type="button" onclick="confirmCancel('MainMenu');"  name="cancel" value="   <fmt:message key="cancel" bundle="${resword}"/>   " class="button_medium"/>
-	<c:if test="${factorService.twoFactorActivated}">
+	<input type="submit" name="Submit" value="<fmt:message key="confirm_profile_changes" bundle="${resword}"/>" class="button_long" />
+	<input type="button" onclick="confirmCancel('MainMenu');" name="cancel" value="<fmt:message key="cancel" bundle="${resword}" />" class="button_medium" />
+	<c:if test="${factorService.twoFactorActivatedApplication}">
 		<input type="button" id="qrButton" value="QR-Code" onClick="qrButtonClick();" style="visibility:hidden;" class="button_medium" title="Click to request a QR-code which can be scanned with your Athenticator-App." />
 	</c:if>
 </form>
-<jsp:include page="../include/footer.jsp"/>
+<jsp:include page="../include/footer.jsp" />

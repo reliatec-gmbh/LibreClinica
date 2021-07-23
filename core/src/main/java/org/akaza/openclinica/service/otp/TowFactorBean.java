@@ -1,7 +1,7 @@
 package org.akaza.openclinica.service.otp;
 
 /**
- * A simple Java bean holding information about 2-fa related codes and image.
+ * A simple Java bean holding information about 2-fa related secret and image.
  * 
  * @author thillger
  */
@@ -23,6 +23,10 @@ public final class TowFactorBean {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public String asImageUrl() {
+        return "data:image/png;base64," + imageUrl;
     }
 
     @Override

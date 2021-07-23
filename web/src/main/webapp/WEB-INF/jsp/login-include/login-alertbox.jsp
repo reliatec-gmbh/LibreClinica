@@ -25,4 +25,15 @@
     }
 
 %>
+
+<% 
+    if (action!=null) {
+       if (action.equals("2faOutdated")) { 
+%>
+    <div class="alertbox_center"><fmt:message key="2fa.outdated" bundle="${restext}"/></div>
+<%
+       } 
+    }
+
+%>
 <jsp:include page="../include/showPageMessages.jsp" />
