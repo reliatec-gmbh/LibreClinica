@@ -25,7 +25,6 @@ import org.akaza.openclinica.bean.managestudy.StudySubjectBean;
 import org.akaza.openclinica.bean.submit.SubjectBean;
 import org.akaza.openclinica.control.AbstractTableFactory;
 import org.akaza.openclinica.control.DefaultActionsEditor;
-import org.akaza.openclinica.dao.hibernate.AuditUserLoginDao;
 import org.akaza.openclinica.dao.login.UserAccountDAO;
 import org.akaza.openclinica.dao.managestudy.StudyAuditLogFilter;
 import org.akaza.openclinica.dao.managestudy.StudyAuditLogSort;
@@ -33,7 +32,6 @@ import org.akaza.openclinica.dao.managestudy.StudySubjectDAO;
 import org.akaza.openclinica.dao.submit.SubjectDAO;
 import org.akaza.openclinica.i18n.util.I18nFormatUtil;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
-import org.jmesa.core.filter.DateFilterMatcher;
 import org.jmesa.core.filter.FilterMatcher;
 import org.jmesa.core.filter.MatcherKey;
 import org.jmesa.facade.TableFacade;
@@ -48,8 +46,7 @@ import org.jmesa.view.editor.DateCellEditor;
 import org.jmesa.view.html.editor.DroplistFilterEditor;
 
 public class StudyAuditLogTableFactory extends AbstractTableFactory {
-
-    private AuditUserLoginDao auditUserLoginDao;
+    
     private StudySubjectDAO studySubjectDao;
     private UserAccountDAO userAccountDao;
     private SubjectDAO subjectDao;
@@ -64,8 +61,10 @@ public class StudyAuditLogTableFactory extends AbstractTableFactory {
 
     @Override
     protected void configureColumns(TableFacade tableFacade, Locale locale) {
-        tableFacade.setColumnProperties("studySubject.label", "studySubject.secondaryLabel", "studySubject.oid", "subject.dateOfBirth",
-                "subject.uniqueIdentifier", "studySubject.owner", "studySubject.status", "actions");
+        tableFacade.setColumnProperties(
+            "studySubject.label", "studySubject.secondaryLabel", "studySubject.oid", "subject.dateOfBirth",
+            "subject.uniqueIdentifier", "studySubject.owner", "studySubject.status", "actions"
+        );
         Row row = tableFacade.getTable().getRow();
         configureColumn(row.getColumn("studySubject.label"), resword.getString("study_subject_ID"), null, null);
         configureColumn(row.getColumn("studySubject.secondaryLabel"), resword.getString("secondary_subject_ID"), null, null);
@@ -76,15 +75,13 @@ public class StudyAuditLogTableFactory extends AbstractTableFactory {
         configureColumn(row.getColumn("studySubject.status"), resword.getString("status"), new StatusCellEditor(), new StatusDroplistFilterEditor());
         String actionsHeader = resword.getString("actions") + "&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;";
         configureColumn(row.getColumn("actions"), actionsHeader, new ActionsCellEditor(), new DefaultActionsEditor(locale), true, false);
-
     }
 
     @Override
     public void configureTableFacade(HttpServletResponse response, TableFacade tableFacade) {
         super.configureTableFacade(response, tableFacade);
-        tableFacade.addFilterMatcher(new MatcherKey(Date.class, "subject.dateOfBirth"), new DateFilterMatcher(getDateFormat()));
-        tableFacade.addFilterMatcher(new MatcherKey(Status.class, "studySubject.status"), new GenericFilterMatecher());
-        tableFacade.addFilterMatcher(new MatcherKey(UserAccountBean.class, "studySubject.owner"), new GenericFilterMatecher());
+        tableFacade.addFilterMatcher(new MatcherKey(Status.class, "studySubject.status"), new GenericFilterMatcher());
+        tableFacade.addFilterMatcher(new MatcherKey(UserAccountBean.class, "studySubject.owner"), new GenericFilterMatcher());
     }
 
     @Override
@@ -102,21 +99,18 @@ public class StudyAuditLogTableFactory extends AbstractTableFactory {
         }
 
         StudyAuditLogSort auditLogStudySort = getAuditLogStudySort(limit);
-        /*
-         * if (auditLogStudySort.getSorts().size() == 0) {
-         * auditLogStudySort.addSort("loginAttemptDate", "desc"); }
-         */
+
         int rowStart = limit.getRowSelect().getRowStart();
         int rowEnd = limit.getRowSelect().getRowEnd();
 
-        Collection<StudySubjectBean> items =
-            getStudySubjectDao().getWithFilterAndSort(getCurrentStudy(), auditLogStudyFilter, auditLogStudySort, rowStart, rowEnd);
-        Collection<HashMap<Object, Object>> theItems = new ArrayList<HashMap<Object, Object>>();
+        Collection<StudySubjectBean> items = getStudySubjectDao()
+                .getWithFilterAndSort(getCurrentStudy(), auditLogStudyFilter, auditLogStudySort, rowStart, rowEnd);
+        Collection<HashMap<Object, Object>> theItems = new ArrayList<>();
 
         for (StudySubjectBean studySubjectBean : items) {
-            SubjectBean subject = (SubjectBean) getSubjectDao().findByPK(studySubjectBean.getSubjectId());
-            UserAccountBean owner = (UserAccountBean) getUserAccountDao().findByPK(studySubjectBean.getOwnerId());
-            HashMap<Object, Object> h = new HashMap<Object, Object>();
+            SubjectBean subject = getSubjectDao().findByPK(studySubjectBean.getSubjectId());
+            UserAccountBean owner = getUserAccountDao().findByPK(studySubjectBean.getOwnerId());
+            HashMap<Object, Object> h = new HashMap<>();
             h.put("studySubject", studySubjectBean);
             h.put("studySubject.label", studySubjectBean.getLabel());
             h.put("studySubject.secondaryLabel", studySubjectBean.getSecondaryLabel());
@@ -134,12 +128,10 @@ public class StudyAuditLogTableFactory extends AbstractTableFactory {
     }
 
     /**
-     * A very custom way to filter the items. The AuditUserLoginFilter acts as a
-     * command for the Hibernate criteria object. Take the Limit information and
-     * filter the rows.
+     * A very custom way to filter the items. The StudyAuditLogFilter acts as a command
+     * for the Hibernate criteria object. Take the Limit information and filter the rows.
      *
-     * @param limit
-     *            The Limit to use.
+     * @param limit The Limit to use.
      */
     protected StudyAuditLogFilter getAuditLogStudyFilter(Limit limit) {
         StudyAuditLogFilter auditLogStudyFilter = new StudyAuditLogFilter(getDateFormat());
@@ -148,8 +140,8 @@ public class StudyAuditLogTableFactory extends AbstractTableFactory {
         for (Filter filter : filters) {
             String property = filter.getProperty();
             String value = filter.getValue();
-            if("studySubject.status".equalsIgnoreCase(property)) {
-                value = Status.getByName(value).getId()+"";
+            if ("studySubject.status".equalsIgnoreCase(property)) {
+                value = Status.getByName(value).getId() + "";
             }
             auditLogStudyFilter.addFilter(property, value);
         }
@@ -158,12 +150,10 @@ public class StudyAuditLogTableFactory extends AbstractTableFactory {
     }
 
     /**
-     * A very custom way to sort the items. The AuditUserLoginSort acts as a
-     * command for the Hibernate criteria object. Take the Limit information and
-     * sort the rows.
+     * A very custom way to sort the items. The StudyAuditLogSort acts as a command
+     * for the Hibernate criteria object. Take the Limit information and sort the rows.
      *
-     * @param limit
-     *            The Limit to use.
+     * @param limit The Limit to use.
      */
     protected StudyAuditLogSort getAuditLogStudySort(Limit limit) {
         StudyAuditLogSort auditLogStudySort = new StudyAuditLogSort();
@@ -178,26 +168,18 @@ public class StudyAuditLogTableFactory extends AbstractTableFactory {
         return auditLogStudySort;
     }
 
-    public AuditUserLoginDao getAuditUserLoginDao() {
-        return auditUserLoginDao;
-    }
-
-    public void setAuditUserLoginDao(AuditUserLoginDao auditUserLoginDao) {
-        this.auditUserLoginDao = auditUserLoginDao;
-    }
-
     private class StatusDroplistFilterEditor extends DroplistFilterEditor {
         @Override
         protected List<Option> getOptions() {
-            List<Option> options = new ArrayList<Option>();
-            for (Object status : Status.toActiveArrayList()) {
-                options.add(new Option(((Status) status).getName(), ((Status) status).getName()));
+            List<Option> options = new ArrayList<>();
+            for (Status status : Status.toActiveArrayList()) {
+                options.add(new Option(status.getName(), status.getName()));
             }
             return options;
         }
     }
 
-    private class GenericFilterMatecher implements FilterMatcher {
+    private class GenericFilterMatcher implements FilterMatcher {
         public boolean evaluate(Object itemValue, String filterValue) {
             return true;
         }
@@ -234,14 +216,10 @@ public class StudyAuditLogTableFactory extends AbstractTableFactory {
         public Object getValue(Object item, String property, int rowcount) {
             String value = "";
             StudySubjectBean studySubjectBean = (StudySubjectBean) ((HashMap<Object, Object>) item).get("studySubject");
-            Integer studySubjectId = studySubjectBean.getId();
             if (studySubjectBean != null) {
-                StringBuilder url = new StringBuilder();
-                url
-                        .append("<a onmouseup=\"javascript:setImage('bt_View1','images/bt_View.gif');\" onmousedown=\"javascript:setImage('bt_View1','images/bt_View_d.gif');\" href=\"javascript:openDocWindow('ViewStudySubjectAuditLog?id=");
-                url.append(studySubjectId);
-                url.append("')\"><img hspace=\"6\" border=\"0\" align=\"left\" title=\"View\" alt=\"View\" src=\"images/bt_View.gif\" name=\"bt_View1\"/></a>");
-                value = url.toString();
+                value = "<a onmouseup=\"javascript:setImage('bt_View1','images/bt_View.gif');\" onmousedown=\"javascript:setImage('bt_View1','images/bt_View_d.gif');\" href=\"javascript:openDocWindow('ViewStudySubjectAuditLog?id=" +
+                        studySubjectBean.getId() +
+                        "')\"><img hspace=\"6\" border=\"0\" align=\"left\" title=\"View\" alt=\"View\" src=\"images/bt_View.gif\" name=\"bt_View1\"/></a>";
             }
             return value;
         }
@@ -284,16 +262,17 @@ public class StudyAuditLogTableFactory extends AbstractTableFactory {
     }
 
     private String resolveBirthDay(Date birthDate, boolean isDobCollected, Locale locale) {
-        if(birthDate == null) {
+        if (birthDate == null) {
             return "";
-        }else {
-            if(isDobCollected) {
+        } else {
+            if (isDobCollected) {
                 return I18nFormatUtil.getDateFormat(locale).format(birthDate);
             } else {
                 Calendar c = Calendar.getInstance(locale);
                 c.setTime(birthDate);
-                return c.get(Calendar.YEAR)+"";
+                return c.get(Calendar.YEAR) + "";
             }
         }
     }
+    
 }
