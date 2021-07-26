@@ -43,18 +43,15 @@ public class TwoFactorPrintoutController {
 		response.addHeader("Content-Type", "application/pdf");
 		response.setContentType("application/octet-stream");
 		
-		try {
-		    UserAccountBean userAccount = dao.findByPK(userId);
+	    UserAccountBean userAccount = dao.findByPK(userId);
+	
+	    // Secret in blocks of four! 
+		CertificateBean certificateBean = new CertificateBean();
+		certificateBean.setUsername(userAccount.getLastName() + ", " + userAccount.getFirstName());
+		certificateBean.setSecret(userAccount.getAuthsecret());
+		certificateBean.setEmail(userAccount.getEmail());
+		certificateBean.setLogin(userAccount.getName());
 		
-		    // Secret in blocks of four! 
-			CertificateBean certificateBean = new CertificateBean();
-			certificateBean.setSecret(userAccount.getAuthsecret());
-			certificateBean.setName(userAccount.getLastName() + ", " + userAccount.getFirstName());
-			certificateBean.setEmail(userAccount.getEmail());
-			
-			factorService.printoutCertificate(certificateBean, response.getOutputStream());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		factorService.printoutCertificate(certificateBean, response.getOutputStream());
     }
 }

@@ -8,16 +8,25 @@ import java.io.InputStream;
  * @author thillger
  */
 public class CertificateBean {
+    private String username;
+    private String secret;
 	private String login;
 	private String email;
-	private String secret;
 	private InputStream image;
 
-	public String getLogin() {
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getLogin() {
 		return login;
 	}
 
-	public void setName(String login) {
+    public void setLogin(String login) {
 		this.login = login;
 	}
 

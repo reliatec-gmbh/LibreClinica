@@ -39,9 +39,10 @@ public class PrintoutCertificateServlet extends SecureController {
         UserAccountBean user = dao.getUserById(Integer.valueOf(optUserId.get()));
 
 		CertificateBean bean = new CertificateBean();
-		bean.setEmail(user.getEmail());
-        bean.setName(user.getLastName() + ", " + user.getFirstName());
-		bean.setSecret(user.getAuthsecret());
+        bean.setUsername(user.getLastName().concat(", ").concat(user.getFirstName()));
+        bean.setSecret(user.getAuthsecret());
+        bean.setEmail(user.getEmail());
+        bean.setLogin(user.getName());
 
         TwoFactorService factorService = getBean(TwoFactorService.class);
         factorService.printoutCertificate(bean, response.getOutputStream());
