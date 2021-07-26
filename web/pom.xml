@@ -344,21 +344,21 @@
 	</dependencies>
 	<profiles>
 		<profile>
-			<id>exclude-pdf-manuals</id>
+			<id>include-pdf-manuals</id>
 			<activation>
 				<activeByDefault>true</activeByDefault>
 			</activation>
 			<properties>
-				<npm-phase>NONE</npm-phase>
+				<npm-phase>compile</npm-phase>
 			</properties>
 		</profile>
 		<profile>
+			<id>exclude-pdf-manuals</id>
 			<activation>
 				<activeByDefault>false</activeByDefault>
 			</activation>
-			<id>include-pdf-manuals</id>
 			<properties>
-				<npm-phase>compile</npm-phase>
+				<npm-phase>NONE</npm-phase>
 			</properties>
 		</profile>
 	</profiles>
@@ -399,7 +399,7 @@
 				<configuration>
 					<webResources>
 						<resource>
-							<directory>target/</directory>
+							<directory>../docs/manuals/</directory>
 							<includes>
 								<include>*-manual.pdf</include>
 							</includes>
