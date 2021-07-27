@@ -30,8 +30,6 @@ import org.akaza.openclinica.dao.core.SQLFactory;
 import org.akaza.openclinica.dao.core.TypeNames;
 
 public class StudyDAO extends AuditableEntityDAO<StudyBean> {
-    // private DataSource ds;
-    // private DAODigester digester;
 
     public StudyDAO(DataSource ds) {
         super(ds);
@@ -493,8 +491,7 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
 
     /**
      * <p>
-     * getEntityFromHashMap, the method that gets the object from the database
-     * query.
+     * getEntityFromHashMap, the method that gets the object from the database query.
      */
     @Override
     public StudyBean getEntityFromHashMap(HashMap<String, Object> hm) {
@@ -527,12 +524,7 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
         eb.setConditions((String) hm.get("conditions"));
         eb.setKeywords((String) hm.get("keywords"));
         eb.setEligibility((String) hm.get("eligibility"));
-        String gender = (String) hm.get("gender");
-        // char[] genderarr = gender.toCharArray();
-        // Character gender = (Character)hm.get("gender");
-        // eb.setGender(gender.charValue());//CHAR?
-        eb.setGender(gender);
-        // throws null pointer exception?
+        eb.setGender((String) hm.get("gender"));
         eb.setAgeMax((String) hm.get("age_max"));
         eb.setAgeMin((String) hm.get("age_min"));
         eb.setPurpose((String) hm.get("purpose"));
@@ -547,33 +539,32 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
         eb.setTiming((String) hm.get("timing"));
         eb.setOfficialTitle((String) hm.get("official_title"));
 
-        eb.setHealthyVolunteerAccepted(((Boolean) hm.get("healthy_volunteer_accepted")).booleanValue());
-        eb.setResultsReference(((Boolean) hm.get("results_reference")).booleanValue());
-        // eb.setUsingDOB(((Boolean)hm.get("collect_dob")).booleanValue());
-        //eb.setDiscrepancyManagement(((Boolean)hm.get("discrepancy_management")
-        // ).booleanValue());
-        // next set all the ints/dates
+        eb.setHealthyVolunteerAccepted((Boolean) hm.get("healthy_volunteer_accepted"));
+        eb.setResultsReference((Boolean) hm.get("results_reference"));
+        //eb.setUsingDOB(((Boolean)hm.get("collect_dob")).booleanValue());
+        //eb.setDiscrepancyManagement(((Boolean)hm.get("discrepancy_management")).booleanValue());
 
+        // next set all the ints/dates
         Integer studyId = (Integer) hm.get("study_id");
-        eb.setId(studyId.intValue());
+        eb.setId(studyId);
         Integer parentStudyId = (Integer) hm.get("parent_study_id");
         if (parentStudyId == null) {
             eb.setParentStudyId(0);
         } else {
-            eb.setParentStudyId(parentStudyId.intValue());
+            eb.setParentStudyId(parentStudyId);
         }
         Integer ownerId = (Integer) hm.get("owner_id");
-        UserAccountBean owner = (UserAccountBean) getUserAccountDAO().findByPK(ownerId);
+        UserAccountBean owner = getUserAccountDAO().findByPK(ownerId);
         eb.setOwner(owner);
         Integer updateId = (Integer) hm.get("update_id");
-        UserAccountBean updater = (UserAccountBean) getUserAccountDAO().findByPK(updateId);
+        UserAccountBean updater = getUserAccountDAO().findByPK(updateId);
         eb.setUpdater(updater);
         Integer typeId = (Integer) hm.get("type_id");
-        eb.setType(StudyType.get(typeId.intValue()));
+        eb.setType(StudyType.get(typeId));
         Integer statusId = (Integer) hm.get("status_id");
-        eb.setStatus(Status.get(statusId.intValue()));
-        Integer expecTotalEnrollment = (Integer) hm.get("expected_total_enrollment");
-        eb.setExpectedTotalEnrollment(expecTotalEnrollment.intValue());
+        eb.setStatus(Status.get(statusId));
+        Integer expectedTotalEnrollment = (Integer) hm.get("expected_total_enrollment");
+        eb.setExpectedTotalEnrollment(expectedTotalEnrollment);
         Date dateCreated = (Date) hm.get("date_created");
         Date dateUpdated = (Date) hm.get("date_updated");
         Date datePlannedStart = (Date) hm.get("date_planned_start");
@@ -584,12 +575,12 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
         eb.setUpdatedDate(dateUpdated);
         eb.setDatePlannedStart(datePlannedStart);
         eb.setDatePlannedEnd(datePlannedEnd);
-        eb.setProtocolDateVerification(dateProtocolVerification);// added by
-        // jxu
-        eb.setStatus(Status.get(statusId.intValue()));
+        eb.setProtocolDateVerification(dateProtocolVerification); // added by jxu
+        eb.setStatus(Status.get(statusId));
         eb.setOid((String) hm.get("oc_oid"));
         Integer oldStatusId = (Integer) hm.get("old_status_id");
         eb.setOldStatus(Status.get(oldStatusId));
+        
         return eb;
     }
 
