@@ -1267,7 +1267,6 @@ padding-bottom: 3px;
 
 .vline_B { background-image: url(../images/leftbar_vline.gif);
  background-repeat: no-repeat;
- background-position: top-right;
  padding-top: 6px;
  padding-left: 3px;
 }
@@ -1546,7 +1545,9 @@ body { margin: 0px; }
 
 #ol{
     background-image: url(overlay.png);
+    /*
     filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src="overlay.png", sizingMethod="scale");
+    */
 }
 
 #box {
@@ -1565,16 +1566,13 @@ container
 
 akaza_logo{
     margin-left: 0px;
-    width: 359;
     height:81px;
     float: left;
 }
 
 /* initially created for creating new or child dn box */
-.dnBoxCol1 { float:left; width:120; }
-.dnBoxCol1-1 { float:left; width:120; margin-top:10; }
-.dnBoxCol2 { margin: 0 0 0 120; /* 0 right 0 left*/	width: 260; }
-.dnBoxCol2-1 { margin: 0 0 0 120; width: 260; margin-top:10 }
+.dnBoxCol1 { float:left; }
+.dnBoxCol1-1 { float:left;}
 .dnBoxCol3 { float: right; }
 .icon_dnBox { width: 23px; height: 13px; border: 0px; }
 .dnBoxText {
@@ -1594,16 +1592,21 @@ table.summaryTable{
 }
 
 
-div#sumBox { -moz-border-radius: 3px 3px 3px 3px;
+div#sumBox { 
+	/*
+	-moz-border-radius: 3px 3px 3px 3px;
+	*/
 	border: 1px solid #b2b2b2;
 	display: inline-block;
 	margin-bottom: 18px;
 	margin-top: 6px;
+	/*
 	-moz-box-shadow: 4px 4px 4px #CACACA;
 	-webkit-box-shadow: 4px 4px 4px #CACACA;
+	*/
 	box-shadow: 4px 4px 4px #CACACA;
 	}
-	}
+	
 
 div#sumBox table { border-style: none; }
 
@@ -1676,7 +1679,7 @@ div#sumBox table tr:first-child td { border-top-width: 0px;
 
 #bt_Home td, #bt_Home li { color: #FFFFFF;}
 
-#bt_Home ul, #bt_Home li { display: inline; float: left; margin: 0px; padding: 0px; list-style-item: none; }
+#bt_Home ul, #bt_Home li { display: inline; float: left; margin: 0px; padding: 0px; }
 
 #bt_Home form { margin: 0px; }
 
@@ -1740,9 +1743,8 @@ div#sumBox table tr:first-child td { border-top-width: 0px;
    font-weight: bold;
 }
 
-.footer_bottom { /*background-image: url(../images/footer_BG.gif);
-    background-repeat: repeat-x;
-    background-position: bottom;*/
+.footer_bottom { 
+    width: 240px;
     vertical-align: top;
     padding-right: 10px;
 	padding-top: 10px;
@@ -1750,19 +1752,27 @@ div#sumBox table tr:first-child td { border-top-width: 0px;
     line-height: 15px;
 	text-align:left;
 }
-.footer_table{
 
-min-width: 700px;
-    overflow: hidden;
-   
-}
 .footer_table  {
-table-layout: fixed;
-width:100%;
-min-width: 700px;
+	width:100%;
+	min-width: 700px;
+	max-width: 1100px;
     overflow: hidden;
-background-color: transparent;
+	background-color: transparent;
 }
+.footer_left  {
+	width:20%;
+	vertical-align: top;
+}
+.footer_middle  {
+	width:60%;
+	vertical-align: top;
+}
+.footer_right  {
+	width:20%;
+	vertical-align: top;
+}
+
 
 #ft_tooltip {
 	   position:absolute;
@@ -1774,8 +1784,10 @@ background-color: transparent;
 		font-family:Verdana,Geneva,sans-serif;
 		padding:3px;
 		font-size:11px;
+		/*
 		-moz-box-shadow: 2px 2px 11px #C0C0C0;
 		-webkit-box-shadow: 2px 2px 11px #C0C0C0;
+		*/
 	}
 
 	
@@ -1799,7 +1811,9 @@ margin: 2px;;
     border: 1px solid #E7E6DE;
     padding: 10px;
     border-radius: 5px;
+    /*
     -moz-border-radius: 5px;
+    */
 }
 
 .connect-widget:hover {
@@ -1932,3 +1946,8 @@ input {
 input.no-border {
    border: none;
 }
+/* 20210724 added for 404.jsp and maybe not used */
+frm_msg{
+    color:#ff0000;
+}
+

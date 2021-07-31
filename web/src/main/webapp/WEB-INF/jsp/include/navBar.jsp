@@ -57,7 +57,7 @@
 <c:if test="${tableFacadeRestore=='false'}"><c:set var="restore" value="false"/></c:if>
 <c:set var="profilePage" value="${param.profilePage}"/>
 <!--  If Controller Spring based append ../ to urls -->
-<c:set var="urlPrefix" value=""/>
+<c:set var="urlPrefix" value="${pageContext.request.contextPath}/"/>
 <c:set var="requestFromSpringController" value="${param.isSpringController}" />
 <c:if test="${requestFromSpringController == 'true' }">
       <c:set var="urlPrefix" value="${pageContext.request.contextPath}/"/>
