@@ -559,6 +559,8 @@ a:hover, a:active {
  padding-right: 16px;
  padding-top: 7px;
  padding-bottom: 12px;
+ /* border-width: 1px;
+ box-shadow: 4px 4px 4px #CACACA; */
 }
 
 .userboxtext_center { padding-left: 11px;
@@ -790,7 +792,7 @@ a.breadcrumb_completed:hover, a.breadcrumb_completed:active { font-family: Tahom
 }
 
 .sidebar_collapse_expand{
-	border: "0";
+	border: 0px;
 	float: right;
 	padding-right: 10px;
 }
