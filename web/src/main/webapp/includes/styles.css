@@ -789,6 +789,12 @@ a.breadcrumb_completed:hover, a.breadcrumb_completed:active { font-family: Tahom
  color: var(--lightblue)
 }
 
+.sidebar_collapse_expand{
+	border: "0";
+	float: right;
+	padding-right: 10px;
+}
+
 .content { padding-left: 22px;
  padding-right: 36px;
  padding-top: 8px;
