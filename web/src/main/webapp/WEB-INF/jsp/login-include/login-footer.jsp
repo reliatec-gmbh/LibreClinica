@@ -4,37 +4,30 @@
 <fmt:setBundle basename="org.akaza.openclinica.i18n.licensing" var="licensing"/>
 
 <script type="text/javascript" src="<c:url value='/includes/wz_tooltip/wz_tooltip.js'/>"></script>
-</td>
-			</tr>
-		</table>
-		</td>
-	</tr>
-	<tr>
-		<td valign="bottom">
 
 <!-- Footer -->
-
-<table  class="footer_table" >
+<div class="footer_login">
+	<table  class="footer_table" >
             <tr>
-                <td class="footer_bottom" >
+                <td class="footer_left" >
                 <a href="https://www.libreclinica.org" target="new"><fmt:message key="openclinica_portal" bundle="${resword}"/></a>
                 |
                 <a href="https://www.libreclinica.org/documentation" target="new"><fmt:message key="help" bundle="${resword}"/></a>
                 |
                  <a href="${pageContext.request.contextPath}/Contact"><fmt:message key="contact" bundle="${resword}"/></a>
                 </td>
-                <td class="footer_bottom" >
+                <td class="footer_middle" >
 				<fmt:message key="footer.license.1" bundle="${licensing}"/>
                <fmt:message key="footer.license.2" bundle="${licensing}"/>
 			   <fmt:message key="footer.license.3" bundle="${licensing}"/></td>
 
-                <td  class="footer_bottom">
+                <td  class="footer_right">
                     <c:set var="tooltip"><fmt:message key="footer.tooltip" bundle="${licensing}"/></c:set>
 
 					<div id="footer_tooltip">
                     <c:choose>
                         <c:when test="${empty tooltip}">
-                            <span style="color: #789EC5;"  >
+                            <span>
                                 <fmt:message key="footer.edition.2" bundle="${licensing}" />
                             </span>
                         </c:when>
@@ -51,15 +44,8 @@
                 </td>
             </tr>
         </table>
-
-
-
-
+</div>
 <!-- End Footer -->
-
-		</td>
-	</tr>
-</table>
 
 <script type="text/javascript">
         jQuery(document).ready(function() {

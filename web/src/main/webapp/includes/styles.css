@@ -1830,6 +1830,11 @@ div#sumBox table tr:first-child td { border-top-width: 0px;
 	vertical-align: top;
 }
 
+.footer_login{
+	/* just to center the footer in the login-form, login-include/login-footer.jsp */
+	margin: 0 auto;
+	width: 1100px;
+}
 
 #ft_tooltip {
 	   position:absolute;
