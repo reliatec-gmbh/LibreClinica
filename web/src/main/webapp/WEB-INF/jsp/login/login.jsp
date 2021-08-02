@@ -1,9 +1,10 @@
 <%@ include file="/WEB-INF/jsp/taglibs.jsp" %>
 <!-- For Mantis Issue 6099 -->
 <jsp:useBean scope='session' id='userBean' class='org.akaza.openclinica.bean.login.UserAccountBean'/>
-    <c:if test="${userBean.name!=''}">
-    <c:redirect url="/MainMenu"/>
-    </c:if>
+
+<c:if test="${userBean.name!=''}">
+	<c:redirect url="/MainMenu"/>
+</c:if>
 <!-- End of 6099-->
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
@@ -16,31 +17,23 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-
-<title><fmt:message key="openclinica" bundle="${resword}"/></title>
-
-<meta http-equiv="Content-type" content="text/html; charset=UTF-8"/>
- <meta http-equiv="X-UA-Compatible" content="IE=8" />
-
-<link rel="stylesheet" href="<c:url value='/includes/styles.css'/>" type="text/css"/>
-<%-- <link rel="stylesheet" href="includes/styles2.css" type="text/css">--%>
-<link rel="stylesheet" href="<c:url value='/includes/NewLoginStyles.css'/>" type="text/css"/>
-<script type="text/JavaScript" language="JavaScript" src="<c:url value='/includes/jmesa/jquery.min.js'/>"></script>
-<script type="text/JavaScript" language="JavaScript" src="<c:url value='/includes/jmesa/jquery-migrate-1.1.1.js'/>"></script>
-<script type="text/javascript" language="JavaScript" src="<c:url value='/includes/jmesa/jquery.blockUI.js'/>"></script>
-<%-- <script type="text/JavaScript" language="JavaScript" src="includes/global_functions_javascript2.js"></script> --%>
-<script type="text/JavaScript" language="JavaScript" src="<c:url value='/includes/global_functions_javascript.js'/>"></script>
-<script type="text/JavaScript" language="JavaScript" src="<c:url value='/includes/ua-parser.min.js'/>"></script>
+	<title><fmt:message key="openclinica" bundle="${resword}"/></title>	
+	<meta http-equiv="Content-type" content="text/html; charset=UTF-8"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=8" />
+	
+	<link rel="stylesheet" href="<c:url value='/includes/styles.css'/>" type="text/css"/>
+	
+	<script type="text/JavaScript" language="JavaScript" src="<c:url value='/includes/jmesa/jquery.min.js'/>"></script>
+	<script type="text/JavaScript" language="JavaScript" src="<c:url value='/includes/jmesa/jquery-migrate-1.1.1.js'/>"></script>
+	<script type="text/javascript" language="JavaScript" src="<c:url value='/includes/jmesa/jquery.blockUI.js'/>"></script>
+	<script type="text/JavaScript" language="JavaScript" src="<c:url value='/includes/global_functions_javascript.js'/>"></script>
+	<script type="text/JavaScript" language="JavaScript" src="<c:url value='/includes/ua-parser.min.js'/>"></script>
 </head>
 
-<%--<c:choose>--%>
-    <%--<c:when test="${resword.locale == null}"><fmt:setLocale value="en" scope="session"/></c:when>--%>
-    <%--<c:otherwise><fmt:setLocale value="${resword.locale}" scope="session"/></c:otherwise>--%>
-<%--</c:choose>--%>
-
-<body class="login_BG" onLoad="document.getElementById('username').focus();">
-    <div class="login_BG">
-    <center>
+<body  onload="document.getElementById('username').focus();">
+<!-- start of login/login.jsp -->
+ 
+    <div class="login_BG"> 
 
     <!-- LibreClinica logo -->
 	<%String ua = request.getHeader( "User-Agent" );
@@ -57,7 +50,7 @@
     <div ID="logo">&nbsp;</div>
   	<%}%>
     <!-- end LibreClinica logo -->
-        <table width="720 px">
+        <table>
 
     <script type="text/javascript">
         var parser = new UAParser();
@@ -77,25 +70,25 @@
     </script>
             </table>
 
-    <table border="0" cellpadding="0" cellspacing="0" class="loginBoxes">
-        <tr>
-            <td class="loginBox_T">&nbsp;</td>
-       </tr>
-       <tr>
+	<table class="loginBoxes">
+    	<tr>
+        	<td class="loginBox_T">&nbsp;</td>
+		</tr>
+		<tr>
             <td class="loginBox">
-            <div ID="loginBox">
+            <div id="loginBox">
             <!-- Login box contents -->
-                <div ID="login">
+                <div id="login">
                     <form action="<c:url value='/j_spring_security_check'/>" method="post">
                     <h1><fmt:message key="login" bundle="${resword}"/></h1>
                     <b><fmt:message key="user_name" bundle="${resword}"/></b>
                         <div class="formfieldM_BG">
-                            <input type="text" id="username" name="j_username" class="formfieldM">
+                            <input type="text" id="username" name="j_username" class="formfieldM" />
                         </div>
 
                     <b><fmt:message key="password" bundle="${resword}"/></b>
                         <div class="formfieldM_BG">
-                            <input type="password" id="j_password" name="j_password"  class="formfieldM"  autocomplete="off">
+                            <input type="password" id="j_password" name="j_password"  class="formfieldM" />
                         </div>
                     <input type="submit" name="submit" value="<fmt:message key='login' bundle='${resword}'/>" class="loginbutton" />
                     <a href="#" id="requestPassword"> <fmt:message key="forgot_password" bundle="${resword}"/></a>
@@ -109,15 +102,13 @@
       </tr>
     </table>
 
-    </center>
-
     <script type="text/javascript">
         document.getElementById('username').setAttribute( 'autocomplete', 'off' );
         document.getElementById('j_password').setAttribute( 'autocomplete', 'off' );
 
         jQuery(document).ready(function() {
             jQuery('#requestPassword').click(function() {
-                jQuery.blockUI({ message: jQuery('#requestPasswordForm'), css:{left: "200px", top:"180px" } });
+                jQuery.blockUI({ message: jQuery('#requestPasswordForm'), css:{left: "200px", top:"180px", textAlign:"left" } });
             });
 
             jQuery('#cancel').click(function() {
@@ -128,11 +119,9 @@
 
     </script>
 
-        <div id="requestPasswordForm" style="display:none;">
-              <c:import url="requestPasswordPop.jsp">
-              </c:import>
-        </div>
+    <div id="requestPasswordForm" style="display:none;"><c:import url="requestPasswordPop.jsp" /></div> <!-- this is in fact the reset-password-dialog -->
+    
+</div>
 
-<!-- Footer -->
-<!-- End Main Content Area -->
+<!-- end of login/login.jsp -->
 <jsp:include page="../login-include/login-footer.jsp"/>
