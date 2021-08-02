@@ -1246,6 +1246,11 @@ padding-bottom: 3px;
 .formtextareaXL4_BG {
 }
 
+.contact_message{
+	margin-left: 4px;
+	height: 4em;
+	width: 243px;
+}
 .loginbox {
    font-family: Tahoma Arial, Helvetica, sans-serif;
    font-size: 11px;
