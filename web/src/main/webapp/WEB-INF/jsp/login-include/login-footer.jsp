@@ -14,9 +14,9 @@
 
 <!-- Footer -->
 
-<table border="0" cellpadding="0" width="100%"  class="footer_table" >
+<table  class="footer_table" >
             <tr>
-                <td class="footer_bottom" style="width:240px">
+                <td class="footer_bottom" >
                 <a href="https://www.libreclinica.org" target="new"><fmt:message key="openclinica_portal" bundle="${resword}"/></a>
                 |
                 <a href="https://www.libreclinica.org/documentation" target="new"><fmt:message key="help" bundle="${resword}"/></a>
@@ -28,7 +28,7 @@
                <fmt:message key="footer.license.2" bundle="${licensing}"/>
 			   <fmt:message key="footer.license.3" bundle="${licensing}"/></td>
 
-                <td  class="footer_bottom" style="width:200px;">
+                <td  class="footer_bottom">
                     <c:set var="tooltip"><fmt:message key="footer.tooltip" bundle="${licensing}"/></c:set>
 
 					<div id="footer_tooltip">
