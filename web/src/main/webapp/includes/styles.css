@@ -559,6 +559,8 @@ a:hover, a:active {
  padding-right: 16px;
  padding-top: 7px;
  padding-bottom: 12px;
+ /* border-width: 1px;
+ box-shadow: 4px 4px 4px #CACACA; */
 }
 
 .userboxtext_center { padding-left: 11px;
@@ -789,6 +791,12 @@ a.breadcrumb_completed:hover, a.breadcrumb_completed:active { font-family: Tahom
  color: var(--lightblue)
 }
 
+.sidebar_collapse_expand{
+	border: 0px;
+	float: right;
+	padding-right: 10px;
+}
+
 .content { padding-left: 22px;
  padding-right: 36px;
  padding-top: 8px;
@@ -982,6 +990,51 @@ padding-bottom: 3px;
  padding-right: 5px;
 }
 
+/* the following classes were copied from NewLoginStyles.css */
+div.login_BG {
+	padding-top: 117px;
+	margin: 0 auto;
+	width: 428px;
+}
+
+#logo { 
+	background: url(../images/login_logo.png) no-repeat top left; 
+	width: 428px; 
+	height: 112px;
+}
+
+.loginBoxes {
+	width: 100%;
+	margin-bottom: 100px;
+}
+
+.loginBoxes td { width: 100%; vertical-align: top; text-align: left; }
+
+.loginBox_T { }
+
+.loginBox {
+	width: 428px;	
+}
+
+#loginBox { padding: 10px 28px; background-color: var(--lightblue-l20); }
+
+#loginBox H1, #loginBox a { color: var(--lightblue-d20); }
+
+.loginBox form, .loginBox H1 { margin-top: 0px; }
+
+.loginBox li, .loginBox ul { list-style-image: url(../images/bullet.gif); margin-left: 7px; padding-left: 7px; }
+
+.loginBox li { margin-bottom: 13px; }
+
+.footer { background-image: url(../images/login_footer_BG.gif); }
+/* end of classes from NewLoginStyles.css */
+
+.reset_password{
+	width: 630px; 
+	height: 330px; 
+	background:#FFFFFF; 
+	padding:5px 8px 0px 8px
+}
 .button {
    background-color: var(--lightblue-d20);
    border-width: 0px;
@@ -992,7 +1045,7 @@ padding-bottom: 3px;
    font-weight: bold;
    width: 80px;
    height: 17px;
-   margin-top: 6px;
+   /* margin-top: 6px; */
    margin-right: 10px;
    border-radius: 3px;
 }
@@ -1011,7 +1064,6 @@ padding-bottom: 3px;
    margin-right: 10px;
    border-radius: 3px;
 }
-
 
 .loginbutton {
    background-color: var(--lightblue-d20);
@@ -1240,6 +1292,11 @@ padding-bottom: 3px;
 .formtextareaXL4_BG {
 }
 
+.contact_message{
+	margin-left: 4px;
+	height: 4em;
+	width: 243px;
+}
 .loginbox {
    font-family: Tahoma Arial, Helvetica, sans-serif;
    font-size: 11px;
@@ -1773,6 +1830,11 @@ div#sumBox table tr:first-child td { border-top-width: 0px;
 	vertical-align: top;
 }
 
+.footer_login{
+	/* just to center the footer in the login-form, login-include/login-footer.jsp */
+	margin: 0 auto;
+	width: 1100px;
+}
 
 #ft_tooltip {
 	   position:absolute;
