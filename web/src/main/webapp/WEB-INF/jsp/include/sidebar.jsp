@@ -6,11 +6,11 @@
 <fmt:setBundle basename="org.akaza.openclinica.i18n.format" var="resformat"/>
 <c:set var="dteFormat"><fmt:message key="date_format_string" bundle="${resformat}"/></c:set>
 
+<!-- start of include/sidebar.jsp -->
+
 <!-- this page will be removed soon because we have a new design for the side info panel 08-10-06 -->
 
-<%--<jsp:useBean scope="session" id="panel" class="org.akaza.openclinica.view.StudyInfoPanel" />--%>
-
-<table border="0" cellpadding=0" cellspacing="0">
+<table >
 	<tr>
 		<td class="sidebar" valign="top">
 
@@ -32,28 +32,7 @@
 
 	<br><br>
 	
-	<!--<c:choose>
-	<c:when test="${study.parentStudyId>0}"> 
-	 <b>Parent:</b>&nbsp;
-    </c:when>
-    <c:otherwise>
-     <b><fmt:message key="sites" bundle="${resword}"/>:</b>&nbsp; 
-    </c:otherwise>
-	</c:choose>
-
-	<br><br>-->
-
-	<%--<b><fmt:message key="subjects" bundle="${resword}"/>:</b>&nbsp; 32
-
-	<br><br>
-
-	<b>Subject Groups:</b>&nbsp; links
-
-	<br><br>--%>
 	
-	<%--<b><fmt:message key="SED" bundle="${resword}"/>:</b>&nbsp; Some links here--%>
-
-	<%--<br><br>--%>
 
 	<b><fmt:message key="start_date" bundle="${resword}"/></b>&nbsp; 
 	 <c:choose>
@@ -102,21 +81,7 @@
 	<br><br>
 	</c:if>
 <%-- end standard study info --%>
- <script language="JavaScript">
-       <!--
-         function leftnavExpand(strLeftNavRowElementName){
-
-	       var objLeftNavRowElement;
-
-           objLeftNavRowElement = MM_findObj(strLeftNavRowElementName);
-           if (objLeftNavRowElement != null) {
-             if (objLeftNavRowElement.style) { objLeftNavRowElement = objLeftNavRowElement.style; } 
-	           objLeftNavRowElement.display = (objLeftNavRowElement.display == "none" ) ? "" : "none";		
-	         }
-           }
-
-       //-->
-     </script>     
+   
   <c:choose> 
   <c:when test="${panel.createDataset}">
      <c:import url="../include/createDatasetSide.jsp"/>
@@ -226,9 +191,10 @@
 </c:otherwise>
 </c:choose>
 <!-- End Sidebar Contents -->
+<!-- start of include/sidebar.jsp -->
 
 				<br><img src="images/spacer.gif" width="120" height="1">
 
 				</td>
-				<td class="content" valign="top">
+				<td class="content">
 
