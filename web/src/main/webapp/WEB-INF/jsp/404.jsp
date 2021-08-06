@@ -28,7 +28,7 @@
 				<br /><b><a href="${pageContext.request.contextPath}/j_spring_security_logout"><fmt:message key="logout" bundle="${restext}"/></a></b>
 				<br /><b><a href="${pageContext.request.contextPath}/MainMenu"><fmt:message key="nav_home" bundle="${resword}"/></a></b>
 			</td>
-			<td class="content" valign="top">
+			<td class="content">
 	</c:otherwise>
 </c:choose>
 
