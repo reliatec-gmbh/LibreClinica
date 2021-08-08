@@ -446,10 +446,11 @@ a:hover, a:active {
     font-weight: bold;
 }
 
-.background { 
+.background {
+	width: 100%;
 }
 
-.header_td{ /* is used in login-header, header, etc. */ 
+.header_td{ /* is used in login-header, header, sidebar etc. */ 
 	vertical-align: top;
 }
 .disabled_header { 
@@ -1719,6 +1720,35 @@ div#sumBox table tr:first-child td { border-top-width: 0px;
    height: 68px;
 }
 
+/* next classes were added for studymodule.jsp */
+.contenttable{
+	border-left: 1px solid #ccc;
+    border-top: 1px solid #ccc;
+    border-spacing: 0px;
+}
+.contenttable tbody tr td, .contenttable thead td {
+	border-right: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;
+	border-left: 0px solid #ccc;
+	border-top: 0px solid #ccc;
+	border-spacing: 0px;
+	vertical-align:top;
+	text-align: left;
+	padding-left: 1em;
+	padding-right: 1em;
+	padding-top: 0.5em;
+	padding-top: 0.5em;	
+}
+.contenttable.hiddencontent td {
+	border-left: 0px;
+	border-top: 0px;
+	border-bottom: 0px;
+}
+/* end of classes for studymodule.jsp */
+
+#StudyModule{ /* the div that holds all study info studymodule.jsp */
+	max-width: 840px;
+}
 #StudyInfo { 
 	float: left; 
 	color: var(--lightblue);
@@ -1777,6 +1807,12 @@ div#sumBox table tr:first-child td { border-top-width: 0px;
 /* end of part for the graphs in MainMenu - menu.jsp */
 .nav_bt a:link, .nav_bt a:visited, .nav_bt_current a:link, .nav_bt_current a:visited, .subnav a:link, .subnav a:visited { color: #FFFFFF;
    text-decoration: none;
+}
+
+.div_with_border{
+	border: 1px solid #ccc;
+	padding: 1em;	
+	border-radius: 3px;
 }
 
 .nav_bt a:hover, .nav_bt_current a:hover, .subnav a:hover {

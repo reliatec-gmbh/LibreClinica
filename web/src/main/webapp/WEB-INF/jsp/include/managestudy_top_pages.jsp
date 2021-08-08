@@ -46,7 +46,7 @@
 			<jsp:include page="../include/showPopUp.jsp"/>
 		</c:otherwise>
 	</c:choose>
->
+> <!-- start of include/managestudy_top_pages.jsp -->
 <table class="background"> 
 	<tr>
 		<td class="header_td"><script language="JavaScript">var StatusBoxValue=1;</script>
@@ -59,3 +59,5 @@
         					<jsp:param name="isSpringController" value="true" />
     					</jsp:include>
 <!-- End Main Navigation -->
+ <!-- end of include/managestudy_top_pages.jsp -->
+ 

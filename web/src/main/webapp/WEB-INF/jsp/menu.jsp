@@ -30,7 +30,7 @@
 	</span>
 	<br>
     <div>
-        <button onclick="hm('box');">top</button>
+        <button onclick="hm('box');">OK</button>
     </div>
 </div>
 

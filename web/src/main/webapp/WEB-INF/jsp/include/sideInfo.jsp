@@ -43,7 +43,7 @@
 		</td>
 	</tr>
     <!-- BWP 3098 >> switch displays for Info box-->
-    <tr id="sidebar_Info_closed"<c:if test="${! closeInfoShowIcons}">style="display: none"</c:if>>
+    <tr id="sidebar_Info_closed"<c:if test="${! closeInfoShowIcons}"> style="display: none"</c:if>>
 		<td class="sidebar_tab">
 			<a href="javascript:leftnavExpand('sidebar_Info_open'); leftnavExpand('sidebar_Info_closed');">
 			<img src="${pageContext.request.contextPath}/images/sidebar_expand.gif" class="sidebar_collapse_expand"></a>

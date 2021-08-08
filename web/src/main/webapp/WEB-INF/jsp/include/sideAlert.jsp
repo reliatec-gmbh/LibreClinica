@@ -9,7 +9,7 @@
 
 <table>
 	<tr>
-		<td>
+		<td class="header_td">
 			<table>
 				<c:if test="${userBean != null && userBean.id>0}">	 
 					<c:choose>
@@ -17,7 +17,7 @@
 							<tr id="sidebar_Alerts_open" style="display: all">
 								<td class="sidebar_tab">
 									<a href="javascript:leftnavExpand('sidebar_Alerts_open'); leftnavExpand('sidebar_Alerts_closed');">
-									<img src="${pageContext.request.contextPath}/images/sidebar_collapse.gif" class="sidebar_collapse_expand">></a>
+									<img src="${pageContext.request.contextPath}/images/sidebar_collapse.gif" class="sidebar_collapse_expand"></a>
 									<b><fmt:message key="alerts_messages" bundle="${resword}"/></b>
 									<div class="sidebar_tab_content">
 										<c:choose>
