@@ -33,6 +33,8 @@
 	<script type="text/javascript" src="${pageContext.request.contextPath}/includes/new_cal/lang/<fmt:message key="jscalendar_language_file" bundle="${resformat}"/>"></script>
 	<script type="text/javascript" src="${pageContext.request.contextPath}/includes/new_cal/calendar-setup.js"></script>
 	<script type="text/JavaScript" src="${pageContext.request.contextPath}/includes/prototype.js"></script>
+	<script type="text/JavaScript" src="${pageContext.request.contextPath}/includes/jmesa/jquery.min.js"></script><script>jQuery.noConflict();</script>
+	
 </head>
 
 <body
@@ -51,16 +53,13 @@
     <tr>
         <td valign="top">
 <!-- Header Table -->
-
-
             <table class="header">
                 <tr>
-                    <td valign="top">
+                    <td class="header_td">
                         <div class="disabled_header"><img src="${pageContext.request.contextPath}/images/spacer.gif"/></div>
                         <!-- Logo -->
                         <div class="logo"><img src="${pageContext.request.contextPath}/images/Logo.gif" /></div>
                         <!-- Main Navigation -->
-                        <%-- <jsp:include page="../include/navBar.jsp"/> --%>
-
+                        
 <!-- End Main Navigation -->
 <!-- end of login-include/login-header.jsp -->

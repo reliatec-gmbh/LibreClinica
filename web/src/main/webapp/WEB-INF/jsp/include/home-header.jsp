@@ -21,14 +21,17 @@
 <title><fmt:message key="openclinica" bundle="${resword}"/></title>
 
 <link rel="stylesheet" href="${pageContext.request.contextPath}/includes/styles.css" type="text/css"/>
-<script type="text/JavaScript" language="JavaScript" src="${pageContext.request.contextPath}/includes/global_functions_javascript.js"></script>
-<script type="text/JavaScript" language="JavaScript" src="${pageContext.request.contextPath}/includes/Tabs.js"></script>
-<script type="text/JavaScript" language="JavaScript" src="${pageContext.request.contextPath}/includes/CalendarPopup.js"></script>
-<script type="text/JavaScript" language="JavaScript" src="${pageContext.request.contextPath}/includes/repetition-model/repetition-model.js"></script>
-<script type="text/JavaScript" language="JavaScript" src="${pageContext.request.contextPath}/includes/prototype.js"></script>
-<script type="text/JavaScript" language="JavaScript" src="${pageContext.request.contextPath}/includes/scriptaculous.js?load=effects"></script>
-<script type="text/JavaScript" language="JavaScript" src="${pageContext.request.contextPath}/includes/effects.js"></script>
+<script type="text/JavaScript" src="${pageContext.request.contextPath}/includes/global_functions_javascript.js"></script>
+<script type="text/JavaScript" src="${pageContext.request.contextPath}/includes/Tabs.js"></script>
+<script type="text/JavaScript" src="${pageContext.request.contextPath}/includes/CalendarPopup.js"></script>
+<script type="text/JavaScript" src="${pageContext.request.contextPath}/includes/repetition-model/repetition-model.js"></script>
+<script type="text/JavaScript" src="${pageContext.request.contextPath}/includes/prototype.js"></script>
+<script type="text/JavaScript" src="${pageContext.request.contextPath}/includes/jmesa/jquery.min.js"></script><script language="JavaScript">jQuery.noConflict();</script>
+<script type="text/JavaScript" src="${pageContext.request.contextPath}/includes/scriptaculous.js?load=effects"></script>
+<script type="text/JavaScript" src="${pageContext.request.contextPath}/includes/effects.js"></script>
+
 <link rel="stylesheet" type="text/css" media="all" href="${pageContext.request.contextPath}/includes/new_cal/skins/aqua/theme.css" title="Aqua" />
+
 <script type="text/javascript" src="${pageContext.request.contextPath}/includes/new_cal/calendar.js"></script>
 <script type="text/javascript" src="${pageContext.request.contextPath}/includes/new_cal/lang/calendar-en.js"></script>
 <script type="text/javascript" src="${pageContext.request.contextPath}/includes/new_cal/lang/<fmt:message key="jscalendar_language_file" bundle="${resformat}"/>"></script>
@@ -67,11 +70,11 @@
 
 <table class="background">
     <tr>
-        <td valign="top">
+        <td>
 <!-- Header Table -->
 <table class="header">
             <tr>
-                <td valign="top">
+                <td>
 <!-- Logo -->
     <div class="logo"><img src="${pageContext.request.contextPath}/images/Logo.gif"></div>
 <!-- Main Navigation -->

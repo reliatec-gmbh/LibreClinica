@@ -446,9 +446,13 @@ a:hover, a:active {
     font-weight: bold;
 }
 
-.background { 
+.background {
+	width: 100%;
 }
 
+.header_td{ /* is used in login-header, header, sidebar etc. */ 
+	vertical-align: top;
+}
 .disabled_header { 
  position: absolute;
  left: 0px;
@@ -577,6 +581,7 @@ a:hover, a:active {
 }
 
 .navbox_center {
+	width: 875px;
 }
 
 
@@ -752,12 +757,13 @@ a.breadcrumb_completed:hover, a.breadcrumb_completed:active { font-family: Tahom
  padding-bottom: 6px;
 }
 
-.table_title_Admin { font-family: Tahoma, Arial, Helvetica, sans-serif;
- font-size: 14px;
- line-height: 18px;
- font-weight: bold;
- color: var(--lightblue);
- padding-bottom: 6px;
+.table_title_Admin { 
+	font-family: Tahoma, Arial, Helvetica, sans-serif;
+	font-size: 14px;
+	line-height: 18px;
+	font-weight: bold;
+	color: var(--lightblue);
+	padding-bottom: 6px;
 }
 
 .table_title_TechAdmin { font-family: Tahoma, Arial, Helvetica, sans-serif;
@@ -788,7 +794,8 @@ a.breadcrumb_completed:hover, a.breadcrumb_completed:active { font-family: Tahom
  font-family: Tahoma, Arial, Helvetica, Sans-Serif;
  font-size: 11px;
  line-height: 13px;
- color: var(--lightblue)
+ color: var(--lightblue);
+ vertical-align: top;
 }
 
 .sidebar_collapse_expand{
@@ -802,6 +809,7 @@ a.breadcrumb_completed:hover, a.breadcrumb_completed:active { font-family: Tahom
  padding-top: 8px;
  padding-bottom: 18px;
  width: 615px;
+ vertical-align: top;
 }
 
 
@@ -835,7 +843,11 @@ a.breadcrumb_completed:hover, a.breadcrumb_completed:active { font-family: Tahom
  color: #666666;
  vertical-align: top;
 }
-
+.statistics_td{ /* is used in menu.jsp for the study statistics */
+	vertical-align: top;
+	padding-right: 2em;
+	padding-bottom: 2em;
+}
 .table_header_row_left { padding-top: 3px;
  padding-left: 6px;
  padding-right: 1px;
@@ -1184,7 +1196,7 @@ div.login_BG {
    font-family: Tahoma Arial, Helvetica, sans-serif;
    font-size: 11px;
    color: #4D4D4D;
-   border: 1px solid var(--lightblue-d40);
+   /* border: 1px solid var(--lightblue-d40); */
    background-color: white;
    width: 45px;
    margin-left: 4px;
@@ -1201,7 +1213,7 @@ div.login_BG {
    font-size: 11px;
    color: #4D4D4D;
    background-color: white;
-   border: 1px solid var(--lightblue-d40);
+   /* border: 1px solid var(--lightblue-d40); */
    width: 95px;
    margin-left: 4px;
    margin-right: 9px;
@@ -1215,10 +1227,10 @@ div.login_BG {
 .formfieldM { 
    font-family: Tahoma Arial, Helvetica, sans-serif;
    font-size: 11px;
-   line-height: 15px;
+   /* line-height: 15px; */
    color: black;
    background-color: white;
-   border: 1px solid var(--lightblue-d40);
+   /* border: 1px solid var(--lightblue-d40); */
    width: 145px;
    margin-top: 1px;
 }
@@ -1229,9 +1241,9 @@ div.login_BG {
 .formfieldL {
    font-family: Tahoma Arial, Helvetica, sans-serif;
    font-size: 11px;
-   color: #4D4D4D;
+   /* color: #4D4D4D; */
    background-color: white;
-   border: 1px solid var(--lightblue-d40);
+   /* border: 1px solid var(--lightblue-d40); */
    width: 195px;
    margin-left: 4px;
    margin-right: 9px;
@@ -1247,9 +1259,9 @@ div.login_BG {
    font-size: 11px;
    color: #4D4D4D;
    background-color: white;
-   border: 1px solid var(--lightblue-d40);
+   /* border: 1px solid var(--lightblue-d40); */
    width: 245px;
-   margin-left: 4px;
+   /* margin-left: 4px; */
    margin-right: 9px;
    margin-top: 1px;
    margin-bottom: 7px;
@@ -1263,7 +1275,7 @@ div.login_BG {
    font-size: 11px;
    color: #4D4D4D;
    background-color: white;
-   border: 1px solid var(--lightblue-d40);
+   /* border: 1px solid var(--lightblue-d40); */
    width: 195px;
    height: 66px;
    margin-left: 4px;
@@ -1280,7 +1292,7 @@ div.login_BG {
    font-size: 11px;
    color: #4D4D4D;
    background-color: white;
-   border: 1px solid var(--lightblue-d40);
+   /* border: 1px solid var(--lightblue-d40); */
    width: 245px;
    height: 66px;
    margin-left: 4px;
@@ -1302,7 +1314,7 @@ div.login_BG {
    font-size: 11px;
    color: #4D4D4D;
    background-color: white;
-   border: 1px solid var(--lightblue-d40);
+   /* border: 1px solid var(--lightblue-d40); */
    width: 105px;
    margin-left: 4px;
    margin-right: 9px;
@@ -1362,6 +1374,13 @@ div.login_BG {
    text-align: center;
 }
 
+.add_new_subject_div{
+	text-align: left;
+	width: 500px; 
+	height: 550px; 
+	overflow: scroll; 
+	background:#FFFFFF;
+}
 .ViewSubjectsPopup { background-color: #FFFFE5;
 }
 
@@ -1576,7 +1595,9 @@ body { margin: 0px; }
 
 .title_extract { color: #AF7CE2; }
 
-.title_manage { color: var(--lightblue-d30); }
+.title_manage { 
+	color: var(--lightblue-d30);
+}
 
 .title_admin { color: #66CCCC; }
 
@@ -1607,8 +1628,9 @@ body { margin: 0px; }
     */
 }
 
+
 #box {
-    display:none
+    display:none;
 }
 
 * html
@@ -1698,9 +1720,47 @@ div#sumBox table tr:first-child td { border-top-width: 0px;
    height: 68px;
 }
 
-#StudyInfo { float: left; color: var(--lightblue); }
+/* next classes were added for studymodule.jsp */
+.contenttable{
+	border-left: 1px solid #ccc;
+    border-top: 1px solid #ccc;
+    border-spacing: 0px;
+}
+.contenttable tbody tr td, .contenttable thead td {
+	border-right: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;
+	border-left: 0px solid #ccc;
+	border-top: 0px solid #ccc;
+	border-spacing: 0px;
+	vertical-align:top;
+	text-align: left;
+	padding-left: 1em;
+	padding-right: 1em;
+	padding-top: 0.5em;
+	padding-top: 0.5em;	
+}
+.contenttable.hiddencontent td {
+	border-left: 0px;
+	border-top: 0px;
+	border-bottom: 0px;
+}
+/* end of classes for studymodule.jsp */
 
-#UserInfo { float: right; color: var(--lightblue); padding-right: 8px;}
+#StudyModule{ /* the div that holds all study info studymodule.jsp */
+	max-width: 840px;
+}
+#StudyInfo { 
+	float: left; 
+	color: var(--lightblue);
+	margin-left: 5px; 
+	}
+
+#UserInfo { 
+	float: right; 
+	color: var(--lightblue); 
+	padding-right: 6px;
+}
+#SearchBox { float: right; color: var(--lightblue); padding-right: 8px;}
 
 #bt_Home, #bt_SubmitData, #bt_ExtractData, #bt_ManageStudy, .nav_bt, .subnav {
    color: #FFFFFF;
@@ -1724,9 +1784,35 @@ div#sumBox table tr:first-child td { border-top-width: 0px;
 #bt_Home div div div, #bt_SubmitData div div div, #bt_ExtractData div div div, #bt_ManageStudy div div div {
    padding: 3px 12px 4px 12px;
 }
-
+/* start for the graphs in MainMenu - menu.jsp */
+.graph {
+	position: relative; /* IE is dumb */
+	width: 100px;
+	border: 1px solid #3876C1;
+	padding: 2px;
+}
+.graph .bar {
+	display: block;
+	position: relative;
+	background: #E8D28C;
+	text-align: center;
+	color: #333;
+	height: 1em;
+	line-height: 1em;
+}
+.graph .bar span { 
+	position: absolute; 
+	left: 1em; 
+} 
+/* end of part for the graphs in MainMenu - menu.jsp */
 .nav_bt a:link, .nav_bt a:visited, .nav_bt_current a:link, .nav_bt_current a:visited, .subnav a:link, .subnav a:visited { color: #FFFFFF;
    text-decoration: none;
+}
+
+.div_with_border{
+	border: 1px solid #ccc;
+	padding: 1em;	
+	border-radius: 3px;
 }
 
 .nav_bt a:hover, .nav_bt_current a:hover, .subnav a:hover {
@@ -2001,8 +2087,8 @@ form[name="subjectForm"] td img {
 }
 
 input {
-   border: 1px solid var(--darkblue-l20);
-   border-radius: 0;
+   border: 1px solid silver; /* was var(--darkblue-l20) */
+   border-radius: 3px;
 }
 
 input.no-border {
