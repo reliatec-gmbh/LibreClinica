@@ -147,10 +147,12 @@ public class UserAccountController {
 
 		// generate password
 		String password = ""; // generate
-		String passwordHash = UserAccountBean.LDAP_PASSWORD;
+		String passwordHash = UserAccountBean.LDAP_PASSWORD; // TODO: this will not work, LDAP password hash will be always overwritten
 		SecurityManager secm = (SecurityManager) SpringServletAccess.getApplicationContext(context).getBean("securityManager");
 		password = secm.genPassword();
-		passwordHash = secm.encrytPassword(password, null);
+
+		boolean isSoap = Boolean.parseBoolean(authorizeSoap);
+		passwordHash = secm.encryptPassword(password, isSoap);
 
 		// Validate Entry Fields
         request.getSession().setAttribute(LocaleResolver.getLocaleSessionAttributeName(), new Locale("en_US"));
@@ -211,7 +213,7 @@ public class UserAccountController {
 		}
 		// build UserName
 
-		uBean = buildUserAccount(username, fName, lName, password, institution, study, ownerUserAccount, email, passwordHash, Boolean.valueOf(authorizeSoap), role, uType);
+		uBean = buildUserAccount(username, fName, lName, password, institution, study, ownerUserAccount, email, passwordHash, isSoap, role, uType);
 		HashMap<String, Object> userDTO = null;
 		UserAccountBean uaBean = getUserAccount(uBean.getName());
 		if (!uaBean.isActive()) {
