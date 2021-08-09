@@ -18,9 +18,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
- *
+ * SecurityManager
+ * 
  * @author Krikor Krumlian
- *
  */
 public class SecurityManager {
 
@@ -30,7 +30,6 @@ public class SecurityManager {
 
     /**
      * Generates a random password with default length
-     *
      */
     public String genPassword() {
         return genPassword(8);
@@ -39,31 +38,43 @@ public class SecurityManager {
     /**
      * Generates a random password by length
      *
-     * @param howmany
+     * @param howMany how many characters
      */
-    public String genPassword(int howmany) {
-
-        String ret = "";
+    public String genPassword(int howMany) {
+        StringBuilder password = new StringBuilder();
         String core = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         Random rand = new Random();
 
-        for (int i = 0; i < howmany; i++) {
-            int thisOne = rand.nextInt(core.length());
-            char thisOne2 = core.charAt(thisOne);
-            ret += thisOne2;
+        for (int i = 0; i < howMany; i++) {
+            int index = rand.nextInt(core.length());
+            char oneCharacter = core.charAt(index);
+            password.append(oneCharacter);
         }
 
-        return ret;
+        return password.toString();
     }
 
-    public String encrytPassword(String password, UserDetails userDetails) throws NoSuchAlgorithmException {
-        return encoder.encode(password);
+    public String encryptPassword(String password, boolean isSoapUser) throws NoSuchAlgorithmException {
+        String result = null;
+
+        // Use spring security encoder for non SOAP user
+        if (!isSoapUser) {
+            result = encoder.encode(password);
+        } else { // otherwise, use plain SHA-1 password encoder compatible with SOAP web services
+            if (encoder instanceof OpenClinicaPasswordEncoder) {
+                result = ((OpenClinicaPasswordEncoder) encoder).soapEncode(password);
+            }
+        }
+        
+        return result;
     }
 
     public boolean verifyPassword(String clearTextPassword, UserDetails userDetails) {
 
-        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails.getUsername(),
-                clearTextPassword);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+            userDetails.getUsername(),
+            clearTextPassword
+        );
 
         for (AuthenticationProvider p : providers) {
             try {
@@ -72,7 +83,6 @@ public class SecurityManager {
             } catch (AuthenticationException e) {
                 // Nothing to do
             }
-
         }
 
         return false;
