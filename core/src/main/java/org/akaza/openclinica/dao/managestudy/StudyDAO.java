@@ -20,7 +20,6 @@ import java.util.stream.Stream;
 import javax.sql.DataSource;
 
 import org.akaza.openclinica.bean.core.Status;
-import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.managestudy.StudyType;
 import org.akaza.openclinica.dao.core.AuditableEntityDAO;
@@ -45,7 +44,6 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
     // This constructor sets up the Locale for JUnit tests; see the locale
     // member variable in EntityDAO, and its initializeI18nStrings() method
     public StudyDAO(DataSource ds, DAODigester digester, Locale locale) {
-
         this(ds, digester);
         this.locale = locale;
     }
@@ -199,8 +197,7 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
      * place of createStepOne, since it runs an update and assumes you already
      * have a primary key in the study bean object.
      * 
-     * @param sb
-     *            the study bean which will be updated.
+     * @param sb the study bean which will be updated.
      * @return sb the study bean after it is updated with this phase.
      */
     public StudyBean updateStepOne(StudyBean sb) {
@@ -208,54 +205,54 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
 		HashMap<Integer, Integer> nullVars = new HashMap<>();
 
         if (sb.getParentStudyId() == 0) {
-            nullVars.put(new Integer(1), new Integer(Types.INTEGER));
-            variables.put(new Integer(1), null);
+            nullVars.put(1, Types.INTEGER);
+            variables.put(1, null);
         } else {
-            variables.put(new Integer(1), new Integer(sb.getParentStudyId()));
+            variables.put(1, sb.getParentStudyId());
         }
-        variables.put(new Integer(2), sb.getName());
-        variables.put(new Integer(3), sb.getOfficialTitle());
-        variables.put(new Integer(4), sb.getIdentifier());
-        variables.put(new Integer(5), sb.getSecondaryIdentifier());
-        variables.put(new Integer(6), sb.getSummary());
-        variables.put(new Integer(7), sb.getPrincipalInvestigator());
+        variables.put(2, sb.getName());
+        variables.put(3, sb.getOfficialTitle());
+        variables.put(4, sb.getIdentifier());
+        variables.put(5, sb.getSecondaryIdentifier());
+        variables.put(6, sb.getSummary());
+        variables.put(7, sb.getPrincipalInvestigator());
         if (sb.getDatePlannedStart() == null) {
-            nullVars.put(new Integer(8), new Integer(Types.DATE));
-            variables.put(new Integer(8), null);
+            nullVars.put(8, Types.DATE);
+            variables.put(8, null);
         } else {
-            variables.put(new Integer(8), sb.getDatePlannedStart());
+            variables.put(8, sb.getDatePlannedStart());
         }
 
         if (sb.getDatePlannedEnd() == null) {
-            nullVars.put(new Integer(9), new Integer(Types.DATE));
-            variables.put(new Integer(9), null);
+            nullVars.put(9, Types.DATE);
+            variables.put(9, null);
         } else {
-            variables.put(new Integer(9), sb.getDatePlannedEnd());
+            variables.put(9, sb.getDatePlannedEnd());
         }
 
-        variables.put(new Integer(10), sb.getFacilityName());
-        variables.put(new Integer(11), sb.getFacilityCity());
-        variables.put(new Integer(12), sb.getFacilityState());
-        variables.put(new Integer(13), sb.getFacilityZip());
-        variables.put(new Integer(14), sb.getFacilityCountry());
-        variables.put(new Integer(15), sb.getFacilityRecruitmentStatus());
-        variables.put(new Integer(16), sb.getFacilityContactName());
-        variables.put(new Integer(17), sb.getFacilityContactDegree());
-        variables.put(new Integer(18), sb.getFacilityContactPhone());
-        variables.put(new Integer(19), sb.getFacilityContactEmail());
-        variables.put(new Integer(20), new Integer(sb.getStatus().getId()));// status
+        variables.put(10, sb.getFacilityName());
+        variables.put(11, sb.getFacilityCity());
+        variables.put(12, sb.getFacilityState());
+        variables.put(13, sb.getFacilityZip());
+        variables.put(14, sb.getFacilityCountry());
+        variables.put(15, sb.getFacilityRecruitmentStatus());
+        variables.put(16, sb.getFacilityContactName());
+        variables.put(17, sb.getFacilityContactDegree());
+        variables.put(18, sb.getFacilityContactPhone());
+        variables.put(19, sb.getFacilityContactEmail());
+        variables.put(20, sb.getStatus().getId());// status
         // id
         // variables.put(new Integer(19), sb.getStatus())//need to get a
         // function
         // to get the id
         // variables.put(new Integer(19), sb.getCreatedDate());
-        variables.put(new Integer(21), new Integer(sb.getUpdaterId()));// owner
+        variables.put(21, sb.getUpdaterId());// owner
         // id
-        variables.put(new Integer(22), sb.getUpdatedDate());// date updated
-        variables.put(new Integer(23), new Integer(sb.getOldStatus().getId()));// study id
+        variables.put(22, sb.getUpdatedDate());// date updated
+        variables.put(23, sb.getOldStatus().getId());// study id
         // variables.put(new Integer(22), new Integer(1));
         // stop gap measure for owner and updater id
-        variables.put(new Integer(24), new Integer(sb.getId()));// study id
+        variables.put(24, sb.getId());// study id
         this.executeUpdate(digester.getQuery("updateStepOne"), variables, nullVars);
         return sb;
     }
@@ -299,63 +296,61 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
      * v1.0rc1' document. We insert the study in this method, and then update
      * the same study in the next three steps.
      * <P>
-     * The next three steps, by the way, can then be used to update studies as
-     * well.
+     * The next three steps, by the way, can then be used to update studies as well.
      * 
-     * @param sb
-     *            Study bean about to be created.
+     * @param sb Study bean about to be created.
      * @return same study bean with a primary key in the ID field.
      */
     public StudyBean createStepOne(StudyBean sb) {
         HashMap<Integer, Object> variables = new HashMap<>();
         HashMap<Integer, Integer> nullVars = new HashMap<>();
         sb.setId(this.findNextKey());
-        variables.put(new Integer(1), new Integer(sb.getId()));
+        variables.put(1, sb.getId());
         if (sb.getParentStudyId() == 0) {
-            nullVars.put(new Integer(2), new Integer(Types.INTEGER));
-            variables.put(new Integer(2), null);
+            nullVars.put(2, Types.INTEGER);
+            variables.put(2, null);
         } else {
-            variables.put(new Integer(2), new Integer(sb.getParentStudyId()));
+            variables.put(2, sb.getParentStudyId());
         }
 
-        variables.put(new Integer(3), sb.getName());
-        variables.put(new Integer(4), sb.getOfficialTitle());
-        variables.put(new Integer(5), sb.getIdentifier());
-        variables.put(new Integer(6), sb.getSecondaryIdentifier());
-        variables.put(new Integer(7), sb.getSummary());
-        variables.put(new Integer(8), sb.getPrincipalInvestigator());
+        variables.put(3, sb.getName());
+        variables.put(4, sb.getOfficialTitle());
+        variables.put(5, sb.getIdentifier());
+        variables.put(6, sb.getSecondaryIdentifier());
+        variables.put(7, sb.getSummary());
+        variables.put(8, sb.getPrincipalInvestigator());
 
         if (sb.getDatePlannedStart() == null) {
-            nullVars.put(new Integer(9), new Integer(Types.DATE));
-            variables.put(new Integer(9), null);
+            nullVars.put(9, Types.DATE);
+            variables.put(9, null);
         } else {
-            variables.put(new Integer(9), sb.getDatePlannedStart());
+            variables.put(9, sb.getDatePlannedStart());
         }
 
         if (sb.getDatePlannedEnd() == null) {
-            nullVars.put(new Integer(10), new Integer(Types.DATE));
-            variables.put(new Integer(10), null);
+            nullVars.put(10, Types.DATE);
+            variables.put(10, null);
         } else {
-            variables.put(new Integer(10), sb.getDatePlannedEnd());
+            variables.put(10, sb.getDatePlannedEnd());
         }
 
-        variables.put(new Integer(11), sb.getFacilityName());
-        variables.put(new Integer(12), sb.getFacilityCity());
-        variables.put(new Integer(13), sb.getFacilityState());
-        variables.put(new Integer(14), sb.getFacilityZip());
-        variables.put(new Integer(15), sb.getFacilityCountry());
-        variables.put(new Integer(16), sb.getFacilityRecruitmentStatusKey());
-        variables.put(new Integer(17), sb.getFacilityContactName());
-        variables.put(new Integer(18), sb.getFacilityContactDegree());
-        variables.put(new Integer(19), sb.getFacilityContactPhone());
-        variables.put(new Integer(20), sb.getFacilityContactEmail());
-        variables.put(new Integer(21), new Integer(sb.getStatus().getId()));
+        variables.put(11, sb.getFacilityName());
+        variables.put(12, sb.getFacilityCity());
+        variables.put(13, sb.getFacilityState());
+        variables.put(14, sb.getFacilityZip());
+        variables.put(15, sb.getFacilityCountry());
+        variables.put(16, sb.getFacilityRecruitmentStatusKey());
+        variables.put(17, sb.getFacilityContactName());
+        variables.put(18, sb.getFacilityContactDegree());
+        variables.put(19, sb.getFacilityContactPhone());
+        variables.put(20, sb.getFacilityContactEmail());
+        variables.put(21, sb.getStatus().getId());
         // variables.put(new Integer(19), sb.getStatus())//need to get a
         // function
         // to get the id
-        variables.put(new Integer(22), new java.util.Date());
-        variables.put(new Integer(23), new Integer(sb.getOwnerId()));
-        variables.put(new Integer(24), getValidOid(sb));
+        variables.put(22, new java.util.Date());
+        variables.put(23, sb.getOwnerId());
+        variables.put(24, getValidOid(sb));
         // replace this with the owner id
         this.executeUpdate(digester.getQuery("createStepOne"), variables, nullVars);
         return sb;
@@ -363,7 +358,6 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
 
     // we are generating and creating the valid oid at step one, tbh
     private String getOid(StudyBean sb) {
-
         String oid;
         try {
             oid = sb.getOid() != null ? sb.getOid() : sb.getOidGenerator().generateOid(sb.getIdentifier());
@@ -382,7 +376,6 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
         }
         logger.info("returning the following oid: " + oid);
         return oid;
-
     }
     
     /**
@@ -423,71 +416,64 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
         // WHERE STUDY_ID=?
         HashMap<Integer, Object> variables = new HashMap<>();
         HashMap<Integer, Integer> nullVars = new HashMap<>();
-        variables.put(new Integer(1), new Integer(sb.getType().getId()));
-        variables.put(new Integer(2), sb.getProtocolTypeKey());
-        variables.put(new Integer(3), sb.getProtocolDescription());
+        variables.put(1, sb.getType().getId());
+        variables.put(2, sb.getProtocolTypeKey());
+        variables.put(3, sb.getProtocolDescription());
 
         if (sb.getProtocolDateVerification() == null) {
-            nullVars.put(new Integer(4), new Integer(Types.DATE));
-            variables.put(new Integer(4), null);
+            nullVars.put(4, Types.DATE);
+            variables.put(4, null);
         } else {
-            variables.put(new Integer(4), sb.getProtocolDateVerification());
+            variables.put(4, sb.getProtocolDateVerification());
         }
 
-        variables.put(new Integer(5), sb.getPhaseKey());
-        variables.put(new Integer(6), new Integer(sb.getExpectedTotalEnrollment()));
-        variables.put(new Integer(7), sb.getSponsor());
-        variables.put(new Integer(8), sb.getCollaborators());
-        variables.put(new Integer(9), sb.getMedlineIdentifier());
-        variables.put(new Integer(10), new Boolean(sb.isResultsReference()));
-        variables.put(new Integer(11), sb.getUrl());
-        variables.put(new Integer(12), sb.getUrlDescription());
-        variables.put(new Integer(13), sb.getConditions());
-        variables.put(new Integer(14), sb.getKeywords());
-        variables.put(new Integer(15), sb.getEligibility());
-        variables.put(new Integer(16), sb.getGenderKey());
+        variables.put(5, sb.getPhaseKey());
+        variables.put(6, sb.getExpectedTotalEnrollment());
+        variables.put(7, sb.getSponsor());
+        variables.put(8, sb.getCollaborators());
+        variables.put(9, sb.getMedlineIdentifier());
+        variables.put(10, sb.isResultsReference());
+        variables.put(11, sb.getUrl());
+        variables.put(12, sb.getUrlDescription());
+        variables.put(13, sb.getConditions());
+        variables.put(14, sb.getKeywords());
+        variables.put(15, sb.getEligibility());
+        variables.put(16, sb.getGenderKey());
 
-        variables.put(new Integer(17), sb.getAgeMax());
-        variables.put(new Integer(18), sb.getAgeMin());
-        variables.put(new Integer(19), new Boolean(sb.getHealthyVolunteerAccepted()));
+        variables.put(17, sb.getAgeMax());
+        variables.put(18, sb.getAgeMin());
+        variables.put(19, sb.getHealthyVolunteerAccepted());
         // variables.put(new Integer(20), new Boolean(sb.isUsingDOB()));
         // variables.put(new Integer(21), new
         // Boolean(sb.isDiscrepancyManagement()));
-        variables.put(new Integer(20), new Integer(sb.getId()));
+        variables.put(20, sb.getId());
         this.executeUpdate(digester.getQuery("createStepTwo"), variables, nullVars);
         return sb;
     }
 
     public StudyBean createStepThree(StudyBean sb) {
         HashMap<Integer, Object> variables = new HashMap<>();
-        variables.put(new Integer(1), sb.getPurposeKey());
-        variables.put(new Integer(2), sb.getAllocationKey());
-        variables.put(new Integer(3), sb.getMaskingKey());
-        variables.put(new Integer(4), sb.getControlKey());
-        variables.put(new Integer(5), sb.getAssignmentKey());
-        variables.put(new Integer(6), sb.getEndpointKey());
-        variables.put(new Integer(7), sb.getInterventionsKey());
-        variables.put(new Integer(8), new Integer(sb.getId()));
+        variables.put(1, sb.getPurposeKey());
+        variables.put(2, sb.getAllocationKey());
+        variables.put(3, sb.getMaskingKey());
+        variables.put(4, sb.getControlKey());
+        variables.put(5, sb.getAssignmentKey());
+        variables.put(6, sb.getEndpointKey());
+        variables.put(7, sb.getInterventionsKey());
+        variables.put(8, sb.getId());
         this.executeUpdate(digester.getQuery("createStepThree"), variables);
         return sb;
     }
 
     public StudyBean createStepFour(StudyBean sb) {
         HashMap<Integer, Object> variables = new HashMap<>();
-        variables.put(new Integer(1), sb.getDurationKey());
-        variables.put(new Integer(2), sb.getSelectionKey());
-        variables.put(new Integer(3), sb.getTimingKey());
-        variables.put(new Integer(4), new Integer(sb.getId()));
+        variables.put(1, sb.getDurationKey());
+        variables.put(2, sb.getSelectionKey());
+        variables.put(3, sb.getTimingKey());
+        variables.put(4, sb.getId());
         this.executeUpdate(digester.getQuery("createStepFour"), variables);
         return sb;
     }
-
-    /*
-     * public HashMap fillVariables(StudyBean sb) { HashMap variables = new
-     * HashMap(); variables.put(new Integer(1),new
-     * Integer(sb.getParentStudyId())); variables.put(new
-     * Integer(2),sb.getLabel()); return variables; }
-     */
 
     /**
      * <p>
@@ -554,11 +540,17 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
             eb.setParentStudyId(parentStudyId);
         }
         Integer ownerId = (Integer) hm.get("owner_id");
-        UserAccountBean owner = getUserAccountDAO().findByPK(ownerId);
-        eb.setOwner(owner);
+        // Even thou it is deprecated it creates more performant lazy loading behaviour
+        eb.setOwnerId(ownerId);
+        // Disabled because it generates additional SQL query
+        //UserAccountBean owner = getUserAccountDAO().findByPK(ownerId);
+        //eb.setOwner(owner);
         Integer updateId = (Integer) hm.get("update_id");
-        UserAccountBean updater = getUserAccountDAO().findByPK(updateId);
-        eb.setUpdater(updater);
+        // Even thou it is deprecated it creates more performant lazy loading behaviour
+        eb.setUpdaterId(updateId);
+        // Disabled because it generates additional SQL query
+        //UserAccountBean updater = getUserAccountDAO().findByPK(updateId);
+        //eb.setUpdater(updater);
         Integer typeId = (Integer) hm.get("type_id");
         eb.setType(StudyType.get(typeId));
         Integer statusId = (Integer) hm.get("status_id");
@@ -595,8 +587,8 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
         this.setTypeExpected(1, TypeNames.INT);
         HashMap<Integer, Object> variables = variables(crfId);
         ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("getStudyIdsByCRF"), variables);
-        ArrayList<Integer> al = new ArrayList<Integer>();
-        for(HashMap<String, Object> hm : alist) {
+        ArrayList<Integer> al = new ArrayList<>();
+        for (HashMap<String, Object> hm : alist) {
             al.add((Integer) hm.get("study_id"));
         }
         return al;
@@ -621,7 +613,7 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
 
     public ArrayList<StudyBean> findAllByLimit(boolean isLimited) {
         this.setTypesExpected();
-        String sql = null;
+        String sql;
         // Updated for ORACLE and PGSQL compatibility
         if (isLimited) {
             if (CoreResources.getDBName().equals("oracle")) {
@@ -673,7 +665,7 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
     }
 
     /**
-     * NOT IMPLEMENTED
+     * TODO: NOT IMPLEMENTED
      */
     public ArrayList<StudyBean> findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
        throw new RuntimeException("Not implemented");
@@ -694,31 +686,30 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
     /**
      * deleteTestOnly, used only to clean up after unit testing
      * 
-     * @param name
+     * @param name name
      */
     public void deleteTestOnly(String name) {
         HashMap<Integer, Object> variables = new HashMap<>();
-        variables.put(new Integer(1), name);
+        variables.put(1, name);
         this.executeUpdate(digester.getQuery("deleteTestOnly"), variables);
     }
 
     /**
-     * NOT IMPLEMENTED
+     * TODO: NOT IMPLEMENTED
      */
     public ArrayList<StudyBean> findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
       throw new RuntimeException("Not implemented");
     }
 
     /**
-     * NOT IMPLEMENTED
+     * TODO: NOT IMPLEMENTED
      */
     public ArrayList<StudyBean> findAllByPermission(Object objCurrentUser, int intActionType) {
         throw new RuntimeException("Not implemented");
     }
     
     /**
-     * @param allStudies
-     *            The result of findAll().
+     * @param allStudies The result of findAll().
      * @return A HashMap where the keys are Integers whose intValue are studyIds
      *         and the values are ArrayLists; each element of the ArrayList is a
      *         StudyBean representing a child of the study whose id is the key
@@ -744,8 +735,8 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
         this.setTypeExpected(1, TypeNames.INT);// sid
         HashMap<Integer, Object> variables = variables(study.getId(), study.getId());
         ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findAllSiteIdsByStudy"), variables);
-        ArrayList<Integer> al = new ArrayList<Integer>();
-        for(HashMap<String, Object> hm : alist) {
+        ArrayList<Integer> al = new ArrayList<>();
+        for (HashMap<String, Object> hm : alist) {
             al.add((Integer) hm.get("study_id"));
         }
         return al;
@@ -756,8 +747,8 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
         this.setTypeExpected(1, TypeNames.INT);// sid
         HashMap<Integer, Object> variables = variables(study.getId());
         ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findOlnySiteIdsByStudy"), variables);
-        ArrayList<Integer> al = new ArrayList<Integer>();
-        for(HashMap<String, Object> hm : alist) {
+        ArrayList<Integer> al = new ArrayList<>();
+        for (HashMap<String, Object> hm : alist) {
             al.add((Integer) hm.get("study_id"));
         }
         return al;
@@ -767,9 +758,9 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
         HashMap<Integer, Object> variables = new HashMap<>();
         HashMap<Integer, Integer> nullVars = new HashMap<>();
 
-        variables.put(new Integer(1), sb.getStatus().getId());
-        variables.put(new Integer(2), sb.getOldStatus().getId());
-        variables.put(new Integer(3), sb.getId());
+        variables.put(1, sb.getStatus().getId());
+        variables.put(2, sb.getOldStatus().getId());
+        variables.put(3, sb.getId());
 
         this.executeUpdate(digester.getQuery("updateSitesStatus"), variables, nullVars);
         return sb;
@@ -779,9 +770,9 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
         HashMap<Integer, Object> variables = new HashMap<>();
         HashMap<Integer, Integer> nullVars = new HashMap<>();
 
-        variables.put(new Integer(1), sb.getStatus().getId());
-        variables.put(new Integer(2), sb.getOldStatus().getId());
-        variables.put(new Integer(3), sb.getId());
+        variables.put(1, sb.getStatus().getId());
+        variables.put(2, sb.getOldStatus().getId());
+        variables.put(3, sb.getId());
 
         this.executeUpdate(digester.getQuery("updateStudyStatus"), variables, nullVars);
         return sb;

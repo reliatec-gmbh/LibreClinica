@@ -29,13 +29,11 @@ import org.akaza.openclinica.dao.login.UserAccountDAO;
  * database.
  *
  * @author thickerson
- *
- *
  */
 public abstract class AuditableEntityDAO<T extends EntityBean> extends EntityDAO<T> {
+
     /**
-     * Should the name of a query which refers to a SQL command of the following
-     * form:
+     * Should the name of a query which refers to a SQL command of the following form:
      *
      * <code>
      * 	SELECT t.*
@@ -52,8 +50,7 @@ public abstract class AuditableEntityDAO<T extends EntityBean> extends EntityDAO
     protected String findAllActiveByStudyName;
 
     /**
-     * Should the name of a query which refers to a SQL command of the following
-     * form:
+     * Should the name of a query which refers to a SQL command of the following form:
      *
      * <code>
      * 	SELECT t.*
@@ -91,13 +88,11 @@ public abstract class AuditableEntityDAO<T extends EntityBean> extends EntityDAO
      */
 
     /**
-     * Note: The subclass must define findAllByStudyName before calling this
-     * method. Otherwise an empty array will be returned.
+     * Note: The subclass must define findAllByStudyName before calling this method.
+     * Otherwise an empty array will be returned.
      *
-     * @param study
-     *            The study to which the entities belong.
-     * @return An array containing all the entities which belong to
-     *         <code>study</code>.
+     * @param study The study to which the entities belong.
+     * @return An array containing all the entities which belong to <code>study</code>.
      */
     public ArrayList<T> findAllByStudy(StudyBean study) {
         HashMap<Integer, Object> variables = variables(study.getId(), study.getId());
@@ -110,21 +105,18 @@ public abstract class AuditableEntityDAO<T extends EntityBean> extends EntityDAO
     }
 
     /**
-     * Note: The subclass must define findByPKAndStudyName before calling this
-     * method. Otherwise an inactive AuditableEntityBean will be returned.
+     * Note: The subclass must define findByPKAndStudyName before calling this method.
+     * Otherwise an inactive AuditableEntityBean will be returned.
      *
-     * @param id
-     *            The primary key of the AuditableEntity which is sought.
-     * @param study
-     *            The study to which the entity belongs.
-     * @return The entity which belong to <code>study</code> and has primary
-     *         key <code>id</code>.
+     * @param id The primary key of the AuditableEntity which is sought.
+     * @param study The study to which the entity belongs.
+     * @return The entity which belong to <code>study</code> and has primary key <code>id</code>.
      */
     public T findByPKAndStudy(int id, StudyBean study) {
         HashMap<Integer, Object> variables = variables(id, study.getId(), study.getId());
         ArrayList<T> rows = executeFindAllQuery(findByPKAndStudyName, variables);
-        T result = null;
-        if(rows.size() > 0) {
+        T result;
+        if (rows.size() > 0) {
         	result = rows.get(0);
         } else {
         	result = emptyBean();
@@ -140,28 +132,35 @@ public abstract class AuditableEntityDAO<T extends EntityBean> extends EntityDAO
         Integer statusId = (Integer) hm.get("status_id");
         Integer ownerId = (Integer) hm.get("owner_id");
         Integer updateId = (Integer) hm.get("update_id");
-        
-        UserAccountBean owner = getUserById(ownerId);
-        UserAccountBean updater = getUserById(updateId);
+
+        // This is causing performance issues as it 2 extra SQL select for each auditable entity
+        //UserAccountBean owner = getUserById(ownerId);
+        //UserAccountBean updater = getUserById(updateId);
 
         if (aeb != null) {
             aeb.setCreatedDate(dateCreated);
             aeb.setUpdatedDate(dateUpdated);
-            //This was throwing a ClassCastException : BWP altered in 4/2009
-           // aeb.setStatus(Status.get(statusId.intValue()));
+            // This was throwing a ClassCastException : BWP altered in 4/2009
+            //aeb.setStatus(Status.get(statusId.intValue()));
             aeb.setStatus(Status.getFromMap(statusId));
-            if(owner != null) {
-            	aeb.setOwner(owner);
-            }
-            if(updater != null) {
-            	aeb.setUpdater(updater);
-            }
+
+            // Even thou methods are deprecated they are actually triggering more performant lazy loading
+            aeb.setOwnerId(ownerId);
+            aeb.setUpdaterId(updateId);
+
+            // Disabled because it caused performance issues
+            //if (owner != null) {
+            //	aeb.setOwner(owner);
+            //}
+            //if (updater != null) {
+            //	aeb.setUpdater(updater);
+            //}
         }
     }
     
     public UserAccountBean getUserById(int id) {
-        UserAccountBean result = (UserAccountBean) uadao.findByPK(id, false);
-        if(result == null) {
+        UserAccountBean result = uadao.findByPK(id, false);
+        if (result == null) {
         	String msg = String.format("No UserAccountBean found with id '%d'", id);
         	logger.debug(msg);
         	throw new RuntimeException(msg);
@@ -170,7 +169,7 @@ public abstract class AuditableEntityDAO<T extends EntityBean> extends EntityDAO
     }
     
     public UserAccountDAO getUserAccountDAO() {
-    	if(uadao == null) {
+    	if (uadao == null) {
     		uadao = new UserAccountDAO(ds);
     	}
     	return uadao;
