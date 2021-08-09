@@ -618,8 +618,10 @@ public abstract class DataEntryServlet extends CoreSecureController {
         //request.setAttribute("beans", beans);
         request.setAttribute("eventCRF", ecb);
         request.setAttribute("age", age);
-        request.setAttribute("decryptedPassword", ((SecurityManager) SpringServletAccess.getApplicationContext(getServletContext()).getBean("securityManager"))
-                .encrytPassword("root", getUserDetails()));
+        request.setAttribute("decryptedPassword",
+            ((SecurityManager) SpringServletAccess.getApplicationContext(getServletContext()).getBean("securityManager"))
+                .encryptPassword("root", false)
+        );
 
         // set up interviewer name and date
         fp.addPresetValue(INPUT_INTERVIEWER, ecb.getInterviewerName());
