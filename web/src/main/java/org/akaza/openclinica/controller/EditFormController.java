@@ -55,7 +55,7 @@ import org.akaza.openclinica.service.pmanage.ParticipantPortalRegistrar;
 import org.akaza.openclinica.web.pform.EnketoAPI;
 import org.akaza.openclinica.web.pform.EnketoCredentials;
 import org.akaza.openclinica.web.pform.PFormCache;
-import org.apache.commons.dbcp2.BasicDataSource;
+import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
