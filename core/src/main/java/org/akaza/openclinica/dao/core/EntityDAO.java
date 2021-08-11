@@ -546,74 +546,79 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
     public HashMap<String, Object> processCurrentRow(ResultSet rs) throws SQLException {
         HashMap<String, Object> cellValues = new HashMap<>();
         ResultSetMetaData rsmd = rs.getMetaData();
-        
-        for (int columnIndex = 1; columnIndex <= rsmd.getColumnCount(); columnIndex++) {
-            String columnName = rsmd.getColumnName(columnIndex).toLowerCase();
-            
-            Integer type = getColumnType(setTypes, columnIndex);            
-			if (type == null) {
-				// TODO: Throwing an exception seems to be more
-				// TODO: more reasonable then just silently ignore the missing type.
-				continue;
-			}
 
-	        Class<?> resultClass = TypeNames.getReturnType(type);
-            Object cellValue = rs.getObject(columnIndex, resultClass);
-			cellValue = returnSelfOrDefault(rs.wasNull(), columnName, cellValue, type);
-			cellValues.put(columnName, cellValue);
-        }
+        for (int columnIndex = 1; columnIndex <= rsmd.getColumnCount(); columnIndex++) {
+            String column = rsmd.getColumnName(columnIndex).toLowerCase();
+            Integer type = getColumnType(setTypes, columnIndex);
+
+            // When type is know, use the value or if value is null use the default value specified for type
+            if (type != null) {
+                switch (type) {
+                    case TypeNames.DATE:
+                        cellValues.put(column, rs.getDate(columnIndex));
+                        break;
+                    case TypeNames.TIMESTAMP:
+                        cellValues.put(column, rs.getTimestamp(columnIndex));
+                        break;
+                    case TypeNames.DOUBLE:
+                        cellValues.put(column, rs.getDouble(columnIndex));
+                        if (rs.wasNull()) {
+                            cellValues.put(column, 0d);
+                        }
+                        break;
+                    case TypeNames.BOOL:
+                        cellValues.put(column, rs.getBoolean(columnIndex));
+                        if (rs.wasNull()) {
+                            // For start_time_flag and end_time_flag we default to false
+                            // because it was not investigated what would happen if we default to true
+                            if (column.equalsIgnoreCase("start_time_flag") ||
+                                column.equalsIgnoreCase("end_time_flag")) {
+                                
+                                cellValues.put(column, Boolean.FALSE);
+                            } else { // Otherwise, default to true
+                                cellValues.put(column, Boolean.TRUE);
+                            }
+                        }
+                        break;
+                    case TypeNames.FLOAT:
+                        cellValues.put(column, rs.getFloat(columnIndex));
+                        if (rs.wasNull()) {
+                            cellValues.put(column, 0f);
+                        }
+                        break;
+                    case TypeNames.INT:
+                        cellValues.put(column, rs.getInt(columnIndex));
+                        if (rs.wasNull()) {
+                            cellValues.put(column, 0);
+                        }
+                        break;
+                    case TypeNames.LONG:
+                        cellValues.put(column, rs.getLong(columnIndex));
+                        if (rs.wasNull()) {
+                            cellValues.put(column, 0L);
+                        }
+                        break;
+                    case TypeNames.STRING:
+                        cellValues.put(column, rs.getString(columnIndex));
+                        if (rs.wasNull()) {
+                            cellValues.put(column, "");
+                        }
+                        break;
+                    case TypeNames.CHAR:
+                        cellValues.put(column, rs.getString(columnIndex));
+                        if (rs.wasNull()) {
+                            char x = 'x';
+                            cellValues.put(column, x);
+                        }
+                        break;
+                    default:
+                        // do nothing?
+                } // end switch
+            }
+        } // end for loop
+
         return cellValues;
     }
-	
-	/**
-	 * Returns a default value if necessary. The necessity is based on the value of wasNull, the type and the columnName
-	 *
-	 * @param wasNull indicates if the value for requested cell was null {@link ResultSet#wasNull()} 
-	 * @param columnName name of the column
-	 * @param cellValue the current cell value
-	 * @param type data type of the cell {@link #getColumnType(HashMap, int)}
-	 * 
-	 * @return a default value if necessary, other the given cellValue 
-	 */
-	public Object returnSelfOrDefault(boolean wasNull, String columnName, Object cellValue, Integer type) {
-		if (!wasNull) {
-			return cellValue;
-		}
-		switch (type) {
-            case TypeNames.DATE:
-            case TypeNames.TIMESTAMP:
-                // no default value just echo the value
-                break;
-            case TypeNames.DOUBLE:
-                cellValue = 0d;
-                break;
-            case TypeNames.FLOAT:
-                cellValue = 0f;
-                break;
-            case TypeNames.INT:
-                cellValue = 0;
-                break;
-            case TypeNames.LONG:
-                cellValue = 0L;
-                break;
-            case TypeNames.BOOL:
-                if (columnName.equalsIgnoreCase("start_time_flag") ||
-                    columnName.equalsIgnoreCase("end_time_flag")) {
-
-                    cellValue = Boolean.FALSE;
-                } else {
-                    cellValue = Boolean.TRUE;
-                }
-                break;
-            case TypeNames.STRING:
-                cellValue = "";
-                break;
-            case TypeNames.CHAR:
-                cellValue = 'x';
-                break;
-		}
-		return cellValue;
-	}
 	
 	/**
 	 * Returns the column type for the given column index.
@@ -625,15 +630,15 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
 	 * @see TypeNames
 	 */
 	public Integer getColumnType(HashMap<Integer, Integer> types, int columnIndex) {
-		if(types == null) {
+		if (types == null) {
 			throw new IllegalArgumentException("The given type map is null.");
 		}
-		if(columnIndex < 1 || columnIndex > types.size()) {
+		if (columnIndex < 1 || columnIndex > types.size()) {
 			String msg = "The given column index '%d' is not within the allowed range of [1,%d].";
 			throw new IllegalArgumentException(String.format(msg, columnIndex, types.size()));
 		}
 		Integer type = types.get(columnIndex);
-		if(type == null) {
+		if (type == null) {
 			String msg = "No type defined for column '%d'";
 			throw new RuntimeException(String.format(msg, columnIndex));
 		}
