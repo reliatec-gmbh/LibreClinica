@@ -3,12 +3,10 @@
   "version": "1.2.0",
   "private": true,
   "scripts": {
-	"pdf-manual": "md-to-pdf ./manuals/monitor-manual.md && md-to-pdf ./manuals/investigator-manual.md"
+    "pdf-manual": "md-to-pdf ./manuals/monitor-manual.md && md-to-pdf ./manuals/investigator-manual.md"
   },
-  "dependencies": {
-  },
-  "devDependencies": {
-  },
+  "dependencies": {},
+  "devDependencies": {},
   "eslintConfig": {
     "root": true,
     "env": {

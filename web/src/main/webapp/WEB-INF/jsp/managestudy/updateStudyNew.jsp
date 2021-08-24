@@ -287,7 +287,13 @@
            </td>
            <td>&nbsp;</td>
            </tr>
-
+			
+			 <tr valign="top"><td class="formlabel"><fmt:message key="mailNotification" bundle="${resword}"/>:</td><td>
+   
+   		<input type="radio" id="mailNotification_DISABLED" <c:if test="${studyToView.mailNotification == 'DISABLED'}">checked</c:if> name="mailNotification" value="DISABLED"><fmt:message key="mailNotification_Type.DISABLED" bundle="${resword}"/>
+   		<input type="radio" id="mailNotification_ENABLED" <c:if test="${studyToView.mailNotification == 'ENABLED'}">checked</c:if> name="mailNotification" value="ENABLED"><fmt:message key="mailNotification_Type.ENABLED" bundle="${resword}"/>
+		
+   </td><td>*</td></tr>
 
 
            <tr valign="top"><td class="formlabel"><a href="http://prsinfo.clinicaltrials.gov/definitions.html#VerificationDate" target="def_win" onClick="openDefWindow('http://prsinfo.clinicaltrials.gov/definitions.html#VerificationDate'); return false;"><fmt:message key="protocol_verification" bundle="${resword}"/>:</a></td><td>
@@ -1026,7 +1032,9 @@
             <input type="radio" <c:if test="${studyToView.studyParameterConfig.eventLocationRequired== 'not_used'}"> checked </c:if> name="eventLocationRequired" value="not_used"><fmt:message key="not_used" bundle="${resword}"/>
       </td>
   </tr>
-
+  
+ 
+  
 </table>
 </div>
 </div></div></div></div></div></div></div></div>

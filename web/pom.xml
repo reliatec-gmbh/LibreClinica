@@ -346,7 +346,7 @@
 		<profile>
 			<id>include-pdf-manuals</id>
 			<activation>
-				<activeByDefault>true</activeByDefault>
+				<activeByDefault>false</activeByDefault>
 			</activation>
 			<properties>
 				<npm-phase>compile</npm-phase>
@@ -355,7 +355,7 @@
 		<profile>
 			<id>exclude-pdf-manuals</id>
 			<activation>
-				<activeByDefault>false</activeByDefault>
+				<activeByDefault>true</activeByDefault>
 			</activation>
 			<properties>
 				<npm-phase>NONE</npm-phase>

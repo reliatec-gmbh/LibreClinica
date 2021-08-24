@@ -84,7 +84,7 @@ public class CreateStudyServlet extends SecureController {
 
     static HashMap<String, String> controlMap = new LinkedHashMap<String, String>();
 
-    static HashMap<String, String> assignmentMap = new LinkedHashMap<String, String>();
+    static HashMap<String, String> assignmentMap = new LinkedHashMap<String, String>();                                                                 
 
     static HashMap<String, String> endpointMap = new LinkedHashMap<String, String>();
 
@@ -426,7 +426,9 @@ public class CreateStudyServlet extends SecureController {
                 studyBean.setOwner(ub);
                 studyBean.setCreatedDate(new Date());
                 studyBean.setStatus(Status.PENDING);
+                
                 studyBean = (StudyBean) sdao.create(studyBean);
+                
                 StudyBean newstudyBean = (StudyBean) sdao.findByName(studyBean.getName());
 
                 UserAccountDAO udao = new UserAccountDAO(sm.getDataSource());
@@ -898,7 +900,9 @@ public class CreateStudyServlet extends SecureController {
 
         newStudy.setSponsor(fp.getString("sponsor"));
         newStudy.setCollaborators(fp.getString("collaborators"));
-
+        
+        newStudy.setMailNotification(fp.getString("mailNotification"));
+        
         return newStudy;
 
     }

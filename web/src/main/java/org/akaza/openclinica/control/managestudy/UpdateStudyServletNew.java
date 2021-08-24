@@ -367,6 +367,7 @@ public class UpdateStudyServletNew extends SecureController {
         study.getStudyParameterConfig().setSecondaryLabelViewable(fp.getString("secondaryLabelViewable"));
         study.getStudyParameterConfig().setAdminForcedReasonForChange(fp.getString("adminForcedReasonForChange"));
         study.getStudyParameterConfig().setEventLocationRequired(fp.getString("eventLocationRequired"));
+        
         if (!errors.isEmpty()) {
             request.setAttribute("formMessages", errors);
         }
@@ -386,6 +387,9 @@ public class UpdateStudyServletNew extends SecureController {
 
         newStudy.setSponsor(fp.getString("sponsor"));
         newStudy.setCollaborators(fp.getString("collaborators"));
+        
+        newStudy.setMailNotification(fp.getString("mailNotification"));
+        
         return newStudy;
 
     }

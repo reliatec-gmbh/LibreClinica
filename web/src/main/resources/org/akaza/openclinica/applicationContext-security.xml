@@ -74,6 +74,8 @@
         <property name="sessionAuthenticationStrategy" ref="sas"/>
         <property name="crfLocker" ref="crfLocker"/>
         <property name="factorService" ref="factorService"/>
+        <!-- E-Mail notification -->
+        <property name="mailNotificationService" ref="mailNotificationService"/>
     </bean>
     
     <bean id="successHandler" class="org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler" >

@@ -114,7 +114,12 @@
    </c:choose>
    <jsp:include page="../showMessage.jsp"><jsp:param name="key" value="protocolType"/></jsp:include></td><td>*</td></tr>
 
-
+<tr valign="top"><td class="formlabel"><fmt:message key="mailNotification" bundle="${resword}"/>:</td><td>
+  
+	<input type="radio" name="mailNotification" value=DISABLED checked><fmt:message key="mailNotification_Type.DISABLED" bundle="${resword}"/>
+	<input type="radio" name="mailNotification" value=ENABLED><fmt:message key="mailNotification_Type.ENABLED" bundle="${resword}"/>
+   </td><td>*</td></tr>
+	
   </table>
   </div>
   </div></div></div></div></div></div></div></div>

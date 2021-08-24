@@ -3,4 +3,6 @@
 	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9 http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
 	
 	<include file="migration/lc-1.2.0/2-fauth.xml" />
+	<include file="migration/lc-1.2.0/mail_notification.xml" />
+	
 </databaseChangeLog>

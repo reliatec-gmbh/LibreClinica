@@ -1,7 +1,6 @@
 /*
  * LibreClinica is distributed under the
  * GNU Lesser General Public License (GNU LGPL).
-
  * For details see: https://libreclinica.org/license
  * LibreClinica, copyright (C) 2020
  */
@@ -51,9 +50,9 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
         this(ds, digester);
         this.locale = locale;
     }
-    
+
     private void setQueryNames() {
-    	getNextPKName = "findNextKey";
+        getNextPKName = "findNextKey";
     }
 
     @Override
@@ -177,6 +176,7 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
         this.setTypeExpected(55, TypeNames.STRING);// oc oid
         // this.setTypeExpected(56, TypeNames.BOOL);//discrepancy_management
         this.setTypeExpected(56, TypeNames.INT);
+        this.setTypeExpected(57, TypeNames.STRING); // e-mail notification
     }
 
     /**
@@ -207,7 +207,7 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
      */
     public StudyBean updateStepOne(StudyBean sb) {
         HashMap<Integer, Object> variables = new HashMap<>();
-		HashMap<Integer, Integer> nullVars = new HashMap<>();
+        HashMap<Integer, Integer> nullVars = new HashMap<>();
 
         if (sb.getParentStudyId() == 0) {
             nullVars.put(new Integer(1), new Integer(Types.INTEGER));
@@ -254,10 +254,16 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
         variables.put(new Integer(21), new Integer(sb.getUpdaterId()));// owner
         // id
         variables.put(new Integer(22), sb.getUpdatedDate());// date updated
-        variables.put(new Integer(23), new Integer(sb.getOldStatus().getId()));// study id
+        variables.put(new Integer(23), new Integer(sb.getOldStatus().getId()));// study
+                                                                               // id
         // variables.put(new Integer(22), new Integer(1));
         // stop gap measure for owner and updater id
-        variables.put(new Integer(24), new Integer(sb.getId()));// study id
+        variables.put(new Integer(24), sb.getMailNotification());// E-Mail notification
+        
+        variables.put(new Integer(25), new Integer(sb.getId()));// study id
+
+        
+
         this.executeUpdate(digester.getQuery("updateStepOne"), variables, nullVars);
         return sb;
     }
@@ -292,7 +298,7 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
      * @return int, which is the next primary key for creating a study.
      */
     public int findNextKey() {
-    	return getNextPK();
+        return getNextPK();
     }
 
     /**
@@ -358,6 +364,10 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
         variables.put(new Integer(22), new java.util.Date());
         variables.put(new Integer(23), new Integer(sb.getOwnerId()));
         variables.put(new Integer(24), getValidOid(sb));
+
+        // E-Mail Notification
+        variables.put(new Integer(25), sb.getMailNotification());
+
         // replace this with the owner id
         this.executeUpdate(digester.getQuery("createStepOne"), variables, nullVars);
         return sb;
@@ -386,7 +396,7 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
         return oid;
 
     }
-    
+
     /**
      * Checks whether a study with the given OID already exist.
      * 
@@ -394,24 +404,24 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
      * @return true if a study with the given OID exists, false otherwise
      */
     public boolean existStudyWithOid(String oid) {
-    	StudyBean foundStudy = findByOid(oid);
-    	return foundStudy != null && oid.equals(foundStudy.getOid());
+        StudyBean foundStudy = findByOid(oid);
+        return foundStudy != null && oid.equals(foundStudy.getOid());
     }
 
     public StudyBean findByOid(String oid) {
-    	String queryName = "findByOid";
+        String queryName = "findByOid";
         HashMap<Integer, Object> variables = variables(oid);
         return executeFindByPKQuery(queryName, variables);
     }
 
     public StudyBean findByUniqueIdentifier(String oid) {
-    	String queryName = "findByUniqueIdentifier";
+        String queryName = "findByUniqueIdentifier";
         HashMap<Integer, Object> variables = variables(oid);
         return executeFindByPKQuery(queryName, variables);
     }
 
     public StudyBean findSiteByUniqueIdentifier(String parentUniqueIdentifier, String siteUniqueIdentifier) {
-    	String queryName = "findSiteByUniqueIdentifier";
+        String queryName = "findSiteByUniqueIdentifier";
         HashMap<Integer, Object> variables = variables(parentUniqueIdentifier, siteUniqueIdentifier);
         return executeFindByPKQuery(queryName, variables);
     }
@@ -550,7 +560,7 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
         eb.setHealthyVolunteerAccepted(((Boolean) hm.get("healthy_volunteer_accepted")).booleanValue());
         eb.setResultsReference(((Boolean) hm.get("results_reference")).booleanValue());
         // eb.setUsingDOB(((Boolean)hm.get("collect_dob")).booleanValue());
-        //eb.setDiscrepancyManagement(((Boolean)hm.get("discrepancy_management")
+        // eb.setDiscrepancyManagement(((Boolean)hm.get("discrepancy_management")
         // ).booleanValue());
         // next set all the ints/dates
 
@@ -590,11 +600,13 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
         eb.setOid((String) hm.get("oc_oid"));
         Integer oldStatusId = (Integer) hm.get("old_status_id");
         eb.setOldStatus(Status.get(oldStatusId));
+        // mail notification
+        eb.setMailNotification(((String) hm.get("mail_notification")));
         return eb;
     }
 
     public ArrayList<StudyBean> findAllByUser(String username) {
-    	String queryName = "findAllByUser";
+        String queryName = "findAllByUser";
         HashMap<Integer, Object> variables = variables(username);
         return executeFindAllQuery(queryName, variables);
     }
@@ -605,21 +617,21 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
         HashMap<Integer, Object> variables = variables(crfId);
         ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("getStudyIdsByCRF"), variables);
         ArrayList<Integer> al = new ArrayList<Integer>();
-        for(HashMap<String, Object> hm : alist) {
+        for (HashMap<String, Object> hm : alist) {
             al.add((Integer) hm.get("study_id"));
         }
         return al;
     }
 
     // YW 10-18-2007
-    public  ArrayList<StudyBean> findAllByUserNotRemoved(String username) { 
-    	String queryName = "findAllByUserNotRemoved";
+    public ArrayList<StudyBean> findAllByUserNotRemoved(String username) {
+        String queryName = "findAllByUserNotRemoved";
         HashMap<Integer, Object> variables = variables(username);
         return executeFindAllQuery(queryName, variables);
     }
 
-    public ArrayList<StudyBean> findAllByStatus(Status status) { 
-    	String queryName = "findAllByStatus";
+    public ArrayList<StudyBean> findAllByStatus(Status status) {
+        String queryName = "findAllByStatus";
         HashMap<Integer, Object> variables = variables(status.getId());
         return executeFindAllQuery(queryName, variables);
     }
@@ -646,7 +658,7 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
     }
 
     public ArrayList<StudyBean> findAllParents() {
-    	String queryName = "findAllParents";
+        String queryName = "findAllParents";
         return executeFindAllQuery(queryName);
     }
 
@@ -665,11 +677,11 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
     }
 
     public ArrayList<StudyBean> findAllByParentAndLimit(int parentStudyId, boolean isLimited) {
-    	String queryName;
+        String queryName;
         if (isLimited) {
-        	queryName = "findAllByParentLimit5";
+            queryName = "findAllByParentLimit5";
         } else {
-        	queryName = "findAllByParent";
+            queryName = "findAllByParent";
         }
         HashMap<Integer, Object> variables = variables(parentStudyId);
         return executeFindAllQuery(queryName, variables);
@@ -685,17 +697,17 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
      * NOT IMPLEMENTED
      */
     public ArrayList<StudyBean> findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-       throw new RuntimeException("Not implemented");
+        throw new RuntimeException("Not implemented");
     }
 
     public StudyBean findByPK(int ID) {
-    	String queryName = "findByPK";
+        String queryName = "findByPK";
         HashMap<Integer, Object> variables = variables(ID);
         return executeFindByPKQuery(queryName, variables);
     }
 
     public StudyBean findByName(String name) {
-    	String queryName = "findByName";
+        String queryName = "findByName";
         HashMap<Integer, Object> variables = variables(name);
         return executeFindByPKQuery(queryName, variables);
     }
@@ -714,8 +726,9 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
     /**
      * NOT IMPLEMENTED
      */
-    public ArrayList<StudyBean> findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-      throw new RuntimeException("Not implemented");
+    public ArrayList<StudyBean> findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort,
+            String strSearchPhrase) {
+        throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -724,7 +737,7 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
     public ArrayList<StudyBean> findAllByPermission(Object objCurrentUser, int intActionType) {
         throw new RuntimeException("Not implemented");
     }
-    
+
     /**
      * @param allStudies
      *            The result of findAll().
@@ -740,7 +753,7 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
         if (allStudies == null) {
             return new HashMap<>();
         }
-        
+
         Stream<StudyBean> stream = allStudies.stream();
         // filter for child studies (studies with a parent study id)
         stream = stream.filter(s -> s.getParentStudyId() > 0);
@@ -754,7 +767,7 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
         HashMap<Integer, Object> variables = variables(study.getId(), study.getId());
         ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findAllSiteIdsByStudy"), variables);
         ArrayList<Integer> al = new ArrayList<Integer>();
-        for(HashMap<String, Object> hm : alist) {
+        for (HashMap<String, Object> hm : alist) {
             al.add((Integer) hm.get("study_id"));
         }
         return al;
@@ -766,7 +779,7 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
         HashMap<Integer, Object> variables = variables(study.getId());
         ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findOlnySiteIdsByStudy"), variables);
         ArrayList<Integer> al = new ArrayList<Integer>();
-        for(HashMap<String, Object> hm : alist) {
+        for (HashMap<String, Object> hm : alist) {
             al.add((Integer) hm.get("study_id"));
         }
         return al;
@@ -797,20 +810,20 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
     }
 
     public StudyBean findByStudySubjectId(int studySubjectId) {
-    	String queryName = "findByStudySubjectId";
+        String queryName = "findByStudySubjectId";
         HashMap<Integer, Object> variables = variables(studySubjectId);
         return executeFindByPKQuery(queryName, variables);
     }
 
     public ArrayList<StudyBean> findAllByParentStudyIdOrderedByIdAsc(int parentStudyId) {
-    	String queryName = "findAllByParentStudyIdOrderedByIdAsc";
+        String queryName = "findAllByParentStudyIdOrderedByIdAsc";
         HashMap<Integer, Object> variables = variables(parentStudyId, parentStudyId);
         return executeFindAllQuery(queryName, variables);
     }
 
-	@Override
-	public StudyBean emptyBean() {
-		return new StudyBean();
-	}
+    @Override
+    public StudyBean emptyBean() {
+        return new StudyBean();
+    }
 
 }

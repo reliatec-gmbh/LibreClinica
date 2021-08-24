@@ -21,6 +21,7 @@ import static org.apache.commons.lang.StringUtils.isBlank;
  * limitations under the License.
  */
 
+
 import java.util.Date;
 import java.util.Locale;
 
@@ -37,10 +38,13 @@ import org.akaza.openclinica.core.CRFLocker;
 import org.akaza.openclinica.dao.hibernate.AuditUserLoginDao;
 import org.akaza.openclinica.dao.hibernate.ConfigurationDao;
 import org.akaza.openclinica.dao.login.UserAccountDAO;
+import org.akaza.openclinica.domain.managestudy.MailNotificationType;
 import org.akaza.openclinica.domain.technicaladmin.AuditUserLoginBean;
 import org.akaza.openclinica.domain.technicaladmin.LoginStatus;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
+import org.akaza.openclinica.service.otp.MailNotificationService;
 import org.akaza.openclinica.service.otp.TwoFactorService;
+import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.LockedException;
@@ -86,6 +90,7 @@ public class OpenClinicaUsernamePasswordAuthenticationFilter extends AbstractAut
     private UserAccountDAO userAccountDao;
     private DataSource dataSource;
     private CRFLocker crfLocker;
+    private MailNotificationService mailNotificationService;
 
     public OpenClinicaUsernamePasswordAuthenticationFilter() {
         super("/j_spring_security_check");
@@ -94,13 +99,18 @@ public class OpenClinicaUsernamePasswordAuthenticationFilter extends AbstractAut
     public void setFactorService(TwoFactorService factorService) {
         this.factorService = factorService;
     }
+    
+    public void setMailNotificationService(MailNotificationService mailNotificationService) {
+        this.mailNotificationService = mailNotificationService;
+    }     
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         if (postOnly && !request.getMethod().equals("POST")) {
             throw new AuthenticationServiceException("Authentication method not supported: " + request.getMethod());
         }
-
+        
+        
         String username = obtainUsername(request);
         String password = obtainPassword(request);
 
@@ -170,6 +180,20 @@ public class OpenClinicaUsernamePasswordAuthenticationFilter extends AbstractAut
             lockAccount(username, LoginStatus.FAILED_LOGIN, userAccountBean);
             throw ae;
         }
+        
+        
+        String mailNotification = mailNotificationService.getMailNotificationEnabled(userAccountBean.getActiveStudyId());
+        
+        if(mailNotification.equals(MailNotificationType.ENABLED.name())) {
+           
+            //IP-Address of client - added to notification mail
+            String ipAddress =  request.getRemoteAddr();    
+            System.out.println("IP Address: "+ipAddress);
+            
+            mailNotificationService.sendLoginMail(userAccountBean.getEmail());
+            
+        }
+        
         return authentication;
     }
 
