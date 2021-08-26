@@ -181,16 +181,9 @@ public class OpenClinicaUsernamePasswordAuthenticationFilter extends AbstractAut
             throw ae;
         }
         
+        if (mailNotificationService.isMailNotificationEnabled(userAccountBean.getActiveStudyId())) {
         
-        String mailNotification = mailNotificationService.getMailNotificationEnabled(userAccountBean.getActiveStudyId());
-        
-        if(mailNotification.equals(MailNotificationType.ENABLED.name())) {
-           
-            //IP-Address of client - added to notification mail
-            String ipAddress =  request.getRemoteAddr();    
-            System.out.println("IP Address: "+ipAddress);
-            
-            mailNotificationService.sendLoginMail(userAccountBean.getEmail());
+            mailNotificationService.sendLoginMail(userAccountBean);
             
         }
         

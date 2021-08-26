@@ -608,6 +608,7 @@ public class UpdateStudyServletNew extends SecureController {
             child.setType(study1.getType());// same as parent's type
             child.setUpdatedDate(new Date());
             child.setUpdater(ub);
+            child.setMailNotification(study1.getMailNotification());
             sdao.update(child);
             // YW << update "collectDob" and "genderRequired" for sites
             StudyParameterValueBean childspv = new StudyParameterValueBean();

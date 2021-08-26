@@ -77,6 +77,8 @@ public class UpdateSubStudyServlet extends SecureController {
         StudyDAO sdao = new StudyDAO(sm.getDataSource());
         StudyBean study = (StudyBean) session.getAttribute("newStudy");
         parentStudy = (StudyBean) sdao.findByPK(study.getParentStudyId());
+        //set mail notification for site based on selection for parent study
+        study.setMailNotification(parentStudy.getMailNotification());
 
         logger.info("study from session:" + study.getName() + "\n" + study.getCreatedDate() + "\n");
         String action = request.getParameter("action");

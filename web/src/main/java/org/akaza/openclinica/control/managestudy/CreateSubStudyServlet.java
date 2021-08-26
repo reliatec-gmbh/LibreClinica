@@ -430,7 +430,10 @@ public class CreateSubStudyServlet extends SecureController {
         // YW 10-10-2007, enable setting site status
         study.setStatus(study.getStatus());
         // YW >>
-
+        //set mail notification for site based on selection for parent study
+        study.setMailNotification(parent.getMailNotification());
+        
+        
         study.setGenetic(parent.isGenetic());
         study = (StudyBean) sdao.create(study);
 
