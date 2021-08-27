@@ -14,6 +14,7 @@ import org.akaza.openclinica.core.OpenClinicaMailSender;
 import org.akaza.openclinica.dao.core.CoreResources;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.domain.managestudy.MailNotificationType;
+import org.akaza.openclinica.exception.MailNotificationException;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.io.IOUtils;
 import org.hibernate.validator.internal.util.privilegedactions.GetResources;
@@ -90,12 +91,13 @@ public class MailNotificationService {
 		try {
 			Date date = new Date();
 			InputStream inputStream = getClass().getClassLoader().getResourceAsStream("successfulLoginMail.txt");
-			String message = String.format(IOUtils.toString(inputStream, "UTF-8"), bean.getFirstName(), bean.getLastName(),getStudyName(bean.getActiveStudyId()), date, TimeZone.getDefault().getDisplayName(Locale.ENGLISH) );
+			String message = String.format(IOUtils.toString(inputStream, "UTF-8"), bean.getFirstName(),
+					bean.getLastName(), getStudyName(bean.getActiveStudyId()), date,
+					TimeZone.getDefault().getDisplayName(Locale.ENGLISH));
 
 			mailSender.sendEmail(bean.getEmail(), "Login Notification", message, false);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			new MailNotificationException(e.getMessage(), e.getCause());
 		}
 	}
 
