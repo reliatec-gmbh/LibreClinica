@@ -88,6 +88,9 @@
     <c:if test='${presetValue.key == "notifyPassword"}'>
         <c:set var="notifyPassword" value="${presetValue.value}" />
     </c:if>
+    <c:if test='${presetValue.key == "authtype"}'>
+        <c:set var="authtype" value="${presetValue.value}" />
+    </c:if>
 </c:forEach>
 
 <script type="text/JavaScript" language="JavaScript">
@@ -399,9 +402,9 @@ int selectedValue;
 							<div class="formfieldM_BG">
 								<input type="radio" name="authtype" style="display:inline-block;" value="STANDARD" checked /> Standard Authentication <br/>
 								<c:if test="${factorService.twoFactorActivatedLetter}">
-									<input type="radio" name="authtype" style="display:inline-block;" value="MARKED" /> Marked for 2-Factor Authentication <br/>
+									<input type="radio" name="authtype" style="display:inline-block;" value="MARKED" <c:if test="${authtype eq 'MARKED'}">checked</c:if>/> Marked for 2-Factor Authentication <br/>
 								</c:if>
-								<input type="radio" name="authtype" style="display:inline-block;" value="TWO_FACTOR" /> 2-Factor Authentication <br/>
+								<input type="radio" name="authtype" style="display:inline-block;" value="TWO_FACTOR" <c:if test="${authtype eq 'TWO_FACTOR'}">checked</c:if> /> 2-Factor Authentication <br/>
 							</div>
 						</td>
 						<td>*</td>

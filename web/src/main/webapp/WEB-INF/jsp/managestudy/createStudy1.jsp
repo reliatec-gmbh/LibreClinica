@@ -115,11 +115,18 @@
    <jsp:include page="../showMessage.jsp"><jsp:param name="key" value="protocolType"/></jsp:include></td><td>*</td></tr>
 
 <tr valign="top"><td class="formlabel"><fmt:message key="mailNotification" bundle="${resword}"/>:</td><td>
-  
-	<input type="radio" name="mailNotification" value=DISABLED checked><fmt:message key="mailNotification_Type.DISABLED" bundle="${resword}"/>
-	<input type="radio" name="mailNotification" value=ENABLED><fmt:message key="mailNotification_Type.ENABLED" bundle="${resword}"/>
-   </td><td>*</td></tr>
-	
+<c:set var="mail" value="DISABLED"/>
+   <c:choose>
+    <c:when test="${newStudy.mailNotification == mail}">
+		<input type="radio" name="mailNotification" value=DISABLED checked><fmt:message key="mailNotification_Type.DISABLED" bundle="${resword}"/>
+		<input type="radio" name="mailNotification" value=ENABLED><fmt:message key="mailNotification_Type.ENABLED" bundle="${resword}"/>
+	 </c:when>
+    <c:otherwise>
+    	<input type="radio" name="mailNotification" value=DISABLED><fmt:message key="mailNotification_Type.DISABLED" bundle="${resword}"/>
+		<input type="radio" name="mailNotification" value=ENABLED checked><fmt:message key="mailNotification_Type.ENABLED" bundle="${resword}"/>
+	 </c:otherwise>
+   </c:choose>
+	   </td><td>*</td></tr>
   </table>
   </div>
   </div></div></div></div></div></div></div></div>
