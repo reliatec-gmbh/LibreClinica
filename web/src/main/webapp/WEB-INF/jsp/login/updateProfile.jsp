@@ -170,19 +170,11 @@
 		</td>
 		<td class="formlabel">* </td>
 	</tr>
-	<tr>
+	<tr id="qrImageRow" style="visibility:hidden;">
 	  	<td class="formlabel"><fmt:message key="scan_image" bundle="${resword}"/>:</td>
 		<td colspan="2">
-			<!--  
-			<input type="text" id="authsecret" name="authsecret" class="formfieldXL" /><br>
-			-->
 			<img id="qrImage" src="#" width="0" height="0" style="visibility:hidden;" />
-		</td>
-    </tr>
-	<tr>
-	  	<td class="formlabel">Secret (Debug only):</td>
-		<td colspan="2">
-			<input type=text id="authsecret" name="authsecret" class="formfieldXL" value="${userBean1.authsecret}" readonly />
+			<input type="hidden" id="authsecret" name="authsecret" class="formfieldXL" value="${userBean1.authsecret}" readonly />
 		</td>
     </tr>
 	<c:if test="${factorService.twoFactorActivatedApplication}">
@@ -198,6 +190,7 @@
 			
 				var controllerUrl = 'pages/factor';
 				controllerUrl = twoFactorRadio.checked && '' != secret.value ? (controllerUrl + '?secret=' + secret.value) : controllerUrl;
+				var vis = twoFactorRadio.checked ? 'visible' : 'hidden';
 				
 				const retrieveQrCode = () => {
 					axios.get(controllerUrl).then(response => {
@@ -211,6 +204,9 @@
 						
 						var secretField = document.getElementById("authsecret");
 						secretField.value = res.authSecret;
+						
+						var qrRow = document.getElementById("qrImageRow");
+						qrRow.style.visibility = vis;
 					}).catch(error => console.error(error));
 				};
 				
@@ -226,7 +222,10 @@
 			
 				var qrButton = document.getElementById("qrButton");
 				qrButton.style.visibility = vis;
-			
+				
+				var qrRow = document.getElementById("qrImageRow");
+				qrRow.style.visibility = qrButton.style.visibility;
+				
 				var image = document.getElementById("qrImage");
 				image.style.visibility = 'hidden';
 				image.height = 0;
