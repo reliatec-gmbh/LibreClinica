@@ -2,8 +2,6 @@ package org.akaza.openclinica.service.otp;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -17,25 +15,19 @@ import org.akaza.openclinica.domain.managestudy.MailNotificationType;
 import org.akaza.openclinica.exception.MailNotificationException;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.io.IOUtils;
-import org.hibernate.validator.internal.util.privilegedactions.GetResources;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import com.google.common.io.Resources;
-
 /**
- * Service class providing access to E-Mail Notification related use cases.
+ * Service class providing access to E-Mail notification related use cases.
  * 
  * @author jbley
  */
-
 @Component("mailNotificationService")
 public class MailNotificationService {
-
 	private static final String MAIL_NOTIFICATION_ACTIVATED_SETTING = "mailNotification";
 	private CoreResources coreResources;
-
 	private StudyDAO studyDao;
 	@Autowired
 	@Qualifier("dataSource")
@@ -43,56 +35,37 @@ public class MailNotificationService {
 	@Autowired
 	private OpenClinicaMailSender mailSender;
 
-	/**
-	 * Returns true if mail notifications for login are activated system wide, false
-	 * otherwise.
-	 */
-
 	public void setMailSender(OpenClinicaMailSender mailSender) {
 		this.mailSender = mailSender;
 	}
 
+	/**
+	 * Returns true if mail notifications for login are activated system wide, false
+	 * otherwise.
+	 */
 	public boolean mailNotificationActivated() {
-
 		return Boolean.valueOf(coreResources.getDATAINFO().getProperty(MAIL_NOTIFICATION_ACTIVATED_SETTING, "false"));
 	}
 
 	/**
-	 * Checks whether mail notification is enabled or disabled for study
+	 * Checks whether mail notification is enabled or disabled for study. Returns true if enabled - false otherwise.
 	 * 
-	 * @param studyId
-	 * @return "ENABLED" or "DISABLED"
+	 * @param studyId The study unique identifier.
 	 */
-
 	public boolean isMailNotificationEnabled(int studyId) {
-		StudyBean sb = getStudyDao().findByPK(studyId);
-		boolean result = MailNotificationType.ENABLED.name().equals(sb.getMailNotification());
-		return result;
+		StudyBean studyBean = getStudyDao().findByPK(studyId);
+		return MailNotificationType.ENABLED.name().equals(studyBean);
 	}
 
 	/**
+	 * Sends mail notification for successful login.
 	 * 
-	 * @param studyId
-	 * @return returns the identifier of specific study
+	 * @param bean Bean with addressee information.
 	 */
-
-	private String getStudyName(int studyId) {
-		StudyBean sb = getStudyDao().findByPK(studyId);
-		return sb.getName();
-	}
-
-	/**
-	 * Sends mail notification for successful login
-	 * 
-	 * @param to
-	 */
-
 	public void sendLoginMail(UserAccountBean bean) {
-		try {
-			Date date = new Date();
-			InputStream inputStream = getClass().getClassLoader().getResourceAsStream("successfulLoginMail.txt");
+		try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream("successfulLoginMail.txt")) {
 			String message = String.format(IOUtils.toString(inputStream, "UTF-8"), bean.getFirstName(),
-					bean.getLastName(), getStudyName(bean.getActiveStudyId()), date,
+					bean.getLastName(), getStudyName(bean.getActiveStudyId()), new Date(),
 					TimeZone.getDefault().getDisplayName(Locale.ENGLISH));
 
 			mailSender.sendEmail(bean.getEmail(), "Login Notification", message, false);
@@ -101,12 +74,13 @@ public class MailNotificationService {
 		}
 	}
 
-	/**
-	 * @return the studyDao
-	 */
+    private String getStudyName(int studyId) {
+        StudyBean studyBean = getStudyDao().findByPK(studyId);
+        return studyBean.getName();
+    }
+
 	private StudyDAO getStudyDao() {
 		studyDao = studyDao != null ? studyDao : new StudyDAO(dataSource);
 		return studyDao;
 	}
-
 }

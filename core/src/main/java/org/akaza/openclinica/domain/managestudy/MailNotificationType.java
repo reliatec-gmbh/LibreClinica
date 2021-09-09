@@ -1,16 +1,19 @@
 package org.akaza.openclinica.domain.managestudy;
 
-
 /**
- * enumeration for mail notification type
+ * Enumeration items of mail notification types.
  * 
  * @author jbley
  */
-
 public enum MailNotificationType {
-
+    /**
+     * System user mail notification is enabled. Every successful login leads to
+     * an e-mail.
+     */
     ENABLED,
-
+    /**
+     * System user mail notification is disabled (default).
+     */
     DISABLED;
 
     /**
