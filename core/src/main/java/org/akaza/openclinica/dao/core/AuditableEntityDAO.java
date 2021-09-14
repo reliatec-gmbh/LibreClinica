@@ -159,7 +159,7 @@ public abstract class AuditableEntityDAO<T extends EntityBean> extends EntityDAO
     }
     
     public UserAccountBean getUserById(int id) {
-        UserAccountBean result = uadao.findByPK(id, false);
+        UserAccountBean result = getUserAccountDAO().findByPK(id, false);
         if (result == null) {
         	String msg = String.format("No UserAccountBean found with id '%d'", id);
         	logger.debug(msg);
