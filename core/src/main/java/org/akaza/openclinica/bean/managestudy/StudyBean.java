@@ -7,6 +7,7 @@
 package org.akaza.openclinica.bean.managestudy;
 
 import static org.akaza.openclinica.domain.managestudy.MailNotificationType.DISABLED;
+import static org.akaza.openclinica.domain.managestudy.MailNotificationType.ENABLED;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -87,6 +88,7 @@ public class StudyBean extends AuditableEntityBean {
     private int subjectCount;
     private String studyUuid;
     private String mailNotification = MailNotificationType.DISABLED.name();
+    private String contactEmail;
 
     public boolean isPublished() {
         return published;
@@ -1186,4 +1188,19 @@ public class StudyBean extends AuditableEntityBean {
         this.mailNotification = mailNotification;
     }
 
+    public String getContactEmail() {
+        return contactEmail;
+    }
+
+    public void setContactEmail(String contactEmail) {
+        this.contactEmail = contactEmail;
+    }
+
+    public boolean contactEmailAbsent() {
+        return null == this.contactEmail || "".equals(this.contactEmail);
+    }
+
+    public boolean contactEmailAbsentButNotification() {
+        return ENABLED.name().equalsIgnoreCase(this.mailNotification) && contactEmailAbsent();
+    }
 }

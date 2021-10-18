@@ -156,6 +156,10 @@
    </c:forEach>
   </td></tr>
 
+  <tr valign="top"><td class="table_header_column"><fmt:message key="contactEmail" bundle="${resword}"/>:</td><td class="table_cell">
+	  <c:out value="${newStudy.contactEmail}" />
+  </td></tr>
+
   </c:when>
   <c:otherwise>
   <tr valign="top"><td class="table_header_column"><fmt:message key="duration" bundle="${resword}"/>:</td><td class="table_cell">
@@ -167,7 +171,7 @@
   </td></tr>
 
   <tr valign="top"><td class="table_header_column"><fmt:message key="timing" bundle="${resword}"/>:</td><td class="table_cell">
-  <c:out value="${newStudy.timing}"/>&nbsp;
+	  <c:out value="${newStudy.timing}"/>&nbsp;
   </td></tr>
 
   </c:otherwise>

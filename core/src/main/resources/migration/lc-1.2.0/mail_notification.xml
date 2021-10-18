@@ -3,7 +3,6 @@
 	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
 	
 	<changeSet id="1" author="jbley">
-	
 		<comment>Creating new attribute for mail notification for login.</comment>
 	
 		<addColumn tableName="study">
@@ -21,4 +20,11 @@
 		</createIndex>
 	</changeSet>
 	
+	<changeSet id="3" author="thillger">
+		<comment>Creating new attribute for contacting purpose in case of mail notifications.</comment>
+	
+		<addColumn tableName="study">
+			<column name="contact_email" type="java.sql.Types.VARCHAR(255)" />
+		</addColumn>
+	</changeSet>
 </databaseChangeLog>

@@ -18,11 +18,14 @@
         <font face="Tahoma" size="2">
         	Dear %1$s %2$s,<br><br>
         	
-        	a successful login to %3$s was detected on %4$tD at %4$tT (%5$s) o'clock.<br><br>
+        	this is an automatically generated e-mail. A %6$s login to '%3$s' study was detected on %4$tD at %4$tT (%5$s).<br><br>
         	
         	If you in person are not the cause of this application login request, then please report immediately to your 
-        	project manager.<br><br>
+        	<a href="mailto:%7$s">project manager</a>.<br><br>
         	
+        	Study: %3$s
+        	
+        	<br><br>
         	Your LibreClinica Administration
         </font>
 	</html>

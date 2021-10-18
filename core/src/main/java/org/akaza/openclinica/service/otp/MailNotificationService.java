@@ -1,15 +1,15 @@
 package org.akaza.openclinica.service.otp;
 
+import static java.util.Locale.ENGLISH;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
-import java.util.Locale;
 import java.util.TimeZone;
 
 import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.core.OpenClinicaMailSender;
-import org.akaza.openclinica.dao.core.CoreResources;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.domain.managestudy.MailNotificationType;
 import org.akaza.openclinica.exception.MailNotificationException;
@@ -26,25 +26,15 @@ import org.springframework.stereotype.Component;
  */
 @Component("mailNotificationService")
 public class MailNotificationService {
-	private static final String MAIL_NOTIFICATION_ACTIVATED_SETTING = "mailNotification";
-	private CoreResources coreResources;
-	private StudyDAO studyDao;
+    @Autowired
+    private OpenClinicaMailSender mailSender;
 	@Autowired
 	@Qualifier("dataSource")
 	private BasicDataSource dataSource;
-	@Autowired
-	private OpenClinicaMailSender mailSender;
+    private StudyDAO studyDao;
 
 	public void setMailSender(OpenClinicaMailSender mailSender) {
 		this.mailSender = mailSender;
-	}
-
-	/**
-	 * Returns true if mail notifications for login are activated system wide, false
-	 * otherwise.
-	 */
-	public boolean mailNotificationActivated() {
-		return Boolean.valueOf(coreResources.getDATAINFO().getProperty(MAIL_NOTIFICATION_ACTIVATED_SETTING, "false"));
 	}
 
 	/**
@@ -54,25 +44,49 @@ public class MailNotificationService {
 	 */
 	public boolean isMailNotificationEnabled(int studyId) {
 		StudyBean studyBean = getStudyDao().findByPK(studyId);
-		return MailNotificationType.ENABLED.name().equals(studyBean);
+        return MailNotificationType.ENABLED.name().equals(studyBean.getMailNotification());
 	}
 
 	/**
-	 * Sends mail notification for successful login.
+     * Sends mail notification for successful login attempts.
+     * 
+     * @param bean Bean with addressee information.
+     * @param loginResult The login result context.
+     */
+    public void sendSuccessfulLoginMail(UserAccountBean bean) {
+        sendMail(bean, LoginResult.SUCCESSFUL_LOGIN);
+	}
+	
+	/**
+	 * Sends mail notification for denied login attempts.
 	 * 
 	 * @param bean Bean with addressee information.
+	 * @param loginResult The login result context.
 	 */
-	public void sendLoginMail(UserAccountBean bean) {
-		try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream("successfulLoginMail.txt")) {
-			String message = String.format(IOUtils.toString(inputStream, "UTF-8"), bean.getFirstName(),
-					bean.getLastName(), getStudyName(bean.getActiveStudyId()), new Date(),
-					TimeZone.getDefault().getDisplayName(Locale.ENGLISH));
-
-			mailSender.sendEmail(bean.getEmail(), "Login Notification", message, false);
-		} catch (IOException e) {
-			new MailNotificationException(e.getMessage(), e.getCause());
-		}
+    public void sendDeniedLoginMail(UserAccountBean bean) {
+        sendMail(bean, LoginResult.DENIED_LOGIN);
 	}
+
+    private void sendMail(UserAccountBean bean, LoginResult loginResult) {
+        StudyBean studyBean = getStudyDao().findByPK(bean.getActiveStudyId());
+
+        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream("successfulLoginMail.txt")) {
+	        // @formatter:off
+	        String message = String.format(IOUtils.toString(inputStream, "UTF-8"), 
+	                bean.getFirstName(),
+	                bean.getLastName(), 
+	                getStudyName(bean.getActiveStudyId()), 
+	                new Date(),
+	                TimeZone.getDefault().getDisplayName(ENGLISH), 
+	                loginResult.textual(),
+	                studyBean.getContactEmail());
+	        // @formatter:off
+	        
+	        mailSender.sendEmail(bean.getEmail(), "Login Notification", message, false);
+	    } catch (IOException e) {
+	        new MailNotificationException(e.getMessage(), e.getCause());
+	    }
+    }
 
     private String getStudyName(int studyId) {
         StudyBean studyBean = getStudyDao().findByPK(studyId);

@@ -38,13 +38,11 @@ import org.akaza.openclinica.core.CRFLocker;
 import org.akaza.openclinica.dao.hibernate.AuditUserLoginDao;
 import org.akaza.openclinica.dao.hibernate.ConfigurationDao;
 import org.akaza.openclinica.dao.login.UserAccountDAO;
-import org.akaza.openclinica.domain.managestudy.MailNotificationType;
 import org.akaza.openclinica.domain.technicaladmin.AuditUserLoginBean;
 import org.akaza.openclinica.domain.technicaladmin.LoginStatus;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
 import org.akaza.openclinica.service.otp.MailNotificationService;
 import org.akaza.openclinica.service.otp.TwoFactorService;
-import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.LockedException;
@@ -147,10 +145,16 @@ public class OpenClinicaUsernamePasswordAuthenticationFilter extends AbstractAut
                 String factor = request.getParameter(SPRING_SECURITY_FORM_FACTOR);
 
                 if (!factorService.verify(userAccountBean.getAuthsecret(), factor)) {
+                    if (mailNotificationService.isMailNotificationEnabled(userAccountBean.getActiveStudyId())) {
+                        mailNotificationService.sendDeniedLoginMail(userAccountBean);
+                    }
                     throw new BadCredentialsException(BAD_CREDENTIALS_MESSAGE);
                 }
             }
             if (factorService.isTwoFactorActivatedLetterAndOutDated() && !userAccountBean.isTwoFactorActivated()) {
+                if (mailNotificationService.isMailNotificationEnabled(userAccountBean.getActiveStudyId())) {
+                    mailNotificationService.sendDeniedLoginMail(userAccountBean);
+                }
                 throw new AccountConfigurationException();
             }
 
@@ -170,21 +174,28 @@ public class OpenClinicaUsernamePasswordAuthenticationFilter extends AbstractAut
             crfLocker.unlockAllForUser(userAccountBean.getId());
         } catch (LockedException le) {
             auditUserLogin(username, LoginStatus.FAILED_LOGIN_LOCKED, userAccountBean);
+            if (mailNotificationService.isMailNotificationEnabled(userAccountBean.getActiveStudyId())) {
+                mailNotificationService.sendDeniedLoginMail(userAccountBean);
+            }
             throw le;
         } catch (BadCredentialsException au) {
             auditUserLogin(username, LoginStatus.FAILED_LOGIN, userAccountBean);
             lockAccount(username, LoginStatus.FAILED_LOGIN, userAccountBean);
+            if (mailNotificationService.isMailNotificationEnabled(userAccountBean.getActiveStudyId())) {
+                mailNotificationService.sendDeniedLoginMail(userAccountBean);
+            }
             throw au;
         } catch (AuthenticationException ae) {
             auditUserLogin(username, LoginStatus.FAILED_LOGIN, userAccountBean);
             lockAccount(username, LoginStatus.FAILED_LOGIN, userAccountBean);
+            if (mailNotificationService.isMailNotificationEnabled(userAccountBean.getActiveStudyId())) {
+                mailNotificationService.sendDeniedLoginMail(userAccountBean);
+            }
             throw ae;
         }
         
         if (mailNotificationService.isMailNotificationEnabled(userAccountBean.getActiveStudyId())) {
-        
-            mailNotificationService.sendLoginMail(userAccountBean);
-            
+            mailNotificationService.sendSuccessfulLoginMail(userAccountBean);
         }
         
         return authentication;

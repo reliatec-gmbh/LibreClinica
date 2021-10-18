@@ -7,7 +7,12 @@
  */
 package org.akaza.openclinica.control.managestudy;
 
+import static org.akaza.openclinica.control.form.Validator.IS_A_EMAIL;
+import static org.akaza.openclinica.control.form.Validator.NO_BLANKS;
 import static org.akaza.openclinica.core.util.ClassCastHelper.asArrayList;
+import static org.akaza.openclinica.domain.managestudy.MailNotificationType.ENABLED;
+import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -34,21 +39,14 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.apache.commons.lang.StringUtils;
 
 public class UpdateStudyServletNew extends SecureController {
-    /**
-	 * 
-	 */
 	private static final long serialVersionUID = -4014694318178787570L;
 	public static final String INPUT_START_DATE = "startDate";
     public static final String INPUT_END_DATE = "endDate";
     public static final String INPUT_VER_DATE = "protocolDateVerification";
     public static StudyBean study;
 
-    /**
-     *
-     */
     @Override
     public void mayProceed() throws InsufficientPermissionException {
-
         if (ub.isSysAdmin()) {
             return;
         }
@@ -71,7 +69,7 @@ public class UpdateStudyServletNew extends SecureController {
         StudyDAO sdao = new StudyDAO(sm.getDataSource());
         boolean isInterventional = false;
 
-        study = (StudyBean) sdao.findByPK(studyId);
+        study = sdao.findByPK(studyId);
         if (study.getId() != currentStudy.getId()) {
             addPageMessage(respage.getString("not_current_study") + respage.getString("change_study_contact_sysadmin"));
             forwardPage(Page.MENU_SERVLET);
@@ -127,7 +125,6 @@ public class UpdateStudyServletNew extends SecureController {
             return;
         }
         if (action.equals("submit")) {
-
             validateStudy1(fp, v);
             validateStudy2(fp, new Validator(request));
             validateStudy3(isInterventional, new Validator(request), fp);
@@ -157,7 +154,6 @@ public class UpdateStudyServletNew extends SecureController {
     }
 
     private void validateStudy1(FormProcessor fp, Validator v) {
-
         v.addValidation("name", Validator.NO_BLANKS);
         v.addValidation("uniqueProId", Validator.NO_BLANKS);
         v.addValidation("description", Validator.NO_BLANKS);
@@ -167,6 +163,11 @@ public class UpdateStudyServletNew extends SecureController {
         v.addValidation("secondProId", Validator.LENGTH_NUMERIC_COMPARISON, NumericComparisonOperator.LESS_THAN_OR_EQUAL_TO, 255);
         v.addValidation("collaborators", Validator.LENGTH_NUMERIC_COMPARISON, NumericComparisonOperator.LESS_THAN_OR_EQUAL_TO, 1000);
         v.addValidation("protocolDescription", Validator.LENGTH_NUMERIC_COMPARISON, NumericComparisonOperator.LESS_THAN_OR_EQUAL_TO, 1000);
+
+        if (isNotBlank(fp.getString("contactEmail"))) {
+            v.addValidation("contactEmail", NO_BLANKS);
+            v.addValidation("contactEmail", IS_A_EMAIL);
+        }
 
         errors = v.validate();
         if (fp.getString("name").trim().length() > 100) {
@@ -186,6 +187,9 @@ public class UpdateStudyServletNew extends SecureController {
         }
         if (fp.getString("officialTitle").trim().length() > 255) {
             Validator.addError(errors, "officialTitle", resexception.getString("maximum_lenght_official_title_255"));
+        }
+        if (isBlank(fp.getString("contactEmail")) && ENABLED.name().equalsIgnoreCase(fp.getString("mailNotification"))) {
+            Validator.addError(errors, "contactEmail", resexception.getString("contact_email_mandatory"));
         }
         study = createStudyBean(fp);
     }
@@ -381,17 +385,13 @@ public class UpdateStudyServletNew extends SecureController {
         newStudy.setIdentifier(fp.getString("uniqueProId"));
         newStudy.setSecondaryIdentifier(fp.getString("secondProId"));
         newStudy.setPrincipalInvestigator(fp.getString("prinInvestigator"));
-
         newStudy.setSummary(fp.getString("description"));
         newStudy.setProtocolDescription(fp.getString("protocolDescription"));
-
         newStudy.setSponsor(fp.getString("sponsor"));
         newStudy.setCollaborators(fp.getString("collaborators"));
-        
         newStudy.setMailNotification(fp.getString("mailNotification"));
-        
+        newStudy.setContactEmail(fp.getString("contactEmail"));
         return newStudy;
-
     }
 
     private boolean updateStudy2(FormProcessor fp) {
@@ -609,6 +609,7 @@ public class UpdateStudyServletNew extends SecureController {
             child.setUpdatedDate(new Date());
             child.setUpdater(ub);
             child.setMailNotification(study1.getMailNotification());
+            child.setContactEmail(study1.getContactEmail());
             sdao.update(child);
             // YW << update "collectDob" and "genderRequired" for sites
             StudyParameterValueBean childspv = new StudyParameterValueBean();

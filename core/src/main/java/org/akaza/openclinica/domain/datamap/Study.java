@@ -12,7 +12,6 @@ package org.akaza.openclinica.domain.datamap;
 import static javax.persistence.EnumType.STRING;
 import static org.akaza.openclinica.domain.managestudy.MailNotificationType.DISABLED;
 
-
 import java.util.Date;
 import java.util.List;
 
@@ -116,11 +115,9 @@ public class Study   extends DataMapDomainObject {
 	private List<DiscrepancyNote> discrepancyNotes ;
 	@Enumerated(STRING)
 	private MailNotificationType mailNotification = DISABLED;
+    private String contactEmail;
 
-	
-
-    public Study() {
-	}
+    public Study() {}
 
 	public Study(int studyId, String ocOid) {
 		this.studyId = studyId;
@@ -151,7 +148,7 @@ public class Study   extends DataMapDomainObject {
 			List<Study> studies, List<StudyUserRole> studyUserRoles,
 			List<StudyParameterValue> studyParameterValues, List<StudySubject> studySubjects,
 			List<EventDefinitionCrf> eventDefinitionCrfs, List<DiscrepancyNote> discrepancyNotes,
-			List<StudyModuleStatus> studyModuleStatuses, MailNotificationType mailNotification) {
+            List<StudyModuleStatus> studyModuleStatuses, MailNotificationType mailNotification) {
 		this.studyId = studyId;
 		this.userAccount = userAccount;
 		this.study = study;
@@ -829,6 +826,14 @@ public class Study   extends DataMapDomainObject {
 
     public void setMailNotification(MailNotificationType mailNotification) {
         this.mailNotification = mailNotification;
+    }
 
+    @Column(name = "contact_email")
+    public String getContactEmail() {
+        return contactEmail;
+    }
+
+    public void setContactEmail(String contactEmail) {
+        this.contactEmail = contactEmail;
     }
 }
