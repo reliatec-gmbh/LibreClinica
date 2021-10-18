@@ -7,14 +7,8 @@
  */
 package org.akaza.openclinica.dao.hibernate;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.akaza.openclinica.domain.datamap.EventCrfFlag;
-import org.akaza.openclinica.domain.datamap.EventDefinitionCrfTag;
-import org.akaza.openclinica.domain.datamap.EventDefinitionCrfItemTag;
-import org.akaza.openclinica.domain.datamap.ItemDataFlag;
-import org.akaza.openclinica.domain.datamap.ItemData;
+import org.hibernate.query.Query;
 
 public class EventCrfFlagDao extends AbstractDomainDao<EventCrfFlag> {
 
@@ -26,7 +20,7 @@ public class EventCrfFlagDao extends AbstractDomainDao<EventCrfFlag> {
 
     public EventCrfFlag findByEventCrfPath(int tagId, String path) {
         String query = "from " + getDomainClassName() + " where path = '" + path + "' and tagId=" + tagId;
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
+        Query<EventCrfFlag> q = getCurrentSession().createQuery(query, EventCrfFlag.class);
         return (EventCrfFlag) q.uniqueResult();
 
     }

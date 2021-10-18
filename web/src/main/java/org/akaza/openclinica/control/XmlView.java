@@ -8,12 +8,10 @@
 package org.akaza.openclinica.control;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.jmesa.core.CoreContext;
 import org.jmesa.util.ItemUtils;
 import org.jmesa.view.AbstractExportView;
-import org.jmesa.view.component.Column;
 import org.jmesa.view.component.Table;
 
 public class XmlView extends AbstractExportView {
@@ -31,9 +29,7 @@ public class XmlView extends AbstractExportView {
 
     public Object render() {
         StringBuilder data = new StringBuilder();
-
-        List<Column> columns = getTable().getRow().getColumns();
-
+        
         int rowcount = 0;
         Collection<?> items = getCoreContext().getPageItems();
         for (Object item : items) {

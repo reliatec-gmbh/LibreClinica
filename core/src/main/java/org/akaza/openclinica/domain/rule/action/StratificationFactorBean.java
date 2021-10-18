@@ -10,17 +10,13 @@ package org.akaza.openclinica.domain.rule.action;
 import org.akaza.openclinica.domain.AbstractMutableDomainObject;
 import org.akaza.openclinica.domain.rule.expression.Context;
 import org.akaza.openclinica.domain.rule.expression.ExpressionBean;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -30,7 +26,11 @@ import javax.persistence.Transient;
 @GenericGenerator(name = "id-generator", strategy = "native", parameters = { @Parameter(name = "sequence_name", value = "rule_action_stratification_factor_id_seq") })
 public class StratificationFactorBean extends AbstractMutableDomainObject {
     
-    private ExpressionBean stratificationFactor;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -6898389581122903687L;
+	private ExpressionBean stratificationFactor;
     private RuleActionBean ruleActionBean;
     private String expressionAsString;
     

@@ -31,6 +31,10 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class VersioningMap extends DataMapDomainObject  {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4854516560692480996L;
 	private VersioningMapId versionMapId;
 	private CrfVersion crfVersion;
 	private Item item;

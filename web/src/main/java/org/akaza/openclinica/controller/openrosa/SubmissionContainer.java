@@ -31,9 +31,9 @@ public class SubmissionContainer {
     private List<ItemData> items = null;
     private Errors errors = null;
     private Locale locale = null;
-    private ArrayList<HashMap> listOfUploadFilePaths;
+    private ArrayList<HashMap<String,String>> listOfUploadFilePaths;
 
-    public SubmissionContainer(Study study, String requestBody, HashMap<String, String> subjectContext, Errors errors, Locale locale,ArrayList<HashMap> listOfUploadFilePaths) {
+    public SubmissionContainer(Study study, String requestBody, HashMap<String, String> subjectContext, Errors errors, Locale locale,ArrayList<HashMap<String,String>> listOfUploadFilePaths) {
         this.study = study;
         this.requestBody = requestBody;
         this.subjectContext = subjectContext;
@@ -122,11 +122,11 @@ public class SubmissionContainer {
         this.locale = locale;
     }
 
-    public ArrayList<HashMap> getListOfUploadFilePaths() {
+    public ArrayList<HashMap<String,String>> getListOfUploadFilePaths() {
         return listOfUploadFilePaths;
     }
 
-    public void setListOfUploadFilePaths(ArrayList<HashMap> listOfUploadFilePaths) {
+    public void setListOfUploadFilePaths(ArrayList<HashMap<String,String>> listOfUploadFilePaths) {
         this.listOfUploadFilePaths = listOfUploadFilePaths;
     }
 

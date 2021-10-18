@@ -9,6 +9,7 @@ package org.akaza.openclinica.dao.hibernate;
 
 import org.akaza.openclinica.domain.rule.RuleSetAuditBean;
 import org.akaza.openclinica.domain.rule.RuleSetBean;
+import org.hibernate.query.Query;
 
 import java.util.ArrayList;
 
@@ -19,11 +20,11 @@ public class RuleSetAuditDao extends AbstractDomainDao<RuleSetAuditBean> {
         return RuleSetAuditBean.class;
     }
 
-    @SuppressWarnings("unchecked")
+    // TODO update to CriteriaQuery 
     public ArrayList<RuleSetAuditBean> findAllByRuleSet(RuleSetBean ruleSet) {
         String query = "from " + getDomainClassName() + " ruleSetAudit  where ruleSetAudit.ruleSetBean = :ruleSet  ";
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
+        Query<RuleSetAuditBean> q = getCurrentSession().createQuery(query, RuleSetAuditBean.class);
         q.setParameter("ruleSet", ruleSet);
-        return (ArrayList<RuleSetAuditBean>) q.list();
+        return new ArrayList<>(q.list());
     }
 }

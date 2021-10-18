@@ -40,9 +40,10 @@ public class OCCsvViewExporter extends AbstractViewExporter {
         byte[] contents = (viewData).getBytes();
         //ServletOutputStream outputStream = getResponse().getOutputStream();
         File f = new File(fileName);
-        FileOutputStream fos = new FileOutputStream(f, true);
-        fos.write(contents);
-        fos.flush();
+        try (FileOutputStream fos = new FileOutputStream(f, true)) {
+        	fos.write(contents);
+        	fos.flush();
+        }
     }
 
     @Override

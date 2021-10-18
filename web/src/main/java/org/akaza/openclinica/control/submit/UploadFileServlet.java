@@ -19,20 +19,21 @@ import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import javax.xml.bind.DatatypeConverter;
-
+import static org.akaza.openclinica.core.util.ClassCastHelper.*;
 public class UploadFileServlet extends SecureController {
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -6240740092034848917L;
+	Locale locale;
     FileUploadHelper uploadHelper = new FileUploadHelper(new FileProperties(CoreResources.getField("crf.file.extensions"),
             CoreResources.getField("crf.file.extensionSettings")));
 
@@ -49,7 +50,7 @@ public class UploadFileServlet extends SecureController {
     @Override
     public void processRequest() throws Exception {
         FormProcessor fp = new FormProcessor(request);
-        HashMap<String, String> newUploadedFiles = (HashMap<String, String>) session.getAttribute("newUploadedFiles");
+        HashMap<String, String> newUploadedFiles = asHashMap(session.getAttribute("newUploadedFiles"), String.class, String.class);
         if (newUploadedFiles == null) {
             newUploadedFiles = new HashMap<String, String>();
         }

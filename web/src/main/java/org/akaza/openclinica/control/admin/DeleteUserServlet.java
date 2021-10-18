@@ -21,8 +21,9 @@ import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.akaza.openclinica.web.SQLInitServlet;
 
-// allows both deletion and restoration of a study user role
-
+/**
+ * Allows both deletion and restoration of a study user role
+ */
 public class DeleteUserServlet extends SecureController {
 
     private static final long serialVersionUID = 298106781476442393L;
@@ -49,8 +50,6 @@ public class DeleteUserServlet extends SecureController {
             addPageMessage(respage.getString("no_have_correct_privilege_current_study") + respage.getString("change_study_contact_sysadmin"));
             throw new InsufficientPermissionException(Page.MENU_SERVLET, resexception.getString("you_may_not_perform_administrative_functions"), "1");
         }
-
-        return;
     }
 
     @Override
@@ -61,7 +60,7 @@ public class DeleteUserServlet extends SecureController {
         int userId = fp.getInt(ARG_USERID);
         int action = fp.getInt(ARG_ACTION);
 
-        UserAccountBean u = (UserAccountBean) udao.findByPK(userId);
+        UserAccountBean u = udao.findByPK(userId);
 
         String message;
         if (!u.isActive()) {
@@ -95,9 +94,9 @@ public class DeleteUserServlet extends SecureController {
             } else {
                 SecurityManager sm = (SecurityManager) SpringServletAccess.getApplicationContext(context).getBean("securityManager");
                 String password = sm.genPassword();
-                String passwordHash = sm.encrytPassword(password, getUserDetails());
-
+                
                 if (!u.isLdapUser()) {
+                    String passwordHash = sm.encryptPassword(password, u.getRunWebservices());
                     u.setPasswd(passwordHash);
                     u.setPasswdTimestamp(null);
                 }
@@ -127,14 +126,13 @@ public class DeleteUserServlet extends SecureController {
     private void sendRestoreEmail(UserAccountBean u, String password) throws Exception {
         logger.info("Sending restore and password reset notification to " + u.getName());
 
-        String body = resword.getString("dear")+ " " + u.getFirstName() + " " + u.getLastName() + ",\n";
-        body += restext.getString("your_account_has_been_restored_and_password_reset") + ":\n\n";
-        body += resword.getString("user_name")+ " "  + u.getName() + "\n";
-        body += resword.getString("password")+ " "  + password + "\n\n";
-        body += restext.getString("please_test_your_login_information_and_let") + "\n";
-        body += SQLInitServlet.getField("sysURL");
-        body += " . ";
-        body += restext.getString("openclinica_system_administrator");
+        String body = resword.getString("dear")+ " " + u.getFirstName() + " " + u.getLastName() + ",\n" +
+            restext.getString("your_account_has_been_restored_and_password_reset") + ":\n\n" +
+            resword.getString("user_name")+ " "  + u.getName() + "\n" +
+            resword.getString("password")+ " "  + password + "\n\n" +
+            restext.getString("please_test_your_login_information_and_let") + "\n" +
+            SQLInitServlet.getField("sysURL") + " . " +
+            restext.getString("openclinica_system_administrator");
 
         logger.info("Sending email...begin");
         sendEmail(u.getEmail().trim(), restext.getString("your_new_openclinica_account_has_been_restored"), body, false);
@@ -145,4 +143,5 @@ public class DeleteUserServlet extends SecureController {
     protected String getAdminServlet() {
         return SecureController.ADMIN_SERVLET_CODE;
     }
+
 }

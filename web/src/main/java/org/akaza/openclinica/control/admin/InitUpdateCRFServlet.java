@@ -23,7 +23,12 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
  */
 public class InitUpdateCRFServlet extends SecureController {
 
-    private static String CRF_ID = "crfId";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -3425991976681773375L;
+
+	private static String CRF_ID = "crfId";
 
     private static String CRF = "crf";
 

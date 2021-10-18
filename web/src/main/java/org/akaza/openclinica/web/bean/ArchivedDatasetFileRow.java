@@ -23,7 +23,7 @@ import java.util.ArrayList;
  * TODO To change the template for this generated type comment go to Window -
  * Preferences - Java - Code Style - Code Templates
  */
-public class ArchivedDatasetFileRow extends EntityBeanRow {
+public class ArchivedDatasetFileRow extends EntityBeanRow<ArchivedDatasetFileBean, ArchivedDatasetFileRow> {
     // declare columns first
     public static final int COL_FILENAME = 0;
     public static final int COL_FILERUNTIME = 1;
@@ -32,13 +32,13 @@ public class ArchivedDatasetFileRow extends EntityBeanRow {
     public static final int COL_FILEOWNER = 4;
 
     @Override
-    protected int compareColumn(Object row, int sortingColumn) {
+    protected int compareColumn(ArchivedDatasetFileRow row, int sortingColumn) {
         if (!row.getClass().equals(ArchivedDatasetFileRow.class)) {
             return 0;
         }
 
-        ArchivedDatasetFileBean thisAccount = (ArchivedDatasetFileBean) bean;
-        ArchivedDatasetFileBean argAccount = (ArchivedDatasetFileBean) ((ArchivedDatasetFileRow) row).bean;
+        ArchivedDatasetFileBean thisAccount = bean;
+        ArchivedDatasetFileBean argAccount = row.bean;
 
         int answer = 0;
         switch (sortingColumn) {
@@ -60,16 +60,13 @@ public class ArchivedDatasetFileRow extends EntityBeanRow {
         return thisAccount.getName();
     }
 
-    public static ArrayList generateRowsFromBeans(ArrayList beans) {
-        ArrayList answer = new ArrayList();
-
-        Class[] parameters = null;
-        Object[] arguments = null;
+    public static ArrayList<ArchivedDatasetFileRow> generateRowsFromBeans(ArrayList<ArchivedDatasetFileBean> beans) {
+        ArrayList<ArchivedDatasetFileRow> answer = new ArrayList<>();
 
         for (int i = 0; i < beans.size(); i++) {
             try {
                 ArchivedDatasetFileRow row = new ArchivedDatasetFileRow();
-                row.setBean((ArchivedDatasetFileBean) beans.get(i));
+                row.setBean(beans.get(i));
                 answer.add(row);
             } catch (Exception e) {
             }
@@ -79,7 +76,7 @@ public class ArchivedDatasetFileRow extends EntityBeanRow {
     }
 
     @Override
-    public ArrayList generatRowsFromBeans(ArrayList beans) {
+    public ArrayList<ArchivedDatasetFileRow> generatRowsFromBeans(ArrayList<ArchivedDatasetFileBean> beans) {
         return ArchivedDatasetFileRow.generateRowsFromBeans(beans);
     }
 }

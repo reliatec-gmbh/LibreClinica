@@ -22,7 +22,6 @@ import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.control.form.Validator;
 import org.akaza.openclinica.control.managestudy.ViewNotesServlet;
 import org.akaza.openclinica.control.submit.AddNewSubjectServlet;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.managestudy.DiscrepancyNoteDAO;
 import org.akaza.openclinica.dao.submit.SubjectDAO;
 import org.akaza.openclinica.view.Page;
@@ -194,11 +193,12 @@ public class UpdateSubjectServlet extends SecureController {
 
         
         if ( currentStudy.getStudyParameterConfig().getCollectDob().equals("1")){
-        	if (!StringUtil.isBlank(fp.getString(DATE_DOB))) {
+        	String dob = fp.getString(DATE_DOB);
+			if (!(dob == null || dob.trim().isEmpty())) {
                 v.addValidation(DATE_DOB, Validator.IS_A_DATE);
                 v.alwaysExecuteLastValidation(DATE_DOB);
             }
-        	else if (StringUtil.isBlank(fp.getString(DATE_DOB)) && subject.getDateOfBirth()!= null){
+        	else if ((dob == null || dob.trim().isEmpty()) && subject.getDateOfBirth()!= null){
         		Validator.addError(errors, DATE_DOB, resexception.getString("field_not_blank"));
         	}
         	if ( fp.getDate(DATE_DOB) != null){
@@ -221,7 +221,11 @@ public class UpdateSubjectServlet extends SecureController {
                 	Date fakeDOB = yformat.parse(submitted_date);
                 	if(subject.getDateOfBirth() != null)
                 	{
-                	if (subject.getDateOfBirth().getYear() == (fakeDOB.getYear())){
+                	@SuppressWarnings("deprecation")
+					int year = subject.getDateOfBirth().getYear();
+					@SuppressWarnings("deprecation")
+					int fakeYear = fakeDOB.getYear();
+					if (year == fakeYear){
                 		isTheSameDate=true;
                 		String  converted_date = yformat.format(subject.getDateOfBirth());
                 		request.setAttribute(DATE_DOB_TO_SAVE, converted_date);
@@ -309,8 +313,9 @@ public class UpdateSubjectServlet extends SecureController {
         }
        
 
-        if (!StringUtil.isBlank(fp.getString("gender"))) {
-        	subject.setGender(fp.getString("gender").charAt(0));
+        String gender = fp.getString("gender");
+		if (!(gender == null || gender.trim().isEmpty())) {
+        	subject.setGender(gender.charAt(0));
         } else {
         	if (currentStudy.getStudyParameterConfig().getGenderRequired().equals("true") && subject.getGender() !=  ' '){
         		Validator.addError(errors, "gender", resexception.getString("field_not_blank"));

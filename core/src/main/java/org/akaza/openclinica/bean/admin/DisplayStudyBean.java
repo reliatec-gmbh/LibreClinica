@@ -20,13 +20,17 @@ import java.util.ArrayList;
  * relationship
  */
 public class DisplayStudyBean extends AuditableEntityBean {
-    private StudyBean parent;
-    private ArrayList children;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1647152945517477770L;
+	private StudyBean parent;
+    private ArrayList<StudyBean> children;
 
     /**
      * @return Returns the children.
      */
-    public ArrayList getChildren() {
+    public ArrayList<StudyBean> getChildren() {
         return children;
     }
 
@@ -34,7 +38,7 @@ public class DisplayStudyBean extends AuditableEntityBean {
      * @param children
      *            The children to set.
      */
-    public void setChildren(ArrayList children) {
+    public void setChildren(ArrayList<StudyBean> children) {
         this.children = children;
     }
 

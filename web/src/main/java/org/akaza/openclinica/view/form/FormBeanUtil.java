@@ -7,6 +7,19 @@
  */
 package org.akaza.openclinica.view.form;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
+import javax.servlet.ServletContext;
+import javax.sql.DataSource;
+
 import org.akaza.openclinica.bean.core.NullValue;
 import org.akaza.openclinica.bean.managestudy.EventDefinitionCRFBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
@@ -23,7 +36,6 @@ import org.akaza.openclinica.bean.submit.ItemGroupMetadataBean;
 import org.akaza.openclinica.bean.submit.ResponseOptionBean;
 import org.akaza.openclinica.bean.submit.SectionBean;
 import org.akaza.openclinica.control.SpringServletAccess;
-import org.akaza.openclinica.control.core.CoreSecureController;
 import org.akaza.openclinica.core.SessionManager;
 import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;
 import org.akaza.openclinica.dao.submit.ItemDAO;
@@ -38,19 +50,6 @@ import org.jdom.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
-
-import javax.servlet.ServletContext;
-import javax.sql.DataSource;
-
 /**
  * This class builds DisplayFormGroupBeans and DisplayItemBeans in preparation
  * for displaying a form. The DisplayFormGroupBean contains the
@@ -62,7 +61,6 @@ public class FormBeanUtil {
     public static final String UNGROUPED = "Ungrouped";
     public static final String ADMIN_EDIT = "administrativeEditing";
     private static DynamicsMetadataService itemMetadataService;
-    private ServletContext context;
 
     private static DynamicsMetadataService getItemMetadataService(ServletContext context) {
         itemMetadataService =
@@ -187,9 +185,7 @@ public class FormBeanUtil {
 		// copy the values from AuditableEntityBean
 		copy.setCreatedDate(original.getCreatedDate());
 		copy.setUpdatedDate(original.getUpdatedDate());
-		copy.setOwnerId(original.getOwnerId());
 		copy.setOwner(original.getOwner());
-		copy.setUpdaterId(original.getUpdaterId());
 		copy.setUpdater(original.getUpdater());
 		copy.setStatus(original.getStatus());
 
@@ -368,7 +364,6 @@ public class FormBeanUtil {
         // Add any null values to checks or radios
         String responseName;
         List<ResponseOptionBean> respOptions;
-        ResponseOptionBean respBean;
         boolean hasNullValues = nullValuesList != null && !nullValuesList.isEmpty();
 
         // Only include Items that belong to the associated section
@@ -1107,7 +1102,6 @@ public class FormBeanUtil {
         ItemGroupMetadataBean metaBean = new ItemGroupMetadataBean();
 
         metaBean.setName(UNGROUPED);
-        List<DisplayItemBean> items;
         // Now cycle through the groupMapping and create default groups or
         // DisplayItemGroupBeans, in order, for
         // the orphaned items.
@@ -1284,7 +1278,6 @@ public class FormBeanUtil {
         // get all items associated with a section id, then split them up into
         // grouped
         // and non-grouped items
-        List<ItemBean> allItems = itemDao.findAllParentsBySectionId(sectionId);
         // Get a List of FormGroupBeans for each group associated with
         // this crfVersionId.
         // List<ItemGroupBean> arrList =

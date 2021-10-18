@@ -36,6 +36,7 @@ import org.akaza.openclinica.dao.submit.EventCRFDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+// TODO duplicate of the version in the web module?
 public class ImportCRFInfoContainer {
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
 
@@ -51,8 +52,6 @@ public class ImportCRFInfoContainer {
     public ImportCRFInfoContainer(ODMContainer odmContainer, DataSource ds) {
         importCRFList = new ArrayList<ImportCRFInfo>();
 
-        ArrayList<EventCRFBean> eventCRFBeans = new ArrayList<EventCRFBean>();
-        ArrayList<Integer> eventCRFBeanIds = new ArrayList<Integer>();
         EventCRFDAO eventCrfDAO = new EventCRFDAO(ds);
         StudySubjectDAO studySubjectDAO = new StudySubjectDAO(ds);
         StudyEventDefinitionDAO studyEventDefinitionDAO = new StudyEventDefinitionDAO(ds);

@@ -8,6 +8,7 @@
 package org.akaza.openclinica.dao.hibernate;
 
 import org.akaza.openclinica.domain.datamap.Section;
+import org.hibernate.query.NativeQuery;
 
 public class SectionDao extends AbstractDomainDao<Section> {
 
@@ -17,14 +18,16 @@ public class SectionDao extends AbstractDomainDao<Section> {
         return Section.class;
     }
 
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings({ "deprecation", "rawtypes" })
     public Section findByCrfVersionOrdinal(int crfVersionId, int ordinal) {
         // String query = "from " + getDomainClassName() + " section  where section.crfVersionId = :crfversionid ";
-        // org.hibernate.Query q = getCurrentSession().createQuery(query);
+        // org.hibernate.query.Query q = getCurrentSession().createQuery(query);
         // q.set.setInteger("crfversionid", crf_version_id);
         // return (Section) q.uniqueResult();
 
         String query = " select s.* from section s where s.crf_version_id = :crfVersionId and ordinal = :ordinal ";
-        org.hibernate.Query q = getCurrentSession().createSQLQuery(query).addEntity(domainClass());
+        NativeQuery q = getCurrentSession().createSQLQuery(query).addEntity(domainClass());
         q.setInteger("crfVersionId", crfVersionId);
         q.setInteger("ordinal", ordinal);
         q.setCacheable(true);

@@ -27,6 +27,10 @@ import org.akaza.openclinica.domain.DataMapDomainObject;
 @Table(name = "dn_event_crf_map")
 public class DnEventCrfMap extends DataMapDomainObject {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2061964530503259824L;
 	private DnEventCrfMapId dnEventCrfMapId;
 	private EventCrf eventCrf;
 	private DiscrepancyNote discrepancyNote;

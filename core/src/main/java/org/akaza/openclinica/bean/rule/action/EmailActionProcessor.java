@@ -8,6 +8,7 @@
 package org.akaza.openclinica.bean.rule.action;
 
 import org.akaza.openclinica.bean.login.UserAccountBean;
+
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.core.EmailEngine;
 import org.akaza.openclinica.exception.OpenClinicaSystemException;
@@ -18,6 +19,8 @@ import java.util.HashMap;
 
 import javax.mail.MessagingException;
 import javax.sql.DataSource;
+
+import static org.akaza.openclinica.core.util.ClassCastHelper.asHashMap;
 
 public class EmailActionProcessor implements ActionProcessor {
 
@@ -30,7 +33,7 @@ public class EmailActionProcessor implements ActionProcessor {
     }
 
     public void execute(RuleActionBean ruleAction, int itemDataBeanId, String itemData, StudyBean currentStudy, UserAccountBean ub, Object... arguments) {
-        HashMap<String, String> arg0 = (HashMap<String, String>) arguments[0];
+        HashMap<String, String> arg0 = asHashMap(arguments[0], String.class, String.class);
         sendEmail(ruleAction, ub, arg0.get("body"), arg0.get("subject"));
     }
 

@@ -9,7 +9,6 @@ package org.akaza.openclinica.control.admin;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -47,7 +46,8 @@ import org.akaza.openclinica.web.SQLInitServlet;
  */
 public class CreateUserAccountServlet extends SecureController {
 
-    // < ResourceBundle restext;
+	private static final long serialVersionUID = -3015174087186096328L;
+
     Locale locale;
 
     public static final String INPUT_USER_SOURCE = "userSource";
@@ -69,16 +69,11 @@ public class CreateUserAccountServlet extends SecureController {
      */
     @Override
     protected void mayProceed() throws InsufficientPermissionException {
-
         locale = LocaleResolver.getLocale(request);
-        // < restext =
-        // ResourceBundle.getBundle("org.akaza.openclinica.i18n.notes",locale);
 
         if (!ub.isSysAdmin()) {
             throw new InsufficientPermissionException(Page.MENU, resexception.getString("you_may_not_perform_administrative_functions"), "1");
         }
-
-        return;
     }
 
     @Override
@@ -87,8 +82,8 @@ public class CreateUserAccountServlet extends SecureController {
 
         StudyDAO sdao = new StudyDAO(sm.getDataSource());
         // YW 11-28-2007 << list sites under their studies
-        ArrayList<StudyBean> all = (ArrayList<StudyBean>) sdao.findAll();
-        ArrayList<StudyBean> finalList = new ArrayList<StudyBean>();
+        ArrayList<StudyBean> all = sdao.findAll();
+        ArrayList<StudyBean> finalList = new ArrayList<>();
         for (StudyBean sb : all) {
             if (!(sb.getParentStudyId() > 0)) {
                 finalList.add(sb);
@@ -96,78 +91,74 @@ public class CreateUserAccountServlet extends SecureController {
             }
         }
         addEntityList("studies", finalList, respage.getString("a_user_cannot_be_created_no_study_as_active"), Page.ADMIN_SYSTEM);
-        // YW >>
-        Map roleMap = new LinkedHashMap();
-        for (Iterator it = getRoles().iterator(); it.hasNext();) {
-            Role role = (Role) it.next();
+        Map<Integer, String> roleMap = new LinkedHashMap<>();
+        ArrayList<Role> roles = getRoles();
+        for (Role role : roles) {
             // I added the below if statement , to exclude displaying on study level the newly added 'ReseachAssisstant2' role by default.
-            if (role.getId() != 7) 
+            if (role.getId() != 7) {
                 roleMap.put(role.getId(), role.getDescription());
-//            roleMap.put(role.getId(), role.getDescription());
+            }
         }
 
-        // addEntityList("roles", getRoles(), respage.getString("a_user_cannot_be_created_no_roles_as_role"), Page.ADMIN_SYSTEM);
         request.setAttribute("roles", roleMap);
 
-        ArrayList types = UserType.toArrayList();
+        ArrayList<UserType> types = UserType.toArrayList();
         types.remove(UserType.INVALID);
         if (!ub.isTechAdmin()) {
             types.remove(UserType.TECHADMIN);
         }
         addEntityList("types", types, respage.getString("a_user_cannot_be_created_no_user_types_for"), Page.ADMIN_SYSTEM);
 
-        Boolean changeRoles = request.getParameter("changeRoles") == null ? false : Boolean.parseBoolean(request.getParameter("changeRoles"));
+        boolean changeRoles = request.getParameter("changeRoles") != null && Boolean.parseBoolean(request.getParameter("changeRoles"));
         int activeStudy = fp.getInt(INPUT_STUDY);
         if (changeRoles) {
-            StudyBean study = (StudyBean) sdao.findByPK(activeStudy);
-            roleMap = new LinkedHashMap();
+            StudyBean study = sdao.findByPK(activeStudy);
+            roleMap = new LinkedHashMap<>();
             ResourceBundle resterm = org.akaza.openclinica.i18n.util.ResourceBundleProvider.getTermsBundle();
 
             if (study.getParentStudyId() > 0) {
-                for (Iterator it = getRoles().iterator(); it.hasNext();) {
-                    Role role = (Role) it.next();
+                for (Role role : getRoles()) {
                     switch (role.getId()) {
-                    // case 2: roleMap.put(role.getId(), resterm.getString("site_Study_Coordinator").trim());
-                    // break;
-                    // case 3: roleMap.put(role.getId(), resterm.getString("site_Study_Director").trim());
-                    // break;
-                    case 4:
-                        roleMap.put(role.getId(), resterm.getString("site_investigator").trim());
-                        break;
-                    case 5:
-                        roleMap.put(role.getId(), resterm.getString("site_Data_Entry_Person").trim());
-                        break;
-                    case 6:
-                        roleMap.put(role.getId(), resterm.getString("site_monitor").trim());
-                        break;
-                    case 7:
-                        roleMap.put(role.getId(), resterm.getString("site_Data_Entry_Person2").trim());
-                        break;
-                    default:
-                        // logger.info("No role matched when setting role description");
+                        // case 2: roleMap.put(role.getId(), resterm.getString("site_Study_Coordinator").trim());
+                        // break;
+                        // case 3: roleMap.put(role.getId(), resterm.getString("site_Study_Director").trim());
+                        // break;
+                        case 4:
+                            roleMap.put(role.getId(), resterm.getString("site_investigator").trim());
+                            break;
+                        case 5:
+                            roleMap.put(role.getId(), resterm.getString("site_Data_Entry_Person").trim());
+                            break;
+                        case 6:
+                            roleMap.put(role.getId(), resterm.getString("site_monitor").trim());
+                            break;
+                        case 7:
+                            roleMap.put(role.getId(), resterm.getString("site_Data_Entry_Person2").trim());
+                            break;
+                        default:
+                            // logger.info("No role matched when setting role description");
                     }
                 }
             } else {
-                for (Iterator it = getRoles().iterator(); it.hasNext();) {
-                    Role role = (Role) it.next();
+                for (Role role : getRoles()) {
                     switch (role.getId()) {
-                    case 2:
-                        roleMap.put(role.getId(), resterm.getString("Study_Coordinator").trim());
-                        break;
-                    case 3:
-                        roleMap.put(role.getId(), resterm.getString("Study_Director").trim());
-                        break;
-                    case 4:
-                        roleMap.put(role.getId(), resterm.getString("Investigator").trim());
-                        break;
-                    case 5:
-                        roleMap.put(role.getId(), resterm.getString("Data_Entry_Person").trim());
-                        break;
-                    case 6:
-                        roleMap.put(role.getId(), resterm.getString("Monitor").trim());
-                        break;
-                    default:
-                        // logger.info("No role matched when setting role description");
+                        case 2:
+                            roleMap.put(role.getId(), resterm.getString("Study_Coordinator").trim());
+                            break;
+                        case 3:
+                            roleMap.put(role.getId(), resterm.getString("Study_Director").trim());
+                            break;
+                        case 4:
+                            roleMap.put(role.getId(), resterm.getString("Investigator").trim());
+                            break;
+                        case 5:
+                            roleMap.put(role.getId(), resterm.getString("Data_Entry_Person").trim());
+                            break;
+                        case 6:
+                            roleMap.put(role.getId(), resterm.getString("Monitor").trim());
+                            break;
+                        default:
+                            // logger.info("No role matched when setting role description");
                     }
                 }
             }
@@ -183,7 +174,7 @@ public class CreateUserAccountServlet extends SecureController {
             String ddlbFields[] = { INPUT_STUDY, INPUT_ROLE, INPUT_TYPE, INPUT_RUN_WEBSERVICES };
             fp.setCurrentIntValuesAsPreset(ddlbFields);
 
-            HashMap presetValues = fp.getPresetValues();
+            HashMap<String, Object> presetValues = fp.getPresetValues();
             // Mantis Issue 6058.
             String sendPwd = SQLInitServlet.getField("user_account_notification");
             fp.addPresetValue(USER_ACCOUNT_NOTIFICATION, sendPwd);
@@ -218,7 +209,7 @@ public class CreateUserAccountServlet extends SecureController {
             v.addValidation(INPUT_STUDY, Validator.ENTITY_EXISTS, sdao);
             v.addValidation(INPUT_ROLE, Validator.IS_VALID_TERM, TermType.ROLE);
 
-            HashMap errors = v.validate();
+            HashMap<String, ArrayList<String>> errors = v.validate();
 
             if (errors.isEmpty()) {
                 UserAccountBean createdUserAccountBean = new UserAccountBean();
@@ -229,12 +220,14 @@ public class CreateUserAccountServlet extends SecureController {
                 createdUserAccountBean.setInstitutionalAffiliation(fp.getString(INPUT_INSTITUTION));
 
                 boolean isLdap = fp.getString(INPUT_USER_SOURCE).equals("ldap");
+                boolean isSoap = fp.getBoolean(INPUT_RUN_WEBSERVICES);
+
                 String password = null;
                 String passwordHash = UserAccountBean.LDAP_PASSWORD;
-                if (!isLdap){
-        SecurityManager secm = (SecurityManager) SpringServletAccess.getApplicationContext(context).getBean("securityManager");
+                if (!isLdap) {
+                    SecurityManager secm = (SecurityManager) SpringServletAccess.getApplicationContext(context).getBean("securityManager");
                     password = secm.genPassword();
-                    passwordHash = secm.encrytPassword(password, getUserDetails());
+                    passwordHash = secm.encryptPassword(password, isSoap);
                 }
 
                 createdUserAccountBean.setPasswd(passwordHash);
@@ -247,13 +240,13 @@ public class CreateUserAccountServlet extends SecureController {
                 createdUserAccountBean.setPasswdChallengeAnswer("");
                 createdUserAccountBean.setPhone("");
                 createdUserAccountBean.setOwner(ub);
-                createdUserAccountBean.setRunWebservices(fp.getBoolean(INPUT_RUN_WEBSERVICES));
+                createdUserAccountBean.setRunWebservices(isSoap);
                 createdUserAccountBean.setAccessCode("null");
                 createdUserAccountBean.setEnableApiKey(true);
                 
-                String apiKey=null; 		
-                do{
-                 	apiKey=getRandom32ChApiKey() ;
+                String apiKey;
+                do {
+                 	apiKey = getRandom32ChApiKey() ;
                 } while(isApiKeyExist(apiKey));                
                 createdUserAccountBean.setApiKey(apiKey);
                 
@@ -264,7 +257,7 @@ public class CreateUserAccountServlet extends SecureController {
                 logger.debug("*** found type: " + fp.getInt("type"));
                 logger.debug("*** setting type: " + type.getDescription());
                 createdUserAccountBean.addUserType(type);
-                createdUserAccountBean = (UserAccountBean) udao.create(createdUserAccountBean);
+                createdUserAccountBean = udao.create(createdUserAccountBean);
                 AuthoritiesDao authoritiesDao = (AuthoritiesDao) SpringServletAccess.getApplicationContext(context).getBean("authoritiesDao");
                 authoritiesDao.saveOrUpdate(new AuthoritiesBean(createdUserAccountBean.getName()));
                 String displayPwd = fp.getString(INPUT_DISPLAY_PWD);
@@ -289,7 +282,7 @@ public class CreateUserAccountServlet extends SecureController {
                         + respage.getString("could_not_created_due_database_error"));
                 }
                 if (createdUserAccountBean.isActive()) {
-                    request.setAttribute(ViewUserAccountServlet.ARG_USER_ID, new Integer(createdUserAccountBean.getId()).toString());
+                    request.setAttribute(ViewUserAccountServlet.ARG_USER_ID, Integer.toString(createdUserAccountBean.getId()));
                     forwardPage(Page.VIEW_USER_ACCOUNT_SERVLET);
                 } else {
                     forwardPage(Page.LIST_USER_ACCOUNTS_SERVLET);
@@ -301,7 +294,7 @@ public class CreateUserAccountServlet extends SecureController {
                 String ddlbFields[] = { INPUT_STUDY, INPUT_ROLE, INPUT_TYPE, INPUT_RUN_WEBSERVICES };
                 fp.setCurrentIntValuesAsPreset(ddlbFields);
 
-                HashMap presetValues = fp.getPresetValues();
+                HashMap<String, Object> presetValues = fp.getPresetValues();
                 setPresetValues(presetValues);
 
                 setInputMessages(errors);
@@ -320,33 +313,31 @@ public class CreateUserAccountServlet extends SecureController {
     /**
      * Reusing the <code>setPresetValues</code> method to process a <code>ldapUser</code> which was previously stored
      * in the session scope.
-     * @param presetValues
+     * @param presetValues preset values
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    protected void setPresetValues(HashMap presetValues) {
-        HashMap map = presetValues;
+    protected void setPresetValues(HashMap<String, Object> presetValues) {
         if (isLdapEnabled()) {
             LdapUser ldapUser = (LdapUser) session.getAttribute("ldapUser");
             if (ldapUser != null) {
                 session.removeAttribute("ldapUser");
-                if (map == null) {
-                    map = new HashMap();
+                if (presetValues == null) {
+                	presetValues = new HashMap<>();
                 }
                 
-                map.put("userName", ldapUser.getUsername());
-                map.put("firstName", ldapUser.getFirstName());
-                map.put("lastName", ldapUser.getLastName());
-                map.put("email", ldapUser.getEmail());
-                map.put("institutionalAffiliation", ldapUser.getOrganization());
+                presetValues.put("userName", ldapUser.getUsername());
+                presetValues.put("firstName", ldapUser.getFirstName());
+                presetValues.put("lastName", ldapUser.getLastName());
+                presetValues.put("email", ldapUser.getEmail());
+                presetValues.put("institutionalAffiliation", ldapUser.getOrganization());
             }
         }
-        super.setPresetValues(map);
+        super.setPresetValues(presetValues);
     }
 
-    private ArrayList getRoles() {
+    private ArrayList<Role> getRoles() {
 
-        ArrayList roles = Role.toArrayList();
+        ArrayList<Role> roles = Role.toArrayList();
         roles.remove(Role.ADMIN);
 
         return roles;
@@ -370,17 +361,16 @@ public class CreateUserAccountServlet extends SecureController {
     private void sendNewAccountEmail(UserAccountBean createdUserAccountBean, String password) throws Exception {
         logger.debug("Sending account creation notification to " + createdUserAccountBean.getName());
 
-        StringBuffer body = new StringBuffer();
-        		
-        body.append(resword.getString("dear") + " " + createdUserAccountBean.getFirstName() + " " + createdUserAccountBean.getLastName() + ",<br><br> ");
-        body.append(restext.getString("a_new_user_account_has_been_created_for_you") + "<br><br>");
-        body.append( resword.getString("user_name") + ": " + createdUserAccountBean.getName() + "<br>");
-        body.append( resword.getString("password") + ": " + password + "<br><br>");
-        body.append( restext.getString("please_test_your_login_information_and_let") + "<br>");
-        body.append( SQLInitServlet.getField("sysURL"));
+        String body = resword.getString("dear") + " " +
+            createdUserAccountBean.getFirstName() + " " + createdUserAccountBean.getLastName() + ",<br><br> " +
+            restext.getString("a_new_user_account_has_been_created_for_you") + "<br><br>" +
+            resword.getString("user_name") + ": " + createdUserAccountBean.getName() + "<br>" +
+            resword.getString("password") + ": " + password + "<br><br>" +
+            restext.getString("please_test_your_login_information_and_let") + "<br>" +
+            SQLInitServlet.getField("sysURL");
         // body += restext.getString("openclinica_system_administrator");
 
-        sendEmail(createdUserAccountBean.getEmail().trim(), restext.getString("your_new_openclinica_account"), body.toString(), false);
+        sendEmail(createdUserAccountBean.getEmail().trim(), restext.getString("your_new_openclinica_account"), body, false);
     }
 
     @Override
@@ -389,18 +379,15 @@ public class CreateUserAccountServlet extends SecureController {
     }
 
 	public Boolean isApiKeyExist(String uuid) {
-		UserAccountDAO udao = new UserAccountDAO(sm.getDataSource());
-		UserAccountBean uBean = (UserAccountBean) udao.findByApiKey(uuid);
-		if (uBean == null || !uBean.isActive()) {
-			return false;
-		} else {
-			return true;
-		}
+		UserAccountDAO userDao = new UserAccountDAO(sm.getDataSource());
+		UserAccountBean user = userDao.findByApiKey(uuid);
+        return user != null && user.isActive();
 	}
 
 	public String getRandom32ChApiKey() {
 		String uuid = UUID.randomUUID().toString();
-        logger.debug(uuid.replaceAll("-", ""));
+        //logger.debug(uuid.replaceAll("-", ""));
 		return uuid.replaceAll("-", "");
 	}
+	
 }

@@ -8,6 +8,7 @@
 package org.akaza.openclinica.dao.hibernate;
 
 import org.akaza.openclinica.domain.datamap.ResolutionStatus;
+import org.hibernate.query.Query;
 
 public class ResolutionStatusDao extends AbstractDomainDao<ResolutionStatus> {
 
@@ -15,11 +16,14 @@ public class ResolutionStatusDao extends AbstractDomainDao<ResolutionStatus> {
     public Class<ResolutionStatus> domainClass() {
         return ResolutionStatus.class;
     }
+
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("deprecation")
     public ResolutionStatus findByResolutionStatusId(Integer resolutionStatusId) {
         String query = "from " + getDomainClassName() + " do  where do.resolutionStatusId = :resolutionstatusid";
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
+        Query<ResolutionStatus> q = getCurrentSession().createQuery(query, ResolutionStatus.class);
         q.setInteger("resolutionstatusid", resolutionStatusId);
-        return (ResolutionStatus) q.uniqueResult();
+        return q.uniqueResult();
     }
 
 }

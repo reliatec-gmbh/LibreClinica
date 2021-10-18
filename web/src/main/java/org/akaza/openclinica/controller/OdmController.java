@@ -7,11 +7,8 @@
  */
 package org.akaza.openclinica.controller;
 
-import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -19,8 +16,6 @@ import java.util.TimeZone;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
 
 import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.core.Status;
@@ -405,41 +400,6 @@ public class OdmController {
             }
         }
         return formData;
-    }
-
-    /**
-     * Currently not used, but keep here for future unit test
-     *
-     * @param clazz
-     * @param odm
-     * @return
-     * @throws Exception
-     */
-    private String generateXmlFromObj(Class clazz, ODM odm) throws Exception {
-
-        JAXBContext context = JAXBContext.newInstance(clazz);
-
-        Marshaller m = context.createMarshaller();
-        StringWriter w = new StringWriter();
-
-        m.marshal(odm, w);
-        return w.toString();
-    }
-
-    @SuppressWarnings("unchecked")
-    private void sortList(ArrayList<EventDefinitionCRFBean> edcBeans) {
-
-        Collections.sort(edcBeans, new Comparator() {
-
-            public int compare(Object o1, Object o2) {
-
-                Integer x1 = ((EventDefinitionCRFBean) o1).getOrdinal();
-                Integer x2 = ((EventDefinitionCRFBean) o2).getOrdinal();
-                int sComp = x1.compareTo(x2);
-
-                return sComp;
-            }
-        });
     }
 
     private StudyBean getStudy(String oid) {

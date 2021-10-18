@@ -7,6 +7,8 @@
  */
 package org.akaza.openclinica.control.managestudy;
 
+import java.util.Date;
+
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.login.StudyUserRoleBean;
@@ -14,14 +16,10 @@ import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
-import org.akaza.openclinica.core.EmailEngine;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.login.UserAccountDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
-
-import java.util.Date;
 
 /**
  * @author jxu
@@ -30,6 +28,11 @@ import java.util.Date;
  */
 public class RemoveStudyUserRoleServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 9002693250126772488L;
+
+	/**
      * Checks whether the user has the right permission to proceed function
      */
     @Override
@@ -53,7 +56,8 @@ public class RemoveStudyUserRoleServlet extends SecureController {
         UserAccountDAO udao = new UserAccountDAO(sm.getDataSource());
         String name = request.getParameter("name");
         String studyIdString = request.getParameter("studyId");
-        if (StringUtil.isBlank(name) || StringUtil.isBlank(studyIdString)) {
+        if ((name == null || name.trim().isEmpty()) || 
+        		(studyIdString == null || studyIdString.trim().isEmpty())) {
             addPageMessage(respage.getString("please_choose_a_user_to_remove_his_role"));
             forwardPage(Page.LIST_USER_IN_STUDY_SERVLET);
         } else {

@@ -35,6 +35,10 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class DnStudyEventMap implements MutableDomainObject,Serializable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3197644467195619148L;
 	private DnStudyEventMapId dnStudyEventMapId;
 	private StudyEvent studyEvent;
 	private DiscrepancyNote discrepancyNote;

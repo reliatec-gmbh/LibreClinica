@@ -17,7 +17,11 @@ import java.util.ArrayList;
  */
 public class DisplayStudyEventBean extends AuditableEntityBean {
 
-    private StudyEventBean studyEvent;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -7195957071888662575L;
+	private StudyEventBean studyEvent;
     private ArrayList<DisplayEventCRFBean> displayEventCRFs;
     private ArrayList<DisplayEventDefinitionCRFBean> uncompletedCRFs;
     private ArrayList<DisplayEventCRFBean> allEventCRFs; //includes uncompleted and completed, order by ordinal

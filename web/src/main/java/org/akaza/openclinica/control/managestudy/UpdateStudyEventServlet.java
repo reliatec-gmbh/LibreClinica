@@ -13,7 +13,6 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -32,7 +31,9 @@ import org.akaza.openclinica.bean.managestudy.StudyEventBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
 import org.akaza.openclinica.bean.managestudy.StudySubjectBean;
 import org.akaza.openclinica.bean.submit.CRFVersionBean;
+import org.akaza.openclinica.bean.submit.DisplayEventCRFBean;
 import org.akaza.openclinica.bean.submit.EventCRFBean;
+import org.akaza.openclinica.bean.submit.ItemDataBean;
 import org.akaza.openclinica.control.SpringServletAccess;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.DiscrepancyValidator;
@@ -42,22 +43,17 @@ import org.akaza.openclinica.control.form.Validator;
 import org.akaza.openclinica.control.submit.AddNewSubjectServlet;
 import org.akaza.openclinica.control.submit.SubmitDataServlet;
 import org.akaza.openclinica.core.SecurityManager;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.admin.CRFDAO;
-import org.akaza.openclinica.dao.hibernate.RuleSetDao;
 import org.akaza.openclinica.dao.managestudy.DiscrepancyNoteDAO;
 import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDefinitionDAO;
 import org.akaza.openclinica.dao.managestudy.StudySubjectDAO;
-import org.akaza.openclinica.dao.rule.RuleSetDAO;
 import org.akaza.openclinica.dao.submit.CRFVersionDAO;
 import org.akaza.openclinica.dao.submit.EventCRFDAO;
 import org.akaza.openclinica.dao.submit.ItemDataDAO;
-import org.akaza.openclinica.domain.rule.RuleSetBean;
 import org.akaza.openclinica.service.DiscrepancyNoteUtil;
-import org.akaza.openclinica.service.rule.RuleSetService;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 
@@ -67,7 +63,12 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
  *         Performs updating study event action
  */
 public class UpdateStudyEventServlet extends SecureController {
-    public static final String EVENT_ID = "event_id";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -6029524999558420563L;
+
+	public static final String EVENT_ID = "event_id";
 
     public static final String STUDY_SUBJECT_ID = "ss_id";
 
@@ -113,7 +114,7 @@ public class UpdateStudyEventServlet extends SecureController {
         request.setAttribute(MODULE, module);
 
         String fromResolvingNotes = fp.getString("fromResolvingNotes", true);
-        if (StringUtil.isBlank(fromResolvingNotes)) {
+        if (fromResolvingNotes == null || fromResolvingNotes.trim().isEmpty()) {
             session.removeAttribute(ViewNotesServlet.WIN_LOCATION);
             session.removeAttribute(ViewNotesServlet.NOTES_TABLE);
             checkStudyLocked(Page.MANAGE_STUDY, respage.getString("current_study_locked"));
@@ -172,7 +173,7 @@ public class UpdateStudyEventServlet extends SecureController {
         // }
         // above removed tbh 11162007
 
-        ArrayList statuses = SubjectEventStatus.toArrayList();
+        ArrayList<SubjectEventStatus> statuses = SubjectEventStatus.toArrayList();
         // remove more statuses here, tbh, 092007
         // ### updates to status setting, below added tbh 102007
         // following pieces of logic to be added:
@@ -199,7 +200,7 @@ public class UpdateStudyEventServlet extends SecureController {
         boolean removeSign = false;
         // DiscrepancyNoteDAO discDao = new
         // DiscrepancyNoteDAO(sm.getDataSource());
-        ArrayList eventCrfs = studyEvent.getEventCRFs();
+        ArrayList<EventCRFBean> eventCrfs = studyEvent.getEventCRFs();
         for (int i = 0; i < eventCrfs.size(); i++) {
             EventCRFBean ecrf = (EventCRFBean) eventCrfs.get(i);
             EventDefinitionCRFBean edcBean = edcdao.findByStudyEventIdAndCRFVersionId(studyBean, studyEventId, ecrf.getCRFVersionId());
@@ -246,11 +247,11 @@ public class UpdateStudyEventServlet extends SecureController {
             statuses.remove(SubjectEventStatus.SKIPPED);
         }
 
-        ArrayList getECRFs = studyEvent.getEventCRFs();
+        ArrayList<EventCRFBean> getECRFs = studyEvent.getEventCRFs();
         // above removed tbh 102007, require to get all definitions, no matter
         // if they are filled in or now
         EventDefinitionCRFDAO edefcrfdao = new EventDefinitionCRFDAO(sm.getDataSource());
-        ArrayList getAllECRFs = (ArrayList) edefcrfdao.findAllByDefinition(studyBean, studyEvent.getStudyEventDefinitionId());
+        ArrayList<EventDefinitionCRFBean> getAllECRFs = edefcrfdao.findAllByDefinition(studyBean, studyEvent.getStudyEventDefinitionId());
         // does the study event have all complete CRFs which are required?
         logger.debug("found number of ecrfs: " + getAllECRFs.size());
         // may not be populated, only entered crfs seem to ping the list
@@ -346,19 +347,19 @@ public class UpdateStudyEventServlet extends SecureController {
                 v.alwaysExecuteLastValidation(INPUT_ENDDATE_PREFIX);
             }
        //     v.addValidation(INPUT_LOCATION, Validator.NO_BLANKS); Disable validation on location, location can be empty when updating a study event
-            HashMap errors = v.validate();
+            HashMap<String, ArrayList<String>> errors = v.validate();
             // YW, 3-12-2008, 2220 fix <<
             if (!strEnd.equals("") && !errors.containsKey(INPUT_STARTDATE_PREFIX) && !errors.containsKey(INPUT_ENDDATE_PREFIX)) {
                 end = fp.getDateTime(INPUT_ENDDATE_PREFIX);
                 if (!fp.getString(INPUT_STARTDATE_PREFIX + "Date").equals(fp.getString(INPUT_ENDDATE_PREFIX + "Date"))) {
                     if (end.before(start)) {
-                        v.addError(errors, INPUT_ENDDATE_PREFIX, resexception.getString("input_provided_not_occure_after_previous_start_date_time"));
+                        Validator.addError(errors, INPUT_ENDDATE_PREFIX, resexception.getString("input_provided_not_occure_after_previous_start_date_time"));
                     }
                 } else {
                     // if in same date, only check when both had time entered
                     if (fp.timeEntered(INPUT_STARTDATE_PREFIX) && fp.timeEntered(INPUT_ENDDATE_PREFIX)) {
                         if (end.before(start) || end.equals(start)) {
-                            v.addError(errors, INPUT_ENDDATE_PREFIX, resexception.getString("input_provided_not_occure_after_previous_start_date_time"));
+                            Validator.addError(errors, INPUT_ENDDATE_PREFIX, resexception.getString("input_provided_not_occure_after_previous_start_date_time"));
                         }
                     }
                 }
@@ -410,16 +411,14 @@ public class UpdateStudyEventServlet extends SecureController {
 
                 ecdao = new EventCRFDAO(sm.getDataSource());
                 eventCRFs = ecdao.findAllByStudyEvent(studyEvent);
-                ArrayList<Boolean> doRuleSetsExist = new ArrayList<Boolean>();
-                RuleSetDAO ruleSetDao = new RuleSetDAO(sm.getDataSource());
 
                 StudyBean study = (StudyBean) sdao.findByPK(ssb.getStudyId());
-                ArrayList eventDefinitionCRFs = (ArrayList) edcdao.findAllActiveByEventDefinitionId(study, studyEvent.getStudyEventDefinitionId());
+                ArrayList<EventDefinitionCRFBean> eventDefinitionCRFs = edcdao.findAllActiveByEventDefinitionId(study, studyEvent.getStudyEventDefinitionId());
 
-                ArrayList uncompletedEventDefinitionCRFs = getUncompletedCRFs(eventDefinitionCRFs, eventCRFs);
+                ArrayList<DisplayEventDefinitionCRFBean> uncompletedEventDefinitionCRFs = getUncompletedCRFs(eventDefinitionCRFs, eventCRFs);
                 populateUncompletedCRFsWithCRFAndVersions(uncompletedEventDefinitionCRFs);
 
-                ArrayList displayEventCRFs =
+                ArrayList<DisplayEventCRFBean> displayEventCRFs =
                     ViewStudySubjectServlet.getDisplayEventCRFs(sm.getDataSource(), eventCRFs, eventDefinitionCRFs, ub, currentRole, studyEvent
                             .getSubjectEventStatus(), study);
 
@@ -442,8 +441,8 @@ public class UpdateStudyEventServlet extends SecureController {
                 displayEvents.add(displayEvBean);
                 // Don't filter for res status or disc note type; disc note
                 // beans are returned with eventCRFId set
-                discNoteUtil.injectParentDiscNotesIntoDisplayStudyEvents(displayEvents, new HashSet(), sm.getDataSource(), 0);
-                Map discNoteByEventCRFid = discNoteUtil.createDiscNoteMapByEventCRF(displayEvents);
+                discNoteUtil.injectParentDiscNotesIntoDisplayStudyEvents(displayEvents, new HashSet<>(), sm.getDataSource(), 0);
+                Map<Integer, Map<String, Integer>> discNoteByEventCRFid = discNoteUtil.createDiscNoteMapByEventCRF(displayEvents);
                 request.setAttribute("discNoteByEventCRFid", discNoteByEventCRFid);
 
                 forwardPage(Page.UPDATE_STUDY_EVENT_SIGNED);
@@ -477,7 +476,7 @@ public class UpdateStudyEventServlet extends SecureController {
                 logger.debug("update study event...");
                 studyEvent.setUpdater(ub);
                 studyEvent.setUpdatedDate(new Date());
-                StudyEventBean updatedStudyEvent = (StudyEventBean) sedao.update(studyEvent);
+                sedao.update(studyEvent);
 
 
                 // save discrepancy notes into DB
@@ -511,10 +510,9 @@ public class UpdateStudyEventServlet extends SecureController {
 
                 // If all the StudyEvents become signed we will make the
                 // StudySubject signed as well
-                List studyEvents = sedao.findAllByStudySubject(ssub);
+                ArrayList<StudyEventBean> studyEvents = sedao.findAllByStudySubject(ssub);
                 boolean allSigned = true;
-                for (Iterator iterator = studyEvents.iterator(); iterator.hasNext();) {
-                    StudyEventBean temp = (StudyEventBean) iterator.next();
+                for (StudyEventBean temp : studyEvents) {
                     if (!temp.getSubjectEventStatus().equals(SubjectEventStatus.SIGNED)) {
                         allSigned = false;
                         break;
@@ -549,16 +547,14 @@ public class UpdateStudyEventServlet extends SecureController {
                 // prepare to figure out what the display should look like
                 EventCRFDAO ecdao = new EventCRFDAO(sm.getDataSource());
                 ArrayList<EventCRFBean> eventCRFs = ecdao.findAllByStudyEvent(studyEvent);
-                ArrayList<Boolean> doRuleSetsExist = new ArrayList<Boolean>();
-                RuleSetDAO ruleSetDao = new RuleSetDAO(sm.getDataSource());
 
                 StudyBean study = (StudyBean) sdao.findByPK(ssb.getStudyId());
-                ArrayList eventDefinitionCRFs = (ArrayList) edcdao.findAllActiveByEventDefinitionId(study, studyEvent.getStudyEventDefinitionId());
+                ArrayList<EventDefinitionCRFBean> eventDefinitionCRFs = edcdao.findAllActiveByEventDefinitionId(study, studyEvent.getStudyEventDefinitionId());
 
-                ArrayList uncompletedEventDefinitionCRFs = getUncompletedCRFs(eventDefinitionCRFs, eventCRFs);
+                ArrayList<DisplayEventDefinitionCRFBean> uncompletedEventDefinitionCRFs = getUncompletedCRFs(eventDefinitionCRFs, eventCRFs);
                 populateUncompletedCRFsWithCRFAndVersions(uncompletedEventDefinitionCRFs);
 
-                ArrayList displayEventCRFs =
+                ArrayList<DisplayEventCRFBean> displayEventCRFs =
                     ViewStudySubjectServlet.getDisplayEventCRFs(sm.getDataSource(), eventCRFs, eventDefinitionCRFs, ub, currentRole, studyEvent
                             .getSubjectEventStatus(), study);
 
@@ -600,7 +596,7 @@ public class UpdateStudyEventServlet extends SecureController {
                 setRequestAttributesForNotes(allNotesforSubjectAndEvent);
             }
 
-            HashMap presetValues = new HashMap();
+            HashMap<String, Object> presetValues = new HashMap<>();
             // YW 08-17-2007 <<
             if (studyEvent.getStartTimeFlag() == true) {
                 Calendar c = new GregorianCalendar();
@@ -671,27 +667,11 @@ public class UpdateStudyEventServlet extends SecureController {
 
     }
 
-    
-    
-    private List<RuleSetBean> createRuleSet(StudySubjectBean ssub,
-			StudyEventDefinitionBean sed) {
-    	
-    	return getRuleSetDao().findAllByStudyEventDef(sed);
-    	
-    	
-	}
-    
-    private RuleSetDao getRuleSetDao() {
-       return (RuleSetDao) SpringServletAccess.getApplicationContext(context).getBean("ruleSetDao");
-        
-    }
-
-
-	private ArrayList getUncompletedCRFs(ArrayList eventDefinitionCRFs, ArrayList eventCRFs) {
+	private ArrayList<DisplayEventDefinitionCRFBean> getUncompletedCRFs(ArrayList<EventDefinitionCRFBean> eventDefinitionCRFs, ArrayList<EventCRFBean> eventCRFs) {
         int i;
-        HashMap completed = new HashMap();
-        HashMap startedButIncompleted = new HashMap();
-        ArrayList answer = new ArrayList();
+        HashMap<Integer, Boolean> completed = new HashMap<>();
+        HashMap<Integer, EventCRFBean> startedButIncompleted = new HashMap<>();
+        ArrayList<DisplayEventDefinitionCRFBean> answer = new ArrayList<>();
 
         /**
          * A somewhat non-standard algorithm is used here: let answer = empty;
@@ -709,7 +689,7 @@ public class UpdateStudyEventServlet extends SecureController {
          */
 
         for (i = 0; i < eventDefinitionCRFs.size(); i++) {
-            EventDefinitionCRFBean edcrf = (EventDefinitionCRFBean) eventDefinitionCRFs.get(i);
+            EventDefinitionCRFBean edcrf = eventDefinitionCRFs.get(i);
             completed.put(new Integer(edcrf.getCrfId()), Boolean.FALSE);
             startedButIncompleted.put(new Integer(edcrf.getCrfId()), new EventCRFBean());
         }
@@ -717,9 +697,9 @@ public class UpdateStudyEventServlet extends SecureController {
         CRFVersionDAO cvdao = new CRFVersionDAO(sm.getDataSource());
         ItemDataDAO iddao = new ItemDataDAO(sm.getDataSource());
         for (i = 0; i < eventCRFs.size(); i++) {
-            EventCRFBean ecrf = (EventCRFBean) eventCRFs.get(i);
+            EventCRFBean ecrf = eventCRFs.get(i);
             int crfId = cvdao.getCRFIdFromCRFVersionId(ecrf.getCRFVersionId());
-            ArrayList idata = iddao.findAllByEventCRFId(ecrf.getId());
+            ArrayList<ItemDataBean> idata = iddao.findAllByEventCRFId(ecrf.getId());
             if (!idata.isEmpty()) {// this crf has data already
                 completed.put(new Integer(crfId), Boolean.TRUE);
             } else {// event crf got created, but no data entered
@@ -742,14 +722,14 @@ public class UpdateStudyEventServlet extends SecureController {
         return answer;
     }
 
-    private void populateUncompletedCRFsWithCRFAndVersions(ArrayList uncompletedEventDefinitionCRFs) {
+    private void populateUncompletedCRFsWithCRFAndVersions(ArrayList<DisplayEventDefinitionCRFBean> uncompletedEventDefinitionCRFs) {
         CRFDAO cdao = new CRFDAO(sm.getDataSource());
         CRFVersionDAO cvdao = new CRFVersionDAO(sm.getDataSource());
 
         int size = uncompletedEventDefinitionCRFs.size();
         for (int i = 0; i < size; i++) {
-            DisplayEventDefinitionCRFBean dedcrf = (DisplayEventDefinitionCRFBean) uncompletedEventDefinitionCRFs.get(i);
-            CRFBean cb = (CRFBean) cdao.findByPK(dedcrf.getEdc().getCrfId());
+            DisplayEventDefinitionCRFBean dedcrf = uncompletedEventDefinitionCRFs.get(i);
+            CRFBean cb = cdao.findByPK(dedcrf.getEdc().getCrfId());
             // note that we do not check status in the above query, so let's
             // check it here, tbh 102007
             if (cb.getStatus().equals(Status.AVAILABLE)) {
@@ -758,7 +738,7 @@ public class UpdateStudyEventServlet extends SecureController {
                 // go to the JSP for this one, I think
                 dedcrf.getEdc().setCrf(cb);
 
-                ArrayList versions = (ArrayList) cvdao.findAllActiveByCRF(dedcrf.getEdc().getCrfId());
+                ArrayList<CRFVersionBean> versions = cvdao.findAllActiveByCRF(dedcrf.getEdc().getCrfId());
                 dedcrf.getEdc().setVersions(versions);
                 // added tbh 092007, fix for 1461
                 if (versions != null && versions.size() != 0) {
@@ -815,9 +795,4 @@ public class UpdateStudyEventServlet extends SecureController {
         }
 
     }
-    
-    private RuleSetService getRuleSetService() {
-        return (RuleSetService) SpringServletAccess.getApplicationContext(context).getBean("ruleSetService");
-    }
-
 }

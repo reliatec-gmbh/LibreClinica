@@ -9,6 +9,7 @@ package org.akaza.openclinica.bean.extract;
 
 import org.akaza.openclinica.bean.core.AuditableEntityBean;
 import org.akaza.openclinica.bean.core.DatasetItemStatus;
+import org.akaza.openclinica.bean.submit.ItemBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +22,11 @@ import java.util.HashMap;
  */
 public class DatasetBean extends AuditableEntityBean {
 
-    protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -7781932626540670687L;
+	protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
     private int studyId;
     private String description;
     private String SQLStatement;
@@ -42,10 +47,10 @@ public class DatasetBean extends AuditableEntityBean {
      * 
      * private ArrayList eventNames = new ArrayList();
      */
-    private ArrayList eventIds = new ArrayList();
-    private ArrayList itemIds = new ArrayList();
-    private ArrayList subjectGroupIds = new ArrayList();
-    private HashMap itemMap = new HashMap();
+    private ArrayList<Integer> eventIds = new ArrayList<>();
+    private ArrayList<Integer> itemIds = new ArrayList<>();
+    private ArrayList<Integer> subjectGroupIds = new ArrayList<>();
+    private HashMap<String, ItemBean> itemMap = new HashMap<>();
 
     private boolean showEventLocation = false;
     private boolean showEventStart = false;
@@ -80,7 +85,7 @@ public class DatasetBean extends AuditableEntityBean {
     //
     //
 
-    private ArrayList itemDefCrf = new ArrayList();
+    private ArrayList<ItemBean> itemDefCrf = new ArrayList<>();
     // map items with definition and CRF
 
     private String VIEW_NAME = "extract_data_table";
@@ -311,7 +316,7 @@ public class DatasetBean extends AuditableEntityBean {
     /**
      * @return Returns the itemIds.
      */
-    public ArrayList getItemIds() {
+    public ArrayList<Integer> getItemIds() {
         return itemIds;
     }
 
@@ -319,14 +324,14 @@ public class DatasetBean extends AuditableEntityBean {
      * @param itemIds
      *            The itemIds to set.
      */
-    public void setItemIds(ArrayList itemIds) {
+    public void setItemIds(ArrayList<Integer> itemIds) {
         this.itemIds = itemIds;
     }
 
     /**
      * @return Returns the itemMap.
      */
-    public HashMap getItemMap() {
+    public HashMap<String, ItemBean> getItemMap() {
         return itemMap;
     }
 
@@ -334,14 +339,14 @@ public class DatasetBean extends AuditableEntityBean {
      * @param itemMap
      *            The itemMap to set.
      */
-    public void setItemMap(HashMap itemMap) {
+    public void setItemMap(HashMap<String, ItemBean> itemMap) {
         this.itemMap = itemMap;
     }
 
     /**
      * @return Returns the eventIds.
      */
-    public ArrayList getEventIds() {
+    public ArrayList<Integer> getEventIds() {
         return eventIds;
     }
 
@@ -349,7 +354,7 @@ public class DatasetBean extends AuditableEntityBean {
      * @param eventIds
      *            The eventIds to set.
      */
-    public void setEventIds(ArrayList eventIds) {
+    public void setEventIds(ArrayList<Integer> eventIds) {
         this.eventIds = eventIds;
     }
 
@@ -431,7 +436,7 @@ public class DatasetBean extends AuditableEntityBean {
     /**
      * @return Returns the itemDefCrf.
      */
-    public ArrayList getItemDefCrf() {
+    public ArrayList<ItemBean> getItemDefCrf() {
         return itemDefCrf;
     }
 
@@ -439,7 +444,7 @@ public class DatasetBean extends AuditableEntityBean {
      * @param itemDefCrf
      *            The itemDefCrf to set.
      */
-    public void setItemDefCrf(ArrayList itemDefCrf) {
+    public void setItemDefCrf(ArrayList<ItemBean> itemDefCrf) {
         this.itemDefCrf = itemDefCrf;
     }
 
@@ -563,11 +568,11 @@ public class DatasetBean extends AuditableEntityBean {
         this.showSubjectGroupInformation = showSubjectGroupInformation;
     }
 
-    public ArrayList getSubjectGroupIds() {
+    public ArrayList<Integer> getSubjectGroupIds() {
         return subjectGroupIds;
     }
 
-    public void setSubjectGroupIds(ArrayList subjectGroupIds) {
+    public void setSubjectGroupIds(ArrayList<Integer> subjectGroupIds) {
         this.subjectGroupIds = subjectGroupIds;
     }
 

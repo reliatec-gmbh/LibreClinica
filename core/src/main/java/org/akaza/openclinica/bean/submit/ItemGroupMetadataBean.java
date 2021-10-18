@@ -12,8 +12,12 @@ import org.akaza.openclinica.bean.core.EntityBean;
 /**
  * Created by IntelliJ IDEA. User: bruceperry Date: May 10, 2007
  */
-public class ItemGroupMetadataBean extends EntityBean implements Comparable {
-    private Integer itemGroupId;
+public class ItemGroupMetadataBean extends EntityBean implements Comparable<ItemGroupMetadataBean> {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 2219580239376596947L;
+	private Integer itemGroupId;
     private String header;
     private String subheader;
     private String layout;
@@ -245,10 +249,8 @@ public class ItemGroupMetadataBean extends EntityBean implements Comparable {
         this.isHighlighted = isHighlighted;
     }
 
-    public int compareTo(Object o) {
-        if (!(o instanceof ItemGroupMetadataBean))
-            return 1;
-        return this.getOrdinal().compareTo(((ItemGroupMetadataBean) o).getOrdinal());
+    public int compareTo(ItemGroupMetadataBean o) {
+        return this.getOrdinal().compareTo(o.getOrdinal());
     }
 
     public boolean isRepeatingGroup() {

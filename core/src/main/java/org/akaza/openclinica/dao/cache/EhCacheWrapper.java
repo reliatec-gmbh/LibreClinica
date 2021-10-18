@@ -32,7 +32,8 @@ public class EhCacheWrapper<K, V> implements CacheWrapper<K, V>
     	getCache().put(new Element(key, value));
     }
     
-    public V get(final K key) 
+    @SuppressWarnings("unchecked")
+	public V get(final K key) 
     {
     	String db_type = CoreResources.getField("dbType");
     	if ( db_type.equalsIgnoreCase("postgres")){

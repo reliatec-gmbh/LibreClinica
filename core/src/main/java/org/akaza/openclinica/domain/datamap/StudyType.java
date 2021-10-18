@@ -17,7 +17,6 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import org.akaza.openclinica.domain.AbstractMutableDomainObject;
 import org.akaza.openclinica.domain.DataMapDomainObject;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -30,10 +29,14 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class StudyType  extends DataMapDomainObject {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -62853164116597191L;
 	private int studyTypeId;
 	private String name;
 	private String description;
-	private Set studies = new HashSet(0);
+	private Set<Study> studies = new HashSet<>(0);
 
 	public StudyType() {
 	}
@@ -43,7 +46,7 @@ public class StudyType  extends DataMapDomainObject {
 	}
 
 	public StudyType(int studyTypeId, String name, String description,
-			Set studies) {
+			Set<Study> studies) {
 		this.studyTypeId = studyTypeId;
 		this.name = name;
 		this.description = description;
@@ -78,12 +81,16 @@ public class StudyType  extends DataMapDomainObject {
 		this.description = description;
 	}
 
+	/*
+	 * TODO the property 'studyType' for class 'Study' is commented
+	 * so this mapping does not work
+	 */
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "studyType")
-	public Set getStudies() {
+	public Set<Study> getStudies() {
 		return this.studies;
 	}
 
-	public void setStudies(Set studies) {
+	public void setStudies(Set<Study> studies) {
 		this.studies = studies;
 	}
 

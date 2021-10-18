@@ -7,18 +7,18 @@
  */
 package org.akaza.openclinica.control.managestudy;
 
+import static org.akaza.openclinica.core.util.ClassCastHelper.asArrayList;
+
+import java.util.ArrayList;
+
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.managestudy.EventDefinitionCRFBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
 import org.akaza.openclinica.control.core.SecureController;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.service.StudyParameterValueDAO;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
-
-import java.util.ArrayList;
-
 /**
  * @author jxu
  *
@@ -27,6 +27,11 @@ import java.util.ArrayList;
  */
 public class RestoreCRFFromDefinitionServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 5416925373611296853L;
+
+	/**
      * Checks whether the user has the correct privilege
      */
     @Override
@@ -46,7 +51,7 @@ public class RestoreCRFFromDefinitionServlet extends SecureController {
 
     @Override
     public void processRequest() throws Exception {
-        ArrayList edcs = (ArrayList) session.getAttribute("eventDefinitionCRFs");
+        ArrayList<EventDefinitionCRFBean> edcs = asArrayList(session.getAttribute("eventDefinitionCRFs"), EventDefinitionCRFBean.class);
         String crfName = "";
 
         String idString = request.getParameter("id");
@@ -59,7 +64,7 @@ public class RestoreCRFFromDefinitionServlet extends SecureController {
         request.setAttribute("participateFormStatus",participateFormStatus );
 
         
-        if (StringUtil.isBlank(idString)) {
+        if (idString == null || idString.trim().isEmpty()) {
             addPageMessage(respage.getString("please_choose_a_CRF_to_restore"));
             forwardPage(Page.UPDATE_EVENT_DEFINITION1);
         } else {

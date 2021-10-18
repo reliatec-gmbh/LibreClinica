@@ -7,19 +7,13 @@
  */
 package org.akaza.openclinica.control.extract;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptySet;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -33,19 +27,27 @@ import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
 import org.akaza.openclinica.bean.managestudy.StudySubjectBean;
-import org.akaza.openclinica.bean.submit.*;
+import org.akaza.openclinica.bean.submit.CRFVersionBean;
+import org.akaza.openclinica.bean.submit.EventCRFBean;
+import org.akaza.openclinica.bean.submit.ItemBean;
+import org.akaza.openclinica.bean.submit.ItemDataBean;
+import org.akaza.openclinica.bean.submit.ItemGroupBean;
+import org.akaza.openclinica.bean.submit.ItemGroupMetadataBean;
+import org.akaza.openclinica.bean.submit.SubjectBean;
 import org.akaza.openclinica.control.core.SecureController;
-import org.akaza.openclinica.control.form.FormProcessor;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.core.util.Pair;
 import org.akaza.openclinica.dao.admin.CRFDAO;
 import org.akaza.openclinica.dao.managestudy.DiscrepancyNoteDAO;
-import org.akaza.openclinica.dao.managestudy.ListNotesFilter;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDefinitionDAO;
 import org.akaza.openclinica.dao.managestudy.StudySubjectDAO;
-import org.akaza.openclinica.dao.submit.*;
+import org.akaza.openclinica.dao.submit.CRFVersionDAO;
+import org.akaza.openclinica.dao.submit.EventCRFDAO;
+import org.akaza.openclinica.dao.submit.ItemDAO;
+import org.akaza.openclinica.dao.submit.ItemDataDAO;
+import org.akaza.openclinica.dao.submit.ItemGroupDAO;
+import org.akaza.openclinica.dao.submit.ItemGroupMetadataDAO;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
 import org.akaza.openclinica.service.DiscrepancyNoteThread;
@@ -63,7 +65,11 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  * @see org.akaza.openclinica.bean.extract.DownloadDiscrepancyNote
  */
 public class DiscrepancyNoteOutputServlet extends SecureController {
-    // These are the headers that must appear in the HTTP response, when sending a
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8859779310401504675L;
+	// These are the headers that must appear in the HTTP response, when sending a
     // file back to the user
     public static String CONTENT_DISPOSITION_HEADER = "Content-Disposition";
     public static String CONTENT_DISPOSITION_VALUE = "attachment; filename=";
@@ -71,8 +77,6 @@ public class DiscrepancyNoteOutputServlet extends SecureController {
     /* Handle the HTTP Get or Post request. */
     @Override
     protected void processRequest() throws Exception {
-
-        FormProcessor fp = new FormProcessor(request);
         // the fileName contains any subject id and study unique protocol id;
         // see: chooseDownloadFormat.jsp
         String fileName = request.getParameter("fileName");
@@ -96,8 +100,6 @@ public class DiscrepancyNoteOutputServlet extends SecureController {
         }*/
         // possibly for a later implementation: int definitionId = fp.getInt("defId");
         //here subjectId actually is study_subject_id !!!
-        int subjectId = fp.getInt("subjectId");
-        int discNoteType = fp.getInt("discNoteType");
 
         DownloadDiscrepancyNote downLoader = new DownloadDiscrepancyNote();
         if ("csv".equalsIgnoreCase(format)) {
@@ -119,7 +121,6 @@ public class DiscrepancyNoteOutputServlet extends SecureController {
         // In this case we want to include all the discrepancy notes, despite the res status or
         // type filtering, because we don't want to filter out parents, thus leaving out a child note
         // that might match the desired res status
-        ListNotesFilter listNotesFilter = new ListNotesFilter();
 
         ViewNotesService viewNotesService = (ViewNotesService) WebApplicationContextUtils.getWebApplicationContext(
         		getServletContext()).getBean("viewNotesService");
@@ -143,7 +144,6 @@ public class DiscrepancyNoteOutputServlet extends SecureController {
         // Do the filtering for type or status here
         DiscrepancyNoteUtil discNoteUtil = new DiscrepancyNoteUtil();
 
-        Set<Integer> resolutionStatusIds = emptySet();
         List<DiscrepancyNoteThread> discrepancyNoteThreads =
             discNoteUtil.createThreads(allDiscNotes, sm.getDataSource(), studyBean);
 
@@ -272,8 +272,8 @@ public class DiscrepancyNoteOutputServlet extends SecureController {
         ItemDataDAO iddao = new ItemDataDAO(sm.getDataSource());
         ItemDAO idao = new ItemDAO(sm.getDataSource());
         StudyDAO studyDao = new StudyDAO(sm.getDataSource());
-        ItemGroupMetadataDAO<String, ArrayList> igmdao = new ItemGroupMetadataDAO<String, ArrayList>(sm.getDataSource());
-        ItemGroupDAO<String, ArrayList> igdao = new ItemGroupDAO<String, ArrayList>(sm.getDataSource());
+        ItemGroupMetadataDAO igmdao = new ItemGroupMetadataDAO(sm.getDataSource());
+        ItemGroupDAO igdao = new ItemGroupDAO(sm.getDataSource());
 
         ArrayList<DiscrepancyNoteBean> allNotes = new ArrayList<DiscrepancyNoteBean>();
 
@@ -281,8 +281,8 @@ public class DiscrepancyNoteOutputServlet extends SecureController {
             DiscrepancyNoteBean dnb = noteRows.get(i);
             dnb.setCreatedDateString(dnb.getCreatedDate()==null?"":sdf.format(dnb.getCreatedDate()));
             if (dnb.getParentDnId() == 0) {
-                ArrayList children = dndao.findAllByStudyAndParent(currentStudy, dnb.getId());
-                children = children == null? new ArrayList():children;
+                ArrayList<DiscrepancyNoteBean> children = dndao.findAllByStudyAndParent(currentStudy, dnb.getId());
+                children = children == null? new ArrayList<>():children;
                 dnb.setNumChildren(children.size());
                 dnb.setChildren(children);
                 int lastDnId = dnb.getId();
@@ -322,7 +322,7 @@ public class DiscrepancyNoteOutputServlet extends SecureController {
                     dnb.setStudySub(ssb);
                     dnb.setSubjectName(ssb.getLabel());
                     String column = dnb.getColumn().trim();
-                    if (!StringUtil.isBlank(column)) {
+                    if (!(column == null || column.trim().isEmpty())) {
                         if ("gender".equalsIgnoreCase(column)) {
                             dnb.setEntityValue(sb.getGender() + "");
                             dnb.setEntityName(resword.getString("gender"));
@@ -343,7 +343,7 @@ public class DiscrepancyNoteOutputServlet extends SecureController {
                     dnb.setStudySub(ssb);
                     dnb.setSubjectName(ssb.getLabel());
                     String column = dnb.getColumn().trim();
-                    if (!StringUtil.isBlank(column)) {
+                    if (!(column == null || column.trim().isEmpty())) {
                         if ("enrollment_date".equals(column)) {
                             if (ssb.getEnrollmentDate() != null) {
                                 dnb.setEntityValue(ssb.getEnrollmentDate().toString());
@@ -383,7 +383,7 @@ public class DiscrepancyNoteOutputServlet extends SecureController {
 
 
                     String column = dnb.getColumn().trim();
-                    if (!StringUtil.isBlank(column)) {
+                    if (!(column == null || column.trim().isEmpty())) {
                         if ("date_interviewed".equals(column)) {
                             if (ecb.getDateInterviewed() != null) {
                                 dnb.setEntityValue(ecb.getDateInterviewed().toString());
@@ -410,7 +410,7 @@ public class DiscrepancyNoteOutputServlet extends SecureController {
                     dnb.setEventName(se.getName());
                     dnb.setSubjectName(ssub.getLabel());
                     String column = dnb.getColumn().trim();
-                    if (!StringUtil.isBlank(column)) {
+                    if (!(column == null || column.trim().isEmpty())) {
                         if ("date_start".equals(column)) {
                             if (se.getDateStarted() != null) {
                                 dnb.setEntityValue(se.getDateStarted().toString());

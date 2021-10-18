@@ -10,14 +10,10 @@ package org.akaza.openclinica.domain.datamap;
 //default package
 //Generated Jul 31, 2013 2:03:33 PM by Hibernate Tools 3.4.0.CR1
 
-import java.util.List;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.akaza.openclinica.domain.DataMapDomainObject;
@@ -32,7 +28,11 @@ import org.hibernate.annotations.Parameter;
 @GenericGenerator(name = "id-generator", strategy = "native", parameters = { @Parameter(name = "sequence_name", value = "item_data_type_item_data_type_id_seq") })
 public class ItemDataType extends DataMapDomainObject {
 
-    private int itemDataTypeId;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -6588968518793637354L;
+	private int itemDataTypeId;
     private String code;
     private String name;
     private String definition;

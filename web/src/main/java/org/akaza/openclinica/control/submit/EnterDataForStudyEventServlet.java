@@ -16,11 +16,11 @@ import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.core.AuditableEntityBean;
 import org.akaza.openclinica.bean.core.DataEntryStage;
 import org.akaza.openclinica.bean.core.Status;
-import org.akaza.openclinica.bean.core.SubjectEventStatus;
 import org.akaza.openclinica.bean.login.StudyUserRoleBean;
 import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.bean.managestudy.DiscrepancyNoteBean;
 import org.akaza.openclinica.bean.managestudy.DisplayEventDefinitionCRFBean;
+import org.akaza.openclinica.bean.managestudy.DisplayStudyEventBean;
 import org.akaza.openclinica.bean.managestudy.EventDefinitionCRFBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventBean;
@@ -29,6 +29,7 @@ import org.akaza.openclinica.bean.managestudy.StudySubjectBean;
 import org.akaza.openclinica.bean.submit.CRFVersionBean;
 import org.akaza.openclinica.bean.submit.DisplayEventCRFBean;
 import org.akaza.openclinica.bean.submit.EventCRFBean;
+import org.akaza.openclinica.bean.submit.ItemDataBean;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.control.managestudy.ViewStudySubjectServlet;
@@ -40,7 +41,6 @@ import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDefinitionDAO;
 import org.akaza.openclinica.dao.managestudy.StudySubjectDAO;
-import org.akaza.openclinica.dao.rule.RuleSetDAO;
 import org.akaza.openclinica.dao.submit.CRFVersionDAO;
 import org.akaza.openclinica.dao.submit.EventCRFDAO;
 import org.akaza.openclinica.dao.submit.ItemDataDAO;
@@ -54,7 +54,12 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
  */
 public class EnterDataForStudyEventServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -3152159894339737423L;
+
+	Locale locale;
     // < ResourceBundleresexception,respage;
 
     public static final String INPUT_EVENT_ID = "eventId";
@@ -173,23 +178,16 @@ public class EnterDataForStudyEventServlet extends SecureController {
         EventCRFDAO ecdao = new EventCRFDAO(sm.getDataSource());
         ArrayList<EventCRFBean> eventCRFs = ecdao.findAllByStudyEvent(seb);
         ArrayList<Boolean> doRuleSetsExist = new ArrayList<Boolean>();
-        RuleSetDAO ruleSetDao = new RuleSetDAO(sm.getDataSource());
-
-        for (EventCRFBean eventCrfBean : eventCRFs) {
-            // Boolean result = ruleSetDao.findByEventCrf(eventCrfBean) != null
-            // ? Boolean.TRUE : Boolean.FALSE;
-            // doRuleSetsExist.add(result);
-        }
 
         EventDefinitionCRFDAO edcdao = new EventDefinitionCRFDAO(sm.getDataSource());
-        ArrayList eventDefinitionCRFs = (ArrayList) edcdao.findAllActiveByEventDefinitionId(study, seb.getStudyEventDefinitionId());
+        ArrayList<EventDefinitionCRFBean> eventDefinitionCRFs = edcdao.findAllActiveByEventDefinitionId(study, seb.getStudyEventDefinitionId());
 
         // get the event definition CRFs for which no event CRF exists
         // the event definition CRFs must be populated with versions so we can
         // let the user choose which version he will enter data for
         // However, this method seems to be returning DisplayEventDefinitionCRFs
         // that contain valid eventCRFs??
-        ArrayList uncompletedEventDefinitionCRFs = getUncompletedCRFs(eventDefinitionCRFs, eventCRFs);
+        ArrayList<DisplayEventDefinitionCRFBean> uncompletedEventDefinitionCRFs = getUncompletedCRFs(eventDefinitionCRFs, eventCRFs);
         populateUncompletedCRFsWithCRFAndVersions(uncompletedEventDefinitionCRFs);
 
         // BWP 2816 << Attempt to provide the DisplayEventDefinitionCRF with a
@@ -210,7 +208,7 @@ public class EnterDataForStudyEventServlet extends SecureController {
         // ArrayList displayEventCRFs = getDisplayEventCRFs(eventCRFs,
         // eventDefinitionCRFs, seb.getSubjectEventStatus());
 
-        ArrayList displayEventCRFs =
+        ArrayList<DisplayEventCRFBean> displayEventCRFs =
             ViewStudySubjectServlet
                     .getDisplayEventCRFs(sm.getDataSource(), eventCRFs, eventDefinitionCRFs, ub, currentRole, seb.getSubjectEventStatus(), study);
 
@@ -232,7 +230,7 @@ public class EnterDataForStudyEventServlet extends SecureController {
 
         //@pgawade 31-Aug-2012 fix for issue #15315: Reverting to set the request variable "beans" back 
         // this is for generating side info panel
-        ArrayList beans = ViewStudySubjectServlet.getDisplayStudyEventsForStudySubject(studySubjectBean, sm.getDataSource(), ub, currentRole);
+        ArrayList<DisplayStudyEventBean> beans = ViewStudySubjectServlet.getDisplayStudyEventsForStudySubject(studySubjectBean, sm.getDataSource(), ub, currentRole);
         request.setAttribute("beans", beans);
         EventCRFBean ecb = new EventCRFBean();
         ecb.setStudyEventId(eventId);
@@ -280,11 +278,11 @@ public class EnterDataForStudyEventServlet extends SecureController {
      *            All of the event CRFs for this study event.
      * @return The list of event definitions for which no event CRF exists.
      */
-    private ArrayList getUncompletedCRFs(ArrayList eventDefinitionCRFs, ArrayList eventCRFs) {
+    private ArrayList<DisplayEventDefinitionCRFBean> getUncompletedCRFs(ArrayList<EventDefinitionCRFBean> eventDefinitionCRFs, ArrayList<EventCRFBean> eventCRFs) {
         int i;
-        HashMap completed = new HashMap();
-        HashMap startedButIncompleted = new HashMap();
-        ArrayList answer = new ArrayList();
+        HashMap<Integer, Boolean> completed = new HashMap<>();
+        HashMap<Integer, EventCRFBean> startedButIncompleted = new HashMap<>();
+        ArrayList<DisplayEventDefinitionCRFBean> answer = new ArrayList<>();
 
         /**
          * A somewhat non-standard algorithm is used here: let answer = empty;
@@ -302,7 +300,7 @@ public class EnterDataForStudyEventServlet extends SecureController {
          */
 
         for (i = 0; i < eventDefinitionCRFs.size(); i++) {
-            EventDefinitionCRFBean edcrf = (EventDefinitionCRFBean) eventDefinitionCRFs.get(i);
+            EventDefinitionCRFBean edcrf = eventDefinitionCRFs.get(i);
             completed.put(new Integer(edcrf.getCrfId()), Boolean.FALSE);
             startedButIncompleted.put(new Integer(edcrf.getCrfId()), new EventCRFBean());
         }
@@ -310,9 +308,9 @@ public class EnterDataForStudyEventServlet extends SecureController {
         CRFVersionDAO cvdao = new CRFVersionDAO(sm.getDataSource());
         ItemDataDAO iddao = new ItemDataDAO(sm.getDataSource());
         for (i = 0; i < eventCRFs.size(); i++) {
-            EventCRFBean ecrf = (EventCRFBean) eventCRFs.get(i);
+            EventCRFBean ecrf = eventCRFs.get(i);
             int crfId = cvdao.getCRFIdFromCRFVersionId(ecrf.getCRFVersionId());
-            ArrayList idata = iddao.findAllByEventCRFId(ecrf.getId());
+            ArrayList<ItemDataBean> idata = iddao.findAllByEventCRFId(ecrf.getId());
             if (!idata.isEmpty()) {// this crf has data already
                 completed.put(new Integer(crfId), Boolean.TRUE);
             } else {// event crf got created, but no data entered
@@ -322,10 +320,10 @@ public class EnterDataForStudyEventServlet extends SecureController {
 
         for (i = 0; i < eventDefinitionCRFs.size(); i++) {
             DisplayEventDefinitionCRFBean dedc = new DisplayEventDefinitionCRFBean();
-            EventDefinitionCRFBean edcrf = (EventDefinitionCRFBean) eventDefinitionCRFs.get(i);
+            EventDefinitionCRFBean edcrf = eventDefinitionCRFs.get(i);
             dedc.setEdc(edcrf);
             Boolean b = (Boolean) completed.get(new Integer(edcrf.getCrfId()));
-            EventCRFBean ev = (EventCRFBean) startedButIncompleted.get(new Integer(edcrf.getCrfId()));
+            EventCRFBean ev = startedButIncompleted.get(new Integer(edcrf.getCrfId()));
             if (b == null || !b.booleanValue()) {
                 dedc.setEventCRF(ev);
                 answer.add(dedc);
@@ -342,7 +340,6 @@ public class EnterDataForStudyEventServlet extends SecureController {
         UserAccountDAO userAccountDAO = new UserAccountDAO(sm.getDataSource());
         UserAccountBean userAccountBean;
         EventCRFBean eventCRFBean;
-        EventDefinitionCRFBean eventDefinitionCRFBean;
 
         for (DisplayEventDefinitionCRFBean dedcBean : displayEventDefinitionCRFBeans) {
 
@@ -368,13 +365,13 @@ public class EnterDataForStudyEventServlet extends SecureController {
 
     }
 
-    private void populateUncompletedCRFsWithCRFAndVersions(ArrayList uncompletedEventDefinitionCRFs) {
+    private void populateUncompletedCRFsWithCRFAndVersions(ArrayList<DisplayEventDefinitionCRFBean> uncompletedEventDefinitionCRFs) {
         CRFDAO cdao = new CRFDAO(sm.getDataSource());
         CRFVersionDAO cvdao = new CRFVersionDAO(sm.getDataSource());
 
         int size = uncompletedEventDefinitionCRFs.size();
         for (int i = 0; i < size; i++) {
-            DisplayEventDefinitionCRFBean dedcrf = (DisplayEventDefinitionCRFBean) uncompletedEventDefinitionCRFs.get(i);
+            DisplayEventDefinitionCRFBean dedcrf = uncompletedEventDefinitionCRFs.get(i);
             CRFBean cb = (CRFBean) cdao.findByPK(dedcrf.getEdc().getCrfId());
             // note that we do not check status in the above query, so let's
             // check it here, tbh 102007
@@ -384,8 +381,8 @@ public class EnterDataForStudyEventServlet extends SecureController {
                 // go to the JSP for this one, I think
                 dedcrf.getEdc().setCrf(cb);
 
-                ArrayList theVersions = (ArrayList) cvdao.findAllActiveByCRF(dedcrf.getEdc().getCrfId());
-                ArrayList versions = new ArrayList();
+                ArrayList<CRFVersionBean> theVersions = cvdao.findAllActiveByCRF(dedcrf.getEdc().getCrfId());
+                ArrayList<CRFVersionBean> versions = new ArrayList<>();
                 HashMap<String, CRFVersionBean> crfVersionIds = new HashMap<String, CRFVersionBean>();
 
                 for (int j = 0; j < theVersions.size(); j++) {
@@ -439,95 +436,6 @@ public class EnterDataForStudyEventServlet extends SecureController {
     }
 
     /**
-     * Each of the event CRFs with its corresponding CRFBean. Then generates a
-     * list of DisplayEventCRFBeans, one for each event CRF.
-     *
-     * @param eventCRFs
-     *            The list of event CRFs for this study event.
-     * @param eventDefinitionCRFs
-     *            The list of event definition CRFs for this study event.
-     * @return The list of DisplayEventCRFBeans for this study event.
-     */
-    private ArrayList getDisplayEventCRFs(ArrayList eventCRFs, ArrayList eventDefinitionCRFs, SubjectEventStatus status) {
-
-        ArrayList answer = new ArrayList();
-
-        HashMap definitionsByCRFId = new HashMap();
-        int i;
-
-        for (i = 0; i < eventDefinitionCRFs.size(); i++) {
-            EventDefinitionCRFBean edc = (EventDefinitionCRFBean) eventDefinitionCRFs.get(i);
-            definitionsByCRFId.put(new Integer(edc.getCrfId()), edc);
-        }
-
-        CRFDAO cdao = new CRFDAO(sm.getDataSource());
-        CRFVersionDAO cvdao = new CRFVersionDAO(sm.getDataSource());
-        ItemDataDAO iddao = new ItemDataDAO(sm.getDataSource());
-
-        for (i = 0; i < eventCRFs.size(); i++) {
-            EventCRFBean ecb = (EventCRFBean) eventCRFs.get(i);
-
-            logger.debug("0. found event crf bean: " + ecb.getName());
-
-            // populate the event CRF with its crf bean
-            int crfVersionId = ecb.getCRFVersionId();
-            CRFBean cb = cdao.findByVersionId(crfVersionId);
-            logger.debug("1. found crf bean: " + cb.getName());
-
-            ecb.setCrf(cb);
-
-            CRFVersionBean cvb = (CRFVersionBean) cvdao.findByPK(crfVersionId);
-            logger.debug("2. found crf version bean: " + cvb.getName());
-
-            ecb.setCrfVersion(cvb);
-
-            logger.debug("found subj event status: " + status.getName() + " cb status: " + cb.getStatus().getName() + " cvb status: "
-                + cvb.getStatus().getName());
-            // below added tbh 092007
-            boolean invalidate = false;
-            if (status.isLocked()) {
-                ecb.setStage(DataEntryStage.LOCKED);
-            } else if (status.isInvalid()) {
-                ecb.setStage(DataEntryStage.LOCKED);
-                // invalidate = true;
-            } else if (!cb.getStatus().equals(Status.AVAILABLE)) {
-                logger.debug("got to the CB version of the logic");
-                ecb.setStage(DataEntryStage.LOCKED);
-                // invalidate= true;
-            } else if (!cvb.getStatus().equals(Status.AVAILABLE)) {
-                logger.debug("got to the CVB version of the logic");
-                ecb.setStage(DataEntryStage.LOCKED);
-                // invalidate = true;
-            }
-            logger.debug("found ecb stage of " + ecb.getStage().getName());
-
-            // above added tbh, 092007-102007
-            try {
-                // event crf collection will pull up events that have
-                // been started, but contain no data
-                // this creates problems if we remove CRFs from
-                // event definitions
-                EventDefinitionCRFBean edcb = (EventDefinitionCRFBean) definitionsByCRFId.get(new Integer(cb.getId()));
-                logger.debug("3. found event def crf bean: " + edcb.getName());
-
-                DisplayEventCRFBean dec = new DisplayEventCRFBean();
-
-                dec.setFlags(ecb, ub, currentRole, edcb.isDoubleEntry());
-                ArrayList idata = iddao.findAllByEventCRFId(ecb.getId());
-                if (!idata.isEmpty()) {
-                    // consider an event crf started only if item data get
-                    // created
-                    answer.add(dec);
-                }
-            } catch (NullPointerException npe) {
-                logger.debug("5. got to NPE on this time around!");
-            }
-        }
-
-        return answer;
-    }
-
-    /**
      * Generate a list of DisplayEventCRFBean objects for a study event. Some of
      * the DisplayEventCRFBeans will represent uncompleted Event CRFs; others
      * will represent Event CRFs which are in initial data entry, have completed
@@ -551,25 +459,25 @@ public class EnterDataForStudyEventServlet extends SecureController {
      *         event, ordered by the EventDefinitionCRF ordinal property, and
      *         with flags already set.
      */
-    public static ArrayList getDisplayEventCRFs(StudyEventBean studyEvent, EventCRFDAO ecdao, EventDefinitionCRFDAO edcdao, CRFVersionDAO crfvdao,
+    public static ArrayList<DisplayEventCRFBean> getDisplayEventCRFs(StudyEventBean studyEvent, EventCRFDAO ecdao, EventDefinitionCRFDAO edcdao, CRFVersionDAO crfvdao,
             UserAccountBean user, StudyUserRoleBean surb) {
-        ArrayList answer = new ArrayList();
-        HashMap indexByCRFId = new HashMap();
+        ArrayList<DisplayEventCRFBean> answer = new ArrayList<>();
+        HashMap<Integer, Integer> indexByCRFId = new HashMap<>();
 
-        ArrayList eventCRFs = ecdao.findAllByStudyEvent(studyEvent);
-        ArrayList eventDefinitionCRFs = edcdao.findAllByEventDefinitionId(studyEvent.getStudyEventDefinitionId());
+        ArrayList<EventCRFBean> eventCRFs = ecdao.findAllByStudyEvent(studyEvent);
+        ArrayList<EventDefinitionCRFBean> eventDefinitionCRFs = edcdao.findAllByEventDefinitionId(studyEvent.getStudyEventDefinitionId());
 
         // TODO: map this out to another function
-        ArrayList crfVersions = (ArrayList) crfvdao.findAll();
-        HashMap crfIdByCRFVersionId = new HashMap();
+        ArrayList<CRFVersionBean> crfVersions = crfvdao.findAll();
+        HashMap<Integer, Integer> crfIdByCRFVersionId = new HashMap<>();
         for (int i = 0; i < crfVersions.size(); i++) {
-            CRFVersionBean cvb = (CRFVersionBean) crfVersions.get(i);
+            CRFVersionBean cvb = crfVersions.get(i);
             crfIdByCRFVersionId.put(new Integer(cvb.getId()), new Integer(cvb.getCrfId()));
         }
 
         // put the event definition crfs inside DisplayEventCRFs
         for (int i = 0; i < eventDefinitionCRFs.size(); i++) {
-            EventDefinitionCRFBean edcb = (EventDefinitionCRFBean) eventDefinitionCRFs.get(i);
+            EventDefinitionCRFBean edcb = eventDefinitionCRFs.get(i);
             DisplayEventCRFBean decb = new DisplayEventCRFBean();
             decb.setEventDefinitionCRF(edcb);
 

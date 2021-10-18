@@ -19,7 +19,12 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
  */
 public class LogoutServlet extends SecureController {
 
-    @Override
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -6098692858165722854L;
+
+	@Override
     public void mayProceed() throws InsufficientPermissionException {
 
     }

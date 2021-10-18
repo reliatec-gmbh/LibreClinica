@@ -141,8 +141,7 @@ public class OdmFileCreation {
         int fId =
             createFileK(ODMXMLFileName, generalFileDir, metaReport.getXmlOutput().toString(), datasetBean, sysTimeEnd, ExportFormatBean.XMLFILE, false, zipped, deleteOld, userBean);
         if (!"".equals(generalFileDirCopy)) {
-            int fId2 =
-                createFileK(ODMXMLFileName, generalFileDirCopy, metaReport.getXmlOutput().toString(), datasetBean, sysTimeEnd, ExportFormatBean.XMLFILE,
+            createFileK(ODMXMLFileName, generalFileDirCopy, metaReport.getXmlOutput().toString(), datasetBean, sysTimeEnd, ExportFormatBean.XMLFILE,
                         false, zipped, deleteOld, userBean);
         }
         //////////////////////////////////////////
@@ -160,8 +159,7 @@ public class OdmFileCreation {
         fId =
             createFileK(ODMXMLFileName, generalFileDir, adminReport.getXmlOutput().toString(), datasetBean, sysTimeEnd, ExportFormatBean.XMLFILE, false, zipped, deleteOld, userBean);
         if (!"".equals(generalFileDirCopy)) {
-            int fId2 =
-                createFileK(ODMXMLFileName, generalFileDirCopy, adminReport.getXmlOutput().toString(), datasetBean, sysTimeEnd, ExportFormatBean.XMLFILE,
+            createFileK(ODMXMLFileName, generalFileDirCopy, adminReport.getXmlOutput().toString(), datasetBean, sysTimeEnd, ExportFormatBean.XMLFILE,
                         false, zipped, deleteOld, userBean);
         }
 
@@ -181,7 +179,7 @@ public class OdmFileCreation {
             JobTerminationMonitor.check();
 
             OdmStudyBase u = it.next();
-            ArrayList newRows =
+            ArrayList<StudySubjectBean> newRows =
                 dsdao.selectStudySubjects(u.getStudy().getId(), 0, st_sed_in, st_itemid_in, dsdao.genDatabaseDateConstraint(eb), ecStatusConstraint,
                         itStatusConstraint);
 
@@ -192,7 +190,7 @@ public class OdmFileCreation {
                 JobTerminationMonitor.check();
 
                 int toIndex = fromIndex + ssNumber < newRows.size() ? fromIndex + ssNumber : newRows.size() - 1;
-                List x = newRows.subList(fromIndex, toIndex + 1);
+                List<StudySubjectBean> x = newRows.subList(fromIndex, toIndex + 1);
                 fromIndex = toIndex + 1;
                 String studySubjectIds = "";
                 for (int i = 0; i < x.size(); i++) {
@@ -226,7 +224,7 @@ public class OdmFileCreation {
                 fId = createFileK(ODMXMLFileName, generalFileDir, report.getXmlOutput().toString(), datasetBean, sysTimeEnd, ExportFormatBean.XMLFILE,
                                     false, zipped, deleteOld, userBean);
                 if (!"".equals(generalFileDirCopy)) {
-                    int fId2 = createFileK(ODMXMLFileName, generalFileDirCopy, report.getXmlOutput().toString(), datasetBean, sysTimeEnd,
+                    createFileK(ODMXMLFileName, generalFileDirCopy, report.getXmlOutput().toString(), datasetBean, sysTimeEnd,
                                 ExportFormatBean.XMLFILE, false, zipped, deleteOld, userBean);
                 }
             }
@@ -235,7 +233,7 @@ public class OdmFileCreation {
         sysTimeEnd = System.currentTimeMillis() - sysTimeBegin;
         fId = createFileK(ODMXMLFileName, generalFileDir, "</ODM>", datasetBean, sysTimeEnd, ExportFormatBean.XMLFILE, saveToDB, zipped, deleteOld, userBean);
         if (!"".equals(generalFileDirCopy)) {
-            int fId2 = createFileK(ODMXMLFileName, generalFileDirCopy, "</ODM>", datasetBean, sysTimeEnd, ExportFormatBean.XMLFILE, false, zipped, deleteOld, userBean);
+            createFileK(ODMXMLFileName, generalFileDirCopy, "</ODM>", datasetBean, sysTimeEnd, ExportFormatBean.XMLFILE, false, zipped, deleteOld, userBean);
         }
 
         //////////////////////////////////////////
@@ -257,7 +255,7 @@ public class OdmFileCreation {
         if (!"".equals(generalFileDirCopy)) {
             int fId2 = this.createFile(ODMXMLFileName, generalFileDirCopy, report.getXmlOutput().toString(), datasetBean, sysTimeEnd, ExportFormatBean.XMLFILE, false);
         } */
-        HashMap answerMap = new HashMap<String, Integer>();
+        HashMap<String, Integer> answerMap = new HashMap<>();
         //JN: Zipped in the next stage as thats where the ODM file is named and copied over in default categories.
 //        if(zipped)
 //        { try {

@@ -256,22 +256,9 @@ public class CrfBulkRuleRunner extends RuleRunner {
                 ActionProcessor ap =
                     ActionProcessorFacade.getActionProcessor(ruleActionContainer.getRuleAction().getActionType(), ds, getMailSender(), dynamicsMetadataService,
                             ruleActionContainer.getRuleSetBean(), getRuleActionRunLogDao(), ruleActionContainer.getRuleAction().getRuleSetRule());
-                RuleActionBean rab = null;
                 ap.execute(RuleRunnerMode.RULSET_BULK, executionMode, ruleActionContainer.getRuleAction(), ruleActionContainer.getItemDataBean(),
                         DiscrepancyNoteBean.ITEM_DATA, currentStudy, ub, prepareEmailContents(ruleActionContainer.getRuleSetBean(), ruleActionContainer
                                 .getRuleAction().getRuleSetRule(), currentStudy, ruleActionContainer.getRuleAction()));
-                if (rab != null) {
-                    Key k =
-                        new Key(ruleActionContainer.getRuleSetBean(), ruleActionContainer.getRuleAction().getExpressionEvaluatesTo().toString(),
-                                ruleActionContainer.getRuleAction().getRuleSetRule().getRuleBean());
-                    if (hms.containsKey(k)) {
-                        hms.get(k).add(ruleActionContainer.getRuleAction());
-                    } else {
-                        List<RuleActionBean> theActionBeansToShow = new ArrayList<RuleActionBean>();
-                        theActionBeansToShow.add(ruleActionContainer.getRuleAction());
-                        hms.put(k, theActionBeansToShow);
-                    }
-                }
             }
             for (Map.Entry<Key, List<RuleActionBean>> theEntry : hms.entrySet()) {
                 Key key = theEntry.getKey();

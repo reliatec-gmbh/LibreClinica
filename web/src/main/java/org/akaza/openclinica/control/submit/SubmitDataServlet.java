@@ -25,7 +25,11 @@ import java.util.Locale;
  */
 public class SubmitDataServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -943359686230164872L;
+	Locale locale;
 
     // < ResourceBundleresexception,respage;
 

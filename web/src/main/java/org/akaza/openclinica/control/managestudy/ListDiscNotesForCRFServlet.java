@@ -7,6 +7,11 @@
  */
 package org.akaza.openclinica.control.managestudy;
 
+import static org.akaza.openclinica.core.util.ClassCastHelper.asHashSet;
+
+import java.util.HashSet;
+import java.util.Locale;
+
 /**
  *
  */
@@ -18,7 +23,6 @@ import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.control.submit.ListDiscNotesForCRFTableFactory;
-import org.akaza.openclinica.control.submit.SubmitDataServlet;
 import org.akaza.openclinica.dao.admin.CRFDAO;
 import org.akaza.openclinica.dao.managestudy.DiscrepancyNoteDAO;
 import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;
@@ -35,13 +39,13 @@ import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Set;
-
 public class ListDiscNotesForCRFServlet extends SecureController {
 
-    public static final String DISCREPANCY_NOTE_TYPE = "discrepancyNoteType";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1656492531464029310L;
+	public static final String DISCREPANCY_NOTE_TYPE = "discrepancyNoteType";
     public static final String RESOLUTION_STATUS = "resolutionStatus";
     public static final String FILTER_SUMMARY = "filterSummary";
     Locale locale;
@@ -119,7 +123,7 @@ public class ListDiscNotesForCRFServlet extends SecureController {
         // Set object should be cleared,
         // because we do not have to save a set of filter IDs.
         boolean hasAResolutionStatus = resolutionStatus >= 1 && resolutionStatus <= 5;
-        Set<Integer> resolutionStatusIds = (HashSet) session.getAttribute(RESOLUTION_STATUS);
+        HashSet<Integer> resolutionStatusIds = asHashSet(session.getAttribute(RESOLUTION_STATUS), Integer.class);
         // remove the session if there is no resolution status
         if (!hasAResolutionStatus && resolutionStatusIds != null) {
             session.removeAttribute(RESOLUTION_STATUS);
@@ -156,7 +160,6 @@ public class ListDiscNotesForCRFServlet extends SecureController {
         request.setAttribute(MODULE, module);
 
         int definitionId = fp.getInt("defId");
-        int tabId = fp.getInt("tab");
         if (definitionId <= 0) {
             addPageMessage(respage.getString("please_choose_an_ED_ta_to_vies_details"));
             forwardPage(Page.LIST_SUBJECT_DISC_NOTE_SERVLET);

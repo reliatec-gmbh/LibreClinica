@@ -8,7 +8,6 @@
 package org.akaza.openclinica.service.user;
 
 import java.text.MessageFormat;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -35,7 +34,6 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class LdapUserService {
-
 
     @Autowired
     private ContextSource contextSource;
@@ -81,9 +79,9 @@ public class LdapUserService {
         ldapTemplate.setIgnorePartialResultException(true);
     }
 
-    private final AttributesMapper ldapUserAttributesMapper = new AttributesMapper() {
+    private final AttributesMapper<LdapUser> ldapUserAttributesMapper = new AttributesMapper<LdapUser>() {
 
-        public Object mapFromAttributes(Attributes attributes) throws NamingException {
+        public LdapUser mapFromAttributes(Attributes attributes) throws NamingException {
             LdapUser u = new LdapUser();
             u.setDistinguishedName(attToString(attributes, keyDistinguishedName));
             u.setUsername(attToString(attributes, keyUsername));
@@ -106,13 +104,11 @@ public class LdapUserService {
     };
 
     /**
-     * Retrieves a list of users matching a <code>filter</code>. The filter must be a
-     * non-empty string.
+     * Retrieves a list of users matching a <code>filter</code>. The filter must be a non-empty string.
      *
-     * @param filter
-     * @return
+     * @param filter LDAP account username to search for in LDAP server
+     * @return List of found LdapUser objects matching the filter
      */
-    @SuppressWarnings("unchecked")
     public List<LdapUser> listUsers(String filter) {
         assert(!StringUtils.isEmpty(filter));
         String query = MessageFormat.format(userSearchQuery, filter);
@@ -123,21 +119,14 @@ public class LdapUserService {
      * Retrieves a list of users matching a <code>filter</code> which usernames are not present in
      * <code>existingUsers</code>.
      *
-     * @param filter
-     * @param existingUsers
-     * @return
+     * @param filter LDAP account username to search for in LDAP server
+     * @param existingUsers Local database account usernames to exclude from search
+     * @return List of found LdapUser objects matching the filter
      */
     public List<LdapUser> listNewUsers(String filter, Set<String> existingUsers) {
         List<LdapUser> result = listUsers(filter);
         if (existingUsers != null) {
-            Iterator<LdapUser> it = result.iterator();
-
-            while (it.hasNext()) {
-                LdapUser user = it.next();
-                if (existingUsers.contains(user.getUsername())) {
-                    it.remove();
-                }
-            }
+            result.removeIf(user -> existingUsers.contains(user.getUsername()));
         }
         return result;
     }
@@ -145,11 +134,12 @@ public class LdapUserService {
     /**
      * Loads a user by its distinguished name
      *
-     * @param dn
-     * @return
+     * @param dn distinguished name
+     * @return LdapUser object found for provided distinguished name
      */
+    @SuppressWarnings("unchecked")
     public LdapUser loadUser(String dn) {
-        return (LdapUser) ldapTemplate.lookup(dn, ldapUserAttributesMapper);
+        return ldapTemplate.lookup(dn, ldapUserAttributesMapper);
     }
 
     public DirContextOperations searchForUser(String username) {

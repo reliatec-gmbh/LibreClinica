@@ -14,11 +14,14 @@
  */
 package org.akaza.openclinica.control.submit;
 
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Set;
+
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.rule.XmlSchemaValidationHelper;
 import org.akaza.openclinica.control.SpringServletAccess;
 import org.akaza.openclinica.control.core.SecureController;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.domain.rule.RuleBulkExecuteContainer;
 import org.akaza.openclinica.domain.rule.RuleBulkExecuteContainerTwo;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
@@ -30,10 +33,6 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
-
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Set;
 
 /**
  * Run Rules Using this Servlet
@@ -56,7 +55,7 @@ public class RunRuleServlet extends SecureController {
         String ruleSetRuleId = request.getParameter("ruleSetRuleId");
         String versionId = request.getParameter("versionId");
 
-        if (StringUtil.isBlank(action)) {
+        if (action == null || action.trim().isEmpty()) {
             // TODO : if someone tampers with URL catch here and forwar to correct place
             forwardPage(Page.MENU_SERVLET);
         }

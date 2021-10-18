@@ -7,6 +7,12 @@
  */
 package org.akaza.openclinica.control.extract;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+
+import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.extract.DatasetBean;
@@ -23,12 +29,6 @@ import org.akaza.openclinica.dao.managestudy.StudyGroupClassDAO;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-
 /**
  * @author thickerson
  *
@@ -36,7 +36,12 @@ import java.util.List;
  */
 public class EditDatasetServlet extends SecureController {
 
-    public static String getLink(int dsId) {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -6853606383296360409L;
+
+	public static String getLink(int dsId) {
         return "EditDataset?dsId=" + dsId;
     }
 
@@ -67,14 +72,15 @@ public class EditDatasetServlet extends SecureController {
             return;
         }
 
-
-        HashMap events = (LinkedHashMap) session.getAttribute("eventsForCreateDataset");
+        @SuppressWarnings("unchecked")
+		LinkedHashMap<StudyEventDefinitionBean, ArrayList<CRFBean>> events = 
+			(LinkedHashMap<StudyEventDefinitionBean, ArrayList<CRFBean>>) session.getAttribute("eventsForCreateDataset");
         // << tbh
         CRFDAO crfdao = new CRFDAO(sm.getDataSource());
 
         // >> tbh 11/2009
         if (events == null || events.isEmpty()) {
-            events = new LinkedHashMap();
+            events = new LinkedHashMap<>();
             StudyEventDefinitionDAO seddao = new StudyEventDefinitionDAO(sm.getDataSource());
 
             StudyBean studyWithEventDefinitions = currentStudy;
@@ -83,10 +89,10 @@ public class EditDatasetServlet extends SecureController {
                 studyWithEventDefinitions.setId(currentStudy.getParentStudyId());
 
             }
-            ArrayList seds = seddao.findAllActiveByStudy(studyWithEventDefinitions);
+            ArrayList<StudyEventDefinitionBean> seds = seddao.findAllActiveByStudy(studyWithEventDefinitions);
             for (int i = 0; i < seds.size(); i++) {
                 StudyEventDefinitionBean sed = (StudyEventDefinitionBean) seds.get(i);
-                ArrayList crfs = (ArrayList) crfdao.findAllActiveByDefinition(sed);
+                ArrayList<CRFBean> crfs = crfdao.findAllActiveByDefinition(sed);
                 if (!crfs.isEmpty()) {
                     events.put(sed, crfs);
                 }
@@ -145,10 +151,10 @@ public class EditDatasetServlet extends SecureController {
 
     }
 
-    private ArrayList getStatuses() {
+    private ArrayList<Status> getStatuses() {
         Status statusesArray[] = { Status.AVAILABLE, Status.PENDING, Status.PRIVATE, Status.UNAVAILABLE };
-        List statuses = Arrays.asList(statusesArray);
-        return new ArrayList(statuses);
+        List<Status> statuses = Arrays.asList(statusesArray);
+        return new ArrayList<>(statuses);
     }
 
     /**

@@ -7,6 +7,11 @@
  */
 package org.akaza.openclinica.view.form;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.util.List;
+
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.Format;
@@ -14,28 +19,18 @@ import org.jdom.output.XMLOutputter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Created by IntelliJ IDEA. User: bruceperry Date: May 15, 2007
  */
 public class DefaultFormBuilder implements FormBuilder {
     private Logger logger= LoggerFactory.getLogger(getClass().getName());
 
-    // The object that will provide the content of the table's headers and cells
-    private List<Object> displayItems;
-
     public DefaultFormBuilder() {
         super();
-        this.displayItems = new ArrayList<Object>();
     }
 
     public DefaultFormBuilder(List<Object> displayItems) {
-        this.displayItems = displayItems;
+    	// TODO displayItems not used
     }
 
     public String createMarkup() {

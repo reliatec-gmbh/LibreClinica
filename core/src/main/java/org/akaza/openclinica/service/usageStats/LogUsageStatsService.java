@@ -68,7 +68,7 @@ public class LogUsageStatsService {
     /**
      * @pgawade Method to log the event - start of LibreClinica initialization
      */
-    public static void logEventOCStart(Map eventDetailsMap) {
+    public static void logEventOCStart(Map<String, String> eventDetailsMap) {
         // Format the event details
         String eventDetails = "";
         StringBuffer bufEventDetails = new StringBuffer();

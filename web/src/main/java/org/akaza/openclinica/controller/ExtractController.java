@@ -20,7 +20,6 @@ import org.akaza.openclinica.bean.extract.ExtractPropertyBean;
 import org.akaza.openclinica.bean.login.StudyUserRoleBean;
 import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.dao.core.CoreResources;
-import org.akaza.openclinica.dao.core.SQLFactory;
 import org.akaza.openclinica.dao.extract.DatasetDAO;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
@@ -103,7 +102,6 @@ public class ExtractController {
         // set the job in motion
         String[] files = epBean.getFileName();
         String exportFileName;
-        int fileSize = files.length;
         int  cnt = 0;
         JobDetailFactoryBean jobDetailBean = new JobDetailFactoryBean();
         SimpleTrigger simpleTrigger = null;
@@ -164,12 +162,12 @@ public class ExtractController {
                 endFilePath + File.separator,
                 exportFileName,
                 dsBean.getId(),
-                epBean, userBean, LocaleResolver.getLocale(request).getLanguage(),cnt,  SQLInitServlet.getField("filePath") + "xslt",this.TRIGGER_GROUP_NAME);
+                epBean, userBean, LocaleResolver.getLocale(request).getLanguage(),cnt,  SQLInitServlet.getField("filePath") + "xslt",TRIGGER_GROUP_NAME);
         // System.out.println("just set locale: " + LocaleResolver.getLocale(request).getLanguage());
 
         cnt++;
         jobDetailBean = new JobDetailFactoryBean();
-        jobDetailBean.setGroup(this.TRIGGER_GROUP_NAME);
+        jobDetailBean.setGroup(TRIGGER_GROUP_NAME);
         jobDetailBean.setName(simpleTrigger.getKey().getName()+System.currentTimeMillis());
         jobDetailBean.setJobClass(org.akaza.openclinica.job.XsltStatefulJob.class);
         jobDetailBean.setJobDataMap(simpleTrigger.getJobDataMap());
@@ -189,18 +187,10 @@ public class ExtractController {
         if(jobDetailBean!=null)
         request.getSession().setAttribute("jobName", jobDetailBean.getObject().getKey().getName());
         if(simpleTrigger!= null)
-        request.getSession().setAttribute("groupName", this.TRIGGER_GROUP_NAME);
+        request.getSession().setAttribute("groupName", TRIGGER_GROUP_NAME);
 
         request.getSession().setAttribute("datasetId", new Integer(dsBean.getId()));
         return map;
-    }
-
-    /**
-     * @deprecated Use {@link #setAllProps(ExtractPropertyBean,DatasetBean,SimpleDateFormat,ExtractUtils)} instead
-     */
-    @Deprecated
-    private ExtractPropertyBean setAllProps(ExtractPropertyBean epBean,DatasetBean dsBean,SimpleDateFormat sdfDir) {
-        return setAllProps(epBean, dsBean, sdfDir,new ExtractUtils());
     }
 
     private ExtractPropertyBean setAllProps(ExtractPropertyBean epBean,DatasetBean dsBean,SimpleDateFormat sdfDir, ExtractUtils extractUtils) {
@@ -230,33 +220,6 @@ public class ExtractController {
      * @param endFilePath
      * @param dsBean
      * @param sdfDir
-     * @return
-     * @deprecated Use {@link #resolveVars(String,DatasetBean,SimpleDateFormat,String, ExtractUtils)} instead
-     */
-    @Deprecated
-    private String resolveVars(String endFilePath,DatasetBean dsBean,SimpleDateFormat sdfDir){
-        return resolveVars(endFilePath, dsBean, sdfDir, SQLInitServlet.getField("filePath"),new ExtractUtils());
-    }
-
-    /**
-     * Returns the datetime based on pattern :"yyyy-MM-dd-HHmmssSSS", typically for resolving file name
-     * @param endFilePath
-     * @param dsBean
-     * @param sdfDir
-     * @param filePath TODO
-     * @return
-     * @deprecated Use {@link #resolveVars(String,DatasetBean,SimpleDateFormat,String,ExtractUtils)} instead
-     */
-    @Deprecated
-    private String resolveVars(String endFilePath,DatasetBean dsBean,SimpleDateFormat sdfDir, String filePath){
-        return resolveVars(endFilePath, dsBean, sdfDir, filePath, new ExtractUtils());
-    }
-
-    /**
-     * Returns the datetime based on pattern :"yyyy-MM-dd-HHmmssSSS", typically for resolving file name
-     * @param endFilePath
-     * @param dsBean
-     * @param sdfDir
      * @param filePath TODO
      * @param extractUtils TODO
      * @return
@@ -265,50 +228,12 @@ public class ExtractController {
         return extractUtils.resolveVars(endFilePath, dsBean, sdfDir, filePath);
 
    }
-    private void setUpSidebar(HttpServletRequest request) {
-        if (sidebarInit.getAlertsBoxSetup() == SidebarEnumConstants.OPENALERTS) {
-            request.setAttribute("alertsBoxSetup", true);
-        }
-
-        if (sidebarInit.getInfoBoxSetup() == SidebarEnumConstants.OPENINFO) {
-            request.setAttribute("infoBoxSetup", true);
-        }
-        if (sidebarInit.getInstructionsBoxSetup() == SidebarEnumConstants.OPENINSTRUCTIONS) {
-            request.setAttribute("instructionsBoxSetup", true);
-        }
-
-        if (!(sidebarInit.getEnableIconsBoxSetup() == SidebarEnumConstants.DISABLEICONS)) {
-            request.setAttribute("enableIconsBoxSetup", true);
-        }
-    }
-
     public SidebarInit getSidebarInit() {
         return sidebarInit;
     }
 
     public void setSidebarInit(SidebarInit sidebarInit) {
         this.sidebarInit = sidebarInit;
-    }
-
-    private String resolveExportFilePath(String  epBeanFileName) {
-        // String retMe = "";
-        //String epBeanFileName = epBean.getExportFileName();
-        // important that this goes first, tbh
-        if (epBeanFileName.contains("$datetime")) {
-            String dateTimeFilePattern = "yyyy-MM-dd-HHmmssSSS";
-            SimpleDateFormat sdfDir = new SimpleDateFormat(dateTimeFilePattern);
-            epBeanFileName = epBeanFileName.replace("$datetime", sdfDir.format(new java.util.Date()));
-        } else if (epBeanFileName.contains("$date")) {
-            String dateFilePattern = "yyyy-MM-dd";
-            SimpleDateFormat sdfDir = new SimpleDateFormat(dateFilePattern);
-            epBeanFileName = epBeanFileName.replace("$date", sdfDir.format(new java.util.Date()));
-            // sdfDir.format(new java.util.Date())
-            // retMe = epBean.getFileLocation() + File.separator + epBean.getExportFileName() + "." + epBean.getPostProcessing().getFileType();
-        } else {
-            // retMe = epBean.getFileLocation() + File.separator + epBean.getExportFileName() + "." + epBean.getPostProcessing().getFileType();
-        }
-        return epBeanFileName;// + "." + epBean.getPostProcessing().getFileType();// not really the case - might be text to pdf
-        // return retMe;
     }
 
     private boolean mayProceed(HttpServletRequest request) {

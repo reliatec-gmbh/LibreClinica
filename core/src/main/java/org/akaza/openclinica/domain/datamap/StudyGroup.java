@@ -20,7 +20,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import org.akaza.openclinica.domain.AbstractMutableDomainObject;
 import org.akaza.openclinica.domain.DataMapDomainObject;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -37,11 +36,15 @@ import org.hibernate.annotations.Parameter;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class StudyGroup  extends DataMapDomainObject {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4718571896793827465L;
 	private int studyGroupId;
 	private StudyGroupClass studyGroupClass;
 	private String name;
 	private String description;
-	private Set<SubjectGroupMap> subjectGroupMaps = new HashSet(0);
+	private Set<SubjectGroupMap> subjectGroupMaps = new HashSet<>(0);
 
 	public StudyGroup() {
 	}
@@ -51,7 +54,7 @@ public class StudyGroup  extends DataMapDomainObject {
 	}
 
 	public StudyGroup(int studyGroupId, StudyGroupClass studyGroupClass,
-			String name, String description, Set subjectGroupMaps) {
+			String name, String description, Set<SubjectGroupMap> subjectGroupMaps) {
 		this.studyGroupId = studyGroupId;
 		this.studyGroupClass = studyGroupClass;
 		this.name = name;

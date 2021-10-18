@@ -9,12 +9,12 @@ package org.akaza.openclinica.control.admin;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Random;
 import java.util.UUID;
 
 import org.akaza.openclinica.bean.core.NumericComparisonOperator;
 import org.akaza.openclinica.bean.core.UserType;
 import org.akaza.openclinica.bean.login.UserAccountBean;
+import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.control.SpringServletAccess;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
@@ -28,12 +28,15 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.akaza.openclinica.web.SQLInitServlet;
 
 /**
- * @author ssachs
+ * Servlet for creating a user account.
  *
- *         Servlet for creating a user account.
+ * @author ssachs
  */
 public class EditUserAccountServlet extends SecureController {
-    public static final String INPUT_FIRST_NAME = "firstName";
+
+	private static final long serialVersionUID = -6961254006943513921L;
+
+	public static final String INPUT_FIRST_NAME = "firstName";
 
     public static final String INPUT_LAST_NAME = "lastName";
 
@@ -71,9 +74,9 @@ public class EditUserAccountServlet extends SecureController {
 
     public static final String USER_ACCOUNT_NOTIFICATION = "notifyPassword";
 
-    private ArrayList getAllStudies() {
+    private ArrayList<StudyBean> getAllStudies() {
         StudyDAO sdao = new StudyDAO(sm.getDataSource());
-        return (ArrayList) sdao.findAll();
+        return sdao.findAll();
     }
 
     public static String getLink(int userId) {
@@ -86,8 +89,6 @@ public class EditUserAccountServlet extends SecureController {
             addPageMessage(respage.getString("no_have_correct_privilege_current_study") + respage.getString("change_study_contact_sysadmin"));
             throw new InsufficientPermissionException(Page.MENU_SERVLET, resexception.getString("you_may_not_perform_administrative_functions"), "1");
         }
-
-        return;
     }
 
     @Override
@@ -95,12 +96,12 @@ public class EditUserAccountServlet extends SecureController {
         FormProcessor fp = new FormProcessor(request);
 
         // because we need to use this in the confirmation and error parts too
-        ArrayList studies = getAllStudies();
+        ArrayList<StudyBean> studies = getAllStudies();
         request.setAttribute("studies", studies);
 
         int userId = fp.getInt(ARG_USERID);
         UserAccountDAO udao = new UserAccountDAO(sm.getDataSource());
-        UserAccountBean user = (UserAccountBean) udao.findByPK(userId);
+        UserAccountBean user = udao.findByPK(userId);
 
         int stepNum = fp.getInt(ARG_STEPNUM);
 
@@ -132,7 +133,7 @@ public class EditUserAccountServlet extends SecureController {
             v.addValidation(INPUT_INSTITUTION, Validator.NO_BLANKS);
             v.addValidation(INPUT_INSTITUTION, Validator.LENGTH_NUMERIC_COMPARISON, NumericComparisonOperator.LESS_THAN_OR_EQUAL_TO, 255);
 
-            HashMap errors = v.validate();
+            HashMap<String, ArrayList<String>> errors = v.validate();
 
             if (errors.isEmpty()) {
                 loadPresetValuesFromForm(fp);
@@ -170,11 +171,12 @@ public class EditUserAccountServlet extends SecureController {
                 user.setEmail(fp.getString(INPUT_EMAIL));
                 user.setInstitutionalAffiliation(fp.getString(INPUT_INSTITUTION));
                 user.setUpdater(ub);
-                user.setRunWebservices(fp.getBoolean(INPUT_RUN_WEBSERVICES));
+                boolean isSoap = fp.getBoolean(INPUT_RUN_WEBSERVICES);
+                user.setRunWebservices(isSoap);
                 user.setEnableApiKey(true);
  
-               String apiKey=null; 		
-               do{
+               String apiKey;
+               do {
                 	apiKey=getRandom32ChApiKey() ;
                } while(isApiKeyExist(apiKey));                
                user.setApiKey(apiKey);
@@ -191,8 +193,7 @@ public class EditUserAccountServlet extends SecureController {
                 if (fp.getBoolean(INPUT_RESET_PASSWORD)) {
                     SecurityManager sm = ((SecurityManager) SpringServletAccess.getApplicationContext(context).getBean("securityManager"));
                     String password = sm.genPassword();
-                    String passwordHash = sm.encrytPassword(password, getUserDetails());
-
+                    String passwordHash = sm.encryptPassword(password, isSoap);
                     user.setPasswd(passwordHash);
                     user.setPasswdTimestamp(null);
 
@@ -222,37 +223,6 @@ public class EditUserAccountServlet extends SecureController {
         }
     }
 
-    // public void processRequest(HttpServletRequest request,
-    // HttpServletResponse
-    // response)
-    // throws OpenClinicaException {
-    // session = request.getSession();
-    // session.setMaxInactiveInterval(60 * 60 * 3);
-    // logger.setLevel(Level.ALL);
-    // UserAccountBean ub = (UserAccountBean) session.getAttribute("userBean");
-    // try {
-    // String userName = request.getRemoteUser();
-    //
-    // sm = new SessionManager(ub, userName);
-    // ub = sm.getUserBean();
-    // if (logger.isLoggable(Level.INFO)) {
-    // logger.info("user bean from DB" + ub.getName());
-    // }
-    //
-    // SQLFactory factory = SQLFactory.getInstance();
-    // UserAccountDAO udao = new UserAccountDAO(sm.getDataSource());
-    //
-    // HashMap presetValues;
-    // } catch (Exception e) {
-    // e.printStackTrace();
-    // logger.warn("OpenClinicaException::
-    // OpenClinica.control.editUserAccount:
-    // " + e.getMessage());
-    //
-    // forwardPage(Page.ERROR, request, response);
-    // }
-    // }
-
     private void loadPresetValuesFromBean(FormProcessor fp, UserAccountBean user) {
         fp.addPresetValue(INPUT_FIRST_NAME, user.getFirstName());
         fp.addPresetValue(INPUT_LAST_NAME, user.getLastName());
@@ -268,7 +238,7 @@ public class EditUserAccountServlet extends SecureController {
         // UserType.USER.getId();
         fp.addPresetValue(INPUT_USER_TYPE, userTypeId);
         fp.addPresetValue(ARG_USERID, user.getId());
-        fp.addPresetValue(INPUT_RUN_WEBSERVICES, user.getRunWebservices() == true ? 1 : 0);
+        fp.addPresetValue(INPUT_RUN_WEBSERVICES, user.getRunWebservices() ? 1 : 0);
 
         String sendPwd = SQLInitServlet.getField("user_account_notification");
         fp.addPresetValue(USER_ACCOUNT_NOTIFICATION, sendPwd);
@@ -289,9 +259,9 @@ public class EditUserAccountServlet extends SecureController {
         // fp.setCurrentBoolValuesAsPreset(chkFields);
     }
 
-    private ArrayList getUserTypes() {
+    private ArrayList<UserType> getUserTypes() {
 
-        ArrayList types = UserType.toArrayList();
+        ArrayList<UserType> types = UserType.toArrayList();
         types.remove(UserType.INVALID);
         if (!ub.isTechAdmin()) {
             types.remove(UserType.TECHADMIN);
@@ -302,13 +272,15 @@ public class EditUserAccountServlet extends SecureController {
     private void sendResetPasswordEmail(UserAccountBean user, String password) throws Exception {
         logger.info("Sending password reset notification to " + user.getName());
 
-        String body = resword.getString("dear") + " " + user.getFirstName() + " " + user.getLastName() + ",<br/>\n";
-        body += restext.getString("your_password_has_been_reset_on_openclinica") + ":<br/><br/>\n\n";
-        body += resword.getString("user_name") + ": " + user.getName() + "<br/>\n";
-        body += resword.getString("password") + ": " + password + "<br/><br/>\n\n";
-        body += restext.getString("please_test_your_login_information_and_let") + "<br/>\n";
-        body += "<a href='" + SQLInitServlet.getField("sysURL") + "'>" + SQLInitServlet.getField("sysURL") + "</a><br/>\n";
-        body += restext.getString("openclinica_system_administrator");
+        String body = resword.getString("dear") + " " +
+            user.getFirstName() + " " + user.getLastName() + ",<br/>\n" +
+            restext.getString("your_password_has_been_reset_on_openclinica") + ":<br/><br/>\n\n" +
+            resword.getString("user_name") + ": " + user.getName() + "<br/>\n" +
+            resword.getString("password") + ": " + password + "<br/><br/>\n\n" +
+            restext.getString("please_test_your_login_information_and_let") + "<br/>\n" + "<a href='" +
+            SQLInitServlet.getField("sysURL") + "'>" +
+            SQLInitServlet.getField("sysURL") + "</a><br/>\n" +
+            restext.getString("openclinica_system_administrator");
 
         sendEmail(user.getEmail().trim(), restext.getString("your_openclinica_account_password_reset"), body, false);
     }
@@ -319,19 +291,14 @@ public class EditUserAccountServlet extends SecureController {
     }
 
 	public Boolean isApiKeyExist(String uuid) {
-		UserAccountDAO udao = new UserAccountDAO(sm.getDataSource());
-		UserAccountBean uBean = (UserAccountBean) udao.findByApiKey(uuid);
-		if (uBean == null || !uBean.isActive()) {
-			return false;
-		} else {
-			return true;
-		}
-
+		UserAccountDAO userDao = new UserAccountDAO(sm.getDataSource());
+		UserAccountBean user = userDao.findByApiKey(uuid);
+        return user != null && user.isActive();
 	}
 
 	public String getRandom32ChApiKey() {
 		String uuid = UUID.randomUUID().toString();
-	//	System.out.print(uuid.replaceAll("-", ""));
+	    //logger.debug(uuid.replaceAll("-", ""));
 		return uuid.replaceAll("-", "");
 	}
     

@@ -14,6 +14,25 @@
  */
 package org.akaza.openclinica.ws;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Locale;
+
+import javax.sql.DataSource;
+import javax.xml.bind.JAXBElement;
+import javax.xml.datatype.DatatypeConstants;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Source;
+import javax.xml.transform.dom.DOMSource;
+
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.login.StudyUserRoleBean;
 import org.akaza.openclinica.bean.login.UserAccountBean;
@@ -27,7 +46,6 @@ import org.akaza.openclinica.dao.login.UserAccountDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDefinitionDAO;
-import org.akaza.openclinica.dao.managestudy.StudySubjectDAO;
 import org.akaza.openclinica.dao.submit.SubjectDAO;
 import org.akaza.openclinica.exception.OpenClinicaSystemException;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
@@ -58,25 +76,6 @@ import org.springframework.ws.server.endpoint.annotation.XPathParam;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.Locale;
-
-import javax.sql.DataSource;
-import javax.xml.bind.JAXBElement;
-import javax.xml.datatype.DatatypeConstants;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Source;
-import javax.xml.transform.dom.DOMSource;
 
 /**
  * @author Krikor Krumlian
@@ -176,12 +175,11 @@ public class StudySubjectEndpoint {
             throw eee;
         }
     }
-
     
     /**
-       * Use this method to find if studysubject exists by study/site/subject lable.
+       * Use this method to find if study subject exists by study/site/subject table.
      * 
-     * @param requestElement
+     * @param subject
      * @return studySubjectOID
      * @throws Exception
   */
@@ -266,7 +264,6 @@ public class StudySubjectEndpoint {
         StudyEventDefinitionDAO studyEventDefinitionDao = new StudyEventDefinitionDAO(dataSource);
         EventsType eventsType = new EventsType();
         List<StudyEventBean> events = eventDao.findAllByStudySubject(studySubject);
-        StudyEventDefinitionBean eb=null;
         for (StudyEventBean studyEventBean : events) {
         	 StudyEventDefinitionBean sed = (StudyEventDefinitionBean) studyEventDefinitionDao.findByPK(studyEventBean.getStudyEventDefinitionId());
         	 studyEventBean.setStudyEventDefinition(sed);
@@ -390,7 +387,7 @@ public class StudySubjectEndpoint {
     /**
      * Process createStudySubject request by creating SubjectStudyDefinitionBean from received payload.
      * 
-     * @param subjectElement
+     * @param subjectStudyElement
      * @return SubjectTransferBean
      * @throws ParseException
      */
@@ -430,19 +427,6 @@ public class StudySubjectEndpoint {
             logger.debug("creating subject transfer");
             return createSubject(subjectTransferBean);
         //}
-    }
-
-    /**
-     * @param subjectTransferBean
-     * @return
-     */
-    private boolean doesSubjectExist(SubjectTransferBean subjectTransferBean) {
-        // TODO: Implement this
-        StudySubjectDAO ssdao = new StudySubjectDAO(dataSource);
-        StudyDAO studyDao = new StudyDAO(dataSource);
-        StudyBean studyBean = studyDao.findByUniqueIdentifier(subjectTransferBean.getStudy().getIdentifier());
-        StudySubjectBean ssbean = ssdao.findByLabelAndStudy(subjectTransferBean.getStudySubjectId(), studyBean);
-        return ssbean.getId() > 0 ? true : false;
     }
 
     private String createSubject(SubjectTransferBean subjectTransfer) {
@@ -572,7 +556,7 @@ public class StudySubjectEndpoint {
         Calendar c = Calendar.getInstance();
         c.setTime(dd);
         if (c.get(Calendar.YEAR) < 1900 || c.get(Calendar.YEAR) > 9999) {
-        	throw new Exception("Unparsable date: "+dateAsString);
+        	throw new Exception("Unparseable date: " + dateAsString);
         }
         return dd;
     }

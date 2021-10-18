@@ -22,6 +22,7 @@ import java.util.Locale;
 
 import javax.sql.DataSource;
 
+// TODO duplicate of the version in the web module?
 public class OpenClinicaSessionRegistryImpl extends SessionRegistryImpl {
 
     AuditUserLoginDao auditUserLoginDao;

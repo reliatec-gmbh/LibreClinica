@@ -20,7 +20,11 @@ import javax.persistence.Transient;
 @DiscriminatorValue("7")
 public class NotificationActionBean extends RuleActionBean implements Serializable {
 
-    private String to;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 9143543582222108323L;
+	private String to;
     private String subject="";
     private String message;
 

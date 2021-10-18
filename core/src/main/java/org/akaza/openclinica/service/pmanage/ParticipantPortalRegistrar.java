@@ -110,7 +110,7 @@ public class ParticipantPortalRegistrar {
             if (baseUrl.getPort() > 0)
                 port = ":" + String.valueOf(baseUrl.getPort());
             // Check that hostname makes a valid URL
-            URL customerUrl = new URL(baseUrl.getProtocol() + "://" + hostName + "." + baseUrl.getHost() + port);
+            new URL(baseUrl.getProtocol() + "://" + hostName + "." + baseUrl.getHost() + port);
             // Check that hostname only contains alphanumeric characters and/or hyphens
             if (hostName.matches("^[A-Za-z0-9-]+$"))
                 return true;
@@ -135,7 +135,7 @@ public class ParticipantPortalRegistrar {
         RestTemplate rest = new RestTemplate(requestFactory);
 
         try {
-            ParticipantDTO response = rest.postForObject(pManageUrl, participantDTO, ParticipantDTO.class);
+            rest.postForObject(pManageUrl, participantDTO, ParticipantDTO.class);
         } catch (Exception e) {
             logger.error(e.getMessage());
             logger.error(ExceptionUtils.getStackTrace(e));

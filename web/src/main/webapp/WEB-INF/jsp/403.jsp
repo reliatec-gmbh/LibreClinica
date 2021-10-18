@@ -11,58 +11,43 @@
 
 <jsp:useBean scope='request' id='formMessages' class='java.util.HashMap'/>
 
-    <!-- 
-    
-    userRole: <c:out value="${userRole.role.name}"/>
-    
-    
-     -->
-
 <c:choose>
 	<c:when test="${userBean != null && userRole != null && userRole.role.name != 'invalid' && passwordExpired == 'no'}">
 		<!-- homeheader.jsp BEGIN -->
 		<jsp:include page="include/home-header.jsp"/>
 		<!-- homeheader.jsp END -->
-
-
 		<jsp:include page="include/sidebar.jsp"/>
 	</c:when>
 	<c:otherwise>
 		<jsp:include page="login-include/login-header.jsp"/>
-
 		<jsp:include page="include/userbox-inactive.jsp"/>
-		<table border="0" cellpadding=0" cellspacing="0">
-			<tr><td class="sidebar" valign="top"><br><b><a href="j_spring_security_logout"><fmt:message key="logout" bundle="${restext}"/></a></b></br></td>
-				<td class="content" valign="top">
+		<table>
+			<tr><td class="sidebar" valign="top">
+				<br /><b><a href="${pageContext.request.contextPath}/j_spring_security_logout"><fmt:message key="logout" bundle="${restext}"/></a></b>
+				<br /><b><a href="${pageContext.request.contextPath}/MainMenu"><fmt:message key="nav_home" bundle="${resword}"/></a></b>
+			</td>
+			<td class="content" valign="top">
 	</c:otherwise>
 </c:choose>
 
+<!-- start of 403.jsp -->
 <h1><span class="title_manage"><fmt:message key="403_error_msg_header" bundle="${resword}"/></span></h1> 
 <c:if test="${! empty formMessages}">
-    <!-- initial position for data entry error messages; we'll
-    improve the style as well -->
     <div id="errorMessagesContainer" class="aka_err_message">
         <ul>
             <c:forEach var="formMsg" items="${formMessages}">
-                <li style="color:  #ff0000"><span style="text-decoration: underline"><strong><label for="<c:out value="${formMsg.key}" />"><c:out value="${formMsg.value}" /></label></strong></span></li>
+                <li class='form_msg'><label for="<c:out value="${formMsg.key}" />"><c:out value="${formMsg.value}" /></label></li>
             </c:forEach>
         </ul>
-        <!--  Use the formMessages request attribute to grab each validation
-      error message?
-      error messages look like:
-
-       Woops, you forgot to provide a value for
-       <strong><label for="formElementName">formElementName</label></strong>.<br/>-->
     </div>
 </c:if>
 
 <font class="bodytext">
-
-<fmt:message key="403_error_msg_body" bundle="${resword}"/>
-
+	<fmt:message key="403_error_msg_body" bundle="${resword}"/>
 </font>
 </td></tr></table>
 
+<!-- end of 403.jsp -->
 <c:choose>
 	<c:when test="${userBean != null && userRole != null && userRole.role.name != 'invalid' && passwordExpired == 'no'}">
 		<jsp:include page="include/footer.jsp"/>

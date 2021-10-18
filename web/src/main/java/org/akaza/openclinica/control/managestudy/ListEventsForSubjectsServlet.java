@@ -51,7 +51,6 @@ public class ListEventsForSubjectsServlet extends SecureController {
     private CRFDAO crfDAO;
     Locale locale;
     private boolean showMoreLink;
-	private Object crfVersionDAO;
     /*
      * (non-Javadoc)
      *

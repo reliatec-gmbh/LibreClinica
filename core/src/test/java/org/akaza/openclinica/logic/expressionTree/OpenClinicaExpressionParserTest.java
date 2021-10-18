@@ -8,10 +8,6 @@
 package org.akaza.openclinica.logic.expressionTree;
 
 import org.akaza.openclinica.exception.OpenClinicaSystemException;
-import org.joda.time.DateMidnight;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
-
 import junit.framework.TestCase;
 
 public class OpenClinicaExpressionParserTest extends TestCase {

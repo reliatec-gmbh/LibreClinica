@@ -7,30 +7,22 @@
  */
 package org.akaza.openclinica.dao.submit;
 
-import org.akaza.openclinica.bean.core.EntityBean;
-import org.akaza.openclinica.bean.submit.ItemGroupMetadataBean;
-import org.akaza.openclinica.dao.core.EntityDAO;
-import org.akaza.openclinica.dao.core.PreparedStatementFactory;
-import org.akaza.openclinica.dao.core.SQLFactory;
-import org.akaza.openclinica.dao.core.TypeNames;
-import org.akaza.openclinica.exception.OpenClinicaException;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.akaza.openclinica.bean.submit.ItemGroupMetadataBean;
+import org.akaza.openclinica.dao.core.EntityDAO;
+import org.akaza.openclinica.dao.core.SQLFactory;
+import org.akaza.openclinica.dao.core.TypeNames;
+import org.akaza.openclinica.exception.OpenClinicaException;
+
 /**
  * Created by IntelliJ IDEA. User: bruceperry Date: May 10, 2007
  */
-public class ItemGroupMetadataDAO<K extends String,V extends ArrayList> extends EntityDAO {
+public class ItemGroupMetadataDAO extends EntityDAO<ItemGroupMetadataBean> {
     public ItemGroupMetadataDAO(DataSource ds) {
         super(ds);
         // this.getCurrentPKName="findCurrentPKValue";
@@ -75,7 +67,8 @@ public class ItemGroupMetadataDAO<K extends String,V extends ArrayList> extends 
         this.setTypeExpected(15, TypeNames.BOOL);
     }
 
-    public Object getEntityFromHashMap(HashMap hm) {
+    @Override
+    public ItemGroupMetadataBean getEntityFromHashMap(HashMap<String, Object> hm) {
         ItemGroupMetadataBean meta = new ItemGroupMetadataBean();
         meta.setId((Integer) hm.get("item_group_metadata_id"));
         meta.setItemGroupId((Integer) hm.get("item_group_id"));
@@ -95,55 +88,39 @@ public class ItemGroupMetadataDAO<K extends String,V extends ArrayList> extends 
         return meta;
     }
 
-    public Collection findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) throws OpenClinicaException {
-        return new ArrayList();
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<ItemGroupMetadataBean> findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) throws OpenClinicaException {
+        throw new RuntimeException("Not implemented");
     }
 
-    public Collection findAll() throws OpenClinicaException {
-        return new ArrayList();
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<ItemGroupMetadataBean> findAll() throws OpenClinicaException {
+    	throw new RuntimeException("Not implemented");
     }
 
-    public EntityBean findByPK(int id) throws OpenClinicaException {
-        ItemGroupMetadataBean eb = new ItemGroupMetadataBean();
-        this.setTypesExpected();
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
-        variables.put(1, id);
-        String sql = digester.getQuery("findByPK");
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            eb = (ItemGroupMetadataBean) this.getEntityFromHashMap((HashMap) it.next());
-        }
-        return eb;
-        //return new ItemGroupMetadataBean(); // To change body of implemented
-        // methods use File | Settings |
-        // File Templates.;
+	public ItemGroupMetadataBean findByPK(int id) throws OpenClinicaException {
+		String queryName = "findByPK";
+        HashMap<Integer, Object> variables = variables(id);
+        return executeFindByPKQuery(queryName, variables);
     }
 
-    public EntityBean findByItemAndCrfVersion(Integer itemId, Integer crfVersionId) {
-        ItemGroupMetadataBean eb = new ItemGroupMetadataBean();
-        this.setTypesExpected();
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
-        variables.put(1, itemId);
-        variables.put(2, crfVersionId);
-        String sql = digester.getQuery("findByItemIdAndCrfVersionId");
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            eb = (ItemGroupMetadataBean) this.getEntityFromHashMap((HashMap) it.next());
-        }
-        return eb;
+    public ItemGroupMetadataBean findByItemAndCrfVersion(Integer itemId, Integer crfVersionId) {
+    	String queryName = "findByItemIdAndCrfVersionId";
+        HashMap<Integer, Object> variables = variables(itemId, crfVersionId);
+        return executeFindByPKQuery(queryName, variables);
     }
 
-    public EntityBean create(EntityBean eb) throws OpenClinicaException {
+    @Override
+    public ItemGroupMetadataBean create(ItemGroupMetadataBean igMetaBean) throws OpenClinicaException {
         // INSERT INTO item_group_metadata (item_group_id,
         // header, subheader,layout,repeat_number,repeat_max,
         // repeat_array, row_start_number,crf_version_id,
         // item_id, ordinal,borders, show_group)
         // VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
-        ItemGroupMetadataBean igMetaBean = (ItemGroupMetadataBean) eb;
         HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
         int id = getNextPK();
         variables.put(1, id);
@@ -161,82 +138,56 @@ public class ItemGroupMetadataDAO<K extends String,V extends ArrayList> extends 
         variables.put(13, igMetaBean.getBorders());
         variables.put(14, new Boolean(igMetaBean.isShowGroup()));
 
-        this.execute(digester.getQuery("create"), variables);
+        this.executeUpdate(digester.getQuery("create"), variables);
         if (isQuerySuccessful()) {
-            eb.setId(id);
+        	igMetaBean.setId(id);
         }
-        return eb;
+        return igMetaBean;
 
     }
 
-    public List<ItemGroupMetadataBean> findMetaByGroupAndSection(int itemGroupId, int crfVersionId, int sectionId) {
-        this.setTypesExpected();
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
-        variables.put(1, itemGroupId);
-        variables.put(2, crfVersionId);
-        variables.put(3, sectionId);
-        List listofMaps = this.select(digester.getQuery("findMetaByGroupAndSection"), variables);
-
-        List<ItemGroupMetadataBean> beanList = new ArrayList<ItemGroupMetadataBean>();
-        ItemGroupMetadataBean bean;
-        for (Object map : listofMaps) {
-            bean = (ItemGroupMetadataBean) this.getEntityFromHashMap((HashMap) map);
-            beanList.add(bean);
-        }
-        return beanList;
+    public ArrayList<ItemGroupMetadataBean> findMetaByGroupAndSection(int itemGroupId, int crfVersionId, int sectionId) {
+    	String queryName = "findMetaByGroupAndSection";
+        HashMap<Integer, Object> variables = variables(itemGroupId, crfVersionId, sectionId);
+        return executeFindAllQuery(queryName, variables);
     }
 
-    public List<ItemGroupMetadataBean> findMetaByGroupAndCrfVersion(int itemGroupId, int crfVersionId) {
-        this.setTypesExpected();
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
-        variables.put(1, itemGroupId);
-        variables.put(2, crfVersionId);
-        List listofMaps = this.select(digester.getQuery("findMetaByGroupAndCrfVersion"), variables);
-
-        List<ItemGroupMetadataBean> beanList = new ArrayList<ItemGroupMetadataBean>();
-        ItemGroupMetadataBean bean;
-        for (Object map : listofMaps) {
-            bean = (ItemGroupMetadataBean) this.getEntityFromHashMap((HashMap) map);
-            beanList.add(bean);
-        }
-        return beanList;
+    public ArrayList<ItemGroupMetadataBean> findMetaByGroupAndCrfVersion(int itemGroupId, int crfVersionId) {
+    	String queryName = "findMetaByGroupAndCrfVersion";
+        HashMap<Integer, Object> variables = variables(itemGroupId, crfVersionId);
+        return executeFindAllQuery(queryName, variables);
     }
     
     
-    public List<ItemGroupMetadataBean> findMetaByGroupAndSectionForPrint(int itemGroupId, int crfVersionId, int sectionId) {
-        this.setTypesExpected();
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
-        variables.put(1, itemGroupId);
-        variables.put(2, crfVersionId);
-        variables.put(3, sectionId);
-        List listofMaps = this.select(digester.getQuery("findMetaByGroupAndSectionForPrint"), variables);
-
-        List<ItemGroupMetadataBean> beanList = new ArrayList<ItemGroupMetadataBean>();
-        ItemGroupMetadataBean bean;
-        for (Object map : listofMaps) {
-            bean = (ItemGroupMetadataBean) this.getEntityFromHashMap((HashMap) map);
-            beanList.add(bean);
-        }
-        return beanList;
+    public ArrayList<ItemGroupMetadataBean> findMetaByGroupAndSectionForPrint(int itemGroupId, int crfVersionId, int sectionId) {
+    	String queryName = "findMetaByGroupAndSectionForPrint";
+        HashMap<Integer, Object> variables = variables(itemGroupId, crfVersionId, sectionId);
+        return executeFindAllQuery(queryName, variables);
     }
-    public EntityBean update(EntityBean eb) throws OpenClinicaException {
-        return new ItemGroupMetadataBean(); // To change body of implemented
-        // methods use File | Settings |
-        // File Templates.
+    
+    /**
+     * NOT IMPLEMENTED
+     */
+    @Override
+    public ItemGroupMetadataBean update(ItemGroupMetadataBean eb) throws OpenClinicaException {
+    	throw new RuntimeException("Not implemented");
     }
 
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase)
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<ItemGroupMetadataBean> findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase)
             throws OpenClinicaException {
-        return new ArrayList(); // To change body of implemented methods use
-        // File | Settings | File Templates.
+        throw new RuntimeException("Not implemented");
     }
 
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType) throws OpenClinicaException {
-        return new ArrayList(); // To change body of implemented methods use
-        // File | Settings | File Templates.
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<ItemGroupMetadataBean> findAllByPermission(Object objCurrentUser, int intActionType) throws OpenClinicaException {
+        throw new RuntimeException("Not implemented");
     }
 
-    // YW 08-22-2007
     /**
      *
      * @param crfVersionId
@@ -246,13 +197,12 @@ public class ItemGroupMetadataDAO<K extends String,V extends ArrayList> extends 
         this.unsetTypeExpected();
         this.setTypeExpected(1, TypeNames.INT);
 
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(crfVersionId));
-
-        ArrayList al = this.select(digester.getQuery("findThisCrfVersionId"), variables);
+        String queryName = "findThisCrfVersionId";
+        HashMap<Integer, Object> variables = variables(crfVersionId);
+        ArrayList<HashMap<String, Object>> al = this.select(digester.getQuery(queryName), variables);
 
         if (al.size() > 0) {
-            HashMap h = (HashMap) al.get(0);
+            HashMap<String, Object> h = al.get(0);
             if (((Integer) h.get("crf_version_id")).intValue() == crfVersionId) {
                 return true;
             }
@@ -260,72 +210,16 @@ public class ItemGroupMetadataDAO<K extends String,V extends ArrayList> extends 
 
         return false;
     }
-    @Override
-    public ArrayList<V> select(String query, HashMap variables) {
-        clearSignals();
 
-        ArrayList results = new ArrayList();
-        V  value;
-        K key;
-        ResultSet rs = null;
-        Connection con = null;
-        PreparedStatementFactory psf = new PreparedStatementFactory(variables);
-        PreparedStatement ps = null;
-        
-        try {
-            con = ds.getConnection();
-            if (con.isClosed()) {
-                if (logger.isWarnEnabled())
-                    logger.warn("Connection is closed: GenericDAO.select!");
-                throw new SQLException();
-            }
+	public List<ItemGroupMetadataBean> findByCrfVersion(Integer crfVersionId) {
+		String queryName = "findByCrfVersionId";
+		HashMap<Integer, Object> variables = variables(crfVersionId);
+		return executeFindAllQuery(queryName, variables);
+	}
 
-           ps = con.prepareStatement(query);
-           
-       
-            ps = psf.generate(ps);// enter variables here!
-            key = (K) ps.toString();
-            if((results=(V) cache.get(key))==null)
-            {
-            rs = ps.executeQuery();
-            results = this.processResultRows(rs);
-            if(results!=null){
-                cache.put(key,results);
-            }
-            }
-            
-          //  if (logger.isInfoEnabled()) {
-                logger.debug("Executing dynamic query, EntityDAO.select:query " + query);
-          //  }
-            signalSuccess();
-              
-
-        } catch (SQLException sqle) {
-            signalFailure(sqle);
-            if (logger.isWarnEnabled()) {
-                logger.warn("Exception while executing dynamic query, GenericDAO.select: " + query + ":message: " + sqle.getMessage());
-                sqle.printStackTrace();
-            }
-        } finally {
-            this.closeIfNecessary(con, rs, ps);
-        }
-        return results;
-
-    }
-	   public List<ItemGroupMetadataBean> findByCrfVersion(Integer crfVersionId) {
-        ItemGroupMetadataBean eb = new ItemGroupMetadataBean();
-        this.setTypesExpected();
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
-        variables.put(1, crfVersionId);
-        String sql = digester.getQuery("findByCrfVersionId");
-        ArrayList alist = this.select(sql, variables);
-        List<ItemGroupMetadataBean> beanList = new ArrayList<ItemGroupMetadataBean>();
-        ItemGroupMetadataBean bean;
-        for (Object map : alist) {
-            bean = (ItemGroupMetadataBean) this.getEntityFromHashMap((HashMap) map);
-            beanList.add(bean);
-        }
-        return beanList;
-    }
+	@Override
+	public ItemGroupMetadataBean emptyBean() {
+		return new ItemGroupMetadataBean();
+	}
 
 }

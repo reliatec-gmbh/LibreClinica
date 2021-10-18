@@ -40,7 +40,7 @@ public class DiscrepancyValidator extends Validator {
     }
 
     @Override
-    protected HashMap validate(String fieldName, Validation v) {
+    protected HashMap<String, ArrayList<String>> validate(String fieldName, Validation v) {
         // Mantis Issue 5827: Forse validate if different value from IDE though DNotes present 
         if (v.getType() == MATCHES_INITIAL_DATA_ENTRY_VALUE) {
             return super.validate(fieldName, v);
@@ -55,7 +55,7 @@ public class DiscrepancyValidator extends Validator {
     }
 
     public void alwaysExecuteLastValidation(String fieldName) {
-        ArrayList fieldValidations = getFieldValidations(fieldName);
+        ArrayList<Validation> fieldValidations = getFieldValidations(fieldName);
 
         if (validations.size() >= 1) {
             Validation v = (Validation) fieldValidations.get(fieldValidations.size() - 1);

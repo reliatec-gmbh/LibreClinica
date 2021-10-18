@@ -25,6 +25,7 @@ import javax.sql.DataSource;
  * An "interceptor" class that sets up a UserAccount and stores it in the Session, before
  * another class is initialized and potentially uses that UserAccount.
  */
+// TODO duplicate of the version in the web module?
 public class SetUpUserInterceptor extends HandlerInterceptorAdapter {
 
     public static final String USER_BEAN_NAME = "userBean";
@@ -51,14 +52,13 @@ public class SetUpUserInterceptor extends HandlerInterceptorAdapter {
         if (userBean == null) {
 
             userName = httpServletRequest.getRemoteUser();
-            userBeanIsInvalid = "".equalsIgnoreCase(userName);
+            userBeanIsInvalid = userName == null || "".equalsIgnoreCase(userName);
             if (!userBeanIsInvalid) {
                 userBean = (UserAccountBean) userAccountDAO.findByUserName(userName);
                 userBeanIsInvalid = (userBean == null);
                 if (!userBeanIsInvalid) {
                     currentSession.setAttribute(USER_BEAN_NAME, userBean);
                 }
-
             }
         }
 
@@ -70,9 +70,6 @@ public class SetUpUserInterceptor extends HandlerInterceptorAdapter {
         }
 
         userBean = userBean.getId() > 0 ? (UserAccountBean) userAccountDAO.findByPK(userBean.getId()) : userBean;
-
-        SetUpStudyRole setupStudy = new SetUpStudyRole(dataSource);
-        setupStudy.setUp(currentSession, userBean);
 
         return true;
     }

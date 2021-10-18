@@ -7,6 +7,14 @@
  */
 package org.akaza.openclinica.view.form;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.submit.DisplayItemBean;
 import org.akaza.openclinica.bean.submit.DisplayItemGroupBean;
@@ -24,14 +32,6 @@ import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 /**
  * This class is used to generate the markup for a group-type printable table.
@@ -124,7 +124,6 @@ public class PrintHorizontalFormBuilder extends DefaultFormBuilder {
 
             // Does this particular section have to be reconfigured for printing
             // in IE browsers?
-            boolean changeHTMLForIE = false;
             if (reconfigureView) {
 //                changeHTMLForIE = builderUtil.hasThreePlusColumns(displaySecBean);
             }
@@ -196,9 +195,9 @@ public class PrintHorizontalFormBuilder extends DefaultFormBuilder {
             // A DisplayItemGroupBean contains an ItemGroupBean and
             // its list of DisplayItemBeans
             for (DisplayItemGroupBean displayItemGroup : displaySecBean.getDisplayFormGroups()) {
-                ArrayList headerlist = new ArrayList();
-                ArrayList bodylist = new ArrayList();
-                ArrayList subHeadList = new ArrayList();
+                ArrayList<Element> headerlist = new ArrayList<>();
+                ArrayList<Element> bodylist = new ArrayList<>();
+                ArrayList<Element> subHeadList = new ArrayList<>();
 
                 List<DisplayItemBean> currentDisplayItems = displayItemGroup.getItems();
                 // A Map that contains persistent (stored in a database),
@@ -414,13 +413,13 @@ public class PrintHorizontalFormBuilder extends DefaultFormBuilder {
                 // The final true parameter is for disabling D Note icons from
                 // being clicked
                 if (hasStoredRepeatedRows) {
-                    List storedRepeatedRows =
+                    List<List<Element>> storedRepeatedRows =
                         builderUtil.generatePersistentMatrixRows(ordinalItemDataMap, currentDisplayItems, tabindex, repeatParentId, hasDiscrepancyMgt, true, maxColRow);
                     // add these new rows to the table
                     int count = 1;
                     for(int l = 0; l<storedRepeatedRows.size();l++){
                         ++count;
-                        List<Element> rowsList = (ArrayList)storedRepeatedRows.get(l);
+                        List<Element> rowsList = storedRepeatedRows.get(l);
                         divRoot.addContent(createTableWithData(rowsList, headerlist, subHeadList, count));
                     }
                 }
@@ -503,7 +502,6 @@ public class PrintHorizontalFormBuilder extends DefaultFormBuilder {
 
             // Does this particular section have to be reconfigured for printing
             // in IE browsers?
-            boolean changeHTMLForIE = false;
             if (reconfigureView) {
 //                changeHTMLForIE = builderUtil.hasThreePlusColumns(displaySecBean);
             }
@@ -561,9 +559,9 @@ public class PrintHorizontalFormBuilder extends DefaultFormBuilder {
             // A DisplayItemGroupBean contains an ItemGroupBean and
             // its list of DisplayItemBeans
             for (DisplayItemGroupBean displayItemGroup : displaySecBean.getDisplayFormGroups()) {
-                ArrayList headerlist = new ArrayList();
-                ArrayList bodylist = new ArrayList();
-                ArrayList subHeadList = new ArrayList();
+                ArrayList<Element> headerlist = new ArrayList<>();
+                ArrayList<Element> bodylist = new ArrayList<>();
+                ArrayList<Element> subHeadList = new ArrayList<>();
 
                 List<DisplayItemBean> currentDisplayItems = displayItemGroup.getItems();
                 // A Map that contains persistent (stored in a database),
@@ -770,13 +768,13 @@ public class PrintHorizontalFormBuilder extends DefaultFormBuilder {
                 // The final true parameter is for disabling D Note icons from
                 // being clicked
                 if (hasStoredRepeatedRows) {
-                    List storedRepeatedRows =
+                    List<List<Element>> storedRepeatedRows =
                         builderUtil.generatePersistentMatrixRows(ordinalItemDataMap, currentDisplayItems, tabindex, repeatParentId, hasDiscrepancyMgt, true, maxColRow);
                     // add these new rows to the table
                     int count = 1;
                     for(int l = 0; l<storedRepeatedRows.size();l++){
                         ++count;
-                        List<Element> rowsList = (ArrayList)storedRepeatedRows.get(l);
+                        List<Element> rowsList = storedRepeatedRows.get(l);
                         divRoot.addContent(createTableWithData(rowsList, headerlist, subHeadList, count));
                     }
                 }
@@ -799,26 +797,8 @@ public class PrintHorizontalFormBuilder extends DefaultFormBuilder {
         }
         return webPageBuilder.toString();
     }
-    
-    
-    
-    
 
-    
-    // JN: So this displayFormGroups is being sent in a weird format, the list with values in currentDisplayItems
-    // does not have the repeatnumber since metadata info is wrong, hence this weird way of going through the list.
-    //Perhaps the better way is to fix the list itself, however the method is DisplaySectionBeanHandler.getDisplaySectionBeans is being used at several places and seems to be right,
-    //there could be a issue with eventcrf which was never handled correctly hence this shortcut
-    private int getRepeatFromPrevMeta(List<DisplayItemGroupBean> displayFormGroups) {
-
-        if(displayFormGroups.size()>0)
-        return displayFormGroups.get(0).getGroupMetaBean().getRepeatNum();
-        else
-            return 0;
-
-    }
-
-    private Element createTableWithData(List<Element> rows, ArrayList headerList, ArrayList subHeaderList, int rep) {
+    private Element createTableWithData(List<Element> rows, ArrayList<Element> headerList, ArrayList<Element> subHeaderList, int rep) {
         Element table = createTable();
         Element newRow = new Element("tr");
         Element newCol = new Element("td");
@@ -844,7 +824,7 @@ public class PrintHorizontalFormBuilder extends DefaultFormBuilder {
     }
 
 
-    private Element createTableWithoutData(List<Element> rows, ArrayList headerList, ArrayList subHeaderList, int rep,boolean ungrouped) {
+    private Element createTableWithoutData(List<Element> rows, ArrayList<Element> headerList, ArrayList<Element> subHeaderList, int rep,boolean ungrouped) {
        
 //      {
          Element table = createTable();
@@ -893,7 +873,7 @@ public class PrintHorizontalFormBuilder extends DefaultFormBuilder {
       }
         return table;
     }
-    private void addResponseLayoutRow(ArrayList subHeadList, List<DisplayItemBean> displayBeans) {
+    private void addResponseLayoutRow(ArrayList<Element> subHeadList, List<DisplayItemBean> displayBeans) {
         Element thRow = new Element("tr");
         String responseName;
         String responseLayout;

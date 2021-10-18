@@ -16,7 +16,6 @@ import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.login.UserAccountDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.view.Page;
@@ -29,6 +28,11 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
  */
 public class RestoreStudyUserRoleServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1772512586472947684L;
+
+	/**
      * Checks whether the user has the right permission to proceed function
      */
     @Override
@@ -53,7 +57,8 @@ public class RestoreStudyUserRoleServlet extends SecureController {
         UserAccountDAO udao = new UserAccountDAO(sm.getDataSource());
         String name = request.getParameter("name");
         String studyIdString = request.getParameter("studyId");
-        if (StringUtil.isBlank(name) || StringUtil.isBlank(studyIdString)) {
+        if ((name == null || name.trim().isEmpty()) 
+        		|| (studyIdString == null || studyIdString.trim().isEmpty())) {
             addPageMessage(respage.getString("please_choose_a_user_to_restore_his_role"));
             forwardPage(Page.LIST_USER_IN_STUDY_SERVLET);
         } else {

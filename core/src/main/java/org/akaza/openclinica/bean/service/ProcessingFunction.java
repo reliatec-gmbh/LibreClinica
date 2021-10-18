@@ -19,7 +19,11 @@ import java.io.Serializable;
  *
  */
 public abstract class ProcessingFunction implements ProcessingInterface,Serializable {
-    private String ODMXMLFileName;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 4241907968989948257L;
+	private String ODMXMLFileName;
     private String xslFileName;
     private String transformFileName;
     public String fileType;

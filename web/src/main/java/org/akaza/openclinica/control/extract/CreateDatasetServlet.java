@@ -7,6 +7,8 @@
  */
 package org.akaza.openclinica.control.extract;
 
+import static org.akaza.openclinica.core.util.ClassCastHelper.asArrayList;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,15 +35,12 @@ import org.akaza.openclinica.bean.submit.ItemBean;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.control.form.Validator;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.admin.CRFDAO;
 import org.akaza.openclinica.dao.extract.DatasetDAO;
 import org.akaza.openclinica.dao.extract.FilterDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
-import org.akaza.openclinica.dao.managestudy.StudyEventDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDefinitionDAO;
 import org.akaza.openclinica.dao.managestudy.StudyGroupClassDAO;
-import org.akaza.openclinica.dao.submit.EventCRFDAO;
 import org.akaza.openclinica.dao.submit.ItemDAO;
 import org.akaza.openclinica.service.crfdata.HideCRFManager;
 import org.akaza.openclinica.view.Page;
@@ -49,7 +48,6 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.akaza.openclinica.web.SQLInitServlet;
 import org.akaza.openclinica.web.bean.EntityBeanTable;
 import org.akaza.openclinica.web.bean.FilterRow;
-
 /**
  * Creates a dataset by building a query based on study events, CRFs and items
  *
@@ -58,7 +56,12 @@ import org.akaza.openclinica.web.bean.FilterRow;
  *
  */
 public class CreateDatasetServlet extends SecureController {
-    public static final String BEAN_YEARS = "years";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -3072489791090476232L;
+
+	public static final String BEAN_YEARS = "years";
 
     public static final String BEAN_MONTHS = "months";
 
@@ -122,11 +125,11 @@ public class CreateDatasetServlet extends SecureController {
      * "+sgclass.getName()); request.setAttribute("sgclasses", sgclasses); }
      */
 
-    public ArrayList setUpStudyGroups() {
+    public ArrayList<StudyGroupClassBean> setUpStudyGroups() {
         StudyDAO studydao = new StudyDAO(sm.getDataSource());
         StudyGroupClassDAO sgclassdao = new StudyGroupClassDAO(sm.getDataSource());
         StudyBean theStudy = (StudyBean) studydao.findByPK(sm.getUserBean().getActiveStudyId());
-        ArrayList sgclasses = sgclassdao.findAllActiveByStudy(theStudy);
+        ArrayList<StudyGroupClassBean> sgclasses = sgclassdao.findAllActiveByStudy(theStudy);
         // StudyGroupClassBean sgclass = (StudyGroupClassBean)sgclasses.get(0);
         // get the first one and test its name
         // logger.info("found study class "+sgclass.getName());
@@ -137,14 +140,14 @@ public class CreateDatasetServlet extends SecureController {
     public void processRequest() throws Exception {
         FormProcessor fp = new FormProcessor(request);
         String action = fp.getString("action");
-        if (StringUtil.isBlank(action)) {
+        if (action == null || action.trim().isEmpty()) {
             
             
             // step 1 -- instructions, and continue button
             session.setAttribute("newDataset", new DatasetBean());
-            session.setAttribute("allItems", new ArrayList());
+            session.setAttribute("allItems", new ArrayList<>());
             session.setAttribute("crf", new CRFBean());
-            session.setAttribute("allSelectedItems", new ArrayList());
+            session.setAttribute("allSelectedItems", new ArrayList<>());
             forwardPage(Page.CREATE_DATASET_1);
 
         } else {
@@ -156,19 +159,17 @@ public class CreateDatasetServlet extends SecureController {
             if ("begin".equalsIgnoreCase(action)) {
                 // step 2 -- select study events/crfs
 
-                StudyEventDAO sedao = new StudyEventDAO(sm.getDataSource());
                 StudyEventDefinitionDAO seddao = new StudyEventDefinitionDAO(sm.getDataSource());
-                EventCRFDAO ecdao = new EventCRFDAO(sm.getDataSource());
                 StudyBean studyWithEventDefinitions = currentStudy;
                 if (currentStudy.getParentStudyId() > 0) {
                     studyWithEventDefinitions = new StudyBean();
                     studyWithEventDefinitions.setId(currentStudy.getParentStudyId());
 
                 }
-                ArrayList seds = seddao.findAllActiveByStudy(studyWithEventDefinitions);
+                ArrayList<StudyEventDefinitionBean> seds = seddao.findAllActiveByStudy(studyWithEventDefinitions);
 
                 CRFDAO crfdao = new CRFDAO(sm.getDataSource());
-                HashMap events = new LinkedHashMap();
+                HashMap<StudyEventDefinitionBean, ArrayList<CRFBean>> events = new LinkedHashMap<>();
                 for (int i = 0; i < seds.size(); i++) {
                     StudyEventDefinitionBean sed = (StudyEventDefinitionBean) seds.get(i);
                     ArrayList<CRFBean> crfs = (ArrayList<CRFBean>) crfdao.findAllActiveByDefinition(sed);
@@ -193,21 +194,20 @@ public class CreateDatasetServlet extends SecureController {
                 } else {
                     crfdao = new CRFDAO(sm.getDataSource());
                     ItemDAO idao = new ItemDAO(sm.getDataSource());
-                    ArrayList sedItemIds = CreateDatasetServlet.allSedItemIdsInStudy(events, crfdao, idao);
+                    ArrayList<String> sedItemIds = CreateDatasetServlet.allSedItemIdsInStudy(events, crfdao, idao);
 
                     session.setAttribute("numberOfStudyItems", Integer.toString(sedItemIds.size()));
                     request.setAttribute("eventlist", events);
 
                     session.setAttribute(EVENTS_FOR_CREATE_DATASET, events);
                     session.setAttribute("newDataset", new DatasetBean());
-                    session.setAttribute("allItems", new ArrayList());
+                    session.setAttribute("allItems", new ArrayList<>());
                     session.setAttribute("crf", new CRFBean());
                     forwardPage(Page.CREATE_DATASET_2);
                 }
 
             } else if ("beginsubmit".equalsIgnoreCase(action)) {
                 String saveItems = fp.getString(SAVE_BUTTON);
-                String saveContinue = fp.getString(SAVE_CONTINUE_BUTTON);
                 DatasetBean db = (DatasetBean) session.getAttribute("newDataset");
                 if (db == null) {
                     db = new DatasetBean();
@@ -217,7 +217,7 @@ public class CreateDatasetServlet extends SecureController {
                 session.setAttribute("newDataset", db);
                 // session.setAttribute("itemSelectedNum",db.getItemIds().size()
                 // +"");
-                if (!StringUtil.isBlank(saveItems)) {
+                if (!(saveItems == null || saveItems.trim().isEmpty())) {
                     request.setAttribute("eventlist", session.getAttribute(EVENTS_FOR_CREATE_DATASET));
                     // BWP 3095>>
                     String summary = respage.getString("you_have_selected") + " " + db.getItemIds().size() + " " + respage.getString("items_so_far");
@@ -229,7 +229,7 @@ public class CreateDatasetServlet extends SecureController {
                         // user choose a crf and select items
                         forwardPage(Page.CREATE_DATASET_2);
                     } else {
-                        ArrayList sgclasses = (ArrayList) session.getAttribute("allSelectedGroups");
+                        ArrayList<StudyGroupClassBean> sgclasses = asArrayList(session.getAttribute("allSelectedGroups"), StudyGroupClassBean.class);
                         if (sgclasses == null || sgclasses.size() == 0) {
                             sgclasses = setUpStudyGroups();
                         }
@@ -269,9 +269,6 @@ public class CreateDatasetServlet extends SecureController {
                 }
 
             } else if ("scopesubmit".equalsIgnoreCase(action)) {
-                ArrayList months = getMonths();
-                ArrayList years = getYears();
-
                 int firstMonth = fp.getInt("firstmonth");
                 int firstYear = fp.getInt("firstyear");
                 int lastMonth = fp.getInt("lastmonth");
@@ -283,7 +280,7 @@ public class CreateDatasetServlet extends SecureController {
                     lastMonth = 12;// default value
                 }
 
-                errors = new HashMap();
+                errors = new HashMap<>();
                 if (fp.getInt("firstmonth") > 0 && firstYear == 1900) {
                     Validator.addError(errors, "firstmonth", restext.getString("if_specify_month_also_specify_year"));
 
@@ -364,10 +361,10 @@ public class CreateDatasetServlet extends SecureController {
                 errors = v.validate();
 
                 String dsName = fp.getString("dsName");
-                if (!StringUtil.isBlank(dsName)) {
+                if (!(dsName == null || dsName.trim().isEmpty())) {
                     // YW, << 3-19-2008
                     if (dsName.contains("/") || dsName.contains("\\")) {
-                        v.addError(errors, "dsName", restext.getString("slash_not_allowed"));
+                        Validator.addError(errors, "dsName", restext.getString("slash_not_allowed"));
                     }
                     // 2-20-2008, no check for editing dataset
                     if (((DatasetBean) session.getAttribute("newDataset")).getId() <= 0) {
@@ -526,7 +523,7 @@ public class CreateDatasetServlet extends SecureController {
         // boolean discAttr = fp.getBoolean("discAttr");
         // we decide not to touch groups here, except in call from 'view
         // selected'
-        ArrayList allItems = (ArrayList) session.getAttribute("allItems");
+        ArrayList<ItemBean> allItems = asArrayList(session.getAttribute("allItems"), ItemBean.class);
         if (defId > 0 && !db.getEventIds().contains(new Integer(defId))) {
             db.getEventIds().add(new Integer(defId));
         }
@@ -540,12 +537,7 @@ public class CreateDatasetServlet extends SecureController {
 
         if (crfId == -1) {
             // submit from 'view selected item' page
-            allItems = (ArrayList) session.getAttribute("allSelectedItems");
-            // need to add 'view selected groups' here as well, tbh
-            ArrayList allGroups = (ArrayList) session.getAttribute("allSelectedGroups");
-            //db.getItemIds().clear();
-            //db.getItemMap().clear();
-            //db.getItemDefCrf().clear();
+            allItems = asArrayList(session.getAttribute("allSelectedItems"), ItemBean.class);
         } else if (crfId > 0) {// user chose a CRF and submitted items
             // remove all old items first, since user submitted again
             // so user can de-select items
@@ -567,16 +559,16 @@ public class CreateDatasetServlet extends SecureController {
 
         if (crfId != 0 && allItems != null) {
             CRFDAO cdao = new CRFDAO(sm.getDataSource());
-            CRFBean crf = (CRFBean) cdao.findByPK(crfId);
+            CRFBean crf = cdao.findByPK(crfId);
 
-            ArrayList newSelectItems = new ArrayList();
+            ArrayList<ItemBean> newSelectItems = new ArrayList<>();
             for (int i = 0; i < allItems.size(); i++) {
                 String checked = fp.getString("itemSelected" + i);
                 String itemCrfName = fp.getString("itemCrfName" + i);
                 String itemDefName = fp.getString("itemDefName" + i);
                 ItemBean selectedItem = (ItemBean) allItems.get(i);
 
-                if (!StringUtil.isBlank(checked) && "yes".equalsIgnoreCase(checked.trim())) {
+                if (!(checked == null || checked.trim().isEmpty()) && "yes".equalsIgnoreCase(checked.trim())) {
                     selectedItem.setSelected(true);
                     if (!"".equals(crf.getName())) {
                         selectedItem.setCrfName(crf.getName());
@@ -707,8 +699,8 @@ public class CreateDatasetServlet extends SecureController {
         return new Date(c.getTimeInMillis());
     }
 
-    private ArrayList getMonths() {
-        ArrayList answer = new ArrayList();
+    private ArrayList<String> getMonths() {
+        ArrayList<String> answer = new ArrayList<>();
 
         answer.add(resword.getString("January"));
         answer.add(resword.getString("February"));
@@ -726,8 +718,8 @@ public class CreateDatasetServlet extends SecureController {
         return answer;
     }
 
-    private ArrayList getYears() {
-        ArrayList answer = new ArrayList();
+    private ArrayList<String> getYears() {
+        ArrayList<String> answer = new ArrayList<>();
 
         Calendar currTime = Calendar.getInstance();
         int currYear = currTime.get(Calendar.YEAR);
@@ -744,16 +736,16 @@ public class CreateDatasetServlet extends SecureController {
         FilterDAO fdao = new FilterDAO(sm.getDataSource());
         EntityBeanTable table = fp.getEntityBeanTable();
 
-        ArrayList filters = (ArrayList) fdao.findAll();
+        ArrayList<FilterBean> filters = fdao.findAll();
 
-        ArrayList filterRows = FilterRow.generateRowsFromBeans(filters);
+        ArrayList<FilterRow> filterRows = FilterRow.generateRowsFromBeans(filters);
 
         String[] columns =
             { resword.getString("filter_name"), resword.getString("description"), resword.getString("created_by"), resword.getString("created_date"),
                 resword.getString("status"), resword.getString("actions") };
-        table.setColumns(new ArrayList(Arrays.asList(columns)));
+        table.setColumns(new ArrayList<String>(Arrays.asList(columns)));
         table.hideColumnLink(5);
-        table.setQuery("ApplyFilter", new HashMap());
+        table.setQuery("ApplyFilter", new HashMap<>());
         table.setRows(filterRows);
         table.computeDisplay();
         return table;
@@ -841,21 +833,21 @@ public class CreateDatasetServlet extends SecureController {
     //
     private void getSubAttr(FormProcessor fp, DatasetBean db) {
         String dob = fp.getString(DOB);
-        if (!StringUtil.isBlank(dob) && "yes".equalsIgnoreCase(dob.trim())) {
+        if (!(dob == null || dob.trim().isEmpty()) && "yes".equalsIgnoreCase(dob.trim())) {
             db.setShowSubjectDob(true);
         } else if (db.isShowSubjectDob()) {
             db.setShowSubjectDob(false);
         }
 
         String gender = fp.getString(GENDER);
-        if (!StringUtil.isBlank(gender) && "yes".equalsIgnoreCase(gender.trim())) {
+        if (!(gender == null || gender.trim().isEmpty()) && "yes".equalsIgnoreCase(gender.trim())) {
             db.setShowSubjectGender(true);
         } else if (db.isShowSubjectGender()) {
             db.setShowSubjectGender(false);
         }
 
         String status = fp.getString(SUBJ_STATUS);
-        if (!StringUtil.isBlank(status) && "yes".equalsIgnoreCase(status.trim())) {
+        if (!(status == null || status.trim().isEmpty()) && "yes".equalsIgnoreCase(status.trim())) {
             db.setShowSubjectStatus(true);
             logger.info("added subject status");
         } else if (db.isShowSubjectStatus()) {
@@ -863,7 +855,7 @@ public class CreateDatasetServlet extends SecureController {
         }
 
         String unique_id = fp.getString(UNIQUE_ID);
-        if (!StringUtil.isBlank(unique_id) && "yes".equalsIgnoreCase(unique_id.trim())) {
+        if (!(unique_id == null || unique_id.trim().isEmpty()) && "yes".equalsIgnoreCase(unique_id.trim())) {
             db.setShowSubjectUniqueIdentifier(true);
             logger.info("added unique id");
         } else if (db.isShowSubjectUniqueIdentifier()) {
@@ -871,7 +863,7 @@ public class CreateDatasetServlet extends SecureController {
         }
 
         String secondary_id = fp.getString(SUBJ_SECONDARY_ID);
-        if (!StringUtil.isBlank(secondary_id) && "yes".equalsIgnoreCase(secondary_id.trim())) {
+        if (!(secondary_id == null || secondary_id.trim().isEmpty()) && "yes".equalsIgnoreCase(secondary_id.trim())) {
             db.setShowSubjectSecondaryId(true);
             logger.info("added secondary id");
         } else if (db.isShowSubjectSecondaryId()) {
@@ -881,7 +873,7 @@ public class CreateDatasetServlet extends SecureController {
 
     private void getEventAttr(FormProcessor fp, DatasetBean db) {
         String location = fp.getString(EVENT_LOCATION);
-        if (!StringUtil.isBlank(location) && "yes".equalsIgnoreCase(location.trim())) {
+        if (!(location == null || location.trim().isEmpty()) && "yes".equalsIgnoreCase(location.trim())) {
             db.setShowEventLocation(true);
         } else if (db.isShowEventLocation()) {
             // user unchecked event location on page
@@ -889,21 +881,21 @@ public class CreateDatasetServlet extends SecureController {
 
         }
         String start = fp.getString(EVENT_START);
-        if (!StringUtil.isBlank(start) && "yes".equalsIgnoreCase(start.trim())) {
+        if (!(start == null || start.trim().isEmpty()) && "yes".equalsIgnoreCase(start.trim())) {
             db.setShowEventStart(true);
         } else if (db.isShowEventStart()) {
             db.setShowEventStart(false);
         }
 
         String end = fp.getString(EVENT_END);
-        if (!StringUtil.isBlank(end) && "yes".equalsIgnoreCase(end.trim())) {
+        if (!(end == null || end.trim().isEmpty()) && "yes".equalsIgnoreCase(end.trim())) {
             db.setShowEventEnd(true);
         } else if (db.isShowEventEnd()) {
             db.setShowEventEnd(false);
         }
         // add here; event status
         String status = fp.getString(EVENT_STATUS);
-        if (!StringUtil.isBlank(status) && "yes".equalsIgnoreCase(status.trim())) {
+        if (!(status == null || status.trim().isEmpty()) && "yes".equalsIgnoreCase(status.trim())) {
             db.setShowEventStatus(true);
             logger.info("added event status");
         } else if (db.isShowEventStatus()) {
@@ -911,7 +903,7 @@ public class CreateDatasetServlet extends SecureController {
         }
 
         String ageatevent = fp.getString(AGE_AT_EVENT);
-        if (!StringUtil.isBlank(ageatevent) && "yes".equalsIgnoreCase(ageatevent.trim())) {
+        if (!(ageatevent == null || ageatevent.trim().isEmpty()) && "yes".equalsIgnoreCase(ageatevent.trim())) {
             db.setShowSubjectAgeAtEvent(true);
             logger.info("added age at event");
         } else if (db.isShowSubjectAgeAtEvent()) {
@@ -920,8 +912,7 @@ public class CreateDatasetServlet extends SecureController {
     }
 
     private void getGroupAttr(FormProcessor fp, DatasetBean db) {
-        String group = fp.getString(GROUP_INFORMATION);
-        ArrayList allSelectedGroups = new ArrayList();
+        ArrayList<StudyGroupClassBean> allSelectedGroups = new ArrayList<>();
         // allSelectedGroups = (ArrayList)
         // session.getAttribute("allSelectedGroups");
         // we don't check the session on purpose, since we want to check/uncheck
@@ -932,12 +923,12 @@ public class CreateDatasetServlet extends SecureController {
         // if (allSelectedGroups == null || allSelectedGroups.size()==0) {
         // allSelectedGroups = setUpStudyGroups();
         // }
-        ArrayList allGroups = setUpStudyGroups();
+        ArrayList<StudyGroupClassBean> allGroups = setUpStudyGroups();
 
         for (int j = 0; j < allGroups.size(); j++) {
             StudyGroupClassBean sgclass = (StudyGroupClassBean) allGroups.get(j);
             String checked = fp.getString("groupSelected" + sgclass.getId());
-            if (!StringUtil.isBlank(checked) && "yes".equalsIgnoreCase(checked.trim())) {
+            if (!(checked == null || checked.trim().isEmpty()) && "yes".equalsIgnoreCase(checked.trim())) {
                 db.setShowSubjectGroupInformation(true);
                 // were they all checked? yes or no, we need to set this flag
                 sgclass.setSelected(true);
@@ -986,28 +977,28 @@ public class CreateDatasetServlet extends SecureController {
      */
     private void getCRFAttr(FormProcessor fp, DatasetBean db) {
         String status = fp.getString(CRF_STATUS);
-        if (!StringUtil.isBlank(status) && "yes".equalsIgnoreCase(status.trim())) {
+        if (!(status == null || status.trim().isEmpty()) && "yes".equalsIgnoreCase(status.trim())) {
             db.setShowCRFstatus(true);
             logger.info("added crf status");
         } else if (db.isShowCRFstatus()) {
             db.setShowCRFstatus(false);
         }
         String version = fp.getString(CRF_VERSION);
-        if (!StringUtil.isBlank(version) && "yes".equalsIgnoreCase(version.trim())) {
+        if (!(version == null || version.trim().isEmpty()) && "yes".equalsIgnoreCase(version.trim())) {
             db.setShowCRFversion(true);
             logger.info("added crf version");
         } else if (db.isShowCRFversion()) {
             db.setShowCRFversion(false);
         }
         String idate = fp.getString(INTERVIEWER_DATE);
-        if (!StringUtil.isBlank(idate) && "yes".equalsIgnoreCase(idate.trim())) {
+        if (!(idate == null || idate.trim().isEmpty()) && "yes".equalsIgnoreCase(idate.trim())) {
             db.setShowCRFinterviewerDate(true);
             logger.info("added interviewer date");
         } else if (db.isShowCRFinterviewerDate()) {
             db.setShowCRFinterviewerDate(false);
         }
         String iname = fp.getString(INTERVIEWER_NAME);
-        if (!StringUtil.isBlank(iname) && "yes".equalsIgnoreCase(iname.trim())) {
+        if (!(iname == null || iname.trim().isEmpty()) && "yes".equalsIgnoreCase(iname.trim())) {
             db.setShowCRFinterviewerName(true);
             logger.info("added interviewer name");
         } else if (db.isShowCRFinterviewerName()) {
@@ -1017,12 +1008,12 @@ public class CreateDatasetServlet extends SecureController {
 
     private void extractEventIds(DatasetBean db) {
         ArrayList<Integer> selectedSedIds = new ArrayList<Integer>();
-        HashMap dbItemMap = db != null ? db.getItemMap() : new HashMap();
+        HashMap<String, ItemBean> dbItemMap = db != null ? db.getItemMap() : new HashMap<>();
         if (dbItemMap.size() > 0) {
             Iterator<String> it = dbItemMap.keySet().iterator();
             while (it.hasNext()) {
                 Integer selected = Integer.valueOf(it.next().split("_")[0].trim());
-                if (!"0".equals(selected) && !selectedSedIds.contains(selected)) {
+                if (!Integer.valueOf(0).equals(selected) && !selectedSedIds.contains(selected)) {
                     selectedSedIds.add(selected);
                 }
             }
@@ -1033,19 +1024,16 @@ public class CreateDatasetServlet extends SecureController {
         }
     }
 
-    public static ArrayList<String> allSedItemIdsInStudy(HashMap events, CRFDAO crfdao, ItemDAO idao) {
+    public static ArrayList<String> allSedItemIdsInStudy(HashMap<StudyEventDefinitionBean, ?> events, CRFDAO crfdao, ItemDAO idao) {
         ArrayList<String> sedItemIds = new ArrayList<String>();
-        Iterator it = events.keySet().iterator();
-        while (it.hasNext()) {
-            StudyEventDefinitionBean sed = (StudyEventDefinitionBean) it.next();
-            ArrayList<ItemBean> sedItems = new ArrayList<ItemBean>();
-            ArrayList crfs = (ArrayList) crfdao.findAllActiveByDefinition(sed);
+        for(StudyEventDefinitionBean sed : events.keySet()) {
+            ArrayList<CRFBean> crfs = crfdao.findAllActiveByDefinition(sed);
             for (int i = 0; i < crfs.size(); i++) {
                 CRFBean crf = (CRFBean) crfs.get(i);
                 ArrayList<ItemBean> items = idao.findAllActiveByCRF(crf);
                 for (ItemBean item : items) {
                     Integer itemId = item.getId();
-                    if (!sedItemIds.contains(itemId)) {
+                    if (!sedItemIds.contains(itemId.toString())) {
                         sedItemIds.add(sed.getId() + "-" + item.getId());
                     }
                 }

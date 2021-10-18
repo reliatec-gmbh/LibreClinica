@@ -24,7 +24,11 @@ import java.util.Date;
  * @author thickerson
  */
 public class EventCRFBean extends AuditableEntityBean {
-    private int studyEventId = 0;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -7442360122964074238L;
+	private int studyEventId = 0;
     private int CRFVersionId = 0;
     private Date dateInterviewed;
     private String interviewerName = "";

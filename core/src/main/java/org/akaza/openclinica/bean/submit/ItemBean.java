@@ -20,8 +20,13 @@ import java.util.ArrayList;
  *
  * @author thickerson
  */
-public class ItemBean extends AuditableEntityBean implements Comparable {
-    private String description = "";
+public class ItemBean extends AuditableEntityBean implements Comparable<ItemBean> {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -5325159216765727239L;
+
+	private String description = "";
 
     private String units = "";
 
@@ -137,7 +142,7 @@ public class ItemBean extends AuditableEntityBean implements Comparable {
 
     private ItemFormMetadataBean itemMeta;// not in DB, for display
 
-    private ArrayList itemMetas;// not in DB, one item can have multiple meta
+    private ArrayList<ItemFormMetadataBean> itemMetas;// not in DB, one item can have multiple meta
     private ArrayList<ItemDataBean>  itemDataElements;
 
     private boolean selected = false; // not in DB, used for creating dataset
@@ -156,7 +161,7 @@ public class ItemBean extends AuditableEntityBean implements Comparable {
 
     public ItemBean() {
         dataType = ItemDataType.ST;
-        itemMetas = new ArrayList();
+        itemMetas = new ArrayList<>();
         
         this.oidGenerator = new ItemOidGenerator();
     }
@@ -285,7 +290,7 @@ public class ItemBean extends AuditableEntityBean implements Comparable {
     /**
      * @return Returns the itemMetas.
      */
-    public ArrayList getItemMetas() {
+    public ArrayList<ItemFormMetadataBean> getItemMetas() {
         return itemMetas;
     }
 
@@ -293,7 +298,7 @@ public class ItemBean extends AuditableEntityBean implements Comparable {
      * @param itemMetas
      *            The itemMetas to set.
      */
-    public void setItemMetas(ArrayList itemMetas) {
+    public void setItemMetas(ArrayList<ItemFormMetadataBean> itemMetas) {
         this.itemMetas = itemMetas;
     }
     /**
@@ -333,26 +338,21 @@ public class ItemBean extends AuditableEntityBean implements Comparable {
         this.selected = selected;
     }
 
-    public int compareTo(Object o) {
-        if (!o.getClass().equals(this.getClass())) {
-            return 0;
-        }
-
-        ItemBean arg = (ItemBean) o;
-        if (!getItemMetas().isEmpty() && !arg.getItemMetas().isEmpty()) {
+    public int compareTo(ItemBean o) {
+        if (!getItemMetas().isEmpty() && !o.getItemMetas().isEmpty()) {
             ItemFormMetadataBean m1 = (ItemFormMetadataBean) getItemMetas().get(0);
-            ItemFormMetadataBean m2 = (ItemFormMetadataBean) arg.getItemMetas().get(0);
+            ItemFormMetadataBean m2 = (ItemFormMetadataBean) o.getItemMetas().get(0);
             return m1.getOrdinal() - m2.getOrdinal();
         }
         //fix here 
-        else if (!itemDataElements.isEmpty() && !arg.getItemDataElements().isEmpty()) {
+        else if (!itemDataElements.isEmpty() && !o.getItemDataElements().isEmpty()) {
             ItemDataBean m1 = (ItemDataBean) getItemDataElements().get(0);
-            ItemDataBean m2 = (ItemDataBean) arg.getItemDataElements().get(0);
+            ItemDataBean m2 = (ItemDataBean) o.getItemDataElements().get(0);
             return m1.getOrdinal() - m2.getOrdinal();
         }
         
         else {
-            return getName().compareTo(arg.getName());
+            return getName().compareTo(o.getName());
         }
     }
 

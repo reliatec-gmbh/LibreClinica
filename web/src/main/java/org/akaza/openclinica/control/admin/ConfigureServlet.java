@@ -23,6 +23,7 @@ import org.akaza.openclinica.domain.technicaladmin.ConfigurationBean;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -43,7 +44,6 @@ public class ConfigureServlet extends SecureController {
         return;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     protected void processRequest() throws Exception {
         FormProcessor fp = new FormProcessor(request);
@@ -58,7 +58,7 @@ public class ConfigureServlet extends SecureController {
             v.addValidation("lockcount", Validator.NO_BLANKS);
             v.addValidation("lockcount", Validator.IS_IN_RANGE, 1, 25);
 
-            HashMap errors = v.validate();
+            HashMap<String, ArrayList<String>> errors = v.validate();
 
             if (!errors.isEmpty()) {
                 loadPresetValuesFromForm(fp);

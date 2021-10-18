@@ -52,7 +52,6 @@ public class ApiSecurityFilter extends OncePerRequestFilter {
                         int p = credentials.indexOf(":");
                         if (p != -1) {
                             String _username = credentials.substring(0, p).trim();
-                            String _password = credentials.substring(p + 1).trim();
 
                             UserAccountDAO userAccountDAO = new UserAccountDAO(dataSource);
                             UserAccountBean ub = (UserAccountBean) userAccountDAO.findByApiKey(_username);

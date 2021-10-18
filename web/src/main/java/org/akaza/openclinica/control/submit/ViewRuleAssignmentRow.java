@@ -14,10 +14,11 @@
  */
 package org.akaza.openclinica.control.submit;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.akaza.openclinica.domain.rule.RuleSetBean;
 import org.akaza.openclinica.web.domain.EntityBeanRow;
-
-import java.util.ArrayList;
 
 /**
  * A help class for ListCRF view to display CRF objects in show table class
@@ -26,7 +27,7 @@ import java.util.ArrayList;
  * @author jxu
  *
  */
-public class ViewRuleAssignmentRow extends EntityBeanRow {
+public class ViewRuleAssignmentRow extends EntityBeanRow<RuleSetBean, ViewRuleAssignmentRow> {
     // columns:
     public static final int COL_NAME = 0;
 
@@ -80,15 +81,12 @@ public class ViewRuleAssignmentRow extends EntityBeanRow {
      * @see org.akaza.openclinica.core.EntityBeanRow#generatRowsFromBeans(java.util.ArrayList)
      */
     @Override
-    public ArrayList generatRowsFromBeans(ArrayList beans) {
+    public ArrayList<ViewRuleAssignmentRow> generatRowsFromBeans(ArrayList<RuleSetBean> beans) {
         return ViewRuleAssignmentRow.generateRowsFromBeans(beans);
     }
 
-    public static ArrayList generateRowsFromBeans(ArrayList<RuleSetBean> beans) {
-        ArrayList answer = new ArrayList();
-
-        Class[] parameters = null;
-        Object[] arguments = null;
+    public static ArrayList<ViewRuleAssignmentRow> generateRowsFromBeans(List<RuleSetBean> beans) {
+        ArrayList<ViewRuleAssignmentRow> answer = new ArrayList<>();
 
         for (int i = 0; i < beans.size(); i++) {
             try {

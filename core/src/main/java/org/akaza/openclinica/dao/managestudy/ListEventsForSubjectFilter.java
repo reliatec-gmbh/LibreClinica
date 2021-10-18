@@ -143,41 +143,6 @@ public class ListEventsForSubjectFilter implements CriteriaCommand {
         return criteria;
     }
 
-    /*
-     * Method to convert DataEntryStage id value into status value to be match
-     * it with event_crf table rows.
-     */
-    private int getStatusForStage(int stage) {
-        int status = 0;
-
-        if (stage == 2) // DataEntryStage.INITIAL_DATA_ENTRY
-        {
-            status = 1;
-        }
-
-        if (stage == 3 || stage == 4) // DataEntryStage.INITIAL_DATA_ENTRY_COMPLETE
-        // / DataEntryStage.DOUBLE_DATA_ENTRY
-        {
-            status = 4;
-        }
-
-        if (stage == 5) // DataEntryStage.DOUBLE_DATA_ENTRY_COMPLETE
-        {
-            status = 2;
-        }
-
-        if (stage == 6) // DataEntryStage.ADMINISTRATIVE_EDITING
-        {
-            status = 6;
-        }
-
-        if (stage == 7) // DataEntryStage.LOCKED
-        {
-            status = 7;
-        }
-        return status;
-    }
-
     private static class Filter {
         private final String property;
         private final Object value;

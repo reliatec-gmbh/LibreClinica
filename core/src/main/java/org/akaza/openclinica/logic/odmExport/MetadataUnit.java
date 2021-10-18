@@ -158,7 +158,6 @@ public class MetadataUnit extends OdmUnit {
      * @param formVersionOID
      */
     private void collectMetaDataVersion(String formVersionOID){
-        StudyBean study = studyBase.getStudy();
         OdmExtractDAO oedao = new OdmExtractDAO(this.ds);
         MetaDataVersionBean metadata = this.odmStudy.getMetaDataVersion();
         

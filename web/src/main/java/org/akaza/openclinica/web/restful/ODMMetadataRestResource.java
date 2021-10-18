@@ -7,9 +7,6 @@
  */
 package org.akaza.openclinica.web.restful;
 
-import java.util.Locale;
-
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.GET;
@@ -25,10 +22,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sun.jersey.api.view.Viewable;
-
-import freemarker.template.Configuration;
-import freemarker.template.ObjectWrapper;
-import freemarker.template.TemplateExceptionHandler;
 /**
  *  Rest service for ODM metadata
  *  usage ROOT_CONTEXT/rest/metadata/{format}/{mode}/{STUDYOID}
@@ -250,31 +243,5 @@ public void setMetadataCollectorResource(
 
 
  /**/
-
-  private Configuration initFreemarker(ServletContext context) {
-    // Initialize the FreeMarker configuration;
-    // - Create a configuration instance
-    Configuration cfg = new freemarker.template.Configuration();
-    // - Templates are stoted in the WEB-INF/templates directory of the Web app.
-    cfg.setServletContextForTemplateLoading(context, "WEB-INF/template");
-    // - Set update dealy to 0 for now, to ease debugging and testing.
-    //   Higher value should be used in production environment.
-    cfg.setTemplateUpdateDelay(0);
-    // - Set an error handler that prints errors so they are readable with
-    //   a HTML browser.
-    cfg.setTemplateExceptionHandler(TemplateExceptionHandler.HTML_DEBUG_HANDLER);
-    // - Use beans wrapper (recommmended for most applications)
-    cfg.setObjectWrapper(ObjectWrapper.BEANS_WRAPPER);
-    // - Set the default charset of the template files
-    cfg.setDefaultEncoding("ISO-8859-1");
-    // - Set the charset of the output. This is actually just a hint, that
-    //   templates may require for URL encoding and for generating META element
-    //   that uses http-equiv="Content-type".
-    cfg.setOutputEncoding("UTF-8");
-    // - Set the default locale
-    cfg.setLocale(Locale.US);
-
-    return cfg;
-  }
 
 }

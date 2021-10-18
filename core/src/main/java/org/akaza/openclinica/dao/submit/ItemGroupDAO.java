@@ -7,32 +7,25 @@
  */
 package org.akaza.openclinica.dao.submit;
 
-import org.akaza.openclinica.bean.core.EntityBean;
-import org.akaza.openclinica.bean.submit.ItemGroupBean;
-import org.akaza.openclinica.dao.core.AuditableEntityDAO;
-import org.akaza.openclinica.dao.core.DAODigester;
-import org.akaza.openclinica.dao.core.PreparedStatementFactory;
-import org.akaza.openclinica.dao.core.SQLFactory;
-import org.akaza.openclinica.dao.core.TypeNames;
-import org.akaza.openclinica.exception.OpenClinicaException;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
 import javax.sql.DataSource;
 
+import org.akaza.openclinica.bean.core.EntityBean;
+import org.akaza.openclinica.bean.submit.ItemGroupBean;
+import org.akaza.openclinica.dao.core.AuditableEntityDAO;
+import org.akaza.openclinica.dao.core.DAODigester;
+import org.akaza.openclinica.dao.core.SQLFactory;
+import org.akaza.openclinica.dao.core.TypeNames;
+import org.akaza.openclinica.exception.OpenClinicaException;
+
 /**
  * Created by IntelliJ IDEA. User: bruceperry Date: May 8, 2007
  */
-public class ItemGroupDAO<K extends String,V extends ArrayList> extends AuditableEntityDAO {
+public class ItemGroupDAO extends AuditableEntityDAO<ItemGroupBean> {
 
     public ItemGroupDAO(DataSource ds) {
         super(ds);
@@ -80,8 +73,8 @@ public class ItemGroupDAO<K extends String,V extends ArrayList> extends Auditabl
 
     }
 
-    public EntityBean update(EntityBean eb) {
-        ItemGroupBean formGroupBean = (ItemGroupBean) eb;
+    @Override
+    public ItemGroupBean update(ItemGroupBean formGroupBean) {
         HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
         /*
          * item_group_id serial NOT NULL, name varchar(255), crf_id numeric NOT
@@ -93,17 +86,20 @@ public class ItemGroupDAO<K extends String,V extends ArrayList> extends Auditabl
         variables.put(3, formGroupBean.getStatus().getId());
         variables.put(4, formGroupBean.getUpdater().getId());
         variables.put(5, formGroupBean.getId());
-        this.execute(digester.getQuery("update"), variables);
-        return eb;
+        this.executeUpdate(digester.getQuery("update"), variables);
+        return formGroupBean;
     }
 
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase)
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<ItemGroupBean> findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase)
             throws OpenClinicaException {
-        return new ArrayList();
+        throw new RuntimeException("Not implemented");
     }
 
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType) throws OpenClinicaException {
-        return new ArrayList();
+    public ArrayList<ItemGroupBean> findAllByPermission(Object objCurrentUser, int intActionType) throws OpenClinicaException {
+        return new ArrayList<>();
     }
 
     private String getOid(ItemGroupBean itemGroupBean, String crfName, String itemGroupLabel) {
@@ -122,8 +118,10 @@ public class ItemGroupDAO<K extends String,V extends ArrayList> extends Auditabl
         String oid = getOid(itemGroup, crfName, itemGroupLabel);
         logger.debug(oid);
         String oidPreRandomization = oid;
-        while (findByOid(oid) != null || oidList.contains(oid)) {
+        ItemGroupBean findByOid = findByOid(oid);
+		while ((findByOid != null && oid.equals(findByOid.getOid())) || oidList.contains(oid)) {
             oid = itemGroup.getOidGenerator().randomizeOid(oidPreRandomization);
+            findByOid = findByOid(oid);
         }
         return oid;
     }
@@ -133,8 +131,8 @@ public class ItemGroupDAO<K extends String,V extends ArrayList> extends Auditabl
      * date_created date, date_updated date, owner_id numeric, update_id
      * numeric,
      */
-    public EntityBean create(EntityBean eb) {
-        ItemGroupBean formGroupBean = (ItemGroupBean) eb;
+    @Override
+    public ItemGroupBean create(ItemGroupBean formGroupBean) {
         HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
         int id = getNextPK();
         variables.put(1, id);
@@ -143,261 +141,107 @@ public class ItemGroupDAO<K extends String,V extends ArrayList> extends Auditabl
         variables.put(4, new Integer(formGroupBean.getStatus().getId()));
         variables.put(5, formGroupBean.getOwner().getId());
 
-        this.execute(digester.getQuery("create"), variables);
+        this.executeUpdate(digester.getQuery("create"), variables);
         if (isQuerySuccessful()) {
-            eb.setId(id);
-            eb.setActive(true);
-        }
-        return eb;
-    }
-
-    public Collection findAll() {
-        this.setTypesExpected();
-        List listofMaps = this.select(digester.getQuery("findAll"));
-        List<ItemGroupBean> beanList = new ArrayList<ItemGroupBean>();
-        ItemGroupBean bean;
-        for (Object map : listofMaps) {
-            bean = (ItemGroupBean) this.getEntityFromHashMap((HashMap) map);
-            beanList.add(bean);
-        }
-        return beanList;
-    }
-
-    // YW 10-30-2007, one item_id might have more than one item_groups
-    public Collection findGroupsByItemID(int ID) {
-        this.setTypesExpected();
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
-        variables.put(1, ID);
-        List listofMap = this.select(digester.getQuery("findGroupsByItemID"), variables);
-
-        List<ItemGroupBean> formGroupBs = new ArrayList<ItemGroupBean>();
-        for (Object map : listofMap) {
-            ItemGroupBean bean = (ItemGroupBean) this.getEntityFromHashMap((HashMap) map);
-            formGroupBs.add(bean);
-        }
-        return formGroupBs;
-
-    }
-
-    public List<ItemGroupBean> findGroupByCRFVersionIDMap(int Id) {
-        this.setTypesExpected();
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
-        variables.put(1, Id);
-        List listofMaps = this.select(digester.getQuery("findGroupByCRFVersionIDMap"), variables);
-
-        List<ItemGroupBean> beanList = new ArrayList<ItemGroupBean>();
-        ItemGroupBean bean;
-        for (Object map : listofMaps) {
-            bean = (ItemGroupBean) this.getEntityFromHashMap((HashMap) map);
-            beanList.add(bean);
-        }
-        return beanList;
-
-    }
-
-    public EntityBean findByPK(int ID) {
-        ItemGroupBean formGroupB = new ItemGroupBean();
-        this.setTypesExpected();
-
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
-        variables.put(1, ID);
-
-        String sql = digester.getQuery("findByPK");
-        ArrayList listofMap = this.select(sql, variables);
-        for (Object map : listofMap) {
-            formGroupB = (ItemGroupBean) this.getEntityFromHashMap((HashMap) map);
-
-        }
-        return formGroupB;
-    }
-
-    public EntityBean findByName(String name) {
-        ItemGroupBean formGroupBean = new ItemGroupBean();
-        this.setTypesExpected();
-
-        HashMap<Integer, String> variables = new HashMap<Integer, String>();
-        variables.put(1, name);
-
-        String sql = digester.getQuery("findByName");
-        ArrayList listofMap = this.select(sql, variables);
-        for (Object map : listofMap) {
-            formGroupBean = (ItemGroupBean) this.getEntityFromHashMap((HashMap) map);
-
+        	formGroupBean.setId(id);
+        	formGroupBean.setActive(true);
         }
         return formGroupBean;
     }
 
+    public ArrayList<ItemGroupBean> findAll() {
+    	String queryName = "findAll";
+        return executeFindAllQuery(queryName);
+    }
+
+    // YW 10-30-2007, one item_id might have more than one item_groups
+    public ArrayList<ItemGroupBean> findGroupsByItemID(int ID) {
+    	String queryName = "findGroupsByItemID";
+        HashMap<Integer, Object> variables = variables(ID);
+        return executeFindAllQuery(queryName, variables);
+
+    }
+
+    public ArrayList<ItemGroupBean> findGroupByCRFVersionIDMap(int Id) {
+    	String queryName = "findGroupByCRFVersionIDMap";
+        HashMap<Integer, Object> variables = variables(Id);
+        return executeFindAllQuery(queryName, variables);
+
+    }
+
+    public EntityBean findByPK(int ID) {
+    	String queryName = "findByPK";
+        HashMap<Integer, Object> variables = variables(ID);
+        return executeFindByPKQuery(queryName, variables);
+    }
+
+    public EntityBean findByName(String name) {
+    	String queryName = "findByName";
+        HashMap<Integer, Object> variables = variables(name);
+        return executeFindByPKQuery(queryName, variables);
+    }
+
     public List<ItemGroupBean> findAllByOid(String oid) {
-        // ItemGroupBean itemGroup = new ItemGroupBean();
-        this.unsetTypeExpected();
-        setTypesExpected();
-
-        HashMap<Integer, String> variables = new HashMap<Integer, String>();
-        variables.put(new Integer(1), oid);
-        String sql = digester.getQuery("findGroupByOid");
-
-        ArrayList rows = this.select(sql, variables);
-        // return rows;
-        List<ItemGroupBean> beanList = new ArrayList<ItemGroupBean>();
-        ItemGroupBean bean;
-        for (Object map : rows) {
-            bean = (ItemGroupBean) this.getEntityFromHashMap((HashMap) map);
-            beanList.add(bean);
-        }
-        return beanList;
+    	String queryName = "findGroupByOid";
+        HashMap<Integer, Object> variables = variables(oid);
+        return executeFindAllQuery(queryName, variables);
     }
 
     public ItemGroupBean findByOid(String oid) {
-        ItemGroupBean itemGroup = new ItemGroupBean();
-        this.unsetTypeExpected();
-        setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), oid);
-        String sql = digester.getQuery("findGroupByOid");
-
-        ArrayList rows = this.select(sql, variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            itemGroup = (ItemGroupBean) this.getEntityFromHashMap((HashMap) it.next());
-            return itemGroup;
-        } else {
-            return null;
-        }
+    	String queryName = "findGroupByOid";
+        HashMap<Integer, Object> variables = variables(oid);
+        return executeFindByPKQuery(queryName, variables);
     }
 
     public ItemGroupBean findByOidAndCrf(String oid, int crfId) {
-        ItemGroupBean itemGroup = new ItemGroupBean();
-        this.unsetTypeExpected();
-        setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), oid);
-        variables.put(new Integer(2), new Integer(crfId));
-        String sql = digester.getQuery("findGroupByOidAndCrfId");
-
-        ArrayList rows = this.select(sql, variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            itemGroup = (ItemGroupBean) this.getEntityFromHashMap((HashMap) it.next());
-            return itemGroup;
-        } else {
-            return null;
-        }
+    	String queryName = "findGroupByOidAndCrfId";
+        HashMap<Integer, Object> variables = variables(oid, crfId);
+        return executeFindByPKQuery(queryName, variables);
     }
 
-    public List<ItemGroupBean> findGroupByCRFVersionID(int Id) {
-        ItemGroupBean itemGroup = new ItemGroupBean();
-        this.unsetTypeExpected();
-        setTypesExpected();
-
-        
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
-        variables.put(1, Id);
-        List listofMaps = this.select(digester.getQuery("findGroupByCRFVersionID"), variables);
-
-        List<ItemGroupBean> beanList = new ArrayList<ItemGroupBean>();
-        ItemGroupBean bean;
-        for (Object map : listofMaps) {
-            bean = (ItemGroupBean) this.getEntityFromHashMap((HashMap) map);
-            beanList.add(bean);
-        }
-        return beanList;
+    public ArrayList<ItemGroupBean> findGroupByCRFVersionID(int Id) {
+    	String queryName = "findGroupByCRFVersionID";
+        HashMap<Integer, Object> variables = variables(Id);
+        return executeFindAllQuery(queryName, variables);
     }
 
     public ItemGroupBean findGroupByGroupNameAndCrfVersionId(String groupName, int crfVersionId) {
-        this.setTypesExpected();
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(crfVersionId));
-        variables.put(new Integer(2), groupName);
-
-        ArrayList rows = this.select(digester.getQuery("findGroupByGroupNameCRFVersionID"), variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            return (ItemGroupBean) this.getEntityFromHashMap((HashMap) it.next());
-        } else {
-            return null;
-        }
+    	String queryName = "findGroupByGroupNameCRFVersionID";
+        HashMap<Integer, Object> variables = variables(crfVersionId, groupName);
+        return executeFindByPKQuery(queryName, variables);
     }
 
     public ItemGroupBean findGroupByItemIdCrfVersionId(int itemId, int crfVersionId) {
-        this.setTypesExpected();
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(crfVersionId));
-        variables.put(new Integer(2), new Integer(itemId));
-
-        ArrayList rows = this.select(digester.getQuery("findGroupByItemIdCRFVersionID"), variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            return (ItemGroupBean) this.getEntityFromHashMap((HashMap) it.next());
-        } else {
-            return null;
-        }
+    	String queryName = "findGroupByItemIdCRFVersionID";
+        HashMap<Integer, Object> variables = variables(crfVersionId, itemId);
+        return executeFindByPKQuery(queryName, variables);
     }
 
     public List<ItemGroupBean> findOnlyGroupsByCRFVersionID(int Id) {
-        this.setTypesExpected();
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
-        variables.put(1, Id);
-        List listofMaps = this.select(digester.getQuery("findOnlyGroupsByCRFVersionID"), variables);
-
-        List<ItemGroupBean> beanList = new ArrayList<ItemGroupBean>();
-        ItemGroupBean bean;
-        for (Object map : listofMaps) {
-            bean = (ItemGroupBean) this.getEntityFromHashMap((HashMap) map);
-            beanList.add(bean);
-        }
-        return beanList;
+    	String queryName = "findOnlyGroupsByCRFVersionID";
+        HashMap<Integer, Object> variables = variables(Id);
+        return executeFindAllQuery(queryName, variables);
     }
 
     public List<ItemGroupBean> findGroupBySectionId(int sectionId) {
-        this.setTypesExpected();
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
-        variables.put(1, sectionId);
-        List listofMaps = this.select(digester.getQuery("findGroupBySectionId"), variables);
-
-        List<ItemGroupBean> beanList = new ArrayList<ItemGroupBean>();
-        ItemGroupBean bean;
-        for (Object map : listofMaps) {
-            bean = (ItemGroupBean) this.getEntityFromHashMap((HashMap) map);
-            beanList.add(bean);
-        }
-        return beanList;
+    	String queryName = "findGroupBySectionId";
+        HashMap<Integer, Object> variables = variables(sectionId);
+        return executeFindAllQuery(queryName, variables);
     }
 
     public List<ItemGroupBean> findLegitGroupBySectionId(int sectionId) {
-        this.setTypesExpected();
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
-        variables.put(1, sectionId);
-        List listofMaps = this.select(digester.getQuery("findLegitGroupBySectionId"), variables);
-
-        List<ItemGroupBean> beanList = new ArrayList<ItemGroupBean>();
-        ItemGroupBean bean;
-        for (Object map : listofMaps) {
-            bean = (ItemGroupBean) this.getEntityFromHashMap((HashMap) map);
-            beanList.add(bean);
-        }
-        return beanList;
+    	String queryName = "findLegitGroupBySectionId";
+        HashMap<Integer, Object> variables = variables(sectionId);
+        return executeFindAllQuery(queryName, variables);
     }
+    
     public List<ItemGroupBean> findLegitGroupAllBySectionId(int sectionId) {
-        this.setTypesExpected();
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
-        variables.put(1, sectionId);
-        List listofMaps = this.select(digester.getQuery("findLegitGroupAllBySectionId"), variables);
-
-        List<ItemGroupBean> beanList = new ArrayList<ItemGroupBean>();
-        ItemGroupBean bean;
-        for (Object map : listofMaps) {
-            bean = (ItemGroupBean) this.getEntityFromHashMap((HashMap) map);
-            beanList.add(bean);
-        }
-        return beanList;
+    	String queryName = "findLegitGroupAllBySectionId";
+        HashMap<Integer, Object> variables = variables(sectionId);
+        return executeFindAllQuery(queryName, variables);
     }
-    public Object getEntityFromHashMap(HashMap hm) {
+    
+    public ItemGroupBean getEntityFromHashMap(HashMap<String, Object> hm) {
         ItemGroupBean formGroupBean = new ItemGroupBean();
         super.setEntityAuditInformation(formGroupBean, hm);
         formGroupBean.setId((Integer) hm.get("item_group_id"));
@@ -408,50 +252,36 @@ public class ItemGroupDAO<K extends String,V extends ArrayList> extends Auditabl
         return formGroupBean;
     }
 
-    public Collection findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        return new ArrayList();
+    public ArrayList<ItemGroupBean> findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+        return new ArrayList<>();
     }
 
     public void deleteTestGroup(String name) {
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), name);
-        this.execute(digester.getQuery("deleteTestGroup"), variables);
+        HashMap<Integer, Object> variables = variables(name);
+        this.executeUpdate(digester.getQuery("deleteTestGroup"), variables);
     }
     
     public Boolean isItemGroupRepeatingBasedOnAllCrfVersions(String groupOid) {
+        HashMap<Integer, Object> variables = variables(groupOid);
+        String query = digester.getQuery("isItemGroupRepeatingBasedOnAllCrfVersions");
+        Integer count = getCountByQuery(query, variables);
+        
     	Boolean result = false;
-        setTypesExpected();
-        HashMap<Integer, String> variables = new HashMap<Integer, String>();
-        variables.put(1, groupOid);
-
-        String sql = digester.getQuery("isItemGroupRepeatingBasedOnAllCrfVersions");
-
-        ArrayList rows = this.select(sql,variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            Integer count = (Integer) ((HashMap) it.next()).get("count");
+    	if(count != null) {
             result = count > 0 ? true : false;
-        } 
+    	} 
         return result;
     }
     
     public Boolean isItemGroupRepeatingBasedOnCrfVersion(String groupOid,Integer crfVersion) {
+        HashMap<Integer, Object> variables = variables(groupOid, crfVersion);
+        String query = digester.getQuery("isItemGroupRepeatingBasedOnCrfVersion");
+        Integer count = getCountByQuery(query, variables);
+        
     	Boolean result = false;
-        setTypesExpected();
-        HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
-        variables.put(1, groupOid);
-        variables.put(2, crfVersion);
-
-        String sql = digester.getQuery("isItemGroupRepeatingBasedOnCrfVersion");
-
-        ArrayList rows = this.select(sql,variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            Integer count = (Integer) ((HashMap) it.next()).get("count");
+    	if(count != null) {
             result = count > 0 ? true : false;
-        } 
+    	} 
         return result;
     }
     
@@ -460,67 +290,25 @@ public class ItemGroupDAO<K extends String,V extends ArrayList> extends Auditabl
         ItemGroupBean formGroupBean = new ItemGroupBean();
         this.setTypesExpected();
 
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, sectionId);
 
         String sql = digester.getQuery("findTopOneGroupBySectionId");
-        ArrayList listofMap = this.select(sql, variables);
-        for (Object map : listofMap) {
-            formGroupBean = (ItemGroupBean) this.getEntityFromHashMap((HashMap) map);
+        ArrayList<HashMap<String, Object>> listofMaps = this.select(sql, variables);
+        for (HashMap<String, Object> map : listofMaps) {
+            formGroupBean = (ItemGroupBean) this.getEntityFromHashMap(map);
 
         }
         return formGroupBean;
     }
+    
     @Override
-    public ArrayList<V> select(String query, HashMap variables) {
-        clearSignals();
-
-        ArrayList results = new ArrayList();
-        V  value;
-        K key;
-        ResultSet rs = null;
-        Connection con = null;
-        PreparedStatementFactory psf = new PreparedStatementFactory(variables);
-        PreparedStatement ps = null;
-        
-        try {
-            con = ds.getConnection();
-            if (con.isClosed()) {
-                if (logger.isWarnEnabled())
-                    logger.warn("Connection is closed: GenericDAO.select!");
-                throw new SQLException();
-            }
-
-           ps = con.prepareStatement(query);
-           
-       
-            ps = psf.generate(ps);// enter variables here!
-            key = (K) ps.toString();
-            if((results=(V) cache.get(key))==null)
-            {
-            rs = ps.executeQuery();
-            results = this.processResultRows(rs);
-            if(results!=null){
-                cache.put(key,results);
-            }
-            }
-            
-           // if (logger.isInfoEnabled()) {
-                logger.debug("Executing dynamic query, EntityDAO.select:query " + query);
-          //  }
-            signalSuccess();
-              
-
-        } catch (SQLException sqle) {
-            signalFailure(sqle);
-            if (logger.isWarnEnabled()) {
-                logger.warn("Exception while executing dynamic query, GenericDAO.select: " + query + ":message: " + sqle.getMessage());
-                sqle.printStackTrace();
-            }
-        } finally {
-            this.closeIfNecessary(con, rs, ps);
-        }
-        return results;
-
+    public ArrayList<HashMap<String, Object>> select(String query, HashMap<Integer, Object> variables) {
+        return select(query, variables, true);
     }
+
+	@Override
+	public ItemGroupBean emptyBean() {
+		return new ItemGroupBean();
+	}
 }

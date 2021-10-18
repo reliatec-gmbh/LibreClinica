@@ -4,7 +4,7 @@
 	<groupId>org.libreclinica</groupId>
 	<artifactId>LibreClinica</artifactId>
 	<packaging>pom</packaging>
-	<version>1.0.0</version>
+	<version>1.1.0</version>
 	<name>LibreClinica</name>
 	<description>LibreClinica</description>
 
@@ -19,7 +19,7 @@
 		<!-- Default configuration activation -->
 		<config.id>default</config.id>
 
-		<skipTests>false</skipTests>
+		<skipTests>true</skipTests>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
 		<!-- Project's source control URL -->
@@ -40,8 +40,7 @@
 			</properties>
 		</profile>
 		<profile>
-			<!-- This profile is not compatible with Maven v2. Use it with Maven v3
-				only. -->
+			<!-- This profile is not compatible with Maven v2. Use it with Maven v3 only. -->
 			<id>m2eclipse-config</id>
 			<activation>
 				<property>
@@ -144,10 +143,13 @@
 				<artifactId>saxon-dom</artifactId>
 				<version>8.7</version>
 			</dependency>
+			<dependency>
+				<groupId>commons-dbcp</groupId>
+    			<artifactId>commons-dbcp</artifactId>
+    			<version>1.4</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
-
-
 
 	<!-- These dependencies are used by _all_ child projects -->
 	<dependencies>
@@ -191,8 +193,7 @@
 			<version>1.7.6</version>
 			<scope>test</scope>
 		</dependency>
-		<!--@pgawade 02-DEC-2010 Added jul-to-slf4j-1.5.6.jar to get liquibase
-			logs using SLF4JBridgeHandler -->
+		<!--@pgawade 02-DEC-2010 Added jul-to-slf4j-1.5.6.jar to get liquibase logs using SLF4JBridgeHandler -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>jul-to-slf4j</artifactId>
@@ -292,8 +293,7 @@
 			<artifactId>spring-security-config</artifactId>
 			<version>${spring.version}</version>
 		</dependency>
-		<!--@pgawade 10-DEC-2010 Added to get spring ContextLoaderListener class
-			in core -->
+		<!--@pgawade 10-DEC-2010 Added to get spring ContextLoaderListener class in core -->
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-web</artifactId>
@@ -369,12 +369,6 @@
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
 			<version>1.2.14</version>
-		</dependency>
-		<!-- required for WSDL schema collection -->
-		<dependency>
-			<groupId>org.apache.ws.commons.schema</groupId>
-			<artifactId>XmlSchema</artifactId>
-			<version>1.4.7</version>
 		</dependency>
 		<dependency>
 			<groupId>org.codehaus.castor</groupId>

@@ -218,9 +218,6 @@ public class GenerateClinicalDataServiceImpl implements GenerateClinicalDataServ
 		// return null;
 	}
 
-
-
-	@SuppressWarnings("unchecked")
 	private ExportSubjectDataBean setExportSubjectDataBean(
 			StudySubject studySubj, Study study,List<StudyEvent> studyEvents,String formVersionOID) {
 
@@ -777,7 +774,7 @@ public class GenerateClinicalDataServiceImpl implements GenerateClinicalDataServ
 		auditLog.setEntityId(new Integer(entityID));
 		auditLog.setAuditTable(itemDataAuditTable);
 		auditLogsBean.setEntityID(entityValue);
-		ArrayList<AuditLogEvent> auditLogEvent = (getAuditEventDAO().findByParam(auditLog, anotherAuditLog));
+		ArrayList<AuditLogEvent> auditLogEvent = new ArrayList<AuditLogEvent>(getAuditEventDAO().findByParam(auditLog, anotherAuditLog));
 		
 		
 		auditLogsBean= fetchODMAuditBean(auditLogEvent,auditLogsBean);
@@ -890,9 +887,6 @@ public class GenerateClinicalDataServiceImpl implements GenerateClinicalDataServ
 		// This piece of code identifies if the study subject is assigned to study level or site level. If the study subject assigned to site  is pulled from study level this will get the site OID correctly displayed. 
 		if(!studySubjectOID.equals(INDICATE_ALL))
 		{
-		
-
-			StudySubjectDao ssdao =getStudySubjectDao();
 			StudySubject ss = (StudySubject) getStudySubjectDao().findByColumnName(
 						studySubjectOID, "ocOid");
 		studyOID = ss.getStudy().getOc_oid();

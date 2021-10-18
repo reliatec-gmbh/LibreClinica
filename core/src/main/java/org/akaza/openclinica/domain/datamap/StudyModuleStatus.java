@@ -30,6 +30,10 @@ import org.akaza.openclinica.domain.AbstractMutableDomainObject;
 @Table(name = "study_module_status")
 public class StudyModuleStatus  extends AbstractMutableDomainObject {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6903614844392782392L;
 	private int id;
 	private Integer version;
 	private Study study;

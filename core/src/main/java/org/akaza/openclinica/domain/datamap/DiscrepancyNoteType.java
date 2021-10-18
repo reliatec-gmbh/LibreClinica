@@ -33,6 +33,10 @@ import org.hibernate.annotations.Parameter;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class DiscrepancyNoteType  extends DataMapDomainObject {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8144759137359531384L;
 	private int discrepancyNoteTypeId;
 	private String name;
 	private String description;

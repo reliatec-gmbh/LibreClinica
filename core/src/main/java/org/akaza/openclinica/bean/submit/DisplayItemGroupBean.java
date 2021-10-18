@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Created by IntelliJ IDEA. User: bruceperry Date: May 7, 2007
  */
-public class DisplayItemGroupBean implements Comparable {
+public class DisplayItemGroupBean implements Comparable<DisplayItemGroupBean> {
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -211,13 +211,8 @@ public class DisplayItemGroupBean implements Comparable {
         this.index = index;
     }
 
-    public int compareTo(Object o) {
-        if (!o.getClass().equals(this.getClass())) {
-            return 0;
-        }
-
-        DisplayItemGroupBean arg = (DisplayItemGroupBean) o;
-        return getOrdinal() - arg.getOrdinal();
+    public int compareTo(DisplayItemGroupBean o) {
+        return getOrdinal() - o.getOrdinal();
     }
 
 }

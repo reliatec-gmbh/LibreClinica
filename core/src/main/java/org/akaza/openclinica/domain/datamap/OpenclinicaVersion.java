@@ -30,6 +30,10 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
 public class OpenclinicaVersion  extends AbstractMutableDomainObject {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6411136301185863499L;
 	private int id;
 	private Integer version;
 	private String name;

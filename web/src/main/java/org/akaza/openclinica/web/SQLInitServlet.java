@@ -38,7 +38,11 @@ import org.akaza.openclinica.domain.technicaladmin.ConfigurationBean;
  */
 public class SQLInitServlet extends HttpServlet {
 
-    private ServletContext context;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 2095124452774392835L;
+	private ServletContext context;
     private static Properties params = new Properties();
     private static Properties entParams = new Properties();
 

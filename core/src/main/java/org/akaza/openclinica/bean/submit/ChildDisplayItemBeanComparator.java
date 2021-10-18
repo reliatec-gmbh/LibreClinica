@@ -12,7 +12,7 @@ import java.util.Comparator;
 /**
  * @author ssachs
  */
-public class ChildDisplayItemBeanComparator implements Comparator {
+public class ChildDisplayItemBeanComparator implements Comparator<DisplayItemBean> {
     private static ChildDisplayItemBeanComparator instance = null;
 
     private ChildDisplayItemBeanComparator() {
@@ -35,7 +35,7 @@ public class ChildDisplayItemBeanComparator implements Comparator {
      *            The first obje
      *
      */
-    public int compare(Object o1, Object o2) {
+    public int compare(DisplayItemBean o1, DisplayItemBean o2) {
         if (o1 == null || o2 == null) {
             return 0;
         }
@@ -48,14 +48,11 @@ public class ChildDisplayItemBeanComparator implements Comparator {
             return 0;
         }
 
-        DisplayItemBean child1 = (DisplayItemBean) o1;
-        DisplayItemBean child2 = (DisplayItemBean) o2;
+        int column1 = o1.getMetadata().getColumnNumber();
+        int column2 = o2.getMetadata().getColumnNumber();
 
-        int column1 = child1.getMetadata().getColumnNumber();
-        int column2 = child2.getMetadata().getColumnNumber();
-
-        int ordinal1 = child1.getMetadata().getOrdinal();
-        int ordinal2 = child2.getMetadata().getOrdinal();
+        int ordinal1 = o1.getMetadata().getOrdinal();
+        int ordinal2 = o2.getMetadata().getOrdinal();
 
         return column1 != column2 ? column1 - column2 : ordinal1 - ordinal2;
     }

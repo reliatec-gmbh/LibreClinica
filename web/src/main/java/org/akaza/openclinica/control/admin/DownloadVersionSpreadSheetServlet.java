@@ -30,7 +30,12 @@ import javax.servlet.ServletOutputStream;
  *         Code Templates
  */
 public class DownloadVersionSpreadSheetServlet extends SecureController {
-    public static String CRF_ID = "crfId";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6969545356468114843L;
+
+	public static String CRF_ID = "crfId";
 
     public static String CRF_VERSION_NAME = "crfVersionName";
 

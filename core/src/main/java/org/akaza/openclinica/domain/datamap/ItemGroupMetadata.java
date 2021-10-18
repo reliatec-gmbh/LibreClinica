@@ -33,7 +33,12 @@ import org.hibernate.annotations.Parameter;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class ItemGroupMetadata extends DataMapDomainObject {
 
-    @Override
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -2541048099025244392L;
+
+	@Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;

@@ -7,10 +7,7 @@
  */
 package org.akaza.openclinica.domain.rule.action;
 
-import org.apache.commons.collections.FactoryUtils;
-import org.apache.commons.collections.list.LazyList;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
+import static org.akaza.openclinica.core.util.ClassCastHelper.asArrayList;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,13 +22,26 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
+import org.apache.commons.collections.FactoryUtils;
+import org.apache.commons.collections.list.LazyList;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
 @Entity
 @DiscriminatorValue("3")
 public class ShowActionBean extends RuleActionBean {
 
-    private String message;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 7103590088389720404L;
+	private String message;
     private List<PropertyBean> properties;
-    private List<PropertyBean> lazyProperties = LazyList.decorate(new ArrayList<PropertyBean>(), FactoryUtils.instantiateFactory(PropertyBean.class));
+    private List<PropertyBean> lazyProperties = asArrayList(
+    		LazyList.decorate(
+    				new ArrayList<PropertyBean>(), 
+    				FactoryUtils.instantiateFactory(PropertyBean.class)),
+    PropertyBean.class);
 
     public ShowActionBean() {
         setActionType(ActionType.SHOW);

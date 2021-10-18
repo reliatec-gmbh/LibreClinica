@@ -15,32 +15,27 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <c:set var="contextPath" value="${fn:replace(pageContext.request.requestURL, fn:substringAfter(pageContext.request.requestURL, pageContext.request.contextPath), '')}" />
-  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=8" />
-
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=8" />
 
 <title><fmt:message key="openclinica" bundle="${resword}"/></title>
 
-<link rel="stylesheet" href="includes/styles.css" type="text/css"/>
-<%-- <link rel="stylesheet" href="includes/styles2.css" type="text/css">--%>
-<%-- <link rel="stylesheet" href="includes/NewNavStyles.css" type="text/css" />--%>
-<script type="text/JavaScript" language="JavaScript" src="includes/global_functions_javascript.js"></script>
-<%-- <script type="text/JavaScript" language="JavaScript" src="includes/global_functions_javascript2.js"></script> --%>
-<script type="text/JavaScript" language="JavaScript" src="includes/Tabs.js"></script>
-<script type="text/JavaScript" language="JavaScript" src="includes/CalendarPopup.js"></script>
-<script type="text/JavaScript" language="JavaScript" src=
-  "includes/repetition-model/repetition-model.js"></script>
-  <script type="text/JavaScript" language="JavaScript" src="includes/prototype.js"></script>
-  <script type="text/JavaScript" language="JavaScript" src="includes/scriptaculous.js?load=effects"></script>
-  <script type="text/JavaScript" language="JavaScript" src="includes/effects.js"></script>
-    <!-- Added for the new Calender -->
-	
-    <link rel="stylesheet" type="text/css" media="all" href="includes/new_cal/skins/aqua/theme.css" title="Aqua" />
-    <script type="text/javascript" src="includes/new_cal/calendar.js"></script>
-     <!--  fix for issue 14427 Removed the mapping with wrong file name calendar_en.js-->
-      <script type="text/javascript" src="includes/new_cal/lang/calendar-en.js"></script>
-      <script type="text/javascript" src="includes/new_cal/lang/<fmt:message key="jscalendar_language_file" bundle="${resformat}"/>"></script>
-    <script type="text/javascript" src="includes/new_cal/calendar-setup.js"></script>
+<link rel="stylesheet" href="${pageContext.request.contextPath}/includes/styles.css" type="text/css"/>
+<script type="text/JavaScript" src="${pageContext.request.contextPath}/includes/global_functions_javascript.js"></script>
+<script type="text/JavaScript" src="${pageContext.request.contextPath}/includes/Tabs.js"></script>
+<script type="text/JavaScript" src="${pageContext.request.contextPath}/includes/CalendarPopup.js"></script>
+<script type="text/JavaScript" src="${pageContext.request.contextPath}/includes/repetition-model/repetition-model.js"></script>
+<script type="text/JavaScript" src="${pageContext.request.contextPath}/includes/prototype.js"></script>
+<script type="text/JavaScript" src="${pageContext.request.contextPath}/includes/jmesa/jquery.min.js"></script><script language="JavaScript">jQuery.noConflict();</script>
+<script type="text/JavaScript" src="${pageContext.request.contextPath}/includes/scriptaculous.js?load=effects"></script>
+<script type="text/JavaScript" src="${pageContext.request.contextPath}/includes/effects.js"></script>
+
+<link rel="stylesheet" type="text/css" media="all" href="${pageContext.request.contextPath}/includes/new_cal/skins/aqua/theme.css" title="Aqua" />
+
+<script type="text/javascript" src="${pageContext.request.contextPath}/includes/new_cal/calendar.js"></script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/includes/new_cal/lang/calendar-en.js"></script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/includes/new_cal/lang/<fmt:message key="jscalendar_language_file" bundle="${resformat}"/>"></script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/includes/new_cal/calendar-setup.js"></script>
 <!-- End -->
 
     <script language="JavaScript">
@@ -61,9 +56,10 @@
         }
     </script>
 
+<script language="JavaScript">var StatusBoxValue=1;</script>
 </head>
 
-<body class="main_BG" topmargin="0" leftmargin="0" marginwidth="0" marginheight="0"
+<body 
     <c:if test="${(study.status.locked || study.status.frozen)}">
         <c:if test="${userBean.numVisitsToMainMenu<=1 || studyJustChanged=='yes'}">
             onload="initmb();sm('box', 730,100);"
@@ -72,27 +68,15 @@
     <jsp:include page="../include/showPopUp.jsp"/>
 >
 
-<table border="0" cellpadding="0" cellspacing="0" width="100%" height="100%" class="background">
+<table class="background">
     <tr>
-        <td valign="top">
+        <td>
 <!-- Header Table -->
-<script language="JavaScript">
-	var StatusBoxValue=1;
-	</script>
-
-<SCRIPT LANGUAGE="JavaScript">
-
-document.write('<table border="0" cellpadding="0" cellspacing="0" width="' + document.body.clientWidth + '" class="header">');
-
-</script>
+<table class="header">
             <tr>
-                <td valign="top">
-
+                <td>
 <!-- Logo -->
-
-    <div class="logo"><img src="images/Logo.gif"></div>
-
+    <div class="logo"><img src="${pageContext.request.contextPath}/images/Logo.gif"></div>
 <!-- Main Navigation -->
-
     <jsp:include page="../include/navBar.jsp"/>
 <!-- End Main Navigation -->

@@ -12,13 +12,10 @@ import java.sql.Connection;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -28,13 +25,11 @@ import java.util.TreeSet;
 
 import javax.sql.DataSource;
 
-import org.akaza.openclinica.bean.core.EntityBean;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.managestudy.StudyEventBean;
 import org.akaza.openclinica.bean.managestudy.StudySubjectBean;
 import org.akaza.openclinica.bean.submit.CRFVersionBean;
 import org.akaza.openclinica.bean.submit.EventCRFBean;
-import org.akaza.openclinica.bean.submit.ItemBean;
 import org.akaza.openclinica.dao.EventCRFSDVFilter;
 import org.akaza.openclinica.dao.EventCRFSDVSort;
 import org.akaza.openclinica.dao.core.AuditableEntityDAO;
@@ -53,9 +48,7 @@ import org.apache.commons.lang.StringUtils;
  * 
  *         TODO test create and update first thing
  */
-public class EventCRFDAO<K extends String, V extends ArrayList> extends AuditableEntityDAO {
-    // private DAODigester digester;
-
+public class EventCRFDAO extends AuditableEntityDAO<EventCRFBean> {
     private void setQueryNames() {
         this.findByPKAndStudyName = "findByPKAndStudy";
         this.getCurrentPKName = "getCurrentPK";
@@ -75,7 +68,6 @@ public class EventCRFDAO<K extends String, V extends ArrayList> extends Auditabl
     // This constructor sets up the Locale for JUnit tests; see the locale
     // member variable in EntityDAO, and its initializeI18nStrings() method
     public EventCRFDAO(DataSource ds, DAODigester digester, Locale locale) {
-
         this(ds, digester);
         this.locale = locale;
     }
@@ -103,9 +95,9 @@ public class EventCRFDAO<K extends String, V extends ArrayList> extends Auditabl
         this.setTypeExpected(13, TypeNames.STRING);
         this.setTypeExpected(14, TypeNames.STRING);
         this.setTypeExpected(15, TypeNames.INT);// owner id
-        this.setTypeExpected(16, TypeNames.DATE);
+        this.setTypeExpected(16, TypeNames.TIMESTAMP);
         this.setTypeExpected(17, TypeNames.INT);// subject id
-        this.setTypeExpected(18, TypeNames.DATE);// date updated
+        this.setTypeExpected(18, TypeNames.TIMESTAMP);// date updated
         this.setTypeExpected(19, TypeNames.INT);// updater
         this.setTypeExpected(20, TypeNames.BOOL);// electronic_signature_status
         this.setTypeExpected(21, TypeNames.BOOL);// sdv_status
@@ -117,13 +109,11 @@ public class EventCRFDAO<K extends String, V extends ArrayList> extends Auditabl
 
     }
 
-    public EntityBean update(EntityBean eb) {
-        EventCRFBean ecb = (EventCRFBean) eb;
-
+    public EventCRFBean update(EventCRFBean ecb) {
         ecb.setActive(false);
 
-        HashMap variables = new HashMap();
-        HashMap nullVars = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
+        HashMap<Integer, Integer> nullVars = new HashMap<>();
         variables.put(new Integer(1), new Integer(ecb.getStudyEventId()));
         variables.put(new Integer(2), new Integer(ecb.getCRFVersionId()));
         if (ecb.getDateInterviewed() == null) {
@@ -178,7 +168,7 @@ public class EventCRFDAO<K extends String, V extends ArrayList> extends Auditabl
         // variables.put(new Integer(19), new Integer(ecb.getId()));
         variables.put(new Integer(20), new Integer(ecb.getId()));
 
-        this.execute(digester.getQuery("update"), variables, nullVars);
+        this.executeUpdate(digester.getQuery("update"), variables, nullVars);
 
         if (isQuerySuccessful()) {
             ecb.setActive(true);
@@ -188,20 +178,18 @@ public class EventCRFDAO<K extends String, V extends ArrayList> extends Auditabl
     }
 
     public void markComplete(EventCRFBean ecb, boolean ide) {
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(ecb.getId()));
+        HashMap<Integer, Object> variables = variables(ecb.getId());
 
         if (ide) {
-            execute(digester.getQuery("markCompleteIDE"), variables);
+            executeUpdate(digester.getQuery("markCompleteIDE"), variables);
         } else {
-            execute(digester.getQuery("markCompleteDDE"), variables);
+            executeUpdate(digester.getQuery("markCompleteDDE"), variables);
         }
     }
 
-    public EntityBean create(EntityBean eb) {
-        EventCRFBean ecb = (EventCRFBean) eb;
-        HashMap variables = new HashMap();
-        HashMap nullVars = new HashMap();
+    public EventCRFBean create(EventCRFBean ecb) {
+        HashMap<Integer, Object> variables = new HashMap<>();
+        HashMap<Integer, Integer> nullVars = new HashMap<>();
         variables.put(new Integer(1), new Integer(ecb.getStudyEventId()));
         variables.put(new Integer(2), new Integer(ecb.getCRFVersionId()));
 
@@ -223,7 +211,7 @@ public class EventCRFDAO<K extends String, V extends ArrayList> extends Auditabl
         variables.put(new Integer(10), ecb.getValidateString());
         variables.put(new Integer(11), ecb.getValidatorAnnotations());
 
-        executeWithPK(digester.getQuery("create"), variables, nullVars);
+        executeUpdateWithPK(digester.getQuery("create"), variables, nullVars);
         if (isQuerySuccessful()) {
             ecb.setId(getLatestPK());
         }
@@ -231,7 +219,7 @@ public class EventCRFDAO<K extends String, V extends ArrayList> extends Auditabl
         return ecb;
     }
 
-    public Object getEntityFromHashMap(HashMap hm) {
+    public EventCRFBean getEntityFromHashMap(HashMap<String, Object> hm) {
         EventCRFBean eb = new EventCRFBean();
         this.setEntityAuditInformation(eb, hm);
 
@@ -258,79 +246,57 @@ public class EventCRFDAO<K extends String, V extends ArrayList> extends Auditabl
         return eb;
     }
 
-    public Collection findAll() {
-        this.setTypesExpected();
-        ArrayList alist = this.select(digester.getQuery("findAll"));
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            EventCRFBean eb = (EventCRFBean) this.getEntityFromHashMap((HashMap) it.next());
-            al.add(eb);
-        }
-        return al;
+    public ArrayList<EventCRFBean> findAll() {
+    	String queryName = "findAll";
+        return executeFindAllQuery(queryName);
     }
 
-    public Collection findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
-
-        return al;
+	/**
+	 * NOT IMPLEMENTED
+	 */
+    public ArrayList<EventCRFBean> findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+       throw new RuntimeException("Not implemented");
     }
 
-    public EntityBean findByPK(int ID) {
-        EventCRFBean eb = new EventCRFBean();
-        this.setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(ID));
-
-        String sql = digester.getQuery("findByPK");
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            eb = (EventCRFBean) this.getEntityFromHashMap((HashMap) it.next());
-        }
-
-        return eb;
+    public EventCRFBean findByPK(int ID) {
+    	String queryName = "findByPK";
+        HashMap<Integer, Object> variables = variables(ID);
+        return executeFindByPKQuery(queryName, variables);
     }
 
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
-
-        return al;
+	/**
+	 * NOT IMPLEMENTED
+	 */
+    public ArrayList<EventCRFBean> findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+        throw new RuntimeException("Not implemented");
     }
 
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType) {
-        ArrayList al = new ArrayList();
-
-        return al;
+	/**
+	 * NOT IMPLEMENTED
+	 */
+    public ArrayList<EventCRFBean> findAllByPermission(Object objCurrentUser, int intActionType) {
+        throw new RuntimeException("Not implemented");
     }
 
-    public ArrayList findAllByStudyEvent(StudyEventBean studyEvent) {
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(studyEvent.getId()));
-
+    public ArrayList<EventCRFBean> findAllByStudyEvent(StudyEventBean studyEvent) {
+        HashMap<Integer, Object> variables = variables(studyEvent.getId());
         return executeFindAllQuery("findAllByStudyEvent", variables);
     }
 
-    public ArrayList findAllByStudyEventAndStatus(StudyEventBean studyEvent, Status status) {
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(studyEvent.getId()));
-        variables.put(new Integer(2), new Integer(status.getId()));
+    public ArrayList<EventCRFBean> findAllByStudyEventAndStatus(StudyEventBean studyEvent, Status status) {
+        HashMap<Integer, Object> variables = variables(studyEvent.getId(), status.getId());
         return executeFindAllQuery("findAllByStudyEventAndStatus", variables);
     }
 
     public ArrayList<EventCRFBean> findAllByStudySubject(int studySubjectId) {
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(studySubjectId));
-
+        HashMap<Integer, Object> variables = variables(studySubjectId);
         return executeFindAllQuery("findAllByStudySubject", variables);
     }
 
     public List<EventCRFBean> findAllCRFMigrationReportList(CRFVersionBean sourceCrfVersionBean , CRFVersionBean targetCrfVersionBean ,ArrayList<String> studyEventDefnlist ,ArrayList<String>  sitelist) {
-        HashMap<Integer, Object> variables = new HashMap();
         String eventStr =StringUtils.join(studyEventDefnlist, ",");
         String siteStr =StringUtils.join(sitelist, ",");
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(sourceCrfVersionBean.getId()));
         variables.put(2, eventStr);
         variables.put(3, siteStr);
@@ -341,8 +307,8 @@ public class EventCRFDAO<K extends String, V extends ArrayList> extends Auditabl
     }
     
     
-    public ArrayList findAllByStudyEventAndCrfOrCrfVersionOid(StudyEventBean studyEvent, String crfVersionOrCrfOID) {
-        HashMap variables = new HashMap();
+    public ArrayList<EventCRFBean> findAllByStudyEventAndCrfOrCrfVersionOid(StudyEventBean studyEvent, String crfVersionOrCrfOID) {
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(studyEvent.getId()));
         variables.put(new Integer(2), crfVersionOrCrfOID);
         variables.put(new Integer(3), crfVersionOrCrfOID);
@@ -351,7 +317,7 @@ public class EventCRFDAO<K extends String, V extends ArrayList> extends Auditabl
     }
 
     public ArrayList<EventCRFBean> findAllByStudyEventInParticipantForm(StudyEventBean studyEvent,int sed_Id,int studyId) {
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(studyEvent.getId()));
         variables.put(new Integer(2), new Integer(sed_Id));
         variables.put(new Integer(3), new Integer(studyId));
@@ -360,21 +326,17 @@ public class EventCRFDAO<K extends String, V extends ArrayList> extends Auditabl
     }
 
     
-    public ArrayList findAllByCRF(int crfId) {
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(crfId));
-
+    public ArrayList<EventCRFBean> findAllByCRF(int crfId) {
+        HashMap<Integer, Object> variables = variables(crfId);
         return executeFindAllQuery("findAllByCRF", variables);
     }
 
-    public ArrayList findAllByCRFVersion(int versionId) {
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(versionId));
-
+    public ArrayList<EventCRFBean> findAllByCRFVersion(int versionId) {
+        HashMap<Integer, Object> variables = variables(versionId);
         return executeFindAllQuery("findAllByCRFVersion", variables);
     }
 
-    public ArrayList findAllStudySubjectByCRFVersion(int versionId) {
+    public ArrayList<EventCRFBean> findAllStudySubjectByCRFVersion(int versionId) {
         this.setTypesExpected();
 
         // ss.label, sed.name as sed_name, s.name as study_name
@@ -386,14 +348,12 @@ public class EventCRFDAO<K extends String, V extends ArrayList> extends Auditabl
             this.setTypeExpected(26, TypeNames.STRING); // r
             this.setTypeExpected(27, TypeNames.STRING); // r
         }
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(versionId));
 
-        ArrayList alist = this.select(digester.getQuery("findAllStudySubjectByCRFVersion"), variables);
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            HashMap hm = (HashMap) it.next();
+        ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findAllStudySubjectByCRFVersion"), variables);
+        ArrayList<EventCRFBean> al = new ArrayList<>();
+        for(HashMap<String, Object> hm : alist) {
             EventCRFBean eb = (EventCRFBean) this.getEntityFromHashMap(hm);
             eb.setStudySubjectName((String) hm.get("label"));
             eb.setEventName((String) hm.get("sed_name"));
@@ -404,7 +364,7 @@ public class EventCRFDAO<K extends String, V extends ArrayList> extends Auditabl
 
     }
 
-    public ArrayList findUndeletedWithStudySubjectsByCRFVersion(int versionId) {
+    public ArrayList<EventCRFBean> findUndeletedWithStudySubjectsByCRFVersion(int versionId) {
         this.setTypesExpected();
         // ss.label, sed.name as sed_name, s.name as study_name, ss.sample_ordinal as repeat_number
         // this.setTypeExpected(23, TypeNames.STRING);
@@ -412,14 +372,12 @@ public class EventCRFDAO<K extends String, V extends ArrayList> extends Auditabl
         this.setTypeExpected(25, TypeNames.STRING);
         this.setTypeExpected(26, TypeNames.STRING);
         this.setTypeExpected(27, TypeNames.INT);
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(versionId));
 
-        ArrayList alist = this.select(digester.getQuery("findUndeletedWithStudySubjectsByCRFVersion"), variables);
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            HashMap hm = (HashMap) it.next();
+        ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findUndeletedWithStudySubjectsByCRFVersion"), variables);
+        ArrayList<EventCRFBean> al = new ArrayList<>();
+        for(HashMap<String, Object> hm : alist) {
             EventCRFBean eb = (EventCRFBean) this.getEntityFromHashMap(hm);
             eb.setStudySubjectName((String) hm.get("label"));
             eb.setEventName((String) hm.get("sed_name"));
@@ -430,8 +388,8 @@ public class EventCRFDAO<K extends String, V extends ArrayList> extends Auditabl
         return al;
     }
 
-    public ArrayList findByEventSubjectVersion(StudyEventBean studyEvent, StudySubjectBean studySubject, CRFVersionBean crfVersion) {
-        HashMap variables = new HashMap();
+    public ArrayList<EventCRFBean> findByEventSubjectVersion(StudyEventBean studyEvent, StudySubjectBean studySubject, CRFVersionBean crfVersion) {
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(studyEvent.getId()));
         variables.put(new Integer(2), new Integer(crfVersion.getId()));
         variables.put(new Integer(3), new Integer(studySubject.getId()));
@@ -443,7 +401,7 @@ public class EventCRFDAO<K extends String, V extends ArrayList> extends Auditabl
     // superclass
     public EventCRFBean findByEventCrfVersion(StudyEventBean studyEvent, CRFVersionBean crfVersion) {
         EventCRFBean eventCrfBean = null;
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(studyEvent.getId()));
         variables.put(new Integer(2), new Integer(crfVersion.getId()));
 
@@ -456,7 +414,7 @@ public class EventCRFDAO<K extends String, V extends ArrayList> extends Auditabl
     }
 
     public ArrayList<EventCRFBean> findByCrfVersion(CRFVersionBean crfVersion) {
-        HashMap<Integer, Integer> variables = new HashMap<Integer, Integer>();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(crfVersion.getId()));
 
         ArrayList<EventCRFBean> eventCrfs = executeFindAllQuery("findByCrfVersion", variables);
@@ -465,134 +423,84 @@ public class EventCRFDAO<K extends String, V extends ArrayList> extends Auditabl
     }
 
     public void delete(int eventCRFId) {
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(eventCRFId));
 
-        this.execute(digester.getQuery("delete"), variables);
+        this.executeUpdate(digester.getQuery("delete"), variables);
         return;
 
     }
 
     public void setSDVStatus(boolean sdvStatus, int userId, int eventCRFId) {
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), sdvStatus);
         variables.put(new Integer(2), userId);
         variables.put(new Integer(3), eventCRFId);
 
-        this.execute(digester.getQuery("setSDVStatus"), variables);
+        this.executeUpdate(digester.getQuery("setSDVStatus"), variables);
     }
 
     public Integer countEventCRFsByStudy(int studyId, int parentStudyId) {
-
-        this.unsetTypeExpected();
-        this.setTypeExpected(1, TypeNames.INT);
-
-        HashMap variables = new HashMap();
-        variables.put(1, studyId);
-        variables.put(2, parentStudyId);
-        String sql = digester.getQuery("countEventCRFsByStudy");
-        ArrayList rows = this.select(sql, variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            return (Integer) ((HashMap) it.next()).get("count");
-
-        } else {
-            return 0;
+        HashMap<Integer, Object> variables = variables(studyId, parentStudyId);
+        String query = digester.getQuery("countEventCRFsByStudy");
+        Integer result = getCountByQuery(query, variables);
+        if(result == null) {
+        	result = 0;
         }
+        return result;
     }
 
     public Integer countEventCRFsByStudyIdentifier(String identifier) {
-
-        this.unsetTypeExpected();
-        this.setTypeExpected(1, TypeNames.INT);
-
-        HashMap variables = new HashMap();
-        variables.put(1, identifier);
-        String sql = digester.getQuery("countEventCRFsByStudyIdentifier");
-        ArrayList rows = this.select(sql, variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            return (Integer) ((HashMap) it.next()).get("count");
-
-        } else {
-            return 0;
+        HashMap<Integer, Object> variables = variables(identifier);
+        String query = digester.getQuery("countEventCRFsByStudyIdentifier");
+        Integer result = getCountByQuery(query, variables);
+        if(result == null) {
+        	result = 0;
         }
+        return result;
     }
 
     public Integer countEventCRFsByStudySubject(int studySubjectId, int studyId, int parentStudyId) {
-
-        this.unsetTypeExpected();
-        this.setTypeExpected(1, TypeNames.INT);
-
-        HashMap variables = new HashMap();
-        variables.put(1, studySubjectId);
-        variables.put(2, studyId);
-        variables.put(3, parentStudyId);
-        String sql = digester.getQuery("countEventCRFsByStudySubject");
-        ArrayList rows = this.select(sql, variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            return (Integer) ((HashMap) it.next()).get("count");
-
-        } else {
-            return 0;
+        HashMap<Integer, Object> variables = variables(studySubjectId, studyId, parentStudyId);
+        String query = digester.getQuery("countEventCRFsByStudySubject");
+        Integer result = getCountByQuery(query, variables);
+        if(result == null) {
+        	result = 0;
         }
+        return result;
     }
 
     public Integer countEventCRFsByStudyIdentifier(int studyId, int parentStudyId, String studyIdentifier) {
-
-        this.unsetTypeExpected();
-        this.setTypeExpected(1, TypeNames.INT);
-
-        HashMap variables = new HashMap();
-        variables.put(1, studyId);
-        variables.put(2, parentStudyId);
-        variables.put(3, studyIdentifier);
-        String sql = digester.getQuery("countEventCRFsByStudyIdentifier");
-        ArrayList rows = this.select(sql, variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            return (Integer) ((HashMap) it.next()).get("count");
-
-        } else {
-            return 0;
+        HashMap<Integer, Object> variables = variables(studyId, parentStudyId, studyIdentifier);
+        String query = digester.getQuery("countEventCRFsByStudyIdentifier");
+        Integer result = getCountByQuery(query, variables);
+        if(result == null) {
+        	result = 0;
         }
+        return result;
     }
 
     public Integer countEventCRFsByByStudySubjectCompleteOrLockedAndNotSDVd(int studySubjectId) {
-
-        this.unsetTypeExpected();
-        this.setTypeExpected(1, TypeNames.INT);
-
-        HashMap variables = new HashMap();
-        variables.put(1, studySubjectId);
-        String sql = digester.getQuery("countEventCRFsByByStudySubjectCompleteOrLockedAndNotSDVd");
-        ArrayList rows = this.select(sql, variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            return (Integer) ((HashMap) it.next()).get("count");
-
-        } else {
-            return 0;
+        HashMap<Integer, Object> variables = variables(studySubjectId);
+        String query = digester.getQuery("countEventCRFsByByStudySubjectCompleteOrLockedAndNotSDVd");
+        Integer result = getCountByQuery(query, variables);
+        if(result == null) {
+        	result = 0;
         }
+        return result;
     }
 
-    public ArrayList getEventCRFsByStudySubjectCompleteOrLocked(int studySubjectId) {
+    public ArrayList<EventCRFBean> getEventCRFsByStudySubjectCompleteOrLocked(int studySubjectId) {
 
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, studySubjectId);
 
         return executeFindAllQuery("getEventCRFsByStudySubjectCompleteOrLocked", variables);
     }
 
-    public ArrayList getEventCRFsByStudySubjectLimit(int studySubjectId, int studyId, int parentStudyId, int limit, int offset) {
+    public ArrayList<EventCRFBean> getEventCRFsByStudySubjectLimit(int studySubjectId, int studyId, int parentStudyId, int limit, int offset) {
 
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, studySubjectId);
         variables.put(2, studyId);
         variables.put(3, parentStudyId);
@@ -602,9 +510,9 @@ public class EventCRFDAO<K extends String, V extends ArrayList> extends Auditabl
         return executeFindAllQuery("getEventCRFsByStudySubjectLimit", variables);
     }
 
-    public ArrayList getEventCRFsByStudySubject(int studySubjectId, int studyId, int parentStudyId) {
+    public ArrayList<EventCRFBean> getEventCRFsByStudySubject(int studySubjectId, int studyId, int parentStudyId) {
 
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, studySubjectId);
         variables.put(2, studyId);
         variables.put(3, parentStudyId);
@@ -612,9 +520,9 @@ public class EventCRFDAO<K extends String, V extends ArrayList> extends Auditabl
         return executeFindAllQuery("getEventCRFsByStudySubject", variables);
     }
 
-    public ArrayList getGroupByStudySubject(int studySubjectId, int studyId, int parentStudyId) {
+    public ArrayList<EventCRFBean> getGroupByStudySubject(int studySubjectId, int studyId, int parentStudyId) {
 
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, studySubjectId);
         variables.put(2, studyId);
         variables.put(3, parentStudyId);
@@ -622,9 +530,9 @@ public class EventCRFDAO<K extends String, V extends ArrayList> extends Auditabl
         return executeFindAllQuery("getGroupByStudySubject", variables);
     }
 
-    public ArrayList getEventCRFsByStudyIdentifier(int studyId, int parentStudyId, String studyIdentifier, int limit, int offset) {
+    public ArrayList<EventCRFBean> getEventCRFsByStudyIdentifier(int studyId, int parentStudyId, String studyIdentifier, int limit, int offset) {
 
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, studyId);
         variables.put(2, parentStudyId);
         variables.put(3, studyIdentifier);
@@ -635,31 +543,17 @@ public class EventCRFDAO<K extends String, V extends ArrayList> extends Auditabl
     }
 
     public Integer getCountWithFilter(int studyId, int parentStudyId, EventCRFSDVFilter filter) {
-
-        setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(1, studyId);
-        variables.put(2, parentStudyId);
-        String sql = digester.getQuery("getCountWithFilter");
-        sql += filter.execute("");
-
-        ArrayList rows = this.select(sql, variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            Integer count = (Integer) ((HashMap) it.next()).get("count");
-            return count;
-        } else {
-            return null;
-        }
+        HashMap<Integer, Object> variables = variables(studyId, parentStudyId);
+        String query = digester.getQuery("getCountWithFilter");
+        query += filter.execute("");
+        return getCountByQuery(query, variables);
     }
 
     public ArrayList<EventCRFBean> getWithFilterAndSort(int studyId, int parentStudyId, EventCRFSDVFilter filter, EventCRFSDVSort sort, int rowStart, int rowEnd) {
         ArrayList<EventCRFBean> eventCRFs = new ArrayList<EventCRFBean>();
         setTypesExpected();
 
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, studyId);
         variables.put(2, parentStudyId);
         String sql = digester.getQuery("getWithFilterAndSort");
@@ -673,19 +567,17 @@ public class EventCRFDAO<K extends String, V extends ArrayList> extends Auditabl
             sql = sql + " LIMIT " + (rowEnd - rowStart) + " OFFSET " + rowStart;
         }
 
-        ArrayList rows = this.select(sql, variables);
-        Iterator it = rows.iterator();
-
-        while (it.hasNext()) {
-            EventCRFBean eventCRF = (EventCRFBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> rows = this.select(sql, variables);
+        for(HashMap<String, Object> hm : rows) {
+            EventCRFBean eventCRF = this.getEntityFromHashMap(hm);
             eventCRFs.add(eventCRF);
         }
         return eventCRFs;
     }
 
-    public ArrayList getEventCRFsByStudy(int studyId, int parentStudyId, int limit, int offset) {
+    public ArrayList<EventCRFBean> getEventCRFsByStudy(int studyId, int parentStudyId, int limit, int offset) {
 
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, studyId);
         variables.put(2, parentStudyId);
         variables.put(3, limit);
@@ -694,9 +586,9 @@ public class EventCRFDAO<K extends String, V extends ArrayList> extends Auditabl
         return executeFindAllQuery("getEventCRFsByStudy", variables);
     }
 
-    public ArrayList getEventCRFsByStudySubjectLabelLimit(String label, int studyId, int parentStudyId, int limit, int offset) {
+    public ArrayList<EventCRFBean> getEventCRFsByStudySubjectLabelLimit(String label, int studyId, int parentStudyId, int limit, int offset) {
 
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, '%' + label + '%');
         variables.put(2, studyId);
         variables.put(3, parentStudyId);
@@ -706,9 +598,9 @@ public class EventCRFDAO<K extends String, V extends ArrayList> extends Auditabl
         return executeFindAllQuery("getEventCRFsByStudySubjectLabelLimit", variables);
     }
 
-    public ArrayList getEventCRFsByEventNameLimit(String eventName, int limit, int offset) {
+    public ArrayList<EventCRFBean> getEventCRFsByEventNameLimit(String eventName, int limit, int offset) {
 
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, eventName);
         variables.put(2, limit);
         variables.put(3, offset);
@@ -716,9 +608,9 @@ public class EventCRFDAO<K extends String, V extends ArrayList> extends Auditabl
         return executeFindAllQuery("getEventCRFsByEventNameLimit", variables);
     }
 
-    public ArrayList getEventCRFsByEventDateLimit(int studyId, String eventDate, int limit, int offset) {
+    public ArrayList<EventCRFBean> getEventCRFsByEventDateLimit(int studyId, String eventDate, int limit, int offset) {
 
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, studyId);
         variables.put(2, eventDate);
         variables.put(3, limit);
@@ -727,9 +619,9 @@ public class EventCRFDAO<K extends String, V extends ArrayList> extends Auditabl
         return executeFindAllQuery("getEventCRFsByEventDateLimit", variables);
     }
 
-    public ArrayList getEventCRFsByStudySDV(int studyId, boolean sdvStatus, int limit, int offset) {
+    public ArrayList<EventCRFBean> getEventCRFsByStudySDV(int studyId, boolean sdvStatus, int limit, int offset) {
 
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, studyId);
         variables.put(2, sdvStatus);
         variables.put(3, limit);
@@ -738,9 +630,9 @@ public class EventCRFDAO<K extends String, V extends ArrayList> extends Auditabl
         return executeFindAllQuery("getEventCRFsByStudySDV", variables);
     }
 
-    public ArrayList getEventCRFsByCRFStatus(int studyId, int subjectEventStatusId, int limit, int offset) {
+    public ArrayList<EventCRFBean> getEventCRFsByCRFStatus(int studyId, int subjectEventStatusId, int limit, int offset) {
 
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, studyId);
         variables.put(2, subjectEventStatusId);
         variables.put(3, limit);
@@ -749,9 +641,9 @@ public class EventCRFDAO<K extends String, V extends ArrayList> extends Auditabl
         return executeFindAllQuery("getEventCRFsByCRFStatus", variables);
     }
 
-    public ArrayList getEventCRFsBySDVRequirement(int studyId, int parentStudyId, int limit, int offset, Integer... sdvCode) {
+    public ArrayList<EventCRFBean> getEventCRFsBySDVRequirement(int studyId, int parentStudyId, int limit, int offset, Integer... sdvCode) {
 
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, studyId);
         variables.put(2, parentStudyId);
         this.setTypesExpected();
@@ -764,180 +656,105 @@ public class EventCRFDAO<K extends String, V extends ArrayList> extends Auditabl
         }
         sql += " ) ))  limit " + limit + " offset " + offset;
 
-        ArrayList alist = this.select(sql, variables);
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-
-        while (it.hasNext()) {
-            EventCRFBean eb = (EventCRFBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
+        ArrayList<EventCRFBean> al = new ArrayList<>();
+        
+        for(HashMap<String, Object> hm : alist) {
+            EventCRFBean eb = this.getEntityFromHashMap(hm);
             al.add(eb);
         }
         return al;
     }
 
     public Integer countEventCRFsByStudySubjectLabel(String label, int studyId, int parentStudyId) {
-
-        this.unsetTypeExpected();
-        this.setTypeExpected(1, TypeNames.INT);
-
-        HashMap variables = new HashMap();
-        variables.put(1, label);
-        variables.put(2, studyId);
-        variables.put(3, parentStudyId);
-
-        String sql = digester.getQuery("countEventCRFsByStudySubjectLabel");
-        ArrayList rows = this.select(sql, variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            return (Integer) ((HashMap) it.next()).get("count");
-
-        } else {
-            return 0;
+        HashMap<Integer, Object> variables = variables(label, studyId, parentStudyId);
+        String query = digester.getQuery("countEventCRFsByStudySubjectLabel");
+        Integer result = getCountByQuery(query, variables);
+        if(result == null) {
+        	result = 0;
         }
+        return result;
     }
 
     public Integer countEventCRFsByStudySDV(int studyId, boolean sdvStatus) {
-
-        this.unsetTypeExpected();
-        this.setTypeExpected(1, TypeNames.INT);
-
-        HashMap variables = new HashMap();
-        variables.put(1, studyId);
-        variables.put(2, sdvStatus);
-        String sql = digester.getQuery("countEventCRFsByStudySDV");
-        ArrayList rows = this.select(sql, variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            return (Integer) ((HashMap) it.next()).get("count");
-
-        } else {
-            return 0;
+        HashMap<Integer, Object> variables = variables(studyId, sdvStatus);
+        String query = digester.getQuery("countEventCRFsByStudySDV");
+        Integer result = getCountByQuery(query, variables);
+        if(result == null) {
+        	result = 0;
         }
+        return result;
     }
 
     public Integer countEventCRFsByCRFStatus(int studyId, int statusId) {
-
-        this.unsetTypeExpected();
-        this.setTypeExpected(1, TypeNames.INT);
-
-        HashMap variables = new HashMap();
-        variables.put(1, studyId);
-        variables.put(2, statusId);
-        String sql = digester.getQuery("countEventCRFsByCRFStatus");
-        ArrayList rows = this.select(sql, variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            return (Integer) ((HashMap) it.next()).get("count");
-
-        } else {
-            return 0;
+        HashMap<Integer, Object> variables = variables(studyId, statusId);
+        String query = digester.getQuery("countEventCRFsByCRFStatus");
+        Integer result = getCountByQuery(query, variables);
+        if(result == null) {
+        	result = 0;
         }
+        return result;
     }
 
     public Integer countEventCRFsByEventName(String eventName) {
-
-        this.unsetTypeExpected();
-        this.setTypeExpected(1, TypeNames.INT);
-
-        HashMap variables = new HashMap();
-        variables.put(1, eventName);
-        String sql = digester.getQuery("countEventCRFsByEventName");
-        ArrayList rows = this.select(sql, variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            return (Integer) ((HashMap) it.next()).get("count");
-
-        } else {
-            return 0;
+        HashMap<Integer, Object> variables = variables(eventName);
+        String query = digester.getQuery("countEventCRFsByEventName");
+        Integer result = getCountByQuery(query, variables);
+        if(result == null) {
+        	result = 0;
         }
+        return result;
     }
 
     public Integer countEventCRFsBySDVRequirement(int studyId, int parentStudyId, Integer... sdvCode) {
-
-        this.unsetTypeExpected();
-        this.setTypeExpected(1, TypeNames.INT);
-
-        HashMap variables = new HashMap();
-        variables.put(1, studyId);
-        variables.put(2, parentStudyId);
-        String sql = digester.getQuery("countEventCRFsBySDVRequirement");
-        sql += " AND ( ";
+        HashMap<Integer, Object> variables = variables(studyId, parentStudyId);
+        String query = digester.getQuery("countEventCRFsBySDVRequirement");
+        query += " AND ( ";
         for (int i = 0; i < sdvCode.length; i++) {
-            sql += i != 0 ? " OR " : "";
-            sql += " source_data_verification_code = " + sdvCode[i];
+            query += i != 0 ? " OR " : "";
+            query += " source_data_verification_code = " + sdvCode[i];
         }
-        sql += "))) ";
-
-        ArrayList rows = this.select(sql, variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            return (Integer) ((HashMap) it.next()).get("count");
-
-        } else {
-            return 0;
+        query += "))) ";
+        Integer result = getCountByQuery(query, variables);
+        if(result == null) {
+        	result = 0;
         }
+        return result;
     }
 
     public Integer countEventCRFsByEventNameSubjectLabel(String eventName, String subjectLabel) {
-
-        this.unsetTypeExpected();
-        this.setTypeExpected(1, TypeNames.INT);
-
-        HashMap variables = new HashMap();
-        variables.put(1, eventName);
-        variables.put(2, subjectLabel);
-        String sql = digester.getQuery("countEventCRFsByEventNameSubjectLabel");
-        ArrayList rows = this.select(sql, variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            return (Integer) ((HashMap) it.next()).get("count");
-
-        } else {
-            return 0;
+        HashMap<Integer, Object> variables = variables(eventName, subjectLabel);
+        String query = digester.getQuery("countEventCRFsByEventNameSubjectLabel");
+        Integer result = getCountByQuery(query, variables);
+        if(result == null) {
+        	result = 0;
         }
+        return result;
     }
 
     public Integer countEventCRFsByEventDate(int studyId, String eventDate) {
-
-        this.unsetTypeExpected();
-        this.setTypeExpected(1, TypeNames.INT);
-
-        HashMap variables = new HashMap();
-        variables.put(1, studyId);
-        variables.put(2, eventDate);
-        String sql = digester.getQuery("countEventCRFsByEventDate");
-        ArrayList rows = this.select(sql, variables);
-        Iterator it = rows.iterator();
-
-        if (it.hasNext()) {
-            return (Integer) ((HashMap) it.next()).get("count");
-
-        } else {
-            return 0;
+        HashMap<Integer, Object> variables = variables(studyId, eventDate);
+        String query = digester.getQuery("countEventCRFsByEventDate");
+        Integer result = getCountByQuery(query, variables);
+        if(result == null) {
+        	result = 0;
         }
+        return result;
     }
 
     public Map<Integer, SortedSet<EventCRFBean>> buildEventCrfListByStudyEvent(Integer studySubjectId) {
         this.setTypesExpected(); // <== Must be called first
 
-        Map<Integer, SortedSet<EventCRFBean>> result = new HashMap<Integer, SortedSet<EventCRFBean>>();
+        Map<Integer, SortedSet<EventCRFBean>> result = new HashMap<>();
 
-        HashMap<Integer, Object> param = new HashMap<Integer, Object>();
+        HashMap<Integer, Object> param = new HashMap<>();
         int i = 1;
         param.put(i++, studySubjectId);
 
-        List selectResult = select(digester.getQuery("buildEventCrfListByStudyEvent"), param);
+        ArrayList<HashMap<String, Object>> selectResult = select(digester.getQuery("buildEventCrfListByStudyEvent"), param);
 
-        Iterator it = selectResult.iterator();
-
-        while (it.hasNext()) {
-            EventCRFBean bean = (EventCRFBean) this.getEntityFromHashMap((HashMap) it.next());
+        for(HashMap<String, Object> hm : selectResult) {
+            EventCRFBean bean = (EventCRFBean) this.getEntityFromHashMap(hm);
 
             Integer studyEventId = bean.getStudyEventId();
             if (!result.containsKey(studyEventId)) {
@@ -958,16 +775,13 @@ public class EventCRFDAO<K extends String, V extends ArrayList> extends Auditabl
     public Set<Integer> buildNonEmptyEventCrfIds(Integer studySubjectId) {
         Set<Integer> result = new HashSet<Integer>();
 
-        HashMap<Integer, Object> param = new HashMap<Integer, Object>();
+        HashMap<Integer, Object> param = new HashMap<>();
         int i = 1;
         param.put(i++, studySubjectId);
 
-        List selectResult = select(digester.getQuery("buildNonEmptyEventCrfIds"), param);
+        ArrayList<HashMap<String, Object>> selectResult = select(digester.getQuery("buildNonEmptyEventCrfIds"), param);
 
-        Iterator it = selectResult.iterator();
-
-        while (it.hasNext()) {
-            HashMap hm = (HashMap) it.next();
+        for(HashMap<String, Object> hm : selectResult) {
             result.add((Integer) hm.get("event_crf_id"));
         }
 
@@ -989,7 +803,7 @@ public class EventCRFDAO<K extends String, V extends ArrayList> extends Auditabl
         this.setTypeExpected(4, TypeNames.BOOL);
         this.setTypeExpected(3, TypeNames.INT);
 
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(1, crf_version_id);
         variables.put(2, user_id);
         variables.put(3, user_id);
@@ -998,10 +812,15 @@ public class EventCRFDAO<K extends String, V extends ArrayList> extends Auditabl
         String sql = digester.getQuery("updateCRFVersionID");
         // this is the way to make the change transactional
         if (con == null) {
-            this.execute(sql, variables);
+            this.executeUpdate(sql, variables);
         } else {
-            this.execute(sql, variables, con);
+            this.executeUpdate(sql, variables, con);
         }
     }
+
+	@Override
+	public EventCRFBean emptyBean() {
+		return new EventCRFBean();
+	}
 
 }

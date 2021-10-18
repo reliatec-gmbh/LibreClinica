@@ -8,14 +8,11 @@
 package org.akaza.openclinica.control;
 
 import org.jmesa.view.ViewUtils;
-import org.jmesa.view.component.Row;
+import org.jmesa.view.html.HtmlBuilder;
+import org.jmesa.view.html.toolbar.AbstractItem;
 import org.jmesa.view.html.toolbar.AbstractToolbar;
 import org.jmesa.view.html.toolbar.MaxRowsItem;
 import org.jmesa.view.html.toolbar.ToolbarItemType;
-import org.jmesa.view.html.toolbar.AbstractItem;
-import org.jmesa.view.html.HtmlBuilder;
-
-import java.util.List;
 
 public class DefaultToolbar extends AbstractToolbar {
 
@@ -24,7 +21,6 @@ public class DefaultToolbar extends AbstractToolbar {
 
     }
     public boolean showMoreLink;
-    @SuppressWarnings("unchecked")
     @Override
     public String render() {
         addToolbarItem(ToolbarItemType.FIRST_PAGE_ITEM);
@@ -44,17 +40,6 @@ public class DefaultToolbar extends AbstractToolbar {
         if (exportable) {
             addToolbarItem(ToolbarItemType.SEPARATOR);
             addExportToolbarItems(getExportTypes());
-        }
-
-        Row row = getTable().getRow();
-        List columns = row.getColumns();
-
-        boolean filterable = ViewUtils.isFilterable(columns);
-
-        if (filterable) {
-            //addToolbarItem(ToolbarItemType.SEPARATOR);
-            //addToolbarItem(ToolbarItemType.FILTER_ITEM);
-            //addToolbarItem(ToolbarItemType.CLEAR_ITEM);
         }
 
         boolean editable = ViewUtils.isEditable(getCoreContext().getWorksheet());

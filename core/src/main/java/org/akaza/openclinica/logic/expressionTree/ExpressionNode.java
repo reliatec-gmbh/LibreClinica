@@ -27,7 +27,6 @@ import java.util.HashMap;
 public abstract class ExpressionNode {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
-    private HashMap<String, String> testValues;
     private OpenClinicaExpressionParser expressionParser;
 
     Object value() throws OpenClinicaSystemException {

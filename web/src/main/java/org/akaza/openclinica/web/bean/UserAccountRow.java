@@ -14,7 +14,7 @@ import java.util.ArrayList;
 /**
  * @author ssachs
  */
-public class UserAccountRow extends EntityBeanRow {
+public class UserAccountRow extends EntityBeanRow<UserAccountBean, UserAccountRow> {
     // columns:
     public static final int COL_USERNAME = 0;
     public static final int COL_FIRSTNAME = 1;
@@ -28,13 +28,13 @@ public class UserAccountRow extends EntityBeanRow {
      *      int)
      */
     @Override
-    protected int compareColumn(Object row, int sortingColumn) {
+    protected int compareColumn(UserAccountRow row, int sortingColumn) {
         if (!row.getClass().equals(UserAccountRow.class)) {
             return 0;
         }
 
-        UserAccountBean thisAccount = (UserAccountBean) bean;
-        UserAccountBean argAccount = (UserAccountBean) ((UserAccountRow) row).bean;
+        UserAccountBean thisAccount = bean;
+        UserAccountBean argAccount = row.bean;
 
         int answer = 0;
         switch (sortingColumn) {
@@ -67,20 +67,17 @@ public class UserAccountRow extends EntityBeanRow {
      * @see org.akaza.openclinica.core.EntityBeanRow#generatRowsFromBeans(java.util.ArrayList)
      */
     @Override
-    public ArrayList generatRowsFromBeans(ArrayList beans) {
+    public ArrayList<UserAccountRow> generatRowsFromBeans(ArrayList<UserAccountBean> beans) {
         return UserAccountRow.generateRowsFromBeans(beans);
     }
 
-    public static ArrayList generateRowsFromBeans(ArrayList beans) {
-        ArrayList answer = new ArrayList();
-
-        Class[] parameters = null;
-        Object[] arguments = null;
+    public static ArrayList<UserAccountRow> generateRowsFromBeans(ArrayList<UserAccountBean> beans) {
+        ArrayList<UserAccountRow> answer = new ArrayList<>();
 
         for (int i = 0; i < beans.size(); i++) {
             try {
                 UserAccountRow row = new UserAccountRow();
-                row.setBean((UserAccountBean) beans.get(i));
+                row.setBean(beans.get(i));
                 answer.add(row);
             } catch (Exception e) {
             }

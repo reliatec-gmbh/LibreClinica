@@ -17,8 +17,8 @@ import java.util.Iterator;
 public abstract class Table {
     public static final int NUM_ROWS_PER_PAGE = 10;
 
-    protected ArrayList rows; // an array of Entities
-    protected ArrayList columns; // an array of Strings which are column
+    protected ArrayList<EntityBean> rows; // an array of Entities
+    protected ArrayList<String> columns; // an array of Strings which are column
     // headings, setup during initialization
     protected int numColumns; // provided for convenience in showTable class;
     // always equals columns.size()
@@ -37,15 +37,15 @@ public abstract class Table {
     // the rows
 
     protected String postAction;
-    protected HashMap postArgs;
+    protected HashMap<String, String> postArgs;
     protected String baseGetQuery;
 
     protected String noRowsMessage;
     protected String noColsMessage;
 
     public Table() {
-        rows = new ArrayList();
-        columns = new ArrayList();
+        rows = new ArrayList<>();
+        columns = new ArrayList<>();
         numColumns = 0;
 
         currPageNumber = 0;
@@ -56,7 +56,7 @@ public abstract class Table {
         keywordFilter = "";
 
         postAction = "";
-        postArgs = new HashMap();
+        postArgs = new HashMap<>();
         baseGetQuery = "";
 
         noRowsMessage = "";
@@ -73,7 +73,7 @@ public abstract class Table {
     /**
      * @return Returns the columns.
      */
-    public ArrayList getColumns() {
+    public ArrayList<String> getColumns() {
         return columns;
     }
 
@@ -81,7 +81,7 @@ public abstract class Table {
      * @param columns
      *            The columns to set.
      */
-    public void setColumns(ArrayList columns) {
+    public void setColumns(ArrayList<String> columns) {
         this.columns = columns;
         numColumns = columns.size();
     }
@@ -110,7 +110,7 @@ public abstract class Table {
     /**
      * @return Returns the rows.
      */
-    public ArrayList getRows() {
+    public ArrayList<EntityBean> getRows() {
         return rows;
     }
 
@@ -126,7 +126,7 @@ public abstract class Table {
      *
      * @param rows
      */
-    public void setRows(ArrayList rows) {
+    public void setRows(ArrayList<EntityBean> rows) {
         this.rows = rows;
         updateTotalPageNumbers();
     }
@@ -167,14 +167,14 @@ public abstract class Table {
         return numColumns;
     }
 
-    public void setQuery(String baseURL, HashMap args) {
+    public void setQuery(String baseURL, HashMap<String, String> args) {
         postAction = baseURL;
         postArgs = args;
 
         baseGetQuery = baseURL + "?";
         baseGetQuery += FormProcessor.FIELD_SUBMITTED + "=" + 1;
 
-        Iterator it = args.keySet().iterator();
+        Iterator<String> it = args.keySet().iterator();
         while (it.hasNext()) {
             String key = (String) it.next();
             String value = (String) args.get(key);
@@ -201,7 +201,7 @@ public abstract class Table {
     /**
      * @return Returns the postArgs.
      */
-    public HashMap getPostArgs() {
+    public HashMap<String, String> getPostArgs() {
         return postArgs;
     }
 
@@ -218,7 +218,7 @@ public abstract class Table {
         String header = "<table border>\n";
         header += "<tr>\n";
 
-        Iterator columnsIt = columns.iterator();
+        Iterator<String> columnsIt = columns.iterator();
 
         while (columnsIt.hasNext()) {
             String column = (String) columnsIt.next();
@@ -263,9 +263,9 @@ public abstract class Table {
 
         String table = showHeader();
 
-        Iterator rowsIt = rows.iterator();
+        Iterator<EntityBean> rowsIt = rows.iterator();
         while (rowsIt.hasNext()) {
-            EntityBean e = (EntityBean) rowsIt.next();
+            EntityBean e = rowsIt.next();
             table += showRow(e);
         }
 

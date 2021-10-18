@@ -9,12 +9,11 @@
  */
 package org.akaza.openclinica.web.bean;
 
+import java.util.ArrayList;
+
 import org.akaza.openclinica.bean.core.DiscrepancyNoteType;
-import org.akaza.openclinica.bean.core.EntityBean;
 import org.akaza.openclinica.bean.core.ResolutionStatus;
 import org.akaza.openclinica.bean.managestudy.DiscrepancyNoteBean;
-
-import java.util.ArrayList;
 
 /**
  * @author ssachs
@@ -22,7 +21,7 @@ import java.util.ArrayList;
  * TODO To change the template for this generated type comment go to Window -
  * Preferences - Java - Code Style - Code Templates
  */
-public class DiscrepancyNoteRow extends EntityBeanRow {
+public class DiscrepancyNoteRow extends EntityBeanRow<DiscrepancyNoteBean, DiscrepancyNoteRow> {
     private DiscrepancyNoteType type;
     private ResolutionStatus status;
     private String studyName = "";
@@ -61,14 +60,14 @@ public class DiscrepancyNoteRow extends EntityBeanRow {
      *      int)
      */
     @Override
-    protected int compareColumn(Object row, int sortingColumn) {
+    protected int compareColumn(DiscrepancyNoteRow row, int sortingColumn) {
         if (!row.getClass().equals(DiscrepancyNoteRow.class)) {
             return 0;
         }
 
-        DiscrepancyNoteRow arg = (DiscrepancyNoteRow) row;
-        DiscrepancyNoteBean thisNote = (DiscrepancyNoteBean) bean;
-        DiscrepancyNoteBean argNote = (DiscrepancyNoteBean) arg.bean;
+        DiscrepancyNoteRow arg = row;
+        DiscrepancyNoteBean thisNote =  bean;
+        DiscrepancyNoteBean argNote = arg.bean;
 
         int answer = 0;
         switch (sortingColumn) {
@@ -128,17 +127,18 @@ public class DiscrepancyNoteRow extends EntityBeanRow {
      * @see org.akaza.openclinica.core.EntityBeanRow#generatRowsFromBeans(java.util.ArrayList)
      */
     @Override
-    public ArrayList generatRowsFromBeans(ArrayList beans) {
+    public ArrayList<DiscrepancyNoteRow> generatRowsFromBeans(ArrayList<DiscrepancyNoteBean> beans) {
         return DiscrepancyNoteRow.generateRowsFromBeans(beans);
     }
 
-    public static ArrayList generateRowsFromBeans(ArrayList beans) {
-        ArrayList answer = new ArrayList();
+    
+    public static ArrayList<DiscrepancyNoteRow> generateRowsFromBeans(ArrayList<DiscrepancyNoteBean> beans) {
+        ArrayList<DiscrepancyNoteRow> answer = new ArrayList<>();
 
         for (int i = 0; i < beans.size(); i++) {
             try {
                 DiscrepancyNoteRow row = new DiscrepancyNoteRow();
-                DiscrepancyNoteBean note = (DiscrepancyNoteBean) beans.get(i);
+                DiscrepancyNoteBean note = beans.get(i);
                 row.setBean(note);
                 answer.add(row);
             } catch (Exception e) {
@@ -148,8 +148,8 @@ public class DiscrepancyNoteRow extends EntityBeanRow {
         return answer;
     }
 
-    public static ArrayList generateBeansFromRows(ArrayList rows) {
-        ArrayList answer = new ArrayList();
+    public static ArrayList<DiscrepancyNoteBean> generateBeansFromRows(ArrayList<DiscrepancyNoteRow> rows) {
+        ArrayList<DiscrepancyNoteBean> answer = new ArrayList<>();
 
         for (int i = 0; i < rows.size(); i++) {
             try {
@@ -164,9 +164,8 @@ public class DiscrepancyNoteRow extends EntityBeanRow {
     }
 
     @Override
-    public void setBean(EntityBean bean) {
+    public void setBean(DiscrepancyNoteBean note) {
         super.setBean(bean);
-        DiscrepancyNoteBean note = (DiscrepancyNoteBean) bean;
         type = DiscrepancyNoteType.get(note.getDiscrepancyNoteTypeId());
         status = ResolutionStatus.get(note.getResolutionStatusId());
     }
@@ -263,7 +262,7 @@ public class DiscrepancyNoteRow extends EntityBeanRow {
 
     @Override
     public String getSearchString() {
-        DiscrepancyNoteBean thisNote = (DiscrepancyNoteBean) bean;
+        DiscrepancyNoteBean thisNote = bean;
         return thisNote.getSubjectName() + " " + thisNote.getDescription() + " " + thisNote.getEntityType() + " " + thisNote.getResStatus().getName() + " "
             + thisNote.getEntityName() + " " + thisNote.getEntityValue() + " " + thisNote.getCrfName() + " " + thisNote.getEventName() + " " + getType();
     }

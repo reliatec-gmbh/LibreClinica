@@ -39,6 +39,10 @@ import org.hibernate.annotations.Type;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Section  extends DataMapDomainObject {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1672680126918011040L;
 	private int sectionId;
 	private UserAccount userAccount;
 	private CrfVersion crfVersion;

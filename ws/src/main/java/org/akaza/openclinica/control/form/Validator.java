@@ -7,7 +7,24 @@
  */
 package org.akaza.openclinica.control.form;
 
-import org.akaza.openclinica.bean.core.AuditableEntityBean;
+import java.math.BigDecimal;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.akaza.openclinica.bean.core.EntityAction;
 import org.akaza.openclinica.bean.core.EntityBean;
 import org.akaza.openclinica.bean.core.NumericComparisonOperator;
@@ -27,24 +44,6 @@ import org.akaza.openclinica.dao.login.UserAccountDAO;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.math.BigDecimal;
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Locale;
-import java.util.ResourceBundle;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * 
@@ -355,6 +354,7 @@ import javax.servlet.http.HttpServletRequest;
 // and making it more beefy (ie adding a checkIfValidated() type method to that
 // class,
 // so that the work is done there and not in this class)
+// TODO duplicate of the version in the web module?
 public class Validator {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
@@ -458,17 +458,17 @@ public class Validator {
      */
     protected String lastField;
 
-    protected HashMap validations;
+    protected HashMap<String, ArrayList<Validation>> validations;
 
-    protected HashMap errors;
+    protected HashMap<String, ArrayList<String>> errors;
 
     protected HttpServletRequest request;
 
     protected ResourceBundle resformat;
 
     public Validator(HttpServletRequest request) {
-        validations = new HashMap();
-        errors = new HashMap();
+        validations = new HashMap<>();
+        errors = new HashMap<>();
         this.request = request;
         if ( request != null){locale = request.getLocale();}
         resformat = ResourceBundleProvider.getFormatBundle(locale);
@@ -478,20 +478,20 @@ public class Validator {
         lastField = "";
     }
    
-    protected ArrayList getFieldValidations(String fieldName) {
-        ArrayList fieldValidations;
+    protected ArrayList<Validation> getFieldValidations(String fieldName) {
+        ArrayList<Validation> fieldValidations;
 
         if (validations.containsKey(fieldName)) {
-            fieldValidations = (ArrayList) validations.get(fieldName);
+            fieldValidations = validations.get(fieldName);
         } else {
-            fieldValidations = new ArrayList();
+            fieldValidations = new ArrayList<>();
         }
         return fieldValidations;
     }
 
     // function used to squirrel away the validations until validate is called
     public void addValidation(String fieldName, Validation v) {
-        ArrayList fieldValidations = getFieldValidations(fieldName);
+        ArrayList<Validation> fieldValidations = getFieldValidations(fieldName);
         fieldValidations.add(v);
         validations.put(fieldName, fieldValidations);
     }
@@ -558,7 +558,7 @@ public class Validator {
     /*
      * use for: ENTITY_EXISTS_IN_STUDY
      */
-    public void addValidation(String fieldName, int type, AuditableEntityDAO dao, StudyBean study) {
+    public void addValidation(String fieldName, int type, AuditableEntityDAO<?> dao, StudyBean study) {
         // for entity exists validation
         Validation v = new Validation(type);
         v.addArgument(dao);
@@ -570,7 +570,7 @@ public class Validator {
     /*
      * use for: ENTITY_EXISTS
      */
-    public void addValidation(String fieldName, int type, EntityDAO edao) {
+    public void addValidation(String fieldName, int type, EntityDAO<?> edao) {
         // for entity exists validation
         Validation v = new Validation(type);
         v.addArgument(edao);
@@ -583,7 +583,7 @@ public class Validator {
     /*
      * use for: IS_IN_SET and IS_VALID_WIDTH_DECIMAL
      */
-    public void addValidation(String fieldName, int type, ArrayList set) {
+    public void addValidation(String fieldName, int type, ArrayList<?> set) {
         // TODO: assert type == is_in_set
 
         Validation v = new Validation(type);
@@ -650,16 +650,10 @@ public class Validator {
     /*
      * Executes all of the validations which have been requested.
      */
-    public HashMap validate() {
-        Set keys = validations.keySet();
-        Iterator keysIt = keys.iterator();
-
-        while (keysIt.hasNext()) {
-            String fieldName = (String) keysIt.next();
-
-            ArrayList fieldValidations = getFieldValidations(fieldName);
-            for (int i = 0; i < fieldValidations.size(); i++) {
-                Validation v = (Validation) fieldValidations.get(i);
+    public HashMap<String, ArrayList<String>> validate() {
+        for(String fieldName : validations.keySet()) {
+            ArrayList<Validation> fieldValidations = getFieldValidations(fieldName);
+            for(Validation v : fieldValidations) {
                 logger.debug("fieldName=" + fieldName);
                 validate(fieldName, v);
                 if (errors.containsKey(fieldName)) {
@@ -679,13 +673,9 @@ public class Validator {
      */
     public String getKeySet() {
         String retMe = "";
-        Set keys = validations.keySet();
-        Iterator keysIt = keys.iterator();
-
-        while (keysIt.hasNext()) {
-            String fieldName = (String) keysIt.next();
+        for(String fieldName : validations.keySet()) {
             retMe += fieldName;
-            ArrayList fieldValidations = getFieldValidations(fieldName);
+            ArrayList<Validation> fieldValidations = getFieldValidations(fieldName);
             retMe += " found " + fieldValidations.size() + " field validations; ";
         }
         return retMe;
@@ -860,23 +850,22 @@ public class Validator {
      * @param errorMessage
      *            The message to add to the field name.
      */
-    public static void addError(HashMap existingErrors, String fieldName, String errorMessage) {
-        ArrayList fieldErrors;
+    public static void addError(HashMap<String, ArrayList<String>> existingErrors, String fieldName, String errorMessage) {
+        ArrayList<String> fieldErrors;
 
         if (existingErrors.containsKey(fieldName)) {
-            fieldErrors = (ArrayList) existingErrors.get(fieldName);
+            fieldErrors = existingErrors.get(fieldName);
         } else {
-            fieldErrors = new ArrayList();
+            fieldErrors = new ArrayList<>();
         }
 
         fieldErrors.add(errorMessage);
 
         existingErrors.put(fieldName, fieldErrors);
-
-        return;
     }
 
-    protected HashMap validate(String fieldName, Validation v) {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	protected HashMap<String, ArrayList<String>> validate(String fieldName, Validation v) {
         switch (v.getType()) {
         case NO_BLANKS:
             if (isBlank(fieldName)) {
@@ -1154,7 +1143,7 @@ public class Validator {
         }
 
         try {
-            float f = Float.parseFloat(fieldValue);
+            Float.parseFloat(fieldValue);
         } catch (Exception e) {
             return false;
         }
@@ -1190,7 +1179,7 @@ public class Validator {
      */
     protected boolean isDate(String fieldName) {
         String fieldValue = getFieldValue(fieldName);
-        if (StringUtil.isBlank(fieldValue)) {
+        if (fieldValue == null || fieldValue.trim().isEmpty()) {
             return false;
         }
         if (!StringUtil.isFormatDate(fieldValue, resformat.getString("date_format_string"))) {
@@ -1200,7 +1189,6 @@ public class Validator {
         sdf.setLenient(false);
         try {
             java.util.Date date = sdf.parse(fieldValue);
-            String s = date.toString();
             return isYearNotFourDigits(date);
         } catch (ParseException fe) {
             return false;
@@ -1216,7 +1204,7 @@ public class Validator {
      */
     protected boolean isDateWithoutRequiredCheck(String fieldName) {
         String fieldValue = request.getParameter(fieldName);
-        if (StringUtil.isBlank(fieldValue)) {
+        if (fieldValue == null || fieldValue.trim().isEmpty()) {
             return true;
         }
         SimpleDateFormat sdf = new SimpleDateFormat(resformat.getString("date_format_string"), ResourceBundleProvider.getLocale());
@@ -1236,9 +1224,11 @@ public class Validator {
      *         "MM/dd/yyyy" format and is in the past; <code>false</code>
      *         otherwise.
      */
-    protected boolean isDateInPast(String fieldName) {
+    @SuppressWarnings("unused")
+	protected boolean isDateInPast(String fieldName) {
         Date d = null;
         if (fieldName != null) {
+        	// TODO Why is this commented? In this form the code makes no sence anymore.
             //d = FormProcessor.getDateFromString(getFieldValue(fieldName));
         }
         if (d != null) {
@@ -1389,7 +1379,7 @@ public class Validator {
             return false;
         }
         try {
-            int i = Integer.parseInt(fieldValue);
+            Integer.parseInt(fieldValue);
         } catch (Exception e) {
             return false;
         }
@@ -1399,7 +1389,7 @@ public class Validator {
 
     // TODO: is_a_file, IS_OF_FILE_TYPE methods
 
-    protected boolean isInSet(String fieldName, ArrayList set) {
+    protected boolean isInSet(String fieldName, ArrayList<String> set) {
         String fieldValue = getFieldValue(fieldName);
 
         if (fieldValue == null) {
@@ -1526,7 +1516,7 @@ public class Validator {
         return false;
     }
 
-    protected boolean entityExists(String fieldName, EntityDAO edao) {
+    protected boolean entityExists(String fieldName, EntityDAO<?> edao) {
         String fieldValue = getFieldValue(fieldName);
 
         if (fieldValue == null) {
@@ -1547,7 +1537,7 @@ public class Validator {
         return true;
     }
 
-    protected boolean entityExistsInStudy(String fieldName, AuditableEntityDAO dao, StudyBean study) {
+    protected boolean entityExistsInStudy(String fieldName, AuditableEntityDAO<?> dao, StudyBean study) {
 
         String fieldValue = getFieldValue(fieldName);
 
@@ -1557,7 +1547,7 @@ public class Validator {
 
         try {
             int id = Integer.parseInt(fieldValue);
-            AuditableEntityBean e = dao.findByPKAndStudy(id, study);
+            EntityBean e = dao.findByPKAndStudy(id, study);
 
             if (!e.isActive()) {
                 return false;
@@ -1589,7 +1579,8 @@ public class Validator {
         return true;
     }
 
-    protected boolean isDateAfterOrEqual(String laterDateFieldName, String earlierDateFieldName) {
+    @SuppressWarnings("unused")
+	protected boolean isDateAfterOrEqual(String laterDateFieldName, String earlierDateFieldName) {
         String laterDateValue = getFieldValue(laterDateFieldName);
         String earlierDateValue = getFieldValue(earlierDateFieldName);
 
@@ -1597,10 +1588,11 @@ public class Validator {
             return false;
         }
 
+        // TODO Why is this commented? In this form the code makes no sence anymore.
         Date laterDate =  null;//FormProcessor.getDateFromString(laterDateValue);
         Date earlierDate = null;//FormProcessor.getDateFromString(earlierDateValue);
 
-        if (laterDate.compareTo(earlierDate) >= 0) {
+        if (laterDate != null && laterDate.compareTo(earlierDate) >= 0) {
             return true;
         } else {
             return false;
@@ -1618,15 +1610,6 @@ public class Validator {
     }
 
     protected boolean isInResponseSet(String fieldName, ResponseSetBean set, boolean multValues) {
-        // prep work - makes checking for a value in the set very fast
-        HashMap values = new HashMap();
-
-        ArrayList options = set.getOptions();
-        for (int i = 0; i < options.size(); i++) {
-            ResponseOptionBean rob = (ResponseOptionBean) options.get(i);
-            values.put(rob.getValue(), Boolean.TRUE);
-        }
-
         String fieldValues[];
         if (multValues) {
             fieldValues = request.getParameterValues(fieldName);
@@ -1635,38 +1618,11 @@ public class Validator {
             String fieldValue = getFieldValue(fieldName);
             fieldValues[0] = fieldValue == null ? "" : fieldValue;
         }
-
-        // this means the user didn't fill in anything - and nothing is still,
-        // trivially, in the response set
-        if (fieldValues == null) {
-            return true;
-        }
-
-        for (String value : fieldValues) {
-            // in principle this shouldn't happen, but since the empty valye is
-            // trivially a member of the response set, it's okay
-            if (value == null) {
-                continue;
-            }
-
-            if (!values.containsKey(value)) {
-                return false;
-            }
-        }
-
-        return true;
+        
+        return isInResponseSet(set, fieldValues);
     }
 
     protected boolean isInResponseSetCommaSeperated(String fieldName, ResponseSetBean set, boolean multValues) {
-        // prep work - makes checking for a value in the set very fast
-        HashMap values = new HashMap();
-
-        ArrayList options = set.getOptions();
-        for (int i = 0; i < options.size(); i++) {
-            ResponseOptionBean rob = (ResponseOptionBean) options.get(i);
-            values.put(rob.getValue(), Boolean.TRUE);
-        }
-
         String fieldValues[];
         if (multValues) {
             //fieldValues = request.getParameterValues(fieldName);
@@ -1676,6 +1632,14 @@ public class Validator {
             String fieldValue = getFieldValue(fieldName);
             fieldValues[0] = fieldValue == null ? "" : fieldValue;
         }
+        
+        return isInResponseSet(set, fieldValues);
+    }
+
+    protected boolean isInResponseSet(ResponseSetBean set, String[] fieldValues) {
+        // prep work - makes checking for a value in the set very fast
+        ArrayList<ResponseOptionBean> options = set.getOptions();
+        Set<String> values = options.stream().map(rob -> rob.getValue()).collect(Collectors.toSet());
 
         // this means the user didn't fill in anything - and nothing is still,
         // trivially, in the response set
@@ -1690,7 +1654,7 @@ public class Validator {
                 continue;
             }
 
-            if (!values.containsKey(value)) {
+            if (!values.contains(value)) {
                 return false;
             }
         }
@@ -1765,7 +1729,7 @@ public class Validator {
         }
 
         // logger.info("got this far...");
-        ArrayList fieldValidations = (ArrayList) validations.get(lastField);
+        ArrayList<Validation> fieldValidations = validations.get(lastField);
         if (fieldValidations == null) {
             return;
         }
@@ -1793,9 +1757,9 @@ public class Validator {
         }
 
         String fname;
-        ArrayList args;
+        ArrayList<String> args;
 
-        HashMap numArgsByFunction = new HashMap();
+        HashMap<String, Object> numArgsByFunction = new HashMap<>();
         numArgsByFunction.put("range", new Integer(2));
         numArgsByFunction.put("gt", new Integer(1));
         numArgsByFunction.put("lt", new Integer(1));
@@ -1805,7 +1769,7 @@ public class Validator {
         numArgsByFunction.put("eq", new Integer(1));
         numArgsByFunction.put("getExternalValue", new Integer(3));
 
-        HashMap valTypeByFunction = new HashMap();
+        HashMap<String, Object> valTypeByFunction = new HashMap<>();
         valTypeByFunction.put("range", new Integer(Validator.IS_IN_RANGE));
         valTypeByFunction.put("gt", new Integer(Validator.COMPARES_TO_STATIC_VALUE));
         valTypeByFunction.put("lt", new Integer(Validator.COMPARES_TO_STATIC_VALUE));
@@ -1814,7 +1778,7 @@ public class Validator {
         valTypeByFunction.put("ne", new Integer(Validator.COMPARES_TO_STATIC_VALUE));
         valTypeByFunction.put("eq", new Integer(Validator.COMPARES_TO_STATIC_VALUE));
 
-        HashMap compareOpByFunction = new HashMap();
+        HashMap<String, Object> compareOpByFunction = new HashMap<>();
         compareOpByFunction.put("gt", NumericComparisonOperator.GREATER_THAN);
         compareOpByFunction.put("lt", NumericComparisonOperator.LESS_THAN);
         compareOpByFunction.put("gte", NumericComparisonOperator.GREATER_THAN_OR_EQUAL_TO);
@@ -1839,14 +1803,12 @@ public class Validator {
             // fname(arg1,...,argn)
         }
 
-        int numGroups = funcMatcher.groupCount();
-        // note that numGroups must be > 1
         fname = funcMatcher.group(1);
-        args = new ArrayList();
+        args = new ArrayList<>();
         for (int i = 2; i <= funcMatcher.groupCount(); i++) {
             String arg = funcMatcher.group(i);
 
-            if (StringUtil.isBlank(arg)) {
+            if (arg == null || arg.trim().isEmpty()) {
                 continue;
             }
 
@@ -1874,7 +1836,7 @@ public class Validator {
         for (int i = 0; i < args.size(); i++) {
             int ord = i + 1;
             try {
-                float f = Float.parseFloat((String) args.get(i));
+                Float.parseFloat(args.get(i));
             } catch (Exception e) {
                 throw new Exception(resexception.getString("validation_column_invalid_function") + ": " + resexception.getString("argument") + ord + " "
                     + resexception.getString("is_not_a_number"));
@@ -1915,7 +1877,7 @@ public class Validator {
         finalRegexp = finalRegexp.substring(1, finalRegexp.length() - 1);
         // YW >>
 
-        if (StringUtil.isBlank(finalRegexp)) {
+        if (finalRegexp == null || finalRegexp.trim().isEmpty()) {
             throw new Exception(resexception.getString("regular_expression_is_blank"));
         }
 
@@ -2035,7 +1997,7 @@ public class Validator {
         logger.debug("find locale=" + resexception.getLocale());
         StringBuffer message = new StringBuffer();
         String fieldValue = getFieldValue(fieldName);
-        if (StringUtil.isBlank(fieldValue)) {
+        if (fieldValue == null || fieldValue.trim().isEmpty()) {
             return message;
         }
         int width = Validator.parseWidth(widthDecimal);

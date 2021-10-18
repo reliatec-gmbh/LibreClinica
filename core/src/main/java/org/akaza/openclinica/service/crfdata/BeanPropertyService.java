@@ -40,7 +40,6 @@ import org.slf4j.LoggerFactory;
 
 public class BeanPropertyService{
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
-    private final String ESCAPED_SEPERATOR = "\\.";
     private DynamicsItemFormMetadataDao dynamicsItemFormMetadataDao;
     private DynamicsItemGroupMetadataDao dynamicsItemGroupMetadataDao;
     DataSource ds;
@@ -206,12 +205,6 @@ public class BeanPropertyService{
     	else return 1;
     }
     
-	private StudyEventDefinition getStudyEventDefinitionBean(String eventOID) {
-        return getStudyEventDefinitionDao().findByColumnName(eventOID, "oc_oid");
-    	
-	}
-
-
 	public Boolean hasShowingDynGroupInSection(int sectionId, int crfVersionId, int eventCrfId) {
         return dynamicsItemGroupMetadataDao.hasShowingInSection(sectionId, crfVersionId, eventCrfId);
     }

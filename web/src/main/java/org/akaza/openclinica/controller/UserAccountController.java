@@ -9,30 +9,22 @@ package org.akaza.openclinica.controller;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.UUID;
 
 import javax.servlet.ServletContext;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.sql.DataSource;
 
 import org.akaza.openclinica.bean.core.NumericComparisonOperator;
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.core.Status;
-import org.akaza.openclinica.bean.core.TermType;
 import org.akaza.openclinica.bean.core.UserType;
 import org.akaza.openclinica.bean.login.StudyUserRoleBean;
 import org.akaza.openclinica.bean.login.UserAccountBean;
-import org.akaza.openclinica.bean.login.UserDTO;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
-import org.akaza.openclinica.bean.managestudy.StudySubjectBean;
 import org.akaza.openclinica.control.SpringServletAccess;
 import org.akaza.openclinica.control.form.Validator;
 import org.akaza.openclinica.core.SecurityManager;
@@ -42,19 +34,12 @@ import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.managestudy.StudySubjectDAO;
 import org.akaza.openclinica.domain.user.AuthoritiesBean;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
-import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
-import org.akaza.openclinica.service.pmanage.ParticipantPortalRegistrar;
-import org.akaza.openclinica.view.Page;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -129,7 +114,7 @@ public class UserAccountController {
 	 */
 
 	@RequestMapping(value = "/createuseraccount", method = RequestMethod.POST)
-	public ResponseEntity<HashMap> createOrUpdateAccount(HttpServletRequest request, @RequestBody HashMap<String, String> map) throws Exception {
+	public ResponseEntity<HashMap<String, Object>> createOrUpdateAccount(HttpServletRequest request, @RequestBody HashMap<String, String> map) throws Exception {
 		logger.info("I'm in createUserAccount");
 		System.out.println("I'm in createUserAccount");
 		uBean = null;
@@ -157,32 +142,34 @@ public class UserAccountController {
 		if (!ownerUserAccount.isActive() && (!ownerUserAccount.isTechAdmin() || !ownerUserAccount.isSysAdmin())) {
 			logger.info("The Owner User Account is not Valid Account or Does not have Admin user type");
 			System.out.println("The Owner User Account is not Valid Account or Does not have Admin user type");
-			return new ResponseEntity<HashMap>(new HashMap(), org.springframework.http.HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<HashMap<String, Object>>(new HashMap<>(), org.springframework.http.HttpStatus.BAD_REQUEST);
 		}
 
 		// generate password
 		String password = ""; // generate
-		String passwordHash = UserAccountBean.LDAP_PASSWORD;
+		String passwordHash = UserAccountBean.LDAP_PASSWORD; // TODO: this will not work, LDAP password hash will be always overwritten
 		SecurityManager secm = (SecurityManager) SpringServletAccess.getApplicationContext(context).getBean("securityManager");
 		password = secm.genPassword();
-		passwordHash = secm.encrytPassword(password, null);
+
+		boolean isSoap = Boolean.parseBoolean(authorizeSoap);
+		passwordHash = secm.encryptPassword(password, isSoap);
 
 		// Validate Entry Fields
         request.getSession().setAttribute(LocaleResolver.getLocaleSessionAttributeName(), new Locale("en_US"));
 		Validator v = new Validator(request);
 		addValidationToFields(v, username);
-		HashMap errors = v.validate();
+		HashMap<String, ArrayList<String>> errors = v.validate();
 		if (!errors.isEmpty()) {
 			logger.info("Validation Error: " + errors.toString());
 			System.out.println("Validation Error: " + errors.toString());
-			return new ResponseEntity<HashMap>(new HashMap(), org.springframework.http.HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<HashMap<String, Object>>(new HashMap<>(), org.springframework.http.HttpStatus.BAD_REQUEST);
 		}
 
 		StudyBean study = getStudyByName(studyName);
 		if (!study.isActive()) {
 			logger.info("The Study Name is not Valid");
 			System.out.println("The Study Name is not Valid");
-			return new ResponseEntity<HashMap>(new HashMap(), org.springframework.http.HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<HashMap<String, Object>>(new HashMap<>(), org.springframework.http.HttpStatus.BAD_REQUEST);
 		}
 
 		// Role
@@ -202,7 +189,7 @@ public class UserAccountController {
 		if (!found) {
 			logger.info("The Role is not a Valid Role for the Study or Site");
 			System.out.println("The Role is not a Valid Role for the Study or Site");
-			return new ResponseEntity<HashMap>(new HashMap(), org.springframework.http.HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<HashMap<String, Object>>(new HashMap<>(), org.springframework.http.HttpStatus.BAD_REQUEST);
 		}
 
 		// User Types
@@ -222,11 +209,11 @@ public class UserAccountController {
 			logger.info("The Type is not a Valid User Type");
 			System.out.println("The Type is not a Valid User Type");
 
-			return new ResponseEntity<HashMap>(new HashMap(), org.springframework.http.HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<HashMap<String, Object>>(new HashMap<>(), org.springframework.http.HttpStatus.BAD_REQUEST);
 		}
 		// build UserName
 
-		uBean = buildUserAccount(username, fName, lName, password, institution, study, ownerUserAccount, email, passwordHash, Boolean.valueOf(authorizeSoap), role, uType);
+		uBean = buildUserAccount(username, fName, lName, password, institution, study, ownerUserAccount, email, passwordHash, isSoap, role, uType);
 		HashMap<String, Object> userDTO = null;
 		UserAccountBean uaBean = getUserAccount(uBean.getName());
 		if (!uaBean.isActive()) {
@@ -245,7 +232,7 @@ public class UserAccountController {
 			userDTO.put("lastName", uBean.getLastName());
 			userDTO.put("apiKey", uBean.getApiKey());
 		}
-		return new ResponseEntity<HashMap>(userDTO, org.springframework.http.HttpStatus.OK);
+		return new ResponseEntity<HashMap<String, Object>>(userDTO, org.springframework.http.HttpStatus.OK);
 	}
 
 	private UserAccountBean buildUserAccount(String username, String fName, String lName, String password, String institution, StudyBean study, UserAccountBean ownerUserAccount, String email,
@@ -292,43 +279,9 @@ public class UserAccountController {
 		udao.create(userAccountBean);
 	}
 
-	private StudyBean getParentStudy(String studyOid) {
-		StudyBean study = getStudy(studyOid);
-		if (study.getParentStudyId() == 0) {
-			return study;
-		} else {
-			StudyBean parentStudy = (StudyBean) sdao.findByPK(study.getParentStudyId());
-			return parentStudy;
-		}
-
-	}
-
-	private StudyBean getParentStudy(Integer studyId) {
-		StudyBean study = getStudy(studyId);
-		if (study.getParentStudyId() == 0) {
-			return study;
-		} else {
-			StudyBean parentStudy = (StudyBean) sdao.findByPK(study.getParentStudyId());
-			return parentStudy;
-		}
-
-	}
-
 	private StudyBean getStudyByName(String name) {
 		sdao = new StudyDAO(dataSource);
 		StudyBean studyBean = (StudyBean) sdao.findByName(name);
-		return studyBean;
-	}
-
-	private StudyBean getStudy(String oid) {
-		sdao = new StudyDAO(dataSource);
-		StudyBean studyBean = (StudyBean) sdao.findByOid(oid);
-		return studyBean;
-	}
-
-	private StudyBean getStudy(Integer id) {
-		sdao = new StudyDAO(dataSource);
-		StudyBean studyBean = (StudyBean) sdao.findByPK(id);
 		return studyBean;
 	}
 
@@ -343,21 +296,9 @@ public class UserAccountController {
 		return createdUserAccountBean;
 	}
 
-	private ArrayList<UserAccountBean> getUserAccountByStudy(String userName, ArrayList allStudies) {
-		udao = new UserAccountDAO(dataSource);
-		ArrayList<UserAccountBean> userAccountBeans = udao.findStudyByUser(userName, allStudies);
-		return userAccountBeans;
-	}
-
 	private UserAccountBean getUserAccount(String userName) {
 		udao = new UserAccountDAO(dataSource);
 		UserAccountBean userAccountBean = (UserAccountBean) udao.findByUserName(userName);
-		return userAccountBean;
-	}
-
-	private UserAccountBean getUserAccountByApiKey(String apiKey) {
-		udao = new UserAccountDAO(dataSource);
-		UserAccountBean userAccountBean = (UserAccountBean) udao.findByApiKey(apiKey);
 		return userAccountBean;
 	}
 
@@ -365,9 +306,9 @@ public class UserAccountController {
 		udao.update(userAccountBean);
 	}
 
-	private ArrayList getRoles() {
+	private ArrayList<Role> getRoles() {
 
-		ArrayList roles = Role.toArrayList();
+		ArrayList<Role> roles = Role.toArrayList();
 		roles.remove(Role.ADMIN);
 
 		return roles;
@@ -420,12 +361,11 @@ public class UserAccountController {
 
 	}
 
-	public Map buildRoleMap(StudyBean study, ResourceBundle resterm) {
-		Map roleMap = new LinkedHashMap();
+	public Map<Integer, String> buildRoleMap(StudyBean study, ResourceBundle resterm) {
+		Map<Integer, String> roleMap = new LinkedHashMap<>();
 
 		if (study.getParentStudyId() > 0) {
-			for (Iterator it = getRoles().iterator(); it.hasNext();) {
-				Role role = (Role) it.next();
+			for (Role role : getRoles()) {
 				switch (role.getId()) {
 				// case 2: roleMap.put(role.getId(), resterm.getString("site_Study_Coordinator").trim());
 				// break;
@@ -448,8 +388,7 @@ public class UserAccountController {
 				}
 			}
 		} else {
-			for (Iterator it = getRoles().iterator(); it.hasNext();) {
-				Role role = (Role) it.next();
+			for (Role role : getRoles()) {
 				switch (role.getId()) {
 				case 2:
 					roleMap.put(role.getId(), resterm.getString("Study_Coordinator").trim());

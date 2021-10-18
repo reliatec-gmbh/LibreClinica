@@ -7,7 +7,6 @@
  */
 package org.akaza.openclinica.web.pform.formlist;
 
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import org.akaza.openclinica.bean.admin.CRFBean;

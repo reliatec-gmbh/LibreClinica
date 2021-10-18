@@ -109,9 +109,6 @@ public class ImportSpringJob extends QuartzJobBean {
     public static final String STUDY_OID = "study_oid";
     public static final String DEST_DIR = "Event_CRF_Data";
 
-    // below is the directory where we copy the files to, our target
-    private static final String IMPORT_DIR = SQLInitServlet.getField("filePath") + DIR_PATH + File.separator; // +
-
     public static final String IMPORT_DIR_2 = SQLInitServlet.getField("filePath") + DEST_DIR + File.separator;
 
     private DataSource dataSource;
@@ -352,10 +349,6 @@ public class ImportSpringJob extends QuartzJobBean {
                 out.write(firstLine);
                 auditMsg.append(firstLine);
 
-            } else {
-                msg.append("<P>" + respage.getString("unreadable_file") + ": ");
-                out.write("<P>" + respage.getString("unreadable_file") + ": ");
-                auditMsg.append("<P>" + respage.getString("unreadable_file") + ": ");
             }
 
             try {
@@ -663,9 +656,9 @@ public class ImportSpringJob extends QuartzJobBean {
                             String itemOid = displayItemBean.getItem().getOid() + "_" + wrapper.getStudyEventRepeatKey() + "_"
                                     + displayItemBean.getData().getOrdinal() + "_" + wrapper.getStudySubjectOid();
                             if (wrapper.getValidationErrors().containsKey(itemOid)) {
-                                ArrayList messageList = (ArrayList) wrapper.getValidationErrors().get(itemOid);
+                                ArrayList<String> messageList = wrapper.getValidationErrors().get(itemOid);
                                 for (int iter = 0; iter < messageList.size(); iter++) {
-                                    String message = (String) messageList.get(iter);
+                                    String message = messageList.get(iter);
 
                                     DiscrepancyNoteBean parentDn = createDiscrepancyNote(ibean, message, eventCrfBean, displayItemBean, null, ub, dataSource,
                                             studyBean);

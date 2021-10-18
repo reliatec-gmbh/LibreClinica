@@ -15,24 +15,25 @@
 
 package org.akaza.openclinica.control.managestudy;
 
+import java.util.ArrayList;
+
 import org.akaza.openclinica.bean.admin.AuditBean;
+import org.akaza.openclinica.bean.admin.DeletedEventCRFBean;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.core.Utils;
-import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
 import org.akaza.openclinica.bean.managestudy.StudySubjectBean;
 import org.akaza.openclinica.bean.submit.CRFVersionBean;
 import org.akaza.openclinica.bean.submit.EventCRFBean;
-import org.akaza.openclinica.bean.submit.SubjectBean;
 import org.akaza.openclinica.bean.submit.ItemDataBean;
+import org.akaza.openclinica.bean.submit.SubjectBean;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.control.submit.SubmitDataServlet;
 import org.akaza.openclinica.dao.admin.AuditDAO;
 import org.akaza.openclinica.dao.admin.CRFDAO;
-import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDefinitionDAO;
@@ -40,15 +41,10 @@ import org.akaza.openclinica.dao.managestudy.StudySubjectDAO;
 import org.akaza.openclinica.dao.service.StudyParameterValueDAO;
 import org.akaza.openclinica.dao.submit.CRFVersionDAO;
 import org.akaza.openclinica.dao.submit.EventCRFDAO;
-import org.akaza.openclinica.dao.submit.SubjectDAO;
 import org.akaza.openclinica.dao.submit.ItemDataDAO;
+import org.akaza.openclinica.dao.submit.SubjectDAO;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * @author jsampson
@@ -58,6 +54,11 @@ import java.util.List;
 public class ViewStudySubjectAuditLogServlet extends SecureController {
 
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8728898297499873208L;
+
+	/**
      * Checks whether the user has the right permission to proceed function
      */
     @Override
@@ -98,16 +99,15 @@ public class ViewStudySubjectAuditLogServlet extends SecureController {
 
         StudyEventDAO sedao = new StudyEventDAO(sm.getDataSource());
         StudyEventDefinitionDAO seddao = new StudyEventDefinitionDAO(sm.getDataSource());
-        EventDefinitionCRFDAO edcdao = new EventDefinitionCRFDAO(sm.getDataSource());
         EventCRFDAO ecdao = new EventCRFDAO(sm.getDataSource());
         StudyDAO studydao = new StudyDAO(sm.getDataSource());
         CRFDAO cdao = new CRFDAO(sm.getDataSource());
         CRFVersionDAO cvdao = new CRFVersionDAO(sm.getDataSource());
 
-        ArrayList studySubjectAudits = new ArrayList();
-        ArrayList eventCRFAudits = new ArrayList();
-        ArrayList studyEventAudits = new ArrayList();
-        ArrayList allDeletedEventCRFs = new ArrayList();
+        ArrayList<AuditBean> studySubjectAudits = new ArrayList<>();
+        ArrayList<AuditBean> eventCRFAudits = new ArrayList<>();
+        ArrayList<AuditBean> studyEventAudits = new ArrayList<>();
+        ArrayList<DeletedEventCRFBean> allDeletedEventCRFs = new ArrayList<>();
         String attachedFilePath = Utils.getAttachedFilePath(currentStudy);
 
         int studySubId = fp.getInt("id", true);// studySubjectId
@@ -127,7 +127,7 @@ public class ViewStudySubjectAuditLogServlet extends SecureController {
                     return;
                 } else {
                     // The SubjectStudy is not belong to currentstudy and current study is not a site.
-                    Collection sites = studydao.findOlnySiteIdsByStudy(currentStudy);
+                    ArrayList<Integer> sites = studydao.findOlnySiteIdsByStudy(currentStudy);
                     if (!sites.contains(study.getId())) {
                         addPageMessage(respage.getString("no_have_correct_privilege_current_study") + " " + respage.getString("change_active_study_or_contact"));
                         forwardPage(Page.MENU_SERVLET);
@@ -159,11 +159,10 @@ public class ViewStudySubjectAuditLogServlet extends SecureController {
 
             /* Show both study subject and subject audit events together */
             // Study subject value changed
-            Collection studySubjectAuditEvents = adao.findStudySubjectAuditEvents(studySubject.getId());
+            ArrayList<AuditBean> studySubjectAuditEvents = adao.findStudySubjectAuditEvents(studySubject.getId());
             // Text values will be shown on the page for the corresponding
             // integer values.
-            for (Iterator iterator = studySubjectAuditEvents.iterator(); iterator.hasNext();) {
-                AuditBean auditBean = (AuditBean) iterator.next();
+            for (AuditBean auditBean : studySubjectAuditEvents) {
                 if (auditBean.getAuditEventTypeId() == 3) {
                     auditBean.setOldValue(Status.get(Integer.parseInt(auditBean.getOldValue())).getName());
                     auditBean.setNewValue(Status.get(Integer.parseInt(auditBean.getNewValue())).getName());
@@ -178,7 +177,7 @@ public class ViewStudySubjectAuditLogServlet extends SecureController {
             request.setAttribute("studySubjectAudits", studySubjectAudits);
 
             // Get the list of events
-            ArrayList events = sedao.findAllByStudySubject(studySubject);
+            ArrayList<StudyEventBean> events = sedao.findAllByStudySubject(studySubject);
             for (int i = 0; i < events.size(); i++) {
                 // Link study event definitions
                 StudyEventBean studyEvent = (StudyEventBean) events.get(i);
@@ -188,7 +187,7 @@ public class ViewStudySubjectAuditLogServlet extends SecureController {
                 studyEvent.setEventCRFs(ecdao.findAllByStudyEvent(studyEvent));
 
                 // Find deleted Event CRFs
-                List deletedEventCRFs = adao.findDeletedEventCRFsFromAuditEventByEventCRFStatus(studyEvent.getId());
+                ArrayList<DeletedEventCRFBean> deletedEventCRFs = adao.findDeletedEventCRFsFromAuditEventByEventCRFStatus(studyEvent.getId());
                 allDeletedEventCRFs.addAll(deletedEventCRFs);
                 logger.info("deletedEventCRFs size[" + deletedEventCRFs.size() + "]");
             }
@@ -197,7 +196,7 @@ public class ViewStudySubjectAuditLogServlet extends SecureController {
                 StudyEventBean studyEvent = (StudyEventBean) events.get(i);
                 studyEventAudits.addAll(adao.findStudyEventAuditEvents(studyEvent.getId()));
 
-                ArrayList eventCRFs = studyEvent.getEventCRFs();
+                ArrayList<EventCRFBean> eventCRFs = studyEvent.getEventCRFs();
                 for (int j = 0; j < eventCRFs.size(); j++) {
                     // Link CRF and CRF Versions
                     EventCRFBean eventCRF = (EventCRFBean) eventCRFs.get(j);

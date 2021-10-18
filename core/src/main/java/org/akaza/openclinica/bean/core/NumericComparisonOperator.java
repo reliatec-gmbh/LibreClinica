@@ -9,6 +9,7 @@ package org.akaza.openclinica.bean.core;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 // implicit controlled vocab, not stored in db
 
@@ -16,7 +17,11 @@ import java.util.List;
 // Term.getDescription()
 
 public class NumericComparisonOperator extends Term {
-    public static final NumericComparisonOperator EQUALS = new NumericComparisonOperator(1, "equal_to", "equal_to");
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8976624823346368833L;
+	public static final NumericComparisonOperator EQUALS = new NumericComparisonOperator(1, "equal_to", "equal_to");
     public static final NumericComparisonOperator NOT_EQUALS = new NumericComparisonOperator(2, "not_equal_to", "not_equal_to");
     public static final NumericComparisonOperator LESS_THAN = new NumericComparisonOperator(3, "less_than", "less_than");
     public static final NumericComparisonOperator LESS_THAN_OR_EQUAL_TO = new NumericComparisonOperator(4, "less_than_or_equal_to", "less_than_or_equal_to");
@@ -25,7 +30,7 @@ public class NumericComparisonOperator extends Term {
         new NumericComparisonOperator(6, "greater_than_or_equal_to", "greater_than_or_equal_to");
 
     private static final NumericComparisonOperator[] members = { EQUALS, NOT_EQUALS, LESS_THAN, LESS_THAN_OR_EQUAL_TO, GREATER_THAN, GREATER_THAN_OR_EQUAL_TO };
-    public static final List list = Arrays.asList(members);
+    public static final List<NumericComparisonOperator> list = Arrays.asList(members);
 
     private NumericComparisonOperator(int id, String name) {
         super(id, name);
@@ -43,6 +48,7 @@ public class NumericComparisonOperator extends Term {
     }
 
     public static NumericComparisonOperator get(int id) {
-        return (NumericComparisonOperator) Term.get(id, list);
+    	Optional<NumericComparisonOperator> o = list.stream().filter(r -> r.getId() == id).findFirst();
+    	return o.orElse(new NumericComparisonOperator());
     }
 }

@@ -10,6 +10,7 @@ package org.akaza.openclinica.dao.hibernate;
 import org.akaza.openclinica.domain.rule.action.RuleActionRunLogBean;
 import org.hibernate.criterion.Example;
 import org.hibernate.criterion.Projections;
+import org.hibernate.query.Query;
 import org.springframework.transaction.annotation.Transactional;
 
 public class RuleActionRunLogDao extends AbstractDomainDao<RuleActionRunLogBean> {
@@ -19,6 +20,8 @@ public class RuleActionRunLogDao extends AbstractDomainDao<RuleActionRunLogBean>
         return RuleActionRunLogBean.class;
     }
 
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("deprecation")
     @Transactional
     public Integer findCountByRuleActionRunLogBean(RuleActionRunLogBean ruleActionRunLog) {
         Long k =
@@ -26,10 +29,11 @@ public class RuleActionRunLogDao extends AbstractDomainDao<RuleActionRunLogBean>
         return k.intValue();
     }
 
+    // TODO update to CriteriaQuery
     @Transactional
     public void delete(int itemDataId) {
         String query = "delete from " + getDomainClassName() + " rarl where rarl.itemDataId = :itemDataId";
-        org.hibernate.query.Query q = getCurrentSession().createQuery(query);
+        Query<?> q = getCurrentSession().createQuery(query);
         q.setParameter("itemDataId", itemDataId);
         q.executeUpdate();
     }

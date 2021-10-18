@@ -36,7 +36,11 @@ import javax.persistence.Transient;
 @GenericGenerator(name = "id-generator", strategy = "native", parameters = { @Parameter(name = "sequence_name", value = "rule_set_audit_id_seq") })
 public class RuleSetAuditBean extends AbstractMutableDomainObject {
 
-    RuleSetBean ruleSetBean;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -4173124015435317552L;
+	RuleSetBean ruleSetBean;
     Status status;
     UserAccountBean updater;
     Date dateUpdated;
