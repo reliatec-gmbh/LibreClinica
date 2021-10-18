@@ -4,7 +4,7 @@
 	<groupId>org.libreclinica</groupId>
 	<artifactId>LibreClinica</artifactId>
 	<packaging>pom</packaging>
-	<version>1.1.0</version>
+	<version>1.2.0-snapshot</version>
 	<name>LibreClinica</name>
 	<description>LibreClinica</description>
 
