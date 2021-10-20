@@ -1,4 +1,4 @@
-# installation instructions for LibreClinica-1.0 on Debian 10 (Buster)
+# installation instructions for LibreClinica-1.0 - 1.1 on Debian 10 (Buster)
 
 **prerequisite**  
 It is expected that you have experience on how to install software and how to edit text files on Debian. 
@@ -33,11 +33,11 @@ changes to another step._
         *update datainfo.properties with the password you entered for the new postgres user (step 5)*
     1. create database: `sudo -u postgres createdb -e -O clinica -E UTF8 libreclinica`
 1. **copy the \*.war archive** to the webapps folder  
-    `cp LibreClinica-1.0.0.war /var/lib/tomcat9/webapps/<context name>.war`  
+    `cp LibreClinica-web-<version>.war /var/lib/tomcat9/webapps/<context name>.war`  
     `chown tomcat:tomcat /var/lib/tomcat9/webapps/<context name>.war`  
     *context name is the name that comes usually after the slash  
-    e.g. for https://libreclinica.org/libreclinica it is
-    /var/lib/tomcat9/webapps/libreclinica.war*
+    e.g. for https://libreclinica.org/libreclinica and LibreClinica 1.1 the above copy command would read  
+    cp LibreClinica-web-1.1.0.war /var/lib/tomcat9/webapps/libreclinica.war*
 1. **create datainfo.properties**  
    You can create your own version of datainfo.properties or copy a template from LibreClinica by executing the command  
    ```
@@ -78,7 +78,12 @@ changes to another step._
         * sysURL=https://example.com/libreclinica/MainMenu
              
     For an enterprise installation you may want to additionally enable user authentication against an LDAP/Active Directory server:
+    
+    <details>
+    <summary>Click to expand!</summary>
+   
     1. **LDAP/Active Directory server**
+    
         * ldap.enabled=true
         
         LDAP/ActiveDirectory server host can be configured with standard (usually port 389) or encrypted communication (usually port 636):
@@ -118,6 +123,7 @@ changes to another step._
     One can check if the certificate was installed (e.g. using keytool):
     
     `JAVA_HOME/bin/keytool -list -keystore JAVA_HOME/jre/lib/security/cacerts`
+    </details>
     
 1. **setup ReadWritePaths**  
     edit /etc/systemd/system/multi-user.target.wants/tomcat9.service and  
@@ -131,3 +137,8 @@ http://\<ip of your machine\>:8080/libreclinica with the default credentials (us
 In a productive environment your system administrator should configure a web server 
 like nginx or apache to act as a reverse proxy for your LibreClinica installation so that
 you can access your installation from the URL configured for key _sysURL_.
+
+# Troubleshooting
+* **Problem:** On some systems an error 500 (Message "Servlet.init() for servlet [pages] threw exception") appears when requesting the login-screen for the very first time
+* **Cause:** 2 versions of the castor library in the WAR
+* **Fix:** delete castor-1.2.jar from the WEB-INF/lib by issuing ``rm delete castor-1.2.jar``. If you followed the instructions above, the extracted WAR containing WEB-INF/lib should be found under /var/lib/tomcat9/webapps/.
