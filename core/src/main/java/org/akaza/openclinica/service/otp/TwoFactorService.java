@@ -13,6 +13,7 @@ import static rst.pdfbox.layout.elements.PositionControl.createMovePosition;
 
 import java.io.ByteArrayInputStream;
 import java.io.OutputStream;
+import java.time.format.DateTimeParseException;
 import java.util.Base64;
 
 import org.akaza.openclinica.dao.core.CoreResources;
@@ -40,11 +41,17 @@ import rst.pdfbox.layout.elements.Paragraph;
  */
 @Component("factorService")
 public class TwoFactorService {
-    private static final String TWO_FACTOR_ACTIVATED_VERIFICATION_TYPE = "2fa.type";
-    private static final String TWO_FACTOR_ACTIVATION_DUE_DATE = "2fa.dueDate";
-    private static final String TWO_FACTOR_ACTIVATED_SETTING = "2fa.activated";
+    private static final String FAR_FUTURE_ACTIVATION_DUE_DATE_AS_FALLBACK = "2050-01-01";
+    private static final String FALSE_STRING = "false";
+    @VisibleForTesting
+    static final String TWO_FACTOR_ACTIVATED_VERIFICATION_TYPE = "2fa.type";
+    @VisibleForTesting
+    static final String TWO_FACTOR_ACTIVATION_DUE_DATE = "2fa.dueDate";
+    @VisibleForTesting
+    static final String TWO_FACTOR_ACTIVATED_SETTING = "2fa.activated";
     private final CodeVerifier verifier = new DefaultCodeVerifier(new DefaultCodeGenerator(), new SystemTimeProvider());
-    private CoreResources coreResources;
+    @VisibleForTesting
+    CoreResources coreResources;
 
     public void setCoreResources(CoreResources coreResources) {
         this.coreResources = coreResources;
@@ -55,7 +62,7 @@ public class TwoFactorService {
      * otherwise (also default).
      */
     public boolean getTwoFactorActivated() {
-        return Boolean.valueOf(coreResources.getDATAINFO().getProperty(TWO_FACTOR_ACTIVATED_SETTING, "false"));
+        return Boolean.valueOf(coreResources.getDATAINFO().getProperty(TWO_FACTOR_ACTIVATED_SETTING, FALSE_STRING));
     }
 
     /**
@@ -87,10 +94,8 @@ public class TwoFactorService {
      * application (browser).
      */
     public boolean isTwoFactorApplication() {
-        // @formatter:off
 		String settingValue = extractedVerificationTypeSetting();
 		return APPLICATION.equals(valueOf(TwoFactorType.class, settingValue));
-		// @formatter:on
     }
 
     /**
@@ -109,10 +114,13 @@ public class TwoFactorService {
             return false;
         }
 
-        // @formatter:off
-        String settingValue = extractedDueDateSetting();
-        return parse(settingValue).isBefore(now());
-        // @formatter:on
+        try {
+            String settingValue = extractedDueDateSetting();
+            return parse(settingValue).isBefore(now());
+        } catch (DateTimeParseException | NullPointerException e) {
+            // In cases of invalid value: ignore it and say it is not outdated.
+            return false;
+        }
     }
 
     /**
@@ -212,7 +220,7 @@ public class TwoFactorService {
 
     @VisibleForTesting
     String extractedDueDateSetting() {
-        return coreResources.getDATAINFO().getProperty(TWO_FACTOR_ACTIVATION_DUE_DATE);
+        return coreResources.getDATAINFO().getProperty(TWO_FACTOR_ACTIVATION_DUE_DATE, FAR_FUTURE_ACTIVATION_DUE_DATE_AS_FALLBACK);
     }
 
     @VisibleForTesting

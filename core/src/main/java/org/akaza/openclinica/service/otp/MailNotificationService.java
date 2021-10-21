@@ -19,6 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import com.google.common.annotations.VisibleForTesting;
+
 /**
  * Service class providing access to E-Mail notification related use cases.
  * 
@@ -31,7 +33,8 @@ public class MailNotificationService {
 	@Autowired
 	@Qualifier("dataSource")
 	private BasicDataSource dataSource;
-    private StudyDAO studyDao;
+    @VisibleForTesting
+    StudyDAO studyDao;
 
 	public void setMailSender(OpenClinicaMailSender mailSender) {
 		this.mailSender = mailSender;
