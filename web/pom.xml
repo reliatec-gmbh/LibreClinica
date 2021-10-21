@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>org.libreclinica</groupId>
 		<artifactId>LibreClinica</artifactId>
-		<version>1.1.0-snapshot</version>
+		<version>1.2.0-SNAPSHOT</version>
 	</parent>
 
 	<properties>
@@ -344,7 +344,7 @@
 	</dependencies>
 	<profiles>
 		<profile>
-			<id>include-pdf-manuals</id>
+			<id>include-pdf-manuals-and-tests</id>
 			<activation>
 				<activeByDefault>false</activeByDefault>
 			</activation>
@@ -353,7 +353,7 @@
 			</properties>
 		</profile>
 		<profile>
-			<id>exclude-pdf-manuals</id>
+			<id>exclude-pdf-manuals-and-tests</id>
 			<activation>
 				<activeByDefault>true</activeByDefault>
 			</activation>
