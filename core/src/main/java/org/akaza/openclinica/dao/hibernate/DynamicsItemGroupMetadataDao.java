@@ -79,7 +79,7 @@ public class DynamicsItemGroupMetadataDao extends AbstractDomainDao<DynamicsItem
     @Transactional
     public void delete(int eventCrfId) {
         String query = "delete from " + getDomainClassName() + " metadata where metadata.eventCrfId = :eventCrfId";
-        Query<DynamicsItemGroupMetadataBean> q = getCurrentSession().createQuery(query, DynamicsItemGroupMetadataBean.class);
+        Query<?> q = getCurrentSession().createQuery(query);
         q.setParameter("eventCrfId", eventCrfId);
         q.executeUpdate();
     }

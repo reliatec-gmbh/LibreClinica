@@ -9,31 +9,24 @@
     <c:param name="profilePage" value="yes"/>
 </c:import>
 
+<!-- start of login/updateProfile.jsp -->
 
-<!-- move the alert message to the sidebar-->
+<!-- alerts -->
 <jsp:include page="../include/sideAlert.jsp"/>
 <!-- then instructions-->
-<tr id="sidebar_Instructions_open" style="display: none">
+	<tr id="sidebar_Instructions_open" style="display: none">
 		<td class="sidebar_tab">
-
-		<a href="javascript:leftnavExpand('sidebar_Instructions_open'); leftnavExpand('sidebar_Instructions_closed');"><img src="images/sidebar_collapse.gif" border="0" align="right" hspace="10"></a>
-
-		<b><fmt:message key="instructions" bundle="${resword}"/></b>
-
-		<div class="sidebar_tab_content">
-
-		</div>
-
-		</td>
-
+			<a href="javascript:leftnavExpand('sidebar_Instructions_open'); leftnavExpand('sidebar_Instructions_closed');">
+			<img src="images/sidebar_collapse.gif" class="sidebar_collapse_expand"></a>
+			<b><fmt:message key="instructions" bundle="${resword}"/></b>
+			<div class="sidebar_tab_content"></div>
+		</td>	
 	</tr>
 	<tr id="sidebar_Instructions_closed" style="display: all">
 		<td class="sidebar_tab">
-
-		<a href="javascript:leftnavExpand('sidebar_Instructions_open'); leftnavExpand('sidebar_Instructions_closed');"><img src="images/sidebar_expand.gif" border="0" align="right" hspace="10"></a>
-
-		<b><fmt:message key="instructions" bundle="${resword}"/></b>
-
+			<a href="javascript:leftnavExpand('sidebar_Instructions_open'); leftnavExpand('sidebar_Instructions_closed');">
+			<img src="images/sidebar_expand.gif" class="sidebar_collapse_expand"></a>
+			<b><fmt:message key="instructions" bundle="${resword}"/></b>
 		</td>
   </tr>
 <jsp:include page="../include/sideInfo.jsp"/>
@@ -43,7 +36,7 @@
 <jsp:useBean scope="session" id="study" class="org.akaza.openclinica.bean.managestudy.StudyBean"/>
 <jsp:useBean scope="session" id="userBean1" class="org.akaza.openclinica.bean.login.UserAccountBean"/>
 
-
+<div class="textbox_center">
 <h1><span class="title_manage"><fmt:message key="change_user_profile" bundle="${resword}"/></span></h1>
 <strong>
 <fmt:message key="browser_locale" bundle="${resword}"/>
@@ -60,11 +53,9 @@
 <fmt:message key="field_required" bundle="${resword}"/><br>
 <input type="hidden" name="action" value="confirm">
 <!-- These DIVs define shaded box borders -->
-<div style="width: 600px">
- <div class="box_T"><div class="box_L"><div class="box_R"><div class="box_B"><div class="box_TL"><div class="box_TR"><div class="box_BL"><div class="box_BR">
 
-<div class="textbox_center">
-<table border="0" cellpadding="0">
+
+<table>
   <tr><td class="formlabel"><fmt:message key="first_name" bundle="${resword}"/>:</td><td><div class="formfieldXL_BG"><input type="text" name="firstName" value="<c:out value="${userBean1.firstName}"/>" class="formfieldXL"></div>
   <jsp:include page="../showMessage.jsp"><jsp:param name="key" value="firstName"/></jsp:include></td><td class="formlabel">*</td></tr>
   <tr><td class="formlabel"><fmt:message key="last_name" bundle="${resword}"/>:</td><td><div class="formfieldXL_BG"><input type="text" name="lastName" value="<c:out value="${userBean1.lastName}"/>" class="formfieldXL"></div>
@@ -89,46 +80,56 @@
      </c:forEach>
     </select></div>
   </td></tr>
-  <c:if test="${not userBean1.ldapUser}">
-  <tr valign="bottom"><td class="formlabel"><fmt:message key="password_challenge_question" bundle="${resword}"/>:</td><td>
-  <div class="formfieldXL_BG">
-  <select name="passwdChallengeQuestion" class="formfieldXL">
-  <c:set var="question1" value="Mother's Maiden Name"/>
-  <c:choose>
-       <c:when test="${userBean1.passwdChallengeQuestion == question1}">
-            <option selected><fmt:message key="mother_maiden_name" bundle="${resword}"/></option>
-            <option><fmt:message key="favourite_pet" bundle="${resword}"/></option>
-            <option><fmt:message key="city_of_birth" bundle="${resword}"/></option>
-            <option><fmt:message key="favorite_color" bundle="${resword}"/></option>
-        </c:when>
-        <c:when test="${userBean1.passwdChallengeQuestion == 'Favorite Animal'}">
-            <option selected><fmt:message key="favourite_pet" bundle="${resword}"/></option>
-            <option><fmt:message key="city_of_birth" bundle="${resword}"/></option>
-            <option><fmt:message key="mother_maiden_name" bundle="${resword}"/></option>
-            <option><fmt:message key="favorite_color" bundle="${resword}"/></option>
-        </c:when>
-        <c:when test="${userBean1.passwdChallengeQuestion == 'City of Birth'}">
-               <option><fmt:message key="favourite_pet" bundle="${resword}"/></option>
-               <option selected><fmt:message key="city_of_birth" bundle="${resword}"/></option>
-               <option><fmt:message key="mother_maiden_name" bundle="${resword}"/></option>
-               <option><fmt:message key="favorite_color" bundle="${resword}"/></option>
-        </c:when>
-        <c:otherwise>
-               <option><fmt:message key="favourite_pet" bundle="${resword}"/></option>
-               <option><fmt:message key="city_of_birth" bundle="${resword}"/></option>
-               <option><fmt:message key="mother_maiden_name" bundle="${resword}"/></option>
-               <option selected><fmt:message key="favorite_color" bundle="${resword}"/></option>
-        </c:otherwise>
-   </c:choose>
-   </select>
-   </div></td><td class="formlabel">*</td></tr>
-  <tr><td class="formlabel"><fmt:message key="password_challenge_answer" bundle="${resword}"/>:</td><td><div class="formfieldXL_BG">
-  <input type="text" name="passwdChallengeAnswer" value="<c:out value="${userBean1.passwdChallengeAnswer}"/>" class="formfieldXL"></div>
-  <jsp:include page="../showMessage.jsp"><jsp:param name="key" value="passwdChallengeAnswer"/></jsp:include></td><td class="formlabel">*</td></tr>
-
-  <tr><td class="formlabel"><fmt:message key="old_password" bundle="${resword}"/>:</td><td><div class="formfieldXL_BG"><input type="password" name="oldPasswd" value="" class="formfieldXL"></div>
-  <jsp:include page="../showMessage.jsp"><jsp:param name="key" value="oldPasswd"/></jsp:include></td><td class="formlabel">*</td></tr>
-  <tr><td class="formlabel"><fmt:message key="new_password" bundle="${resword}"/>:</td><td><div class="formfieldXL_BG"><input type="password" name="passwd" value="" class="formfieldXL"></div>
+  <c:if test="${not userBean1.ldapUser}"> <!-- show challenge-question only for non-ldap-users -->
+  <tr>
+  	<td class="formlabel"><fmt:message key="password_challenge_question" bundle="${resword}"/>:</td>
+  	<td><div class="formfieldXL_BG">
+		  <select name="passwdChallengeQuestion" class="formfieldXL">
+		  <c:set var="question1" value="Mother's Maiden Name"/>
+		  <c:choose>
+		       <c:when test="${userBean1.passwdChallengeQuestion == question1}">
+		            <option selected><fmt:message key="mother_maiden_name" bundle="${resword}"/></option>
+		            <option><fmt:message key="favourite_pet" bundle="${resword}"/></option>
+		            <option><fmt:message key="city_of_birth" bundle="${resword}"/></option>
+		            <option><fmt:message key="favorite_color" bundle="${resword}"/></option>
+		        </c:when>
+		        <c:when test="${userBean1.passwdChallengeQuestion == 'Favorite Animal'}">
+		            <option selected><fmt:message key="favourite_pet" bundle="${resword}"/></option>
+		            <option><fmt:message key="city_of_birth" bundle="${resword}"/></option>
+		            <option><fmt:message key="mother_maiden_name" bundle="${resword}"/></option>
+		            <option><fmt:message key="favorite_color" bundle="${resword}"/></option>
+		        </c:when>
+		        <c:when test="${userBean1.passwdChallengeQuestion == 'City of Birth'}">
+		               <option><fmt:message key="favourite_pet" bundle="${resword}"/></option>
+		               <option selected><fmt:message key="city_of_birth" bundle="${resword}"/></option>
+		               <option><fmt:message key="mother_maiden_name" bundle="${resword}"/></option>
+		               <option><fmt:message key="favorite_color" bundle="${resword}"/></option>
+		        </c:when>
+		        <c:otherwise>
+		               <option><fmt:message key="favourite_pet" bundle="${resword}"/></option>
+		               <option><fmt:message key="city_of_birth" bundle="${resword}"/></option>
+		               <option><fmt:message key="mother_maiden_name" bundle="${resword}"/></option>
+		               <option selected><fmt:message key="favorite_color" bundle="${resword}"/></option>
+		        </c:otherwise>
+		   </c:choose>
+		   </select>
+   </div></td>
+		<td class="formlabel">*</td>
+	</tr>
+	<tr>
+		<td class="formlabel"><fmt:message key="password_challenge_answer" bundle="${resword}"/>:</td>
+		<td><div class="formfieldXL_BG"><input type="text" name="passwdChallengeAnswer" value="<c:out value="${userBean1.passwdChallengeAnswer}"/>" class="formfieldXL"></div>
+  		<jsp:include page="../showMessage.jsp"><jsp:param name="key" value="passwdChallengeAnswer"/></jsp:include></td>
+  		<td class="formlabel">*</td>
+  	</tr>
+	<tr>
+		<td class="formlabel"><fmt:message key="old_password" bundle="${resword}"/>:</td>
+		<td><div class="formfieldXL_BG"><input type="password" name="oldPasswd" value="" class="formfieldXL"></div>
+  		<jsp:include page="../showMessage.jsp"><jsp:param name="key" value="oldPasswd"/></jsp:include></td>
+  		<td class="formlabel">*</td>
+  	</tr>
+	<tr>
+		<td class="formlabel"><fmt:message key="new_password" bundle="${resword}"/>:</td><td><div class="formfieldXL_BG"><input type="password" name="passwd" value="" class="formfieldXL"></div>
   <c:if test="${mustChangePass != 'yes'}"><fmt:message key="leave_in_blank" bundle="${resword}"/></c:if>
   <jsp:include page="../showMessage.jsp"><jsp:param name="key" value="passwd"/></jsp:include></td></tr>
   <tr><td class="formlabel"><fmt:message key="confirm_new_password" bundle="${resword}"/>:</td><td><div class="formfieldXL_BG"><input type="password" name="passwd1" value="" class="formfieldXL"></div>
@@ -138,12 +139,12 @@
   <jsp:include page="../showMessage.jsp"><jsp:param name="key" value="phone"/></jsp:include></td><td class="formlabel">*</td></tr>
 
 </table>
-</div>
 
-</div></div></div></div></div></div></div></div>
+<input type="submit" name="Submit" value="<fmt:message key="confirm_profile_changes" bundle="${resword}"/>" class="button_long" />
+<input type="button" onclick="confirmCancel('MainMenu');"  name="cancel" value="<fmt:message key="cancel" bundle="${resword}" />" class="button_medium" />
 
-</div>
-<input type="submit" name="Submit" value="<fmt:message key="confirm_profile_changes" bundle="${resword}"/>" class="button_long">
-<input type="button" onclick="confirmCancel('MainMenu');"  name="cancel" value="   <fmt:message key="cancel" bundle="${resword}"/>   " class="button_medium"/>
+
 </form>
+</div>
+<!-- end of login/updateProfile.jsp -->
 <jsp:include page="../include/footer.jsp"/>

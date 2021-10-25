@@ -93,9 +93,7 @@ import org.akaza.openclinica.logic.odmExport.MetadataUnit;
  */
 
 public class OdmExtractDAO extends DatasetDAO {
-
-	
-
+    
     public OdmExtractDAO(DataSource ds) {
         super(ds);
     }
@@ -1242,11 +1240,7 @@ public class OdmExtractDAO extends DatasetDAO {
         sectionIds = sectionIds.length()>0?sectionIds.substring(1, sectionIds.length()-1):"";
         metadata.setSectionIds(sectionIds);
     }
-
     
-    public void getODMMetadata(int parentStudyId,int crfVersionOID,MetaDataVersionBean metadata){
-    	
-    }
     /**
      * Metadata for ODM_1.2 OpenClinica extension and partial ODM_1.3 OpenClinica extension
      *
@@ -1595,284 +1589,280 @@ public class OdmExtractDAO extends DatasetDAO {
     }
     
     private void fetchItemGroupMetaData(MetaDataVersionBean metadata,String cvIds, String odmVersion) {
-	  ArrayList<HashMap<String, Object>> rows = select(this.getItemDataMaxLengths(cvIds));
+        this.setItemGroupAndItemMetaWithUnitTypesExpected();
+        logger.debug("Begin to execute GetItemGroupAndItemMetaWithUnitSql");
+        logger.debug("getItemGroupAndItemMetaWithUnitSql= " + this.getItemGroupAndItemMetaWithUnitSql(cvIds));
+        ArrayList<HashMap<String, Object>> rows = select(this.getItemGroupAndItemMetaWithUnitSql(cvIds));
+        ArrayList<ItemGroupDefBean> itemGroupDefs = (ArrayList<ItemGroupDefBean>) metadata.getItemGroupDefs();
+        ArrayList<ItemDefBean> itemDefs = (ArrayList<ItemDefBean>) metadata.getItemDefs();
+        ArrayList<CodeListBean> codeLists = (ArrayList<CodeListBean>) metadata.getCodeLists();
+        ArrayList<MultiSelectListBean> multiSelectLists = (ArrayList<MultiSelectListBean>) metadata.getMultiSelectLists();
+        ArrayList<ElementRefBean> itemGroupRefs = new ArrayList<>();
+        Set<String> igset = new HashSet<>();
+        HashMap<String,Integer> igdPos = new HashMap<>();
+        Set<String> itset = new HashSet<>();
+        Set<Integer> itdset = new HashSet<>();
+        Set<Integer> clset = new HashSet<>();
+        Set<Integer> mslset = new HashSet<>();
+        ItemGroupDefBean igdef = new ItemGroupDefBean();
+        HashMap<String, String> igMandatories = new HashMap<>();
+        boolean isLatest = false;
+        int cvprev = -1;
+        String igrprev = "";
+        String igdprev = "";
+        String itMandatory = "No";
+        int itOrder = 0;
+        Integer igId = -1;
+        String sectionIds = ",";
+        for(HashMap<String, Object> row : rows) {
+            Integer cvId = (Integer) row.get("crf_version_id");
+            igId = (Integer) row.get("item_group_id");
+            Integer itId = (Integer) row.get("item_id");
+            Integer rsId = (Integer) row.get("response_set_id");
+            String igOID = (String) row.get("item_group_oid");
+            String itOID = (String) row.get("item_oid");
+            String igName = (String) row.get("item_group_name");
+            String itName = (String) row.get("item_name");
+            Integer dataTypeId = (Integer) row.get("item_data_type_id");
+            Integer secId = (Integer) row.get("section_id");
+            String header = (String) row.get("item_header");
+            String left = (String) row.get("left_item_text");
+            String right = (String) row.get("right_item_text");
+            Boolean itRequired = (Boolean) row.get("item_required");
+            String regexp = (String) row.get("regexp");
+            String regexpErr = (String) row.get("regexp_error_msg");
+            String widthDecimal = (String) row.get("width_decimal");
+            Integer rsTypeId = (Integer) row.get("response_type_id");
+            String rsText = (String) row.get("options_text");
+            String rsValue = (String) row.get("options_values");
+            String rsLabel = (String) row.get("response_label");
+            String igHeader = (String) row.get("item_group_header");
 
-      this.setItemGroupAndItemMetaWithUnitTypesExpected();
-      rows.clear();
-      logger.debug("Begin to execute GetItemGroupAndItemMetaWithUnitSql");
-      logger.debug("getItemGroupandItemMetaWithUnitsql= " + this.getItemGroupAndItemMetaWithUnitSql(cvIds));
-      rows = select(this.getItemGroupAndItemMetaWithUnitSql(cvIds));
-      ArrayList<ItemGroupDefBean> itemGroupDefs = (ArrayList<ItemGroupDefBean>) metadata.getItemGroupDefs();
-      ArrayList<ItemDefBean> itemDefs = (ArrayList<ItemDefBean>) metadata.getItemDefs();
-      ArrayList<CodeListBean> codeLists = (ArrayList<CodeListBean>) metadata.getCodeLists();
-      ArrayList<MultiSelectListBean> multiSelectLists = (ArrayList<MultiSelectListBean>) metadata.getMultiSelectLists();
-      ArrayList<ElementRefBean> itemGroupRefs = new ArrayList<ElementRefBean>();
-      Set<String> igset = new HashSet<String>();
-      HashMap<String,Integer> igdPos = new HashMap<String,Integer>();
-      Set<String> itset = new HashSet<String>();
-      Set<Integer> itdset = new HashSet<Integer>();
-      Set<Integer> clset = new HashSet<Integer>();
-      Set<Integer> mslset = new HashSet<Integer>();
-      ItemGroupDefBean igdef = new ItemGroupDefBean();
-      HashMap<String, String> igMandatories = new HashMap<String, String>();
-      boolean isLatest = false;
-      int cvprev = -1;
-      String igrprev = "";
-      String igdprev = "";
-      String itMandatory = "No";
-      int itOrder = 0;
-      Integer igId = -1;
-      String sectionIds = ",";
-      for(HashMap<String, Object> row : rows) {
-          Integer cvId = (Integer) row.get("crf_version_id");
-          igId = (Integer) row.get("item_group_id");
-          Integer itId = (Integer) row.get("item_id");
-          Integer rsId = (Integer) row.get("response_set_id");
-          String igOID = (String) row.get("item_group_oid");
-          String itOID = (String) row.get("item_oid");
-          String igName = (String) row.get("item_group_name");
-          String itName = (String) row.get("item_name");
-          Integer dataTypeId = (Integer) row.get("item_data_type_id");
-          Integer secId = (Integer) row.get("section_id");
-          String header = (String) row.get("item_header");
-          String left = (String) row.get("left_item_text");
-          String right = (String) row.get("right_item_text");
-          Boolean itRequired = (Boolean) row.get("item_required");
-          String regexp = (String) row.get("regexp");
-          String regexpErr = (String) row.get("regexp_error_msg");
-          String widthDecimal = (String) row.get("width_decimal");
-          Integer rsTypeId = (Integer) row.get("response_type_id");
-          String rsText = (String) row.get("options_text");
-          String rsValue = (String) row.get("options_values");
-          String rsLabel = (String) row.get("response_label");
-          String igHeader = (String) row.get("item_group_header");
-          
-          Boolean isRepeating = (Boolean)row.get("repeating_group");
-          String itDesc = (String) row.get("item_description");
-          String itQuesNum = (String) row.get("question_number_label");
-          String muOid = (String) row.get("mu_oid");
-          if (cvprev != cvId) {
-              // at this point, itemGroupRefs is for old cvId
-              if (itemGroupRefs != null && itemGroupRefs.size() > 0) {
-                  String temp = igMandatories.containsKey(igdprev) ? igMandatories.get(igdprev) : itMandatory;
-                  itemGroupRefs.get(itemGroupRefs.size() - 1).setMandatory(temp);
-              }
-              itMandatory = "No";
-              // now update to new cvId
-              cvprev = cvId;
-              FormDefBean formDef = new FormDefBean();
-              itemGroupRefs = (ArrayList<ElementRefBean>) formDef.getItemGroupRefs();
-          }
+            Boolean isRepeating = (Boolean)row.get("repeating_group");
+            String itDesc = (String) row.get("item_description");
+            String itQuesNum = (String) row.get("question_number_label");
+            String muOid = (String) row.get("mu_oid");
+            if (cvprev != cvId) {
+                // at this point, itemGroupRefs is for old cvId
+                if (itemGroupRefs != null && itemGroupRefs.size() > 0) {
+                    String temp = igMandatories.containsKey(igdprev) ? igMandatories.get(igdprev) : itMandatory;
+                    itemGroupRefs.get(itemGroupRefs.size() - 1).setMandatory(temp);
+                }
+                itMandatory = "No";
+                // now update to new cvId
+                cvprev = cvId;
+                FormDefBean formDef = new FormDefBean();
+                itemGroupRefs = (ArrayList<ElementRefBean>) formDef.getItemGroupRefs();
+            }
 
-          // mandatory is based on the last crf-version
-          String igDefKey = igId + "";
+            // mandatory is based on the last crf-version
+            String igDefKey = igId + "";
 
-          if (!igdprev.equals(igDefKey)) {
-              if(igdPos.containsKey(igDefKey)) {
-                  igdef = itemGroupDefs.get(igdPos.get(igDefKey));
-                  isLatest = false;
-                  itOrder = igdef.getItemRefs().size();
-              } else {
-                  igdef = new ItemGroupDefBean();
-                  itOrder = 0;
-                  igMandatories.put(igdprev, itMandatory);
-                  isLatest = true;
-                  igdef.setOid(igOID);
-                  igdef.setName("ungrouped".equalsIgnoreCase(igName) ? igOID : igName);
-                  //igdef.setName(igName);
-                  igdef.setRepeating(isRepeating ? "Yes" : "No");
-                  igdef.setComment(igHeader);
-                  igdef.setPreSASDatasetName(igName.toUpperCase());
-                  itemGroupDefs.add(igdef);
-                  igdPos.put(igDefKey, itemGroupDefs.size()-1);
-              }
-              igdprev = igDefKey;
-          }
+            if (!igdprev.equals(igDefKey)) {
+                if (igdPos.containsKey(igDefKey)) {
+                    igdef = itemGroupDefs.get(igdPos.get(igDefKey));
+                    isLatest = false;
+                    itOrder = igdef.getItemRefs().size();
+                } else {
+                    igdef = new ItemGroupDefBean();
+                    itOrder = 0;
+                    igMandatories.put(igdprev, itMandatory);
+                    isLatest = true;
+                    igdef.setOid(igOID);
+                    igdef.setName("ungrouped".equalsIgnoreCase(igName) ? igOID : igName);
+                    //igdef.setName(igName);
+                    igdef.setRepeating(isRepeating ? "Yes" : "No");
+                    igdef.setComment(igHeader);
+                    igdef.setPreSASDatasetName(igName.toUpperCase());
+                    itemGroupDefs.add(igdef);
+                    igdPos.put(igDefKey, itemGroupDefs.size()-1);
+                }
+                igdprev = igDefKey;
+            }
 
-          String igRefKey = igId + "-" + cvId;
-          if (igrprev.equals(igRefKey)) {
-              itMandatory = isLatest && itRequired && "No".equals(itMandatory) ? "Yes" : itMandatory;
-          } else {
-              if (!igset.contains(igRefKey)) {
-                  igset.add(igRefKey);
-                  ElementRefBean igref = new ElementRefBean();
-                  igref.setElementDefOID(igOID);
-                  int size = itemGroupRefs.size();
-                  if (size > 0) {
-                      String prev = igrprev.split("-")[0].trim();
-                      String temp = igMandatories.containsKey(prev) ? igMandatories.get(prev) : itMandatory;
-                      itemGroupRefs.get(size - 1).setMandatory(temp);
-                  }
-                  itemGroupRefs.add(igref);
-                  itMandatory = "No";
-              }
-              igrprev = igRefKey;
-          }
+            String igRefKey = igId + "-" + cvId;
+            if (igrprev.equals(igRefKey)) {
+                itMandatory = isLatest && itRequired && "No".equals(itMandatory) ? "Yes" : itMandatory;
+            } else {
+                if (!igset.contains(igRefKey)) {
+                    igset.add(igRefKey);
+                    ElementRefBean igref = new ElementRefBean();
+                    igref.setElementDefOID(igOID);
+                    int size = itemGroupRefs.size();
+                    if (size > 0) {
+                        String prev = igrprev.split("-")[0].trim();
+                        String temp = igMandatories.containsKey(prev) ? igMandatories.get(prev) : itMandatory;
+                        itemGroupRefs.get(size - 1).setMandatory(temp);
+                    }
+                    itemGroupRefs.add(igref);
+                    itMandatory = "No";
+                }
+                igrprev = igRefKey;
+            }
 
-          String mandatory = itRequired ? "Yes" : "No";
-          if (!itset.contains(igDefKey + "-" + itId)) {
-              ++itOrder;
-              itset.add(igDefKey + "-" + itId);
-              ElementRefBean itemRef = new ElementRefBean();
-              itemRef.setElementDefOID(itOID);
-              if (itemRef.getMandatory() == null || itemRef.getMandatory().length() <= 0) {
-                  itemRef.setMandatory(mandatory);
-              }
-              itemRef.setOrderNumber(itOrder);
-              igdef.getItemRefs().add(itemRef);
-          }
+            String mandatory = itRequired ? "Yes" : "No";
+            if (!itset.contains(igDefKey + "-" + itId)) {
+                ++itOrder;
+                itset.add(igDefKey + "-" + itId);
+                ElementRefBean itemRef = new ElementRefBean();
+                itemRef.setElementDefOID(itOID);
+                if (itemRef.getMandatory() == null || itemRef.getMandatory().length() <= 0) {
+                    itemRef.setMandatory(mandatory);
+                }
+                itemRef.setOrderNumber(itOrder);
+                igdef.getItemRefs().add(itemRef);
+            }
 
-          boolean hasCode = MetadataUnit.needCodeList(rsTypeId, dataTypeId);
-          LinkedHashMap<String, String> codes = new LinkedHashMap<String, String>();
-          if (hasCode) {
-              /*
-               * //null value will not be added to codelist if (nullMap.containsKey(cvId)) { codes = MetadataUnit.parseCode(rsText, rsValue,
-               * nullMap.get(cvId)); } else { codes = MetadataUnit.parseCode(rsText, rsValue); }
-               */
-              codes = MetadataUnit.parseCode(rsText, rsValue);
-              // no action has been taken if rsvalue/rstext go wrong,
-              // since they have been validated when uploading crf.
-          }
+            boolean hasCode = MetadataUnit.needCodeList(rsTypeId, dataTypeId);
+            LinkedHashMap<String, String> codes = new LinkedHashMap<>();
+            if (hasCode) {
+                /*
+                 * //null value will not be added to codelist if (nullMap.containsKey(cvId)) { codes = MetadataUnit.parseCode(rsText, rsValue,
+                 * nullMap.get(cvId)); } else { codes = MetadataUnit.parseCode(rsText, rsValue); }
+                */
+                codes = MetadataUnit.parseCode(rsText, rsValue);
+                // no action has been taken if rsvalue/rstext go wrong,
+                // since they have been validated when uploading crf.
+            }
 
-          boolean hasMultiSelect = MetadataUnit.needMultiSelectList(rsTypeId);
-          LinkedHashMap<String, String> multi = new LinkedHashMap<String, String>();
-          if (hasMultiSelect) {
-              multi = MetadataUnit.parseCode(rsText, rsValue);
-              // no action has been taken if rsvalue/rstext go wrong,
-              // since they have been validated when uploading crf.
-          }
+            boolean hasMultiSelect = MetadataUnit.needMultiSelectList(rsTypeId);
+            LinkedHashMap<String, String> multi = new LinkedHashMap<>();
+            if (hasMultiSelect) {
+                multi = MetadataUnit.parseCode(rsText, rsValue);
+                // no action has been taken if rsvalue/rstext go wrong,
+                // since they have been validated when uploading crf.
+            }
 
-          String datatype = MetadataUnit.getOdmItemDataType(rsTypeId, dataTypeId, odmVersion);
-          if(sectionIds.contains(","+secId+",")) {
-          }else {
-              sectionIds += secId+",";
-          }
+            String datatype = MetadataUnit.getOdmItemDataType(rsTypeId, dataTypeId, odmVersion);
+            if (sectionIds.contains(","+secId+",")) {
+                // NOOP
+            } else {
+                sectionIds += secId+",";
+            }
 
-          if (!itdset.contains(itId)) {
-              itdset.add(itId);
-              ItemDefBean idef = new ItemDefBean();
-              idef.setOid(itOID);
-              idef.setName(itName);
-              idef.setComment(itDesc);
-              if (muOid != null && muOid.length() > 0) {
-                  ElementRefBean measurementUnitRef = new ElementRefBean();
-                  measurementUnitRef.setElementDefOID(muOid);
-                  idef.setMeasurementUnitRef(measurementUnitRef);
-              }
-              idef.setPreSASFieldName(itName);
-              idef.setCodeListOID(hasCode ? "CL_" + rsId : "");
-              if (hasMultiSelect) {
-                  ElementRefBean multiSelectListRef = new ElementRefBean();
-                  multiSelectListRef.setElementDefOID("MSL_" + rsId);
-                  idef.setMultiSelectListRef(multiSelectListRef);
-              }
-              // if(nullMap.containsKey(cvId)) {
-              // }
-              idef.getQuestion().setQuestionNumber(itQuesNum);
-              idef.getQuestion().getQuestion().setText(MetadataUnit.getItemQuestionText(header, left, right));
-              if (regexp != null && regexp.startsWith("func:")) {
-                  idef.setRangeCheck(MetadataUnit.getItemRangeCheck(regexp.substring(5).trim(), metadata.getSoftHard(), regexpErr, muOid));
-              }
-              idef.setDataType(datatype);
-              int len = 0;
-              int sig = 0;
-              if (widthDecimal != null && widthDecimal.length() > 0) {
-                  // now there is no validation for width_decimal here.
-                  len = parseWidth(widthDecimal);
-                  sig = parseDecimal(widthDecimal);
-              }
-              if (rsTypeId == 3 || rsTypeId == 7) {// 3:checkbox;
-                  // //7:multi-select
-                 // len = maxLengths.containsKey(itId) ? maxLengths.get(itId) : 0;
-                  //len = Math.max(len, Math.max(rsText.length(), rsValue.length()));
-                  Iterator<String> iter = multi.keySet().iterator();
-                  String temp = "";
-                  while (iter.hasNext()) {
-                  temp += iter.next();
-                  temp += ",";
+            if (!itdset.contains(itId)) {
+                itdset.add(itId);
+                ItemDefBean idef = new ItemDefBean();
+                idef.setOid(itOID);
+                idef.setName(itName);
+                idef.setComment(itDesc);
+                if (muOid != null && muOid.length() > 0) {
+                    ElementRefBean measurementUnitRef = new ElementRefBean();
+                    measurementUnitRef.setElementDefOID(muOid);
+                    idef.setMeasurementUnitRef(measurementUnitRef);
+                }
+                idef.setPreSASFieldName(itName);
+                idef.setCodeListOID(hasCode ? "CL_" + rsId : "");
+                if (hasMultiSelect) {
+                    ElementRefBean multiSelectListRef = new ElementRefBean();
+                    multiSelectListRef.setElementDefOID("MSL_" + rsId);
+                    idef.setMultiSelectListRef(multiSelectListRef);
+                }
+                idef.getQuestion().setQuestionNumber(itQuesNum);
+                idef.getQuestion().getQuestion().setText(MetadataUnit.getItemQuestionText(header, left, right));
+                if (regexp != null && regexp.startsWith("func:")) {
+                    idef.setRangeCheck(MetadataUnit.getItemRangeCheck(regexp.substring(5).trim(), metadata.getSoftHard(), regexpErr, muOid));
+                }
+                idef.setDataType(datatype);
+                int len = 0;
+                int sig = 0;
+                if (widthDecimal != null && widthDecimal.length() > 0) {
+                    // now there is no validation for width_decimal here.
+                    len = parseWidth(widthDecimal);
+                    sig = parseDecimal(widthDecimal);
+                }
+                if (rsTypeId == 3 || rsTypeId == 7) {// 3:checkbox;
+                    // 7:multi-select
+                    //len = maxLengths.containsKey(itId) ? maxLengths.get(itId) : 0;
+                    //len = Math.max(len, Math.max(rsText.length(), rsValue.length()));
+                    Iterator<String> iter = multi.keySet().iterator();
+                    String temp = "";
+                    while (iter.hasNext()) {
+                        temp += iter.next();
+                        temp += ",";
+                    }
+                    idef.setLength(temp.length());
+                } else if ("text".equalsIgnoreCase(datatype)) {
+                    if (len > 0) {
+                        idef.setLength(len);
+                    } else {
+                        //idef.setLength((Integer) (hasCode ? MetadataUnit.getDataTypeLength(codes.keySet()) : maxLengths.containsKey(itId) ? maxLengths.get(itId) : MetaDataCollector.getTextLength()));
+                        idef.setLength(0);
+                    }
+                } else if ("integer".equalsIgnoreCase(datatype)) {
+                    if (len > 0) {
+                        idef.setLength(len);
+                    } else {
+                        idef.setLength(hasCode ? MetadataUnit.getDataTypeLength(codes.keySet()) : 10);
+                    }
+                } else if ("float".equalsIgnoreCase(datatype)) {
+                    if (len > 0) {
+                        idef.setLength(len);
+                    } else {
+                        // idef.setLength(hasCode ?
+                        // MetadataUnit.getDataTypeLength(codes.keySet()) : 32);
+                        idef.setLength(hasCode ? MetadataUnit.getDataTypeLength(codes.keySet()) : 25);
+                    }
+                } else {
+                    idef.setLength(0);
+                }
+                idef.setSignificantDigits(sig > 0 ? sig : MetadataUnit.getSignificantDigits(datatype, codes.keySet(), hasCode));
+                itemDefs.add(idef);
+            }
 
-                  }
-                  idef.setLength(temp.length());
-              } else if ("text".equalsIgnoreCase(datatype)) {
-                  if (len > 0) {
-                      idef.setLength(len);
-                  } else {
-                     //idef.setLength((Integer) (hasCode ? MetadataUnit.getDataTypeLength(codes.keySet()) : maxLengths.containsKey(itId) ? maxLengths.get(itId)            : MetaDataCollector.getTextLength()));
-                     
-                	  idef.setLength(0);
-                  }
-              } else if ("integer".equalsIgnoreCase(datatype)) {
-                  if (len > 0) {
-                      idef.setLength(len);
-                  } else {
-                      idef.setLength(hasCode ? MetadataUnit.getDataTypeLength(codes.keySet()) : 10);
-                  }
-              } else if ("float".equalsIgnoreCase(datatype)) {
-                  if (len > 0) {
-                      idef.setLength(len);
-                  } else {
-                      // idef.setLength(hasCode ?
-                      // MetadataUnit.getDataTypeLength(codes.keySet()) : 32);
-                     idef.setLength(hasCode ? MetadataUnit.getDataTypeLength(codes.keySet()) : 25);
-                  }
-              } else {
-                  idef.setLength(0);
-              }
-              idef.setSignificantDigits(sig > 0 ? sig : MetadataUnit.getSignificantDigits(datatype, codes.keySet(), hasCode));
-              itemDefs.add(idef);
-          }
+            if (hasCode && !clset.contains(rsId)) {
+                clset.add(rsId);
+                CodeListBean cl = new CodeListBean();
+                cl.setOid("CL_" + rsId);
+                cl.setName(rsLabel);
+                cl.setPreSASFormatName(rsLabel);
+                cl.setDataType(datatype);
+                Iterator<String> iter = codes.keySet().iterator();
+                while (iter.hasNext()) {
+                    String de = iter.next();
+                    CodeListItemBean cli = new CodeListItemBean();
+                    cli.setCodedValue(de);
+                    TranslatedTextBean tt = cli.getDecode();
+                    // cli.getDecode().setText(codes.get(de));
+                    tt.setText(codes.get(de));
+                    tt.setXmlLang(CoreResources.getField("translated_text_language"));
+                    cli.setDecode(tt);
+                    cl.getCodeListItems().add(cli);
+                }
+                codeLists.add(cl);
+            }
 
-          if (hasCode && !clset.contains(rsId)) {
-              clset.add(rsId);
-              CodeListBean cl = new CodeListBean();
-              cl.setOid("CL_" + rsId);
-              cl.setName(rsLabel);
-              cl.setPreSASFormatName(rsLabel);
-              cl.setDataType(datatype);
-              Iterator<String> iter = codes.keySet().iterator();
-              while (iter.hasNext()) {
-                  String de = iter.next();
-                  CodeListItemBean cli = new CodeListItemBean();
-                  cli.setCodedValue(de);
-                  TranslatedTextBean tt = cli.getDecode();
-                  // cli.getDecode().setText(codes.get(de));
-                  tt.setText(codes.get(de));
-                  tt.setXmlLang(CoreResources.getField("translated_text_language"));
-                  cli.setDecode(tt);
-                  cl.getCodeListItems().add(cli);
-              }
-              codeLists.add(cl);
-          }
+            if (odmVersion.startsWith("oc") && hasMultiSelect && !mslset.contains(rsId)) {
+                mslset.add(rsId);
+                MultiSelectListBean msl = new MultiSelectListBean();
+                msl.setOid("MSL_" + rsId);
+                msl.setName(rsLabel);
+                msl.setDataType(datatype);
+                msl.setActualDataType(datatype);
+                Iterator<String> iter = multi.keySet().iterator();
+                while (iter.hasNext()) {
+                    String de = iter.next();
+                    MultiSelectListItemBean msli = new MultiSelectListItemBean();
+                    msli.setCodedOptionValue(de);
+                    TranslatedTextBean tt = new TranslatedTextBean();
+                    String t = multi.get(de);
+                    tt.setText(t);
+                    tt.setXmlLang(CoreResources.getField("translated_text_language"));
+                    msli.setDecode(tt);
+                    msl.getMultiSelectListItems().add(msli);
+                }
+                multiSelectLists.add(msl);
+            }
 
-          if (odmVersion.startsWith("oc") && hasMultiSelect && !mslset.contains(rsId)) {
-              mslset.add(rsId);
-              MultiSelectListBean msl = new MultiSelectListBean();
-              msl.setOid("MSL_" + rsId);
-              msl.setName(rsLabel);
-              msl.setDataType(datatype);
-              msl.setActualDataType(datatype);
-              Iterator<String> iter = multi.keySet().iterator();
-              while (iter.hasNext()) {
-                  String de = iter.next();
-                  MultiSelectListItemBean msli = new MultiSelectListItemBean();
-                  msli.setCodedOptionValue(de);
-                  TranslatedTextBean tt = new TranslatedTextBean();
-                  String t = multi.get(de);
-                  tt.setText(t);
-                  tt.setXmlLang(CoreResources.getField("translated_text_language"));
-                  msli.setDecode(tt);
-                  msl.getMultiSelectListItems().add(msli);
-              }
-              multiSelectLists.add(msl);
-          }
-      }
-      if (itemGroupRefs != null && itemGroupRefs.size() > 0) {
-          String last = igMandatories.containsKey(igId + "") ? igMandatories.get(igId + "") : itMandatory;
-          itemGroupRefs.get(itemGroupRefs.size() - 1).setMandatory(last);
-      }
-      sectionIds = sectionIds.length()>0?sectionIds.substring(1, sectionIds.length()-1):"";
-      metadata.setSectionIds(sectionIds);
-}
+        }
+        if (itemGroupRefs != null && itemGroupRefs.size() > 0) {
+            String last = igMandatories.containsKey(igId + "") ? igMandatories.get(igId + "") : itMandatory;
+            itemGroupRefs.get(itemGroupRefs.size() - 1).setMandatory(last);
+        }
+        sectionIds = sectionIds.length() > 0 ? sectionIds.substring(1, sectionIds.length() - 1) : "";
+        metadata.setSectionIds(sectionIds);
+    }
+
     public int parseWidth(String widthDecimal) {
         String w = "";
         widthDecimal = widthDecimal.trim();
@@ -3460,16 +3450,9 @@ public class OdmExtractDAO extends DatasetDAO {
             + " select rs.response_set_id from response_set rs where rs.response_type_id in (8,9))"
             + "      and ifm.item_id in " + itemIds + " limit 999)";
     }
-	
     
-    protected String getSectionDetails(String CrfVersionOID)
-    {
+    protected String getSectionDetails(String CrfVersionOID) {
     	return "select section_id, label,title,subtitle,instructions,page_number_label from section section where crf_version_id=?";
     }
-    
-    
-    
-    
-    
     
 }

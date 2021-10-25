@@ -24,7 +24,6 @@ import org.akaza.openclinica.bean.managestudy.StudySubjectBean;
 import org.akaza.openclinica.bean.submit.SubjectBean;
 import org.akaza.openclinica.control.AbstractTableFactory;
 import org.akaza.openclinica.control.DefaultActionsEditor;
-import org.akaza.openclinica.dao.hibernate.AuditUserLoginDao;
 import org.akaza.openclinica.dao.login.UserAccountDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.managestudy.StudySubjectDAO;
@@ -33,7 +32,6 @@ import org.akaza.openclinica.dao.submit.ListSubjectSort;
 import org.akaza.openclinica.dao.submit.SubjectDAO;
 import org.akaza.openclinica.i18n.util.I18nFormatUtil;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
-import org.jmesa.core.filter.DateFilterMatcher;
 import org.jmesa.core.filter.FilterMatcher;
 import org.jmesa.core.filter.MatcherKey;
 import org.jmesa.facade.TableFacade;
@@ -49,8 +47,7 @@ import org.jmesa.view.html.HtmlBuilder;
 import org.jmesa.view.html.editor.DroplistFilterEditor;
 
 public class ListSubjectTableFactory extends AbstractTableFactory {
-
-	private AuditUserLoginDao auditUserLoginDao;
+	
 	private StudySubjectDAO studySubjectDao;
 	private UserAccountDAO userAccountDao;
 	private StudyDAO studyDao;
@@ -66,37 +63,32 @@ public class ListSubjectTableFactory extends AbstractTableFactory {
 
 	@Override
 	protected void configureColumns(TableFacade tableFacade, Locale locale) {
-		tableFacade.setColumnProperties("subject.uniqueIdentifier", "studySubjectIdAndStudy", "subject.gender", "subject.createdDate", "subject.owner", "subject.updatedDate", "subject.updater",
-				"subject.status", "actions");
+		tableFacade.setColumnProperties(
+			"subject.uniqueIdentifier", "studySubjectIdAndStudy", "subject.gender", "subject.createdDate",
+			"subject.owner", "subject.updatedDate", "subject.updater",  "subject.status", "actions"
+		);
 		Row row = tableFacade.getTable().getRow();
 		configureColumn(row.getColumn("subject.uniqueIdentifier"), resword.getString("person_ID"), null, null);
 		configureColumn(row.getColumn("studySubjectIdAndStudy"), resword.getString("Protocol_Study_subject_IDs"), null, null, true, false);
 		configureColumn(row.getColumn("subject.gender"), resword.getString("gender"), null, null);
 		configureColumn(row.getColumn("subject.createdDate"), resword.getString("date_created"), new DateCellEditor(getDateFormat()), null);
-		configureColumn(row.getColumn("subject.owner"), resword.getString("owner"), new OwnerCellEditor(), null, true, false);
+		configureColumn(row.getColumn("subject.owner"), resword.getString("owner"), new OwnerCellEditor(), null, false, false);
 		configureColumn(row.getColumn("subject.updatedDate"), resword.getString("date_updated"), new DateCellEditor(getDateFormat()), null);
-		configureColumn(row.getColumn("subject.updater"), resword.getString("last_updated_by"), new UpdaterCellEditor(), null, true, false);
+		configureColumn(row.getColumn("subject.updater"), resword.getString("last_updated_by"), new UpdaterCellEditor(), null, false, false);
 		configureColumn(row.getColumn("subject.status"), resword.getString("status"), new StatusCellEditor(), new StatusDroplistFilterEditor());
 		configureColumn(
-				row.getColumn("actions"),
-				resword.getString("actions")
-				// +
-				// "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
-						+ "&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;",
-				new ActionsCellEditor(), new DefaultActionsEditor(locale), true, false);
-		// >> tbh #4003, 08/2009
-
+			row.getColumn("actions"), resword.getString("actions") +
+			"&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;",
+			new ActionsCellEditor(), new DefaultActionsEditor(locale), true, false
+		);
 	}
 
 	@Override
 	public void configureTableFacade(HttpServletResponse response, TableFacade tableFacade) {
 		super.configureTableFacade(response, tableFacade);
-		tableFacade.addFilterMatcher(new MatcherKey(Date.class, "subject.createdDate"), new DateFilterMatcher(getDateFormat()));
-		tableFacade.addFilterMatcher(new MatcherKey(Date.class, "subject.updatedDate"), new DateFilterMatcher(getDateFormat()));
-		// tableFacade.addFilterMatcher(new MatcherKey(Status.class, "subject.status"), new GenericFilterMatecher());
-		tableFacade.addFilterMatcher(new MatcherKey(Status.class, "subject.status"), new StatusFilterMatecher());
-		tableFacade.addFilterMatcher(new MatcherKey(UserAccountBean.class, "subject.owner"), new GenericFilterMatecher());
-		tableFacade.addFilterMatcher(new MatcherKey(UserAccountBean.class, "subject.updater"), new GenericFilterMatecher());
+		tableFacade.addFilterMatcher(new MatcherKey(Status.class, "subject.status"), new StatusFilterMatcher());
+		tableFacade.addFilterMatcher(new MatcherKey(UserAccountBean.class, "subject.owner"), new GenericFilterMatcher());
+		tableFacade.addFilterMatcher(new MatcherKey(UserAccountBean.class, "subject.updater"), new GenericFilterMatcher());
 	}
 
 	@Override
@@ -113,7 +105,7 @@ public class ListSubjectTableFactory extends AbstractTableFactory {
 			if (totalRows == null) {
 				totalRows = 0;
 			}
-			tableFacade.setTotalRows(totalRows.intValue());
+			tableFacade.setTotalRows(totalRows);
 		}
 
 		ListSubjectSort listSubjectSort = getListSubjectSort(limit);
@@ -121,22 +113,21 @@ public class ListSubjectTableFactory extends AbstractTableFactory {
 		int rowEnd = limit.getRowSelect().getRowEnd();
 
 		Collection<SubjectBean> items = getSubjectDao().getWithFilterAndSort(getCurrentStudy(), listSubjectFilter, listSubjectSort, rowStart, rowEnd);
-		Collection<HashMap<Object, Object>> theItems = new ArrayList<HashMap<Object, Object>>();
+		Collection<HashMap<Object, Object>> theItems = new ArrayList<>();
 
 		for (SubjectBean subject : items) {
-			UserAccountBean owner = (UserAccountBean) getUserAccountDao().findByPK(subject.getOwnerId());
-			UserAccountBean updater = subject.getUpdaterId() == 0 ? null : (UserAccountBean) getUserAccountDao().findByPK(subject.getUpdaterId());
-			HashMap<Object, Object> h = new HashMap<Object, Object>();
-			String studySubjectIdAndStudy = "";
+			UserAccountBean owner = getUserAccountDao().findByPK(subject.getOwnerId());
+			UserAccountBean updater = subject.getUpdaterId() == 0 ? null : getUserAccountDao().findByPK(subject.getUpdaterId());
+			HashMap<Object, Object> h = new HashMap<>();
+			StringBuilder studySubjectIdAndStudy = new StringBuilder();
 			List<StudySubjectBean> studySubjects = getStudySubjectDao().findAllBySubjectId(subject.getId());
 			for (StudySubjectBean studySubjectBean : studySubjects) {
-				StudyBean study = (StudyBean) getStudyDao().findByPK(studySubjectBean.getStudyId());
-				studySubjectIdAndStudy += studySubjectIdAndStudy.length() == 0 ? "" : ",";
-				studySubjectIdAndStudy += study.getIdentifier() + "-" + studySubjectBean.getLabel();
-
+				StudyBean study = getStudyDao().findByPK(studySubjectBean.getStudyId());
+				studySubjectIdAndStudy.append(studySubjectIdAndStudy.length() == 0 ? "" : ",");
+				studySubjectIdAndStudy.append(study.getIdentifier()).append("-").append(studySubjectBean.getLabel());
 			}
 
-			h.put("studySubjectIdAndStudy", studySubjectIdAndStudy);
+			h.put("studySubjectIdAndStudy", studySubjectIdAndStudy.toString());
 			h.put("subject", subject);
 			h.put("subject.uniqueIdentifier", subject.getUniqueIdentifier());
 			h.put("subject.gender", subject.getGender());
@@ -157,12 +148,10 @@ public class ListSubjectTableFactory extends AbstractTableFactory {
 	}
 
 	/**
-	 * A very custom way to filter the items. The AuditUserLoginFilter acts as a
-	 * command for the Hibernate criteria object. Take the Limit information and
-	 * filter the rows.
+	 * A very custom way to filter the items. The ListSubjectFilter acts as a command for the Hibernate criteria object.
+	 * Take the Limit information and filter the rows.
 	 *
-	 * @param limit
-	 *            The Limit to use.
+	 * @param limit The Limit to use.
 	 */
 	protected ListSubjectFilter getListSubjectFilter(Limit limit) {
 		ListSubjectFilter listSubjectFilter = new ListSubjectFilter(getDateFormat());
@@ -178,12 +167,10 @@ public class ListSubjectTableFactory extends AbstractTableFactory {
 	}
 
 	/**
-	 * A very custom way to sort the items. The AuditUserLoginSort acts as a
-	 * command for the Hibernate criteria object. Take the Limit information and
-	 * sort the rows.
+	 * A very custom way to sort the items. The ListSubjectFilter acts as a command for the Hibernate criteria object.
+	 * Take the Limit information and sort the rows.
 	 *
-	 * @param limit
-	 *            The Limit to use.
+	 * @param limit The Limit to use.
 	 */
 	protected ListSubjectSort getListSubjectSort(Limit limit) {
 		ListSubjectSort listSubjectSort = new ListSubjectSort();
@@ -198,34 +185,25 @@ public class ListSubjectTableFactory extends AbstractTableFactory {
 		return listSubjectSort;
 	}
 
-	public AuditUserLoginDao getAuditUserLoginDao() {
-		return auditUserLoginDao;
-	}
-
-	public void setAuditUserLoginDao(AuditUserLoginDao auditUserLoginDao) {
-		this.auditUserLoginDao = auditUserLoginDao;
-	}
-
 	private class StatusDroplistFilterEditor extends DroplistFilterEditor {
 		@Override
 		protected List<Option> getOptions() {
-			List<Option> options = new ArrayList<Option>();
-			for (Object status : Status.toSubjectDropDownArrayList()) {
-				// options.add(new Option(String.valueOf(((Status) status).getId()), ((Status) status).getName()));
-				options.add(new Option(((Status) status).getName(), ((Status) status).getName()));
+			List<Option> options = new ArrayList<>();
+			for (Status status : Status.toSubjectDropDownArrayList()) {
+				options.add(new Option(status.getName(), status.getName()));
 			}
 			return options;
 		}
 	}
 
-	private class GenericFilterMatecher implements FilterMatcher {
+	private class GenericFilterMatcher implements FilterMatcher {
 		@Override
 		public boolean evaluate(Object itemValue, String filterValue) {
 			return true;
 		}
 	}
 
-	private class StatusFilterMatecher implements FilterMatcher {
+	private class StatusFilterMatcher implements FilterMatcher {
 		@Override
 		public boolean evaluate(Object itemValue, String filterValue) {
 			int itemStatusId = ((Status) itemValue).getId();
@@ -281,8 +259,8 @@ public class ListSubjectTableFactory extends AbstractTableFactory {
 		public Object getValue(Object item, String property, int rowcount) {
 			String value = "";
 			SubjectBean subjectBean = (SubjectBean) ((HashMap<Object, Object>) item).get("subject");
-			Integer subjectId = subjectBean.getId();
 			if (subjectBean != null) {
+				Integer subjectId = subjectBean.getId();
 				value += viewSubjectLink(subjectId);
 				if (subjectBean.getStatus() != Status.DELETED) {
 					value += updateSubjectLink(subjectId);
@@ -382,4 +360,5 @@ public class ListSubjectTableFactory extends AbstractTableFactory {
 	public void setUserAccountDao(UserAccountDAO userAccountDao) {
 		this.userAccountDao = userAccountDao;
 	}
+
 }

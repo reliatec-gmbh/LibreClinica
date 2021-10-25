@@ -58,10 +58,9 @@ import org.springframework.cache.ehcache.EhCacheManagerFactoryBean;
  * At the time of writing, the only methods which execute queries are select and execute.
  *
  * @author thickerson
- * @param <V>
- * @param <K>
  */
 public abstract class EntityDAO<B> implements DAOInterface<B> {
+
     protected DataSource ds;
 
     protected String digesterName;
@@ -75,9 +74,6 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
     // protected EhCacheWrapper cache = new EhCacheWrapper();
     protected EhCacheManagerFactoryBean cacheManager;
 
-    // set the types we expect from the database
-
-    // private ArrayList results = new ArrayList();
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
 
     private boolean querySuccessful;
@@ -121,7 +117,7 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
     /**
      * This is the method added to cache the queries
      * 
-     * @param cache
+     * @param cache cache
      */
     public void setCache(final EhCacheWrapper<String, ArrayList<HashMap<String, Object>>> cache) {
         this.cache = cache;
@@ -134,13 +130,11 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
     /**
      * setTypeExpected, expects to enter the type of object to retrieve from the database
      *
-     * @param num
-     *            the order the column should be extracted from the database
-     * @param type
-     *            the number that is equal to TypeNames
+     * @param num the order the column should be extracted from the database
+     * @param type the number that is equal to TypeNames
      */
     public void setTypeExpected(int num, int type) {
-        setTypes.put(Integer.valueOf(num), Integer.valueOf(type));
+        setTypes.put(num, type);
     }
 
     public void unsetTypeExpected() {
@@ -157,8 +151,9 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
     public Connection getConnection(DataSource ds) throws SQLException {
     	Connection con = ds.getConnection();
         if (con.isClosed()) {
-            if (logger.isWarnEnabled())
+            if (logger.isWarnEnabled()) {
                 logger.warn("Connection is closed!");
+            }
             throw new SQLException();
         }
         return con;
@@ -170,16 +165,15 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
      * This is the first operation created for the database, so therefore it is the simplest; cull information from the
      * database but not specify any parameters.
      *
-     * @param query
-     *            a static query of the database.
+     * @param query a static query of the database.
      * @return ArrayList of HashMaps carrying the database values.
      */
     public ArrayList<HashMap<String, Object>> select(String query) {
-    	return select(query, new HashMap<Integer, Object>());
+    	return select(query, new HashMap<>());
     }
 
     public ArrayList<HashMap<String, Object>> select(String query, Connection connection) {
-    	return select(query, new HashMap<Integer, Object>(), connection, false);
+    	return select(query, new HashMap<>(), connection, false);
     }
 
     public ArrayList<HashMap<String, Object>> select(String query, HashMap<Integer, Object> variables) {
@@ -196,7 +190,7 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
     }
     
     public void assertConnectionIsValid(Connection connection) throws IllegalArgumentException, RuntimeException {
-    	if(connection == null) {
+    	if (connection == null) {
     		throw new IllegalArgumentException("The given connection is null.");
     	}
     	try {
@@ -223,7 +217,7 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
         try {
             ps = connection.prepareStatement(query);
             if(psf != null) {
-            	ps = psf.generate(ps);// enter variables here!
+            	ps = psf.generate(ps); // enter variables here!
             }
 			String key = null;
 
@@ -287,25 +281,21 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
      * Note that queries which join two tables may be included in the definition
      * of "findAll-style" query, as long as the first criterion is met.
      *
-     * @param queryName
-     *            The name of the query which should be executed.
-     * @param variables
-     *            The set of variables used to populate the PreparedStatement;
-     *            should be empty if none are needed.
+     * @param queryName The name of the query which should be executed.
+     * @param variables The set of variables used to populate the PreparedStatement; should be empty if none are needed.
      * @return An ArrayList of AuditableEntityBeans selected by the query.
      */
     public ArrayList<B> executeFindAllQuery(String queryName, HashMap<Integer, Object> variables) {
     	return executeFindAllQuery(queryName, variables, false);
     }
     
-
     public ArrayList<B> executeFindAllQuery(String queryName, HashMap<Integer, Object> variables, boolean useCache) {
         ArrayList<B> answer = new ArrayList<>();
 
         if (queryName == null || queryName.trim().isEmpty()) {
             return answer;
         }
-        
+
         setTypesExpected();
         
         String query = digester.getQuery(queryName);
@@ -316,18 +306,16 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
         }
         
         ArrayList<HashMap<String, Object>> alist = this.select(query, variables, useCache);
-        if(alist != null) {
-        	answer.addAll(alist.stream().map(m -> (B) this.getEntityFromHashMap(m)).collect(Collectors.toList()));
+        if (alist != null) {
+        	answer.addAll(alist.stream().map(m -> this.getEntityFromHashMap(m)).collect(Collectors.toList()));
         }
         return answer;
     }
 
     /**
-     * This method executes a "findAll-style" query which does not accept any
-     * variables.
+     * This method executes a "findAll-style" query which does not accept any variables.
      *
-     * @param queryName
-     *            The name of the query which selects the AuditableEntityBeans.
+     * @param queryName The name of the query which selects the AuditableEntityBeans.
      * @return An ArrayList of AuditableEntityBeans selected by the query.
      */
     public ArrayList<B> executeFindAllQuery(String queryName) {
@@ -337,11 +325,10 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
     public HashMap<Integer, Object> variables(Object... variables) {
     	HashMap<Integer, Object> result = new HashMap<>();
     	
-    	if(variables == null) {
+    	if (variables == null) {
     		variables = new Object[0];
     	}
-    	
-    	Arrays.asList(variables);
+
     	for (int i = 0; i < variables.length; i++) {
     		result.put(i+1, variables[i]);
 		}
@@ -355,8 +342,7 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
     /**
      * execute, the static version of executing an update or insert on a table in the database.
      *
-     * @param query
-     *            a static SQL statement which updates or inserts.
+     * @param query a static SQL statement which updates or inserts.
      */
     public int executeUpdate(String query) {
     	return executeUpdate(query, true);
@@ -370,8 +356,7 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
     }
 
     /*
-     * this function is used for transactional updates to allow all updates in
-     * one actions to run as one transaction
+     * this function is used for transactional updates to allow all updates in one actions to run as one transaction
      */
 
     public int executeUpdate(String query, Connection connection) {
@@ -463,7 +448,7 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
         PreparedStatementFactory psf = new PreparedStatementFactory(variables, nullVars);
         try {
             ps = connection.prepareStatement(query);
-            ps = psf.generate(ps);// enter variables here!
+            ps = psf.generate(ps); // enter variables here!
             int rowCount = ps.executeUpdate();
             if (failOnEmptyUpdate && rowCount < 1) {
                 logger.warn("Executing update query did not change anything, EntityDAO: {}", query);
@@ -475,7 +460,7 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
         } catch (SQLException sqle) {
             signalFailure(sqle);
             if (logger.isWarnEnabled()) {
-                logger.warn("Exeception while executing statement, EntityDAO.executeUpdate: {}: {}", query, sqle.getMessage());
+                logger.warn("Exception while executing statement, EntityDAO.executeUpdate: {}: {}", query, sqle.getMessage());
                 logger.error(sqle.getMessage(), sqle);
             }
             return -1;
@@ -491,9 +476,9 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
     /**
      * This method inserts one row for an entity table and gets latestPK of this row.
      *
-     * @param query
-     * @param variables
-     * @param nullVars
+     * @param query query
+     * @param variables variables
+     * @param nullVars null vars
      *
      * @author ywang 11-26-2007
      */
@@ -558,85 +543,82 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
         return al;
     }
     
-    /**
-     * 
-     * @param rs
-     * @return
-     * @throws SQLException
-     */
     public HashMap<String, Object> processCurrentRow(ResultSet rs) throws SQLException {
         HashMap<String, Object> cellValues = new HashMap<>();
         ResultSetMetaData rsmd = rs.getMetaData();
-        
-        for (int columnIndex = 1; columnIndex <= rsmd.getColumnCount(); columnIndex++) {
-            String columnName = rsmd.getColumnName(columnIndex).toLowerCase();
-            
-            Integer type = getColumnType(setTypes, columnIndex);            
-			if (type == null) {
-				/* TODO Throwing an exception seems to be more
-				 * more reasonable then just silently ignore the
-				 * missing type. 
-				 */
-				continue;
-			}
 
-	        Class<?> resultClass = TypeNames.getReturnType(type);
-            Object cellValue = rs.getObject(columnIndex, resultClass);
-			cellValue = returnSelfOrDefault(rs.wasNull(), columnName, cellValue, type);
-			cellValues.put(columnName, cellValue);
-        }
+        for (int columnIndex = 1; columnIndex <= rsmd.getColumnCount(); columnIndex++) {
+            String column = rsmd.getColumnName(columnIndex).toLowerCase();
+            Integer type = getColumnType(setTypes, columnIndex);
+
+            // When type is know, use the value or if value is null use the default value specified for type
+            if (type != null) {
+                switch (type) {
+                    case TypeNames.DATE:
+                        cellValues.put(column, rs.getDate(columnIndex));
+                        break;
+                    case TypeNames.TIMESTAMP:
+                        cellValues.put(column, rs.getTimestamp(columnIndex));
+                        break;
+                    case TypeNames.DOUBLE:
+                        cellValues.put(column, rs.getDouble(columnIndex));
+                        if (rs.wasNull()) {
+                            cellValues.put(column, 0d);
+                        }
+                        break;
+                    case TypeNames.BOOL:
+                        cellValues.put(column, rs.getBoolean(columnIndex));
+                        if (rs.wasNull()) {
+                            // For start_time_flag and end_time_flag we default to false
+                            // because it was not investigated what would happen if we default to true
+                            if (column.equalsIgnoreCase("start_time_flag") ||
+                                column.equalsIgnoreCase("end_time_flag")) {
+                                
+                                cellValues.put(column, Boolean.FALSE);
+                            } else { // Otherwise, default to true
+                                cellValues.put(column, Boolean.TRUE);
+                            }
+                        }
+                        break;
+                    case TypeNames.FLOAT:
+                        cellValues.put(column, rs.getFloat(columnIndex));
+                        if (rs.wasNull()) {
+                            cellValues.put(column, 0f);
+                        }
+                        break;
+                    case TypeNames.INT:
+                        cellValues.put(column, rs.getInt(columnIndex));
+                        if (rs.wasNull()) {
+                            cellValues.put(column, 0);
+                        }
+                        break;
+                    case TypeNames.LONG:
+                        cellValues.put(column, rs.getLong(columnIndex));
+                        if (rs.wasNull()) {
+                            cellValues.put(column, 0L);
+                        }
+                        break;
+                    case TypeNames.STRING:
+                        cellValues.put(column, rs.getString(columnIndex));
+                        if (rs.wasNull()) {
+                            cellValues.put(column, "");
+                        }
+                        break;
+                    case TypeNames.CHAR:
+                        cellValues.put(column, rs.getString(columnIndex));
+                        if (rs.wasNull()) {
+                            char x = 'x';
+                            cellValues.put(column, x);
+                        }
+                        break;
+                    default:
+                        // do nothing?
+                } // end switch
+            }
+        } // end for loop
+
         return cellValues;
     }
-	
-	/**
-	 * Returns a default value if necessary. The necessity is based on the value of wasNull, the type and 
-	 * the columnName.
-	 *  
-	 * @param wasNull indicates if the value for requested cell was null {@link ResultSet#wasNull()} 
-	 * @param columnName name of the column
-	 * @param cellValue the current cell value
-	 * @param type data type of the cell {@link #getColumnType(HashMap, int)}
-	 * 
-	 * @return a default value if necessary, other the given cellValue 
-	 */
-	public Object returnSelfOrDefault(boolean wasNull, String columnName, Object cellValue, Integer type) {
-		if(!wasNull) {
-			return cellValue;
-		}
-		switch (type.intValue()) {
-		case TypeNames.DATE:
-        case TypeNames.TIMESTAMP:
-			// no default value just echo the value
-        	break;
-        case TypeNames.DOUBLE:
-        	cellValue = Double.valueOf(0d);
-        	break;
-        case TypeNames.FLOAT:
-        	cellValue = Float.valueOf(0f);
-        	break;
-        case TypeNames.INT:
-        	cellValue = Integer.valueOf(0);
-        	break;
-        case TypeNames.LONG:
-        	cellValue = Long.valueOf(0);
-        	break;
-		case TypeNames.BOOL:
-			if (columnName.equalsIgnoreCase("start_time_flag")
-					|| columnName.equalsIgnoreCase("end_time_flag")) {
-				cellValue = new Boolean(false);
-			} else {
-				cellValue = new Boolean(true);
-			}
-        	break;
-		case TypeNames.STRING:
-			cellValue = "";
-        	break;
-		case TypeNames.CHAR:
-			cellValue = new Character('x');
-        	break;
-		}
-		return cellValue;
-	}
 	
 	/**
 	 * Returns the column type for the given column index.
@@ -648,15 +630,15 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
 	 * @see TypeNames
 	 */
 	public Integer getColumnType(HashMap<Integer, Integer> types, int columnIndex) {
-		if(types == null) {
+		if (types == null) {
 			throw new IllegalArgumentException("The given type map is null.");
 		}
-		if(columnIndex < 1 || columnIndex > types.size()) {
+		if (columnIndex < 1 || columnIndex > types.size()) {
 			String msg = "The given column index '%d' is not within the allowed range of [1,%d].";
 			throw new IllegalArgumentException(String.format(msg, columnIndex, types.size()));
 		}
 		Integer type = types.get(columnIndex);
-		if(type == null) {
+		if (type == null) {
 			String msg = "No type defined for column '%d'";
 			throw new RuntimeException(String.format(msg, columnIndex));
 		}
@@ -704,8 +686,7 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
 
     /*
      * @return the current value of the primary key sequence, if <code> getCurrentPKName </code> is non-null, or null if
-     * <code> getCurrentPKName </code> is
-     * null.
+     * <code> getCurrentPKName </code> is null.
      */
     public int getCurrentPK() {
     	Connection connection = null;
@@ -857,21 +838,14 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
     }
 
     /**
-     * getDS, had to add it to allow queries of other daos within the daos
+     * getDs, had to add it to allow queries of other DAOs within the DAOs
      *
      * @return Returns the ds.
      */
     public DataSource getDs() {
         return ds;
     }
-
-    /**
-     * @param ds
-     *            The ds to set.
-     */
-    // public void setDs(DataSource ds) {
-    // this.ds = ds;
-    // }
+    
     /**
      * Clear the signals which indicate the success or failure of the query. This method should be called at the
      * beginning of every select or execute method.
@@ -934,7 +908,7 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
     }
 
     protected int selectInt(HashMap<String, Object> hm, String column) {
-    	return getValueOrDefault(hm, column, 0, Integer.class).intValue();
+    	return getValueOrDefault(hm, column, 0, Integer.class);
     }
 
     protected boolean selectBoolean(HashMap<String, Object> hm, String column) {
@@ -968,8 +942,6 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
      * This is the first operation created for the database, so therefore it is the simplest; cull information from the
      * database but not specify any parameters.
      *
-     * @param query
-     *            a static query of the database.
      * @return ArrayList of HashMaps carrying the database values.
      */
     public ArrayList<StudySubjectBean> selectStudySubjects(int studyid, int parentid, String sedin, String it_in, String dateConstraint, String ecStatusConstraint,
@@ -998,14 +970,13 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
         } catch (SQLException sqle) {
             signalFailure(sqle);
             if (logger.isWarnEnabled()) {
-                logger.warn("Exeception while executing static query, GenericDAO.select: " + query + ": " + sqle.getMessage());
+                logger.warn("Exception while executing static query, GenericDAO.select: " + query + ": " + sqle.getMessage());
                 logger.error(sqle.getMessage(), sqle);
             }
         } finally {
             this.closeIfNecessary(con, rs, ps);
         }
         return results;
-
     }
     
     /*
@@ -1021,11 +992,11 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
      * @param defaultValue value to return when the result set contains no value for this column
      * @return the value from the {@link ResultSet} or the default value
      * 
-     * @throws SQLException
+     * @throws SQLException sql exception
      * @see {@link ResultSet#getInt(String)}
      */
     public Integer getAsInt(ResultSet rs, String columnLabel, Integer defaultValue) throws SQLException {
-    	if(rs == null) {    		
+    	if(rs == null) {
     		throw new IllegalArgumentException("The given ResultSet is null");
     	}
         Integer result = rs.getInt(columnLabel);
@@ -1044,7 +1015,7 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
      * @param defaultValue value to return when the result set contains no value for this column
      * @return the value from the {@link ResultSet} or the default value
      * 
-     * @throws SQLException
+     * @throws SQLException sql exception
      * @see {@link ResultSet#getString(String)}
      */
     public String getAsString(ResultSet rs, String columnLabel, String defaultValue) throws SQLException {
@@ -1067,7 +1038,7 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
      * @param defaultValue value to return when the result set contains no value for this column
      * @return the value from the {@link ResultSet} or the default value
      * 
-     * @throws SQLException
+     * @throws SQLException sql exception
      * @see {@link ResultSet#getString(String)}
      */
     public Boolean getAsBoolean(ResultSet rs, String columnLabel, Boolean defaultValue) throws SQLException {
@@ -1116,7 +1087,7 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
 
                 // Date of birth
                 if (CoreResources.getDBName().equals("oracle")) {
-                    obj.setDobCollected(getAsString(rs, "dob_collected", "").equals("1") ? true : false);
+                    obj.setDobCollected(getAsString(rs, "dob_collected", "").equals("1"));
                 } else {
                     obj.setDobCollected(getAsBoolean(rs, "dob_collected", false));
                 }
@@ -1132,7 +1103,9 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
         } catch (SQLException sqle) {
             if (logger.isWarnEnabled()) {
                 logger.warn(
-                        "Exception while processing result rows, EntityDAO.processStudySubjects: " + ": " + sqle.getMessage() + ": array length: " + al.size());
+                    "Exception while processing result rows, EntityDAO.processStudySubjects: " + ": " +
+                    sqle.getMessage() + ": array length: " + al.size()
+                );
                 logger.error(sqle.getMessage(), sqle);
             }
         }
@@ -1270,12 +1243,11 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
 
     /**
      *
-     * @param studyid
-     * @param parentid
-     * @param sedin
-     * @param it_in
-     * @param eb
-     * @return
+     * @param studyid study id
+     * @param parentid parent study id
+     * @param sedin study event definition in
+     * @param it_in item in
+     * @param eb extract bean
      */
     public boolean loadBASE_ITEMGROUPSIDEHashMap(int studyid, int parentid, String sedin, String it_in, ExtractBean eb) {
         clearSignals();
@@ -1319,17 +1291,16 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
         }
         return bret;
 
-    }//
+    }
 
     /**
      * Main function call
      *
-     * @param studyid
-     * @param parentid
-     * @param sedin
-     * @param it_in
-     * @param eb
-     * @return
+     * @param studyid study id
+     * @param parentid parent study id
+     * @param sedin study event definition in
+     * @param it_in itme in
+     * @param eb extract bean
      */
     public boolean loadBASE_EVENTINSIDEHashMap(int studyid, int parentid, String sedin, String it_in, ExtractBean eb) {
         clearSignals();
@@ -1377,8 +1348,7 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
     /**
      * For each item_data_id stores a getSQLDatasetBASE_ITEMGROUPSIDE object
      *
-     * @param rs
-     * @return
+     * @param rs results set
      */
     public boolean processBASE_ITEMGROUPSIDERecords(ResultSet rs, ExtractBean eb) {
         /**
@@ -1424,13 +1394,13 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
                 // itemdesc
                 String vitemdesc = rs.getString("itemdesc");
                 if (rs.wasNull()) {
-                    vitemdesc = new String("");
+                    vitemdesc = "";
                 }
 
                 // itemname
                 String vitemname = rs.getString("itemname");
                 if (rs.wasNull()) {
-                    vitemname = new String("");
+                    vitemname = "";
                 }
 
                 String vitemvalue = getAsString(rs, "itemvalue", defaultItemValue);
@@ -1457,7 +1427,7 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
                 // interviewername
                 String vinterviewername = rs.getString("interviewername");
                 if (rs.wasNull()) {
-                    vinterviewername = new String("");
+                    vinterviewername = "";
                 }
 
                 // eventcrfdatecompleted
@@ -1473,49 +1443,49 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
                 }
 
                 // eventcrfcompletionstatusid
-                Integer veventcrfcompletionstatusid = Integer.valueOf(rs.getInt("eventcrfcompletionstatusid"));
+                Integer veventcrfcompletionstatusid = rs.getInt("eventcrfcompletionstatusid");
                 if (rs.wasNull()) {
                     // TODO - what value default
                 }
 
                 // repeat_number
-                Integer vrepeat_number = Integer.valueOf(rs.getInt("repeat_number"));
+                Integer vrepeat_number = rs.getInt("repeat_number");
                 if (rs.wasNull()) {
                     // TODO - what value default
                 }
 
                 // crfid
-                Integer vcrfid = Integer.valueOf(rs.getInt("crfid"));
+                Integer vcrfid = rs.getInt("crfid");
                 if (rs.wasNull()) {
                     // TODO - what value default
                 }
 
                 // studysubjectid
-                Integer vstudysubjectid = Integer.valueOf(rs.getInt("studysubjectid"));
+                Integer vstudysubjectid = rs.getInt("studysubjectid");
                 if (rs.wasNull()) {
                     // TODO - what value default
                 }
 
                 // eventcrfid
-                Integer veventcrfid = Integer.valueOf(rs.getInt("eventcrfid"));
+                Integer veventcrfid = rs.getInt("eventcrfid");
                 if (rs.wasNull()) {
                     // TODO - what value default
                 }
 
                 // itemid
-                Integer vitemid = Integer.valueOf(rs.getInt("itemid"));
+                Integer vitemid = rs.getInt("itemid");
                 if (rs.wasNull()) {
                     // TODO - what value default
                 }
 
                 // crfversionid
-                Integer vcrfversionid = Integer.valueOf(rs.getInt("crfversionid"));
+                Integer vcrfversionid = rs.getInt("crfversionid");
                 if (rs.wasNull()) {
                     // TODO - what value default
                 }
 
-                Integer eventcrfstatusid = Integer.valueOf(rs.getInt("eventcrfstatusid"));
-                Integer itemdatatypeid = Integer.valueOf(rs.getInt("itemDataTypeId"));
+                Integer eventcrfstatusid = rs.getInt("eventcrfstatusid");
+                Integer itemdatatypeid = rs.getInt("itemDataTypeId");
 
                 // add it to the HashMap
                 eb.addEntryBASE_ITEMGROUPSIDE(/* Integer pitemDataId */vitemdataid, /* Integer vitemdataordinal */vitemdataordinal,
@@ -1553,8 +1523,7 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
     /**
      * For each item_data_id stores a getSQLDatasetBASE_ITEMGROUPSIDE object
      *
-     * @param rs
-     * @return
+     * @param rs result set
      */
     public boolean processBASE_EVENTSIDERecords(ResultSet rs, ExtractBean eb) {
         /**
@@ -1576,13 +1545,13 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
             while (rs.next()) {
 
                 // itemdataid
-                Integer vitemdataid = Integer.valueOf(rs.getInt("itemdataid"));
+                Integer vitemdataid = rs.getInt("itemdataid");
                 if (rs.wasNull()) {
                     // ERROR - should always be different than NULL
                 }
 
                 // studysubjectid
-                Integer vstudysubjectid = Integer.valueOf(rs.getInt("studysubjectid"));
+                Integer vstudysubjectid = rs.getInt("studysubjectid");
                 if (rs.wasNull()) {
                     // ERROR - should always be different than NULL
                 }
@@ -1594,7 +1563,7 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
                 }
 
                 // study_event_definition_id
-                Integer vstudy_event_definition_id = Integer.valueOf(rs.getInt("study_event_definition_id"));
+                Integer vstudy_event_definition_id = rs.getInt("study_event_definition_id");
                 if (rs.wasNull()) {
                     //
                 }
@@ -1602,13 +1571,13 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
                 // name
                 String vname = rs.getString("name");
                 if (rs.wasNull()) {
-                    vname = new String("");
+                    vname = "";
                 }
 
                 String vlocation = rs.getString("location");
                 // store the
                 if (rs.wasNull()) {
-                    vlocation = new String("");
+                    vlocation = "";
                 }
 
                 // date_start
@@ -1628,17 +1597,17 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
                 // start_time_flag
                 Boolean vstart_time_flag;
                 if (CoreResources.getDBName().equals("oracle")) {
-                    vstart_time_flag = new Boolean(rs.getString("start_time_flag").equals("1") ? true : false);
+                    vstart_time_flag = rs.getString("start_time_flag").equals("1");
                     if (rs.wasNull()) {
                         // if (column.equalsIgnoreCase("start_time_flag") ||
                         // column.equalsIgnoreCase("end_time_flag")) {
-                        vstart_time_flag = new Boolean(false);
+                        vstart_time_flag = Boolean.FALSE;
                         // } else {
                         // hm.put(column, new Boolean(true));
                         // }
                     }
                 } else {
-                    vstart_time_flag = new Boolean(rs.getBoolean("start_time_flag"));
+                    vstart_time_flag = rs.getBoolean("start_time_flag");
                     if (rs.wasNull()) {
                         // YW 08-17-2007 << Since I didn't investigate
                         // what's the impact if changing true to false,
@@ -1647,7 +1616,7 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
                         // table study_event
                         // if (column.equalsIgnoreCase("start_time_flag") ||
                         // column.equalsIgnoreCase("end_time_flag")) {
-                        vstart_time_flag = new Boolean(false);
+                        vstart_time_flag = Boolean.FALSE;
                         // } else {
                         // hm.put(column, new Boolean(true));
                         // }
@@ -1658,17 +1627,17 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
                 // end_time_flag
                 Boolean vend_time_flag;
                 if (CoreResources.getDBName().equals("oracle")) {
-                    vend_time_flag = new Boolean(rs.getString("end_time_flag").equals("1") ? true : false);
+                    vend_time_flag = rs.getString("end_time_flag").equals("1");
                     if (rs.wasNull()) {
                         // if (column.equalsIgnoreCase("start_time_flag") ||
                         // column.equalsIgnoreCase("end_time_flag")) {
-                        vend_time_flag = new Boolean(false);
+                        vend_time_flag = Boolean.FALSE;
                         // } else {
                         // hm.put(column, new Boolean(true));
                         // }
                     }
                 } else {
-                    vend_time_flag = new Boolean(rs.getBoolean("end_time_flag"));
+                    vend_time_flag = rs.getBoolean("end_time_flag");
                     if (rs.wasNull()) {
                         // YW 08-17-2007 << Since I didn't investigate
                         // what's the impact if changing true to false,
@@ -1677,7 +1646,7 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
                         // table study_event
                         // if (column.equalsIgnoreCase("start_time_flag") ||
                         // column.equalsIgnoreCase("end_time_flag")) {
-                        vend_time_flag = new Boolean(false);
+                        vend_time_flag = Boolean.FALSE;
                         // } else {
                         // hm.put(column, new Boolean(true));
                         // }
@@ -1686,37 +1655,37 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
                 } // if
 
                 // status_id
-                Integer vstatus_id = Integer.valueOf(rs.getInt("status_id"));
+                Integer vstatus_id = rs.getInt("status_id");
                 if (rs.wasNull()) {
                     // TODO - what value default
                 }
 
                 // subject_event_status_id
-                Integer vsubject_event_status_id = Integer.valueOf(rs.getInt("subject_event_status_id"));
+                Integer vsubject_event_status_id = rs.getInt("subject_event_status_id");
                 if (rs.wasNull()) {
                     // TODO - what value default
                 }
 
                 // studyeventid
-                Integer vstudyeventid = Integer.valueOf(rs.getInt("studyeventid"));
+                Integer vstudyeventid = rs.getInt("studyeventid");
                 if (rs.wasNull()) {
                     // TODO - what value default
                 }
 
                 // eventcrfid
-                Integer veventcrfid = Integer.valueOf(rs.getInt("eventcrfid"));
+                Integer veventcrfid = rs.getInt("eventcrfid");
                 if (rs.wasNull()) {
                     // TODO - what value default
                 }
 
                 // itemid
-                Integer vitemid = Integer.valueOf(rs.getInt("itemid"));
+                Integer vitemid = rs.getInt("itemid");
                 if (rs.wasNull()) {
                     // TODO - what value default
                 }
 
                 // crfversionid
-                Integer vcrfversionid = Integer.valueOf(rs.getInt("crfversionid"));
+                Integer vcrfversionid = rs.getInt("crfversionid");
                 if (rs.wasNull()) {
                     // TODO - what value default
                 }
@@ -1757,11 +1726,10 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
     /**
      * There are two base querries for dataset
      *
-     * @param studyid
-     * @param studyparentid
-     * @param sedin
-     * @param it_in
-     * @return
+     * @param studyid study id
+     * @param studyparentid parent study id
+     * @param sedin study event definition in
+     * @param it_in it in
      */
     protected String getSQLDatasetBASE_EVENTSIDE(int studyid, int studyparentid, String sedin, String it_in, String dateConstraint, String ecStatusConstraint,
             String itStatusConstraint) {
@@ -1980,11 +1948,10 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
     /**
      * This is the second base sql
      *
-     * @param studyid
-     * @param studyparentid
-     * @param sedin
-     * @param it_in
-     * @return
+     * @param studyid study id
+     * @param studyparentid parent study id
+     * @param sedin study event definition in
+     * @param it_in item in
      */
     protected String getSQLDatasetBASE_ITEMGROUPSIDE(int studyid, int studyparentid, String sedin, String it_in, String dateConstraint,
             String ecStatusConstraint, String itStatusConstraint) {
@@ -2214,14 +2181,6 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
         }
     }// getSQLDatasetBASE_ITEMGROUPSIDE
 
-    /**
-     *
-     * @param sedin
-     * @param itin
-     * @param currentstudyid
-     * @param parentstudyid
-     * @return
-     */
     protected String getSQLInKeyDatasetHelper(int studyid, int studyparentid, String sedin, String it_in, String dateConstraint, String ecStatusConstraint,
             String itStatusConstraint) {
         /**
@@ -2343,17 +2302,14 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
                     + getSQLDatasetBASE_EVENTSIDE(studyid, studyparentid, sedin, it_in, dateConstraint, ecStatusConstraint, itStatusConstraint)
                     + "   ) AS SBQTWO " + " ) ";
         }
-        /**
-         * TODO - replace with sql
-         */
+        // TODO - replace with sql
     }
 
     /**
      *
-     * @param studyid
-     * @param parentid
-     * @param sedin
-     * @return
+     * @param studyid study id
+     * @param parentid parent id
+     * @param sedin study event definition in
      */
     public HashMap<String, Boolean> setHashMapInKeysHelper(int studyid, int parentid, String sedin, String itin, String dateConstraint, String ecStatusConstraint,
             String itStatusConstraint) {
@@ -2388,7 +2344,7 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
         } catch (SQLException sqle) {
             signalFailure(sqle);
             if (logger.isWarnEnabled()) {
-                logger.warn("Exeception while executing static query, GenericDAO.select: " + query + ": " + sqle.getMessage());
+                logger.warn("Exception while executing static query, GenericDAO.select: " + query + ": " + sqle.getMessage());
                 logger.error(sqle.getMessage(), sqle);
             }
         } finally {
@@ -2403,52 +2359,49 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
      * Return directly the HashMap with the key It shouldn't be NULL !! TODO - throw an error if any of the fields is
      * null!
      *
-     * @param rs
-     * @return
+     * @param rs result set
      */
     public HashMap<String, Boolean> processInKeyDataset(ResultSet rs) {// throws SQLException
         HashMap<String, Boolean> al = new HashMap<>();
 
         try {
             while (rs.next()) {
-                String stsed = new String("");
+                String stsed;
                 stsed = ((Integer) rs.getInt("study_event_definition_id")).toString();
                 if (rs.wasNull()) {
-                    stsed = new String("");
+                    stsed = "";
                 }
 
                 // second column
-                String stso = new String("");
+                String stso;
                 stso = ((Integer) rs.getInt("sample_ordinal")).toString();
                 if (rs.wasNull()) {
-                    stso = new String("");
+                    stso = "";
                 }
 
-                String stcrf = new String("");
+                String stcrf;
                 stcrf = ((Integer) rs.getInt("crf_id")).toString();
                 if (rs.wasNull()) {
-                    stcrf = new String("");
+                    stcrf = "";
                 }
 
-                String stitem = new String("");
+                String stitem;
                 stitem = ((Integer) rs.getInt("item_id")).toString();
                 if (rs.wasNull()) {
-                    stitem = new String("");
+                    stitem = "";
                 }
 
-                String stgn = new String("");
+                String stgn;
                 stgn = rs.getString("item_group_name");
                 if (rs.wasNull()) {
-                    stgn = new String("");
+                    stgn = "";
                 }
 
-                /**
-                 * build the key as [study_event_definition_id]_[sample_ordinal]_[crf_id]_[item_id]_[item_group_name]
-                 */
+                // build the key as [study_event_definition_id]_[sample_ordinal]_[crf_id]_[item_id]_[item_group_name]
                 String key = stsed + "_" + stso + "_" + stcrf + "_" + stitem + "_" + stgn;
 
                 // add
-                al.put(key, new Boolean(true));
+                al.put(key, Boolean.TRUE);
 
             } // while
         } catch (SQLException sqle) {
@@ -2525,8 +2478,7 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
     }
     
     /**
-     * Converts the given list of status into an SQL-Constraint.
-     * e.g. 
+     * Converts the given list of status into an SQL-Constraint. e.g.
      * <ul>
      * <li>in (2,6)</li>
      * <li>not in (2,6)</li>
@@ -2548,7 +2500,7 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
 		UserAccountBean user = null;
 		if (userId != null) {
 			UserAccountDAO udao = new UserAccountDAO(SessionManager.getStaticDataSource());
-			user = (UserAccountBean) udao.findByPK(userId);
+			user = udao.findByPK(userId);
 		}
 		return user;
     }
@@ -2583,4 +2535,5 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
     }
     
     public abstract B emptyBean();
+    
 }

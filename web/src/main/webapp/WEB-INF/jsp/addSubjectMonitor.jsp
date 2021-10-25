@@ -1,22 +1,20 @@
 <%--
-  User: Hamid
-  Date: November 25, 2010
-  A copy of addNewSubjectExpressNew.jsp that would be used by Investigators Home Page.
+  20210806 GRV: Strangely enough, this jsp is included in menu.jsp, when the role is investigator/dataspecialist/researchassociate/ra2
+  Then the subject matrix is included and in it is the link for add new subject
 --%>
 
-
+<!-- start of addSubjectMonitor.jsp -->
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
 <fmt:setBundle basename="org.akaza.openclinica.i18n.notes" var="restext"/>
 <fmt:setBundle basename="org.akaza.openclinica.i18n.words" var="resword"/>
 <fmt:setBundle basename="org.akaza.openclinica.i18n.format" var="resformat"/>
-<jsp:useBean scope="request" id="label" class="java.lang.String"/>
 
+<jsp:useBean scope="request" id="label" class="java.lang.String"/>
 <jsp:useBean scope="session" id="study" class="org.akaza.openclinica.bean.managestudy.StudyBean" />
 <jsp:useBean scope="request" id="pageMessages" class="java.util.ArrayList" />
 <jsp:useBean scope="request" id="presetValues" class="java.util.HashMap" />
-
 <jsp:useBean scope="request" id="groups" class="java.util.ArrayList" />
 
 <c:set var="uniqueIdentifier" value="" />
@@ -72,64 +70,64 @@
 <form name="subjectForm" action="AddNewSubject" method="post">
 <input type="hidden" name="subjectOverlay" value="true">
 
-<div style="width: 500px; height: 550px; overflow: scroll; background:#FFFFFF;">
-<table border="0" cellpadding="0" >
-    <tr style="height:10px;">
-        <td width="35%"><h3><fmt:message key="add_new_subject" bundle="${resword}"/></h3></td>
-        <td >&nbsp;</td>
+<div class="add_new_subject_div">
+<table>
+    <tr>
+    	<td class="formlabel"></td>
+        <td><h3><fmt:message key="add_new_subject" bundle="${resword}"/></h3></td>
+        <td></td>
     </tr>
-    <tr valign="top">
+    <tr>
         <td class="formlabel">
             <jsp:include page="include/showSubmitted.jsp" />
             <input type="hidden" name="addWithEvent" value="1"/>
             <fmt:message key="study_subject_ID" bundle="${resword}"/>:</td>
-        <td valign="top">
-            <table border="0" cellpadding="0" cellspacing="0">
+        	<td>
+            <table >
                 <tr>
                     <td valign="top"><div class="formfieldXL_BG">
                     <c:choose>
                      <c:when test="${study.studyParameterConfig.subjectIdGeneration =='auto non-editable'}">
-                      <input onfocus="this.select()" type="text" value="<c:out value="${label}"/>" size="45" class="formfield" disabled>
+                      <input onfocus="this.select()" type="text" value="<c:out value="${label}"/>" class="formfield" disabled>
                       <input type="hidden" name="label" value="<c:out value="${label}"/>">
                      </c:when>
                      <c:otherwise>
-                       <input onfocus="this.select()" type="text" name="label" value="<c:out value="${label}"/>" size="50" class="formfieldXL">
+                       <input onfocus="this.select()" type="text" name="label" value="<c:out value="${label}"/>" class="formfieldXL">
                      </c:otherwise>
                     </c:choose>
                     </div></td>
                     <td>*</td>
                 </tr>
-                <tr>
-                    <td><jsp:include page="showMessage.jsp"><jsp:param name="key" value="label"/></jsp:include></td>
-                </tr>
-                
+                <tr><td><jsp:include page="showMessage.jsp"><jsp:param name="key" value="label"/></jsp:include></td></tr>
             </table>
         </td>
     </tr>
     <c:choose>
     <c:when test="${study.studyParameterConfig.subjectPersonIdRequired =='required'}">
-    <tr valign="top">
+    <tr>
         <td class="formlabel"><fmt:message key="person_ID" bundle="${resword}"/>:</td>
-        <td valign="top">
-            <table border="0" cellpadding="0" cellspacing="0">
+        <td>
+            <table >
                 <tr>
-                    <td valign="top"><div class="formfieldXL_BG">
-                        <input onfocus="this.select()" type="text" name="uniqueIdentifier" value="<c:out value="${uniqueIdentifier}"/>" size="50" class="formfieldXL">
+                    <td><div class="formfieldXL_BG">
+                        <input onfocus="this.select()" type="text" name="uniqueIdentifier" value="<c:out value="${uniqueIdentifier}"/>" class="formfieldXL">
                     </div></td>
                     <td>*</td>
                 </tr>
-                <td colspan="2"><jsp:include page="showMessage.jsp"><jsp:param name="key" value="uniqueIdentifier"/></jsp:include></td>
+                <tr>
+                	<td colspan="2"><jsp:include page="showMessage.jsp"><jsp:param name="key" value="uniqueIdentifier"/></jsp:include></td>
+                </tr>
             </table>
         </td>
     </tr>
     </c:when>
     <c:when test="${study.studyParameterConfig.subjectPersonIdRequired =='optional'}">
-    <tr valign="top">
+    <tr>
         <td class="formlabel"><fmt:message key="person_ID" bundle="${resword}"/>:</td>
-        <td valign="top">
-            <table border="0" cellpadding="0" cellspacing="0">
+        <td>
+            <table>
                 <tr>
-                    <td valign="top"><div class="formfieldXL_BG">
+                    <td><div class="formfieldXL_BG">
                         <input onfocus="this.select()" type="text" name="uniqueIdentifier" value="<c:out value="${uniqueIdentifier}"/>" size="50" class="formfieldXL">
                     </div></td>
                     <td>&nbsp;</td>
@@ -146,21 +144,21 @@
     </c:otherwise>
     </c:choose>
 
-    <tr valign="top">
+    <tr>
 
         <td class="formlabel">
             <fmt:message key="enrollment_date" bundle="${resword}"/>:
         </td>
-        <td valign="top">
-            <table border="0" cellpadding="0" cellspacing="0">
+        <td>
+            <table>
                 <tr>
-                    <td valign="top">
-            <!--layer-background-color:white;-->
-            <div class="formfieldM_BG">
-                        <input onfocus="this.select()" type="text" name="enrollmentDate" size="15" value="<c:out value="${enrollmentDate}" />" class="formfieldM" id="enrollmentDateField" />
+                    <td>
+            		<div class="formfieldM_BG">
+                        <input onfocus="this.select()" type="text" name="enrollmentDate" value="<c:out value="${enrollmentDate}" />" class="formfieldM" id="enrollmentDateField" />
+                    </div>
                     </td>
                     <td>
-                    <A HREF="#">
+                    <a href="#">
                       <img src="images/bt_Calendar.gif" alt="<fmt:message key="show_calendar" bundle="${resword}"/>" title="<fmt:message key="show_calendar" bundle="${resword}"/>" border="0" id="enrollmentDateTrigger" />
                         <script type="text/javascript">
                         Calendar.setup({inputField  : "enrollmentDateField", ifFormat    : "<fmt:message key="date_format_calender" bundle="${resformat}"/>", button      : "enrollmentDateTrigger", customPX: 300, customPY: 10 });
@@ -176,13 +174,13 @@
         </td>
     </tr>
 
-    <tr valign="top">
+    <tr>
         <c:if test="${study.studyParameterConfig.genderRequired !='not used'}">
         <td class="formlabel"><fmt:message key="gender" bundle="${resword}"/>:</td>
-        <td valign="top">
-            <table border="0" cellpadding="0" cellspacing="0">
+        <td>
+            <table>
                 <tr>
-                    <td valign="top"><div class="formfieldS_BG">
+                    <td><div class="formfieldS_BG">
                         <select name="gender" class="formfieldS">
                             <option value="">-<fmt:message key="select" bundle="${resword}"/>-</option>
                             <c:choose>
@@ -204,8 +202,9 @@
                                 </c:otherwise>
                             </c:choose>
                             </select>
+                            </div>
                 </td>
-    <td align="left">
+    <td>
         <c:choose>
         <c:when test="${study.studyParameterConfig.genderRequired !='false'}">
            <span class="formlabel">*</span>
@@ -224,16 +223,18 @@
 
     <c:choose>
     <c:when test="${study.studyParameterConfig.collectDob == '1'}">
-    <tr valign="top">
+    <tr>
         <td class="formlabel"><fmt:message key="date_of_birth" bundle="${resword}"/>:</td>
-        <td valign="top">
-            <table border="0" cellpadding="0" cellspacing="0">
+        <td>
+            <table>
                 <tr>
-                    <td valign="top"><div class="formfieldM_BG">
-                        <input onfocus="this.select()" type="text" name="dob" size="15" value="<c:out value="${dob}" />" class="formfieldM" id="dobField" />
+                    <td>
+                    <div class="formfieldM_BG">
+                        <input onfocus="this.select()" type="text" name="dob" value="<c:out value="${dob}" />" class="formfieldM" id="dobField" />
+                    </div>
                     </td>
                     <td>
-                    <A HREF="#">
+                    <a href="#">
                       <img src="images/bt_Calendar.gif" alt="<fmt:message key="show_calendar" bundle="${resword}"/>" title="<fmt:message key="show_calendar" bundle="${resword}"/>" border="0" id="dobTrigger" />
                         <script type="text/javascript">
                         Calendar.setup({inputField  : "dobField", ifFormat    : "<fmt:message key="date_format_calender" bundle="${resformat}"/>", button      : "dobTrigger", customPX: 300, customPY: 10 });
@@ -251,14 +252,14 @@
 
     </c:when>
     <c:when test="${study.studyParameterConfig.collectDob == '2'}">
-    <tr valign="top">
+    <tr>
         <td class="formlabel"><fmt:message key="year_of_birth" bundle="${resword}"/>:</td>
-        <td valign="top">
-            <table border="0" cellpadding="0" cellspacing="0">
+        <td>
+            <table>
                 <tr>
-                    <td valign="top"><div class="formfieldM_BG">
-                        <input onfocus="this.select()" type="text" name="yob" size="15" value="<c:out value="${yob}" />" class="formfieldM" />
-                    </td>
+                    <td><div class="formfieldM_BG">
+                        <input onfocus="this.select()" type="text" name="yob"  value="<c:out value="${yob}" />" class="formfieldM" />
+                    </div></td>
                     <td>(<fmt:message key="date_format_year" bundle="${resformat}"/>) *</td>
                 </tr>
             </table>
@@ -270,7 +271,7 @@
 
   </c:when>
   <c:otherwise>
-    <input type="hidden" name="dob" value="" />
+		<input type="hidden" name="dob" value="" />
   </c:otherwise>
  </c:choose>
 <c:if test="${(!empty studyGroupClasses)}">
@@ -278,9 +279,9 @@
       <td class="formlabel"><fmt:message key="subject_group_class" bundle="${resword}"/>:
       <td class="table_cell">
       <c:set var="count" value="0"/>
-      <table border="0" cellpadding="0">
+      <table >
         <c:forEach var="group" items="${studyGroupClasses}">
-        <tr valign="top">
+        <tr>
          <td><b><c:out value="${group.name}"/></b></td>
          <td><div class="formfieldM_BG">
              <select name="studyGroupId<c:out value="${count}"/>" class="formfieldM">
@@ -293,7 +294,7 @@
 
               </td>
               <c:if test="${group.subjectAssignment=='Required'}">
-                <td align="left">*</td>
+                <td>*</td>
               </c:if>
               </tr>
              <c:set var="count" value="${count+1}"/>
@@ -303,10 +304,10 @@
     </tr>
 </c:if>
 
-    <tr valign="top">
+    <tr >
         <td class="formlabel"><fmt:message key="SED_2" bundle="${resword}"/>:</td>
-        <td valign="top">
-            <table border="0" cellpadding="0" cellspacing="0">
+        <td>
+            <table>
                 <tr><td>
                     <div class="formfieldS_BG">
                         <select name="studyEventDefinition" class="formfieldS">
@@ -328,19 +329,19 @@
         </td>
     </tr>
 
-    <tr valign="top">
+    <tr>
         <td class="formlabel">
             <fmt:message key="start_date" bundle="${resword}"/>:
         </td>
-          <td valign="top">
-            <table border="0" cellpadding="0" cellspacing="0">
+          <td>
+            <table>
                 <tr>
-                    <td valign="top">
+                    <td>
                         <div class="formfieldM_BG">
                         <input type="text" name="startDate" size="15" value="<c:out value="${startDate}" />" class="formfieldM" id="enrollmentDateField2" />
-                    </td>
+                    </div></td>
                     <td>
-                        <A HREF="#" >
+                        <a href="#" >
                          <img src="images/bt_Calendar.gif" alt="<fmt:message key="show_calendar" bundle="${resword}"/>" title="<fmt:message key="show_calendar" bundle="${resword}"/>" border="0" id="enrollmentDateTrigger2"/></a>*
                          <script type="text/javascript">
                          Calendar.setup({inputField  : "enrollmentDateField2", ifFormat    : "<fmt:message key="date_format_calender" bundle="${resformat}"/>", button      : "enrollmentDateTrigger2" ,customPX: 300, customPY: 10 });
@@ -358,10 +359,10 @@
     <c:when test="${study.studyParameterConfig.eventLocationRequired == 'required'}">
     <tr valign="top">
         <td class="formlabel"><fmt:message key="location" bundle="${resword}"/>:</td>
-        <td valign="top">
-            <table border="0" cellpadding="0" cellspacing="0">
+        <td >
+            <table>
                 <tr>
-                    <td valign="top"><div class="formfieldXL_BG">
+                    <td><div class="formfieldXL_BG">
                        <input type="text" name="location"size="50" value="<c:out value="${location}"/>" class="formfieldXL">
                     </div></td>
                     <td>*</td>
@@ -377,11 +378,11 @@
     <c:when test="${study.studyParameterConfig.eventLocationRequired == 'optional'}">
     <tr valign="top">
         <td class="formlabel"><fmt:message key="location" bundle="${resword}"/>:</td>
-        <td valign="top">
-            <table border="0" cellpadding="0" cellspacing="0">
+        <td>
+            <table>
                 <tr>
                     <td valign="top"><div class="formfieldXL_BG">
-                       <input type="text" name="location"size="50" class="formfieldXL">
+                       <input type="text" name="location" class="formfieldXL">
                     </div></td>
                     <td>&nbsp;</td>
                 </tr>
@@ -394,7 +395,7 @@
     </c:otherwise>
     </c:choose>
     <tr>
-        <td colspan="2" align="center">
+        <td colspan="2">
         <input type="submit" name="addSubject" value="<fmt:message key="add2" bundle="${resword}"/>" class="button" />
         &nbsp;
         <input type="button" id="cancel" name="cancel" value="   <fmt:message key="cancel" bundle="${resword}"/>" class="button"/>
@@ -404,7 +405,6 @@
     </tr>
 
 </table>
-
 </div>
-
 </form>
+<!-- start of addSubjectMonitor.jsp -->
