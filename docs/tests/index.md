@@ -13,7 +13,6 @@ test documentation for LibreClinica 1.0.0
 | [T005](tests/t005.md) | crf management |
 | [T006](tests/t006.md) | event definitions |
 | [T007](tests/t007.md) | subject group classes |
-| [T008](tests/t008.md) | rule management |
 | [T009](tests/t009.md) | site management |
 | [T010](tests/t010.md) | study user management |
 | [T011](tests/t011.md) | subject matrix |
