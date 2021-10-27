@@ -7,6 +7,12 @@
  */
 package org.akaza.openclinica.control.admin;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.akaza.openclinica.bean.core.EntityBean;
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.login.StudyUserRoleBean;
@@ -20,12 +26,6 @@ import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.akaza.openclinica.web.bean.EntityBeanTable;
 import org.akaza.openclinica.web.bean.UserAccountRow;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class ListUserAccountsServlet extends SecureController {
     /**
@@ -59,9 +59,9 @@ public class ListUserAccountsServlet extends SecureController {
 
         String[] columns =
             { resword.getString("user_name"), resword.getString("first_name"), resword.getString("last_name"), resword.getString("status"),
-                resword.getString("actions") };
+                        resword.getString("auth_type"), resword.getString("actions")};
         table.setColumns(new ArrayList<>(Arrays.asList(columns)));
-        table.hideColumnLink(4);
+        table.hideColumnLink(5);
         table.setQuery("ListUserAccounts", new HashMap<>());
         table.addLink(resword.getString("create_a_new_user"), "CreateUserAccount");
 

@@ -290,7 +290,7 @@ public class CreateSubStudyServlet extends SecureController {
 
     
         StudyBean newSite = this.createStudyBean();
-        StudyBean parentStudy = (StudyBean) new StudyDAO(sm.getDataSource()).findByPK(newSite.getParentStudyId());
+        StudyBean parentStudy = new StudyDAO(sm.getDataSource()).findByPK(newSite.getParentStudyId());
         session.setAttribute("newStudy", newSite);
         session.setAttribute("definitions", this.createSiteEventDefinitions(parentStudy,v));
 
@@ -390,7 +390,7 @@ public class CreateSubStudyServlet extends SecureController {
         ArrayList<StudyParamsConfig> parameters = study.getStudyParameters();
 
         for (int i = 0; i < parameters.size(); i++) {
-            StudyParamsConfig scg = (StudyParamsConfig) parameters.get(i);
+            StudyParamsConfig scg = parameters.get(i);
             String value = fp.getString(scg.getParameter().getHandle());
             logger.info("get value:" + value);
             scg.getValue().setParameter(scg.getParameter().getHandle());
@@ -425,21 +425,24 @@ public class CreateSubStudyServlet extends SecureController {
 
         study.setOwner(ub);
         study.setCreatedDate(new Date());
-        StudyBean parent = (StudyBean) sdao.findByPK(study.getParentStudyId());
+        StudyBean parent = sdao.findByPK(study.getParentStudyId());
         study.setType(parent.getType());
         // YW 10-10-2007, enable setting site status
         study.setStatus(study.getStatus());
         // YW >>
-
+        //set mail notification for site based on selection for parent study
+        study.setMailNotification(parent.getMailNotification());
+        study.setContactEmail(parent.getContactEmail());
+        
         study.setGenetic(parent.isGenetic());
-        study = (StudyBean) sdao.create(study);
+        study = sdao.create(study);
 
         StudyParameterValueDAO spvdao = new StudyParameterValueDAO(sm.getDataSource());
         for (int i = 0; i < parameters.size(); i++) {
-            StudyParamsConfig config = (StudyParamsConfig) parameters.get(i);
+            StudyParamsConfig config = parameters.get(i);
             StudyParameterValueBean spv = config.getValue();
             spv.setStudyId(study.getId());
-            spv = (StudyParameterValueBean) spvdao.create(config.getValue());
+            spv = spvdao.create(config.getValue());
         }
 
         // YW << here only "collectDob" and "genderRequired" have been corrected
@@ -481,10 +484,10 @@ public class CreateSubStudyServlet extends SecureController {
         	parentStudyBean = site;
         }else{
             StudyDAO studyDAO = new StudyDAO(sm.getDataSource());
-             parentStudyBean = (StudyBean) studyDAO.findByPK(site.getParentStudyId());          	
+             parentStudyBean = studyDAO.findByPK(site.getParentStudyId());          	
         }
         EventDefinitionCRFDAO edcdao = new EventDefinitionCRFDAO(sm.getDataSource());
-        ArrayList <EventDefinitionCRFBean> eventDefCrfList =(ArrayList <EventDefinitionCRFBean>) edcdao.findAllActiveSitesAndStudiesPerParentStudy(parentStudyBean.getId());
+        ArrayList <EventDefinitionCRFBean> eventDefCrfList =edcdao.findAllActiveSitesAndStudiesPerParentStudy(parentStudyBean.getId());
 
         ArrayList<StudyEventDefinitionBean> seds = new ArrayList<StudyEventDefinitionBean>();
         StudyBean parentStudy = new StudyDAO(sm.getDataSource()).findByPK(site.getParentStudyId());
@@ -538,7 +541,7 @@ public class CreateSubStudyServlet extends SecureController {
                         int dbDefaultVersionId = edcBean.getDefaultVersionId();
                         if (defaultVersionId != dbDefaultVersionId) {
                             changed = true;
-                            CRFVersionBean defaultVersion = (CRFVersionBean) cvdao.findByPK(defaultVersionId);
+                            CRFVersionBean defaultVersion = cvdao.findByPK(defaultVersionId);
                             edcBean.setDefaultVersionId(defaultVersionId);
                             edcBean.setDefaultVersionName(defaultVersion.getName());
                         }
@@ -583,7 +586,7 @@ public class CreateSubStudyServlet extends SecureController {
                         int defaultId = defaultVersionId > 0 ? defaultVersionId : edcBean.getDefaultVersionId();
                         if (defaultId != defaultVersionId) {
                             changed = true;
-                            CRFVersionBean defaultVersion = (CRFVersionBean) cvdao.findByPK(defaultVersionId);
+                            CRFVersionBean defaultVersion = cvdao.findByPK(defaultVersionId);
                             edcBean.setDefaultVersionId(defaultVersionId);
                             edcBean.setDefaultVersionName(defaultVersion.getName());
                         }
@@ -643,7 +646,7 @@ public class CreateSubStudyServlet extends SecureController {
        }
        errors = v.validate();
        StudyDAO studyDAO = new StudyDAO(sm.getDataSource());
-       ArrayList<StudyBean> allStudies = (ArrayList<StudyBean>) studyDAO.findAll();
+       ArrayList<StudyBean> allStudies = studyDAO.findAll();
        for (StudyBean thisBean : allStudies) {
            if (fp.getString("uniqueProId").trim().equals(thisBean.getIdentifier())) {
                Validator.addError(errors, "uniqueProId", resexception.getString("unique_protocol_id_existed"));
@@ -750,7 +753,7 @@ public class CreateSubStudyServlet extends SecureController {
         EventDefinitionCRFDAO edcdao = new EventDefinitionCRFDAO(sm.getDataSource());
         CRFVersionDAO cvdao = new CRFVersionDAO(sm.getDataSource());
         CRFDAO cdao = new CRFDAO(sm.getDataSource());
-        StudyBean parentStudy = (StudyBean) new StudyDAO(sm.getDataSource()).findByPK(site.getParentStudyId());
+        StudyBean parentStudy = new StudyDAO(sm.getDataSource()).findByPK(site.getParentStudyId());
         seds = sedDao.findAllByStudy(parentStudy);
         for (StudyEventDefinitionBean sed : seds) {
             String participateFormStatus = spvdao.findByHandleAndStudy(sed.getStudyId(), "participantPortal").getValue();
@@ -759,24 +762,24 @@ public class CreateSubStudyServlet extends SecureController {
 
             int defId = sed.getId();
             ArrayList<EventDefinitionCRFBean> edcs =
-                (ArrayList<EventDefinitionCRFBean>) edcdao.findAllByDefinitionAndSiteIdAndParentStudyId(defId, site.getId(), parentStudy.getId());
+                edcdao.findAllByDefinitionAndSiteIdAndParentStudyId(defId, site.getId(), parentStudy.getId());
             ArrayList<EventDefinitionCRFBean> defCrfs = new ArrayList<EventDefinitionCRFBean>();
             // sed.setCrfNum(edcs.size());
             for (EventDefinitionCRFBean edcBean : edcs) {
-                CRFBean cBean = (CRFBean) cdao.findByPK(edcBean.getCrfId());                
+                CRFBean cBean = cdao.findByPK(edcBean.getCrfId());                
                 String crfPath=sed.getOid()+"."+cBean.getOid();
                 edcBean.setOffline(getEventDefinitionCrfTagService().getEventDefnCrfOfflineStatus(2,crfPath,true));
             	
 
                 int edcStatusId = edcBean.getStatus().getId();
-                CRFBean crf = (CRFBean) cdao.findByPK(edcBean.getCrfId());
+                CRFBean crf = cdao.findByPK(edcBean.getCrfId());
                 int crfStatusId = crf.getStatusId();
                 if (edcStatusId == 5 || edcStatusId == 7 || crfStatusId == 5 || crfStatusId == 7) {
                 } else {
-                    ArrayList<CRFVersionBean> versions = (ArrayList<CRFVersionBean>) cvdao.findAllActiveByCRF(edcBean.getCrfId());
+                    ArrayList<CRFVersionBean> versions = cvdao.findAllActiveByCRF(edcBean.getCrfId());
                     edcBean.setVersions(versions);
                     edcBean.setCrfName(crf.getName());
-                    CRFVersionBean defaultVersion = (CRFVersionBean) cvdao.findByPK(edcBean.getDefaultVersionId());
+                    CRFVersionBean defaultVersion = cvdao.findByPK(edcBean.getDefaultVersionId());
                     edcBean.setDefaultVersionName(defaultVersion.getName());
                     edcBean.setSubmissionUrl("");
 

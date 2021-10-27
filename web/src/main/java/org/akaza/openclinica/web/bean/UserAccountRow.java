@@ -7,9 +7,9 @@
  */
 package org.akaza.openclinica.web.bean;
 
-import org.akaza.openclinica.bean.login.UserAccountBean;
-
 import java.util.ArrayList;
+
+import org.akaza.openclinica.bean.login.UserAccountBean;
 
 /**
  * @author ssachs
@@ -20,6 +20,7 @@ public class UserAccountRow extends EntityBeanRow<UserAccountBean, UserAccountRo
     public static final int COL_FIRSTNAME = 1;
     public static final int COL_LASTNAME = 2;
     public static final int COL_STATUS = 3;
+    public static final int COL_AUTHTYPE = 4;
 
     /*
      * (non-Javadoc)
@@ -50,6 +51,9 @@ public class UserAccountRow extends EntityBeanRow<UserAccountBean, UserAccountRo
         case COL_STATUS:
             answer = thisAccount.getStatus().compareTo(argAccount.getStatus());
             break;
+        case COL_AUTHTYPE:
+            answer = thisAccount.getAuthtype().compareTo(argAccount.getAuthtype());
+            break;
         }
 
         return answer;
@@ -57,7 +61,7 @@ public class UserAccountRow extends EntityBeanRow<UserAccountBean, UserAccountRo
 
     @Override
     public String getSearchString() {
-        UserAccountBean thisAccount = (UserAccountBean) bean;
+        UserAccountBean thisAccount = bean;
         return thisAccount.getName() + " " + thisAccount.getFirstName() + " " + thisAccount.getLastName();
     }
 

@@ -13,6 +13,7 @@
 <c:choose>
  <c:when test="${isAdminServlet == 'admin' && userBean.sysAdmin}">
    <c:import url="../include/admin-header.jsp"/>
+
  </c:when>
  <c:otherwise>
   <c:choose>
@@ -302,6 +303,7 @@
 
 <tr bgcolor="#F5F5F5"><td class="table_header_column" colspan="2"><fmt:message key="section" bundle="${resword}"/> F: <fmt:message key="study_parameter_configuration" bundle="${resword}"/></td></tr>
 
+
   <tr valign="top"><td class="table_header_column"><fmt:message key="collect_subject" bundle="${resword}"/></td>
    <td class="table_cell">
    <c:choose>
@@ -484,6 +486,7 @@
   </td>
   </tr>
 
+
   <tr valign="top"><td class="table_header_column"><fmt:message key="forced_reason_for_change" bundle="${resword}"/></td>
   <td class="table_cell">
    <c:choose>
@@ -496,6 +499,7 @@
   </c:choose>
   </td>
   </tr>
+
 
 </table>
 

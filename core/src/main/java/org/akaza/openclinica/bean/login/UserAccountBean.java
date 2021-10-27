@@ -7,6 +7,10 @@
  */
 package org.akaza.openclinica.bean.login;
 
+import static org.akaza.openclinica.domain.user.AuthType.MARKED;
+import static org.akaza.openclinica.domain.user.AuthType.STANDARD;
+import static org.akaza.openclinica.domain.user.AuthType.TWO_FACTOR;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -17,6 +21,7 @@ import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.core.UserType;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
+import org.akaza.openclinica.domain.user.AuthType;
 
 /**
  * @author thickerson
@@ -26,10 +31,6 @@ public class UserAccountBean extends AuditableEntityBean {
     /*
      * since we extend entity bean, we already have the following: user_id, user_name, owner_id, date_created, date_updated, update_id
      */
-
-    /**
-	 * 
-	 */
 	private static final long serialVersionUID = 5521122073133301334L;
 
 	/**
@@ -55,6 +56,8 @@ public class UserAccountBean extends AuditableEntityBean {
     private String time_zone;
     private boolean enableApiKey;
     private String apiKey;
+    private String authtype = AuthType.STANDARD.name();
+    private String authsecret;
 
     /**
      * Counts the number of times the user visited Main Menu servlet.
@@ -392,7 +395,7 @@ public class UserAccountBean extends AuditableEntityBean {
 
         Integer key = new Integer(sur.getStudyId());
         if (rolesByStudy.containsKey(key)) {
-            Integer index = (Integer) rolesByStudy.get(key);
+            Integer index = rolesByStudy.get(key);
             roles.set(index.intValue(), sur);
         } else {
             roles.add(sur);
@@ -408,8 +411,8 @@ public class UserAccountBean extends AuditableEntityBean {
         Integer key = new Integer(studyId);
 
         if (rolesByStudy.containsKey(key)) {
-            Integer index = (Integer) rolesByStudy.get(key);
-            StudyUserRoleBean s = (StudyUserRoleBean) roles.get(index.intValue());
+            Integer index = rolesByStudy.get(key);
+            StudyUserRoleBean s = roles.get(index.intValue());
 
             if (s != null && !s.getStatus().equals(Status.DELETED) && !s.getStatus().equals(Status.AUTO_DELETED)) {
                 return s;
@@ -569,6 +572,60 @@ public class UserAccountBean extends AuditableEntityBean {
 		this.enableApiKey = enableApiKey;
 	}
 
+    public String getAuthtype() {
+        if (!AuthType.isValid(this.authtype)) {
+            this.authtype = STANDARD.name();
+        }
+        return authtype;
+    }
 
+    public void setAuthtype(String authtype) {
+        if (!AuthType.isValid(authtype)) {
+            this.authtype = STANDARD.name();
+            return;
+        }
+        this.authtype = authtype;
+    }
 
+    public boolean isAuthsecretPresent() {
+        return !isAuthsecretAbsent();
+    }
+
+    public boolean isAuthsecretAbsent() {
+        return null == authsecret || "".equals(authsecret);
+    }
+
+    public String getAuthsecret() {
+        return authsecret;
+    }
+
+    public void setAuthsecret(String authsecret) {
+        this.authsecret = authsecret;
+    }
+
+    /**
+	 * Returns true if according user has actives 2-FA - false otherwise.
+	 */
+    public boolean isTwoFactorActivated() {
+        return TWO_FACTOR.name().equals(this.authtype);
+    }
+
+	/**
+	 * Returns true if according user is deactivated for 2-FA.
+	 */
+	public boolean isTwoFactorDeactivated() {
+        return STANDARD.name().equals(this.authtype);
+	}
+
+	/**
+	 * Returns true if according user is marked to use 2-FA in the future - false
+	 * otherwise.
+	 */
+	public boolean isTwoFactorMarked() {
+        return MARKED.name().equals(this.authtype);
+	}
+
+    public boolean isTwoFactorMarkedOrActivated() {
+        return isTwoFactorMarked() || isTwoFactorActivated();
+    }
 }

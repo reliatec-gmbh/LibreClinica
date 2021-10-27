@@ -153,13 +153,9 @@
     <div id="addSubjectForm" style="display:none;">
          <c:import url="addSubjectMonitor.jsp"/>
     </div>
-
-
 </c:if>
 
 <c:if test="${userRole.coordinator || userRole.director}">
-
-
     <script type="text/javascript">
     function onInvokeAction(id,action) {
         if(id.indexOf('studySiteStatistics') == -1)  {
@@ -173,9 +169,7 @@
         }
         createHiddenInputFieldsForLimitAndSubmit(id);
     }
-
     </script>
-
 <table>
 <tr>
     <td valign="top">
@@ -190,7 +184,6 @@
     </td>
 </tr>
 </table>
-
 
 <table>
 <tr>
@@ -207,12 +200,9 @@
     </td>
 </tr>
 </table>
-
 </c:if>
 
 <c:if test="${userRole.monitor}">
-
-
 <script type="text/javascript">
     function onInvokeAction(id,action) {
         setExportToLimit(id, '');
@@ -266,10 +256,7 @@
              <input type="submit" name="sdvAllFormSubmit" class="button_medium" value="<fmt:message key="submit" bundle="${resword}"/>" onclick="this.form.method='POST';this.form.action='${pageContext.request.contextPath}/pages/handleSDVPost';this.form.submit();"/>
              <input type="submit" name="sdvAllFormCancel" class="button_medium" value="<fmt:message key="cancel" bundle="${resword}"/>" onclick="this.form.action='${pageContext.request.contextPath}/pages/viewAllSubjectSDVtmp';this.form.submit();"/>
        </c:if>
-        </form>
-
+	</form>
 </div>
 </c:if>
-
-
 <jsp:include page="include/footer.jsp"/>
