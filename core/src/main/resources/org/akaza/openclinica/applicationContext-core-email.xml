@@ -34,6 +34,8 @@
         <property name="mailSender" ref="mailSender"/>
      </bean>
      
-     
+      <bean id="mailNotificationService" class="org.akaza.openclinica.service.otp.MailNotificationService">
+        <property name="mailSender" ref="openClinicaMailSender"/>
+     </bean>
      
 </beans>

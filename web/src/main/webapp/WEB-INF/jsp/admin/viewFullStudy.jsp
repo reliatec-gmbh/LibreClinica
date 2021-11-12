@@ -242,6 +242,8 @@
    <c:out value="${studyToView.allocation}"/>&nbsp;
   </td></tr>
 
+
+
   <tr valign="top"><td class="table_header_column">
   	<a href="http://prsinfo.clinicaltrials.gov/definitions.html#IntMasking" target="def_win" onClick="openDefWindow('http://prsinfo.clinicaltrials.gov/definitions.html#IntMasking'); return false;"><fmt:message key="masking" bundle="${resword}"/></a>:</td><td class="table_cell">
     <c:out value="${studyToView.masking}"/>&nbsp;
@@ -657,7 +659,30 @@
             <fmt:message key="${studyToView.studyParameterConfig.eventLocationRequired}" bundle="${resword}"/>
        </td>
     </tr>
-    
+	
+    <tr valign="top">
+        <td class="table_header_column">
+        	<fmt:message key="mailNotification" bundle="${resword}"/>
+        </td>
+        <td class="table_cell">
+		   <c:choose>
+			   <c:when test="${studyToView.mailNotification eq 'ENABLED'}">
+					<fmt:message key="mailNotification_Type.ENABLED" bundle="${resword}"/>
+			   </c:when>
+			   <c:otherwise>
+			   		<fmt:message key="mailNotification_Type.DISABLED" bundle="${resword}"/>
+			   </c:otherwise>
+		  </c:choose>
+  		</td>
+    </tr>	
+    <tr valign="top">
+        <td class="table_header_column">
+        	<fmt:message key="contactEmail" bundle="${resword}"/>
+        </td>
+        <td class="table_cell">
+		   <c:out value="${studyToView.contactEmail eq null or studyToView.contactEmail eq '' ? 'none' : studyToView.contactEmail}" />
+  		</td>
+    </tr>
     
     <c:if test="${portalURL!= '' && portalURL!= null}">   
     <tr valign="top">
@@ -666,8 +691,7 @@
             <fmt:message key="${studyToView.studyParameterConfig.participantPortal}" bundle="${resword}"/>
        </td>
       </tr>
-   </c:if>
-    
+   </c:if>    
 
     <c:if test="${moduleManager!= '' && moduleManager!= null}">
     <tr valign="top">

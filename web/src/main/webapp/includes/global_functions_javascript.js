@@ -1841,3 +1841,22 @@ if(BrowserDetect.browser=='Explorer' && BrowserDetect.version<7)
 	document.write('.dropdown { background-image: url(images/dropdown_BG.gif); }');
 	document.write('</style>');
 }
+
+/**
+ * Function handles the enabling and disabling of dependant field when study is getting configured for 
+ * automatic login e-mail notification. Release to creation or editing of study entry.
+ */
+function onMailNotificationClick() {
+	var mailNotificationDisabled = window.document.getElementById("mailNotification_DISABLED")
+	var contactEmail = window.document.getElementById("contactEmail");
+	
+	if (mailNotificationDisabled == null || contactEmail == null) {
+		alert("E-mail notification: Mandatory element identifier seem to be changed.");
+		return;
+	}
+				
+	contactEmail.disabled = mailNotificationDisabled.checked;
+	if (contactEmail.disabled) {
+		contactEmail.value = "";
+	}
+}

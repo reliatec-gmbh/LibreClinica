@@ -7,6 +7,8 @@
  */
 package org.akaza.openclinica.control.admin;
 
+import static org.springframework.web.context.support.WebApplicationContextUtils.getWebApplicationContext;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -32,8 +34,10 @@ import org.akaza.openclinica.dao.hibernate.AuthoritiesDao;
 import org.akaza.openclinica.dao.login.UserAccountDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.domain.user.AuthoritiesBean;
-import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.domain.user.LdapUser;
+import org.akaza.openclinica.i18n.core.LocaleResolver;
+import org.akaza.openclinica.service.otp.TowFactorBean;
+import org.akaza.openclinica.service.otp.TwoFactorService;
 import org.akaza.openclinica.service.user.LdapUserService;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
@@ -47,9 +51,8 @@ import org.akaza.openclinica.web.SQLInitServlet;
 public class CreateUserAccountServlet extends SecureController {
 
 	private static final long serialVersionUID = -3015174087186096328L;
-
+    
     Locale locale;
-
     public static final String INPUT_USER_SOURCE = "userSource";
     public static final String INPUT_USERNAME = "userName";
     public static final String INPUT_FIRST_NAME = "firstName";
@@ -62,6 +65,7 @@ public class CreateUserAccountServlet extends SecureController {
     public static final String INPUT_DISPLAY_PWD = "displayPwd";
     public static final String INPUT_RUN_WEBSERVICES = "runWebServices";
     public static final String USER_ACCOUNT_NOTIFICATION = "notifyPassword";
+    public static final String INPUT_AUTHTYPE = "authtype";
 
     /*
      * (non-Javadoc)
@@ -168,7 +172,7 @@ public class CreateUserAccountServlet extends SecureController {
         request.setAttribute("activeStudy", activeStudy);
         if (!fp.isSubmitted() || changeRoles) {
             String textFields[] = { INPUT_USER_SOURCE, INPUT_USERNAME, INPUT_FIRST_NAME, INPUT_LAST_NAME, INPUT_EMAIL,
-                    INPUT_INSTITUTION, INPUT_DISPLAY_PWD };
+                    INPUT_INSTITUTION, INPUT_DISPLAY_PWD, INPUT_AUTHTYPE};
             fp.setCurrentStringValuesAsPreset(textFields);
 
             String ddlbFields[] = { INPUT_STUDY, INPUT_ROLE, INPUT_TYPE, INPUT_RUN_WEBSERVICES };
@@ -218,6 +222,7 @@ public class CreateUserAccountServlet extends SecureController {
                 createdUserAccountBean.setLastName(fp.getString(INPUT_LAST_NAME));
                 createdUserAccountBean.setEmail(fp.getString(INPUT_EMAIL));
                 createdUserAccountBean.setInstitutionalAffiliation(fp.getString(INPUT_INSTITUTION));
+                createdUserAccountBean.setAuthtype(fp.getString(INPUT_AUTHTYPE));
 
                 boolean isLdap = fp.getString(INPUT_USER_SOURCE).equals("ldap");
                 boolean isSoap = fp.getBoolean(INPUT_RUN_WEBSERVICES);
@@ -231,10 +236,8 @@ public class CreateUserAccountServlet extends SecureController {
                 }
 
                 createdUserAccountBean.setPasswd(passwordHash);
-
                 createdUserAccountBean.setPasswdTimestamp(null);
                 createdUserAccountBean.setLastVisitDate(null);
-
                 createdUserAccountBean.setStatus(Status.AVAILABLE);
                 createdUserAccountBean.setPasswdChallengeQuestion("");
                 createdUserAccountBean.setPasswdChallengeAnswer("");
@@ -243,6 +246,14 @@ public class CreateUserAccountServlet extends SecureController {
                 createdUserAccountBean.setRunWebservices(isSoap);
                 createdUserAccountBean.setAccessCode("null");
                 createdUserAccountBean.setEnableApiKey(true);
+
+                if (createdUserAccountBean.isTwoFactorMarked()) {
+                    TwoFactorService factorService = (TwoFactorService) getWebApplicationContext(getServletContext()).getBean("factorService");
+                    if (factorService.isTwoFactorLetter()) {
+                        TowFactorBean bean = factorService.generate();
+                        createdUserAccountBean.setAuthsecret(bean.getAuthSecret());
+                    }
+                }
                 
                 String apiKey;
                 do {
@@ -288,7 +299,7 @@ public class CreateUserAccountServlet extends SecureController {
                     forwardPage(Page.LIST_USER_ACCOUNTS_SERVLET);
                 }
             } else {
-                String textFields[] = { INPUT_USERNAME, INPUT_FIRST_NAME, INPUT_LAST_NAME, INPUT_EMAIL, INPUT_INSTITUTION, INPUT_DISPLAY_PWD,INPUT_USER_SOURCE };
+                String textFields[] = {INPUT_USERNAME, INPUT_FIRST_NAME, INPUT_LAST_NAME, INPUT_EMAIL, INPUT_INSTITUTION, INPUT_DISPLAY_PWD, INPUT_USER_SOURCE, INPUT_AUTHTYPE};
                 fp.setCurrentStringValuesAsPreset(textFields);
 
                 String ddlbFields[] = { INPUT_STUDY, INPUT_ROLE, INPUT_TYPE, INPUT_RUN_WEBSERVICES };

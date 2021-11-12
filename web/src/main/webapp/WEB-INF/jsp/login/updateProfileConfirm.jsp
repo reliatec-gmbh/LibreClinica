@@ -1,4 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
+<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
@@ -40,11 +41,15 @@
 		<tr><td class="table_header_column"><fmt:message key="default_active_study" bundle="${resword}"/>:</td><td class="table_cell"><c:out value="${newActiveStudy.name}"/></td></tr>
 		<tr><td class="table_header_column"><fmt:message key="password_challenge_question" bundle="${resword}"/>:</td><td class="table_cell"><c:out value="${userBean1.passwdChallengeQuestion}"/></td></tr>
 		<tr><td class="table_header_column"><fmt:message key="password_challenge_answer" bundle="${resword}"/>:</td><td class="table_cell"><c:out value="${userBean1.passwdChallengeAnswer}"/></td></tr>
-		<tr><td class="table_header_column"><fmt:message key="phone" bundle="${resword}"/>:</td><td class="table_cell"><c:out value="${userBean1.phone}"/></td></tr>	  
+		<tr><td class="table_header_column"><fmt:message key="phone" bundle="${resword}"/>:</td><td class="table_cell"><c:out value="${userBean1.phone}"/></td></tr>
+		<c:if test="${factorService.twoFactorActivated}">
+			<tr><td class="table_header_column"><fmt:message key="auth_type" bundle="${resword}"/>:</td><td class="table_cell"><fmt:message key="auth_type.${userBean1.authtype}" bundle="${resword}"/></td></tr>
+		</c:if>
 	</table>
 </div>
 
 <input type="submit" name="Submit" value="<fmt:message key="update_profile" bundle="${resword}"/>" class="button_long">
 <input type="button" onclick="confirmCancel('MainMenu');"  name="cancel" value="   <fmt:message key="cancel" bundle="${resword}"/>   " class="button_medium"/>
+	
 </form>
 <jsp:include page="../include/footer.jsp"/>

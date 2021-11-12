@@ -76,7 +76,10 @@ public class UpdateSubStudyServlet extends SecureController {
 
         StudyDAO sdao = new StudyDAO(sm.getDataSource());
         StudyBean study = (StudyBean) session.getAttribute("newStudy");
-        parentStudy = (StudyBean) sdao.findByPK(study.getParentStudyId());
+        parentStudy = sdao.findByPK(study.getParentStudyId());
+        //set mail notification for site based on selection for parent study
+        study.setMailNotification(parentStudy.getMailNotification());
+        study.setContactEmail(parentStudy.getContactEmail());
 
         logger.info("study from session:" + study.getName() + "\n" + study.getCreatedDate() + "\n");
         String action = request.getParameter("action");
@@ -157,7 +160,7 @@ public class UpdateSubStudyServlet extends SecureController {
 
         // >> tbh
         StudyDAO studyDAO = new StudyDAO(sm.getDataSource());
-        ArrayList<StudyBean> allStudies = (ArrayList<StudyBean>) studyDAO.findAll();
+        ArrayList<StudyBean> allStudies = studyDAO.findAll();
         StudyBean oldStudy = (StudyBean) session.getAttribute("newStudy");
         for (StudyBean thisBean : allStudies) {
             if (fp.getString("uniqueProId").trim().equals(thisBean.getIdentifier()) && !thisBean.getIdentifier().equals(oldStudy.getIdentifier())) {
@@ -203,7 +206,7 @@ public class UpdateSubStudyServlet extends SecureController {
         } else {
 
         	StudyBean studyCheck = (StudyBean) session.getAttribute("newStudy");
-            parentStudy = (StudyBean) studyDAO.findByPK(studyCheck.getParentStudyId());
+            parentStudy = studyDAO.findByPK(studyCheck.getParentStudyId());
             StudyParameterValueDAO spvdao = new StudyParameterValueDAO(sm.getDataSource());    
             String participateFormStatus = spvdao.findByHandleAndStudy(parentStudy.getId(), "participantPortal").getValue();
             request.setAttribute("participateFormStatus",participateFormStatus );
@@ -298,7 +301,7 @@ public class UpdateSubStudyServlet extends SecureController {
         ArrayList<StudyParamsConfig> parameters = study.getStudyParameters();
 
         for (int i = 0; i < parameters.size(); i++) {
-            StudyParamsConfig scg = (StudyParamsConfig) parameters.get(i);
+            StudyParamsConfig scg = parameters.get(i);
             String value = fp.getString(scg.getParameter().getHandle());
             logger.info("get value:" + value);
             scg.getValue().setStudyId(study.getId());
@@ -391,7 +394,7 @@ public class UpdateSubStudyServlet extends SecureController {
                         int dbDefaultVersionId = edcBean.getDefaultVersionId();
                         if (defaultVersionId != dbDefaultVersionId) {
                             changed = true;
-                            CRFVersionBean defaultVersion = (CRFVersionBean) cvdao.findByPK(defaultVersionId);
+                            CRFVersionBean defaultVersion = cvdao.findByPK(defaultVersionId);
                             edcBean.setDefaultVersionId(defaultVersionId);
                             edcBean.setDefaultVersionName(defaultVersion.getName());
                         }
@@ -453,7 +456,7 @@ public class UpdateSubStudyServlet extends SecureController {
                         changed = changed || (sdvId > 0 && sdvId != edcBean.getSourceDataVerification().getCode());
 
                         if (changed) {
-                            CRFVersionBean defaultVersion = (CRFVersionBean) cvdao.findByPK(defaultId);
+                            CRFVersionBean defaultVersion = cvdao.findByPK(defaultId);
                             edcBean.setDefaultVersionId(defaultId);
                             edcBean.setDefaultVersionName(defaultVersion.getName());
                             edcBean.setRequiredCRF(isRequired);
@@ -548,14 +551,14 @@ public class UpdateSubStudyServlet extends SecureController {
 
         StudyParameterValueDAO spvdao = new StudyParameterValueDAO(sm.getDataSource());
         for (int i = 0; i < parameters.size(); i++) {
-            StudyParamsConfig config = (StudyParamsConfig) parameters.get(i);
+            StudyParamsConfig config = parameters.get(i);
             StudyParameterValueBean spv = config.getValue();
 
             StudyParameterValueBean spv1 = spvdao.findByHandleAndStudy(spv.getStudyId(), spv.getParameter());
             if (spv1.getId() > 0) {
-                spv = (StudyParameterValueBean) spvdao.update(spv);
+                spv = spvdao.update(spv);
             } else {
-                spv = (StudyParameterValueBean) spvdao.create(spv);
+                spv = spvdao.create(spv);
             }
             // spv = (StudyParameterValueBean)spvdao.update(config.getValue());
 

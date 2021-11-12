@@ -183,8 +183,7 @@ public class CoreResources implements ResourceLoaderAware {
             logger.debug(e.toString());
             throw new OpenClinicaSystemException(e.getMessage(), e.fillInStackTrace());
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.error("Unexpected Exception", e);
         }
     }
 
@@ -417,12 +416,10 @@ public class CoreResources implements ResourceLoaderAware {
     }
 
     private void setRuleDesignerProps() {
-
         DATAINFO.setProperty("designer.url", DATAINFO.getProperty("designerURL"));
     }
 
     private void setDatabaseProperties(String database) {
-
         DATAINFO.setProperty("username", DATAINFO.getProperty("dbUser"));
         DATAINFO.setProperty("password", DATAINFO.getProperty("dbPass"));
         String url = null, driver = null, hibernateDialect = null;
@@ -909,11 +906,4 @@ public class CoreResources implements ResourceLoaderAware {
     public Properties getDATAINFO() {
         return DATAINFO;
     }
-
-    // // TODO comment out system out after dev
-    // private static void logMe(String message) {
-    // System.out.println(message);
-    // logger.info(message);
-    // }
-
 }
