@@ -13,7 +13,7 @@
 	</changeSet>
 	
 	<changeSet id="2" author="jbley">
-		<comment>Creating index on 'user_account' for newly created attribute.</comment>
+		<comment>Creating index on 'study' for newly created attribute.</comment>
 	
 		<createIndex indexName="ix1_study" tableName="study" unique="false">
 			<column name="mail_notification" />

@@ -169,6 +169,30 @@
   <tr valign="top"><td class="table_header_column"><fmt:message key="collaborators" bundle="${resword}"/>:</td><td class="table_cell">
   <c:out value="${studyToView.collaborators}"/>&nbsp;
   </td></tr>
+  
+  <tr valign="top">
+	  <td class="table_header_column">
+      	<fmt:message key="mailNotification" bundle="${resword}"/>:
+      </td>
+      <td class="table_cell">
+		   <c:choose>
+			<c:when test="${studyToView.mailNotification eq 'ENABLED'}">
+				<fmt:message key="mailNotification_Type.ENABLED" bundle="${resword}"/>
+			</c:when>
+			<c:otherwise>
+				<fmt:message key="mailNotification_Type.DISABLED" bundle="${resword}"/>
+			</c:otherwise>
+		</c:choose>
+	</td>
+  </tr>	
+  <tr valign="top">
+      <td class="table_header_column">
+      	<fmt:message key="contactEmail" bundle="${resword}"/>:
+      </td>
+      <td class="table_cell">
+		<c:out value="${studyToView.contactEmail eq null or studyToView.contactEmail eq '' ? 'none' : studyToView.contactEmail}" />
+	  </td>
+  </tr>  
   </table>
 </div>
 </div></div></div></div></div></div></div></div>
@@ -659,31 +683,7 @@
             <fmt:message key="${studyToView.studyParameterConfig.eventLocationRequired}" bundle="${resword}"/>
        </td>
     </tr>
-	
-    <tr valign="top">
-        <td class="table_header_column">
-        	<fmt:message key="mailNotification" bundle="${resword}"/>
-        </td>
-        <td class="table_cell">
-		   <c:choose>
-			   <c:when test="${studyToView.mailNotification eq 'ENABLED'}">
-					<fmt:message key="mailNotification_Type.ENABLED" bundle="${resword}"/>
-			   </c:when>
-			   <c:otherwise>
-			   		<fmt:message key="mailNotification_Type.DISABLED" bundle="${resword}"/>
-			   </c:otherwise>
-		  </c:choose>
-  		</td>
-    </tr>	
-    <tr valign="top">
-        <td class="table_header_column">
-        	<fmt:message key="contactEmail" bundle="${resword}"/>
-        </td>
-        <td class="table_cell">
-		   <c:out value="${studyToView.contactEmail eq null or studyToView.contactEmail eq '' ? 'none' : studyToView.contactEmail}" />
-  		</td>
-    </tr>
-    
+	    
     <c:if test="${portalURL!= '' && portalURL!= null}">   
     <tr valign="top">
         <td class="table_header_column"><fmt:message key="participant_portal" bundle="${resword}"/></td>
