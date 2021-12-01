@@ -20,6 +20,7 @@
 	<td class="table_cell"><c:out value="${currRow.bean.firstName}" /></td>
 	<td class="table_cell"><c:out value="${currRow.bean.lastName}" /></td>
 	<td class="table_cell"><c:out value="${currRow.bean.status.name}" /></td>
+	<td class="table_cell"><fmt:message key="auth_type.${currRow.bean.authtype}" bundle="${resword}" /></td>
 	
 	<%-- ACTIONS --%>
 	<td class="table_cell">
@@ -60,7 +61,15 @@
 		          onMouseDown="javascript:setImage('bt_SetRole1','images/bt_SetRole_d.gif');"
 		          onMouseUp="javascript:setImage('bt_SetRole1','images/bt_SetRole.gif');"><img 
 		          name="bt_SetRole1" src="images/bt_SetRole.gif" border="0" alt="<fmt:message key="set_role" bundle="${resword}"/>" title="<fmt:message key="set_role" bundle="${resword}"/>" align="left" hspace="6"></a>
-		        </td>		
+		        </td>
+		        <c:if test="${factorService.twoFactorActivatedLetter && currRow.bean.twoFactorMarkedOrActivated}">
+		        	<!-- Only display this anchor when accoring setting is active! -->
+					<td><a href="PrintoutCertificate?userId=<c:out value="${currRow.bean.id}"/>" target="_blank" 
+			          onMouseDown="javascript:setImage('bt_Print', 'images/bt_Print_d.gif');"
+			          onMouseUp="javascript:setImage('bt_Print', 'images/bt_Print.gif');"><img 
+			          name="bt_Print" src="images/bt_Print.gif" border="0" alt="<fmt:message key="2fa.printout" bundle="${resword}"/>" title="<fmt:message key="2fa.printout" bundle="${resword}"/>" align="left" hspace="6"></a>
+			        </td>
+		        </c:if>
 		
 				<c:set var="confirmQuestion">
 				 <fmt:message key="are_you_sure_you_want_to_remove" bundle="${resword}">
@@ -75,11 +84,11 @@
 					<img name="bt_Remove1" src="images/bt_Remove.gif" border="0" alt="<fmt:message key="remove" bundle="${resword}"/>" title="<fmt:message key="remove" bundle="${resword}"/>" align="left" hspace="6"></a>
 				&nbsp;</td>
 				<c:if test='${currRow.bean.status.locked}'>
-				<td><a href="UnLockUser?userId=<c:out value="${currRow.bean.id}"/>"
-                    onMouseDown="javascript:setImage('bt_Unlock1','images/bt_Unlock.gif');"
-                    onMouseUp="javascript:setImage('bt_Unlock1','images/bt_Unlock.gif');"
-                    ><img name="bt_Unlock1" src="images/bt_Unlock.gif" border="0" alt="<fmt:message key="unlock" bundle="${resword}"/>" title="<fmt:message key="unlock" bundle="${resword}"/>" align="left" hspace="6"></a>
-                </td>
+					<td><a href="UnLockUser?userId=<c:out value="${currRow.bean.id}"/>"
+	                    onMouseDown="javascript:setImage('bt_Unlock1','images/bt_Unlock.gif');"
+	                    onMouseUp="javascript:setImage('bt_Unlock1','images/bt_Unlock.gif');"
+	                    ><img name="bt_Unlock1" src="images/bt_Unlock.gif" border="0" alt="<fmt:message key="unlock" bundle="${resword}"/>" title="<fmt:message key="unlock" bundle="${resword}"/>" align="left" hspace="6"></a>
+	                </td>
                 </c:if>
 			</c:otherwise>
 			</c:choose>			
@@ -137,7 +146,7 @@
 			<c:set var="onClick" value="return confirm('${confirmQuestion}');"/>
 			<tr valign="top">
 				<td class="table_cell_left">&nbsp;</td>
-				<td class="table_cell" colspan="3" >
+				<td class="table_cell" colspan="4" >
 					<c:if test='${sur.status.deleted}'>
 						<font color='gray'>
 					</c:if>

@@ -7,6 +7,8 @@
  */
 package org.akaza.openclinica.dao.login;
 
+import static org.akaza.openclinica.dao.core.TypeNames.STRING;
+
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
@@ -28,6 +30,7 @@ import org.akaza.openclinica.dao.core.SQLFactory;
 import org.akaza.openclinica.dao.core.TypeNames;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * <P>
@@ -55,6 +58,7 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
         getNextPKName = "getNextPK";
     }
 
+    @Autowired
     public UserAccountDAO(DataSource ds) {
         super(ds);
         setQueryNames();
@@ -98,6 +102,8 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
         this.setTypeExpected(25, TypeNames.STRING);    // timezone
         this.setTypeExpected(26, TypeNames.BOOL);      // enable_api_key 
         this.setTypeExpected(27, TypeNames.STRING);    // api_key
+        this.setTypeExpected(28, TypeNames.STRING);    // authtype
+        this.setTypeExpected(29, TypeNames.STRING);    // authsecret
     }
 
     public void setPrivilegeTypesExpected() {
@@ -128,7 +134,7 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
     public UserAccountBean update(UserAccountBean uab) {
         HashMap<Integer, Object> variables = new HashMap<>();
 		HashMap<Integer, Integer> nullVars = new HashMap<>();
-
+        
         // update user_account set date_lastvisit=?, passwd_timestamp=?, passwd_challenge_question=?, passwd_challenge_answer=?, phone=? where user_name=?
 
         variables.put(1, uab.getName());
@@ -192,11 +198,13 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
             nullVars.put(22, TypeNames.STRING);
             variables.put(22, null);
         } else {
-        variables.put(22, uab.getApiKey());
+            variables.put(22, uab.getApiKey());
         }
-        
-        variables.put(23, uab.getId());
 
+        variables.put(23, uab.getAuthtype());
+        variables.put(24, uab.getAuthsecret());
+        // Identifier at last position!!!
+        variables.put(25, uab.getId());
 
         String sql = digester.getQuery("update");
         this.executeUpdate(sql, variables, nullVars);
@@ -275,13 +283,20 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
         } else {
             variables.put(14, UserType.USER.getId());
         }
-
+        
         variables.put(15, uab.getRunWebservices());
         variables.put(16, uab.getAccessCode());
         variables.put(17, uab.isEnableApiKey());
         variables.put(18, uab.getApiKey());
+        variables.put(19, uab.getAuthtype());
+        variables.put(20, uab.getAuthsecret());
 
-        this.executeUpdate(digester.getQuery("insert"), variables);
+        HashMap<Integer, Integer> nullables = new HashMap<>();
+        if (uab.isAuthsecretAbsent()) {
+            nullables.put(20, STRING);
+        }
+
+        this.executeUpdate(digester.getQuery("insert"), variables, nullables);
         boolean success = isQuerySuccessful();
 
         setSysAdminRole(uab, true);
@@ -401,6 +416,8 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
         String time_zone = (String) hm.get("time_zone");
         Boolean enableApiKey = (Boolean) hm.get("enable_api_key");
         String apiKey = (String) hm.get("api_key");
+        String authtype = (String) hm.get("authtype");
+        String authsecret = (String) hm.get("authsecret");
 
         // begin to set objects in the bean
         eb.setId(userId);
@@ -421,6 +438,8 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
         eb.setTime_zone(time_zone);
         eb.setEnableApiKey(enableApiKey);
         eb.setApiKey(apiKey);
+        eb.setAuthsecret(authsecret);
+        eb.setAuthtype(authtype);
         eb.setOwnerId(ownerId);
         eb.setUpdaterId(updateId);
 

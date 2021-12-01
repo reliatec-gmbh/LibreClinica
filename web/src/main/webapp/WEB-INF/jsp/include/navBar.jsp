@@ -292,6 +292,22 @@
         </div>
         <br clear="all">
         </c:if>
+        
+        <c:if test="${userRole.monitor || userRole.investigator || userBean.sysAdmin || userBean.techAdmin}">
+			<div class="taskGroup">Manual Download</div>
+			<div class="taskLeftColumn">
+				<c:if test="${userRole.investigator || userBean.sysAdmin || userBean.techAdmin}">
+					<div class="taskLink"><a href="manuals/investigator-manual.pdf" target="_blank">Investigator Manual</a></div>
+				</c:if>
+			</div>
+			<div class="taskRightColumn">
+				<c:if test="${userRole.monitor || userBean.sysAdmin || userBean.techAdmin}">
+					<div class="taskLink"><a href="manuals/monitor-manual.pdf" target="_blank">Monitor Manual</a></div>
+				</c:if>
+			</div>
+			<br clear="all">
+        </c:if>
+        
         <c:if test="${userBean.sysAdmin || userBean.techAdmin}">
         <div class="taskGroup"><fmt:message key="nav_administration" bundle="${resword}"/></div>
         <div class="taskLeftColumn">

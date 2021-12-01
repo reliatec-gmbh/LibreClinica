@@ -1,4 +1,8 @@
 <%@ include file="/WEB-INF/jsp/taglibs.jsp" %>
+<%@ page import="org.springframework.web.servlet.support.RequestContextUtils" %>
+<%@ page import="org.springframework.context.ApplicationContext" %>
+<%@ page import="org.akaza.openclinica.service.otp.TwoFactorService" %>
+
 <!-- For Mantis Issue 6099 -->
 <jsp:useBean scope='session' id='userBean' class='org.akaza.openclinica.bean.login.UserAccountBean'/>
 
@@ -30,10 +34,18 @@
 	<script type="text/JavaScript" language="JavaScript" src="<c:url value='/includes/ua-parser.min.js'/>"></script>
 </head>
 
+<%
+ApplicationContext appContext = RequestContextUtils.findWebApplicationContext(request);
+TwoFactorService factorService = (TwoFactorService) appContext.getBean("factorService");
+
+request.setAttribute("factorService", factorService);
+session.setAttribute("factorService", factorService);
+%>
+
 <body  onload="document.getElementById('username').focus();">
 <!-- start of login/login.jsp -->
  
-    <div class="login_BG"> 
+    <div class="login_BG">
 
     <!-- LibreClinica logo -->
 	<%String ua = request.getHeader( "User-Agent" );
@@ -69,7 +81,7 @@
         }
     </script>
             </table>
-
+        
 	<table class="loginBoxes">
     	<tr>
         	<td class="loginBox_T">&nbsp;</td>
@@ -80,25 +92,32 @@
             <!-- Login box contents -->
                 <div id="login">
                     <form action="<c:url value='/j_spring_security_check'/>" method="post">
-                    <h1><fmt:message key="login" bundle="${resword}"/></h1>
-                    <b><fmt:message key="user_name" bundle="${resword}"/></b>
+                        <h1><fmt:message key="login" bundle="${resword}"/></h1>
+                        <b><fmt:message key="user_name" bundle="${resword}"/></b>
                         <div class="formfieldM_BG">
                             <input type="text" id="username" name="j_username" class="formfieldM" />
                         </div>
 
-                    <b><fmt:message key="password" bundle="${resword}"/></b>
+                        <b><fmt:message key="password" bundle="${resword}"/></b>
                         <div class="formfieldM_BG">
-                            <input type="password" id="j_password" name="j_password"  class="formfieldM" />
+                            <input type="password" id="j_password" name="j_password"  class="formfieldM" autocomplete="off" />
                         </div>
-                    <input type="submit" name="submit" value="<fmt:message key='login' bundle='${resword}'/>" class="loginbutton" />
-                    <a href="#" id="requestPassword"> <fmt:message key="forgot_password" bundle="${resword}"/></a>
+
+                        <c:if test="${factorService.twoFactorActivated}">
+                            <b><fmt:message key="factor" bundle="${resword}"/></b>
+                            <div class="formfieldM_BG">
+                                <input type="text" id="j_factor" name="j_factor"  class="formfieldM" autocomplete="off" />
+                            </div>
+                        </c:if>
+
+                        <input type="submit" name="submit" value="<fmt:message key='login' bundle='${resword}'/>" class="loginbutton" />
+                        <a href="#" id="requestPassword"> <fmt:message key="forgot_password" bundle="${resword}"/></a>
                    </form>
                    <br/><jsp:include page="../login-include/login-alertbox.jsp"/>
                    <%-- <a href="<c:url value="/RequestPassword"/>"> <fmt:message key="forgot_password" bundle="${resword}"/></a> --%>
-               </div>
-            <!-- End Login box contents -->
+               	</div>
             </div>
-            </td>
+		</td>
       </tr>
     </table>
 

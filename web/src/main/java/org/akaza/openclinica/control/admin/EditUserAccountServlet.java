@@ -7,6 +7,8 @@
  */
 package org.akaza.openclinica.control.admin;
 
+import static org.springframework.web.context.support.WebApplicationContextUtils.getWebApplicationContext;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
@@ -22,6 +24,8 @@ import org.akaza.openclinica.control.form.Validator;
 import org.akaza.openclinica.core.SecurityManager;
 import org.akaza.openclinica.dao.login.UserAccountDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
+import org.akaza.openclinica.service.otp.TowFactorBean;
+import org.akaza.openclinica.service.otp.TwoFactorService;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InconsistentStateException;
 import org.akaza.openclinica.web.InsufficientPermissionException;
@@ -35,43 +39,27 @@ import org.akaza.openclinica.web.SQLInitServlet;
 public class EditUserAccountServlet extends SecureController {
 
 	private static final long serialVersionUID = -6961254006943513921L;
-
+    
 	public static final String INPUT_FIRST_NAME = "firstName";
-
     public static final String INPUT_LAST_NAME = "lastName";
-
     public static final String INPUT_EMAIL = "email";
-
     public static final String INPUT_INSTITUTION = "institutionalAffiliation";
-
     public static final String INPUT_RESET_PASSWORD = "resetPassword";
-
     public static final String INPUT_USER_TYPE = "userType";
-
     public static final String INPUT_CONFIRM_BUTTON = "submit";
-
     public static final String INPUT_DISPLAY_PWD = "displayPwd";
-
     public static final String PATH = "EditUserAccount";
-
     public static final String ARG_USERID = "userId";
-
     public static final String ARG_STEPNUM = "stepNum";
-
     public static final String INPUT_RUN_WEBSERVICES = "runWebServices";
-
     public static final String FLAG_LDAP_USER = "ldapUser";
-
+    public static final String INPUT_AUTHTYPE = "authtype";
     // possible values of ARG_STEPNUM
     public static final int EDIT_STEP = 1;
-
     public static final int CONFIRM_STEP = 2;
-
     // possible values of INPUT_CONFIRM_BUTTON
     public static final String BUTTON_CONFIRM_VALUE = "Confirm";
-
     public static final String BUTTON_BACK_VALUE = "Back";
-
     public static final String USER_ACCOUNT_NOTIFICATION = "notifyPassword";
 
     private ArrayList<StudyBean> getAllStudies() {
@@ -102,10 +90,11 @@ public class EditUserAccountServlet extends SecureController {
         int userId = fp.getInt(ARG_USERID);
         UserAccountDAO udao = new UserAccountDAO(sm.getDataSource());
         UserAccountBean user = udao.findByPK(userId);
+        boolean was2FaDeactivated = user.isTwoFactorDeactivated();
 
         int stepNum = fp.getInt(ARG_STEPNUM);
 
-        if (!fp.isSubmitted()) {
+        if (!fp.isSubmitted()) { // Request for edit user.
             addEntityList("userTypes", getUserTypes(), respage.getString("the_user_could_not_be_edited_because_no_user_types"), Page.ADMIN_SYSTEM);
             loadPresetValuesFromBean(fp, user);
             fp.addPresetValue(ARG_STEPNUM, EDIT_STEP);
@@ -117,7 +106,7 @@ public class EditUserAccountServlet extends SecureController {
             // Page.ADMIN_SYSTEM);
             request.setAttribute("userName", user.getName());
             forwardPage(Page.EDIT_ACCOUNT);
-        } else if (stepNum == EDIT_STEP) {
+        } else if (stepNum == EDIT_STEP) { // Request before confirm changes.
             Validator v = new Validator(request);
 
             v.addValidation(INPUT_FIRST_NAME, Validator.NO_BLANKS);
@@ -174,12 +163,21 @@ public class EditUserAccountServlet extends SecureController {
                 boolean isSoap = fp.getBoolean(INPUT_RUN_WEBSERVICES);
                 user.setRunWebservices(isSoap);
                 user.setEnableApiKey(true);
- 
-               String apiKey;
-               do {
-                	apiKey=getRandom32ChApiKey() ;
-               } while(isApiKeyExist(apiKey));                
-               user.setApiKey(apiKey);
+                user.setAuthtype(fp.getString("authtype"));
+
+                if (was2FaDeactivated && user.isTwoFactorMarked()) {
+                    TwoFactorService factorService = (TwoFactorService) getWebApplicationContext(getServletContext()).getBean("factorService");
+                    if (factorService.isTwoFactorLetter()) {
+                        TowFactorBean bean = factorService.generate();
+                        user.setAuthsecret(bean.getAuthSecret());
+                    }
+                }
+
+                String apiKey;
+                do {
+                    apiKey=getRandom32ChApiKey() ;
+                } while(isApiKeyExist(apiKey));
+                user.setApiKey(apiKey);
                 
                 UserType ut = UserType.get(fp.getInt(INPUT_USER_TYPE));
                 if (ut.equals(UserType.SYSADMIN)) {
@@ -244,12 +242,13 @@ public class EditUserAccountServlet extends SecureController {
         fp.addPresetValue(USER_ACCOUNT_NOTIFICATION, sendPwd);
 
         fp.addPresetValue(FLAG_LDAP_USER, user.isLdapUser());
+        fp.addPresetValue(INPUT_AUTHTYPE, user.getAuthtype());
     }
 
     private void loadPresetValuesFromForm(FormProcessor fp) {
         fp.clearPresetValues();
 
-        String textFields[] = { ARG_USERID, INPUT_FIRST_NAME, INPUT_LAST_NAME, INPUT_EMAIL, INPUT_INSTITUTION, INPUT_DISPLAY_PWD };
+        String textFields[] = {ARG_USERID, INPUT_FIRST_NAME, INPUT_LAST_NAME, INPUT_EMAIL, INPUT_INSTITUTION, INPUT_DISPLAY_PWD, INPUT_AUTHTYPE};
         fp.setCurrentStringValuesAsPreset(textFields);
 
         String ddlbFields[] = { INPUT_USER_TYPE, INPUT_RESET_PASSWORD, INPUT_RUN_WEBSERVICES };
@@ -301,5 +300,4 @@ public class EditUserAccountServlet extends SecureController {
 	    //logger.debug(uuid.replaceAll("-", ""));
 		return uuid.replaceAll("-", "");
 	}
-    
 }

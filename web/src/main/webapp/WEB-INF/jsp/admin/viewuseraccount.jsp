@@ -161,6 +161,16 @@ for each study user is in, show:
 			</c:forEach>
 		</td>
 	</tr>
+	<c:if test="${factorService.twoFactorActivated}">
+		<tr>
+			<td class="table_header_column">
+				<fmt:message key="auth_type" bundle="${resword}"/>
+			</td>
+			<td class="table_cell">
+				<fmt:message key="auth_type.${user.authtype}" bundle="${resword}" />
+			</td>
+		</tr>
+	</c:if>
 	</table>
 	</div>
 
@@ -182,7 +192,7 @@ for each study user is in, show:
    </td>
    <td>
    <form action='ListUserAccounts' method="POST">
-    <input type="submit" name="submit" value="<fmt:message key="exit" bundle="${resword}"/>" class="button">
+    <input type="submit" name="submit" value="<fmt:message key="exit" bundle="${resword}"/>" class="button_long">
    </form>
    </td>
    <td>

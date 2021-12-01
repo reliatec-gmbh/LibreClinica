@@ -1,11 +1,13 @@
 /*
  * LibreClinica is distributed under the
  * GNU Lesser General Public License (GNU LGPL).
-
  * For details see: https://libreclinica.org/license
  * LibreClinica, copyright (C) 2020
  */
 package org.akaza.openclinica.bean.managestudy;
+
+import static org.akaza.openclinica.domain.managestudy.MailNotificationType.DISABLED;
+import static org.akaza.openclinica.domain.managestudy.MailNotificationType.ENABLED;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -18,19 +20,18 @@ import org.akaza.openclinica.bean.oid.StudyOidGenerator;
 import org.akaza.openclinica.bean.service.StudyParameterConfig;
 import org.akaza.openclinica.bean.service.StudyParamsConfig;
 import org.akaza.openclinica.domain.datamap.StudyEnvEnum;
+import org.akaza.openclinica.domain.managestudy.MailNotificationType;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
 
 /**
  * @author thickerson
- * 
- * 
  */
 public class StudyBean extends AuditableEntityBean {
     /**
-	 * 
-	 */
-	private static final long serialVersionUID = -5132550603753118474L;
-	private int parentStudyId = 0;
+     * 
+     */
+    private static final long serialVersionUID = -5132550603753118474L;
+    private int parentStudyId = 0;
     // YW << The original reason to add this is being able to list on
     // userbox.jsp the study name to which a site belong.
     // This property doesn't exist in the database table <Study>, so it might
@@ -86,6 +87,8 @@ public class StudyBean extends AuditableEntityBean {
     public int filePath;
     private int subjectCount;
     private String studyUuid;
+    private String mailNotification = MailNotificationType.DISABLED.name();
+    private String contactEmail;
 
     public boolean isPublished() {
         return published;
@@ -1169,5 +1172,35 @@ public class StudyBean extends AuditableEntityBean {
 
     public void setStudyUuid(String studyUuid) {
         this.studyUuid = studyUuid;
+    }
+    public String getMailNotification() {
+        if (!MailNotificationType.isValid(this.mailNotification)) {
+            this.mailNotification = DISABLED.name();
+        }
+        return mailNotification;
+    }
+
+    public void setMailNotification(String mailNotification) {
+        if (!MailNotificationType.isValid(mailNotification)) {
+            this.mailNotification = DISABLED.name();
+            return;
+        }
+        this.mailNotification = mailNotification;
+    }
+
+    public String getContactEmail() {
+        return contactEmail;
+    }
+
+    public void setContactEmail(String contactEmail) {
+        this.contactEmail = contactEmail;
+    }
+
+    public boolean contactEmailAbsent() {
+        return null == this.contactEmail || "".equals(this.contactEmail);
+    }
+
+    public boolean contactEmailAbsentButNotification() {
+        return ENABLED.name().equalsIgnoreCase(this.mailNotification) && contactEmailAbsent();
     }
 }

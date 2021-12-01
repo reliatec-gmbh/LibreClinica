@@ -112,13 +112,48 @@
       <input type="radio" name="protocolType" value="observational"><fmt:message key="observational" bundle="${resadmin}"/>
     </c:otherwise>
    </c:choose>
-   <jsp:include page="../showMessage.jsp"><jsp:param name="key" value="protocolType"/></jsp:include></td><td>*</td></tr>
+   <jsp:include page="../showMessage.jsp"><jsp:param name="key" value="protocolType" /></jsp:include></td><td>*</td></tr>
 
-
+	<tr valign="top">
+		<td class="formlabel"><fmt:message key="mailNotification" bundle="${resword}"/>:</td>
+		<td>
+			<c:choose>
+				<c:when test="${newStudy.mailNotification eq 'DISABLED'}">
+					<input type="radio" id="mailNotification_DISABLED" name="mailNotification" value=DISABLED onclick="onMailNotificationClick();" checked><fmt:message key="mailNotification_Type.DISABLED" bundle="${resword}"/>
+					<input type="radio" id="mailNotification_ENABLED" name="mailNotification" value=ENABLED onclick="onMailNotificationClick();"><fmt:message key="mailNotification_Type.ENABLED" bundle="${resword}"/>
+			 	</c:when>
+		    	<c:otherwise>
+		    		<input type="radio" id="mailNotification_DISABLED" name="mailNotification" value=DISABLED onclick="onMailNotificationClick();"><fmt:message key="mailNotification_Type.DISABLED" bundle="${resword}"/>
+					<input type="radio" id="mailNotification_ENABLED" name="mailNotification" value=ENABLED onclick="onMailNotificationClick();" checked><fmt:message key="mailNotification_Type.ENABLED" bundle="${resword}"/>
+			 	</c:otherwise>
+		   </c:choose>
+		</td>
+		<td>*</td>
+	</tr>
+	<tr valign="top">
+		<td class="formlabel"><fmt:message key="contactEmail" bundle="${resword}" />:</td>
+		<td>
+			<input type="text" id="contactEmail" name="contactEmail" value="${newStudy.contactEmail}" disabled />
+		</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td></td>
+		<td colspan="2">
+			<jsp:include page="../showMessage.jsp">
+				<jsp:param name="key" value="contactEmail"/>
+			</jsp:include>
+		</td>
+	</tr>
   </table>
   </div>
   </div></div></div></div></div></div></div></div>
    </div>
+  <script type="text/javascript">
+		window.body.onload = new function() {
+			onMailNotificationClick();
+		}
+  </script>
 
   <div style="width: 600px">
   <div class="box_T"><div class="box_L"><div class="box_R"><div class="box_B"><div class="box_TL"><div class="box_TR"><div class="box_BL"><div class="box_BR">

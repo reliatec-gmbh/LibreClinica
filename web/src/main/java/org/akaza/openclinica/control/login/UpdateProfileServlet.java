@@ -1,7 +1,6 @@
 /*
  * LibreClinica is distributed under the
  * GNU Lesser General Public License (GNU LGPL).
-
  * For details see: https://libreclinica.org/license
  * LibreClinica, copyright (C) 2020
  */
@@ -43,39 +42,45 @@ public class UpdateProfileServlet extends SecureController {
     public void mayProceed() throws InsufficientPermissionException {
         // NOOP
     }
-
+    
     @Override
     public void processRequest() throws Exception {
-
-        String action = request.getParameter("action");// action sent by user
+        String userSentAction = request.getParameter("action");
         StudyDAO sdao = new StudyDAO(sm.getDataSource());
         UserAccountDAO udao = new UserAccountDAO(sm.getDataSource());
         UserAccountBean userBean1 = udao.findByUserName(ub.getName());
 
         ArrayList<StudyBean> studies = sdao.findAllByUser(ub.getName());
 
-        if (StringUtils.isBlank(action)) {
+        if (StringUtils.isBlank(userSentAction)) {
             request.setAttribute("studies", studies);
             session.setAttribute("userBean1", userBean1);
             forwardPage(Page.UPDATE_PROFILE);
-        } else {
-            if ("confirm".equalsIgnoreCase(action)) {
-                logger.info("confirm");
+            return;
+        }
+
+        switch (userSentAction.toLowerCase()) {
+            case "confirm":
+                if (logger.isInfoEnabled()) {
+                    logger.info("confirm");
+                }
                 request.setAttribute("studies", studies);
                 confirmProfile(userBean1, udao);
-
-            } else if ("submit".equalsIgnoreCase(action)) {
-                logger.info("submit");
+                break;
+            case "submit":
+                if (logger.isInfoEnabled()) {
+                    logger.info("submit");
+                }
                 submitProfile(udao);
 
                 addPageMessage(respage.getString("profile_updated_succesfully"));
                 ub.incNumVisitsToMainMenu();
                 forwardPage(Page.MENU_SERVLET);
-            }
+                break;
         }
     }
 
-	private void confirmProfile(UserAccountBean userBean1, UserAccountDAO udao) throws Exception {
+    private void confirmProfile(UserAccountBean userBean1, UserAccountDAO udao) throws Exception {
         Validator v = new Validator(request);
         FormProcessor fp = new FormProcessor(request);
 
@@ -131,6 +136,8 @@ public class UpdateProfileServlet extends SecureController {
             userBean1.setPasswdChallengeAnswer(fp.getString("passwdChallengeAnswer"));
             userBean1.setPhone(fp.getString("phone"));
             userBean1.setActiveStudyId(fp.getInt("activeStudyId"));
+            userBean1.setAuthtype(fp.getString("authtype"));
+            userBean1.setAuthsecret(fp.getString("authsecret"));
             StudyDAO sdao = new StudyDAO(this.sm.getDataSource());
 
             StudyBean newActiveStudy = sdao.findByPK(userBean1.getActiveStudyId());
@@ -172,11 +179,11 @@ public class UpdateProfileServlet extends SecureController {
 
         UserAccountBean userBean1 = (UserAccountBean) session.getAttribute("userBean1");
         if (userBean1 != null) {
-        	userBean1.setLastVisitDate(new Date());
+            userBean1.setLastVisitDate(new Date());
             userBean1.setUpdater(ub);
             udao.update(userBean1);
 
-        	session.setAttribute("userBean", userBean1);
+            session.setAttribute("userBean", userBean1);
             ub = userBean1;
             session.removeAttribute("userBean1");
         }
