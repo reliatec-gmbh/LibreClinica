@@ -193,7 +193,7 @@ public class StudySubjectDAO extends AuditableEntityDAO<StudySubjectBean> {
             try {
                 labelInt = Integer.parseInt(studySubjectBean.getLabel());
             } catch (NumberFormatException ne) {
-                logger.error("StudySubjectID is not integer, will be omitted during the search for greatest SSID", ne);
+                logger.trace("StudySubjectID is not integer, will be omitted during the search for greatest SSID", ne);
             }
             if (labelInt > greatestLabel) {
                 greatestLabel = labelInt;
