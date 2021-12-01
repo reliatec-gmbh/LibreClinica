@@ -3,7 +3,7 @@ LibreClinica
 
 _the real open source electronic data capture (EDC) for clinical studies._
 
-[LibreClinica](https://libreclinica.org) is the community driven successor of OpenClinica. It is an open source clinical trial software for Electronic Data Capture (EDC) Clinical Data Management (CDM).
+[LibreClinica](https://libreclinica.org) is the community driven successor of OpenClinica. It is an open source clinical trial software for Electronic Data Capture (EDC) and Clinical Data Management (CDM).
 
 ### Getting Started
 
@@ -15,6 +15,6 @@ In case of interest in contributing into the codebase, check out [LibreClinica D
 
 ### Contributions
                           
-LibreClinica is open source projects that values input from contributors:
+LibreClinica is open source project that values input from contributors:
 
 * Thomas Hillger, University Hospital RWTH Aachen
