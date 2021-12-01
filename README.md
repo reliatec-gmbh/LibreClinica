@@ -11,7 +11,7 @@ Check out [LibreClinica Documentation](https://libreclinica.org/documentation) t
 
 ### Development
 
-In case of interest in contributing into the codebase, check out [LibreClinica Developer Documentation](libreclinica-docs.readthedocs.io) to learn how to set up the development workstation and understand the branching strategy that is used to control the contribution workflows. 
+In case of interest in contributing into the codebase, check out [LibreClinica Developer Documentation](https://libreclinica-docs.readthedocs.io) to learn how to set up the development workstation and understand the branching strategy that is used to control the contribution workflows. 
 
 ### Contributions
                           
