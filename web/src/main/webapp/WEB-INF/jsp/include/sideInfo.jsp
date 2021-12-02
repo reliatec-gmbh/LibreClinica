@@ -154,6 +154,6 @@
 <!-- End Sidebar Contents -->
 
 	<br><img src="${pageContext.request.contextPath}/images/spacer.gif" width="120" height="1">
-		</td>
-		<td class="aka_revised_content">
+	</td>
+	<td class="aka_revised_content">
 <!-- end of include/sideInfo.jsp -->
