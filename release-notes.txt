@@ -1,7 +1,7 @@
-LibreClinica V1.0 release notes							16-Jan-2020
+LibreClinica V1.0 release notes							02-Dec-2021
 
 System requirements:
-openjdk-8
+openjdk-11
 tomcat-9
 postgres-11
 These versions are currently available in Debian 10 (Buster) Linux.
