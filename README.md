@@ -7,7 +7,7 @@ _the real open source electronic data capture (EDC) for clinical studies._
 
 ### Getting Started
 
-Check out [LibreClinica Documentation](https://libreclinica.org/documentation) to learn how to [install](https://libreclinica.org/documentation/install.html), [validate](https://libreclinica.org/documentation/tests.html) and [use](https://libreclinica.org/documentation/manuals.html) the software.
+Check out [LibreClinica Documentation](https://libreclinica.org/documentation) to learn how to [install](https://libreclinica.org/documentation/install.html), [validate](https://libreclinica.org/documentation#Tests) and [use](https://libreclinica.org/documentation/manuals.html) the software.
 
 #### System Requirements
 
