@@ -58,66 +58,65 @@
            <groupId>org.springframework.ws</groupId>
            <artifactId>spring-ws-core-tiger</artifactId>
         </dependency>
-		<dependency>
-			<groupId>org.springframework.ws</groupId>
-			<artifactId>spring-ws-security</artifactId>
-			<version>3.0.10.RELEASE</version>
-			<exclusions>
-				<exclusion>
-					<groupId>com.sun.xml.wsit</groupId>
-					<artifactId>wsit-rt</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.sun.xml.wsit</groupId>
-					<artifactId>xws-security</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.cryptacular</groupId>
-					<artifactId>cryptacular</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.bouncycastle</groupId>
-					<artifactId>bcprov-jdk15on</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
+        <dependency>
+           <groupId>org.springframework.ws</groupId>
+           <artifactId>spring-ws-security</artifactId>
+           <version>3.0.10.RELEASE</version>
+           <exclusions>
+              <exclusion>
+                 <groupId>com.sun.xml.wsit</groupId>
+                 <artifactId>wsit-rt</artifactId>
+              </exclusion>
+              <exclusion>
+                 <groupId>com.sun.xml.wsit</groupId>
+                 <artifactId>xws-security</artifactId>
+              </exclusion>
+              <exclusion>
+                 <groupId>org.cryptacular</groupId>
+                 <artifactId>cryptacular</artifactId>
+              </exclusion>
+              <exclusion>
+                 <groupId>org.bouncycastle</groupId>
+                 <artifactId>bcprov-jdk15on</artifactId>
+              </exclusion>
+           </exclusions>
+        </dependency>
 
-		<!-- Security -->
-		<dependency>
-			<groupId>com.sun.xml.wss</groupId>
-			<artifactId>xws-security</artifactId>
-			<version>3.0</version>
-			<exclusions>
-				<exclusion>
-					<groupId>javax.activation</groupId>
-					<artifactId>activation</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>javax.xml.crypto</groupId>
-					<artifactId>xmldsig</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>javax.xml.bind</groupId>
-					<artifactId>jaxb-api</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>javax.xml.stream</groupId>
-					<artifactId>stax-api</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>javax.xml.ws</groupId>
-					<artifactId>jaxws-api</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>javax.mail</groupId>
-					<artifactId>mail</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>javax.xml.soap</groupId>
-					<artifactId>saaj-api</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
+        <!-- Security -->
+        <dependency>
+           <groupId>com.sun.xml.wss</groupId>
+           <artifactId>xws-security</artifactId>
+           <exclusions>
+              <exclusion>
+                 <groupId>javax.activation</groupId>
+                 <artifactId>activation</artifactId>
+              </exclusion>
+              <exclusion>
+                 <groupId>javax.xml.crypto</groupId>
+                 <artifactId>xmldsig</artifactId>
+              </exclusion>
+              <exclusion>
+                 <groupId>javax.xml.bind</groupId>
+                 <artifactId>jaxb-api</artifactId>
+              </exclusion>
+              <exclusion>
+                 <groupId>javax.xml.stream</groupId>
+                 <artifactId>stax-api</artifactId>
+              </exclusion>
+              <exclusion>
+                 <groupId>javax.xml.ws</groupId>
+                 <artifactId>jaxws-api</artifactId>
+              </exclusion>
+              <exclusion>
+                 <groupId>javax.mail</groupId>
+                 <artifactId>mail</artifactId>
+              </exclusion>
+              <exclusion>
+                 <groupId>javax.xml.soap</groupId>
+                 <artifactId>saaj-api</artifactId>
+              </exclusion>
+           </exclusions>
+        </dependency>
 
 		<!-- Web Services -->
 		<dependency>
@@ -206,10 +205,6 @@
 			<groupId>xerces</groupId>
 			<artifactId>xmlParserAPIs</artifactId>	
 		</dependency>
-       	<dependency>
-       		<groupId>com.sun.xml.wss</groupId>
-			<artifactId>xws-security</artifactId>
-       	</dependency>
 		<dependency>
 			<groupId>jtidy</groupId>
 			<artifactId>jtidy</artifactId>

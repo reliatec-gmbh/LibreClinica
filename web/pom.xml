@@ -60,6 +60,7 @@
 		<dependency>
 			<groupId>org.springframework.ldap</groupId>
 			<artifactId>spring-ldap-core</artifactId>
+			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -93,33 +94,26 @@
 		<dependency>
 			<groupId>commons-validator</groupId>
 			<artifactId>commons-validator</artifactId>
-			<version>1.3.1</version>
-			<scope>compile</scope>
+			<scope>runtime</scope>
 		</dependency>
 		<!-- Needed by commons-validator -->
 		<dependency>
 			<groupId>oro</groupId>
 			<artifactId>oro</artifactId>
-			<version>2.0.8</version>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>commons-collections</groupId>
 			<artifactId>commons-collections</artifactId>
-			<version>3.2.1</version>
-			<scope>compile</scope>
+			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>commons-math</groupId>
 			<artifactId>commons-math</artifactId>
-			<version>1.1</version>
-			<scope>compile</scope>
+			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>commons-digester</groupId>
 			<artifactId>commons-digester</artifactId>
-			<version>1.7</version>
-			<scope>compile</scope>
 			<exclusions>
 				<exclusion>
 					<artifactId>commons-collections</artifactId>
@@ -130,6 +124,7 @@
 					<groupId>xml-apis</groupId>
 				</exclusion>
 			</exclusions>
+			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>commons-lang</groupId>
@@ -146,6 +141,7 @@
 		<dependency>
 			<groupId>commons-dbcp</groupId>
 			<artifactId>commons-dbcp</artifactId>
+			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>commons-codec</groupId>
@@ -492,10 +488,6 @@
         <dependency>
             <groupId>com.sun.jersey</groupId>
             <artifactId>jersey-server</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.freemarker</groupId>
-            <artifactId>freemarker</artifactId>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
