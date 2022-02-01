@@ -115,7 +115,6 @@ public class DynamicsMetadataService implements MetadataServiceInterface {
             logger.debug("did not find a row in the db for " + itemFormMetadataBean.getId());
             return false;
         }
-        // return false;
     }
 
     public boolean isShown(Integer itemId, EventCRFBean eventCrfBean, ItemDataBean itemDataBean) {
@@ -132,7 +131,6 @@ public class DynamicsMetadataService implements MetadataServiceInterface {
             // System.out.println("did not find a row in the db for (with IDB) " + itemFormMetadataBean.getId() + " idb id " + itemDataBean.getId());
             return false;
         }
-        // return false;
     }
 
     public boolean isGroupShown(int metadataId, EventCRFBean eventCrfBean) throws OpenClinicaException {
@@ -213,7 +211,7 @@ public class DynamicsMetadataService implements MetadataServiceInterface {
     public boolean hideItem(ItemFormMetadataBean metadataBean, EventCRFBean eventCrfBean, ItemDataBean itemDataBean) {
         ItemFormMetadataBean itemFormMetadataBean = metadataBean;
         DynamicsItemFormMetadataBean dynamicsMetadataBean = this.getDynamicsItemFormMetadataDao().findByItemDataBean(itemDataBean);
-        dynamicsMetadataBean = dynamicsMetadataBean != null && dynamicsMetadataBean.getId()>0 ?
+        dynamicsMetadataBean = dynamicsMetadataBean != null && dynamicsMetadataBean.getId() > 0 ?
             dynamicsMetadataBean : new DynamicsItemFormMetadataBean(itemFormMetadataBean, eventCrfBean);
         dynamicsMetadataBean.setShowItem(false);
         getDynamicsItemFormMetadataDao().saveOrUpdate(dynamicsMetadataBean);
@@ -240,7 +238,7 @@ public class DynamicsMetadataService implements MetadataServiceInterface {
 
     public void show(Integer itemDataId, List<PropertyBean> properties, RuleSetBean ruleSet) {
         ItemDataBean itemDataBeanA = (ItemDataBean) getItemDataDAO().findByPK(itemDataId);
-        EventCRFBean eventCrfBeanA = (EventCRFBean) getEventCRFDAO().findByPK(itemDataBeanA.getEventCRFId());
+        EventCRFBean eventCrfBeanA = getEventCRFDAO().findByPK(itemDataBeanA.getEventCRFId());
 
         for (PropertyBean propertyBean : properties) {
             String oid = propertyBean.getOid();
@@ -253,7 +251,7 @@ public class DynamicsMetadataService implements MetadataServiceInterface {
                 DynamicsItemFormMetadataBean dynamicsMetadataBean = getDynamicsItemFormMetadataBean(itemFormMetadataBean, eventCrfBeanA, oidBasedItemData);
                 if (dynamicsMetadataBean == null) {
                     showItem(itemFormMetadataBean, eventCrfBeanA, oidBasedItemData);
-                } else if (dynamicsMetadataBean != null && !dynamicsMetadataBean.isShowItem()) {
+                } else if (!dynamicsMetadataBean.isShowItem()) {
                     dynamicsMetadataBean.setShowItem(true);
                     getDynamicsItemFormMetadataDao().saveOrUpdate(dynamicsMetadataBean);
                 }
@@ -263,18 +261,17 @@ public class DynamicsMetadataService implements MetadataServiceInterface {
                 logger.debug("found item group id 1 " + oid);
                 ItemGroupBean itemGroupBean = itemOrItemGroup.getItemGroupBean();
                 ArrayList<SectionBean> sectionBeans = getSectionDAO().findAllByCRFVersionId(eventCrfBeanA.getCRFVersionId());
-                for (int i = 0; i < sectionBeans.size(); i++) {
-                    SectionBean sectionBean = (SectionBean) sectionBeans.get(i);
+                for (SectionBean sectionBean : sectionBeans) {
                     // System.out.println("found section " + sectionBean.getId());
                     List<ItemGroupMetadataBean> itemGroupMetadataBeans =
-                        getItemGroupMetadataDAO().findMetaByGroupAndSection(itemGroupBean.getId(), eventCrfBeanA.getCRFVersionId(), sectionBean.getId());
+                            getItemGroupMetadataDAO().findMetaByGroupAndSection(itemGroupBean.getId(), eventCrfBeanA.getCRFVersionId(), sectionBean.getId());
                     for (ItemGroupMetadataBean itemGroupMetadataBean : itemGroupMetadataBeans) {
                         if (itemGroupMetadataBean.getItemGroupId() == itemGroupBean.getId()) {
                             // System.out.println("found item group id 2 " + oid);
                             DynamicsItemGroupMetadataBean dynamicsGroupBean = getDynamicsItemGroupMetadataBean(itemGroupMetadataBean, eventCrfBeanA);
                             if (dynamicsGroupBean == null) {
                                 showGroup(itemGroupMetadataBean, eventCrfBeanA);
-                            } else if (dynamicsGroupBean != null && !dynamicsGroupBean.isShowGroup()) {
+                            } else if (!dynamicsGroupBean.isShowGroup()) {
                                 dynamicsGroupBean.setShowGroup(true);
                                 getDynamicsItemGroupMetadataDao().saveOrUpdate(dynamicsGroupBean);
                             }
@@ -287,7 +284,7 @@ public class DynamicsMetadataService implements MetadataServiceInterface {
 
     public void hide(Integer itemDataId, List<PropertyBean> properties) {
         ItemDataBean itemDataBean = (ItemDataBean) getItemDataDAO().findByPK(itemDataId);
-        EventCRFBean eventCrfBean = (EventCRFBean) getEventCRFDAO().findByPK(itemDataBean.getEventCRFId());
+        EventCRFBean eventCrfBean = getEventCRFDAO().findByPK(itemDataBean.getEventCRFId());
         for (PropertyBean propertyBean : properties) {
             String oid = propertyBean.getOid();
             ItemOrItemGroupHolder itemOrItemGroup = getItemOrItemGroup(oid);
@@ -311,7 +308,7 @@ public class DynamicsMetadataService implements MetadataServiceInterface {
         }
     }
 
-    private Boolean isGroupRepeating(ItemGroupMetadataBean itemGroupMetadataBean) {
+    private boolean isGroupRepeating(ItemGroupMetadataBean itemGroupMetadataBean) {
         return itemGroupMetadataBean.getRepeatNum() > 1 || itemGroupMetadataBean.getRepeatMax() > 1;
     }
 
@@ -319,7 +316,7 @@ public class DynamicsMetadataService implements MetadataServiceInterface {
             ItemBean itemBeanB, ItemGroupBean itemGroupBeanB, ItemGroupMetadataBean itemGroupMetadataBeanB, EventCRFBean eventCrfBeanB, UserAccountBean ub,
             int index) {
 
-        ItemDataBean theOidBasedItemData = null;
+        ItemDataBean theOidBasedItemData;
         int size = getItemDataDAO().getGroupSize(itemBeanB.getId(), eventCrfBeanB.getId());
         int maxOrdinal = getItemDataDAO().getMaxOrdinalForGroupByItemAndEventCrf(itemBeanB.getId(), eventCrfBeanB);
         if (size > 0 && size >= index) {
@@ -347,7 +344,7 @@ public class DynamicsMetadataService implements MetadataServiceInterface {
     private ItemDataBean oneToEndMany(ItemDataBean itemDataBeanA, EventCRFBean eventCrfBeanA, ItemGroupMetadataBean itemGroupMetadataBeanA, ItemBean itemBeanB,
             ItemGroupBean itemGroupBeanB, ItemGroupMetadataBean itemGroupMetadataBeanB, EventCRFBean eventCrfBeanB, UserAccountBean ub) {
 
-        ItemDataBean theOidBasedItemData = null;
+        ItemDataBean theOidBasedItemData;
         int maxOrdinal = getItemDataDAO().getMaxOrdinalForGroupByItemAndEventCrf(itemBeanB.getId(), eventCrfBeanB);
         List<ItemBean> items = getItemDAO().findAllItemsByGroupId(itemGroupBeanB.getId(), eventCrfBeanB.getCRFVersionId());
         if (1 + maxOrdinal > itemGroupMetadataBeanB.getRepeatMax()) {
@@ -369,7 +366,7 @@ public class DynamicsMetadataService implements MetadataServiceInterface {
             ItemBean itemBeanB, ItemGroupBean itemGroupBeanB, ItemGroupMetadataBean itemGroupMetadataBeanB, EventCRFBean eventCrfBeanB, UserAccountBean ub) {
 
         List<ItemDataBean> itemDataBeans = new ArrayList<>();
-        Integer size = getItemDataDAO().getGroupSize(itemBeanB.getId(), eventCrfBeanB.getId());
+        int size = getItemDataDAO().getGroupSize(itemBeanB.getId(), eventCrfBeanB.getId());
         int maxOrdinal = getItemDataDAO().getMaxOrdinalForGroupByItemAndEventCrf(itemBeanB.getId(), eventCrfBeanB);
         if (size > 0 || maxOrdinal > 0) {
             itemDataBeans.addAll(getItemDataDAO().findAllByEventCRFIdAndItemId(eventCrfBeanB.getId(), itemBeanB.getId()));
@@ -472,52 +469,84 @@ public class DynamicsMetadataService implements MetadataServiceInterface {
         insert(itemDataId, properties, ub, ruleSet, null, stratificationFactorBeans);
     }
 
-    private void insert(Integer itemDataId, List<PropertyBean> properties, UserAccountBean ub, RuleSetBean ruleSet, Status itemDataStatus , List<StratificationFactorBean> stratificationFactorBeans) {
+    private void insert(Integer itemDataId,
+                        List<PropertyBean> properties,
+                        UserAccountBean ub,
+                        RuleSetBean ruleSet,
+                        Status itemDataStatus,
+                        List<StratificationFactorBean> stratificationFactorBeans) {
+
         ItemDataBean itemDataBeanA = (ItemDataBean) getItemDataDAO().findByPK(itemDataId);
         EventCRFBean eventCrfBeanA = getEventCRFDAO().findByPK(itemDataBeanA.getEventCRFId());
         StudyEventBean studyEventBeanA = getStudyEventDAO().findByPK(eventCrfBeanA.getStudyEventId());
-        ItemGroupMetadataBean itemGroupMetadataBeanA = getItemGroupMetadataDAO().findByItemAndCrfVersion(itemDataBeanA.getItemId(), eventCrfBeanA.getCRFVersionId());
-        Boolean isGroupARepeating = isGroupRepeating(itemGroupMetadataBeanA);
+        ItemGroupMetadataBean itemGroupMetadataBeanA = getItemGroupMetadataDAO()
+                .findByItemAndCrfVersion(itemDataBeanA.getItemId(), eventCrfBeanA.getCRFVersionId());
+        boolean isGroupARepeating = isGroupRepeating(itemGroupMetadataBeanA);
         String itemGroupAOrdinal = getExpressionService().getGroupOrdninalCurated(ruleSet.getTarget().getValue());
 
         for (PropertyBean propertyBean : properties) {
-            String expression = getExpressionService().constructFullExpressionIfPartialProvided(propertyBean.getOid(), ruleSet.getTarget().getValue());
+
+            String expression = getExpressionService()
+                    .constructFullExpressionIfPartialProvided(propertyBean.getOid(), ruleSet.getTarget().getValue());
             ItemBean itemBeanB = getExpressionService().getItemBeanFromExpression(expression);
             ItemGroupBean itemGroupBeanB = getExpressionService().getItemGroupExpression(expression);
-            ItemGroupMetadataBean itemGroupMetadataBeanB = null;
-            Boolean isGroupBRepeating = null;
-            String itemGroupBOrdinal = null;
-            EventCRFBean eventCrfBeanB = null;
-            boolean isItemInSameForm = getItemFormMetadataDAO().findByItemIdAndCRFVersionId(itemBeanB.getId(), eventCrfBeanA.getCRFVersionId()).getId() != 0;
-            // Item Does not below to same form
+
+            ItemGroupMetadataBean itemGroupMetadataBeanB;
+            boolean isGroupBRepeating;
+            String itemGroupBOrdinal;
+            EventCRFBean eventCrfBeanB;
+
+            // Is target item (B) in the same form as source item (A)
+            boolean isItemInSameForm = getItemFormMetadataDAO()
+                    .findByItemIdAndCRFVersionId(itemBeanB.getId(), eventCrfBeanA.getCRFVersionId()).getId() != 0;
+
+            // Target item (B) does not belong to the same form as source item (A)
             if (!isItemInSameForm) {
-                List<EventCRFBean> eventCrfs =
-                    getEventCRFDAO().findAllByStudyEventAndCrfOrCrfVersionOid(studyEventBeanA, getExpressionService().getCrfOid(expression));
+
+                //  Load Event CRFs
+                List<EventCRFBean> eventCrfs = getEventCRFDAO()
+                    .findAllByStudyEventAndCrfOrCrfVersionOid(
+                        studyEventBeanA,
+                        getExpressionService().getCrfOid(expression)
+                    );
+
+                // Target item Event CRF does not exist yet (not persisted in database)
                 if (eventCrfs.size() == 0) {
                     CRFVersionBean crfVersion = getExpressionService().getCRFVersionFromExpression(expression);
                     CRFBean crf = getExpressionService().getCRFFromExpression(expression);
                     int crfVersionId = 0;
-                    EventDefinitionCRFBean eventDefinitionCRFBean =
-                        getEventDefinitionCRfDAO().findByStudyEventDefinitionIdAndCRFId(studyEventBeanA.getStudyEventDefinitionId(), crf.getId());
-                    if (eventDefinitionCRFBean.getId() != 0) {
-                        crfVersionId = crfVersion != null ? crfVersion.getId() : eventDefinitionCRFBean.getDefaultVersionId();
+                    EventDefinitionCRFBean eventDefinitionCRFBean = getEventDefinitionCRfDAO()
+                        .findByStudyEventDefinitionIdAndCRFId(
+                            studyEventBeanA.getStudyEventDefinitionId(), crf.getId()
+                        );
 
+                    // When event definition with specified form exists
+                    if (eventDefinitionCRFBean.getId() != 0) {
+
+                        // Check if the target is FormVersion
+                        if (crfVersion != null && crfVersion.isActive()) {
+                            crfVersionId = crfVersion.getId();
+                        } else { // Otherwise, it is Form, so grab the default form version from EventDefinition
+                            crfVersionId = eventDefinitionCRFBean.getDefaultVersionId();
+                        }
                     }
-                    // Create new event crf
+
+                    // Create new Event CRF
                     eventCrfBeanB = eventCrfBeanA.copy();
                     eventCrfBeanB.setStatus(Status.AVAILABLE);
                     eventCrfBeanB.setId(0);
                     eventCrfBeanB.setCRFVersionId(crfVersionId);
                     eventCrfBeanB = getEventCRFDAO().create(eventCrfBeanB);
 
-                } else {
+                } else { //  Target item Event CRF exists, take it
                     eventCrfBeanB = eventCrfs.get(0);
                 }
-            } else {
+            } else { // Target item (B) belong to the same form as source item (A)
                 eventCrfBeanB = eventCrfBeanA;
             }
 
-            itemGroupMetadataBeanB = getItemGroupMetadataDAO().findByItemAndCrfVersion(itemBeanB.getId(), eventCrfBeanB.getCRFVersionId());
+            itemGroupMetadataBeanB = getItemGroupMetadataDAO()
+                    .findByItemAndCrfVersion(itemBeanB.getId(), eventCrfBeanB.getCRFVersionId());
             isGroupBRepeating = isGroupRepeating(itemGroupMetadataBeanB);
             itemGroupBOrdinal = getExpressionService().getGroupOrdninalCurated(expression);
 
@@ -596,7 +625,7 @@ public class DynamicsMetadataService implements MetadataServiceInterface {
         ItemDataBean itemDataBeanA = (ItemDataBean) getItemDataDAO().findByPK(itemDataId);
         EventCRFBean eventCrfBeanA = getEventCRFDAO().findByPK(itemDataBeanA.getEventCRFId());
         ItemGroupMetadataBean itemGroupMetadataBeanA = getItemGroupMetadataDAO().findByItemAndCrfVersion(itemDataBeanA.getItemId(), eventCrfBeanA.getCRFVersionId());
-        Boolean isGroupARepeating = isGroupRepeating(itemGroupMetadataBeanA);
+        boolean isGroupARepeating = isGroupRepeating(itemGroupMetadataBeanA);
         String itemGroupAOrdinal = getExpressionService().getGroupOrdninalCurated(ruleSet.getTarget().getValue());
 
         for (PropertyBean propertyBean : properties) {
@@ -609,7 +638,7 @@ public class DynamicsMetadataService implements MetadataServiceInterface {
                 ItemGroupBean itemGroupBeanB = getExpressionService().getItemGroupExpression(expression);
                 EventCRFBean eventCrfBeanB = eventCrfBeanA;
                 ItemGroupMetadataBean itemGroupMetadataBeanB = getItemGroupMetadataDAO().findByItemAndCrfVersion(itemBeanB.getId(), eventCrfBeanB.getCRFVersionId());
-                Boolean isGroupBRepeating = isGroupRepeating(itemGroupMetadataBeanB);
+                boolean isGroupBRepeating = isGroupRepeating(itemGroupMetadataBeanB);
                 String itemGroupBOrdinal = getExpressionService().getGroupOrdninalCurated(expression);
 
                 List<ItemDataBean> itemDataBeans = new ArrayList<>();
@@ -699,7 +728,7 @@ public class DynamicsMetadataService implements MetadataServiceInterface {
         ItemDataBean itemDataBeanA = (ItemDataBean) getItemDataDAO().findByPK(itemDataId);
         EventCRFBean eventCrfBeanA = getEventCRFDAO().findByPK(itemDataBeanA.getEventCRFId());
         ItemGroupMetadataBean itemGroupMetadataBeanA = getItemGroupMetadataDAO().findByItemAndCrfVersion(itemDataBeanA.getItemId(), eventCrfBeanA.getCRFVersionId());
-        Boolean isGroupARepeating = isGroupRepeating(itemGroupMetadataBeanA);
+        boolean isGroupARepeating = isGroupRepeating(itemGroupMetadataBeanA);
         String itemGroupAOrdinal = getExpressionService().getGroupOrdninalCurated(ruleSet.getTarget().getValue());
 
         for (PropertyBean propertyBean : properties) {
@@ -712,7 +741,7 @@ public class DynamicsMetadataService implements MetadataServiceInterface {
                 ItemGroupBean itemGroupBeanB = getExpressionService().getItemGroupExpression(expression);
                 EventCRFBean eventCrfBeanB = eventCrfBeanA;
                 ItemGroupMetadataBean itemGroupMetadataBeanB = getItemGroupMetadataDAO().findByItemAndCrfVersion(itemBeanB.getId(), eventCrfBeanB.getCRFVersionId());
-                Boolean isGroupBRepeating = isGroupRepeating(itemGroupMetadataBeanB);
+                boolean isGroupBRepeating = isGroupRepeating(itemGroupMetadataBeanB);
                 String itemGroupBOrdinal = getExpressionService().getGroupOrdninalCurated(expression);
 
                 List<ItemDataBean> itemDataBeans = new ArrayList<>();
@@ -750,7 +779,7 @@ public class DynamicsMetadataService implements MetadataServiceInterface {
                                 eventCrfBeanB, ub, Integer.parseInt(itemGroupAOrdinal));
                     itemDataBeans.add(oidBasedItemData);
                 }
-                logger.debug("** found item data beans: " + itemDataBeans.toString());
+                logger.debug("** found item data beans: " + itemDataBeans);
                 for (ItemDataBean oidBasedItemData : itemDataBeans) {
                     ItemFormMetadataBean itemFormMetadataBean =
                         getItemFormMetadataDAO().findByItemIdAndCRFVersionId(itemBeanB.getId(), eventCrfBeanB.getCRFVersionId());
@@ -804,27 +833,29 @@ public class DynamicsMetadataService implements MetadataServiceInterface {
     private ItemOrItemGroupHolder getItemOrItemGroup(String oid) {
 
         String[] theOid = oid.split(ESCAPED_SEPARATOR);
+        
+        // OIDs array consist from ItemGroup OID and Item OID
         if (theOid.length == 2) {
             ItemGroupBean itemGroup = getItemGroupDAO().findByOid(theOid[0].trim());
-            if (itemGroup != null) {
+            // ItemGroup exists persisted in database
+            if (itemGroup != null && itemGroup.isActive()) {
                 ItemBean item = getItemDAO().findItemByGroupIdandItemOid(itemGroup.getId(), theOid[1].trim());
-                if (item != null) {
-                    // System.out.println("returning two non nulls");
+                // Item exists persisted in database
+                if (item != null && item.isActive()) {
                     return new ItemOrItemGroupHolder(item, itemGroup);
                 }
             }
         }
+        // OIDs array consist only form ItemGroupO OID or Item OID
         if (theOid.length == 1) {
             ItemGroupBean itemGroup = getItemGroupDAO().findByOid(oid.trim());
-            if (itemGroup != null) {
-                // System.out.println("returning item group not null");
+            if (itemGroup != null && itemGroup.isActive()) {
                 return new ItemOrItemGroupHolder(null, itemGroup);
             }
 
             List<ItemBean> items = getItemDAO().findByOid(oid.trim());
             ItemBean item = items.size() > 0 ? items.get(0) : null;
-            if (item != null) {
-                // System.out.println("returning item not null");
+            if (item != null && item.isActive()) {
                 return new ItemOrItemGroupHolder(item, null);
             }
         }
@@ -890,23 +921,20 @@ public class DynamicsMetadataService implements MetadataServiceInterface {
 
     private void updateGroupDynItemsInASection(DisplayItemWithGroupBean itemWithGroup, List<Integer> showItemIds,
             int groupId, int sectionId, int crfVersionId, int eventCrfId) {
-        List<DisplayItemGroupBean> digbs = itemWithGroup.getItemGroups();
+        
         List<Integer> showDataIds = this.dynamicsItemFormMetadataDao.findShowItemDataIdsForAGroupInSection(groupId, sectionId, crfVersionId, eventCrfId);
         List<Integer> hideDataIds = this.dynamicsItemFormMetadataDao.findHideItemDataIdsForAGroupInSection(groupId, sectionId, crfVersionId, eventCrfId);
-        for (int n = 0; n < digbs.size(); ++n) {
-            DisplayItemGroupBean dg = digbs.get(n);
-            ArrayList<DisplayItemBean> items = (ArrayList<DisplayItemBean>)dg.getItems();
-            for (int m = 0; m < items.size(); ++m) {
-                DisplayItemBean dib = items.get(m);
+        for (DisplayItemGroupBean dg : itemWithGroup.getItemGroups()) {
+            for (DisplayItemBean dib : dg.getItems()) {
                 ItemFormMetadataBean meta = dib.getMetadata();
                 dib.setBlankDwelt(false);
-                if (hideDataIds!=null && hideDataIds.contains(dib.getData().getId())) {
+                if (hideDataIds != null && hideDataIds.contains(dib.getData().getId())) {
                     meta.setShowItem(false);
                 }
-                if (showDataIds!=null && showDataIds.contains(dib.getData().getId())) {
+                if (showDataIds != null && showDataIds.contains(dib.getData().getId())) {
                     meta.setShowItem(true);
                 }
-                if (!meta.isShowItem() && showItemIds!=null && showItemIds.contains(dib.getItem().getId())) {
+                if (!meta.isShowItem() && showItemIds != null && showItemIds.contains(dib.getItem().getId())) {
                     dib.setBlankDwelt(true);
                 }
             }
