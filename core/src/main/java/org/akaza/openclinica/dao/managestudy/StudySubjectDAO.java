@@ -390,7 +390,7 @@ public class StudySubjectDAO extends AuditableEntityDAO<StudySubjectBean> {
 
     public ArrayList<StudySubjectBean> getWithFilterAndSort(StudyBean currentStudy, FindSubjectsFilter filter, FindSubjectsSort sort, int rowStart, int rowEnd) {
         setTypesExpected();
-        // type for 'unique_identifier' from the subject table
+        // type for Study unique_identifier from StudySubject getWithFilterAndSort query
         setTypeExpected(14, TypeNames.STRING);
         
         String partialSql;
@@ -588,6 +588,8 @@ public class StudySubjectDAO extends AuditableEntityDAO<StudySubjectBean> {
     public ArrayList<StudySubjectBean> getWithFilterAndSort(StudyBean currentStudy, ListEventsForSubjectFilter filter, ListEventsForSubjectSort sort,
             int rowStart, int rowEnd) {
         setTypesExpected();
+        // type for Study unique_identifier from StudySubject getWithFilterAndSort query
+        setTypeExpected(14, TypeNames.STRING);
 
         HashMap<Integer, Object> variables = variables(currentStudy.getId(), currentStudy.getId());
         String sql = digester.getQuery("getWithFilterAndSort");
