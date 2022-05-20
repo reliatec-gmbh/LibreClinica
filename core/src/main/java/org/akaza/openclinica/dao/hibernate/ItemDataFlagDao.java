@@ -20,25 +20,31 @@ public class ItemDataFlagDao extends AbstractDomainDao<ItemDataFlag> {
     }
 
     // TODO update to CriteriaQuery 
-    public List<ItemDataFlag> findAllByEventCrfPath(int tag_id , String eventCrfPath ) {
+    public List<ItemDataFlag> findAllByEventCrfPath(int tag_id, String eventCrfPath) {
 
-        String query = " from " + getDomainClassName() + "  where "
-                + " tag_id= " + tag_id +  " and path LIKE '" + eventCrfPath +".%'"  ;
+        String query = "from " + getDomainClassName() + " where " +
+                "tag_id = :tag_id and path like :eventCrfPath";
         
-        Query<ItemDataFlag> q = getCurrentSession().createQuery(query, ItemDataFlag.class);
+        Query<ItemDataFlag> q = getCurrentSession()
+                .createQuery(query, ItemDataFlag.class)
+                .setParameter("tag_id", tag_id)
+                .setParameter("eventCrfPath", eventCrfPath + ".%");
+        
         return q.list();
     }
 
     // TODO update to CriteriaQuery 
-    public ItemDataFlag findByItemDataPath(int tag_id ,  String itemDataPath ) {
+    public ItemDataFlag findByItemDataPath(int tag_id, String itemDataPath) {
 
-        String query = " from " + getDomainClassName() + "  where "
-                + " tag_id= " + tag_id  + " and path= '" + itemDataPath +"'"   ;
+        String query = "from " + getDomainClassName() + " where " +
+                "tag_id = :tag_id and path = :itemDataPath";
         
-        Query<ItemDataFlag> q = getCurrentSession().createQuery(query, ItemDataFlag.class);
+        Query<ItemDataFlag> q = getCurrentSession()
+                .createQuery(query, ItemDataFlag.class)
+                .setParameter("tag_id", tag_id)
+                .setParameter("itemDataPath", itemDataPath);
+        
         return q.uniqueResult();
     }
-
-
     
 }
