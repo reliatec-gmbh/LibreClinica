@@ -17,23 +17,17 @@ public class UserAccountDao extends AbstractDomainDao<UserAccount> {
     }
 
     // TODO update to CriteriaQuery
-    @SuppressWarnings("deprecation")
     public UserAccount findByUserName(String userName) {
         getSessionFactory().getStatistics().logSummary();
         String query = "from " + getDomainClassName() + " do  where do.userName = :user_name";
-        Query<UserAccount> q = getCurrentSession().createQuery(query, UserAccount.class);
-        q.setString("user_name", userName);
+        Query<UserAccount> q = getCurrentSession()
+                .createQuery(query, UserAccount.class)
+                .setParameter("user_name", userName);
         return q.uniqueResult();
     }
 
-    // TODO update to CriteriaQuery
     public UserAccount findByUserId(Integer userId) {
         getSessionFactory().getStatistics().logSummary();
-        // String query = "from " + getDomainClassName() + " do where do.userId
-        // = :user_id";
-        // Query<UserAccount> q = getCurrentSession().createQuery(query,
-        // UserAccount.class);
-        // q.setInteger("user_id", userId);
         return getCurrentSession().byId(UserAccount.class).load(userId);
     }
 }
