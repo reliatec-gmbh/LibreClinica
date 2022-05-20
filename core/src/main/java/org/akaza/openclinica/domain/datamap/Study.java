@@ -5,8 +5,6 @@
  * For details see: https://libreclinica.org/license
  * LibreClinica, copyright (C) 2020
  */
-// default package
-// Generated Jul 31, 2013 2:03:33 PM by Hibernate Tools 3.4.0.CR1
 package org.akaza.openclinica.domain.datamap;
 
 import static javax.persistence.EnumType.STRING;
@@ -47,10 +45,6 @@ import org.hibernate.annotations.Type;
 @GenericGenerator(name = "id-generator", strategy = "native", parameters = { @Parameter(name = "sequence_name", value = "study_study_id_seq") })
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Study   extends DataMapDomainObject {
-
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -1650053070213212481L;
 	private int studyId;
 	private UserAccount userAccount;
@@ -107,13 +101,12 @@ public class Study   extends DataMapDomainObject {
 	private Boolean resultsReference;
 	private String oc_oid;
 	private Integer oldStatusId;
-	private List<CrfBean> crfs ;
-	private List<StudyEventDefinition> studyEventDefinitions ;
+	private List<CrfBean> crfs;
+	private List<StudyEventDefinition> studyEventDefinitions;
 	private List<Study> studies;
 	private List<StudySubject> studySubjects ;
 	private List<EventDefinitionCrf> eventDefinitionCrfs;
-	private List<DiscrepancyNote> discrepancyNotes ;
-	@Enumerated(STRING)
+	private List<DiscrepancyNote> discrepancyNotes;
 	private MailNotificationType mailNotification = DISABLED;
     private String contactEmail;
 
@@ -818,8 +811,9 @@ public class Study   extends DataMapDomainObject {
 	public void setStudyModuleStatuses(List<StudyModuleStatus> studyModuleStatuses) {
 		this.studyModuleStatuses = studyModuleStatuses;
 	}*/
-	
-	@Column(name = "mail_notification")
+
+	@Enumerated(STRING)
+	@Column(name = "mail_notification", length = 255)
     public MailNotificationType getMailNotification() {
         return mailNotification;
     }

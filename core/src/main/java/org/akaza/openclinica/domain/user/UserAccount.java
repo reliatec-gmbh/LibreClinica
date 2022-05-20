@@ -5,8 +5,6 @@
  * LibreClinica, copyright (C) 2020
  */
 package org.akaza.openclinica.domain.user;
-// default package
-// Generated Jul 31, 2013 2:03:33 PM by Hibernate Tools 3.4.0.CR1
 
 import static javax.persistence.EnumType.STRING;
 import static org.akaza.openclinica.domain.user.AuthType.STANDARD;
@@ -84,7 +82,6 @@ public class UserAccount extends DataMapDomainObject {
     private String timeZone;
     private boolean enableApiKey;
     private String apiKey;
-    @Enumerated(STRING)
     private AuthType authtype = STANDARD;
     private String authsecret;
     private List<Item> items;
@@ -378,6 +375,8 @@ public class UserAccount extends DataMapDomainObject {
         this.apiKey = apiKey;
     }
 
+    @Enumerated(STRING)
+    @Column(name = "authtype", length = 255)
     public AuthType getAuthtype() {
         return authtype;
     }
@@ -386,6 +385,7 @@ public class UserAccount extends DataMapDomainObject {
         this.authtype = authtype;
     }
 
+    @Column(name = "authsecret", length = 255)
     public String getAuthsecret() {
         return authsecret;
     }
