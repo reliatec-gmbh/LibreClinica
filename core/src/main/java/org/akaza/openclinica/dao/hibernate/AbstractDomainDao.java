@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate5.HibernateTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
-
 public abstract class AbstractDomainDao<T extends DomainObject> {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
