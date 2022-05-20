@@ -585,13 +585,21 @@ public class OdmExtractDAO extends DatasetDAO {
         ArrayList<MeasurementUnitBean> units = basicDef.getMeasurementUnits();
         String uprev = "";
         this.setStudyMeasurementUnitsTypesExpected();
-        ArrayList<HashMap<String, Object>> rows = this.select(this.getStudyMeasurementUnitsSql(studyId));
+
+        HashMap<Integer, Object> studyMeasurementUnitsQueryParameters = new HashMap<>();
+        studyMeasurementUnitsQueryParameters.put(1, studyId);
+
+        ArrayList<HashMap<String, Object>> rows = this.select(
+                this.getStudyMeasurementUnitsSqlByStudyId(),
+                studyMeasurementUnitsQueryParameters
+        );
+        
         for(HashMap<String, Object> row : rows) {
             String oid = (String) row.get("mu_oid");
             String name = (String) row.get("name");
             MeasurementUnitBean u = new MeasurementUnitBean();
             SymbolBean symbol = new SymbolBean();
-            ArrayList<TranslatedTextBean> texts = new ArrayList<TranslatedTextBean>();
+            ArrayList<TranslatedTextBean> texts = new ArrayList<>();
             if (uprev.equals(oid)) {
                 u = units.get(units.size() - 1);
                 symbol = u.getSymbol();
@@ -613,13 +621,21 @@ public class OdmExtractDAO extends DatasetDAO {
         ArrayList<MeasurementUnitBean> units = basicDef.getMeasurementUnits();
         String uprev = "";
         this.setStudyMeasurementUnitsTypesExpected();
-        ArrayList<HashMap<String, Object>> rows = this.select(this.getStudyMeasurementUnitsSql(crfVersionOID));
+
+        HashMap<Integer, Object> studyMeasurementUnitsQueryParameters = new HashMap<>();
+        studyMeasurementUnitsQueryParameters.put(1, crfVersionOID);
+
+        ArrayList<HashMap<String, Object>> rows = this.select(
+                this.getStudyMeasurementUnitsSqlByCrfVersionOid(),
+                studyMeasurementUnitsQueryParameters
+        );
+        
         for(HashMap<String, Object> row : rows) {
             String oid = (String) row.get("mu_oid");
             String name = (String) row.get("name");
             MeasurementUnitBean u = new MeasurementUnitBean();
             SymbolBean symbol = new SymbolBean();
-            ArrayList<TranslatedTextBean> texts = new ArrayList<TranslatedTextBean>();
+            ArrayList<TranslatedTextBean> texts = new ArrayList<>();
             if (uprev.equals(oid)) {
                 u = units.get(units.size() - 1);
                 symbol = u.getSymbol();
@@ -636,6 +652,7 @@ public class OdmExtractDAO extends DatasetDAO {
             u.setSymbol(symbol);
         }
     }
+
     public void getUpdatedSiteMetadata(int parentStudyId, int studyId, MetaDataVersionBean metadata, String odmVersion) {
         HashMap<Integer, Integer> cvIdPoses = new HashMap<Integer, Integer>();
         this.setStudyEventAndFormMetaTypesExpected();
@@ -3278,16 +3295,16 @@ public class OdmExtractDAO extends DatasetDAO {
         }
     }
 
-    protected String getStudyMeasurementUnitsSql(int studyId) {
-        return "select distinct mu.oc_oid as mu_oid, mu.name from event_definition_crf edc, crf_version cv, versioning_map vm, item, measurement_unit mu"
-            + " where edc.study_id =" + studyId + " and edc.crf_id = cv.crf_id" + " and cv.crf_version_id = vm.crf_version_id and vm.item_id = item.item_id "
-            + " and item.units = mu.name order by mu.oc_oid";
+    protected String getStudyMeasurementUnitsSqlByStudyId() {
+        return "select distinct mu.oc_oid as mu_oid, mu.name from event_definition_crf edc, crf_version cv, versioning_map vm, item, measurement_unit mu " +
+                "where edc.study_id = ? and edc.crf_id = cv.crf_id and cv.crf_version_id = vm.crf_version_id and vm.item_id = item.item_id " +
+                "and item.units = mu.name order by mu.oc_oid";
     }
 
-    protected String getStudyMeasurementUnitsSql(String crfVersionOid) {
-        return "select distinct mu.oc_oid as mu_oid, mu.name from  crf_version cv, versioning_map vm, item, measurement_unit mu " +
-        		"where cv.oc_OID in (\'"+crfVersionOid +"\')   and cv.crf_version_id = vm.crf_version_id and vm.item_id = item.item_id " +
-        		"and item.units = mu.name order by mu.oc_oid";
+    protected String getStudyMeasurementUnitsSqlByCrfVersionOid() {
+        return "select distinct mu.oc_oid as mu_oid, mu.name from crf_version cv, versioning_map vm, item, measurement_unit mu " +
+                "where cv.oc_OID in (?) and cv.crf_version_id = vm.crf_version_id and vm.item_id = item.item_id " +
+                "and item.units = mu.name order by mu.oc_oid";
     }
   
     protected String getEventGroupItemWithUnitSql(String studyIds, String sedIds, String itemIds, String dateConstraint, int datasetItemStatusId,
