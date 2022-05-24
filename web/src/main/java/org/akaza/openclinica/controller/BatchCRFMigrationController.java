@@ -8,12 +8,13 @@
 package org.akaza.openclinica.controller;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -65,6 +66,7 @@ import org.akaza.openclinica.domain.datamap.CrfVersion;
 import org.akaza.openclinica.domain.datamap.EventCrf;
 import org.akaza.openclinica.domain.datamap.StudyEvent;
 import org.akaza.openclinica.domain.datamap.StudySubject;
+import org.akaza.openclinica.exception.OpenClinicaSystemException;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
 import org.apache.commons.io.IOUtils;
 import org.hibernate.Session;
@@ -110,15 +112,10 @@ public class BatchCRFMigrationController implements Runnable {
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
 
     ResourceBundle resterms;
-    List<EventCRFBean> eventCrfListToMigrate;
-    CRFVersionBean sourceCrfVersionBean;
-    CRFVersionBean targetCrfVersionBean;
     ReportLog reportLog;
     StudyBean stBean;
     CRFBean cBean;
     UserAccountBean userAccountBean;
-    HttpServletRequest request;
-    String urlBase;
 
     public BatchCRFMigrationController() {
         super();
@@ -130,30 +127,21 @@ public class BatchCRFMigrationController implements Runnable {
 
     @RequestMapping(value = "/forms/migrate/{filename}/downloadLogFile")
     public void getLogFile(@PathVariable("filename") String fileName, HttpServletResponse response) throws Exception {
-        InputStream inputStream = null;
-        try {
-            String logFileName = getFilePath() + File.separator + fileName;
-            File fileToDownload = new File(logFileName);
-            inputStream = new FileInputStream(fileToDownload);
-            response.setContentType("application/force-download");
-            response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
-            IOUtils.copy(inputStream, response.getOutputStream());
-            response.flushBuffer();
-        } catch (Exception e) {
-            logger.debug("Request could not be completed at this moment. Please try again.");
-            logger.debug(e.getStackTrace().toString());
-            throw e;
-        } finally {
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (IOException e) {
-                    logger.debug(e.getStackTrace().toString());
-                    throw e;
-                }
+
+        String batchFormMigrationRelDir = getFilePath() + File.separator;
+        File fileToDownload = getFile(fileName, batchFormMigrationRelDir);
+
+        if (fileToDownload != null && fileToDownload.exists()) {
+            try (InputStream inputStream = Files.newInputStream(fileToDownload.toPath())) {
+                response.setContentType("application/force-download");
+                response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
+                IOUtils.copy(inputStream, response.getOutputStream());
+                response.flushBuffer();
+            } catch (Exception e) {
+                logger.debug("Request could not be completed at this moment. Please try again.", e);
+                throw e;
             }
         }
-
     }
 
     /**
@@ -322,7 +310,6 @@ public class BatchCRFMigrationController implements Runnable {
         return helperObject.getReportLog();
     }
 
-
     public void executeMigrationAction(HelperObject helperObject, EventCRFBean eventCRFBean) {
         Session session = helperObject.getSession();
 
@@ -380,9 +367,9 @@ public class BatchCRFMigrationController implements Runnable {
         String sourceCrfVersion = transferObject.getSourceFormVersion();
         String targetCrfVersion = transferObject.getTargetFormVersion();
         ArrayList<String> studyEventDefnlist = transferObject.getStudyEventDefs();
-        ArrayList<String> studyEventDefnlistFiltered = new ArrayList<String>();
+        ArrayList<String> studyEventDefnlistFiltered = new ArrayList<>();
         ArrayList<String> sitelist = transferObject.getSites();
-        ArrayList<String> sitelistFiltered = new ArrayList<String>();
+        ArrayList<String> sitelistFiltered = new ArrayList<>();
 
         CRFVersionBean sourceCrfVersionBean = cvdao().findByOid(sourceCrfVersion);
         CRFVersionBean targetCrfVersionBean = cvdao().findByOid(targetCrfVersion);
@@ -395,7 +382,7 @@ public class BatchCRFMigrationController implements Runnable {
         }
         StudyUserRoleBean suRole = uadao().findRoleByUserNameAndStudyId(userAccountBean.getName(), stBean.getId());
         Role r = suRole.getRole();
-        if (suRole == null || !(r.equals(Role.STUDYDIRECTOR) || r.equals(Role.COORDINATOR))) {
+        if (!suRole.isActive() || !(r.equals(Role.STUDYDIRECTOR) || r.equals(Role.COORDINATOR))) {
             reportLog.getErrors().add(resterms.getString("You_do_not_have_permission_to_perform_CRF_version_migration_in_this_study"));
             helperObject.setReportLog(reportLog);
             return new ResponseEntity<HelperObject>(helperObject, org.springframework.http.HttpStatus.NOT_ACCEPTABLE);
@@ -420,10 +407,10 @@ public class BatchCRFMigrationController implements Runnable {
             return new ResponseEntity<HelperObject>(helperObject, org.springframework.http.HttpStatus.NOT_ACCEPTABLE);
         }
 
-        CRFBean cBean = (CRFBean) cdao().findByPK(sourceCrfVersionBean.getCrfId());
+        CRFBean cBean = cdao().findByPK(sourceCrfVersionBean.getCrfId());
 
         if (sitelist.size() == 0) {
-            ArrayList<StudyBean> listOfSites = (ArrayList<StudyBean>) sdao().findAllByParent(stBean.getId());
+            ArrayList<StudyBean> listOfSites = sdao().findAllByParent(stBean.getId());
             sitelist.add(stBean.getOid());
             for (StudyBean s : listOfSites) {
                 if (s.getStatus().isAvailable()) {
@@ -475,8 +462,8 @@ public class BatchCRFMigrationController implements Runnable {
         List<EventDefinitionCRFBean> crfMigrationDoesNotPerformList = edcdao().findAllCrfMigrationDoesNotPerform(sourceCrfVersionBean, targetCrfVersionBean,
                 studyEventDefnlist, sitelist);
         for (EventDefinitionCRFBean crfMigrationDoesNotPerform : crfMigrationDoesNotPerformList) {
-            StudyEventDefinitionBean seddBean = (StudyEventDefinitionBean) seddao().findByPK(crfMigrationDoesNotPerform.getStudyEventDefinitionId());
-            StudyBean sssBean = (StudyBean) sdao().findByPK(crfMigrationDoesNotPerform.getStudyId());
+            StudyEventDefinitionBean seddBean = seddao().findByPK(crfMigrationDoesNotPerform.getStudyEventDefinitionId());
+            StudyBean sssBean = sdao().findByPK(crfMigrationDoesNotPerform.getStudyId());
             reportLog.getCanNotMigrate().add(
                     resterms.getString("CRF_Version_Migration_cannot_be_performed_for") + " " + sssBean.getName() + " " + seddBean.getName() + ". "
                             + resterms.getString("Both_CRF_versions_are_not_available_at_the_Site"));
@@ -501,8 +488,7 @@ public class BatchCRFMigrationController implements Runnable {
         if (study.getParentStudyId() == 0) {
             return study;
         } else {
-            StudyBean parentStudy = (StudyBean) sdao().findByPK(study.getParentStudyId());
-            return parentStudy;
+            return sdao().findByPK(study.getParentStudyId());
         }
     }
 
@@ -547,25 +533,40 @@ public class BatchCRFMigrationController implements Runnable {
     }
 
     private UserAccountBean getCurrentUser(HttpServletRequest request) {
-        UserAccountBean ub = (UserAccountBean) request.getSession().getAttribute("userBean");
-        return ub;
+        return (UserAccountBean) request.getSession().getAttribute("userBean");
     }
 
     private File createLogFile(String fileName) {
         new File(getFilePath()).mkdir();
         String logFileName = getFilePath() + File.separator + fileName;
-        File logFile = new File(logFileName);
-        return logFile;
+        return new File(logFileName);
     }
 
     private String getFilePath() {
-        String versionMigrationFilePath = CoreResources.getField("filePath") + "crf_version_migration_batch_log_file";
-        return versionMigrationFilePath;
+        return CoreResources.getField("filePath") + "crf_version_migration_batch_log_file";
+    }
+
+    private File getFile(String fileName, String relDirectory) {
+
+        String basePath = getFilePath();
+
+        String normalisedFilePath = Paths.get(relDirectory + fileName).normalize().toString();
+
+        File file = new File(basePath, normalisedFilePath);
+        try {
+            if (file.getCanonicalPath().startsWith(basePath)) {
+                return file;
+            } else {
+                return null;
+            }
+        } catch (IOException e) {
+            logger.debug(e.getMessage(), e);
+            throw new OpenClinicaSystemException("Unable to read file", e);
+        }
     }
 
     private PrintWriter openFile(File file) throws FileNotFoundException, UnsupportedEncodingException {
-        PrintWriter writer = new PrintWriter(file.getPath(), "UTF-8");
-        return writer;
+        return new PrintWriter(file.getPath(), "UTF-8");
     }
 
     private void closeFile(PrintWriter writer) {
@@ -573,8 +574,7 @@ public class BatchCRFMigrationController implements Runnable {
     }
 
     private String getReportUrl(String filename, String urlBase) {
-        String reportUrl = urlBase + "/pages/forms/migrate/" + filename + "/downloadLogFile";
-        return reportUrl;
+        return urlBase + "/pages/forms/migrate/" + filename + "/downloadLogFile";
     }
 
     public TransferObject getUIComponents(HttpServletRequest request) {
@@ -584,13 +584,15 @@ public class BatchCRFMigrationController implements Runnable {
 
         List<String> selectedSiteList = Arrays.asList(selectedSites.split(","));
         List<String> selectedEventList = Arrays.asList(selectedEvents.split(","));
-        ArrayList<String> selectedSiteArrayList = new ArrayList<String>(selectedSiteList);
-        ArrayList<String> selectedEventArrayList = new ArrayList<String>(selectedEventList);
+        ArrayList<String> selectedSiteArrayList = new ArrayList<>(selectedSiteList);
+        ArrayList<String> selectedEventArrayList = new ArrayList<>(selectedEventList);
 
-        if (selectedSiteArrayList.contains("-1"))
+        if (selectedSiteArrayList.contains("-1")) {
             selectedSiteArrayList.clear();
-        if (selectedEventArrayList.contains("-1"))
+        }
+        if (selectedEventArrayList.contains("-1")) {
             selectedEventArrayList.clear();
+        }
 
         TransferObject transferObject = new TransferObject();
         transferObject.setSites(selectedSiteArrayList);
@@ -606,16 +608,16 @@ public class BatchCRFMigrationController implements Runnable {
 
         StringBuffer text1 = new StringBuffer();
         for (String migrationPerform : reportLog.getCanNotMigrate()) {
-            text1.append(migrationPerform.toString()).append('\n');
+            text1.append(migrationPerform).append('\n');
         }
         StringBuffer text2 = new StringBuffer();
         for (String error : reportLog.getErrors()) {
-            text2.append(error.toString()).append('\n');
+            text2.append(error).append('\n');
         }
 
         StringBuffer text3 = new StringBuffer();
         for (String log : reportLog.getLogs()) {
-            text3.append(log.toString()).append('\n');
+            text3.append(log).append('\n');
         }
         StringBuilder sb = new StringBuilder();
         sb.append(resterms.getString("Study") + ": " + stBean.getName() + "\n");
@@ -623,14 +625,14 @@ public class BatchCRFMigrationController implements Runnable {
         sb.append(resterms.getString("Migration_Summary") + ":\n" + resterms.getString("Number_of_Subjects_affected_by_migration") + ": "
                 + reportLog.getSubjectCount() + "\n");
         sb.append(resterms.getString("Number_of_Event_CRF_affected_by_migration") + ": " + reportLog.getEventCrfCount() + "\n");
-        sb.append(text1.toString() + "\n");
+        sb.append(text1 + "\n");
 
 
         if (reportLog.getErrors().size() != 0) {
-            sb.append(resterms.getString("Errors") + ":\n" + text2.toString() + "\n");
+            sb.append(resterms.getString("Errors") + ":\n" + text2 + "\n");
         }
         sb.append(resterms.getString("Report_Log") + ":\n"
-                + resterms.getString("CRF_Name__Origin_Version__Target_Version__Subject_ID__Site__Event__Event_Ordinal") + "\n" + text3.toString());
+                + resterms.getString("CRF_Name__Origin_Version__Target_Version__Subject_ID__Site__Event__Event_Ordinal") + "\n" + text3);
         return sb.toString();
     }
 
@@ -638,16 +640,16 @@ public class BatchCRFMigrationController implements Runnable {
 
         StringBuffer text1 = new StringBuffer();
         for (String migrationPerform : reportLog.getCanNotMigrate()) {
-            text1.append(migrationPerform.toString()).append("<br>");
+            text1.append(migrationPerform).append("<br>");
         }
         StringBuffer text2 = new StringBuffer();
         for (String error : reportLog.getErrors()) {
-            text2.append(error.toString()).append("<br>");
+            text2.append(error).append("<br>");
         }
 
         StringBuffer text3 = new StringBuffer();
         for (String log : reportLog.getLogs()) {
-            text3.append(log.toString()).append("<br>");
+            text3.append(log).append("<br>");
         }
         StringBuilder sb = new StringBuilder();
 
@@ -662,7 +664,7 @@ public class BatchCRFMigrationController implements Runnable {
             sb.append(resterms.getString("Number_of_Subjects_to_be_affected_by_migration") + ": " + reportLog.getSubjectCount() + "<br>");
             sb.append(resterms.getString("Number_of_Event_CRF_to_be_affected_by_migration") + ": " + reportLog.getEventCrfCount() + "<br>");
             sb.append("<br>");
-            sb.append(text1.toString() + "<br>");
+            sb.append(text1 + "<br>");
         }
 
         if (reportLog.getErrors().size() != 0) {
@@ -672,7 +674,7 @@ public class BatchCRFMigrationController implements Runnable {
             sb.append("<br>");
 
             sb.append("<font color=\"red\"><b>");
-            sb.append(text2.toString());
+            sb.append(text2);
             sb.append("</b></font>");
             sb.append("<br>");
         }
@@ -684,13 +686,10 @@ public class BatchCRFMigrationController implements Runnable {
         try {
             response.sendRedirect(request.getContextPath() + location);
         } catch (Exception e) {
-            logger.debug(e.getStackTrace().toString());
-        } finally {
-
+            logger.debug(Arrays.toString(e.getStackTrace()));
         }
 
         return null;
-
     }
 
     @Override
@@ -717,10 +716,10 @@ public class BatchCRFMigrationController implements Runnable {
                 session.clear();
             }
 
-            StudySubjectBean ssBean = (StudySubjectBean) ssdao().findByPK(eventCrfToMigrate.getStudySubjectId());
-            StudyBean sBean = (StudyBean) sdao().findByPK(ssBean.getStudyId());
-            StudyEventBean seBean = (StudyEventBean) sedao().findByPK(eventCrfToMigrate.getStudyEventId());
-            StudyEventDefinitionBean sedBean = (StudyEventDefinitionBean) seddao().findByPK(seBean.getStudyEventDefinitionId());
+            StudySubjectBean ssBean = ssdao().findByPK(eventCrfToMigrate.getStudySubjectId());
+            StudyBean sBean = sdao().findByPK(ssBean.getStudyId());
+            StudyEventBean seBean = sedao().findByPK(eventCrfToMigrate.getStudyEventId());
+            StudyEventDefinitionBean sedBean = seddao().findByPK(seBean.getStudyEventDefinitionId());
             reportLog.getLogs().add(
                     cBean.getName() + "," + helperObject.getSourceCrfVersionBean().getName() + "," + helperObject.getTargetCrfVersionBean().getName() + ","
                             + ssBean.getLabel() + ","
@@ -765,4 +764,5 @@ public class BatchCRFMigrationController implements Runnable {
        helperObject.setCrfVersionDao(crfVersionDao);
        helperObject.setSessionFactory(sessionFactory);
    }
+
 }

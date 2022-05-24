@@ -103,10 +103,6 @@ public class EventCRFDAO extends AuditableEntityDAO<EventCRFBean> {
         this.setTypeExpected(21, TypeNames.BOOL);// sdv_status
         this.setTypeExpected(22, TypeNames.INT);// old_status
         this.setTypeExpected(23, TypeNames.INT); // sdv_update_id
-        // if ("oracle".equalsIgnoreCase(CoreResources.getDBName())) {
-        // this.setTypeExpected(24, TypeNames.INT); // r
-        // }
-
     }
 
     public EventCRFBean update(EventCRFBean ecb) {
@@ -343,25 +339,21 @@ public class EventCRFDAO extends AuditableEntityDAO<EventCRFBean> {
         this.setTypeExpected(24, TypeNames.STRING);
         this.setTypeExpected(25, TypeNames.STRING);
         this.setTypeExpected(26, TypeNames.STRING);
-        if ("oracle".equalsIgnoreCase(CoreResources.getDBName())) {
-            this.setTypeExpected(25, TypeNames.STRING); // r
-            this.setTypeExpected(26, TypeNames.STRING); // r
-            this.setTypeExpected(27, TypeNames.STRING); // r
-        }
+        
         HashMap<Integer, Object> variables = new HashMap<>();
-        variables.put(new Integer(1), new Integer(versionId));
+        variables.put(1, versionId);
 
         ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findAllStudySubjectByCRFVersion"), variables);
         ArrayList<EventCRFBean> al = new ArrayList<>();
         for(HashMap<String, Object> hm : alist) {
-            EventCRFBean eb = (EventCRFBean) this.getEntityFromHashMap(hm);
+            EventCRFBean eb = this.getEntityFromHashMap(hm);
             eb.setStudySubjectName((String) hm.get("label"));
             eb.setEventName((String) hm.get("sed_name"));
             eb.setStudyName((String) hm.get("study_name"));
             al.add(eb);
         }
+        
         return al;
-
     }
 
     public ArrayList<EventCRFBean> findUndeletedWithStudySubjectsByCRFVersion(int versionId) {
@@ -550,7 +542,7 @@ public class EventCRFDAO extends AuditableEntityDAO<EventCRFBean> {
     }
 
     public ArrayList<EventCRFBean> getWithFilterAndSort(int studyId, int parentStudyId, EventCRFSDVFilter filter, EventCRFSDVSort sort, int rowStart, int rowEnd) {
-        ArrayList<EventCRFBean> eventCRFs = new ArrayList<EventCRFBean>();
+        ArrayList<EventCRFBean> eventCRFs = new ArrayList<>();
         setTypesExpected();
 
         HashMap<Integer, Object> variables = new HashMap<>();
@@ -560,18 +552,14 @@ public class EventCRFDAO extends AuditableEntityDAO<EventCRFBean> {
         sql = sql + filter.execute("");
         // sql = sql + sort.execute("");
         sql = sql + " order By  ec.date_created ASC "; // major hack
-        if ("oracle".equalsIgnoreCase(CoreResources.getDBName())) {
-            // sql += " )  where rownum <= " + rowEnd + " and rownum >" + rowStart + " ";
-            sql += " )x)where r between " + (rowStart + 1) + " and " + rowEnd;
-        } else {
-            sql = sql + " LIMIT " + (rowEnd - rowStart) + " OFFSET " + rowStart;
-        }
+        sql = sql + " LIMIT " + (rowEnd - rowStart) + " OFFSET " + rowStart;
 
         ArrayList<HashMap<String, Object>> rows = this.select(sql, variables);
         for(HashMap<String, Object> hm : rows) {
             EventCRFBean eventCRF = this.getEntityFromHashMap(hm);
             eventCRFs.add(eventCRF);
         }
+        
         return eventCRFs;
     }
 

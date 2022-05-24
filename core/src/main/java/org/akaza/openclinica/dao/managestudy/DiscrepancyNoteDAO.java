@@ -258,13 +258,8 @@ public class DiscrepancyNoteDAO extends AuditableEntityDAO<DiscrepancyNoteBean> 
         String sql = digester.getQuery("getWithFilterAndSort");
         sql += filter.execute("", variables);
 
-        if ("oracle".equalsIgnoreCase(CoreResources.getDBName())) {
-            sql += " AND rownum <= " + rowEnd + " and rownum >" + rowStart;
-            sql = sql + sort.execute("");
-        } else {
-            sql = sql + sort.execute("");
-            sql = sql + " LIMIT " + (rowEnd - rowStart) + " OFFSET " + rowStart;
-        }
+        sql = sql + sort.execute("");
+        sql = sql + " LIMIT " + (rowEnd - rowStart) + " OFFSET " + rowStart;
 
         ArrayList<HashMap<String, Object>> rows = select(sql, variables);
         for (HashMap<String, Object> row : rows) {
@@ -310,11 +305,8 @@ public class DiscrepancyNoteDAO extends AuditableEntityDAO<DiscrepancyNoteBean> 
             query += " and ec.event_crf_id not in ( " + this.findSiteHiddenEventCrfIdsString(currentStudy) + " ) ";
         }
         query += filter.execute("", variables);
-        if ("oracle".equalsIgnoreCase(CoreResources.getDBName())) {
-            query += " ) all_dn";
-        } else {
-            query += " ) as all_dn";
-        }
+        query += " ) as all_dn";
+
         return getCountByQuery(query, variables);
     }
 
@@ -351,82 +343,10 @@ public class DiscrepancyNoteDAO extends AuditableEntityDAO<DiscrepancyNoteBean> 
             query += " and ec.event_crf_id not in ( " + this.findSiteHiddenEventCrfIdsString(currentStudy) + " ) ";
         }
         query += filter;
-        if ("oracle".equalsIgnoreCase(CoreResources.getDBName())) {
-            query += " ) all_dn";
-        } else {
-            query += " ) as all_dn";
-        }
+        query += " ) as all_dn";
 
         return getCountByQuery(query, variables);
     }
-
-    /*
-     * public ArrayList<DiscrepancyNoteBean> getViewNotesWithFilterAndSort(StudyBean currentStudy, ListNotesFilter
-     * filter, ListNotesSort sort, int rowStart,
-     * int rowEnd) {
-     * ArrayList<DiscrepancyNoteBean> discNotes = new ArrayList<DiscrepancyNoteBean>();
-     * setTypesExpected();
-     * this.setTypeExpected(12, TypeNames.STRING);
-     * this.setTypeExpected(13, TypeNames.INT);
-     * this.setTypeExpected(14, TypeNames.INT);
-     * this.setTypeExpected(15, TypeNames.INT);
-     * 
-     * HashMap variables = new HashMap();
-     * variables.put(Integer.valueOf(1), currentStudy.getId());
-     * variables.put(Integer.valueOf(2), currentStudy.getId());
-     * variables.put(Integer.valueOf(3), currentStudy.getId());
-     * variables.put(Integer.valueOf(4), currentStudy.getId());
-     * variables.put(Integer.valueOf(5), currentStudy.getId());
-     * variables.put(Integer.valueOf(6), currentStudy.getId());
-     * variables.put(Integer.valueOf(7), currentStudy.getId());
-     * variables.put(Integer.valueOf(8), currentStudy.getId());
-     * variables.put(Integer.valueOf(9), currentStudy.getId());
-     * variables.put(Integer.valueOf(10), currentStudy.getId());
-     * 
-     * String sql = "";
-     * if ("oracle".equalsIgnoreCase(CoreResources.getDBName())) {
-     * sql = sql + "SELECT * FROM ( SELECT x.*, ROWNUM as rnum FROM (";
-     * }
-     * sql = sql + digester.getQuery("findAllSubjectDNByStudy");
-     * sql = sql + filter.execute("");
-     * sql += " UNION ";
-     * sql += digester.getQuery("findAllStudySubjectDNByStudy");
-     * sql += filter.execute("");
-     * sql += " UNION ";
-     * sql += digester.getQuery("findAllStudyEventDNByStudy");
-     * sql += filter.execute("");
-     * sql += " UNION ";
-     * sql += digester.getQuery("findAllEventCrfDNByStudy");
-     * if (currentStudy.isSite(currentStudy.getParentStudyId())) {
-     * sql += " and ec.event_crf_id not in ( " + this.findSiteHiddenEventCrfIdsString(currentStudy) + " ) ";
-     * }
-     * sql += filter.execute("");
-     * sql += " UNION ";
-     * sql += digester.getQuery("findAllItemDataDNByStudy");
-     * if (currentStudy.isSite(currentStudy.getParentStudyId())) {
-     * sql += " and ec.event_crf_id not in ( " + this.findSiteHiddenEventCrfIdsString(currentStudy) + " ) ";
-     * }
-     * sql += filter.execute("");
-     * 
-     * if ("oracle".equalsIgnoreCase(CoreResources.getDBName())) {
-     * sql += ") x )  WHERE rnum BETWEEN " + (rowStart + 1) + " and " + rowEnd;
-     * sql += sort.execute("");
-     * } else {
-     * sql += sort.execute("");
-     * sql += " LIMIT " + (rowEnd - rowStart) + " OFFSET " + rowStart;
-     * }
-     * // System.out.println(sql);
-     * ArrayList rows = select(sql, variables);
-     * 
-     * Iterator it = rows.iterator();
-     * while (it.hasNext()) {
-     * DiscrepancyNoteBean discBean = (DiscrepancyNoteBean) this.getEntityFromHashMap((HashMap) it.next());
-     * discBean = findSingleMapping(discBean);
-     * discNotes.add(discBean);
-     * }
-     * return discNotes;
-     * }
-     */
 
     public ArrayList<DiscrepancyNoteBean> getViewNotesWithFilterAndSort(StudyBean currentStudy, ListNotesFilter filter, ListNotesSort sort) {
         ArrayList<DiscrepancyNoteBean> discNotes = new ArrayList<>();
@@ -447,12 +367,8 @@ public class DiscrepancyNoteDAO extends AuditableEntityDAO<DiscrepancyNoteBean> 
         variables.put(8, currentStudy.getId());
         variables.put(9, currentStudy.getId());
         variables.put(10, currentStudy.getId());
-
-        String sql = "";
-        // if ("oracle".equalsIgnoreCase(CoreResources.getDBName())) {
-        // sql = sql + "SELECT * FROM ( SELECT x.*, ROWNUM as rnum FROM (";
-        // }
-        sql = sql + digester.getQuery("findAllSubjectDNByStudy");
+        
+        String sql = digester.getQuery("findAllSubjectDNByStudy");
         sql += filter.execute("", variables);
         sql += " UNION ";
         sql += digester.getQuery("findAllStudySubjectDNByStudy");
@@ -1494,18 +1410,11 @@ public class DiscrepancyNoteDAO extends AuditableEntityDAO<DiscrepancyNoteBean> 
         String sql = digester.getQuery("findByStudyEvent");
         sql += constraints.toString();
         if (isSite) {
-            if ("oracle".equalsIgnoreCase(CoreResources.getDBName())) {
-                sql += " AND ec.crf_version_id not in (select cv.crf_version_id from crf_version cv where cv.crf_id in ("
-                        + "select edc.crf_id from event_definition_crf edc, study_event se where se.study_event_id = " + studyEvent.getId()
-                        + " AND edc.study_event_definition_id = se.study_event_definition_id AND edc.hide_crf = 1" + " AND edc.event_definition_crf_id not in ("
-                        + "select parent_id from event_definition_crf where study_event_definition_id = se.study_event_definition_id and parent_id > 0)) )";
-            } else {
-                sql += " AND ec.crf_version_id not in (select cv.crf_version_id from crf_version cv where cv.crf_id in ("
-                        + "select edc.crf_id from event_definition_crf edc, study_event se where se.study_event_id = " + studyEvent.getId()
-                        + " AND edc.study_event_definition_id = se.study_event_definition_id AND edc.hide_crf = 'true'"
-                        + " AND edc.event_definition_crf_id not in ("
-                        + "select parent_id from event_definition_crf where study_event_definition_id = se.study_event_definition_id and parent_id > 0)) )";
-            }
+            sql += " AND ec.crf_version_id not in (select cv.crf_version_id from crf_version cv where cv.crf_id in ("
+                    + "select edc.crf_id from event_definition_crf edc, study_event se where se.study_event_id = " + studyEvent.getId()
+                    + " AND edc.study_event_definition_id = se.study_event_definition_id AND edc.hide_crf = 'true'"
+                    + " AND edc.event_definition_crf_id not in ("
+                    + "select parent_id from event_definition_crf where study_event_definition_id = se.study_event_definition_id and parent_id > 0)) )";
         }
         sql += " group By  dn.resolution_status_id ";
         ArrayList<HashMap<String, Object>> al = this.select(sql, variables);
@@ -1532,38 +1441,21 @@ public class DiscrepancyNoteDAO extends AuditableEntityDAO<DiscrepancyNoteBean> 
             sql = digester.getQuery("findByStudyEvent");
             temp = " and (dn.entity_type='itemData' or dn.entity_type='ItemData') ";
             if (isSite) {
-                if ("oracle".equalsIgnoreCase(CoreResources.getDBName())) {
-                    temp += " AND ec.crf_version_id not in (select cv.crf_version_id from crf_version cv where cv.crf_id in ("
-                            + "select edc.crf_id from event_definition_crf edc, study_event se where se.study_event_id = " + studyEvent.getId()
-                            + " AND edc.study_event_definition_id = se.study_event_definition_id AND edc.hide_crf = 1"
-                            + " AND edc.event_definition_crf_id not in ("
-                            + "select parent_id from event_definition_crf where study_event_definition_id = se.study_event_definition_id and parent_id > 0)) )";
-                } else {
-                    temp += " AND ec.crf_version_id not in (select cv.crf_version_id from crf_version cv where cv.crf_id in ("
-                            + "select edc.crf_id from event_definition_crf edc, study_event se where se.study_event_id = " + studyEvent.getId()
-                            + " AND edc.study_event_definition_id = se.study_event_definition_id AND edc.hide_crf = 'true'"
-                            + " AND edc.event_definition_crf_id not in ("
-                            + "select parent_id from event_definition_crf where study_event_definition_id = se.study_event_definition_id and parent_id > 0)) )";
-
-                }
+                temp += " AND ec.crf_version_id not in (select cv.crf_version_id from crf_version cv where cv.crf_id in ("
+                        + "select edc.crf_id from event_definition_crf edc, study_event se where se.study_event_id = " + studyEvent.getId()
+                        + " AND edc.study_event_definition_id = se.study_event_definition_id AND edc.hide_crf = 'true'"
+                        + " AND edc.event_definition_crf_id not in ("
+                        + "select parent_id from event_definition_crf where study_event_definition_id = se.study_event_definition_id and parent_id > 0)) )";
             }
         } else if ("eventCrf".equalsIgnoreCase(entityType)) {
             sql = digester.getQuery("countByEventCrfTypeAndStudyEvent");
             temp = " and dn.entity_type='eventCrf' ";
             if (isSite) {
-                if ("oracle".equalsIgnoreCase(CoreResources.getDBName())) {
-                    temp += " AND ec.crf_version_id not in (select cv.crf_version_id from crf_version cv where cv.crf_id in ("
-                            + "select edc.crf_id from event_definition_crf edc, study_event se where se.study_event_id = " + studyEvent.getId()
-                            + " AND edc.study_event_definition_id = se.study_event_definition_id AND edc.hide_crf = 1"
-                            + " AND edc.event_definition_crf_id not in ("
-                            + "select parent_id from event_definition_crf where study_event_definition_id = se.study_event_definition_id and parent_id > 0)) )";
-                } else {
-                    temp += " AND ec.crf_version_id not in (select cv.crf_version_id from crf_version cv where cv.crf_id in ("
-                            + "select edc.crf_id from event_definition_crf edc, study_event se where se.study_event_id = " + studyEvent.getId()
-                            + " AND edc.study_event_definition_id = se.study_event_definition_id AND edc.hide_crf = 'true'"
-                            + " AND edc.event_definition_crf_id not in ("
-                            + "select parent_id from event_definition_crf where study_event_definition_id = se.study_event_definition_id and parent_id > 0)) )";
-                }
+                temp += " AND ec.crf_version_id not in (select cv.crf_version_id from crf_version cv where cv.crf_id in ("
+                        + "select edc.crf_id from event_definition_crf edc, study_event se where se.study_event_id = " + studyEvent.getId()
+                        + " AND edc.study_event_definition_id = se.study_event_definition_id AND edc.hide_crf = 'true'"
+                        + " AND edc.event_definition_crf_id not in ("
+                        + "select parent_id from event_definition_crf where study_event_definition_id = se.study_event_definition_id and parent_id > 0)) )";
             }
         } else if ("studyEvent".equalsIgnoreCase(entityType)) {
             sql = digester.getQuery("countByStudyEventTypeAndStudyEvent");
@@ -1747,26 +1639,13 @@ public class DiscrepancyNoteDAO extends AuditableEntityDAO<DiscrepancyNoteBean> 
     }
 
     public String findSiteHiddenEventCrfIdsString(StudyBean site) {
-        String sql;
-        if ("oracle".equalsIgnoreCase(CoreResources.getDBName())) {
-            sql = "select ec.event_crf_id from event_crf ec, study_event se, crf_version cv, " + "(select edc.study_event_definition_id, edc.crf_id, crf.name "
-                    + "from event_definition_crf edc, crf, study s " + "where s.study_id=" + site.getId()
-                    + " and (edc.study_id = s.study_id or edc.study_id = s.parent_study_id)" + "    and edc.event_definition_crf_id not in ( "
-                    + "        select parent_id from event_definition_crf where study_id=s.study_id) "
-                    + "            and edc.status_id=1 and edc.hide_crf = 1 and edc.crf_id = crf.crf_id) sedc " + "where ec.study_event_id = se.study_event_id "
-                    + "and se.study_event_definition_id = sedc.study_event_definition_id "
-                    + "and ec.crf_version_id = cv.crf_version_id and cv.crf_id = sedc.crf_id";
-        } else {
-            sql = "select ec.event_crf_id from event_crf ec, study_event se, crf_version cv, " + "(select edc.study_event_definition_id, edc.crf_id, crf.name "
+        return "select ec.event_crf_id from event_crf ec, study_event se, crf_version cv, " + "(select edc.study_event_definition_id, edc.crf_id, crf.name "
                     + "from event_definition_crf edc, crf, study s " + "where s.study_id=" + site.getId()
                     + " and (edc.study_id = s.study_id or edc.study_id = s.parent_study_id)" + "    and edc.event_definition_crf_id not in ( "
                     + "        select parent_id from event_definition_crf where study_id=s.study_id) "
                     + "            and edc.status_id=1 and edc.hide_crf = 'true' and edc.crf_id = crf.crf_id) as sedc "
                     + "where ec.study_event_id = se.study_event_id " + "and se.study_event_definition_id = sedc.study_event_definition_id "
                     + "and ec.crf_version_id = cv.crf_version_id and cv.crf_id = sedc.crf_id";
-        }
-
-        return sql;
     }
 
     public EntityBean findLatestChildByParent(int parentId) {

@@ -638,13 +638,8 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
     public ArrayList<StudyBean> findAllByLimit(boolean isLimited) {
         this.setTypesExpected();
         String sql;
-        // Updated for ORACLE and PGSQL compatibility
         if (isLimited) {
-            if (CoreResources.getDBName().equals("oracle")) {
-                sql = digester.getQuery("findAll") + " where ROWNUM <=5";
-            } else {
-                sql = digester.getQuery("findAll") + " limit 5";
-            }
+            sql = digester.getQuery("findAll") + " limit 5";
         } else {
             sql = digester.getQuery("findAll");
         }

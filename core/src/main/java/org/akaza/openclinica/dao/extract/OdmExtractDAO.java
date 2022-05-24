@@ -1979,9 +1979,6 @@ public class OdmExtractDAO extends DatasetDAO {
         if ("postgres".equalsIgnoreCase(dbName)) {
             dateConstraint = "and " + sss[1] + " and " + sss[2];
             dateConstraint = dateConstraint.replace("date_created", "ss.enrollment_date");
-        } else if ("oracle".equalsIgnoreCase(dbName)) {
-            String[] os = (sss[1] + sss[2]).split("'");
-            dateConstraint = "and trunc(ss.enrollment_date) >= to_date('" + os[1] + "') and trunc(ss.enrollment_date) <= to_date('" + os[3] + "')";
         }
         logger.debug("Begin to GetSubjectEventFormSql");
         if (odmVersion.startsWith("oc")) {
@@ -2349,22 +2346,7 @@ public class OdmExtractDAO extends DatasetDAO {
                         auditLog.setOldValue(Status.getFromMap(Integer.parseInt(oldValue)).getName());
                     }
                 } //Fix for 0011675: SDV'ed subject is dipslayed as not SDV'ed in the 1.3 Full ODM Extract commenting out the following lines as these are treated like booleans while they are strings
-                //JN:The Oracle still continues to have 1 and 2 for this audit type 32 so enabling the following code for oracle only, ideally the trigger should be coded same for both postgres and oracle and since the trigger doesnt do same things, the existing data would still be a problem, so doing this patch work
-               
-                 else if ((typeId == 32) &&
-                	  ("oracle".equalsIgnoreCase(dbName))){
-                    if ("1".equals(newValue)) {
-                        auditLog.setNewValue("TRUE");
-                    } else {
-                        auditLog.setNewValue("FALSE");
-                    }
-                    if ("1".equals(oldValue)) {
-                        auditLog.setOldValue("TRUE");
-                    } else {
-                        auditLog.setOldValue("FALSE");
-                    }
-                	 }
-                 else {
+                else {
                     auditLog.setNewValue(newValue);
                     auditLog.setOldValue(oldValue);
                 }

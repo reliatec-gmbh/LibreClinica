@@ -24,9 +24,6 @@ public class DatabaseChangeLogDaoTest extends HibernateOcDbTestCase {
         if (getDbName().equals("postgres")) {
             assertEquals("Total Count should be", String.valueOf(POSTGRES_COUNT), String.valueOf(count));
         }
-        if (getDbName().equals("oracle")) {
-            assertEquals("Total Count should be", String.valueOf(ORACLE_COUNT), String.valueOf(count));
-        }
 
     }
 
@@ -39,9 +36,7 @@ public class DatabaseChangeLogDaoTest extends HibernateOcDbTestCase {
         if (getDbName().equals("postgres")) {
             assertEquals("Total Count should be", String.valueOf(POSTGRES_COUNT), String.valueOf(databaseChangeLogBeans.size()));
         }
-        if (getDbName().equals("oracle")) {
-            assertEquals("Total Count should be", String.valueOf(ORACLE_COUNT), String.valueOf(databaseChangeLogBeans.size()));
-        }
+        
         assertNotNull(databaseChangeLogBean);
 
     }
