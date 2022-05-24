@@ -403,14 +403,6 @@ public class CreateDatasetServlet extends SecureController {
                     }
                     DatasetBean dsb = (DatasetBean) session.getAttribute("newDataset");
                     dsb.setSQLStatement(dsb.generateQuery());
-                    String dbName = SQLInitServlet.getField("dataBase");
-                    if ("oracle".equals(dbName)) {
-                        dsb.setSQLStatement(dsb.generateOracleQuery());
-                    }
-                    // TODO set up oracle syntax for the query, grab the
-                    // database
-                    // from the session manager and feed it to the dataset bean
-                    // possibly done, tbh 1/4/2005
 
                     // TODO look for the filter here, re-create the sql
                     // statement
