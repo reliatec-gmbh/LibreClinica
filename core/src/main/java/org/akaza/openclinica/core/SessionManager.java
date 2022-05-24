@@ -96,10 +96,7 @@ public class SessionManager {
             Context ctx = new InitialContext();
             Context env = (Context) ctx.lookup("java:comp/env");
             String dbName = CoreResources.getField("dataBase");
-            if ("oracle".equals(dbName)) {
-                // logger.debug("looking up oracle...");
-                ds = (DataSource) env.lookup("SQLOracle");
-            } else if ("postgres".equals(dbName)) {
+            if ("postgres".equals(dbName)) {
                 // logger.debug("looking up postgres...");
                 ds = (DataSource) env.lookup("SQLPostgres");
             }

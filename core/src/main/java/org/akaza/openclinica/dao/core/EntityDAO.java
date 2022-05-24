@@ -933,7 +933,6 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
      *      *******************************************************************************
      *
      *
-     *      @ywang, 09-09-2008, modified syntax of some sql scripts for oracle database.
      *
      */
     /**
@@ -1086,11 +1085,7 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
                 obj.setUniqueIdentifier(getAsString(rs, "unique_identifier", ""));
 
                 // Date of birth
-                if (CoreResources.getDBName().equals("oracle")) {
-                    obj.setDobCollected(getAsString(rs, "dob_collected", "").equals("1"));
-                } else {
-                    obj.setDobCollected(getAsBoolean(rs, "dob_collected", false));
-                }
+                obj.setDobCollected(getAsBoolean(rs, "dob_collected", false));
 
                 Status status = Status.get(getAsInt(rs, "status_id", 0));
                 obj.setStatus(status);
@@ -1219,26 +1214,15 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
          *
          *
          */
-        if ("oracle".equalsIgnoreCase(CoreResources.getDBName())) {
-            return "SELECT distinct study_subject.study_subject_id , study_subject.label,  study_subject.subject_id, "
-                    + "  subject.date_of_birth, subject.gender, subject.unique_identifier, subject.dob_collected,  "
-                    + "  subject.status_id, study_subject.secondary_label" + "  FROM  " + "     study_subject "
-                    + "  JOIN subject ON (study_subject.subject_id = subject.subject_id)  " + "  WHERE  " + "     study_subject.study_subject_id IN  " + "  ( "
-                    + "SELECT DISTINCT studysubjectid FROM " + "( "
-                    + getSQLDatasetBASE_EVENTSIDE(studyid, studyparentid, sedin, it_in, dateConstraint, ecStatusConstraint, itStatusConstraint) + " ) SBQTWO "
-                    + "  ) order by study_subject.study_subject_id";
-        } else {
-            return " SELECT   " + " DISTINCT ON (study_subject.study_subject_id ) "
-                    + " study_subject.study_subject_id , study_subject.label,  study_subject.subject_id, "
-                    + "  subject.date_of_birth, subject.gender, subject.unique_identifier, subject.dob_collected,  "
-                    + "  subject.status_id, study_subject.secondary_label, study_event.start_time_flag, study_event.end_time_flag  " + "  FROM  "
-                    + "   study_subject " + "  JOIN subject ON (study_subject.subject_id = subject.subject_id::numeric)  "
-                    + "  JOIN study_event ON (study_subject.study_subject_id = study_event.study_subject_id) " + "  WHERE  "
-                    + "   study_subject.study_subject_id IN  " + "  ( " + "SELECT DISTINCT studysubjectid FROM " + "( "
-                    + getSQLDatasetBASE_EVENTSIDE(studyid, studyparentid, sedin, it_in, dateConstraint, ecStatusConstraint, itStatusConstraint)
-                    + " ) AS SBQTWO " + "  ) ";
-
-        }
+        return " SELECT   " + " DISTINCT ON (study_subject.study_subject_id ) "
+                + " study_subject.study_subject_id , study_subject.label,  study_subject.subject_id, "
+                + "  subject.date_of_birth, subject.gender, subject.unique_identifier, subject.dob_collected,  "
+                + "  subject.status_id, study_subject.secondary_label, study_event.start_time_flag, study_event.end_time_flag  " + "  FROM  "
+                + "   study_subject " + "  JOIN subject ON (study_subject.subject_id = subject.subject_id::numeric)  "
+                + "  JOIN study_event ON (study_subject.study_subject_id = study_event.study_subject_id) " + "  WHERE  "
+                + "   study_subject.study_subject_id IN  " + "  ( " + "SELECT DISTINCT studysubjectid FROM " + "( "
+                + getSQLDatasetBASE_EVENTSIDE(studyid, studyparentid, sedin, it_in, dateConstraint, ecStatusConstraint, itStatusConstraint)
+                + " ) AS SBQTWO " + "  ) ";
     }
 
     /**
@@ -1254,9 +1238,9 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
         int datasetItemStatusId = eb.getDataset().getDatasetItemStatus().getId();
         String ecStatusConstraint = this.getECStatusConstraint(datasetItemStatusId);
         String itStatusConstraint = this.getItemDataStatusConstraint(datasetItemStatusId);
-        // YW, 09-2008, << modified syntax of sql for oracle database
+
         String query = getSQLDatasetBASE_ITEMGROUPSIDE(studyid, parentid, sedin, it_in, genDatabaseDateConstraint(eb), ecStatusConstraint, itStatusConstraint);
-        // YW, 09-2008 >>
+
         logger.error("sqlDatasetBase_itemGroupside=" + query);
         boolean bret = false;
         ResultSet rs = null;
@@ -1307,9 +1291,9 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
         int datasetItemStatusId = eb.getDataset().getDatasetItemStatus().getId();
         String ecStatusConstraint = this.getECStatusConstraint(datasetItemStatusId);
         String itStatusConstraint = this.getItemDataStatusConstraint(datasetItemStatusId);
-        // YW, 09-2008, << modified syntax of sql for oracle database
+
         String query = getSQLDatasetBASE_EVENTSIDE(studyid, parentid, sedin, it_in, this.genDatabaseDateConstraint(eb), ecStatusConstraint, itStatusConstraint);
-        // YW, 09-2008>>
+
         logger.error("sqlDatasetBase_eventside=" + query);
         boolean bret = false;
         ResultSet rs = null;
@@ -1596,63 +1580,39 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
 
                 // start_time_flag
                 Boolean vstart_time_flag;
-                if (CoreResources.getDBName().equals("oracle")) {
-                    vstart_time_flag = rs.getString("start_time_flag").equals("1");
-                    if (rs.wasNull()) {
-                        // if (column.equalsIgnoreCase("start_time_flag") ||
-                        // column.equalsIgnoreCase("end_time_flag")) {
-                        vstart_time_flag = Boolean.FALSE;
-                        // } else {
-                        // hm.put(column, new Boolean(true));
-                        // }
-                    }
-                } else {
-                    vstart_time_flag = rs.getBoolean("start_time_flag");
-                    if (rs.wasNull()) {
-                        // YW 08-17-2007 << Since I didn't investigate
-                        // what's the impact if changing true to false,
-                        // I only do change for the columns of
-                        // "start_time_flag" and "end_time_flag" in the
-                        // table study_event
-                        // if (column.equalsIgnoreCase("start_time_flag") ||
-                        // column.equalsIgnoreCase("end_time_flag")) {
-                        vstart_time_flag = Boolean.FALSE;
-                        // } else {
-                        // hm.put(column, new Boolean(true));
-                        // }
-                        // bad idea? what to put, then?
-                    }
-                } // if
+                vstart_time_flag = rs.getBoolean("start_time_flag");
+                if (rs.wasNull()) {
+                    // YW 08-17-2007 << Since I didn't investigate
+                    // what's the impact if changing true to false,
+                    // I only do change for the columns of
+                    // "start_time_flag" and "end_time_flag" in the
+                    // table study_event
+                    // if (column.equalsIgnoreCase("start_time_flag") ||
+                    // column.equalsIgnoreCase("end_time_flag")) {
+                    vstart_time_flag = Boolean.FALSE;
+                    // } else {
+                    // hm.put(column, new Boolean(true));
+                    // }
+                    // bad idea? what to put, then?
+                }
 
                 // end_time_flag
                 Boolean vend_time_flag;
-                if (CoreResources.getDBName().equals("oracle")) {
-                    vend_time_flag = rs.getString("end_time_flag").equals("1");
-                    if (rs.wasNull()) {
-                        // if (column.equalsIgnoreCase("start_time_flag") ||
-                        // column.equalsIgnoreCase("end_time_flag")) {
-                        vend_time_flag = Boolean.FALSE;
-                        // } else {
-                        // hm.put(column, new Boolean(true));
-                        // }
-                    }
-                } else {
-                    vend_time_flag = rs.getBoolean("end_time_flag");
-                    if (rs.wasNull()) {
-                        // YW 08-17-2007 << Since I didn't investigate
-                        // what's the impact if changing true to false,
-                        // I only do change for the columns of
-                        // "start_time_flag" and "end_time_flag" in the
-                        // table study_event
-                        // if (column.equalsIgnoreCase("start_time_flag") ||
-                        // column.equalsIgnoreCase("end_time_flag")) {
-                        vend_time_flag = Boolean.FALSE;
-                        // } else {
-                        // hm.put(column, new Boolean(true));
-                        // }
-                        // bad idea? what to put, then?
-                    }
-                } // if
+                vend_time_flag = rs.getBoolean("end_time_flag");
+                if (rs.wasNull()) {
+                    // YW 08-17-2007 << Since I didn't investigate
+                    // what's the impact if changing true to false,
+                    // I only do change for the columns of
+                    // "start_time_flag" and "end_time_flag" in the
+                    // table study_event
+                    // if (column.equalsIgnoreCase("start_time_flag") ||
+                    // column.equalsIgnoreCase("end_time_flag")) {
+                    vend_time_flag = Boolean.FALSE;
+                    // } else {
+                    // hm.put(column, new Boolean(true));
+                    // }
+                    // bad idea? what to put, then?
+                }
 
                 // status_id
                 Integer vstatus_id = rs.getInt("status_id");
@@ -1818,131 +1778,69 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
          * study_event_definition.study_event_definition_id)
          */
 
-        if ("oracle".equalsIgnoreCase(CoreResources.getDBName())) {
-            return " SELECT  " + " itemdataid,  " + " studysubjectid, study_event.sample_ordinal,  " + " study_event.study_event_definition_id,   "
-                    + " study_event_definition.name, study_event.location, study_event.date_start, study_event.date_end, "
-                    + " study_event.start_time_flag , study_event.end_time_flag , study_event.status_id, study_event.subject_event_status_id, "
-                    + " itemid,  crfversionid,  eventcrfid, studyeventid " + " FROM " + " ( "
-                    + " 	SELECT item_data.item_data_id AS itemdataid, item_data.item_id AS itemid, item_data.value AS itemvalue, item.name AS itemname, item.description AS itemdesc,  "
-                    + " 	item.units AS itemunits, event_crf.event_crf_id AS eventcrfid, crf_version.name AS crfversioname, crf_version.crf_version_id AS crfversionid,  "
-                    + " 	event_crf.study_subject_id as studysubjectid, event_crf.study_event_id AS studyeventid " + " 	FROM item_data, item, event_crf "
-                    + " 	JOIN crf_version  ON event_crf.crf_version_id = crf_version.crf_version_id and (event_crf.status_id " + ecStatusConstraint + ") "
-                    + " 	WHERE  " + " 	item_data.item_id = item.item_id " + " 	AND " + " 	item_data.event_crf_id = event_crf.event_crf_id " + " 	AND "
-                    + " 	item_data.item_id IN " + it_in + " 	AND item_data.event_crf_id IN  " + " 	( " + " 		SELECT event_crf_id FROM event_crf "
-                    + " 		WHERE  " + " 			event_crf.study_event_id IN  " + " 			( "
-                    + " 				SELECT study_event_id FROM study_event  " + " 				WHERE "
-                    + " 					study_event.study_event_definition_id IN " + sedin + " 				   AND  "
-                    + " 					(	study_event.sample_ordinal IS NOT NULL AND "
-                    // + " study_event.location IS NOT NULL AND " //JN:Starting 3.1 study event location is no longer
-                    // null
-                    + " 						study_event.date_start IS NOT NULL  " + " 					) " + " 				   AND "
-                    + " 					study_event.study_subject_id IN " + " 				   ( "
-                    + " 					SELECT DISTINCT study_subject.study_subject_id " + " 					 FROM  	study_subject   "
-                    + " 					 JOIN	study  			ON ( " + " 										study.study_id = study_subject.study_id  "
-                    + " 									   AND " + " 										(study.study_id= " + studyid
-                    + "OR study.parent_study_id= " + studyparentid + ") " + " 									   ) "
-                    + " 					 JOIN	subject  		ON study_subject.subject_id = subject.subject_id "
-                    + " 					 JOIN	study_event_definition  ON ( "
-                    + " 										study.study_id = study_event_definition.study_id " + " 									    OR "
-                    + " 										study.parent_study_id = study_event_definition.study_id "
-                    + " 									   ) " + " 					 JOIN	study_event  		ON ( "
-                    + " 										study_subject.study_subject_id = study_event.study_subject_id  "
-                    + " 									   AND "
-                    + " 										study_event_definition.study_event_definition_id = study_event.study_event_definition_id  "
-                    + " 									   ) " + " 					 JOIN	event_crf  		ON ( "
-                    + " 										study_event.study_event_id = event_crf.study_event_id  "
-                    + " 									   AND  "
-                    + " 										study_event.study_subject_id = event_crf.study_subject_id  "
-                    + " 									   AND " + " 										(event_crf.status_id " + ecStatusConstraint
-                    + ") " + " 									   ) " + " 					WHERE " + dateConstraint + " 					    AND "
-                    + " 						study_event_definition.study_event_definition_id IN " + sedin + " 				   )  " + " 			) "
-                    + " 			AND study_subject_id IN ( " + " 				SELECT DISTINCT study_subject.study_subject_id "
-                    + " 				 FROM  	study_subject   " + " 				 JOIN	study  			ON ( "
-                    + " 									study.study_id  = study_subject.study_id  " + " 								   AND "
-                    + " 									(study.study_id= " + studyid + " OR study.parent_study_id= " + studyparentid + ") "
-                    + " 								   ) " + " 				 JOIN	subject  		ON study_subject.subject_id = subject.subject_id  "
-                    + " 				 JOIN	study_event_definition  ON ( "
-                    + " 									study.study_id  = study_event_definition.study_id  " + " 								    OR  "
-                    + " 									study.parent_study_id = study_event_definition.study_id " + " 								   ) "
-                    + " 				 JOIN	study_event  		ON ( "
-                    + " 									study_subject.study_subject_id = study_event.study_subject_id  "
-                    + " 								   AND "
-                    + " 									study_event_definition.study_event_definition_id  = study_event.study_event_definition_id  "
-                    + " 								   ) " + " 				 JOIN	event_crf  		ON ( "
-                    + " 									study_event.study_event_id = event_crf.study_event_id  "
-                    + " 								   AND  "
-                    + " 									study_event.study_subject_id = event_crf.study_subject_id  "
-                    + " 								   AND " + " 									(event_crf.status_id " + ecStatusConstraint + ") "
-                    + " 								   ) " + " 				WHERE " + dateConstraint + " 				    AND "
-                    + " 					study_event_definition.study_event_definition_id IN " + sedin + " 			) " + " 			AND "
-                    + " 			(event_crf.status_id " + ecStatusConstraint + ") " + " 	)  " + " 	AND  " + " 	(item_data.status_id " + itStatusConstraint
-                    + ")  " + " ) SBQONE, study_event, study_event_definition " + " WHERE  " + " (study_event.study_event_id = SBQONE.studyeventid) " + " AND "
-                    + " (study_event.study_event_definition_id = study_event_definition.study_event_definition_id) " + " ORDER BY itemdataid asc ";
-        } else {
-            /*
-             * TODO: why date constraint has been hard-coded ???
-             */
-            return " SELECT  " + " itemdataid,  " + " studysubjectid, study_event.sample_ordinal,  " + " study_event.study_event_definition_id,   "
-                    + " study_event_definition.name, study_event.location, study_event.date_start, study_event.date_end, "
-                    + " study_event.start_time_flag , study_event.end_time_flag , study_event.status_id, study_event.subject_event_status_id, "
-                    + " itemid,  crfversionid,  eventcrfid, studyeventid " + " FROM " + " ( "
-                    + "   SELECT item_data.item_data_id AS itemdataid, item_data.item_id AS itemid, item_data.value AS itemvalue, item.name AS itemname, item.description AS itemdesc,  "
-                    + "   item.units AS itemunits, event_crf.event_crf_id AS eventcrfid, crf_version.name AS crfversioname, crf_version.crf_version_id AS crfversionid,  "
-                    + "   event_crf.study_subject_id as studysubjectid, event_crf.study_event_id AS studyeventid " + "   FROM item_data, item, event_crf "
-                    + "   JOIN crf_version  ON event_crf.crf_version_id = crf_version.crf_version_id and (event_crf.status_id " + ecStatusConstraint + ") "
-                    + "   WHERE  " + "   item_data.item_id = item.item_id " + "   AND " + "   item_data.event_crf_id = event_crf.event_crf_id " + "   AND "
-                    + "   item_data.item_id IN " + it_in + "   AND item_data.event_crf_id IN  " + "   ( " + "       SELECT event_crf_id FROM event_crf "
-                    + "       WHERE  " + "           event_crf.study_event_id IN  " + "           ( "
-                    + "               SELECT study_event_id FROM study_event  " + "               WHERE "
-                    + "                   study_event.study_event_definition_id IN " + sedin + "                  AND  "
-                    + "                   (   study_event.sample_ordinal IS NOT NULL AND "
-                    // + " study_event.location IS NOT NULL AND " JN: starting 3.1 study_event.location can be null
-                    + "                       study_event.date_start IS NOT NULL  " + "                   ) " + "                  AND "
-                    + "                   study_event.study_subject_id IN " + "                  ( "
-                    + "                   SELECT DISTINCT study_subject.study_subject_id " + "                    FROM   study_subject   "
-                    + "                    JOIN   study           ON ( "
-                    + "                                       study.study_id::numeric = study_subject.study_id  " + "                                      AND "
-                    + "                                       (study.study_id= " + studyid + "OR study.parent_study_id= " + studyparentid + ") "
-                    + "                                      ) "
-                    + "                    JOIN   subject         ON study_subject.subject_id = subject.subject_id::numeric "
-                    + "                    JOIN   study_event_definition  ON ( "
-                    + "                                       study.study_id::numeric = study_event_definition.study_id "
-                    + "                                       OR "
-                    + "                                       study.parent_study_id = study_event_definition.study_id "
-                    + "                                      ) " + "                    JOIN   study_event         ON ( "
-                    + "                                       study_subject.study_subject_id = study_event.study_subject_id  "
-                    + "                                      AND "
-                    + "                                       study_event_definition.study_event_definition_id::numeric = study_event.study_event_definition_id  "
-                    + "                                      ) " + "                    JOIN   event_crf       ON ( "
-                    + "                                       study_event.study_event_id = event_crf.study_event_id  "
-                    + "                                      AND  "
-                    + "                                       study_event.study_subject_id = event_crf.study_subject_id  "
-                    + "                                      AND " + "                                       (event_crf.status_id " + ecStatusConstraint + ") "
-                    + "                                      ) " + "                   WHERE " + dateConstraint + "                       AND "
-                    + "                       study_event_definition.study_event_definition_id IN " + sedin + "                  )  " + "           ) "
-                    + "           AND study_subject_id IN ( " + "               SELECT DISTINCT study_subject.study_subject_id "
-                    + "                FROM   study_subject   " + "                JOIN   study           ON ( "
-                    + "                                   study.study_id::numeric = study_subject.study_id  " + "                                  AND "
-                    + "                                   (study.study_id= " + studyid + " OR study.parent_study_id= " + studyparentid + ") "
-                    + "                                  ) "
-                    + "                JOIN   subject         ON study_subject.subject_id = subject.subject_id::numeric "
-                    + "                JOIN   study_event_definition  ON ( "
-                    + "                                   study.study_id::numeric = study_event_definition.study_id  "
-                    + "                                   OR  " + "                                   study.parent_study_id = study_event_definition.study_id "
-                    + "                                  ) " + "                JOIN   study_event         ON ( "
-                    + "                                   study_subject.study_subject_id = study_event.study_subject_id  "
-                    + "                                  AND "
-                    + "                                   study_event_definition.study_event_definition_id::numeric = study_event.study_event_definition_id  "
-                    + "                                  ) " + "                JOIN   event_crf       ON ( "
-                    + "                                   study_event.study_event_id = event_crf.study_event_id  " + "                                  AND  "
-                    + "                                   study_event.study_subject_id = event_crf.study_subject_id  "
-                    + "                                  AND " + "                                   (event_crf.status_id " + ecStatusConstraint + ") "
-                    + "                                  ) " + "               WHERE " + dateConstraint + "                   AND "
-                    + "                   study_event_definition.study_event_definition_id IN " + sedin + "           ) " + "           AND "
-                    + "           (event_crf.status_id " + ecStatusConstraint + ") " + "   )  " + "   AND  " + "   (item_data.status_id " + itStatusConstraint
-                    + ")  " + " ) AS SBQONE, study_event, study_event_definition " + " WHERE  " + " (study_event.study_event_id = SBQONE.studyeventid) "
-                    + " AND " + " (study_event.study_event_definition_id = study_event_definition.study_event_definition_id) " + " ORDER BY itemdataid asc ";
-        }
+        /*
+         * TODO: why date constraint has been hard-coded ???
+         */
+        return " SELECT  " + " itemdataid,  " + " studysubjectid, study_event.sample_ordinal,  " + " study_event.study_event_definition_id,   "
+                + " study_event_definition.name, study_event.location, study_event.date_start, study_event.date_end, "
+                + " study_event.start_time_flag , study_event.end_time_flag , study_event.status_id, study_event.subject_event_status_id, "
+                + " itemid,  crfversionid,  eventcrfid, studyeventid " + " FROM " + " ( "
+                + "   SELECT item_data.item_data_id AS itemdataid, item_data.item_id AS itemid, item_data.value AS itemvalue, item.name AS itemname, item.description AS itemdesc,  "
+                + "   item.units AS itemunits, event_crf.event_crf_id AS eventcrfid, crf_version.name AS crfversioname, crf_version.crf_version_id AS crfversionid,  "
+                + "   event_crf.study_subject_id as studysubjectid, event_crf.study_event_id AS studyeventid " + "   FROM item_data, item, event_crf "
+                + "   JOIN crf_version  ON event_crf.crf_version_id = crf_version.crf_version_id and (event_crf.status_id " + ecStatusConstraint + ") "
+                + "   WHERE  " + "   item_data.item_id = item.item_id " + "   AND " + "   item_data.event_crf_id = event_crf.event_crf_id " + "   AND "
+                + "   item_data.item_id IN " + it_in + "   AND item_data.event_crf_id IN  " + "   ( " + "       SELECT event_crf_id FROM event_crf "
+                + "       WHERE  " + "           event_crf.study_event_id IN  " + "           ( "
+                + "               SELECT study_event_id FROM study_event  " + "               WHERE "
+                + "                   study_event.study_event_definition_id IN " + sedin + "                  AND  "
+                + "                   (   study_event.sample_ordinal IS NOT NULL AND "
+                // + " study_event.location IS NOT NULL AND " JN: starting 3.1 study_event.location can be null
+                + "                       study_event.date_start IS NOT NULL  " + "                   ) " + "                  AND "
+                + "                   study_event.study_subject_id IN " + "                  ( "
+                + "                   SELECT DISTINCT study_subject.study_subject_id " + "                    FROM   study_subject   "
+                + "                    JOIN   study           ON ( "
+                + "                                       study.study_id::numeric = study_subject.study_id  " + "                                      AND "
+                + "                                       (study.study_id= " + studyid + "OR study.parent_study_id= " + studyparentid + ") "
+                + "                                      ) "
+                + "                    JOIN   subject         ON study_subject.subject_id = subject.subject_id::numeric "
+                + "                    JOIN   study_event_definition  ON ( "
+                + "                                       study.study_id::numeric = study_event_definition.study_id "
+                + "                                       OR "
+                + "                                       study.parent_study_id = study_event_definition.study_id "
+                + "                                      ) " + "                    JOIN   study_event         ON ( "
+                + "                                       study_subject.study_subject_id = study_event.study_subject_id  "
+                + "                                      AND "
+                + "                                       study_event_definition.study_event_definition_id::numeric = study_event.study_event_definition_id  "
+                + "                                      ) " + "                    JOIN   event_crf       ON ( "
+                + "                                       study_event.study_event_id = event_crf.study_event_id  "
+                + "                                      AND  "
+                + "                                       study_event.study_subject_id = event_crf.study_subject_id  "
+                + "                                      AND " + "                                       (event_crf.status_id " + ecStatusConstraint + ") "
+                + "                                      ) " + "                   WHERE " + dateConstraint + "                       AND "
+                + "                       study_event_definition.study_event_definition_id IN " + sedin + "                  )  " + "           ) "
+                + "           AND study_subject_id IN ( " + "               SELECT DISTINCT study_subject.study_subject_id "
+                + "                FROM   study_subject   " + "                JOIN   study           ON ( "
+                + "                                   study.study_id::numeric = study_subject.study_id  " + "                                  AND "
+                + "                                   (study.study_id= " + studyid + " OR study.parent_study_id= " + studyparentid + ") "
+                + "                                  ) "
+                + "                JOIN   subject         ON study_subject.subject_id = subject.subject_id::numeric "
+                + "                JOIN   study_event_definition  ON ( "
+                + "                                   study.study_id::numeric = study_event_definition.study_id  "
+                + "                                   OR  " + "                                   study.parent_study_id = study_event_definition.study_id "
+                + "                                  ) " + "                JOIN   study_event         ON ( "
+                + "                                   study_subject.study_subject_id = study_event.study_subject_id  "
+                + "                                  AND "
+                + "                                   study_event_definition.study_event_definition_id::numeric = study_event.study_event_definition_id  "
+                + "                                  ) " + "                JOIN   event_crf       ON ( "
+                + "                                   study_event.study_event_id = event_crf.study_event_id  " + "                                  AND  "
+                + "                                   study_event.study_subject_id = event_crf.study_subject_id  "
+                + "                                  AND " + "                                   (event_crf.status_id " + ecStatusConstraint + ") "
+                + "                                  ) " + "               WHERE " + dateConstraint + "                   AND "
+                + "                   study_event_definition.study_event_definition_id IN " + sedin + "           ) " + "           AND "
+                + "           (event_crf.status_id " + ecStatusConstraint + ") " + "   )  " + "   AND  " + "   (item_data.status_id " + itStatusConstraint
+                + ")  " + " ) AS SBQONE, study_event, study_event_definition " + " WHERE  " + " (study_event.study_event_id = SBQONE.studyeventid) "
+                + " AND " + " (study_event.study_event_definition_id = study_event_definition.study_event_definition_id) " + " ORDER BY itemdataid asc ";
     }// getSQLDatasetBASE_EVENTSIDE
 
     /**
@@ -2045,140 +1943,74 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
          * (item_group.item_group_id = item_group_metadata.item_group_id)
          */
 
-        if ("oracle".equalsIgnoreCase(CoreResources.getDBName())) {
-            return " SELECT  " + " itemdataid,  itemdataordinal,"
-                    + " item_group_metadata.item_group_id , item_group.name, itemdatatypeid, itemdesc, itemname, itemvalue, itemunits, "
-                    + " crfversioname, crfversionstatusid, crfid, item_group_metadata.repeat_number, "
-                    + " dateinterviewed, interviewername, eventcrfdatevalidatecompleted, eventcrfdatecompleted, eventcrfcompletionstatusid, "
-                    + " studysubjectid, eventcrfid, itemid, crfversionid, eventcrfstatusid " + " FROM " + " ( "
-                    + " 	SELECT item_data.item_data_id AS itemdataid, item_data.item_id AS itemid, item_data.value AS itemvalue, item_data.ordinal AS itemdataordinal, item.item_data_type_id As itemdatatypeid, item.name AS itemname, item.description AS itemdesc,  "
-                    + " 	item.units AS itemunits, event_crf.event_crf_id AS eventcrfid, crf_version.name AS crfversioname, crf_version.crf_version_id AS crfversionid,  "
-                    + " 	event_crf.study_subject_id as studysubjectid, crf_version.status_id AS crfversionstatusid, crf_version.crf_id AS crfid, "
-                    + "   event_crf.date_interviewed AS dateinterviewed, event_crf.interviewer_name AS interviewername, event_crf.date_completed AS eventcrfdatecompleted, "
-                    + " 	event_crf.date_validate_completed AS eventcrfdatevalidatecompleted, event_crf.completion_status_id AS eventcrfcompletionstatusid, event_crf.status_id AS eventcrfstatusid "
-                    + " 	FROM item_data, item, event_crf "
-                    + " 	join crf_version  ON event_crf.crf_version_id = crf_version.crf_version_id and (event_crf.status_id " + ecStatusConstraint + ") "
-                    + " 	WHERE  " + " 	item_data.item_id = item.item_id " + " 	AND " + " 	item_data.event_crf_id = event_crf.event_crf_id " + " 	AND "
-                    + " 	item_data.item_id IN " + it_in + " 	AND item_data.event_crf_id IN " + " 	( " + " 		SELECT event_crf_id FROM event_crf "
-                    + " 		WHERE  " + " 			event_crf.study_event_id IN  " + " 			( "
-                    + " 				SELECT study_event_id FROM study_event  " + " 				WHERE "
-                    + " 					study_event.study_event_definition_id IN " + sedin + " 				   AND  "
-                    + " 					(	study_event.sample_ordinal IS NOT NULL AND " + " 						study_event.location IS NOT NULL AND "
-                    + " 						study_event.date_start IS NOT NULL  " + " 					) " + " 				   AND "
-                    + " 					study_event.study_subject_id IN " + " 				   ( "
-                    + " 					SELECT DISTINCT study_subject.study_subject_id " + " 					 FROM  	study_subject   "
-                    + " 					 JOIN	study  			ON ( " + " 										study.study_id = study_subject.study_id  "
-                    + " 									   AND " + " 										(study.study_id=" + studyid
-                    + " OR study.parent_study_id= " + studyparentid + ") " + " 									   ) "
-                    + " 					 JOIN	subject  		ON study_subject.subject_id = subject.subject_id "
-                    + " 					 JOIN	study_event_definition  ON ( "
-                    + " 										study.study_id = study_event_definition.study_id  "
-                    + " 									    OR  "
-                    + " 										study.parent_study_id = study_event_definition.study_id "
-                    + " 									   ) " + " 					 JOIN	study_event  		ON ( "
-                    + " 										study_subject.study_subject_id = study_event.study_subject_id  "
-                    + " 									   AND "
-                    + " 										study_event_definition.study_event_definition_id = study_event.study_event_definition_id  "
-                    + " 									   ) " + " 					 JOIN	event_crf  		ON ( "
-                    + " 										study_event.study_event_id = event_crf.study_event_id  "
-                    + " 									   AND  "
-                    + " 										study_event.study_subject_id = event_crf.study_subject_id  "
-                    + " 									   AND " + " 										(event_crf.status_id " + ecStatusConstraint
-                    + ") " + " 									   ) " + " 					WHERE " + dateConstraint + " 					    AND "
-                    + " 						study_event_definition.study_event_definition_id IN " + sedin + " 				   )  " + " 			) "
-                    + " 			AND study_subject_id IN ( " + " 				SELECT DISTINCT study_subject.study_subject_id "
-                    + " 				 FROM  	study_subject   " + " 				 JOIN	study  			ON ( "
-                    + " 									study.study_id = study_subject.study_id  " + " 								   AND "
-                    + " 									(study.study_id=" + studyid + " OR study.parent_study_id= " + studyparentid + " )"
-                    + " 								   ) " + " 				 JOIN	subject  		ON study_subject.subject_id = subject.subject_id "
-                    + " 				 JOIN	study_event_definition  ON ( "
-                    + " 									study.study_id = study_event_definition.study_id  " + " 								    OR  "
-                    + " 									study.parent_study_id = study_event_definition.study_id " + " 								   ) "
-                    + " 				 JOIN	study_event  		ON ( "
-                    + " 									study_subject.study_subject_id = study_event.study_subject_id  "
-                    + " 								   AND "
-                    + " 									study_event_definition.study_event_definition_id = study_event.study_event_definition_id  "
-                    + " 								   ) " + " 				 JOIN	event_crf  		ON ( "
-                    + " 									study_event.study_event_id = event_crf.study_event_id  "
-                    + " 								   AND  "
-                    + " 									study_event.study_subject_id = event_crf.study_subject_id  "
-                    + " 								   AND " + " 									(event_crf.status_id " + ecStatusConstraint + ") "
-                    + " 								   ) " + " 				WHERE " + dateConstraint + " 				    AND "
-                    + " 					study_event_definition.study_event_definition_id IN " + sedin + " 			) " + " 			AND "
-                    + " 			(event_crf.status_id " + ecStatusConstraint + ") " + " 	)  " + " 	AND  " + " 	(item_data.status_id " + itStatusConstraint
-                    + ")  " + " ) SBQONE, item_group_metadata, item_group " + " WHERE  "
-                    + " (item_group_metadata.item_id = SBQONE.itemid AND item_group_metadata.crf_version_id = SBQONE.crfversionid) " + " AND "
-                    + " (item_group.item_group_id = item_group_metadata.item_group_id) " + "  ORDER BY itemdataid asc ";
-        } else {
-            /*
-             * TODO: why date constraint has been hard-coded ???
-             */
+        /*
+         * TODO: why date constraint has been hard-coded ???
+         */
 
-            return " SELECT  " + " itemdataid,  itemdataordinal,"
-                    + " item_group_metadata.item_group_id , item_group.name, itemdatatypeid, itemdesc, itemname, itemvalue, itemunits, "
-                    + " crfversioname, crfversionstatusid, crfid, item_group_metadata.repeat_number, "
-                    + " dateinterviewed, interviewername, eventcrfdatevalidatecompleted, eventcrfdatecompleted, eventcrfcompletionstatusid, "
-                    + " studysubjectid, eventcrfid, itemid, crfversionid, eventcrfstatusid " + " FROM " + " ( "
-                    + "   SELECT item_data.item_data_id AS itemdataid, item_data.item_id AS itemid, item_data.value AS itemvalue, item_data.ordinal AS itemdataordinal, item.item_data_type_id AS itemdatatypeid, item.name AS itemname, item.description AS itemdesc,  "
-                    + "   item.units AS itemunits, event_crf.event_crf_id AS eventcrfid, crf_version.name AS crfversioname, crf_version.crf_version_id AS crfversionid,  "
-                    + "   event_crf.study_subject_id as studysubjectid, crf_version.status_id AS crfversionstatusid, crf_version.crf_id AS crfid, "
-                    + "   event_crf.date_interviewed AS dateinterviewed, event_crf.interviewer_name AS interviewername, event_crf.date_completed AS eventcrfdatecompleted, "
-                    + "   event_crf.date_validate_completed AS eventcrfdatevalidatecompleted, event_crf.completion_status_id AS eventcrfcompletionstatusid, event_crf.status_id AS eventcrfstatusid "
-                    + "   FROM item_data, item, event_crf "
-                    + "   join crf_version  ON event_crf.crf_version_id = crf_version.crf_version_id and (event_crf.status_id " + ecStatusConstraint + ") "
-                    + "   WHERE  " + "   item_data.item_id = item.item_id " + "   AND " + "   item_data.event_crf_id = event_crf.event_crf_id " + "   AND "
-                    + "   item_data.item_id IN " + it_in + "   AND item_data.event_crf_id IN " + "   ( " + "       SELECT event_crf_id FROM event_crf "
-                    + "       WHERE  " + "           event_crf.study_event_id IN  " + "           ( "
-                    + "               SELECT study_event_id FROM study_event  " + "               WHERE "
-                    + "                   study_event.study_event_definition_id IN " + sedin + "                  AND  "
-                    + "                   (   study_event.sample_ordinal IS NOT NULL AND " + "                       study_event.location IS NOT NULL AND "
-                    + "                       study_event.date_start IS NOT NULL  " + "                   ) " + "                  AND "
-                    + "                   study_event.study_subject_id IN " + "                  ( "
-                    + "                   SELECT DISTINCT study_subject.study_subject_id " + "                    FROM   study_subject   "
-                    + "                    JOIN   study           ON ( "
-                    + "                                       study.study_id::numeric = study_subject.study_id  " + "                                      AND "
-                    + "                                       (study.study_id=" + studyid + " OR study.parent_study_id= " + studyparentid + ") "
-                    + "                                      ) "
-                    + "                    JOIN   subject         ON study_subject.subject_id = subject.subject_id::numeric "
-                    + "                    JOIN   study_event_definition  ON ( "
-                    + "                                       study.study_id::numeric = study_event_definition.study_id  "
-                    + "                                       OR  "
-                    + "                                       study.parent_study_id = study_event_definition.study_id "
-                    + "                                      ) " + "                    JOIN   study_event         ON ( "
-                    + "                                       study_subject.study_subject_id = study_event.study_subject_id  "
-                    + "                                      AND "
-                    + "                                       study_event_definition.study_event_definition_id::numeric = study_event.study_event_definition_id  "
-                    + "                                      ) " + "                    JOIN   event_crf       ON ( "
-                    + "                                       study_event.study_event_id = event_crf.study_event_id  "
-                    + "                                      AND  "
-                    + "                                       study_event.study_subject_id = event_crf.study_subject_id  "
-                    + "                                      AND " + "                                       (event_crf.status_id " + ecStatusConstraint + ") "
-                    + "                                      ) " + "                   WHERE " + dateConstraint + "                       AND "
-                    + "                       study_event_definition.study_event_definition_id IN " + sedin + "                  )  " + "           ) "
-                    + "           AND study_subject_id IN ( " + "               SELECT DISTINCT study_subject.study_subject_id "
-                    + "                FROM   study_subject   " + "                JOIN   study           ON ( "
-                    + "                                   study.study_id::numeric = study_subject.study_id  " + "                                  AND "
-                    + "                                   (study.study_id=" + studyid + " OR study.parent_study_id= " + studyparentid + " )"
-                    + "                                  ) "
-                    + "                JOIN   subject         ON study_subject.subject_id = subject.subject_id::numeric "
-                    + "                JOIN   study_event_definition  ON ( "
-                    + "                                   study.study_id::numeric = study_event_definition.study_id  "
-                    + "                                   OR  " + "                                   study.parent_study_id = study_event_definition.study_id "
-                    + "                                  ) " + "                JOIN   study_event         ON ( "
-                    + "                                   study_subject.study_subject_id = study_event.study_subject_id  "
-                    + "                                  AND "
-                    + "                                   study_event_definition.study_event_definition_id::numeric = study_event.study_event_definition_id  "
-                    + "                                  ) " + "                JOIN   event_crf       ON ( "
-                    + "                                   study_event.study_event_id = event_crf.study_event_id  " + "                                  AND  "
-                    + "                                   study_event.study_subject_id = event_crf.study_subject_id  "
-                    + "                                  AND " + "                                   (event_crf.status_id " + ecStatusConstraint + ") "
-                    + "                                  ) " + "               WHERE " + dateConstraint + "                   AND "
-                    + "                   study_event_definition.study_event_definition_id IN " + sedin + "           ) " + "           AND "
-                    + "           (event_crf.status_id " + ecStatusConstraint + ") " + "   )  " + "   AND  " + "   (item_data.status_id " + itStatusConstraint
-                    + ")  " + " ) AS SBQONE, item_group_metadata, item_group " + " WHERE  "
-                    + " (item_group_metadata.item_id = SBQONE.itemid AND item_group_metadata.crf_version_id = SBQONE.crfversionid) " + " AND "
-                    + " (item_group.item_group_id = item_group_metadata.item_group_id) " + "  ORDER BY itemdataid asc ";
-        }
+        return " SELECT  " + " itemdataid,  itemdataordinal,"
+                + " item_group_metadata.item_group_id , item_group.name, itemdatatypeid, itemdesc, itemname, itemvalue, itemunits, "
+                + " crfversioname, crfversionstatusid, crfid, item_group_metadata.repeat_number, "
+                + " dateinterviewed, interviewername, eventcrfdatevalidatecompleted, eventcrfdatecompleted, eventcrfcompletionstatusid, "
+                + " studysubjectid, eventcrfid, itemid, crfversionid, eventcrfstatusid " + " FROM " + " ( "
+                + "   SELECT item_data.item_data_id AS itemdataid, item_data.item_id AS itemid, item_data.value AS itemvalue, item_data.ordinal AS itemdataordinal, item.item_data_type_id AS itemdatatypeid, item.name AS itemname, item.description AS itemdesc,  "
+                + "   item.units AS itemunits, event_crf.event_crf_id AS eventcrfid, crf_version.name AS crfversioname, crf_version.crf_version_id AS crfversionid,  "
+                + "   event_crf.study_subject_id as studysubjectid, crf_version.status_id AS crfversionstatusid, crf_version.crf_id AS crfid, "
+                + "   event_crf.date_interviewed AS dateinterviewed, event_crf.interviewer_name AS interviewername, event_crf.date_completed AS eventcrfdatecompleted, "
+                + "   event_crf.date_validate_completed AS eventcrfdatevalidatecompleted, event_crf.completion_status_id AS eventcrfcompletionstatusid, event_crf.status_id AS eventcrfstatusid "
+                + "   FROM item_data, item, event_crf "
+                + "   join crf_version  ON event_crf.crf_version_id = crf_version.crf_version_id and (event_crf.status_id " + ecStatusConstraint + ") "
+                + "   WHERE  " + "   item_data.item_id = item.item_id " + "   AND " + "   item_data.event_crf_id = event_crf.event_crf_id " + "   AND "
+                + "   item_data.item_id IN " + it_in + "   AND item_data.event_crf_id IN " + "   ( " + "       SELECT event_crf_id FROM event_crf "
+                + "       WHERE  " + "           event_crf.study_event_id IN  " + "           ( "
+                + "               SELECT study_event_id FROM study_event  " + "               WHERE "
+                + "                   study_event.study_event_definition_id IN " + sedin + "                  AND  "
+                + "                   (   study_event.sample_ordinal IS NOT NULL AND " + "                       study_event.location IS NOT NULL AND "
+                + "                       study_event.date_start IS NOT NULL  " + "                   ) " + "                  AND "
+                + "                   study_event.study_subject_id IN " + "                  ( "
+                + "                   SELECT DISTINCT study_subject.study_subject_id " + "                    FROM   study_subject   "
+                + "                    JOIN   study           ON ( "
+                + "                                       study.study_id::numeric = study_subject.study_id  " + "                                      AND "
+                + "                                       (study.study_id=" + studyid + " OR study.parent_study_id= " + studyparentid + ") "
+                + "                                      ) "
+                + "                    JOIN   subject         ON study_subject.subject_id = subject.subject_id::numeric "
+                + "                    JOIN   study_event_definition  ON ( "
+                + "                                       study.study_id::numeric = study_event_definition.study_id  "
+                + "                                       OR  "
+                + "                                       study.parent_study_id = study_event_definition.study_id "
+                + "                                      ) " + "                    JOIN   study_event         ON ( "
+                + "                                       study_subject.study_subject_id = study_event.study_subject_id  "
+                + "                                      AND "
+                + "                                       study_event_definition.study_event_definition_id::numeric = study_event.study_event_definition_id  "
+                + "                                      ) " + "                    JOIN   event_crf       ON ( "
+                + "                                       study_event.study_event_id = event_crf.study_event_id  "
+                + "                                      AND  "
+                + "                                       study_event.study_subject_id = event_crf.study_subject_id  "
+                + "                                      AND " + "                                       (event_crf.status_id " + ecStatusConstraint + ") "
+                + "                                      ) " + "                   WHERE " + dateConstraint + "                       AND "
+                + "                       study_event_definition.study_event_definition_id IN " + sedin + "                  )  " + "           ) "
+                + "           AND study_subject_id IN ( " + "               SELECT DISTINCT study_subject.study_subject_id "
+                + "                FROM   study_subject   " + "                JOIN   study           ON ( "
+                + "                                   study.study_id::numeric = study_subject.study_id  " + "                                  AND "
+                + "                                   (study.study_id=" + studyid + " OR study.parent_study_id= " + studyparentid + " )"
+                + "                                  ) "
+                + "                JOIN   subject         ON study_subject.subject_id = subject.subject_id::numeric "
+                + "                JOIN   study_event_definition  ON ( "
+                + "                                   study.study_id::numeric = study_event_definition.study_id  "
+                + "                                   OR  " + "                                   study.parent_study_id = study_event_definition.study_id "
+                + "                                  ) " + "                JOIN   study_event         ON ( "
+                + "                                   study_subject.study_subject_id = study_event.study_subject_id  "
+                + "                                  AND "
+                + "                                   study_event_definition.study_event_definition_id::numeric = study_event.study_event_definition_id  "
+                + "                                  ) " + "                JOIN   event_crf       ON ( "
+                + "                                   study_event.study_event_id = event_crf.study_event_id  " + "                                  AND  "
+                + "                                   study_event.study_subject_id = event_crf.study_subject_id  "
+                + "                                  AND " + "                                   (event_crf.status_id " + ecStatusConstraint + ") "
+                + "                                  ) " + "               WHERE " + dateConstraint + "                   AND "
+                + "                   study_event_definition.study_event_definition_id IN " + sedin + "           ) " + "           AND "
+                + "           (event_crf.status_id " + ecStatusConstraint + ") " + "   )  " + "   AND  " + "   (item_data.status_id " + itStatusConstraint
+                + ")  " + " ) AS SBQONE, item_group_metadata, item_group " + " WHERE  "
+                + " (item_group_metadata.item_id = SBQONE.itemid AND item_group_metadata.crf_version_id = SBQONE.crfversionid) " + " AND "
+                + " (item_group.item_group_id = item_group_metadata.item_group_id) " + "  ORDER BY itemdataid asc ";
     }// getSQLDatasetBASE_ITEMGROUPSIDE
 
     protected String getSQLInKeyDatasetHelper(int studyid, int studyparentid, String sedin, String it_in, String dateConstraint, String ecStatusConstraint,
@@ -2278,31 +2110,16 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
          * AS SBQTWO )
          */
 
-        if ("oracle".equalsIgnoreCase(CoreResources.getDBName())) {
-            return " 	SELECT DISTINCT  " + "	study_event.study_event_definition_id,  " + "	study_event.sample_ordinal,  " + "	crfv.crf_id,  "
-                    + "	it.item_id,  " + "	ig.name AS item_group_name  " + "	 FROM  " + " 	event_crf ec  "
-                    + " JOIN crf_version crfv ON ec.crf_version_id = crfv.crf_version_id AND (ec.status_id " + ecStatusConstraint + ") "
-                    + " JOIN item_form_metadata ifm ON crfv.crf_version_id = ifm.crf_version_id  "
-                    + " LEFT JOIN item_group_metadata igm ON ifm.item_id = igm.item_id AND crfv.crf_version_id = igm.crf_version_id  "
-                    + " LEFT JOIN item_group ig ON igm.item_group_id = ig.item_group_id  " + " JOIN item it ON ifm.item_id = it.item_id  "
-                    + " JOIN study_event ON study_event.study_event_id = ec.study_event_id AND study_event.study_subject_id = ec.study_subject_id   "
-                    + " WHERE ec.event_crf_id IN  " + " (  " + "	SELECT DISTINCT eventcrfid FROM  " + "	(     "
-                    + getSQLDatasetBASE_EVENTSIDE(studyid, studyparentid, sedin, it_in, dateConstraint, ecStatusConstraint, itStatusConstraint) + "	) SBQTWO "
-                    + " ) ";
-
-        } else {
-            return "   SELECT DISTINCT  " + "   study_event.study_event_definition_id,  " + "   study_event.sample_ordinal,  " + "   crfv.crf_id,  "
-                    + "   it.item_id,  " + "   ig.name AS item_group_name  " + "    FROM  " + "   event_crf ec  "
-                    + " JOIN crf_version crfv ON ec.crf_version_id = crfv.crf_version_id AND (ec.status_id " + ecStatusConstraint + ") "
-                    + " JOIN item_form_metadata ifm ON crfv.crf_version_id = ifm.crf_version_id  "
-                    + " LEFT JOIN item_group_metadata igm ON ifm.item_id = igm.item_id AND crfv.crf_version_id::numeric = igm.crf_version_id  "
-                    + " LEFT JOIN item_group ig ON igm.item_group_id = ig.item_group_id::numeric  " + " JOIN item it ON ifm.item_id = it.item_id::numeric  "
-                    + " JOIN study_event ON study_event.study_event_id = ec.study_event_id AND study_event.study_subject_id = ec.study_subject_id   "
-                    + " WHERE ec.event_crf_id IN  " + " (  " + "   SELECT DISTINCT eventcrfid FROM  " + "   (     "
-                    + getSQLDatasetBASE_EVENTSIDE(studyid, studyparentid, sedin, it_in, dateConstraint, ecStatusConstraint, itStatusConstraint)
-                    + "   ) AS SBQTWO " + " ) ";
-        }
-        // TODO - replace with sql
+        return "   SELECT DISTINCT  " + "   study_event.study_event_definition_id,  " + "   study_event.sample_ordinal,  " + "   crfv.crf_id,  "
+                + "   it.item_id,  " + "   ig.name AS item_group_name  " + "    FROM  " + "   event_crf ec  "
+                + " JOIN crf_version crfv ON ec.crf_version_id = crfv.crf_version_id AND (ec.status_id " + ecStatusConstraint + ") "
+                + " JOIN item_form_metadata ifm ON crfv.crf_version_id = ifm.crf_version_id  "
+                + " LEFT JOIN item_group_metadata igm ON ifm.item_id = igm.item_id AND crfv.crf_version_id::numeric = igm.crf_version_id  "
+                + " LEFT JOIN item_group ig ON igm.item_group_id = ig.item_group_id::numeric  " + " JOIN item it ON ifm.item_id = it.item_id::numeric  "
+                + " JOIN study_event ON study_event.study_event_id = ec.study_event_id AND study_event.study_subject_id = ec.study_subject_id   "
+                + " WHERE ec.event_crf_id IN  " + " (  " + "   SELECT DISTINCT eventcrfid FROM  " + "   (     "
+                + getSQLDatasetBASE_EVENTSIDE(studyid, studyparentid, sedin, it_in, dateConstraint, ecStatusConstraint, itStatusConstraint)
+                + "   ) AS SBQTWO " + " ) ";
     }
 
     /**
@@ -2314,9 +2131,8 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
     public HashMap<String, Boolean> setHashMapInKeysHelper(int studyid, int parentid, String sedin, String itin, String dateConstraint, String ecStatusConstraint,
             String itStatusConstraint) {
         clearSignals();
-        // YW, 09-2008, << modified syntax of sql for oracle database
+
         String query = getSQLInKeyDatasetHelper(studyid, parentid, sedin, itin, dateConstraint, ecStatusConstraint, itStatusConstraint);
-        // YW, 09-2008 >>
 
         HashMap<String, Boolean> results = new HashMap<>();
         ResultSet rs = null;
@@ -2424,11 +2240,8 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
             dateConstraint = 
             		String.format(" (date(study_subject.enrollment_date) >= date('%s')) and (date(study_subject.enrollment_date) <= date('%s'))", 
             				os[1], os[3]);
-        } else if ("oracle".equalsIgnoreCase(dbName)) {
-            dateConstraint = 
-            		String.format(" trunc(study_subject.enrollment_date) >= to_date('%s') and trunc(study_subject.enrollment_date) <= to_date('%s')", 
-            				os[1], os[3]);
         }
+        
         return dateConstraint;
     }
 

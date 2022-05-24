@@ -7,7 +7,6 @@
  */
 package org.akaza.openclinica.dao.managestudy;
 
-import org.akaza.openclinica.dao.core.CoreResources;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.joda.time.DateTime;
 
@@ -20,20 +19,17 @@ import java.util.List;
 
 public class StudyAuditLogFilter implements CriteriaCommand {
 
-    List<Filter> filters = new ArrayList<Filter>();
-    HashMap<String, String> columnMapping = new HashMap<String, String>();
+    List<Filter> filters = new ArrayList<>();
+    HashMap<String, String> columnMapping = new HashMap<>();
     Integer studyEventDefinitionId;
     String defaultFormat = "yyyy-MM-dd";
-    String oracleDateFormat = "dd-MMM-yyyy";
     DateFormat theDefaultFormat;
     String i18Format;
 
     public StudyAuditLogFilter(String dateFormat) {
 
         theDefaultFormat = new SimpleDateFormat(defaultFormat);
-        if ("oracle".equalsIgnoreCase(CoreResources.getDBName())) {
-            theDefaultFormat = new SimpleDateFormat(oracleDateFormat);
-        }
+        
         i18Format = dateFormat;
 
         columnMapping.put("studySubject.label", "ss.label");

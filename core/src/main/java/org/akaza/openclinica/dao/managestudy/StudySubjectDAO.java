@@ -25,7 +25,6 @@ import org.akaza.openclinica.bean.submit.SubjectGroupMapBean;
 import org.akaza.openclinica.dao.StudySubjectSDVFilter;
 import org.akaza.openclinica.dao.StudySubjectSDVSort;
 import org.akaza.openclinica.dao.core.AuditableEntityDAO;
-import org.akaza.openclinica.dao.core.CoreResources;
 import org.akaza.openclinica.dao.core.DAODigester;
 import org.akaza.openclinica.dao.core.SQLFactory;
 import org.akaza.openclinica.dao.core.TypeNames;
@@ -154,13 +153,8 @@ public class StudySubjectDAO extends AuditableEntityDAO<StudySubjectBean> {
         String sql = digester.getQuery("findAllByStudySDV");
         sql = sql + filter.execute("");
 
-        if ("oracle".equalsIgnoreCase(CoreResources.getDBName())) {
-            sql += ")x) where r between " + (rowStart + 1) + " and " + rowEnd;
-            sql = sql + sort.execute("");
-        } else {
-            sql = sql + sort.execute("");
-            sql = sql + " LIMIT " + (rowEnd - rowStart) + " OFFSET " + rowStart;
-        }
+        sql = sql + sort.execute("");
+        sql = sql + " LIMIT " + (rowEnd - rowStart) + " OFFSET " + rowStart;
         
         HashMap<Integer, Object> variables = variables(studyId, parentStudyId);
         ArrayList<HashMap<String, Object>> rows = this.select(sql, variables);
@@ -400,21 +394,11 @@ public class StudySubjectDAO extends AuditableEntityDAO<StudySubjectBean> {
         // Order by Clause for the defect id 0005480
 
         partialSql = sort.execute("");
-        if ("oracle".equalsIgnoreCase(CoreResources.getDBName())) {
-        	if (partialSql.equals("")) {
-                sql += " ORDER BY SS.label )x)where r between " + (rowStart + 1) + " and " + rowEnd;
-            }
-        	else {
-                sql += ")x)where r between " + (rowStart + 1) + " and " + rowEnd;
-            }
-            sql = sql + partialSql;
+        sql = sql + partialSql;
+        if (partialSql.equals("")) {
+            sql = sql + "  ORDER BY SS.label LIMIT " + (rowEnd - rowStart) + " OFFSET " + rowStart;
         } else {
-        	sql = sql + partialSql;
-            if (partialSql.equals("")) {
-                sql = sql + "  ORDER BY SS.label LIMIT " + (rowEnd - rowStart) + " OFFSET " + rowStart;
-            } else {
-                sql = sql + " LIMIT " + (rowEnd - rowStart) + " OFFSET " + rowStart;
-            }
+            sql = sql + " LIMIT " + (rowEnd - rowStart) + " OFFSET " + rowStart;
         }
 
         ArrayList<HashMap<String, Object>> rows = this.select(sql, variables);
@@ -494,14 +478,9 @@ public class StudySubjectDAO extends AuditableEntityDAO<StudySubjectBean> {
         HashMap<Integer, Object> variables = variables(currentStudy.getId(), currentStudy.getId());
         String sql = digester.getQuery("getWithFilterAndSortListDiscNotes");
         sql = sql + filter.execute("");
-
-        if ("oracle".equalsIgnoreCase(CoreResources.getDBName())) {
-            sql += " )x)  where r between " + (rowStart + 1) + " and " + rowEnd;
-            sql = sql + sort.execute("");
-        } else {
-            sql = sql + sort.execute("");
-            sql = sql + " LIMIT " + (rowEnd - rowStart) + " OFFSET " + rowStart;
-        }
+        
+        sql = sql + sort.execute("");
+        sql = sql + " LIMIT " + (rowEnd - rowStart) + " OFFSET " + rowStart;
 
         ArrayList<HashMap<String, Object>> rows = this.select(sql, variables);
         ArrayList<StudySubjectBean> studySubjects = new ArrayList<>();
@@ -509,6 +488,7 @@ public class StudySubjectDAO extends AuditableEntityDAO<StudySubjectBean> {
             StudySubjectBean studySubjectBean = this.getEntityFromHashMap(hm);
             studySubjects.add(studySubjectBean);
         }
+        
         return studySubjects;
     }
 
@@ -527,13 +507,8 @@ public class StudySubjectDAO extends AuditableEntityDAO<StudySubjectBean> {
         String sql = digester.getQuery("getWithFilterAndSortListDiscNotes");
         sql = sql + filter.execute("");
 
-        if ("oracle".equalsIgnoreCase(CoreResources.getDBName())) {
-            sql += " )x)  where r between " + (rowStart + 1) + " and " + rowEnd;
-            sql = sql + sort.execute("");
-        } else {
-            sql = sql + sort.execute("");
-            sql = sql + " LIMIT " + (rowEnd - rowStart) + " OFFSET " + rowStart;
-        }
+        sql = sql + sort.execute("");
+        sql = sql + " LIMIT " + (rowEnd - rowStart) + " OFFSET " + rowStart;
 
         ArrayList<HashMap<String, Object>> rows = this.select(sql, variables);
         ArrayList<StudySubjectBean> studySubjects = new ArrayList<>();
@@ -541,6 +516,7 @@ public class StudySubjectDAO extends AuditableEntityDAO<StudySubjectBean> {
             StudySubjectBean studySubjectBean = this.getEntityFromHashMap(hm);
             studySubjects.add(studySubjectBean);
         }
+        
         return studySubjects;
     }
 
@@ -561,13 +537,8 @@ public class StudySubjectDAO extends AuditableEntityDAO<StudySubjectBean> {
         String sql = digester.getQuery("getWithFilterAndSortAuditLog");
         sql = sql + filter.execute("");
 
-        if ("oracle".equalsIgnoreCase(CoreResources.getDBName())) {
-            sql += " )x) where r between " + (rowStart + 1) + " and " + rowEnd;
-            sql = sql + sort.execute("");
-        } else {
-            sql = sql + sort.execute("");
-            sql = sql + " LIMIT " + (rowEnd - rowStart) + " OFFSET " + rowStart;
-        }
+        sql = sql + sort.execute("");
+        sql = sql + " LIMIT " + (rowEnd - rowStart) + " OFFSET " + rowStart;
 
         ArrayList<HashMap<String, Object>> rows = this.select(sql, variables);
         ArrayList<StudySubjectBean> studySubjects = new ArrayList<>();
@@ -575,6 +546,7 @@ public class StudySubjectDAO extends AuditableEntityDAO<StudySubjectBean> {
             StudySubjectBean studySubjectBean = this.getEntityFromHashMap(hm);
             studySubjects.add(studySubjectBean);
         }
+        
         return studySubjects;
     }
 
@@ -595,13 +567,8 @@ public class StudySubjectDAO extends AuditableEntityDAO<StudySubjectBean> {
         String sql = digester.getQuery("getWithFilterAndSort");
         sql = sql + filter.execute("");
 
-        if ("oracle".equalsIgnoreCase(CoreResources.getDBName())) {
-            sql += ")x) where r between " + (rowStart + 1) + " and " + rowEnd + " ";
-            sql = sql + sort.execute("");
-        } else {
-            sql = sql + sort.execute("");
-            sql = sql + " LIMIT " + (rowEnd - rowStart) + " OFFSET " + rowStart;
-        }
+        sql = sql + sort.execute("");
+        sql = sql + " LIMIT " + (rowEnd - rowStart) + " OFFSET " + rowStart;
 
         ArrayList<HashMap<String, Object>> rows = this.select(sql, variables);
         ArrayList<StudySubjectBean> studySubjects = new ArrayList<>();
@@ -609,6 +576,7 @@ public class StudySubjectDAO extends AuditableEntityDAO<StudySubjectBean> {
             StudySubjectBean studySubjectBean = this.getEntityFromHashMap(hm);
             studySubjects.add(studySubjectBean);
         }
+        
         return studySubjects;
     }
 

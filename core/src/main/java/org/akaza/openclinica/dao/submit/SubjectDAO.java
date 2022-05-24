@@ -18,7 +18,6 @@ import javax.sql.DataSource;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.submit.SubjectBean;
 import org.akaza.openclinica.dao.core.AuditableEntityDAO;
-import org.akaza.openclinica.dao.core.CoreResources;
 import org.akaza.openclinica.dao.core.DAODigester;
 import org.akaza.openclinica.dao.core.SQLFactory;
 import org.akaza.openclinica.dao.core.TypeNames;
@@ -173,14 +172,9 @@ public class SubjectDAO extends AuditableEntityDAO<SubjectBean> {
 
         String sql = digester.getQuery("getWithFilterAndSort");
         sql = sql + filter.execute("");
-
-        if (CoreResources.getDBName().equals("oracle")) {
-            sql += " )x)where r between " + (rowStart + 1) + " and " + rowEnd;
-            sql = sql + sort.execute("");
-        } else {
-            sql = sql + sort.execute("");
-            sql = sql + " LIMIT " + (rowEnd - rowStart) + " OFFSET " + rowStart;
-        }
+        
+        sql = sql + sort.execute("");
+        sql = sql + " LIMIT " + (rowEnd - rowStart) + " OFFSET " + rowStart;
 
         ArrayList<HashMap<String, Object>> rows = this.select(sql);
         ArrayList<SubjectBean> subjects = new ArrayList<>();
