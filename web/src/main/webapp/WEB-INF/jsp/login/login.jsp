@@ -17,14 +17,14 @@
 <fmt:setBundle basename="org.akaza.openclinica.i18n.words" var="resword"/>
 <fmt:setBundle basename="org.akaza.openclinica.i18n.format" var="resformat"/>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<title><fmt:message key="openclinica" bundle="${resword}"/></title>	
 	<meta http-equiv="Content-type" content="text/html; charset=UTF-8"/>
 	<meta http-equiv="X-UA-Compatible" content="IE=8" />
-	
+    
+    <link rel="shortcut icon" type="image/x-icon" href="<c:url value='/images/favicon.ico'/>">
 	<link rel="stylesheet" href="<c:url value='/includes/styles.css'/>" type="text/css"/>
 	
 	<script type="text/JavaScript" language="JavaScript" src="<c:url value='/includes/jmesa/jquery.min.js'/>"></script>
@@ -68,16 +68,16 @@ session.setAttribute("factorService", factorService);
         var parser = new UAParser();
         var showMessage = false;
 
-        if (parser.getBrowser().name == 'IE' && parseInt(parser.getBrowser().major) < 11){
-            showMessage = true;
-        }else if (parser.getBrowser().name != 'Firefox' && parser.getBrowser().name !='Chrome' && parser.getBrowser().name != 'IE'){
+        if (parser.getBrowser().name != 'Firefox' && parser.getBrowser().name !='Chrome') {
             showMessage = true;
         }
 
-        if (showMessage){
-            document.write("<tr> <td align='center' ><h4>"+
-                        " <fmt:message key="choose_browser" bundle="${restext}"/>"+
-                        "</h4></td> </tr>");
+        if (showMessage) {
+            document.write(
+                "<tr><td align='center'><h4>" +
+                " <fmt:message key="choose_browser" bundle="${restext}"/>" +
+                "</h4></td></tr>"
+            );
         }
     </script>
             </table>
