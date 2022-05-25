@@ -7,7 +7,6 @@
 
 <jsp:include page="../include/managestudy-header.jsp"/>
 
-
 <!-- move the alert message to the sidebar-->
 <jsp:include page="../include/sideAlert.jsp"/>
 
