@@ -21,7 +21,9 @@
 	
 	<c:set var="contextPath" value="${fn:replace(pageContext.request.requestURL, fn:substringAfter(pageContext.request.requestURL, pageContext.request.contextPath), '')}" />
 	<meta http-equiv="X-UA-Compatible" content="IE=8" />
-	
+
+	<link rel="shortcut icon" type="image/x-icon" href="${pageContext.request.contextPath}/images/favicon.ico">
+
 	<link rel="stylesheet" href="${pageContext.request.contextPath}/includes/styles.css" type="text/css" />
 	<link rel="stylesheet" type="text/css" media="all" href="${pageContext.request.contextPath}/includes/new_cal/skins/aqua/theme.css" title="Aqua" />
 	

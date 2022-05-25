@@ -20,19 +20,11 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
 
 /**
  * @author jxu
- *
- * TODO To change the template for this generated type comment go to Window -
- * Preferences - Java - Code Style - Code Templates
  */
 public class ViewStudyUserServlet extends SecureController {
-    /**
-	 * 
-	 */
-	private static final long serialVersionUID = -3392123982341988217L;
 
-	/**
-     *
-     */
+	private static final long serialVersionUID = -3392123982341988217L;
+    
     @Override
     public void mayProceed() throws InsufficientPermissionException {
         if (ub.isSysAdmin()) {
@@ -45,7 +37,6 @@ public class ViewStudyUserServlet extends SecureController {
 
         addPageMessage(respage.getString("no_have_correct_privilege_current_study") + " " + respage.getString("change_study_contact_sysadmin"));
         throw new InsufficientPermissionException(Page.LIST_USER_IN_STUDY_SERVLET, resexception.getString("not_study_director"), "1");
-
     }
 
     @Override
@@ -53,36 +44,34 @@ public class ViewStudyUserServlet extends SecureController {
         UserAccountDAO udao = new UserAccountDAO(sm.getDataSource());
         String name = request.getParameter("name");
         String studyIdString = request.getParameter("studyId");
-       
-     //if(request.getParameter("submit")!=null)
-     {     
     	 
-    	 if ((name == null || name.trim().isEmpty()) || (studyIdString == null || studyIdString.trim().isEmpty())) {
+        if ((name == null || name.trim().isEmpty()) || (studyIdString == null || studyIdString.trim().isEmpty())) {
             addPageMessage(respage.getString("please_choose_a_user_to_view"));
             forwardPage(Page.LIST_USER_IN_STUDY_SERVLET);
      	} else {
-            int studyId = Integer.valueOf(studyIdString.trim()).intValue();
-            UserAccountBean user = (UserAccountBean) udao.findByUserName(name);
+            int studyId = Integer.parseInt(studyIdString.trim());
 
+            UserAccountBean user = udao.findByUserName(name);
             request.setAttribute("user", user);
 
             StudyUserRoleBean uRole = udao.findRoleByUserNameAndStudyId(name, studyId);
             request.setAttribute("uRole", uRole);
 
             StudyDAO sdao = new StudyDAO(sm.getDataSource());
-            StudyBean study = (StudyBean) sdao.findByPK(studyId);
+            StudyBean study = sdao.findByPK(studyId);
             request.setAttribute("uStudy", study);
-            request.setAttribute("siteRoleMap", Role.siteRoleMap);
-            // BWP 12/7/07 >>To provide the view with the correct date format
-            // pattern, locale sensitive
-            String pattn = "";
-            pattn = ResourceBundleProvider.getFormatBundle().getString("date_format_string");
-            request.setAttribute("dateFormatPattern", pattn);
-            request.setAttribute("action","");
-            forwardPage(Page.VIEW_USER_IN_STUDY);
 
+            // Role names are specified in localised properties
+            request.setAttribute("siteRoleMap", Role.siteRoleMap);
+            
+            // To provide the view with the correct date format pattern is locale sensitive
+            String dateFormatPattern = ResourceBundleProvider.getFormatBundle().getString("date_format_string");
+            request.setAttribute("dateFormatPattern", dateFormatPattern);
+            request.setAttribute("action","");
+
+            forwardPage(Page.VIEW_USER_IN_STUDY);
         }
-     }
+
     }
 
 }
