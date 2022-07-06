@@ -449,13 +449,11 @@
 	    		<scope>runtime</scope>
 			</dependency>
 			<!-- LIQUIBASE -->
-         <!--
 			<dependency>
 				<groupId>org.liquibase</groupId>
 				<artifactId>liquibase-core</artifactId>
 				<version>3.6.3</version>
 			</dependency>
-         -->
 		    <dependency>
 				<groupId>org.codehaus.castor</groupId>
 				<artifactId>castor</artifactId>

@@ -230,6 +230,11 @@
 			<version>2.2</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.liquibase</groupId>
+			<artifactId>liquibase-core</artifactId>
+			<scope>runtime</scope>
+		</dependency>
 	</dependencies>
 	<!-- @pgawade 16-NOV-2010 unit tests through maven -->
 
