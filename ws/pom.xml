@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>LibreClinica-ws</artifactId>
     <packaging>war</packaging>
@@ -8,6 +10,11 @@
         <artifactId>LibreClinica</artifactId>
 		<version>1.2.0-snapshot</version>
     </parent>
+
+    <properties>
+        <assembly.name>LibreClinica-ws</assembly.name>
+    </properties>
+
     <dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
@@ -22,19 +29,12 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
         </dependency>
-        <!--
-		<dependency>
-			<groupId>javax.transaction</groupId>
-			<artifactId>transaction-api</artifactId>
-			<version>1.1</version>
-		</dependency>
-        -->
-		
+
 		<!-- Spring -->
-      <dependency>
-         <groupId>org.springframework</groupId>
-         <artifactId>spring-web</artifactId>
-      </dependency>
+      	<dependency>
+		 	<groupId>org.springframework</groupId>
+         	<artifactId>spring-web</artifactId>
+      	</dependency>
 		<dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
@@ -55,11 +55,6 @@
            <groupId>org.springframework.ws</groupId>
            <artifactId>spring-ws-core</artifactId>
            <version>3.0.10.RELEASE</version>
-        </dependency>
-        <!--
-        <dependency>
-           <groupId>org.springframework.ws</groupId>
-           <artifactId>spring-ws-core-tiger</artifactId>
         </dependency>
         <dependency>
            <groupId>org.springframework.ws</groupId>
@@ -84,10 +79,8 @@
               </exclusion>
            </exclusions>
         </dependency>
-        -->
 
         <!-- Security -->
-        <!--
         <dependency>
            <groupId>com.sun.xml.wss</groupId>
            <artifactId>xws-security</artifactId>
@@ -122,19 +115,16 @@
               </exclusion>
            </exclusions>
         </dependency>
-        -->
 
 		<!-- Web Services -->
-        <!--
 		<dependency>
 			<groupId>wsdl4j</groupId>
 			<artifactId>wsdl4j</artifactId>
 			<version>1.6.3</version>
 		</dependency>
-        -->
 		
 		<!-- Other Dependencies -->
-      <!--
+        <!--
 		<dependency>
 			<groupId>javax.xml.soap</groupId>
 			<artifactId>saaj-api</artifactId>
@@ -155,16 +145,18 @@
 			<artifactId>stax-api</artifactId>
 			<version>1.0-2</version>
 		</dependency>
+		-->
 		<dependency>
 			<groupId>org.apache.ws.xmlschema</groupId>
 			<artifactId>xmlschema-core</artifactId>
 			<version>2.2.5</version>
 		</dependency>
+		<!--
 		<dependency>
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
 		</dependency>
-      -->
+      	-->
 		<dependency>
 			<groupId>commons-lang</groupId>
 			<artifactId>commons-lang</artifactId>
@@ -233,7 +225,7 @@
          <artifactId>castor</artifactId>
          <type>pom</type>
       </dependency>
-		<dependency>
+	    <dependency>
 			<groupId>xerces</groupId>
 			<artifactId>xercesImpl</artifactId>
 			<version>2.8.1</version>
@@ -272,13 +264,17 @@
 				<artifactId>maven-dependency-plugin</artifactId>
 				<configuration>
 					<ignoreNonCompile>true</ignoreNonCompile>
+                    <ignoredUnusedDeclaredDependencies>
+                        <!-- Needed by LibreClinica-ws SOAP web services -->
+                        <ignoredUnusedDeclaredDependency>wsdl4j:wsdl4j</ignoredUnusedDeclaredDependency>
+                        <ignoredUnusedDeclaredDependency>org.apache.ws.xmlschema:xmlschema-core</ignoredUnusedDeclaredDependency>
+                        <ignoredUnusedDeclaredDependency>org.springframework.ws:spring-ws-security</ignoredUnusedDeclaredDependency>
+                        <ignoredUnusedDeclaredDependency>com.sun.xml.wss:xws-security</ignoredUnusedDeclaredDependency>
+                        <!-- Needed by LibreClinica-web when HttpComponentsClientHttpRequestFactory is used-->
+                        <ignoredUnusedDeclaredDependency>org.apache.httpcomponents:httpclient</ignoredUnusedDeclaredDependency>
+                    </ignoredUnusedDeclaredDependencies>
 				</configuration>
 			</plugin>
         </plugins>
     </build>
-
-    <properties>
-    	<assembly.name>LibreClinica-ws</assembly.name>
-    </properties>
-
 </project>

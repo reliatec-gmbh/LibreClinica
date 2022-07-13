@@ -37,7 +37,7 @@
 		<saxon.version>8.7</saxon.version>
 		<hibernate.version>5.4.2.Final</hibernate.version>
 		<castor.version>1.4.1</castor.version>
-		<logback.version>1.1.2</logback.version>
+		<logback.version>1.1.3</logback.version>
 	</properties>
 	<profiles>
 		<profile>
@@ -106,11 +106,6 @@
 				<version>2.4.2-oc</version>
 			</dependency>
 			<dependency>
-				<groupId>org.libreclinica.odm</groupId>
-				<artifactId>LibreClinica-odm</artifactId>
-				<version>2.2</version>
-			</dependency>
-			<dependency>
 				<groupId>org.quartz-scheduler</groupId>
 				<artifactId>quartz</artifactId>
 				<version>2.2.3</version>
@@ -155,6 +150,15 @@
 				<artifactId>commons-dbcp</artifactId>
 				<version>1.4</version>
 			</dependency>
+			<!-- dbcp2 2.8 contains performance regression that have negative impact on big LC installation -->
+			<!-- only move to new version if performance testing provides better results -->
+			<!--
+			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-dbcp2</artifactId>
+				<version>2.8.0</version>
+			</dependency>
+			-->
 			<dependency>
 				<groupId>commons-logging</groupId>
 				<artifactId>commons-logging</artifactId>
@@ -179,11 +183,6 @@
 				<groupId>net.sf.saxon</groupId>
 				<artifactId>saxon-dom</artifactId>
 				<version>${saxon.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.commons</groupId>
-    			<artifactId>commons-dbcp2</artifactId>
-    			<version>2.8.0</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-codec</groupId>
@@ -323,7 +322,7 @@
 			<dependency>
 				<groupId>org.springframework.ldap</groupId>
 				<artifactId>spring-ldap-core</artifactId>
-				<!-- make sure the version matches the one used by org.springframewok.security:spring-security-ldap -->
+				<!-- make sure the version matches the one used by org.springframework.security:spring-security-ldap -->
 				<version>2.3.2.RELEASE</version>
 			</dependency>
 			<dependency>
@@ -473,11 +472,6 @@
 				<version>${castor.version}</version>
 				<exclusions>
 				</exclusions>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.logging.log4j</groupId>
-				<artifactId>log4j-core</artifactId>
-				<version>2.13.3</version>
 			</dependency>
 			<!-- LOGBACK -->
 			<dependency>
@@ -637,12 +631,24 @@
 				<artifactId>poi</artifactId>
 				<version>3.0.1-FINAL</version>
 				<scope>compile</scope>
+				<exclusions>
+					<exclusion>
+						<artifactId>log4j</artifactId>
+						<groupId>log4j</groupId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>net.sourceforge.jexcelapi</groupId>
 				<artifactId>jxl</artifactId>
 				<version>2.6.10</version>
 				<scope>compile</scope>
+				<exclusions>
+					<exclusion>
+						<artifactId>log4j</artifactId>
+						<groupId>log4j</groupId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 			<!-- Struts web framework -->
 			<dependency>
@@ -671,12 +677,6 @@
 	            <version>1.19.3</version>
 	        </dependency>
 	        <dependency>
-	            <groupId>junit</groupId>
-	            <artifactId>junit</artifactId>
-	            <version>4.11</version>
-	            <scope>test</scope>
-	        </dependency>
-	        <dependency>
 	            <groupId>org.mockito</groupId>
 	            <artifactId>mockito-all</artifactId>
 	            <version>1.9.5</version>
@@ -696,6 +696,8 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
+			<version>4.13.2</version>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.dbunit</groupId>
@@ -725,12 +727,6 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 			<version>1.7.6</version>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<version>1.7.6</version>
-			<scope>test</scope>
 		</dependency>
 		<!--@pgawade 02-DEC-2010 Added jul-to-slf4j-1.5.6.jar to get liquibase
 			logs using SLF4JBridgeHandler -->
@@ -860,18 +856,10 @@
 			<version>3.1.2</version>
 		</dependency>
       -->
-      <!--
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
 			<version>4.5.7</version>
-		</dependency>
-      -->
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.13.2</version>
-			<scope>test</scope>
 		</dependency>
 	</dependencies>
 	<build>
@@ -1055,7 +1043,7 @@
                         <configuration>
                            <rules>
                               <banDuplicateClasses>
-                                 <ignoreClasses></ignoreClasses>
+								  <ignoreClasses/>
                                  <scopes>
                                     <scope>compile</scope>
                                     <scope>provided</scope>

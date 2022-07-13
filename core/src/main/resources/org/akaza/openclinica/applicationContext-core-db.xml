@@ -15,11 +15,10 @@
         
     <bean id="dataSource" class="org.akaza.openclinica.core.ExtendedBasicDataSource">
         <property name="driverClassName" value="s[driver]"/>
-        <property name="maxTotal" value="50"/>
+        <property name="maxActive" value="50"/>
         <property name="maxIdle" value="2"/>
-        <property name="maxWaitMillis" value="180000"/>
-        <property name="removeAbandonedOnBorrow" value="true"/>
-        <property name="removeAbandonedOnMaintenance" value="true"/>
+        <property name="maxWait" value="180000"/>
+        <property name="removeAbandoned" value="true"/>
         <property name="removeAbandonedTimeout" value="300"/>
         <property name="logAbandoned" value="true"/>
         <property name="testWhileIdle" value="true"/>

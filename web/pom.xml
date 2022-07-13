@@ -91,6 +91,14 @@
 			<groupId>commons-dbcp</groupId>
     		<artifactId>commons-dbcp</artifactId>
 		</dependency>
+		<!-- dbcp2 2.8 contains performance regression that have negative impact on big LC installation -->
+		<!-- only move to new version if performance testing provides better results -->
+		<!--
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-dbcp2</artifactId>
+		</dependency>
+		-->
 		<dependency>
 			<groupId>commons-validator</groupId>
 			<artifactId>commons-validator</artifactId>
@@ -137,11 +145,6 @@
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>commons-dbcp</groupId>
-			<artifactId>commons-dbcp</artifactId>
-			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>commons-codec</groupId>
@@ -207,7 +210,6 @@
 			<artifactId>json-lib</artifactId>
 			<classifier>jdk15</classifier>
 		</dependency>
-      <!--
 		<dependency>
 			<groupId>xom</groupId>
 			<artifactId>xom</artifactId>
@@ -219,7 +221,6 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-      -->
       <!--
 		<dependency>
 			<groupId>net.sf.ezmorph</groupId>
@@ -281,10 +282,6 @@
 		</dependency>
       -->
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-all</artifactId>
 		</dependency>
@@ -297,10 +294,6 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-    		<artifactId>commons-dbcp2</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>xml-apis</groupId>
@@ -366,6 +359,14 @@
 		        <artifactId>maven-dependency-plugin</artifactId>
 		        <configuration>
 		        	<ignoreNonCompile>true</ignoreNonCompile>
+					<ignoredUnusedDeclaredDependencies>
+						<!-- Needed by commons-validator -->
+						<ignoredUnusedDeclaredDependency>oro:oro</ignoredUnusedDeclaredDependency>
+						<!-- Needed by LibreClinica-web REST services JSON encoding -->
+						<ignoredUnusedDeclaredDependency>xom:xom</ignoredUnusedDeclaredDependency>
+						<!-- Needed by LibreClinica-web when HttpComponentsClientHttpRequestFactory is used-->
+						<ignoredUnusedDeclaredDependency>org.apache.httpcomponents:httpclient</ignoredUnusedDeclaredDependency>
+					</ignoredUnusedDeclaredDependencies>
 		        </configuration>
 		      </plugin>
 			<plugin>
@@ -483,7 +484,7 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<ignore></ignore>
+										<ignore/>
 									</action>
 								</pluginExecution>
 								<pluginExecution>
@@ -504,7 +505,7 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<ignore></ignore>
+										<ignore/>
 									</action>
 								</pluginExecution>
 							</pluginExecutions>
