@@ -299,6 +299,9 @@
 				<c:if test="${userRole.investigator || userBean.sysAdmin || userBean.techAdmin}">
 					<div class="taskLink"><a href="manuals/investigator-manual.pdf" target="_blank">Investigator Manual</a></div>
 				</c:if>
+				<c:if test="${userBean.sysAdmin || userBean.techAdmin}">
+					<div class="taskLink"><a href="manuals/administrator-manual.pdf" target="_blank">Administrator Manual</a></div>
+				</c:if>
 			</div>
 			<div class="taskRightColumn">
 				<c:if test="${userRole.monitor || userBean.sysAdmin || userBean.techAdmin}">
