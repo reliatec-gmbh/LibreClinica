@@ -1,32 +1,34 @@
 {
-  "name": "markdownToPdfConversion",
-  "version": "1.2.0",
-  "private": true,
-  "scripts": {
-	"pdf-manual": "md-to-pdf ./manuals/monitor-manual.md && md-to-pdf ./manuals/investigator-manual.md"
-  },
-  "dependencies": {
-  },
-  "devDependencies": {
-  },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "node": true
-    },
-    "extends": [
-      "plugin:vue/essential",
-      "eslint:recommended"
-    ],
-    "rules": {
-      "no-console": "off"
-    },
-    "parserOptions": {
-      "parser": "babel-eslint"
-    }
-  },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions"
-  ]
+	"name": "markdownToPdfConversion",
+	"version": "1.2.0",
+	"private": true,
+	"scripts": {
+		"pdf-manual": "md-to-pdf ./manuals/monitor-manual.md && md-to-pdf ./manuals/investigator-manual.md"
+	},
+	"dependencies": {
+		"md-to-pdf": "5.1.0"
+	},
+	"devDependencies": {
+		
+	},
+	"eslintConfig": {
+		"root": true,
+		"env": {
+			"node": true
+		},
+		"extends": [
+			"plugin:vue/essential",
+			"eslint:recommended"
+		],
+		"rules": {
+			"no-console": "off"
+		},
+		"parserOptions": {
+			"parser": "babel-eslint"
+		}
+	},
+	"browserslist": [
+		"> 1%",
+		"last 2 versions"
+	]
 }

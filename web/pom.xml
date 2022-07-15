@@ -360,7 +360,7 @@
 		<profile>
 			<id>exclude-pdf-manuals</id>
 			<activation>
-				<activeByDefault>true</activeByDefault>
+				<activeByDefault>false</activeByDefault>
 			</activation>
 			<properties>
 				<npm-phase>NONE</npm-phase>
@@ -368,7 +368,7 @@
 		</profile>
 		<profile>		
 			<activation>
-				<activeByDefault>false</activeByDefault>
+				<activeByDefault>true</activeByDefault>
 			</activation>
 			<id>include-pdf-manuals</id>
 			<properties>
@@ -437,7 +437,7 @@
 						</goals>
 						<phase>${npm-phase}</phase>
 						<configuration>
-							<nodeVersion>v16.4.1</nodeVersion>
+							<nodeVersion>v18.6.0</nodeVersion>
 						</configuration>
 					</execution>
 					<execution>
