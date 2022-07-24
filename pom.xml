@@ -12,6 +12,7 @@
 	<modules>
 		<module>core</module>
 		<module>odm</module>
+		<module>docs</module>
 		<module>web</module>
 		<module>ws</module>
 	</modules>
