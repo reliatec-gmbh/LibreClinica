@@ -25,7 +25,7 @@
 			</activation>
 			<id>include-pdf-manuals</id>
 			<properties>
-				<npm-phase>package</npm-phase>
+				<npm-phase>prepare-package</npm-phase>
 			</properties>
 		</profile>
 	</profiles>
@@ -49,11 +49,6 @@
 									<directory>manuals</directory>
 									<includes>
 										<include>**/*.*</include>
-									</includes>
-								</resource>
-								<resource>
-									<directory>manuals</directory>
-									<includes>
 										<include>package.json</include>
 									</includes>
 								</resource>
@@ -68,13 +63,12 @@
 				<version>3.3.2</version>
 				<configuration>
 					<failOnMissingWebXml>false</failOnMissingWebXml>
-					<packagingExcludes>lib</packagingExcludes>
-					<packagingIncludes>**/manuals/*.pdf</packagingIncludes>
+					<packagingExcludes>WEB-INF/,META-INF/</packagingExcludes>
 					<webResources>
 						<webResource>
 							<directory>target/manuals</directory>
 							<includes>
-								<include>*.pdf</include>
+								<include>*-manual.pdf</include>
 							</includes>
 							<targetPath>manuals</targetPath>
 						</webResource>
