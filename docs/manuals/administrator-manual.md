@@ -31,25 +31,25 @@ The manual is a distributed under the <a name="firstheading">Creative Commons At
 
 # General 2-factor authentication configuration
 
-In generall 2-factor authentication can be configured within  _datainfo.properties_  file (which is deactivated by default to ensure not to break already running systems which upgrade from versions prior LibreClinica 1.2). The following options can be made:
+In general 2-factor authentication can be configured within  _datainfo.properties_  file (which is deactivated by default to ensure not to break already running systems which upgrade from versions prior LibreClinica 1.2). The following options can be made:
 
 1 2fa.activated
 
-To generally enable 2-factor authentication just adjust the setting like this:  _2fa.activated=true_ . Please note that a restart of the LibreClinica application for the changes to take effect.
+To generally enable 2-factor authentication just adjust the setting like this:  _2fa.activated=true_ . Please note that a restart of the LibreClinica application is necessary for the changes to take effect.
 
 2 2fa.type
 
 There are two types of how the mandatory authentication code for the authenticator app is provided: APPLICATION (default), LETTER. 
 
-When set to  _APPLICATION_  the users itself are responsible for activating their accounts to use 2-factor authentication. The QR code gets directly displayed within LibreClinica application itself and can directly be scanned with the authenticator app. This settings is more convenient. But please note that this setting does not protect you from [man-in-the-middle attacks](https://en.wikipedia.org/wiki/Man-in-the-middle_attack).
+When set to  _APPLICATION_  the user itself is responsible for activating their accounts to use 2-factor authentication. The QR code gets directly displayed within LibreClinica application itself and can directly be scanned with the authenticator app. This settings is more convenient. But please note that this setting does not protect you from [man-in-the-middle attacks](https://en.wikipedia.org/wiki/Man-in-the-middle_attack).
 
 When set to  _LETTER_  the QR code will be provided within a generated PDF file for printout. The PDF printout can then be made available by project managers via postal order to the according users. Nevertheless, this possibility means more manual work but the  _LETTER_  option is a more secure way to avoid potential [man-in-the-middle attacks](https://en.wikipedia.org/wiki/Man-in-the-middle_attack).
 
-Administrators are highly recommended to always download the generated PDF file instead of just viewing it within the browser to avoid that the file remains in the local temporary directory and could potentially be viewed by unauthorised third parties.
+Administrators are highly recommended to always download the generated PDF file instead of just viewing it within the browser to avoid that the file remains in the local temporary directory and could potentially be viewed by unauthorized third parties.
 
 3 2fa.dueDate
 
-In combination with  _2fa.type=LETTER_  this setting can be used to force users to activate 2-factor authentication in the future. If the date has passed, and a user who has not activated 2-factor authentication yet he/she will no longer be able to successfully log on to the system.
+In combination with  _2fa.type=LETTER_  this setting can be used to force users to activate 2-factor authentication in the future. If the date has passed, and a user who has not activated 2-factor authentication yet he/she will no longer be able to successfully log in to the system.
 
 Please ensure to provide a date in valid [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601#Calendar_dates) format: YYYY-MM-DD
 
@@ -60,13 +60,13 @@ There are several solutions of mobile  _authenticator apps_  on the market. The 
 - https://play.google.com/store/search?q=authenticator&c=apps
 - https://www.apple.com/de/search/authenticator
 
-Also note that there is no internet or netwrok needed as authenticator apps are working on a time basis.
+Also note that there is no internet or network needed as authenticator apps are working on a time basis.
 
 # Configuring 2-factor authentication (APPLICATION)
 
 The following workflow describes the procedure how  _LibreClinica_  users can activate their account for 2-factor authentication.
 
-Just log in to the system and click on _Tasks_  ->  _Update Profile_ . When swichting  _Authentication Type_  to  _2-Factor Authentication_  the  _QR-Code_ button is getting visible. Click  _QR-Code_ to generate the QR code and scan it with your authenticator app on your mobile device. When successfully scanned the changes have to be confirmed by pressing _Confirm Profile Changes_ and finally update your made profile changes.
+Just log in to the system and click on _Tasks_  ->  _Update Profile_ . When switching  _Authentication Type_  to  _2-Factor Authentication_  the  _QR-Code_ button is getting visible. Click  _QR-Code_ to generate the QR code and scan it with your authenticator app on your mobile device. When successfully scanned the changes have to be confirmed by pressing _Confirm Profile Changes_ and finally update your made profile changes.
 
 ![administrator home](administrator-manual_images/change-user-profile-application.png "change user profile")
 
@@ -82,10 +82,19 @@ Create a new or edit an existing user account. Then assign the _Marked for 2-Fac
 
 ![administrator home](administrator-manual_images/user-account-letter.png "create/edit user account")
 
-After persisting the changes got to  _Tasks -> Users_  and click the printer icon for the specific user to geneate a PDF printout. 
+After persisting the changes got to  _Tasks -> Users_  and click the printer icon for the specific user to generate a PDF printout. 
 
 ![administrator home](administrator-manual_images/administer-users-letter.png "administer users")
 
-Provide the PDF printout or the original file itself to the user via postal order or transmission via a secure way. At the end the generated file shoud permantently be deleted.
+Provide the PDF printout or the original file itself to the user via postal order or transmission via a secure way. At the end the generated file should permanently be deleted.
 
 # Configuring login e-mail notification
+
+The following workflow describes the procedure how e-mail notifications can be activated for a study. 
+Create a new or edit an existing study. Here notifications can be enabled for the whole study including all sites. 
+It is possible to specify the e-mail address for the project management, which is referenced in every notification e-mail.
+![administrator home](administrator-manual_images/update_study_details.png "update study details")
+
+After persisting the changes, everytime a user logs in to the study or connected site a notification e-mail is send.
+The notification e-mail contains information regarding study/site, date, time and contact address of the project management.
+![administrator home](administrator-manual_images/login_mail.png "login e-mail")
