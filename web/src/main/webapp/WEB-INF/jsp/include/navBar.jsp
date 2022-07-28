@@ -1,6 +1,18 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ page import="org.akaza.openclinica.i18n.util.ResourceBundleProvider" %>
+<%@ page import="org.springframework.web.servlet.support.RequestContextUtils" %>
+<%@ page import="org.springframework.context.ApplicationContext" %>
+<%@ page import="org.akaza.openclinica.dao.core.CoreResources" %>
+
+
+<%
+ApplicationContext appContext = RequestContextUtils.findWebApplicationContext(request);
+CoreResources coreResources = (CoreResources) appContext.getBean("coreResources");
+
+request.setAttribute("coreResources", coreResources);
+session.setAttribute("coreResources", coreResources);
+%>
 
 <fmt:setBundle basename="org.akaza.openclinica.i18n.workflow" var="resworkflow"/>
 <fmt:setBundle basename="org.akaza.openclinica.i18n.words" var="resword"/>
@@ -292,23 +304,25 @@
         </div>
         <br clear="all">
         </c:if>
-        
-        <c:if test="${userRole.monitor || userRole.investigator || userBean.sysAdmin || userBean.techAdmin}">
-			<div class="taskGroup">Manual Download</div>
-			<div class="taskLeftColumn">
-				<c:if test="${userRole.investigator || userBean.sysAdmin || userBean.techAdmin}">
-					<div class="taskLink"><a href="${pageContext.request.contextPath}/manuals/investigator-manual.pdf" target="_blank">Investigator Manual</a></div>
-				</c:if>
-				<c:if test="${userBean.sysAdmin || userBean.techAdmin}">
-					<div class="taskLink"><a href="manuals/administrator-manual.pdf" target="_blank">Administrator Manual</a></div>
-				</c:if>
-			</div>
-			<div class="taskRightColumn">
-				<c:if test="${userRole.monitor || userBean.sysAdmin || userBean.techAdmin}">
-					<div class="taskLink"><a href="${pageContext.request.contextPath}/manuals/monitor-manual.pdf" target="_blank">Monitor Manual</a></div>
-				</c:if>
-			</div>
-			<br clear="all">
+		
+        <c:if test="${coreResources.isDisplayManual()}">
+	        <c:if test="${userRole.monitor || userRole.investigator || userBean.sysAdmin || userBean.techAdmin}">
+				<div class="taskGroup">Manual Download</div>
+				<div class="taskLeftColumn">
+					<c:if test="${userRole.investigator || userBean.sysAdmin || userBean.techAdmin}">
+						<div class="taskLink"><a href="${pageContext.request.contextPath}/manuals/investigator-manual.pdf" target="_blank">Investigator Manual</a></div>
+					</c:if>
+					<c:if test="${userBean.sysAdmin || userBean.techAdmin}">
+						<div class="taskLink"><a href="manuals/administrator-manual.pdf" target="_blank">Administrator Manual</a></div>
+					</c:if>
+				</div>
+				<div class="taskRightColumn">
+					<c:if test="${userRole.monitor || userBean.sysAdmin || userBean.techAdmin}">
+						<div class="taskLink"><a href="${pageContext.request.contextPath}/manuals/monitor-manual.pdf" target="_blank">Monitor Manual</a></div>
+					</c:if>
+				</div>
+				<br clear="all">
+	        </c:if>
         </c:if>
         
         <c:if test="${userBean.sysAdmin || userBean.techAdmin}">

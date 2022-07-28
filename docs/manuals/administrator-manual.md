@@ -29,6 +29,8 @@ The manual is a distributed under the <a name="firstheading">Creative Commons At
 
 [Configuring login e-mail notification](#configuring-login-e-mail-notification)
 
+[Providing manual download](#providing-manual-download)
+
 # General 2-factor authentication configuration
 
 In general 2-factor authentication can be configured within  _datainfo.properties_  file (which is deactivated by default to ensure not to break already running systems which upgrade from versions prior LibreClinica 1.2). The following options can be made:
@@ -98,3 +100,7 @@ It is possible to specify the e-mail address for the project management, which i
 After persisting the changes, everytime a user logs in to the study or connected site a notification e-mail is send.
 The notification e-mail contains information regarding study/site, date, time and contact address of the project management.
 ![administrator home](administrator-manual_images/login_mail.png "login e-mail")
+
+# Providing manual download
+
+If the application should provide PDF manuals for download for the roles  _Administrator_ ,  _Investigator_  or  _Monitor_  the  _display.manual_  setting has to be set to true (default is false). Please note that the distribution has to be build with the  _include-pdf-manuals_  Maven profile. Otherwise the PDF manuals are not generated and not part of the distribution.

@@ -396,17 +396,6 @@
 				<artifactId>maven-war-plugin</artifactId>
 				<version>3.3.2</version>
 				<configuration>
-					<!-- 
-					<webResources>
-						<resource>
-							<directory>../docs/target/manuals</directory>
-							<includes>
-								<include>*-manual.pdf</include>
-							</includes>
-							<targetPath>manuals</targetPath>
-						</resource>
-					</webResources>
-					-->
 					<overlays>
 						<overlay>
 							<groupId>org.libreclinica</groupId>
@@ -417,8 +406,6 @@
 						</overlay>
 					</overlays>
 				</configuration>
-				<dependencies>
-				</dependencies>
 			</plugin>
 		</plugins>
 		<pluginManagement>
