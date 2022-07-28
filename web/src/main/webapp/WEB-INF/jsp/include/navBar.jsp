@@ -313,7 +313,7 @@ session.setAttribute("coreResources", coreResources);
 						<div class="taskLink"><a href="${pageContext.request.contextPath}/manuals/investigator-manual.pdf" target="_blank">Investigator Manual</a></div>
 					</c:if>
 					<c:if test="${userBean.sysAdmin || userBean.techAdmin}">
-						<div class="taskLink"><a href="manuals/administrator-manual.pdf" target="_blank">Administrator Manual</a></div>
+						<div class="taskLink"><a href="${pageContext.request.contextPath}/manuals/administrator-manual.pdf" target="_blank">Administrator Manual</a></div>
 					</c:if>
 				</div>
 				<div class="taskRightColumn">
