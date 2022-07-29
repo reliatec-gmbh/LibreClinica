@@ -29,58 +29,59 @@ The manual is a distributed under the <a name="firstheading">Creative Commons At
 
 [Configuring login e-mail notification](#configuring-login-e-mail-notification)
 
-[Providing manual download](#providing-manual-download)
+[Providing manuals for download](#providing-manuals-for-download)
 
 # General 2-factor authentication configuration
 
-In general 2-factor authentication can be configured within  _datainfo.properties_  file (which is deactivated by default to ensure not to break already running systems which upgrade from versions prior LibreClinica 1.2). The following options can be made:
+In general 2-factor authentication can be configured within _datainfo.properties_ file. It is deactivated by default to ensure not to break already running systems which upgrade from versions prior LibreClinica 1.2. The following options can be set:
 
 1 2fa.activated
 
-To generally enable 2-factor authentication just adjust the setting like this:  _2fa.activated=true_ . Please note that a restart of the LibreClinica application is necessary for the changes to take effect.
+To generally enable 2-factor authentication just adjust the setting like this: _2fa.activated=true_. A restart of the LibreClinica application is required for the changes to take effect.
 
 2 2fa.type
 
-There are two types of how the mandatory authentication code for the authenticator app is provided: APPLICATION (default), LETTER. 
+There are two ways how the mandatory authentication code for the authenticator app is provided: APPLICATION (default), LETTER. 
 
-When set to  _APPLICATION_  the user itself is responsible for activating their accounts to use 2-factor authentication. The QR code gets directly displayed within LibreClinica application itself and can directly be scanned with the authenticator app. This settings is more convenient. But please note that this setting does not protect you from [man-in-the-middle attacks](https://en.wikipedia.org/wiki/Man-in-the-middle_attack).
+When set to _APPLICATION_ the user themselves are responsible for activating their accounts to use 2-factor authentication. The QR code gets directly displayed within LibreClinica application itself and can directly be scanned with the authenticator app. This settings is more convenient. But please note that this setting does not protect you from [man-in-the-middle attacks](https://en.wikipedia.org/wiki/Man-in-the-middle_attack).
 
-When set to  _LETTER_  the QR code will be provided within a generated PDF file for printout. The PDF printout can then be made available by project managers via postal order to the according users. Nevertheless, this possibility means more manual work but the  _LETTER_  option is a more secure way to avoid potential [man-in-the-middle attacks](https://en.wikipedia.org/wiki/Man-in-the-middle_attack).
+When set to _LETTER_ the QR code will be provided within a generated PDF file for printout. The PDF printout can then be made available by project managers via postal order to the according users. Nevertheless, this possibility means more manual work but the _LETTER_ option is a more secure way to avoid potential [man-in-the-middle attacks](https://en.wikipedia.org/wiki/Man-in-the-middle_attack).
 
 Administrators are highly recommended to always download the generated PDF file instead of just viewing it within the browser to avoid that the file remains in the local temporary directory and could potentially be viewed by unauthorized third parties.
 
 3 2fa.dueDate
 
-In combination with  _2fa.type=LETTER_  this setting can be used to force users to activate 2-factor authentication in the future. If the date has passed, and a user who has not activated 2-factor authentication yet he/she will no longer be able to successfully log in to the system.
+In combination with _2fa.type=LETTER_ this setting can be used to force users to activate 2-factor authentication in the future. If the date has passed, and a user has not activated 2-factor authentication yet, he/she will no longer be able to successfully log in to the system.
 
-Please ensure to provide a date in valid [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601#Calendar_dates) format: YYYY-MM-DD
+Please provide the date in valid [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601#Calendar_dates) format: YYYY-MM-DD
 
 4 Authenticator Apps
 
-There are several solutions of mobile  _authenticator apps_  on the market. The most commonly known solutions are  _Google Authenticator_  and  _Microsoft Authenticator_ . But also other solutions will work.
+There are several solutions of mobile _authenticator apps_ on the market. The most commonly known solutions are _Google Authenticator_ and _Microsoft Authenticator_. But also other solutions will work.
 
 - https://play.google.com/store/search?q=authenticator&c=apps
 - https://www.apple.com/de/search/authenticator
+- https://search.f-droid.org/?q=authenticator
 
-Also note that there is no internet or network needed as authenticator apps are working on a time basis.
+Note that there is no internet or network needed as authenticator apps are working on a time basis.
 
 # Configuring 2-factor authentication (APPLICATION)
 
-The following workflow describes the procedure how  _LibreClinica_  users can activate their account for 2-factor authentication.
+The following workflow describes the procedure how _LibreClinica_ users can activate their account for 2-factor authentication.
 
-Just log in to the system and click on _Tasks_  ->  _Update Profile_ . When switching  _Authentication Type_  to  _2-Factor Authentication_  the  _QR-Code_ button is getting visible. Click  _QR-Code_ to generate the QR code and scan it with your authenticator app on your mobile device. When successfully scanned the changes have to be confirmed by pressing _Confirm Profile Changes_ and finally update your made profile changes.
+Just log in to the system and click on _Tasks_ -> _Update Profile_. When switching _Authentication Type_ to _2-Factor Authentication_ the _QR-Code_ button gets visible. Click it to generate the QR code and scan it with your authenticator app on your mobile device. When successfully scanned the changes have to be confirmed by pressing _Confirm Profile Changes_ to finally update your profile changes.
 
 ![administrator home](administrator-manual_images/change-user-profile-application.png "change user profile")
 
 From now on login to the system will only be granted when providing the valid additional number code created by the authenticator app. The code will only be valid for about 30 seconds.
 
-Users are recommended to rename the scanned 2-factor profile within their authenticator app to ensure uniqueness when maybe working with multiple  _LibreClinica_  instances.
+Users are recommended to rename the scanned 2-factor profile within their authenticator app to ensure uniqueness when working with multiple _LibreClinica_ instances.
 
 # Configuring 2-factor authentication (LETTER)
 
 The following workflow describes the procedure how administrators can activate a user's account for 2-factor authentication.
 
-Create a new or edit an existing user account. Then assign the _Marked for 2-Factor Authentication_  as  _Authentication Type_ .
+Create a new or edit an existing user account. Then assign the _Marked for 2-Factor Authentication_ as _Authentication Type_.
 
 ![administrator home](administrator-manual_images/user-account-letter.png "create/edit user account")
 
@@ -101,6 +102,6 @@ After persisting the changes, everytime a user logs in to the study or connected
 The notification e-mail contains information regarding study/site, date, time and contact address of the project management.
 ![administrator home](administrator-manual_images/login_mail.png "login e-mail")
 
-# Providing manual download
+# Providing manuals for download
 
-If the application should provide PDF manuals for download for the roles  _Administrator_ ,  _Investigator_  or  _Monitor_  the  _display.manual_  setting has to be set to true (default is false). Please note that the distribution has to be build with the  _include-pdf-manuals_  Maven profile. Otherwise the PDF manuals are not generated and not part of the distribution.
+To provide PDF manuals for download in the applications Tasks menu for the roles _Administrator_, _Investigator_ or _Monitor_ the _display.manual_ setting has to be set to true (default is false) in the datainfo.properties config file. Please note that the distribution has to be build with the _include-pdf-manuals_ Maven profile (passed to `mvn clean package` by `-Pinclude-pdf-manuals` which is the default). With _exclude-pdf-manuals_ the PDF manuals are not generated and not part of the distribution.
