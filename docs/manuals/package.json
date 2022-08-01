@@ -1,11 +1,12 @@
 {
-  "name": "markdownToPdfConversion",
+  "name": "mdpdf",
   "version": "1.2.0",
   "private": true,
   "scripts": {
-	"pdf-manual": "md-to-pdf ./manuals/monitor-manual.md && md-to-pdf ./manuals/investigator-manual.md"
+	"pdf-manual": "md-to-pdf ./monitor-manual.md && md-to-pdf ./investigator-manual.md && md-to-pdf ./administrator-manual.md"
   },
   "dependencies": {
+  	"md-to-pdf": "latest"
   },
   "devDependencies": {
   },

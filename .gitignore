@@ -15,6 +15,7 @@ OpenClinica.iml
 web/src/main/resources/datainfo.properties
 core/*.iml
 odm/*.iml
+docs/*.iml
 web/*.iml
 ws/*.iml
 .DS_Store

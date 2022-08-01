@@ -123,7 +123,7 @@
     <bean id="crfLocker" class="org.akaza.openclinica.core.CRFLocker"/>
 
     <bean id = "generateClinicalDataService" class="org.akaza.openclinica.service.extract.GenerateClinicalDataServiceImpl">
-        <property name="studyDao" ref="studyDaoDomain"></property>
+        <property name="studyDao" ref="studyDaoDomain" />
         <property name="studySubjectDao" ref="studySubjectDaoDomain"/>
         <property name="studyEventDefDao" ref="studyEventDefDaoDomain"/>
         <property name="auditEventDAO" ref="auditLogEventDaoDomain"/>

@@ -8,6 +8,7 @@
 package org.akaza.openclinica.dao.core;
 
 import static org.akaza.openclinica.core.util.ClassCastHelper.asEnumeration;
+import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -839,6 +840,16 @@ public class CoreResources implements ResourceLoaderAware {
         if (null == DB_NAME)
             return "postgres";
         return DB_NAME;
+    }
+    
+    /**
+     * Returns true if the manual download shoule be present within navbar.jsp -
+     * false otherwise. When not configured the returned value defaults to
+     * false to avoid errors.
+     */
+    public static boolean isDisplayManual() {
+        String displayManual = getField("display.manual");
+        return Boolean.valueOf(defaultIfEmpty(displayManual, "false"));
     }
 
     public static String getField(String key) {

@@ -1,6 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>LibreClinica-web</artifactId>
 	<packaging>war</packaging>
@@ -10,7 +10,7 @@
 		<artifactId>LibreClinica</artifactId>
 		<version>1.2.0-snapshot</version>
 	</parent>
-	
+
 	<properties>
 		<assembly.name>LibreClinica</assembly.name>
 	</properties>
@@ -20,6 +20,12 @@
 			<groupId>${project.groupId}</groupId>
 			<artifactId>LibreClinica-core</artifactId>
 			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>LibreClinica-docs</artifactId>
+			<version>${project.version}</version>
+			<type>war</type>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}.odm</groupId>
@@ -89,7 +95,7 @@
 		</dependency>
 		<dependency>
 			<groupId>commons-dbcp</groupId>
-    		<artifactId>commons-dbcp</artifactId>
+			<artifactId>commons-dbcp</artifactId>
 		</dependency>
 		<!-- dbcp2 2.8 contains performance regression that have negative impact on big LC installation -->
 		<!-- only move to new version if performance testing provides better results -->
@@ -316,26 +322,6 @@
          <artifactId>hibernate-core</artifactId>
       </dependency>
 	</dependencies>
-	<profiles>
-		<profile>
-			<id>exclude-pdf-manuals</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<properties>
-				<npm-phase>NONE</npm-phase>
-			</properties>
-		</profile>
-		<profile>		
-			<activation>
-				<activeByDefault>false</activeByDefault>
-			</activation>
-			<id>include-pdf-manuals</id>
-			<properties>
-				<npm-phase>compile</npm-phase>
-			</properties>
-		</profile>
-	</profiles>
 	<build>
 		<plugins>
 			<plugin>
@@ -366,6 +352,8 @@
 						<ignoredUnusedDeclaredDependency>xom:xom</ignoredUnusedDeclaredDependency>
 						<!-- Needed by LibreClinica-web when HttpComponentsClientHttpRequestFactory is used-->
 						<ignoredUnusedDeclaredDependency>org.apache.httpcomponents:httpclient</ignoredUnusedDeclaredDependency>
+						<!-- Needed by LibreClinica-web when docs module resources are used to pack the pdf manuals -->
+						<ignoredUnusedDeclaredDependency> org.libreclinica:LibreClinica-docs</ignoredUnusedDeclaredDependency>
 					</ignoredUnusedDeclaredDependencies>
 		        </configuration>
 		      </plugin>
@@ -384,78 +372,18 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-war-plugin</artifactId>
-				<version>3.3.1</version>
+				<version>3.3.2</version>
 				<configuration>
-					<webResources>
-						<resource>
-							<directory>../docs/manuals</directory>
+					<overlays>
+						<overlay>
+							<groupId>org.libreclinica</groupId>
+							<artifactId>LibreClinica-docs</artifactId>
 							<includes>
-								<include>*-manual.pdf</include>
+								<include>manuals/*.pdf</include>
 							</includes>
-							<targetPath>manuals</targetPath>
-						</resource>
-					</webResources>
+						</overlay>
+					</overlays>
 				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>com.github.eirslett</groupId>
-				<artifactId>frontend-maven-plugin</artifactId>
-				<version>1.11.3</version>
-				<configuration>
-					<workingDirectory>../docs</workingDirectory>
-				</configuration>
-				<executions>
-					<execution>
-						<id>install node and npm</id>
-						<goals>
-							<goal>install-node-and-npm</goal>
-						</goals>
-						<phase>${npm-phase}</phase>
-						<configuration>
-							<nodeVersion>v16.4.1</nodeVersion>
-						</configuration>
-					</execution>
-					<execution>
-						<id>npm install</id>
-						<goals>
-							<goal>npm</goal>
-						</goals>
-						<phase>${npm-phase}</phase>
-						<configuration>
-							<arguments>install</arguments>
-						</configuration>
-					</execution>
-					<execution>
-						<id>npm link</id>
-						<goals>
-							<goal>npm</goal>
-						</goals>
-						<phase>${npm-phase}</phase>
-						<configuration>
-							<arguments>link</arguments>
-						</configuration>
-					</execution>
-					<execution>
-						<id>npm</id>
-						<goals>
-							<goal>npm</goal>
-						</goals>
-						<phase>${npm-phase}</phase>
-						<configuration>
-							<arguments>i -g</arguments>
-						</configuration>
-					</execution>
-					<execution>
-						<id>npm generate manual</id>
-						<goals>
-							<goal>npm</goal>
-						</goals>
-						<phase>${npm-phase}</phase>
-						<configuration>
-							<arguments>run pdf-manual</arguments>
-						</configuration>
-					</execution>
-				</executions>
 			</plugin>
 		</plugins>
 		<pluginManagement>
