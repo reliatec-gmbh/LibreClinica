@@ -60,10 +60,11 @@ order to introduce changes to the source code.
 |-------------|------------|-----------------------------------------------------------------|
 | lc-develop  | lc-develop | anything except master, lc-develop, lc-release-\*, lc-hotfix-\* |
 
+Creating a feature branch from lc-develop
 ``` {.sourceCode .shell}
 $ git checkout -b myfeature lc-develop
 ```
-
+Merging a feature branch on lc-develop
 ``` {.sourceCode .shell}
 $ git checkout lc-develop
 $ git merge --no-ff myfeature
@@ -77,23 +78,24 @@ $ git push origin lc-develop
 |-------------|------------------------|-------------------|
 | lc-develop  | lc-develop and master  | lc-release-\*     |
 
+Creating a release branch from lc-develop
 ``` {.sourceCode .shell}
 $ git checkout -b lc-release-1.3.0 lc-develop
 $ ./bump-version.sh 1.3.0
 $ git commit -a -m "Bumped version number to 1.3.0"
 ```
-
+Merging a release branch on master and tagging
 ``` {.sourceCode .shell}
 $ git checkout master
 $ git merge --no-ff lc-release-1.3.0
 $ git tag -a lc-1.3.0
 ```
-
+Merging a release branch on lc-develop
 ``` {.sourceCode .shell}
 $ git checkout lc-develop
 $ git merge --no-ff lc-release-1.3.0
 ```
-
+Removing a temporary release branch
 ``` {.sourceCode .shell}
 $ git branch -d lc-release-1.3.0
 ```
@@ -104,22 +106,23 @@ $ git branch -d lc-release-1.3.0
 |-------------|-----------------------|--------------------|
  | master      | lc-develop and master | lc-hotfix-\*       |
 
+Creating a hotfix branch from master
 ``` {.sourceCode .shell}
 $ git checkout -b lc-hotfix-1.3.1 master
 $ ./bump-version.sh 1.3.1
 $ git commit -a -m "Bumped version number to 1.3.1"
 ```
-
+Fix the bug and commit the fix
 ``` {.sourceCode .shell}
 $ git commit -m "Fixed severe production problem"
 ```
-
+Merging a hotfix branch on master and tagging
 ``` {.sourceCode .shell}
 $ git checkout master
 $ git merge --no-ff lc-hotfix-1.3.1
 $ git tag -a lc-1.3.1
 ```
-
+Merging a hotfix branch on lc-develop
 ``` {.sourceCode .shell}
 $ git checkout lc-develop
 $ git merge --no-ff lc-hotfix-1.3.1
@@ -131,6 +134,7 @@ $ git merge --no-ff lc-hotfix-1.3.1
 > currently exists, the hotfix changes need to be merged into that
 > release branch, instead of develop.
 
+Removing a temporary hotfix branch
 ``` {.sourceCode .shell}
 $ git branch -d lc-hotfix-1.3.1
 ```
