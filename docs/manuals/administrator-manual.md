@@ -104,7 +104,7 @@ The notification e-mail contains information regarding study/site, date, time an
 
 # Providing manuals for download
 
-To provide PDF manuals for download in the applications Tasks menu for the roles _Administrator_, _Investigator_ or _Monitor_ the _display.manual_ setting has to be set to true (default is false) in the datainfo.properties config file. Please note that the distribution has to be build with the _include-pdf-manuals_ Maven profile (passed to `mvn clean package` by `-Pinclude-pdf-manuals` which is the default). With _exclude-pdf-manuals_ the PDF manuals are not generated and not part of the distribution.
+To provide PDF manuals for download in the applications Tasks menu for the roles _Administrator_, _Investigator_ or _Monitor_ the _display.manual_ setting has to be set to true (default is false) in the datainfo.properties config file. Please note that the distribution has to be build with the _include-pdf-manuals_ Maven profile (passed to `mvn clean package` by `-Pinclude-pdf-manuals`). With _exclude-pdf-manuals_ the PDF manuals are not generated and not part of the distribution.
 
 Independently of this feature the online manuals at libreclinica.org can be reached by following the "Documentation" link at the bottom of the application's pages.
 
