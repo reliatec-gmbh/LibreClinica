@@ -1,4 +1,4 @@
-# installation instructions for LibreClinica-1.0 - 1.1 on Debian 10 (Buster)
+# installation instructions for LibreClinica-1.0 - 1.2 on Debian 10 (Buster)
 
 **prerequisite**  
 It is expected that you have experience on how to install software and how to edit text files on Debian. 
