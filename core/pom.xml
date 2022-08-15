@@ -192,6 +192,11 @@
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
 		</dependency>
+		<!-- LOGBACK needs Janino when conditional statements are used (e.g. in logback.xml) -->
+		<dependency>
+			<groupId>org.codehaus.janino</groupId>
+			<artifactId>janino</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>antlr</groupId>
 			<artifactId>antlr</artifactId>
@@ -265,6 +270,8 @@
 					<ignoredUnusedDeclaredDependencies>
 						<!-- Needed by LibreClinica-web when HttpComponentsClientHttpRequestFactory is used-->
 						<ignoredUnusedDeclaredDependency>org.apache.httpcomponents:httpclient</ignoredUnusedDeclaredDependency>
+						<!-- Needed by LOGBACK when conditional statements are used (e.g. in logback.xml) -->
+						<ignoredUnusedDeclaredDependency>org.codehaus.janino</ignoredUnusedDeclaredDependency>
 					</ignoredUnusedDeclaredDependencies>
 				</configuration>
 			</plugin>
