@@ -1,4 +1,4 @@
-## 1.2.0 (August 12, 2022)
+## 1.2.0 (August 17, 2022)
 
 **bugfix:**
 * display correct role in success message for 'RemoveStudyUserRole' (#114)
