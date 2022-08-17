@@ -30,7 +30,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 public class TwoFactorServiceTest {
     @Mock
     private CoreResources coreResources;
-    private String settingDueDateString;
     private TwoFactorService service;
     private Properties properties;
 
@@ -42,11 +41,6 @@ public class TwoFactorServiceTest {
             String extractedVerificationTypeSetting() {
                 return LETTER.name();
             }
-            
-            @Override
-            String extractedDueDateSetting() {
-                return settingDueDateString;
-            }
         };
         service.coreResources = coreResources;
 
@@ -56,21 +50,21 @@ public class TwoFactorServiceTest {
 
     @Test
     public void testIsTwoFactorOutdated_CurrentDate() {
-        settingDueDateString = LocalDate.now().format(ISO_DATE);
+        properties.put(TWO_FACTOR_ACTIVATION_DUE_DATE, LocalDate.now().format(ISO_DATE));
 
         assertThat(service.isTwoFactorOutdated(), is(false));
     }
 
     @Test
     public void testIsTwoFactorOutdated_FutureDate() {
-        settingDueDateString = LocalDate.now().plus(1, DAYS).format(ISO_DATE);
+        properties.put(TWO_FACTOR_ACTIVATION_DUE_DATE, LocalDate.now().plus(1, DAYS).format(ISO_DATE));
 
         assertThat(service.isTwoFactorOutdated(), is(false));
     }
 
     @Test
     public void testIsTwoFactorOutdated_Yesterday() {
-        settingDueDateString = LocalDate.now().minus(1, DAYS).format(ISO_DATE);
+        properties.put(TWO_FACTOR_ACTIVATION_DUE_DATE, LocalDate.now().minus(1, DAYS).format(ISO_DATE));
 
         assertThat(service.isTwoFactorOutdated(), is(true));
     }
@@ -118,33 +112,43 @@ public class TwoFactorServiceTest {
 
     @Test
     public void testIsTwoFactorActivatedLetterAndOutDated_OutdatedDueDateProvided() {
-        properties.put(TwoFactorService.TWO_FACTOR_ACTIVATED_VERIFICATION_TYPE, "letter");
+        properties.put(TwoFactorService.TWO_FACTOR_ACTIVATED_VERIFICATION_TYPE, "LETTER");
         properties.put(TWO_FACTOR_ACTIVATED_SETTING, "true");
         properties.put(TWO_FACTOR_ACTIVATION_DUE_DATE, "2020-01-01");
 
-        boolean outdated = service.isTwoFactorActivatedLetterAndOutDated();
-
-        assertThat("test", outdated, is(Boolean.TRUE));
+        assertThat(service.isTwoFactorActivatedLetterAndOutDated(), is(TRUE));
     }
 
     @Test
     public void testIsTwoFactorOutdated_EmptySettingString() {
-        settingDueDateString = "";
+        properties.put(TWO_FACTOR_ACTIVATION_DUE_DATE, "");
 
         assertThat(service.isTwoFactorOutdated(), is(false));
     }
 
     @Test
     public void testIsTwoFactorOutdated_NullSettingString() {
-        settingDueDateString = null;
-
         assertThat(service.isTwoFactorOutdated(), is(false));
     }
 
     @Test
     public void testIsTwoFactorOutdated_InValidSettingWrongFormat() {
-        settingDueDateString = "01.01.2000";
+        properties.put(TWO_FACTOR_ACTIVATION_DUE_DATE, "01.01.2000");
 
         assertThat(service.isTwoFactorOutdated(), is(false));
+    }
+    
+    @Test
+    public void testExtractSystemInfo_UsingHttp() {
+        String systemSetting = "http://some-system.elsewhere.com:8080/HolyStudy/MainMenu";
+
+        assertThat(service.extractSystemInfo(systemSetting), is("some-system.elsewhere.com:8080/HolyStudy"));
+    }
+
+    @Test
+    public void testExtractSystemInfo_UsingHttps() {
+        String systemSetting = "https://some-system.elsewhere.com:8080/HolyStudy/MainMenu";
+        
+        assertThat(service.extractSystemInfo(systemSetting), is("some-system.elsewhere.com:8080/HolyStudy"));
     }
 }

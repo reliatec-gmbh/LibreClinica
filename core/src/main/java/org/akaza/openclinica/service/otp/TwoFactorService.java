@@ -4,6 +4,7 @@ import static com.google.common.base.Joiner.on;
 import static com.google.common.base.Splitter.fixedLength;
 import static dev.samstevens.totp.code.HashingAlgorithm.SHA1;
 import static java.lang.Enum.valueOf;
+import static java.lang.String.format;
 import static java.time.LocalDate.now;
 import static java.time.LocalDate.parse;
 import static org.akaza.openclinica.domain.admin.TwoFactorType.APPLICATION;
@@ -43,6 +44,7 @@ import rst.pdfbox.layout.elements.Paragraph;
 public class TwoFactorService {
     private static final String FAR_FUTURE_ACTIVATION_DUE_DATE_AS_FALLBACK = "2050-01-01";
     private static final String FALSE_STRING = "false";
+    private static final String SYS_URL = "sysURL";
     @VisibleForTesting
     static final String TWO_FACTOR_ACTIVATED_VERIFICATION_TYPE = "2fa.type";
     @VisibleForTesting
@@ -228,11 +230,16 @@ public class TwoFactorService {
         return coreResources.getDATAINFO().getProperty(TWO_FACTOR_ACTIVATED_VERIFICATION_TYPE, APPLICATION.name());
     }
 
+    @VisibleForTesting
+    String extractSystemInfo(String systemSettings) {
+        return systemSettings.replaceAll("http(|s)://|/MainMenu", "");
+    }
+
     private byte[] generateImageData(String secret) throws QrGenerationException {
         // @formatter:off
         QrData data = new QrData.Builder().
                 issuer("LibreClinica").
-                label("LibreClinica").
+                label(format("LibreClinica (%1$s)", extractSystemInfo(coreResources.getDATAINFO().getProperty(SYS_URL)))).
                 algorithm(SHA1).
                 secret(secret).
                 digits(6).
