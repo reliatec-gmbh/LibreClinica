@@ -1,7 +1,7 @@
-LibreClinica 1.0 for Investigators
+LibreClinica 1.2 for Investigators
 ==================================
 
-[https://libreclinica.org](https://libreclinica.org) © 2020
+[https://libreclinica.org](https://libreclinica.org) © 2022
 
 Preface
 
