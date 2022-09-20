@@ -96,15 +96,8 @@ public class PreparedStatementFactory {
                 } else if ("java.sql.Timestamp".equals(objType)) {
                     ps.setTimestamp(order.intValue(), (java.sql.Timestamp) objParam);
                 } else if ("java.lang.Boolean".equals(objType)) {
-                    // BADS FLAG
-                    if (CoreResources.getDBName().equals("oracle")) {
-                        Boolean objBoolParam = (Boolean) objParam;
-                        ps.setString(order.intValue(), objBoolParam ? "1" : "0");
-                    } else {
-                        Boolean objBoolParam = (Boolean) objParam;
-                        ps.setBoolean(order.intValue(), objBoolParam.booleanValue());
-                    }
-
+                    Boolean objBoolParam = (Boolean) objParam;
+                    ps.setBoolean(order.intValue(), objBoolParam.booleanValue());
                 } else if ("java.lang.Byte".equals(objType)) {
                     ps.setObject(order.intValue(), objParam, Types.BIT);
                 } else if ("java.lang.Character".equals(objType)) {

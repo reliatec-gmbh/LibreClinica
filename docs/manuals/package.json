@@ -1,0 +1,33 @@
+{
+  "name": "mdpdf",
+  "version": "1.2.0",
+  "private": true,
+  "scripts": {
+	"pdf-manual": "md-to-pdf ./monitor-manual.md && md-to-pdf ./investigator-manual.md && md-to-pdf ./administrator-manual.md"
+  },
+  "dependencies": {
+  	"md-to-pdf": "latest"
+  },
+  "devDependencies": {
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended"
+    ],
+    "rules": {
+      "no-console": "off"
+    },
+    "parserOptions": {
+      "parser": "babel-eslint"
+    }
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions"
+  ]
+}

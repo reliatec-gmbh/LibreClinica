@@ -17,8 +17,7 @@
 <jsp:useBean scope="request" id="fromViewNotes" class="java.lang.String"/>
 <jsp:useBean scope="session" id="viewNotesURL" class="java.lang.String"/>
 
-<jsp:useBean scope="request" id="section" class=
-  "org.akaza.openclinica.bean.submit.DisplaySectionBean"/>
+<jsp:useBean scope="request" id="section" class="org.akaza.openclinica.bean.submit.DisplaySectionBean"/>
 
 <jsp:useBean scope="request" id="annotations" class="java.lang.String"/>
 <jsp:useBean scope='request' id='pageMessages' class='java.util.ArrayList'/>
@@ -28,27 +27,26 @@
 <fmt:setBundle basename="org.akaza.openclinica.i18n.workflow" var="resworkflow"/>
 <fmt:setBundle basename="org.akaza.openclinica.i18n.notes" var="restext"/>
 <fmt:setBundle basename="org.akaza.openclinica.i18n.format" var="resformat"/>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 
 <c:set var="contextPath" value="${fn:replace(pageContext.request.requestURL, fn:substringAfter(pageContext.request.requestURL, pageContext.request.contextPath), '')}" />
 
-<title><fmt:message key="openclinica" bundle="${resword}"/> <fmt:message key="view_data_entry" bundle="${resword}"/></title>
+    <title><fmt:message key="openclinica" bundle="${resword}"/> <fmt:message key="view_data_entry" bundle="${resword}"/></title>
     <meta http-equiv="X-UA-Compatible" content="IE=8" />
 
+    <link rel="shortcut icon" type="image/x-icon" href="<c:url value='/images/favicon.ico'/>">
     <link rel="stylesheet" href="includes/styles.css" type="text/css" media="screen">
     <link rel="stylesheet" href="includes/print.css" type="text/css" media="print">
     <script type="text/JavaScript" language="JavaScript" src="includes/global_functions_javascript.js"></script>
     <script type="text/JavaScript" language="JavaScript" src="includes/Tabs.js"></script>
-    <!-- <script type="text/JavaScript" language="JavaScript" src="includes/CalendarPopup.js"></script> -->
-    <script type="text/javascript" language="JavaScript" src=
-      "includes/repetition-model/repetition-model.js"></script>
+    <!--<script type="text/JavaScript" language="JavaScript" src="includes/CalendarPopup.js"></script> -->
+    <script type="text/javascript" language="JavaScript" src="includes/repetition-model/repetition-model.js"></script>
     <script type="text/JavaScript" language="JavaScript" src="includes/prototype.js"></script>
     <script type="text/JavaScript" language="JavaScript" src="includes/scriptaculous.js?load=effects"></script>
     <script type="text/JavaScript" language="JavaScript" src="includes/effects.js"></script>
-    <!-- Added for the new Calender -->
+    <!-- Added for the new Calendar -->
 
     <link rel="stylesheet" type="text/css" media="all" href="includes/new_cal/skins/aqua/theme.css" title="Aqua" />
     <script type="text/javascript" src="includes/new_cal/calendar.js"></script>

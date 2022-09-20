@@ -22,8 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
-import oracle.jdbc.pool.OracleDataSource;
-
 /**
  * Utility which handles connection and login, as prompted by LibreClinica control servlets.
  * Updated August 2004 to better handle connection pooling.
@@ -39,9 +37,6 @@ public class SessionManager {
     final Logger logger = LoggerFactory.getLogger(getClass().getName());
 
     private UserAccountBean ub;
-
-    //TODO: We no longer support oracle, it should be removed in a future
-    private OracleDataSource ods;
 
     private DataSource ds;
 
@@ -101,10 +96,7 @@ public class SessionManager {
             Context ctx = new InitialContext();
             Context env = (Context) ctx.lookup("java:comp/env");
             String dbName = CoreResources.getField("dataBase");
-            if ("oracle".equals(dbName)) {
-                // logger.debug("looking up oracle...");
-                ds = (DataSource) env.lookup("SQLOracle");
-            } else if ("postgres".equals(dbName)) {
+            if ("postgres".equals(dbName)) {
                 // logger.debug("looking up postgres...");
                 ds = (DataSource) env.lookup("SQLPostgres");
             }
@@ -132,12 +124,6 @@ public class SessionManager {
 
     public DataSource getDataSource() {
         return ds;
-    }
-
-    // added 08-04-2004 by tbh, supporting Oracle 10g
-    // TODO: we no longer support Oracle, it should be removed in a future
-    public OracleDataSource getOracleDataSource() {
-        return ods;
     }
 
     public static DataSource getStaticDataSource() {

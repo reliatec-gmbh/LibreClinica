@@ -48,9 +48,6 @@
     </tr>
 </table>
 
-<!-- End Footer -->
-<link rel="shortcut icon" type="image/x-icon" href="${pageContext.request.contextPath}/images/favicon.ico">
-
 <!-- end of include/footer.jsp -->
 </body>
 </html>

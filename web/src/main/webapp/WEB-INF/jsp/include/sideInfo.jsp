@@ -10,7 +10,7 @@
 <c:choose>
  <c:when test="${userBean != null && userBean.id>0}">
  <!-- BWP 3098 >> switch displays for Info box-->
-    <tr id="sidebar_Info_open"<c:if test="${closeInfoShowIcons}">style="display: none"</c:if>>
+    <tr id="sidebar_Info_open"<c:if test="${closeInfoShowIcons}"> style="display: none"</c:if>>
 		<td class="sidebar_tab">
 			<a href="javascript:leftnavExpand('sidebar_Info_open'); leftnavExpand('sidebar_Info_closed');">
 			<img src="${pageContext.request.contextPath}/images/sidebar_collapse.gif" class="sidebar_collapse_expand"></a>
@@ -153,7 +153,7 @@
 
 <!-- End Sidebar Contents -->
 
-	<br><img src="images/spacer.gif" width="120" height="1">
-		</td>
-		<td class="aka_revised_content">
+	<br><img src="${pageContext.request.contextPath}/images/spacer.gif" width="120" height="1">
+	</td>
+	<td class="aka_revised_content">
 <!-- end of include/sideInfo.jsp -->

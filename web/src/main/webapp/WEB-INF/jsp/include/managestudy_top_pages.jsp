@@ -22,13 +22,14 @@
 
 	<title><fmt:message key="openclinica" bundle="${resword}"/></title>
 
+	<link rel="shortcut icon" type="image/x-icon" href="${pageContext.request.contextPath}/images/favicon.ico">
 	<link rel="stylesheet" href="${pageContext.request.contextPath}/includes/styles.css" type="text/css" />
 
 	<script type="text/JavaScript" src="${pageContext.request.contextPath}/includes/global_functions_javascript.js"></script>
 	<script type="text/JavaScript" src="${pageContext.request.contextPath}/includes/Tabs.js"></script>
 	<script type="text/JavaScript" src="${pageContext.request.contextPath}/includes/CalendarPopup.js"></script>
 	<script type="text/JavaScript" src="${pageContext.request.contextPath}/includes/prototype.js"></script>
-    <!-- Added for the new Calender -->
+    <!-- Added for the new Calendar -->
     <link rel="stylesheet" type="text/css" media="all" href="${pageContext.request.contextPath}/includes/new_cal/skins/aqua/theme.css" title="Aqua" />
     <script type="text/javascript" src="${pageContext.request.contextPath}/includes/new_cal/calendar.js"></script>
     <script type="text/javascript" src="${pageContext.request.contextPath}/includes/new_cal/lang/calendar-en.js"></script>
