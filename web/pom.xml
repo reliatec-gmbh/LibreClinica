@@ -177,8 +177,8 @@
  			<artifactId>jsp-api</artifactId>
  		</dependency>
 		<dependency>
-			<groupId>javax.mail</groupId>
-			<artifactId>mail</artifactId>
+			<groupId>com.sun.mail</groupId>
+			<artifactId>javax.mail</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>javax.xml.bind</groupId>
