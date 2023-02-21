@@ -18,7 +18,8 @@ changes to another step._
 1. **install required software components:**
     1. update package list: `sudo apt update`
     1. install software: `sudo apt install tomcat9 postgresql-11`  
-        _openjdk-11 is installed as a dependency of tomcat9_
+        _openjdk-11 is installed as a dependency of tomcat9_  
+        _eventually change tomcat and postgresql to the version recommended in [system requirements](https://libreclinica.org/download.html#headSystemRequirements)_
 1. **setup directories:**  
     _The folder in this example is named libreclinica since this is the default path used when the
     *.war archive copied is named libreclinica.war. If you like to name the folder differently then name your
@@ -33,8 +34,8 @@ changes to another step._
         *update datainfo.properties with the password you entered for the new postgres user (step 5)*
     1. create database: `sudo -u postgres createdb -e -O clinica -E UTF8 libreclinica`
 1. **copy the \*.war archive** to the webapps folder  
-    `cp LibreClinica-web-<version>.war /var/lib/tomcat9/webapps/<context name>.war`  
-    `chown tomcat:tomcat /var/lib/tomcat9/webapps/<context name>.war`  
+    `sudo cp LibreClinica-web-<version>.war /var/lib/tomcat9/webapps/<context name>.war`  
+    `sudo chown tomcat:tomcat /var/lib/tomcat9/webapps/<context name>.war`  
     *context name is the name that comes usually after the slash  
     e.g. for https://libreclinica.org/libreclinica and LibreClinica 1.1 the above copy command would read  
     cp LibreClinica-web-1.1.0.war /var/lib/tomcat9/webapps/libreclinica.war*
@@ -50,7 +51,7 @@ changes to another step._
     _Detailed instructions on how to configure it properly can be found in the different 
     sections of the datainfo.properties._  
     Make sure, that tomcat can read the file by issuing  
-    `chmod o+r /usr/share/tomcat9/libreclinica.config/datainfo.properties`
+    `sudo chmod o+r /usr/share/tomcat9/libreclinica.config/datainfo.properties`
     
     **relevant keys for your datainfo.properties**  
     For a common installation it should be sufficient to change the following keys:
@@ -61,6 +62,8 @@ changes to another step._
         * db=libreclinica
         * dbPort=5432
         * dbHost=localhost
+    1. **filePath**
+        * filePath=${catalina.home}/${WEBAPP.lower}/data/ _(mind the . and /)_
     1. **email server**
         * mailHost=smtp.example.com
         * mailPort=25|465|custom port
@@ -125,11 +128,16 @@ changes to another step._
     `JAVA_HOME/bin/keytool -list -keystore JAVA_HOME/jre/lib/security/cacerts`
     </details>
     
-1. **setup ReadWritePaths**  
-    edit /etc/systemd/system/multi-user.target.wants/tomcat9.service and  
-    add `ReadWritePaths=/usr/share/tomcat9/libreclinica`  
-    and reload the unit files with `systemctl daemon-reload`
-1. **restart tomcat** `systemctl restart tomcat9`
+1. **setup ReadWritePaths for Tomcat**  
+    `sudo mkdir /etc/systemd/system/tomcat9.service.d` 
+    create and edit /etc/systemd/system/tomcat9.service.d/override.conf
+    adding
+    ```
+    [Services]
+    ReadWritePaths=/usr/share/tomcat9/libreclinica
+    ```  
+    Reload the unit files with `sudo systemctl daemon-reload`
+1. **restart tomcat** `sudo systemctl restart tomcat9`
 
 You now should be able to access your LibreClinica installation port 8080. e.g.  
 http://\<ip of your machine\>:8080/libreclinica with the default credentials (user: root, password: 12345678).
