@@ -554,7 +554,7 @@ public class BatchCRFMigrationController implements Runnable {
 
         File file = new File(basePath, normalisedFilePath);
         try {
-            if (file.getCanonicalPath().startsWith(basePath)) {
+            if (file.getCanonicalPath().startsWith(new File(basePath).getCanonicalPath())) {
                 return file;
             } else {
                 return null;
