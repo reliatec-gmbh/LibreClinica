@@ -7,6 +7,11 @@
  */
 package org.akaza.openclinica.view.form;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.SortedMap;
+
 import org.akaza.openclinica.bean.submit.DisplayItemBean;
 import org.akaza.openclinica.bean.submit.DisplayItemGroupBean;
 import org.akaza.openclinica.bean.submit.DisplaySectionBean;
@@ -14,11 +19,6 @@ import org.akaza.openclinica.bean.submit.ItemDataBean;
 import org.akaza.openclinica.bean.submit.SectionBean;
 import org.akaza.openclinica.control.managestudy.BeanFactory;
 import org.jdom.Element;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.SortedMap;
 
 /**
  * This is a Decorator design pattern for the ViewBuilderUtil Class. It adds
@@ -133,7 +133,7 @@ public class ViewBuilderPrintDecorator {
         }
     }
 
-    public List generatePersistentMatrixRows(SortedMap<Integer, List<ItemDataBean>> sortedDataMap, List<DisplayItemBean> rowContentBeans,
+    public List<List<Element>> generatePersistentMatrixRows(SortedMap<Integer, List<ItemDataBean>> sortedDataMap, List<DisplayItemBean> rowContentBeans,
             int tabIndex, String repeatParentId, boolean hasDiscrepancyMgt, boolean forPrinting, int maxColRows) {
 
         synchronized (this.viewBuilderUtil) {
@@ -194,24 +194,11 @@ public class ViewBuilderPrintDecorator {
 
         List<DisplayItemGroupBean> newGroupBeans = new ArrayList<DisplayItemGroupBean>();
 
-        // the ordinal of the first group table that is being broken up into
-        // multiple columns
-        // we then have to change the ordinals of all of the group beans that
-        // follow this one.
-        // See below
-        int startOrdinal = 0;
-        int i = 0;
         for (DisplayItemGroupBean existingDisplayBean : groupBeans) {
             // If the group table has more than three columns and does not have
             // a name of "ungrouped" then break the bean up into single column
             // beans
             if (existingDisplayBean.getItems().size() > 3 && !BeanFactory.UNGROUPED.equalsIgnoreCase(existingDisplayBean.getItemGroupBean().getName())) {
-                
-                startOrdinal = existingDisplayBean.getOrdinal();
-                // increment the ordinals of the other beans to make up for this
-                // one
-//                this.incrementDisplayBeanOrdinals(groupBeans, startOrdinal, existingDisplayBean.getItems().size() - 1);
-
                 newGroupBeans.addAll(splitUpGroupBeanIntoSingleColumns(existingDisplayBean));
             } else {
                 // otherwise, add the existing bean to the List
@@ -261,12 +248,12 @@ public class ViewBuilderPrintDecorator {
     public List<DisplayItemGroupBean> splitUpGroupBeanIntoSingleColumns(DisplayItemGroupBean existingBean) {
 
         List<DisplayItemGroupBean> newDisplayBeans = new ArrayList<DisplayItemGroupBean>();
-        int ordinal = existingBean.getOrdinal();
-        DisplayItemGroupBean cloneDisplayBean = cloneDisplayItemGroupBean(existingBean, existingBean.getItems().get(0), ordinal);
-
         if (existingBean == null) {
             return newDisplayBeans;
         }
+        
+        int ordinal = existingBean.getOrdinal();
+        DisplayItemGroupBean cloneDisplayBean = cloneDisplayItemGroupBean(existingBean, existingBean.getItems().get(0), ordinal);
         // Create a DisplayItemGroupBean for every display item bean
         for (int i=1; i< existingBean.getItems().size(); i++) {
             DisplayItemBean displayItemBean = existingBean.getItems().get(i);

@@ -73,6 +73,9 @@
         <property name="allowSessionCreation" value="true" />
         <property name="sessionAuthenticationStrategy" ref="sas"/>
         <property name="crfLocker" ref="crfLocker"/>
+        <property name="factorService" ref="factorService"/>
+        <!-- E-Mail notification -->
+        <property name="mailNotificationService" ref="mailNotificationService"/>
     </bean>
     
     <bean id="successHandler" class="org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler" >
@@ -84,6 +87,7 @@
         <property name="exceptionMappings">
             <props>
                 <prop key="org.springframework.security.authentication.LockedException">/pages/login/login?action=errorLocked</prop>
+                <prop key="org.akaza.openclinica.control.login.AccountConfigurationException">/pages/login/login?action=2faOutdated</prop>
             </props>
         </property>
     </bean>

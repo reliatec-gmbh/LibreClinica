@@ -18,22 +18,22 @@ import java.util.HashMap;
  * 
  */
 public class FormDiscrepancyNotes {
-    private HashMap fieldNotes;
-    private HashMap numExistingFieldNotes;
-    private HashMap idNotes;
+    private HashMap<String, ArrayList<DiscrepancyNoteBean>> fieldNotes;
+    private HashMap<String, Integer> numExistingFieldNotes;
+    private HashMap<Integer, ArrayList<String>> idNotes;
 
     public FormDiscrepancyNotes() {
-        fieldNotes = new HashMap();
-        numExistingFieldNotes = new HashMap();
-        idNotes = new HashMap();
+        fieldNotes = new HashMap<>();
+        numExistingFieldNotes = new HashMap<>();
+        idNotes = new HashMap<>();
     }
 
     public void addNote(String field, DiscrepancyNoteBean note) {
-        ArrayList notes;
+        ArrayList<DiscrepancyNoteBean> notes;
         if (fieldNotes.containsKey(field)) {
-            notes = (ArrayList) fieldNotes.get(field);
+            notes = fieldNotes.get(field);
         } else {
-            notes = new ArrayList();
+            notes = new ArrayList<>();
         }
 
         notes.add(note);
@@ -47,11 +47,11 @@ public class FormDiscrepancyNotes {
      * @param field
      */
     public void addIdNote(int entityId, String field) {
-        ArrayList notes;
+        ArrayList<String> notes;
         if (idNotes.containsKey(entityId)) {
-            notes = (ArrayList) fieldNotes.get(entityId);
+            notes = idNotes.get(entityId);
         } else {
-            notes = new ArrayList();
+            notes = new ArrayList<>();
         }
         if (notes != null) {
             notes.add(field);
@@ -60,20 +60,20 @@ public class FormDiscrepancyNotes {
     }
 
     public boolean hasNote(String field) {
-        ArrayList notes;
+        ArrayList<DiscrepancyNoteBean> notes;
         if (fieldNotes.containsKey(field)) {
-            notes = (ArrayList) fieldNotes.get(field);
+            notes = fieldNotes.get(field);
             return notes != null && notes.size() > 0;
         }
         return false;
     }
 
-    public ArrayList getNotes(String field) {
-        ArrayList notes;
+    public ArrayList<DiscrepancyNoteBean> getNotes(String field) {
+        ArrayList<DiscrepancyNoteBean> notes;
         if (fieldNotes.containsKey(field)) {
-            notes = (ArrayList) fieldNotes.get(field);
+            notes = fieldNotes.get(field);
         } else {
-            notes = new ArrayList();
+            notes = new ArrayList<>();
         }
         return notes;
     }
@@ -95,42 +95,42 @@ public class FormDiscrepancyNotes {
     /**
      * @return Returns the numExistingFieldNotes.
      */
-    public HashMap getNumExistingFieldNotes() {
+    public HashMap<String, Integer> getNumExistingFieldNotes() {
         return numExistingFieldNotes;
     }
 
     /**
      * @return the fieldNotes
      */
-    public HashMap getFieldNotes() {
+    public HashMap<String, ArrayList<DiscrepancyNoteBean>> getFieldNotes() {
         return fieldNotes;
     }
 
     /**
      * @param fieldNotes the fieldNotes to set
      */
-    public void setFieldNotes(HashMap fieldNotes) {
+    public void setFieldNotes(HashMap<String, ArrayList<DiscrepancyNoteBean>> fieldNotes) {
         this.fieldNotes = fieldNotes;
     }
 
     /**
      * @param numExistingFieldNotes the numExistingFieldNotes to set
      */
-    public void setNumExistingFieldNotes(HashMap numExistingFieldNotes) {
+    public void setNumExistingFieldNotes(HashMap<String, Integer> numExistingFieldNotes) {
         this.numExistingFieldNotes = numExistingFieldNotes;
     }
 
     /**
      * @return the idNotes
      */
-    public HashMap getIdNotes() {
+    public HashMap<Integer, ArrayList<String>> getIdNotes() {
         return idNotes;
     }
 
     /**
      * @param idNotes the idNotes to set
      */
-    public void setIdNotes(HashMap idNotes) {
+    public void setIdNotes(HashMap<Integer, ArrayList<String>> idNotes) {
         this.idNotes = idNotes;
     }
 }

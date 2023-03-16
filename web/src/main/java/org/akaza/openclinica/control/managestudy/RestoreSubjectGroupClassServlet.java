@@ -29,6 +29,11 @@ import java.util.ArrayList;
  */
 public class RestoreSubjectGroupClassServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6795017583627598454L;
+
+	/**
      *
      */
     @Override
@@ -70,11 +75,11 @@ public class RestoreSubjectGroupClassServlet extends SecureController {
                     return;
                 }
 
-                ArrayList groups = sgdao.findAllByGroupClass(sgcb);
+                ArrayList<StudyGroupBean> groups = sgdao.findAllByGroupClass(sgcb);
 
                 for (int i = 0; i < groups.size(); i++) {
                     StudyGroupBean sg = (StudyGroupBean) groups.get(i);
-                    ArrayList subjectMaps = sgmdao.findAllByStudyGroupClassAndGroup(sgcb.getId(), sg.getId());
+                    ArrayList<SubjectGroupMapBean> subjectMaps = sgmdao.findAllByStudyGroupClassAndGroup(sgcb.getId(), sg.getId());
                     sg.setSubjectMaps(subjectMaps);
 
                 }
@@ -89,7 +94,7 @@ public class RestoreSubjectGroupClassServlet extends SecureController {
                 group.setUpdater(ub);
                 sgcdao.update(group);
 
-                ArrayList subjectMaps = sgmdao.findAllByStudyGroupClassId(group.getId());
+                ArrayList<SubjectGroupMapBean> subjectMaps = sgmdao.findAllByStudyGroupClassId(group.getId());
                 for (int i = 0; i < subjectMaps.size(); i++) {
                     SubjectGroupMapBean sgmb = (SubjectGroupMapBean) subjectMaps.get(i);
                     if (sgmb.getStatus().equals(Status.AUTO_DELETED)) {

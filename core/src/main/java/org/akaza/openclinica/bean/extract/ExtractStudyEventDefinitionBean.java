@@ -16,4 +16,9 @@ import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
  */
 public class ExtractStudyEventDefinitionBean extends StudyEventDefinitionBean {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1578379804070138036L;
+
 }

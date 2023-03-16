@@ -8,6 +8,7 @@
 package org.akaza.openclinica.control.managestudy;
 
 import org.akaza.openclinica.bean.core.Role;
+import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
@@ -29,7 +30,11 @@ import java.util.Locale;
  */
 public class ListSiteServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1642268341334659256L;
+	Locale locale;
 
     // < ResourceBundle resword,respage,resexception;
     /**
@@ -73,18 +78,18 @@ public class ListSiteServlet extends SecureController {
         } else {
 
             StudyDAO sdao = new StudyDAO(sm.getDataSource());
-            ArrayList studies = (ArrayList) sdao.findAllByParent(currentStudy.getId());
+            ArrayList<StudyBean> studies = sdao.findAllByParent(currentStudy.getId());
 
             EntityBeanTable table = fp.getEntityBeanTable();
-            ArrayList allStudyRows = StudyRow.generateRowsFromBeans(studies);
+            ArrayList<StudyRow> allStudyRows = StudyRow.generateRowsFromBeans(studies);
 
             String[] columns =
                 { resword.getString("name"), resword.getString("unique_identifier"), resword.getString("OID"), resword.getString("principal_investigator"),
                     resword.getString("facility_name"), resword.getString("date_created"), resword.getString("status"), resword.getString("actions") };
-            table.setColumns(new ArrayList(Arrays.asList(columns)));
+            table.setColumns(new ArrayList<String>(Arrays.asList(columns)));
             table.hideColumnLink(2);
             table.hideColumnLink(6);
-            table.setQuery("ListSite", new HashMap());
+            table.setQuery("ListSite", new HashMap<>());
             // if (!currentStudy.getStatus().isLocked()) {
             // table.addLink(resword.getString("create_a_new_site"),
             // "CreateSubStudy");

@@ -20,6 +20,10 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
 public class StudyParameterValueId  extends AbstractMutableDomainObject {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7998524344628954923L;
 	private int studyParameterValueId;
 	private Integer studyId;
 	private String value;

@@ -26,7 +26,11 @@ import org.hibernate.annotations.Parameter;
 @GenericGenerator(name = "id-generator", strategy = "native", parameters = { @Parameter(name = "sequence_name", value = "rule_action_property_id_seq") })
 public class PropertyBean extends AbstractMutableDomainObject implements Serializable {
 
-    private String oid;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -8763152300510160187L;
+	private String oid;
     private String value;
     private ExpressionBean valueExpression;
     private RuleActionBean ruleActionBean;

@@ -4,18 +4,18 @@
 <fmt:setBundle basename="org.akaza.openclinica.i18n.words" var="resword"/>
 <html>
 <head>
-  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=8" />
+  	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  	<meta http-equiv="X-UA-Compatible" content="IE=8" />
 
-<title><fmt:message key="openclinica" bundle="${resword}"/></title>
+	<title><fmt:message key="openclinica" bundle="${resword}"/></title>
 
-<link rel="stylesheet" href="../includes/styles.css" type="text/css">
-<%--<link rel="stylesheet" href="../includes/styles2.css" type="text/css">--%>
+	<link rel="shortcut icon" type="image/x-icon" href="<c:url value='/images/favicon.ico'/>">
+	<link rel="stylesheet" href="../includes/styles.css" type="text/css">
+	<%--<link rel="stylesheet" href="../includes/styles2.css" type="text/css">--%>
 
-
-<script type="text/JavaScript" language="JavaScript" src="../includes/global_functions_javascript.js"></script>
-<script type="text/JavaScript" language="JavaScript" src="../includes/Tabs.js"></script>
-<script type="text/JavaScript" language="JavaScript" src="../includes/CalendarPopup.js"></script>
+	<script type="text/JavaScript" language="JavaScript" src="../includes/global_functions_javascript.js"></script>
+	<script type="text/JavaScript" language="JavaScript" src="../includes/Tabs.js"></script>
+	<script type="text/JavaScript" language="JavaScript" src="../includes/CalendarPopup.js"></script>
 </head>
 
 <body>

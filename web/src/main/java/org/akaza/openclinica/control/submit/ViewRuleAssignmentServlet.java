@@ -14,6 +14,12 @@
  */
 package org.akaza.openclinica.control.submit;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.rule.XmlSchemaValidationHelper;
 import org.akaza.openclinica.control.SpringServletAccess;
@@ -28,12 +34,6 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.akaza.openclinica.web.domain.EntityBeanTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
 
 /**
  * Verify the Rule import , show records that have Errors as well as records
@@ -59,17 +59,17 @@ public class ViewRuleAssignmentServlet extends SecureController {
         ruleSets = getRuleSetService().filterByStatusEqualsAvailableOnlyRuleSetRules(ruleSets);
 
         EntityBeanTable table = fp.getWebEntityBeanTable();
-        ArrayList allRows = ViewRuleAssignmentRow.generateRowsFromBeans((ArrayList) ruleSets);
+        ArrayList<ViewRuleAssignmentRow> allRows = ViewRuleAssignmentRow.generateRowsFromBeans(ruleSets);
 
         String[] columns =
             { resword.getString("rule_study_event_definition"), resword.getString("CRF_name"), resword.getString("rule_group_label"),
                 resword.getString("rule_item_name"), resword.getString("rule_rules"), resword.getString("rule_ref_oid"), resword.getString("rule_action_type"), resword.getString("actions")};
 
-        table.setColumns(new ArrayList(Arrays.asList(columns)));
+        table.setColumns(new ArrayList<String>(Arrays.asList(columns)));
         table.hideColumnLink(4);
         table.hideColumnLink(5);
         table.hideColumnLink(6);
-        table.setQuery("ViewRuleAssignment", new HashMap());
+        table.setQuery("ViewRuleAssignment", new HashMap<>());
         // table.addLink(resword.getString("rule_import_rule"), "ImportRule");
         table.addLink(resword.getString("test_rule_title"), "TestRule");
         table.setRows(allRows);

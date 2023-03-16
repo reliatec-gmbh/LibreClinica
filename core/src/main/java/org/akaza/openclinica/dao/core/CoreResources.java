@@ -7,13 +7,17 @@
  */
 package org.akaza.openclinica.dao.core;
 
-import java.io.ByteArrayInputStream;
+import static org.akaza.openclinica.core.util.ClassCastHelper.asEnumeration;
+import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Properties;
@@ -65,37 +69,23 @@ public class CoreResources implements ResourceLoaderAware {
 
     public static String ODM_MAPPING_DIR;
 
-    // TODO:Clean up all system outs
-    // default no arg constructor
     public CoreResources() {
-
+        // NOOP
     }
 
     /**
      * TODO: Delete me!
      * 
-     * @param dataInfoProps
-     * @throws IOException
+     * @param dataInfoProps data info properties
+     * @throws IOException IOException
      */
     public CoreResources(Properties dataInfoProps) throws IOException {
         this.dataInfo = dataInfoProps;
-        if (resourceLoader == null)
+        if (resourceLoader == null) {
             resourceLoader = new DefaultResourceLoader();
-        webapp = getWebAppName(resourceLoader.getResource("/").getURI().getPath());
-
-    }
-
-    public void reportUrl() {
-        String contHome = System.getProperty("catalina.home");
-        Properties pros = System.getProperties();
-        Enumeration proEnum = pros.propertyNames();
-        for (; proEnum.hasMoreElements();) {
-            // Get property name
-            String propName = (String) proEnum.nextElement();
-
-            // Get property value
-            String propValue = (String) pros.get(propName);
         }
+        
+        webapp = getWebAppName(resourceLoader.getResource("/").getURI().getPath());
     }
 
     public Properties getPropValues(Properties prop, String propFileName) throws IOException {
@@ -182,17 +172,13 @@ public class CoreResources implements ResourceLoaderAware {
                 copyImportRulesFiles();
                 copyConfig();
             }
-
-            // tbh, following line to be removed
-            // reportUrl();
-
+            
         } catch (OpenClinicaSystemException e) {
             logger.debug(e.getMessage());
             logger.debug(e.toString());
             throw new OpenClinicaSystemException(e.getMessage(), e.fillInStackTrace());
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.error("Unexpected Exception", e);
         }
     }
 
@@ -201,7 +187,7 @@ public class CoreResources implements ResourceLoaderAware {
      */
     private void setDataInfoVals() {
 
-        Enumeration<String> properties = (Enumeration<String>) DATAINFO.propertyNames();
+        Enumeration<String> properties = asEnumeration(DATAINFO.propertyNames(), String.class);
         String vals, key;
         while (properties.hasMoreElements()) {
             key = properties.nextElement();
@@ -288,37 +274,40 @@ public class CoreResources implements ResourceLoaderAware {
         getPropertiesSource();
 
         String filePath = DATAINFO.getProperty("filePath");
-        if (filePath == null || filePath.isEmpty())
+        if (filePath == null || filePath.isEmpty()) {
             filePath = "$catalina.home/$WEBAPP.lower.data";
+        }
         String database = DATAINFO.getProperty("dbType");
 
         setDatabaseProperties(database);
 
         setDataInfoVals();
-        if (DATAINFO.getProperty("filePath") == null || DATAINFO.getProperty("filePath").length() <= 0)
+        if (DATAINFO.getProperty("filePath") == null || DATAINFO.getProperty("filePath").length() <= 0) {
             DATAINFO.setProperty("filePath", filePath);
+        }
 
         DATAINFO.setProperty("changeLogFile", "src/main/resources/migration/master.xml");
         // sysURL.base
         String sysURLBase = DATAINFO.getProperty("sysURL").replace("MainMenu", "");
         DATAINFO.setProperty("sysURL.base", sysURLBase);
 
-        if (DATAINFO.getProperty("org.quartz.jobStore.misfireThreshold") == null)
+        if (DATAINFO.getProperty("org.quartz.jobStore.misfireThreshold") == null) {
             DATAINFO.setProperty("org.quartz.jobStore.misfireThreshold", "60000");
+        }
         DATAINFO.setProperty("org.quartz.jobStore.class", "org.quartz.impl.jdbcjobstore.JobStoreTX");
-
-        if (database.equalsIgnoreCase("oracle")) {
-            DATAINFO.setProperty("org.quartz.jobStore.driverDelegateClass", "org.quartz.impl.jdbcjobstore.oracle.OracleDelegate");
-        } else if (database.equalsIgnoreCase("postgres")) {
+        
+        if (database.equalsIgnoreCase("postgres")) {
             DATAINFO.setProperty("org.quartz.jobStore.driverDelegateClass", "org.quartz.impl.jdbcjobstore.PostgreSQLDelegate");
         }
 
         DATAINFO.setProperty("org.quartz.jobStore.useProperties", "false");
         DATAINFO.setProperty("org.quartz.jobStore.tablePrefix", "oc_qrtz_");
-        if (DATAINFO.getProperty("org.quartz.threadPool.threadCount") == null)
+        if (DATAINFO.getProperty("org.quartz.threadPool.threadCount") == null) {
             DATAINFO.setProperty("org.quartz.threadPool.threadCount", "1");
-        if (DATAINFO.getProperty("org.quartz.threadPool.threadPriority") == null)
+        }
+        if (DATAINFO.getProperty("org.quartz.threadPool.threadPriority") == null) {
             DATAINFO.setProperty("org.quartz.threadPool.threadPriority", "5");
+        }
 
         String attached_file_location = DATAINFO.getProperty("attached_file_location");
         if (attached_file_location == null || attached_file_location.isEmpty()) {
@@ -330,25 +319,29 @@ public class CoreResources implements ResourceLoaderAware {
         if (change_passwd_required == null || change_passwd_required.isEmpty()) {
             change_passwd_required = "1";
             DATAINFO.setProperty("change_passwd_required", change_passwd_required);
-
         }
         setMailProps();
         setRuleDesignerProps();
-        if (DATAINFO.getProperty("crfFileExtensions") != null)
+        if (DATAINFO.getProperty("crfFileExtensions") != null) {
             DATAINFO.setProperty("crf_file_extensions", DATAINFO.getProperty("crfFileExtensions"));
-        if (DATAINFO.getProperty("crfFileExtensionSettings") != null)
+        }
+        if (DATAINFO.getProperty("crfFileExtensionSettings") != null) {
             DATAINFO.setProperty("crf_file_extension_settings", DATAINFO.getProperty("crfFileExtensionSettings"));
+        }
 
         String dataset_file_delete = DATAINFO.getProperty("dataset_file_delete");
-        if (dataset_file_delete == null)
+        if (dataset_file_delete == null) {
             DATAINFO.setProperty("dataset_file_delete", "true");
-        ;// TODO:Revisit me!
+        }
+        // TODO:Revisit me!
         String password_expiration_time = DATAINFO.getProperty("passwdExpirationTime");
-        if (password_expiration_time != null)
+        if (password_expiration_time != null) {
             DATAINFO.setProperty("passwd_expiration_time", password_expiration_time);
+        }
 
-        if (DATAINFO.getProperty("maxInactiveInterval") != null)
+        if (DATAINFO.getProperty("maxInactiveInterval") != null) {
             DATAINFO.setProperty("max_inactive_interval", DATAINFO.getProperty("maxInactiveInterval"));
+        }
 
         DATAINFO.setProperty("ra", "Data_Entry_Person");
         DATAINFO.setProperty("ra2", "site_Data_Entry_Person2");
@@ -360,24 +353,28 @@ public class CoreResources implements ResourceLoaderAware {
         DATAINFO.setProperty("ccts.waitBeforeCommit", "6000");
 
         String rss_url = DATAINFO.getProperty("rssUrl");
-        if (rss_url == null || rss_url.isEmpty())
-            rss_url = "http://blog.openclinica.com/feed/";
+        if (rss_url == null || rss_url.isEmpty()) {
+            rss_url = "https://libreclinica.org/";
+        }
         DATAINFO.setProperty("rss.url", rss_url);
         String rss_more = DATAINFO.getProperty("rssMore");
-        if (rss_more == null || rss_more.isEmpty())
-            rss_more = "http://blog.openclinica.com/";
+        if (rss_more == null || rss_more.isEmpty()) {
+            rss_more = "https://libreclinica.org/";
+        }
         DATAINFO.setProperty("rss.more", rss_more);
 
         String supportURL = DATAINFO.getProperty("supportURL");
-        if (supportURL == null || supportURL.trim().isEmpty())
+        if (supportURL == null || supportURL.trim().isEmpty()) {
             supportURL = "";
+        }
         DATAINFO.setProperty("supportURL", supportURL);
 
         DATAINFO.setProperty("show_unique_id", "1");
 
         DATAINFO.setProperty("auth_mode", "password");
-        if (DATAINFO.getProperty("userAccountNotification") != null)
+        if (DATAINFO.getProperty("userAccountNotification") != null) {
             DATAINFO.setProperty("user_account_notification", DATAINFO.getProperty("userAccountNotification"));
+        }
         logger.debug("DataInfo..." + DATAINFO);
 
         String designerURL = DATAINFO.getProperty("designerURL");
@@ -386,8 +383,9 @@ public class CoreResources implements ResourceLoaderAware {
         }
 
         String xformEnabled = DATAINFO.getProperty("xformEnabled");
-        if (xformEnabled == null || xformEnabled.isEmpty())
+        if (xformEnabled == null || xformEnabled.isEmpty()) {
             DATAINFO.setProperty("xformEnabled", "");
+        }
 
         String portalURL = DATAINFO.getProperty("portalURL");
         if (portalURL == null || portalURL.isEmpty()) {
@@ -405,7 +403,6 @@ public class CoreResources implements ResourceLoaderAware {
         }
 
         return DATAINFO;
-
     }
 
     private void setMailProps() {
@@ -425,12 +422,10 @@ public class CoreResources implements ResourceLoaderAware {
     }
 
     private void setRuleDesignerProps() {
-
         DATAINFO.setProperty("designer.url", DATAINFO.getProperty("designerURL"));
     }
 
     private void setDatabaseProperties(String database) {
-
         DATAINFO.setProperty("username", DATAINFO.getProperty("dbUser"));
         DATAINFO.setProperty("password", DATAINFO.getProperty("dbPass"));
         String url = null, driver = null, hibernateDialect = null;
@@ -438,12 +433,8 @@ public class CoreResources implements ResourceLoaderAware {
             url = "jdbc:postgresql:" + "//" + DATAINFO.getProperty("dbHost") + ":" + DATAINFO.getProperty("dbPort") + "/" + DATAINFO.getProperty("db");
             driver = "org.postgresql.Driver";
             hibernateDialect = "org.hibernate.dialect.PostgreSQLDialect";
-        } else if (database.equalsIgnoreCase("oracle")) {
-            url = "jdbc:oracle:thin:" + "@" + DATAINFO.getProperty("dbHost") + ":" + DATAINFO.getProperty("dbPort") + ":" + DATAINFO.getProperty("db");
-            driver = "oracle.jdbc.driver.OracleDriver";
-            hibernateDialect = "org.hibernate.dialect.OracleDialect";
         }
-        // If logLevel is 'TRACE' or 'DEBUG', enagle log4jdbc
+        // If logLevel is 'TRACE' or 'DEBUG', enable log4jdbc
         String logLevel = DATAINFO.getProperty("logLevel");
         if (logLevel != null && (logLevel.equalsIgnoreCase("TRACE") || logLevel.equalsIgnoreCase("DEBUG"))) {
             driver = "net.sf.log4jdbc.DriverSpy";
@@ -461,7 +452,7 @@ public class CoreResources implements ResourceLoaderAware {
         Resource[] resources;
         try {
             /*
-             * Use classpath* to search for resources that match this pattern in ALL of the jars in the application
+             * Use classpath* to search for resources that match this pattern in all of the jars in the application
              * class path. See:
              * http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/resources
              * .html#resources-classpath-wildcards
@@ -497,7 +488,6 @@ public class CoreResources implements ResourceLoaderAware {
     }
 
     private void copyImportRulesFiles() throws IOException {
-        ByteArrayInputStream listSrcFiles[] = new ByteArrayInputStream[3];
         ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(resourceLoader);
         String[] fileNames = { "rules.xsd", "rules_template.xml", "rules_template_with_notes.xml" };
         Resource[] resources = null;
@@ -508,7 +498,7 @@ public class CoreResources implements ResourceLoaderAware {
         File dest = new File(getField("filePath") + "rules");
         if (!dest.exists()) {
             if (!dest.mkdirs()) {
-                throw new OpenClinicaSystemException("Copying files, Could not create direcotry: " + dest.getAbsolutePath() + ".");
+                throw new OpenClinicaSystemException("Copying files, Could not create directory: " + dest.getAbsolutePath() + ".");
             }
         }
         for (Resource r : resources) {
@@ -529,7 +519,6 @@ public class CoreResources implements ResourceLoaderAware {
 
     private void copyConfig() throws IOException {
         ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(resourceLoader);
-        Resource[] resources = null;
         FileOutputStream out = null;
         Resource resource1 = null;
         Resource resource2 = null;
@@ -569,60 +558,8 @@ public class CoreResources implements ResourceLoaderAware {
          */
     }
 
-    /**
-     * @deprecated. ByteArrayInputStream keeps the whole file in memory needlessly. Use Commons IO's
-     *              {@link IOUtils#copy(java.io.InputStream, java.io.OutputStream)} instead.
-     */
-    @Deprecated
-    private void copyFiles(ByteArrayInputStream fis, File dest) {
-        FileOutputStream fos = null;
-        byte[] buffer = new byte[512]; // Buffer 4K at a time (you can change this).
-        int bytesRead;
-        logger.debug("fis?" + fis);
-        try {
-            fos = new FileOutputStream(dest);
-            while ((bytesRead = fis.read(buffer)) >= 0) {
-                fos.write(buffer, 0, bytesRead);
-            }
-        } catch (IOException ioe) {// error while copying files
-            OpenClinicaSystemException oe = new OpenClinicaSystemException("Unable to copy file: " + fis + "to" + dest.getAbsolutePath() + "."
-                    + dest.getAbsolutePath() + ".");
-            oe.initCause(ioe);
-            oe.setStackTrace(ioe.getStackTrace());
-            throw oe;
-        } finally { // Ensure that the files are closed (if they were open).
-            if (fis != null) {
-                try {
-                    fis.close();
-                } catch (IOException ioe) {
-                    OpenClinicaSystemException oe = new OpenClinicaSystemException("Unable to copy file: " + fis + "to" + dest.getAbsolutePath() + "."
-                            + dest.getAbsolutePath() + ".");
-                    oe.initCause(ioe);
-                    oe.setStackTrace(ioe.getStackTrace());
-                    logger.debug(ioe.getMessage());
-                    throw oe;
-
-                }
-            }
-            if (fos != null) {
-                try {
-                    fos.close();
-                } catch (IOException ioe) {
-                    OpenClinicaSystemException oe = new OpenClinicaSystemException("Unable to copy file: " + fis + "to" + dest.getAbsolutePath() + "."
-                            + dest.getAbsolutePath() + ".");
-                    oe.initCause(ioe);
-                    oe.setStackTrace(ioe.getStackTrace());
-                    logger.debug(ioe.getMessage());
-                    throw oe;
-
-                }
-            }
-        }
-    }
-
     private void copyODMMappingXMLtoResources(ResourceLoader resourceLoader) {
         ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(resourceLoader);
-        String[] fileNames = { "cd_odm_mapping.xml" };
         Resource[] resources;
         try {
             resources = resolver.getResources("classpath*:properties/cd_odm_mapping.xml");
@@ -664,8 +601,8 @@ public class CoreResources implements ResourceLoaderAware {
         return extractProperties;
     }
 
-    public void setExtractProperties(ArrayList extractProperties) {
-        this.extractProperties = extractProperties;
+    public void setExtractProperties(ArrayList<ExtractPropertyBean> extractProperties) {
+        CoreResources.extractProperties = extractProperties;
     }
 
     private ArrayList<ExtractPropertyBean> findExtractProperties() throws OpenClinicaSystemException {
@@ -831,30 +768,45 @@ public class CoreResources implements ResourceLoaderAware {
         return resourceLoader.getResource("classpath:properties/" + fileName).getURL();
     }
 
-    /**
-     * @deprecated Use {@link #getFile(String,String)} instead
-     */
-    @Deprecated
-    public File getFile(String fileName) {
-        return getFile(fileName, "filePath");
+	public File getFile(String fileName, String relDirectory) {
+        return getFileFromPath(getField("filePath"), fileName, relDirectory);
     }
 
-    public File getFile(String fileName, String relDirectory) {
+    public File getAttachedFile(String fileName, String relDirectory) {
+
+        String basePath = getField("attached_file_location");
+        if (basePath == null || basePath.length() <= 0) {
+            basePath = getField("filePath") + "attached_files" + File.separator;
+        }
+
+        return getFileFromPath(basePath, fileName, relDirectory);
+    }
+
+    public static String getStudyAttachedFilePath(String studyOid) {
+        String attachedFilePath = CoreResources.getField("attached_file_location");
+
+        if (attachedFilePath == null || attachedFilePath.length() <= 0) {
+            attachedFilePath = CoreResources.getField("filePath") + "attached_files" + File.separator + studyOid + File.separator;
+        } else {
+            attachedFilePath += studyOid + File.separator;
+        }
+        return attachedFilePath;
+    }
+
+    public File getFileFromPath(String basePath, String fileName, String relDirectory) {
+        
+        String normalisedFilePath = Paths.get(relDirectory + fileName).normalize().toString();
+
+        File file = new File(basePath, normalisedFilePath);
         try {
-
-            InputStream inputStream = getInputStream(fileName);
-
-            File f = new File(getField("filePath") + relDirectory + fileName);
-
-            /*
-             * OutputStream outputStream = new FileOutputStream(f); byte buf[] = new byte[1024]; int len; try { while
-             * ((len = inputStream.read(buf)) > 0) outputStream.write(buf, 0, len); } finally { outputStream.close();
-             * inputStream.close(); }
-             */
-            return f;
-
+            if (file.getCanonicalPath().startsWith(new File(basePath).getCanonicalPath())) {
+                return file;
+            } else {
+                return null;
+            }
         } catch (IOException e) {
-            throw new OpenClinicaSystemException(e.getMessage(), e.fillInStackTrace());
+            logger.debug(e.getMessage(), e);
+            throw new OpenClinicaSystemException("Unable to read file", e);
         }
     }
 
@@ -882,25 +834,23 @@ public class CoreResources implements ResourceLoaderAware {
      *          location during application initialization
      */
     public void setODM_MAPPING_DIR() {
-        String resource = "classpath:datainfo.properties";
-
-        Resource scr = resourceLoader.getResource(resource);
-        String absolutePath = null;
-        try {
-
-            absolutePath = scr.getFile().getAbsolutePath();
-
-            ODM_MAPPING_DIR = getField("filePath");
-            // System.out.println("ODM_MAPPING_DIR: " + ODM_MAPPING_DIR);
-        } catch (IOException e) {
-            throw new OpenClinicaSystemException(e.getMessage(), e.fillInStackTrace());
-        }
+        ODM_MAPPING_DIR = getField("filePath");
     }
 
     public static String getDBName() {
         if (null == DB_NAME)
             return "postgres";
         return DB_NAME;
+    }
+    
+    /**
+     * Returns true if the manual download shoule be present within navbar.jsp -
+     * false otherwise. When not configured the returned value defaults to
+     * false to avoid errors.
+     */
+    public static boolean isDisplayManual() {
+        String displayManual = getField("display.manual");
+        return Boolean.valueOf(defaultIfEmpty(displayManual, "false"));
     }
 
     public static String getField(String key) {
@@ -947,23 +897,16 @@ public class CoreResources implements ResourceLoaderAware {
         return value.split(",");
     }
 
-    // JN: by using static when u click same export link from 2 different datasets the first one stays in tact and is
-    // saved in
-    // there.
+    // JN: by using static when u click same export link from 2 different datasets the first one stays in tact and
+    // is saved in there.
 
-    /**
-     *
-     */
     public ExtractPropertyBean findExtractPropertyBeanById(int id, String datasetId) {
-        boolean notDone = true;
         ArrayList<ExtractPropertyBean> epBeans = findExtractProperties();
         ExtractPropertyBean returnBean = null;
         for (ExtractPropertyBean epbean : epBeans) {
 
             if (epbean.getId() == id) {
                 epbean.setDatasetId(datasetId);
-                notDone = false;
-                // returnBean = epbean;
                 return epbean;
             }
 
@@ -1000,11 +943,5 @@ public class CoreResources implements ResourceLoaderAware {
     public Properties getDATAINFO() {
         return DATAINFO;
     }
-
-    // // TODO comment out system out after dev
-    // private static void logMe(String message) {
-    // System.out.println(message);
-    // logger.info(message);
-    // }
 
 }

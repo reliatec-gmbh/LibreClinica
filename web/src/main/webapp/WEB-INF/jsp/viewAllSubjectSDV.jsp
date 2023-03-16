@@ -7,8 +7,9 @@
 <fmt:setBundle basename="org.akaza.openclinica.i18n.notes" var="restext"/>
 <fmt:setBundle basename="org.akaza.openclinica.i18n.page_messages" var="resmessages"/>
 
-
 <jsp:include page="include/managestudy_top_pages.jsp"/>
+
+<!-- start of viewAllSubjectsSDV.jsp -->
 
 <!-- move the alert message to the sidebar-->
 <jsp:include page="include/sideAlert.jsp"/>
@@ -232,5 +233,7 @@
     <script type="text/javascript">hideCols('sdv',[2,3,6,7,11,12,13])</script>
 
 </div>
+<!-- end of viewAllSubjectsSDV.jsp -->
 </body>
+
 </html>

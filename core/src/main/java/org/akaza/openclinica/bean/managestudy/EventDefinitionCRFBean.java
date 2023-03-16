@@ -13,14 +13,20 @@ import java.util.LinkedHashMap;
 
 import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.core.AuditableEntityBean;
+import org.akaza.openclinica.bean.core.NullValue;
 import org.akaza.openclinica.bean.submit.CRFVersionBean;
 import org.akaza.openclinica.domain.SourceDataVerification;
 
 /**
  * @author jxu
  */
-public class EventDefinitionCRFBean extends AuditableEntityBean implements Comparable {
-    private int studyEventDefinitionId = 0;
+public class EventDefinitionCRFBean extends AuditableEntityBean implements Comparable<EventDefinitionCRFBean> {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 3278920564403336685L;
+
+	private int studyEventDefinitionId = 0;
 
     // issue 3212: the Event CRF is hidden from views in the application
     // when the user is associated with a site, not top-level study
@@ -243,15 +249,15 @@ public class EventDefinitionCRFBean extends AuditableEntityBean implements Compa
      * An array of null values allowed. Each element is a NullValue object. This
      * property is set in setNullValues.
      */
-    private ArrayList nullValuesList = new ArrayList();
+    private ArrayList<NullValue> nullValuesList = new ArrayList<>();
 
     private String crfName = ""; // not in table
 
-    private ArrayList versions = new ArrayList();// not in table
+    private ArrayList<CRFVersionBean> versions = new ArrayList<>();// not in table
 
     private CRFBean crf = new CRFBean(); // not in table
 
-    private HashMap nullFlags = new LinkedHashMap(); // not in table
+    private HashMap<String, String> nullFlags = new LinkedHashMap<>(); // not in table
 
     private String defaultVersionName = "";// not in DB
 
@@ -415,12 +421,13 @@ public class EventDefinitionCRFBean extends AuditableEntityBean implements Compa
     }
 
     /**
-     * @deprecated
-     * @return Returns the nullValues.
+     * @return Returns the nullValues as comma separated string.
      */
-    @Deprecated
     public String getNullValues() {
-        return nullValues;
+    	if(nullValues == null) {
+    		nullValues = NullValue.listToString(nullValuesList);
+    	}
+		return nullValues;
     }
 
     /**
@@ -428,24 +435,14 @@ public class EventDefinitionCRFBean extends AuditableEntityBean implements Compa
      *            The nullValues to set.
      */
     public void setNullValues(String nullValues) {
-        this.nullValues = nullValues;
-        String[] nullValuesSeparated = nullValues.split(",");
-
-        nullValuesList = new ArrayList();
-        if (nullValuesSeparated != null) {
-            for (String val : nullValuesSeparated) {
-                org.akaza.openclinica.bean.core.NullValue nv = org.akaza.openclinica.bean.core.NullValue.getByName(val);
-                if (nv.isActive()) {
-                    nullValuesList.add(nv);
-                }
-            }
-        }
+    	this.nullValuesList = NullValue.listFromString(nullValues, true);
+    	this.nullValues = NullValue.listToString(nullValuesList);
     }
 
     /**
      * @return Returns the versions.
      */
-    public ArrayList getVersions() {
+    public ArrayList<CRFVersionBean> getVersions() {
         return versions;
     }
 
@@ -453,7 +450,7 @@ public class EventDefinitionCRFBean extends AuditableEntityBean implements Compa
      * @param versions
      *            The versions to set.
      */
-    public void setVersions(ArrayList versions) {
+    public void setVersions(ArrayList<CRFVersionBean> versions) {
         this.versions = versions;
     }
 
@@ -475,7 +472,7 @@ public class EventDefinitionCRFBean extends AuditableEntityBean implements Compa
     /**
      * @return Returns the nullFlags.
      */
-    public HashMap getNullFlags() {
+    public HashMap<String, String> getNullFlags() {
         if (nullFlags.size() == 0) {
             nullFlags.put("NI", "0");
             nullFlags.put("NA", "0");
@@ -499,14 +496,14 @@ public class EventDefinitionCRFBean extends AuditableEntityBean implements Compa
      * @param nullFlags
      *            The nullFlags to set.
      */
-    public void setNullFlags(HashMap nullFlags) {
+    public void setNullFlags(HashMap<String, String> nullFlags) {
         this.nullFlags = nullFlags;
     }
 
     /**
      * @return Returns the nullValuesList.
      */
-    public ArrayList getNullValuesList() {
+    public ArrayList<NullValue> getNullValuesList() {
         return nullValuesList;
     }
 
@@ -514,7 +511,7 @@ public class EventDefinitionCRFBean extends AuditableEntityBean implements Compa
      * @param nullValuesList
      *            The nullValuesList to set.
      */
-    public void setNullValuesList(ArrayList nullValuesList) {
+    public void setNullValuesList(ArrayList<NullValue> nullValuesList) {
         this.nullValuesList = nullValuesList;
     }
 
@@ -538,13 +535,8 @@ public class EventDefinitionCRFBean extends AuditableEntityBean implements Compa
      *
      * @see java.lang.Comparable#compareTo(java.lang.Object)
      */
-    public int compareTo(Object o) {
-        if (o == null || !o.getClass().equals(this.getClass())) {
-            return 0;
-        }
-
-        EventDefinitionCRFBean edcb = (EventDefinitionCRFBean) o;
-        return this.ordinal - edcb.ordinal;
+    public int compareTo(EventDefinitionCRFBean o) {
+        return Integer.valueOf(this.ordinal).compareTo(o.ordinal);
     }
 
     public SourceDataVerification getSourceDataVerification() {

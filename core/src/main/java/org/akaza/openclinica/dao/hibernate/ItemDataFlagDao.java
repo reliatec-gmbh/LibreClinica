@@ -7,41 +7,44 @@
  */
 package org.akaza.openclinica.dao.hibernate;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.akaza.openclinica.domain.datamap.EventCrfFlag;
 import org.akaza.openclinica.domain.datamap.ItemDataFlag;
-import org.akaza.openclinica.domain.datamap.ItemData;
+import org.hibernate.query.Query;
 
 public class ItemDataFlagDao extends AbstractDomainDao<ItemDataFlag> {
 
     @Override
     Class<ItemDataFlag> domainClass() {
-        // TODO Auto-generated method stub
         return ItemDataFlag.class;
     }
 
+    // TODO update to CriteriaQuery 
+    public List<ItemDataFlag> findAllByEventCrfPath(int tag_id, String eventCrfPath) {
 
-    
-    public List<ItemDataFlag> findAllByEventCrfPath(int tag_id , String eventCrfPath ) {
-
-        String query = " from " + getDomainClassName() + "  where "
-                + " tag_id= " + tag_id +  " and path LIKE '" + eventCrfPath +".%'"  ;
+        String query = "from " + getDomainClassName() + " where " +
+                "tag_id = :tag_id and path like :eventCrfPath";
         
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
-        return (List<ItemDataFlag>) q.list();
+        Query<ItemDataFlag> q = getCurrentSession()
+                .createQuery(query, ItemDataFlag.class)
+                .setParameter("tag_id", tag_id)
+                .setParameter("eventCrfPath", eventCrfPath + ".%");
+        
+        return q.list();
     }
 
-    public ItemDataFlag findByItemDataPath(int tag_id ,  String itemDataPath ) {
+    // TODO update to CriteriaQuery 
+    public ItemDataFlag findByItemDataPath(int tag_id, String itemDataPath) {
 
-        String query = " from " + getDomainClassName() + "  where "
-                + " tag_id= " + tag_id  + " and path= '" + itemDataPath +"'"   ;
+        String query = "from " + getDomainClassName() + " where " +
+                "tag_id = :tag_id and path = :itemDataPath";
         
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
-        return (ItemDataFlag) q.uniqueResult();
+        Query<ItemDataFlag> q = getCurrentSession()
+                .createQuery(query, ItemDataFlag.class)
+                .setParameter("tag_id", tag_id)
+                .setParameter("itemDataPath", itemDataPath);
+        
+        return q.uniqueResult();
     }
-
-
     
 }

@@ -7,7 +7,12 @@
  */
 package org.akaza.openclinica.control.submit;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
 import org.akaza.openclinica.bean.core.EntityBean;
+import org.akaza.openclinica.bean.managestudy.StudyEventBean;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.dao.managestudy.StudyEventDAO;
@@ -16,10 +21,6 @@ import org.akaza.openclinica.dao.managestudy.StudySubjectDAO;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 
 /**
  * @author ssachs
@@ -33,7 +34,12 @@ import java.util.Locale;
  */
 public class FindStudyEventServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -3575870316292737093L;
+
+	Locale locale;
     // < ResourceBundleresexception,respage;
 
     public static final String INPUT_BROWSEBY = "browseBy";
@@ -75,7 +81,7 @@ public class FindStudyEventServlet extends SecureController {
         else if (id <= 0) {
             int pageNum = fp.getInt(INPUT_PAGENUM);
 
-            ArrayList allDisplayEntities = new ArrayList();
+            ArrayList<?> allDisplayEntities = new ArrayList<>();
 
             if (browseBy.equals(ARG_BROWSEBY_SUBJECT)) {
                 StudySubjectDAO ssdao = new StudySubjectDAO(sm.getDataSource());
@@ -100,7 +106,7 @@ public class FindStudyEventServlet extends SecureController {
                 lastIndex = allDisplayEntities.size();
             }
 
-            List displayEntities = allDisplayEntities.subList(firstIndex, lastIndex);
+            List<?> displayEntities = allDisplayEntities.subList(firstIndex, lastIndex);
 
             request.setAttribute(INPUT_BROWSEBY, browseBy);
             request.setAttribute(BEAN_DISPLAY_ENTITIES, displayEntities);
@@ -111,7 +117,7 @@ public class FindStudyEventServlet extends SecureController {
         // User is coming from Step 2, is going to Step 3
         else {
             StudyEventDAO sedao = new StudyEventDAO(sm.getDataSource());
-            ArrayList events = new ArrayList();
+            ArrayList<StudyEventBean> events = new ArrayList<>();
 
             EntityBean entityWithStudyEvents;
             if (browseBy.equals(ARG_BROWSEBY_SUBJECT)) {

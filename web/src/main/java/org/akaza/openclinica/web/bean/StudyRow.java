@@ -15,7 +15,7 @@ import java.util.ArrayList;
  * @author jxu
  *
  */
-public class StudyRow extends EntityBeanRow {
+public class StudyRow extends EntityBeanRow<StudyBean, StudyRow> {
 
     // columns:
     public static final int COL_NAME = 0;
@@ -32,13 +32,13 @@ public class StudyRow extends EntityBeanRow {
      *      int)
      */
     @Override
-    protected int compareColumn(Object row, int sortingColumn) {
+    protected int compareColumn(StudyRow row, int sortingColumn) {
         if (!row.getClass().equals(StudyRow.class)) {
             return 0;
         }
 
-        StudyBean thisStudy = (StudyBean) bean;
-        StudyBean argStudy = (StudyBean) ((StudyRow) row).bean;
+        StudyBean thisStudy = bean;
+        StudyBean argStudy = row.bean;
 
         int answer = 0;
         switch (sortingColumn) {
@@ -67,7 +67,7 @@ public class StudyRow extends EntityBeanRow {
 
     @Override
     public String getSearchString() {
-        StudyBean thisStudy = (StudyBean) bean;
+        StudyBean thisStudy = bean;
         return thisStudy.getName() + " " + thisStudy.getIdentifier() + " " + thisStudy.getPrincipalInvestigator() + " " + thisStudy.getFacilityName();
     }
 
@@ -77,20 +77,17 @@ public class StudyRow extends EntityBeanRow {
      * @see org.akaza.openclinica.core.EntityBeanRow#generatRowsFromBeans(java.util.ArrayList)
      */
     @Override
-    public ArrayList generatRowsFromBeans(ArrayList beans) {
+    public ArrayList<StudyRow> generatRowsFromBeans(ArrayList<StudyBean> beans) {
         return StudyRow.generateRowsFromBeans(beans);
     }
 
-    public static ArrayList generateRowsFromBeans(ArrayList beans) {
-        ArrayList answer = new ArrayList();
-
-        Class[] parameters = null;
-        Object[] arguments = null;
+    public static ArrayList<StudyRow> generateRowsFromBeans(ArrayList<StudyBean> beans) {
+        ArrayList<StudyRow> answer = new ArrayList<StudyRow>();
 
         for (int i = 0; i < beans.size(); i++) {
             try {
                 StudyRow row = new StudyRow();
-                row.setBean((StudyBean) beans.get(i));
+                row.setBean(beans.get(i));
                 answer.add(row);
             } catch (Exception e) {
             }

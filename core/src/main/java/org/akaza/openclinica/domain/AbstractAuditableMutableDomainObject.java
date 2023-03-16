@@ -22,7 +22,11 @@ import org.slf4j.LoggerFactory;
 @MappedSuperclass
 public abstract class AbstractAuditableMutableDomainObject extends AbstractMutableDomainObject implements MutableDomainObject, AuditableMutableDomainObject, Serializable {
 
-    protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1612694133579894340L;
+	protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
     protected Date createdDate;
     protected Date updatedDate;
     protected UserAccountBean owner;

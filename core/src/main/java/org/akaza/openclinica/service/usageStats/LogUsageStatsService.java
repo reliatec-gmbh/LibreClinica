@@ -5,9 +5,6 @@
  * For details see: https://libreclinica.org/license
  * LibreClinica, copyright (C) 2020
  */
-/**
- * 
- */
 package org.akaza.openclinica.service.usageStats;
 
 import java.util.Iterator;
@@ -22,11 +19,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author pgawade
- *
  */
 public class LogUsageStatsService {
 
-    protected final static Logger logger = LoggerFactory.getLogger("org.akaza.openclinica.service.usageStats.LogUsageStatsService");
+    protected final static Logger logger = LoggerFactory.getLogger(LogUsageStatsService.class);
 
     DataSource dataSource;
     UsageStatsServiceDAO usageStatsServiceDAO;
@@ -66,9 +62,9 @@ public class LogUsageStatsService {
     public final static String OC_version = "OC Version";
 
     /**
-     * @pgawade Method to log the event - start of LibreClinica initialization
+     * Method to log the event - start of LibreClinica initialization
      */
-    public static void logEventOCStart(Map eventDetailsMap) {
+    public static void logEventOCStart(Map<String, String> eventDetailsMap) {
         // Format the event details
         String eventDetails = "";
         StringBuffer bufEventDetails = new StringBuffer();
@@ -80,10 +76,9 @@ public class LogUsageStatsService {
                 if (null != mapEntry) {
                     if ((mapEntry.getKey().equalsIgnoreCase(OC_last_system_start)) && (mapEntry.getValue() == null)) {
                         bufEventDetails.append(mapEntry.getKey() + ": " + "No Last System start time available; it could be first start of LibreClinica");
-                    }
- else if ((mapEntry.getKey().equalsIgnoreCase(OC_last_up_time)) && (mapEntry.getValue() == null)) {
-                    }
- else {
+                    } else if ((mapEntry.getKey().equalsIgnoreCase(OC_last_up_time)) && (mapEntry.getValue() == null)) {
+
+                    } else {
                         bufEventDetails.append(mapEntry.getKey() + ": " + mapEntry.getValue() + "\n");
                     }
                 }
@@ -94,7 +89,6 @@ public class LogUsageStatsService {
         logger.info(event + event_msg_OC_started);
         // log event details
         logger.info(event_details + eventDetails);
-
     }
 
     /**
@@ -105,8 +99,7 @@ public class LogUsageStatsService {
     }
 
     /**
-     * @param dataSource
-     *            the dataSource to set
+     * @param dataSource the dataSource to set
      */
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
@@ -120,8 +113,7 @@ public class LogUsageStatsService {
     }
 
     /**
-     * @param context
-     *            the context to set
+     * @param context the context to set
      */
     public void setContext(ServletContext context) {
         this.context = context;

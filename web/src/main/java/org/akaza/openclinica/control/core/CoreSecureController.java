@@ -7,14 +7,12 @@
  */
 package org.akaza.openclinica.control.core;
 
-import java.io.IOException;
+import static org.akaza.openclinica.core.util.ClassCastHelper.getAttributeAsList;
+
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.ResourceBundle;
@@ -32,21 +30,22 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.sql.DataSource;
 
+import org.akaza.openclinica.bean.core.AuditableEntityBean;
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.core.Status;
-import org.akaza.openclinica.bean.extract.ArchivedDatasetFileBean;
 import org.akaza.openclinica.bean.login.StudyUserRoleBean;
 import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
+import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
+import org.akaza.openclinica.bean.managestudy.StudyGroupBean;
 import org.akaza.openclinica.bean.managestudy.StudyGroupClassBean;
+import org.akaza.openclinica.bean.service.StudyParamsConfig;
 import org.akaza.openclinica.bean.submit.EventCRFBean;
 import org.akaza.openclinica.control.SpringServletAccess;
 import org.akaza.openclinica.core.CRFLocker;
 import org.akaza.openclinica.core.EmailEngine;
 import org.akaza.openclinica.core.SessionManager;
 import org.akaza.openclinica.dao.core.AuditableEntityDAO;
-import org.akaza.openclinica.dao.core.CoreResources;
-import org.akaza.openclinica.dao.extract.ArchivedDatasetFileDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDefinitionDAO;
 import org.akaza.openclinica.dao.managestudy.StudyGroupClassDAO;
@@ -56,7 +55,6 @@ import org.akaza.openclinica.dao.service.StudyParameterValueDAO;
 import org.akaza.openclinica.exception.OpenClinicaException;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
-import org.akaza.openclinica.view.BreadcrumbTrail;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.view.StudyInfoPanel;
 import org.akaza.openclinica.view.StudyInfoPanelLine;
@@ -64,12 +62,6 @@ import org.akaza.openclinica.web.InconsistentStateException;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.akaza.openclinica.web.SQLInitServlet;
 import org.akaza.openclinica.web.bean.EntityBeanTable;
-import org.quartz.JobKey;
-import org.quartz.SchedulerException;
-import org.quartz.Trigger;
-import org.quartz.Trigger.TriggerState;
-import org.quartz.TriggerKey;
-import org.quartz.impl.StdScheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -86,13 +78,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 public abstract class CoreSecureController extends HttpServlet {
 
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CoreSecureController.class);
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -4705456347136667876L;
 
-    protected HashMap errors = new HashMap();
+	private static final Logger LOGGER = LoggerFactory.getLogger(CoreSecureController.class);
 
-    private static String SCHEDULER = "schedulerFactoryBean";
-
-    private StdScheduler scheduler;
+    protected HashMap<String, ArrayList<String>> errors = new HashMap<>();
 
     public static ResourceBundle resadmin, resaudit, resexception, resformat, respage, resterm, restext, resword, resworkflow;
 
@@ -137,10 +130,10 @@ public abstract class CoreSecureController extends HttpServlet {
     // protected HashMap errors = new HashMap();//error messages on the page
 
     protected void addPageMessage(String message, HttpServletRequest request) {
-        ArrayList pageMessages = (ArrayList) request.getAttribute(PAGE_MESSAGE);
+        ArrayList<String> pageMessages = getAttributeAsList(request, PAGE_MESSAGE, String.class);
 
         if (pageMessages == null) {
-            pageMessages = new ArrayList();
+            pageMessages = new ArrayList<>();
         }
 
         pageMessages.add(message);
@@ -171,7 +164,7 @@ public abstract class CoreSecureController extends HttpServlet {
 
     protected void setToPanel(String title, String info, HttpServletRequest request) {
         if (panel.isOrderedData()) {
-            ArrayList data = panel.getUserOrderedData();
+            ArrayList<StudyInfoPanelLine> data = panel.getUserOrderedData();
             data.add(new StudyInfoPanelLine(title, info));
             panel.setUserOrderedData(data);
         } else {
@@ -180,11 +173,11 @@ public abstract class CoreSecureController extends HttpServlet {
         request.setAttribute(STUDY_INFO_PANEL, panel);
     }
 
-    protected void setInputMessages(HashMap messages, HttpServletRequest request) {
+    protected void setInputMessages(HashMap<String, ArrayList<String>> messages, HttpServletRequest request) {
         request.setAttribute(INPUT_MESSAGES, messages);
     }
 
-    protected void setPresetValues(HashMap presetValues, HttpServletRequest request) {
+    protected void setPresetValues(HashMap<String, Object> presetValues, HttpServletRequest request) {
         request.setAttribute(PRESET_VALUES, presetValues);
     }
 
@@ -194,8 +187,7 @@ public abstract class CoreSecureController extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        ServletContext context = getServletContext();
-        // DATASET_HOME_DIR = context.getInitParameter("datasetHomeDir");
+    	// TODO empty method
     }
 
     /**
@@ -226,79 +218,6 @@ public abstract class CoreSecureController extends HttpServlet {
                 forwardPage(Page.RESET_PASSWORD, request, response);
             }
         }
-    }
-
-    private void pingJobServer(HttpServletRequest request) {
-        String jobName = (String) request.getSession().getAttribute("jobName");
-        String groupName = (String) request.getSession().getAttribute("groupName");
-        Integer datasetId = (Integer) request.getSession().getAttribute("datasetId");
-        try {
-            if (jobName != null && groupName != null) {
-                LOGGER.debug("trying to retrieve status on " + jobName + " " + groupName);
-                Trigger.TriggerState triggerState = getScheduler(request).getTriggerState(new TriggerKey(jobName, groupName));
-                LOGGER.debug("found state: " + triggerState);
-                org.quartz.JobDetail details = getScheduler(request).getJobDetail(new JobKey(jobName, groupName));
-                List contexts = getScheduler(request).getCurrentlyExecutingJobs();
-                org.quartz.JobDataMap dataMap = details.getJobDataMap();
-                String failMessage = dataMap.getString("failMessage");
-                if (triggerState == TriggerState.NONE) {
-                    // add the message here that your export is done
-                    // TODO make absolute paths in the message, for example a
-                    // link from /pages/* would break
-                    // TODO i18n
-                    if (failMessage != null) {
-                        // The extract data job failed with the message:
-                        // ERROR: relation "demographics" already exists
-                        // More information may be available in the log files.
-                        addPageMessage("The extract data job failed with the message: <br/><br/>" + failMessage
-                                + "<br/><br/>More information may be available in the log files.", request);
-                    } else {
-                        String successMsg = dataMap.getString("SUCCESS_MESSAGE");
-                        if (successMsg != null) {
-                            if (successMsg.contains("$linkURL")) {
-                                successMsg = decodeLINKURL(successMsg, datasetId);
-                            }
-
-                            addPageMessage(
-                                    "Your Extract is now completed. Please go to review them at <a href='ViewDatasets'>View Datasets</a> or <a href='ExportDataset?datasetId="
-                                            + datasetId + "'>View Specific Dataset</a>." + successMsg, request);
-                        } else {
-                            addPageMessage(
-                                    "Your Extract is now completed. Please go to review them at <a href='ViewDatasets'>View Datasets</a> or <a href='ExportDataset?datasetId="
-                                            + datasetId + "'>View Specific Dataset</a>.", request);
-                        }
-                    }
-                    request.getSession().removeAttribute("jobName");
-                    request.getSession().removeAttribute("groupName");
-                    request.getSession().removeAttribute("datasetId");
-                } else {
-
-                }
-            }
-        } catch (SchedulerException se) {
-            LOGGER.error("job cannot be reached: ", se);
-        }
-
-    }
-
-    private String decodeLINKURL(String successMsg, Integer datasetId) {
-
-        ArchivedDatasetFileDAO asdfDAO = new ArchivedDatasetFileDAO(getDataSource());
-
-        ArrayList<ArchivedDatasetFileBean> fileBeans = asdfDAO.findByDatasetId(datasetId);
-
-        successMsg =
-                successMsg.replace("$linkURL", "<a href=\"" + CoreResources.getField("sysURL.base") + "AccessFile?fileId=" + fileBeans.get(0).getId()
-                        + "\">here </a>");
-
-        return successMsg;
-    }
-
-    private StdScheduler getScheduler(HttpServletRequest request) {
-        scheduler =
-                this.scheduler != null ? scheduler : (StdScheduler) SpringServletAccess.getApplicationContext(request.getSession().getServletContext()).getBean(
-                        SCHEDULER);
-        return scheduler;
     }
 
     private void unlockCRFOnError(HttpServletRequest req) {
@@ -379,7 +298,7 @@ public abstract class CoreSecureController extends HttpServlet {
                     StudyParameterValueDAO spvdao = new StudyParameterValueDAO(getDataSource());
                     currentStudy = (StudyBean) sdao.findByPK(ub.getActiveStudyId());
 
-                    ArrayList studyParameters = spvdao.findParamConfigByStudy(currentStudy);
+                    ArrayList<StudyParamsConfig> studyParameters = spvdao.findParamConfigByStudy(currentStudy);
 
                     currentStudy.setStudyParameters(studyParameters);
 
@@ -426,9 +345,8 @@ public abstract class CoreSecureController extends HttpServlet {
                  * The Role decription will be set depending on whether the user
                  * logged in at study lever or site level. issue-2422
                  */
-                List roles = Role.toArrayList();
-                for (Iterator it = roles.iterator(); it.hasNext();) {
-                    Role role = (Role) it.next();
+                ArrayList<Role> roles = Role.toArrayList();
+                for (Role role : roles) {
                     switch (role.getId()) {
                         case 2:
                             role.setDescription("site_Study_Coordinator");
@@ -457,9 +375,8 @@ public abstract class CoreSecureController extends HttpServlet {
                  * If the current study is a site, we will change the role
                  * description. issue-2422
                  */
-                List roles = Role.toArrayList();
-                for (Iterator it = roles.iterator(); it.hasNext();) {
-                    Role role = (Role) it.next();
+                ArrayList<Role> roles = Role.toArrayList();
+                for (Role role : roles) {
                     switch (role.getId()) {
                         case 2:
                             role.setDescription("Study_Coordinator");
@@ -625,7 +542,6 @@ public abstract class CoreSecureController extends HttpServlet {
         if (request.getAttribute(POP_UP_URL) == null) {
             request.setAttribute(POP_UP_URL, "");
         }
-        HttpSession session = request.getSession();
 
         try {
             // Added 01/19/2005 for breadcrumbs, tbh
@@ -703,39 +619,6 @@ public abstract class CoreSecureController extends HttpServlet {
     }
 
     /**
-     * This method supports functionality of the type
-     * "if a list of entities is empty, then jump to some page and display an error message."
-     * This prevents users from seeing empty drop-down lists and being given
-     * error messages when they can't choose an entity from the drop-down list.
-     * Use, e.g.:
-     * <code>addEntityList("groups", allGroups, "There are no groups to display, so you cannot add a subject to this Study.",
-     * Page.SUBMIT_DATA)</code>
-     *
-     * @param beanName
-     *            The name of the entity list as it should be stored in the
-     *            request object.
-     * @param list
-     *            The Collection of entities.
-     * @param messageIfEmpty
-     *            The message to display if the collection is empty.
-     * @param destinationIfEmpty
-     *            The Page to go to if the collection is empty.
-     * @param request
-     *            TODO
-     * @param response
-     *            TODO
-     * @throws InconsistentStateException
-     */
-    protected void addEntityList(String beanName, Collection list, String messageIfEmpty, Page destinationIfEmpty, HttpServletRequest request,
-                                 HttpServletResponse response) throws InconsistentStateException {
-        if (list.isEmpty()) {
-            throw new InconsistentStateException(destinationIfEmpty, messageIfEmpty);
-        }
-
-        request.setAttribute(beanName, list);
-    }
-
-    /**
      * @return A blank String if this servlet is not an Administer System
      *         servlet. CoreSecureController.ADMIN_SERVLET_CODE otherwise.
      */
@@ -772,11 +655,12 @@ public abstract class CoreSecureController extends HttpServlet {
      * @param ds
      *            javax.sql.DataSource
      */
-    protected boolean entityIncluded(int entityId, String userName, AuditableEntityDAO adao, DataSource ds) {
+    protected boolean entityIncluded(int entityId, String userName, AuditableEntityDAO<? extends AuditableEntityBean> adao, DataSource ds) {
         StudyDAO sdao = new StudyDAO(ds);
-        ArrayList<StudyBean> studies = (ArrayList<StudyBean>) sdao.findAllByUserNotRemoved(userName);
+        ArrayList<StudyBean> studies = sdao.findAllByUserNotRemoved(userName);
         for (int i = 0; i < studies.size(); ++i) {
-            if (adao.findByPKAndStudy(entityId, studies.get(i)).getId() > 0) {
+        	AuditableEntityBean bean = adao.findByPKAndStudy(entityId, studies.get(i)); 
+            if (bean != null && bean.getId() > 0) {
                 return true;
             }
             // Here follow the current logic - study subjects at sites level are
@@ -860,12 +744,12 @@ public abstract class CoreSecureController extends HttpServlet {
 
     }
 
-    public ArrayList getEventDefinitionsByCurrentStudy(HttpServletRequest request) {
+    public ArrayList<StudyEventDefinitionBean> getEventDefinitionsByCurrentStudy(HttpServletRequest request) {
         StudyDAO studyDAO = new StudyDAO(getDataSource());
         StudyEventDefinitionDAO studyEventDefinitionDAO = new StudyEventDefinitionDAO(getDataSource());
         StudyBean currentStudy = (StudyBean) request.getSession().getAttribute("study");
         int parentStudyId = currentStudy.getParentStudyId();
-        ArrayList allDefs = new ArrayList();
+        ArrayList<StudyEventDefinitionBean> allDefs = new ArrayList<>();
         if (parentStudyId > 0) {
             StudyBean parentStudy = (StudyBean) studyDAO.findByPK(parentStudyId);
             allDefs = studyEventDefinitionDAO.findAllActiveByStudy(parentStudy);
@@ -876,13 +760,13 @@ public abstract class CoreSecureController extends HttpServlet {
         return allDefs;
     }
 
-    public ArrayList getStudyGroupClassesByCurrentStudy(HttpServletRequest request) {
+    public ArrayList<StudyGroupClassBean> getStudyGroupClassesByCurrentStudy(HttpServletRequest request) {
         StudyDAO studyDAO = new StudyDAO(getDataSource());
         StudyGroupClassDAO studyGroupClassDAO = new StudyGroupClassDAO(getDataSource());
         StudyGroupDAO studyGroupDAO = new StudyGroupDAO(getDataSource());
         StudyBean currentStudy = (StudyBean) request.getSession().getAttribute("study");
         int parentStudyId = currentStudy.getParentStudyId();
-        ArrayList studyGroupClasses = new ArrayList();
+        ArrayList<StudyGroupClassBean> studyGroupClasses = new ArrayList<>();
         if (parentStudyId > 0) {
             StudyBean parentStudy = (StudyBean) studyDAO.findByPK(parentStudyId);
             studyGroupClasses = studyGroupClassDAO.findAllActiveByStudy(parentStudy);
@@ -893,7 +777,7 @@ public abstract class CoreSecureController extends HttpServlet {
 
         for (int i = 0; i < studyGroupClasses.size(); i++) {
             StudyGroupClassBean sgc = (StudyGroupClassBean) studyGroupClasses.get(i);
-            ArrayList groups = studyGroupDAO.findAllByGroupClass(sgc);
+            ArrayList<StudyGroupBean> groups = studyGroupDAO.findAllByGroupClass(sgc);
             sgc.setStudyGroups(groups);
         }
 
@@ -1044,5 +928,17 @@ public abstract class CoreSecureController extends HttpServlet {
 
     public CRFLocker getCrfLocker() {
         return crfLocker;
+    }
+    
+    protected void addErrorMessage(String key, String errorMsg) {
+    	if(errors == null) {
+    		errors = new HashMap<>();
+    	}
+    	ArrayList<String> messages = errors.get(key);
+    	if(messages == null) {
+    		messages = new ArrayList<>();
+    		errors.put(key, messages);
+    	}
+    	messages.add(errorMsg);
     }
 }

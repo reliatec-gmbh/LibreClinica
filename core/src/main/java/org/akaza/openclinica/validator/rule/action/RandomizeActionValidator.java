@@ -8,37 +8,24 @@
 package org.akaza.openclinica.validator.rule.action;
 
 import org.akaza.openclinica.bean.admin.CRFBean;
-import org.akaza.openclinica.bean.core.NullValue;
-import org.akaza.openclinica.bean.core.ResponseType;
 import org.akaza.openclinica.bean.managestudy.EventDefinitionCRFBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
 import org.akaza.openclinica.bean.submit.ItemBean;
-import org.akaza.openclinica.bean.submit.ItemFormMetadataBean;
-import org.akaza.openclinica.bean.submit.ResponseOptionBean;
 import org.akaza.openclinica.dao.admin.CRFDAO;
 import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDefinitionDAO;
 import org.akaza.openclinica.dao.submit.ItemDAO;
 import org.akaza.openclinica.dao.submit.ItemFormMetadataDAO;
-import org.akaza.openclinica.domain.rule.AuditableBeanWrapper;
 import org.akaza.openclinica.domain.rule.RuleSetBean;
 import org.akaza.openclinica.domain.rule.action.PropertyBean;
 import org.akaza.openclinica.domain.rule.action.RandomizeActionBean;
-import org.akaza.openclinica.domain.rule.action.StratificationFactorBean;
-import org.akaza.openclinica.domain.rule.expression.Context;
-import org.akaza.openclinica.domain.rule.expression.ExpressionBean;
-import org.akaza.openclinica.domain.rule.expression.ExpressionObjectWrapper;
-import org.akaza.openclinica.domain.rule.expression.ExpressionProcessor;
-import org.akaza.openclinica.domain.rule.expression.ExpressionProcessorFactory;
 import org.akaza.openclinica.exception.OpenClinicaSystemException;
-import org.akaza.openclinica.logic.expressionTree.ExpressionTreeHelper;
 import org.akaza.openclinica.service.rule.expression.ExpressionService;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -66,7 +53,7 @@ public class RandomizeActionValidator implements Validator {
     /**
      * This Validator validates just Person instances
      */
-    public boolean supports(Class clazz) {
+    public boolean supports(Class<?> clazz) {
         return RandomizeActionBean.class.equals(clazz);
     }
 
@@ -93,10 +80,12 @@ public class RandomizeActionValidator implements Validator {
                 targetCrf = getCrfDAO().findByItemOid(item.getOid());
 
             }
+            // TODO let the database calculate the 'intersection' this will be much faster and will consume less resources
             // Get All event definitions the selected CRF belongs to
             List<StudyEventDefinitionBean> destinationPropertyStudyEventDefinitions = getStudyEventDefinitionDAO().findAllByCrf(destinationPropertyOidCrf);
             List<StudyEventDefinitionBean> targetStudyEventDefinitions = getStudyEventDefinitionDAO().findAllByCrf(targetCrf);
-            Collection intersection = CollectionUtils.intersection(destinationPropertyStudyEventDefinitions, targetStudyEventDefinitions);
+            @SuppressWarnings("rawtypes")
+			Collection intersection = CollectionUtils.intersection(destinationPropertyStudyEventDefinitions, targetStudyEventDefinitions);
             if (intersection.size() == 0) {
                 e.rejectValue(p + "oid", "oid.invalid", "OID: " + propertyBean.getOid() + " is Invalid.");
             }

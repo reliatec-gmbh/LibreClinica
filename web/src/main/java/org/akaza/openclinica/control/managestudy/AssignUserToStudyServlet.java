@@ -7,6 +7,16 @@
  */
 package org.akaza.openclinica.control.managestudy;
 
+import static org.akaza.openclinica.core.util.ClassCastHelper.asArrayList;
+import static org.akaza.openclinica.core.util.ClassCastHelper.asHashMap;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.login.StudyUserRoleBean;
@@ -14,22 +24,12 @@ import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
-import org.akaza.openclinica.core.EmailEngine;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.login.UserAccountDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.akaza.openclinica.web.bean.EntityBeanTable;
 import org.akaza.openclinica.web.bean.UserAccountRow;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Processes request to assign a user to a study
@@ -40,6 +40,11 @@ import java.util.Set;
 public class AssignUserToStudyServlet extends SecureController {
 
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 4960926890819274181L;
+
+	/**
      *
      */
     @Override
@@ -61,12 +66,12 @@ public class AssignUserToStudyServlet extends SecureController {
     public void processRequest() throws Exception {
 
         String action = request.getParameter("action");
-        ArrayList users = findUsers();
+        ArrayList<UserAccountBean> users = findUsers();
         String nextListPage = request.getParameter("next_list_page");
-        if (StringUtil.isBlank(action) || (nextListPage != null && nextListPage.equalsIgnoreCase("true"))) {
+        if ((action == null || action.trim().isEmpty()) || (nextListPage != null && nextListPage.equalsIgnoreCase("true"))) {
             FormProcessor fp = new FormProcessor(request);
             EntityBeanTable table = fp.getEntityBeanTable();
-            ArrayList allRows = UserAccountRow.generateRowsFromBeans(users);
+            ArrayList<UserAccountRow> allRows = UserAccountRow.generateRowsFromBeans(users);
 
             if (nextListPage == null) {
                 session.removeAttribute("tmpSelectedUsersMap");
@@ -78,9 +83,9 @@ public class AssignUserToStudyServlet extends SecureController {
              * been done so that when the user moves to the next page of Users
              * list, the selection made in the previous page doesn't get lost.
              */
-            Map tmpSelectedUsersMap = (HashMap) session.getAttribute("tmpSelectedUsersMap");
+            Map<Integer, Integer> tmpSelectedUsersMap = asHashMap(session.getAttribute("tmpSelectedUsersMap"), Integer.class, Integer.class);
             if (tmpSelectedUsersMap == null) {
-                tmpSelectedUsersMap = new HashMap();
+                tmpSelectedUsersMap = new HashMap<>();
             }
             if (nextListPage != null && nextListPage.equalsIgnoreCase("true")) {
                 for (int i = 0; i < users.size(); i++) {
@@ -88,7 +93,7 @@ public class AssignUserToStudyServlet extends SecureController {
                     int roleId = fp.getInt("activeStudyRoleId" + i);
                     String checked = fp.getString("selected" + i);
                     // logger.info("selected:" + checked);
-                    if (!StringUtil.isBlank(checked) && "yes".equalsIgnoreCase(checked.trim())) {
+                    if (!(checked == null || checked.trim().isEmpty()) && "yes".equalsIgnoreCase(checked.trim())) {
                         tmpSelectedUsersMap.put(id, roleId);
                     } else {
                         // Removing the elements from session which has been
@@ -104,17 +109,17 @@ public class AssignUserToStudyServlet extends SecureController {
             String[] columns =
                 { resword.getString("user_name"), resword.getString("first_name"), resword.getString("last_name"), resword.getString("role"),
                     resword.getString("selected"), resword.getString("notes") };
-            table.setColumns(new ArrayList(Arrays.asList(columns)));
+            table.setColumns(new ArrayList<String>(Arrays.asList(columns)));
             table.hideColumnLink(3);
             table.hideColumnLink(4);
             table.hideColumnLink(5);
-            table.setQuery("AssignUserToStudy", new HashMap());
+            table.setQuery("AssignUserToStudy", new HashMap<>());
             table.setRows(allRows);
             table.computeDisplay();
 
             request.setAttribute("table", table);
             // request.setAttribute("studyUsers", users);
-            ArrayList roles = Role.toArrayList();
+            ArrayList<Role> roles = Role.toArrayList();
             if (currentStudy.getParentStudyId() > 0) {
                 roles.remove(Role.COORDINATOR);
                 roles.remove(Role.STUDYDIRECTOR);
@@ -132,12 +137,13 @@ public class AssignUserToStudyServlet extends SecureController {
         }
     }
 
-    private void addUser(ArrayList users) throws Exception {
+    @SuppressWarnings("deprecation")
+	private void addUser(ArrayList<UserAccountBean> users) throws Exception {
         String pageMass = "";
         UserAccountDAO udao = new UserAccountDAO(sm.getDataSource());
         FormProcessor fp = new FormProcessor(request);
-        Map tmpSelectedUsersMap = (HashMap) session.getAttribute("tmpSelectedUsersMap");
-        Set addedUsers = new HashSet();
+        Map<Integer, Integer> tmpSelectedUsersMap = asHashMap(session.getAttribute("tmpSelectedUsersMap"), Integer.class, Integer.class);
+        Set<Integer> addedUsers = new HashSet<>();
         boolean continueLoop = true;
         for (int i = 0; i < users.size()&& continueLoop; i++) {
             int id = fp.getInt("id" + i);
@@ -149,7 +155,7 @@ public class AssignUserToStudyServlet extends SecureController {
             String checked = fp.getString("selected" + i);
             // logger.info("selected:" + checked);
             
-            if (!StringUtil.isBlank(checked) && "yes".equalsIgnoreCase(checked.trim())) {
+            if (!(checked == null || checked.trim().isEmpty()) && "yes".equalsIgnoreCase(checked.trim())) {
                 logger.info("one user selected");
                 UserAccountBean u = new UserAccountBean();
                 u.setId(id);
@@ -158,6 +164,12 @@ public class AssignUserToStudyServlet extends SecureController {
                 u.setName(name);
                 u.setEmail(email);
                 u.setActiveStudyId(ub.getActiveStudyId());
+                /* TODO setOwner is not compatible to UserAccountDao.findById (returns UserAccount), 
+                 * but it is compatible to UserAccountDAO.findByPK (returns UserAccountBean), 
+                 * there is already an instance variable userDaoDomain (of type UserAccountDao) 
+                 * for SecureController and to me it does not seem to be a good solution to add an 
+                 * instance variable of type UserAccountDAO additionally  
+                 */
                 u.setOwnerId(id);
                 addedUsers.add(id);
 
@@ -182,26 +194,31 @@ public class AssignUserToStudyServlet extends SecureController {
                 }
             }
         }
-      //  if(!continueLoop) forwardPage(Page.STUDY_USER_LIST);
         
         /* Assigning users which might have been selected during list navigation */
         if (tmpSelectedUsersMap != null) {// try to fix the null pointer
             // exception
-            for (Iterator iterator = tmpSelectedUsersMap.keySet().iterator(); iterator.hasNext();) {
-                int id = (Integer) iterator.next();
-                int roleId = (Integer) tmpSelectedUsersMap.get(id);
+            for (Integer idSelected : tmpSelectedUsersMap.keySet()) {
+                int roleId = tmpSelectedUsersMap.get(idSelected);
                 boolean alreadyAdded = false;
-                for (Iterator it = addedUsers.iterator(); it.hasNext();) {
-                    if (id == (Integer) it.next()) {
+                for (Integer idAdded : addedUsers) {
+                    if (idSelected == idAdded) {
                         alreadyAdded = true;
+                        break;
                     }
                 }
                 if (!alreadyAdded) {
                     UserAccountBean u = new UserAccountBean();
-                    u.setId(id);
-                    u.setName(udao.findByPK(id).getName());
+                    u.setId(idSelected);
+                    u.setName(udao.findByPK(idSelected).getName());
                     u.setActiveStudyId(ub.getActiveStudyId());
-                    u.setOwnerId(id);
+                    /* TODO setOwner is not compatible to UserAccountDao.findById (returns UserAccount), 
+                     * but it is compatible to UserAccountDAO.findByPK (returns UserAccountBean), 
+                     * there is already an instance variable userDaoDomain (of type UserAccountDao) 
+                     * for SecureController and to me it does not seem to be a good solution to add an 
+                     * instance variable of type UserAccountDAO additionally  
+                     */
+                    u.setOwnerId(idSelected);
 
                     StudyUserRoleBean sub = new StudyUserRoleBean();
                     sub.setRoleName(Role.get(roleId).getName());
@@ -222,9 +239,8 @@ public class AssignUserToStudyServlet extends SecureController {
             addPageMessage(pageMass);
         }
 
-        ArrayList pageMessages = (ArrayList) request.getAttribute(PAGE_MESSAGE);
+        ArrayList <String> pageMessages =  asArrayList(request.getAttribute(SecureController.PAGE_MESSAGE), String.class);
         session.setAttribute("pageMessages", pageMessages);
-        // tbh #3936 07/2009
         if (currentStudy.getParentStudyId() == 0) {
             response.sendRedirect(request.getContextPath() + Page.MANAGE_STUDY_MODULE.getFileName());
         } else {
@@ -232,7 +248,6 @@ public class AssignUserToStudyServlet extends SecureController {
             // module
             forwardPage(Page.LIST_USER_IN_STUDY_SERVLET);
         }
-        // << tbh
 
     }
 
@@ -241,10 +256,10 @@ public class AssignUserToStudyServlet extends SecureController {
      * 
      * @return
      */
-    private ArrayList findUsers() {
+    private ArrayList<UserAccountBean> findUsers() {
         UserAccountDAO udao = new UserAccountDAO(sm.getDataSource());
-        ArrayList userList = (ArrayList) udao.findAll();
-        ArrayList userAvailable = new ArrayList();
+        ArrayList<UserAccountBean> userList = udao.findAll();
+        ArrayList<UserAccountBean> userAvailable = new ArrayList<>();
         for (int i = 0; i < userList.size(); i++) {
             UserAccountBean u = (UserAccountBean) userList.get(i);
             int activeStudyId = currentStudy.getId();
@@ -255,8 +270,6 @@ public class AssignUserToStudyServlet extends SecureController {
                 u.setActiveStudyId(activeStudyId);
                 u.addRole(sub);
                 u.setStatus(Status.AVAILABLE);
-                // logger.info("\n activeStudyRole:" +
-                // u.getActiveStudyRole().getName());
 
                 // try to find whether this user has role in site or parent
                 if (currentStudy.getParentStudyId() > 0) {// this is a site
@@ -268,7 +281,7 @@ public class AssignUserToStudyServlet extends SecureController {
                 } else {
                     // find all the sites for this top study
                     StudyDAO sdao = new StudyDAO(sm.getDataSource());
-                    ArrayList sites = (ArrayList) sdao.findAllByParent(currentStudy.getId());
+                    ArrayList<StudyBean> sites = sdao.findAllByParent(currentStudy.getId());
                     String notes = "";
                     for (int j = 0; j < sites.size(); j++) {
                         StudyBean site = (StudyBean) sites.get(j);
@@ -308,11 +321,6 @@ public class AssignUserToStudyServlet extends SecureController {
                         + " under the Study " + currentStudy.getParentStudyName() +" "
                         + resword.getString("as") + " \"" + sub.getRole().getDescription() + "\". ";
         }
-//        boolean emailSent = sendEmail(u.getEmail().trim(), respage.getString("new_user_added_to_study"), body, false);
-//        if (emailSent) {
-//            sendEmail(ub.getEmail().trim(), EmailEngine.getAdminEmail(), respage.getString("new_user_added_to_study"), body, false,"","", false);
-//            sendEmail(EmailEngine.getAdminEmail(), EmailEngine.getAdminEmail(), respage.getString("new_user_added_to_study"), body, false,"","", false);
-//        }
 
         return body;
 

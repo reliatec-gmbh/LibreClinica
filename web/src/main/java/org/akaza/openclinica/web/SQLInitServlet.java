@@ -38,7 +38,11 @@ import org.akaza.openclinica.domain.technicaladmin.ConfigurationBean;
  */
 public class SQLInitServlet extends HttpServlet {
 
-    private ServletContext context;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 2095124452774392835L;
+	private ServletContext context;
     private static Properties params = new Properties();
     private static Properties entParams = new Properties();
 
@@ -101,7 +105,7 @@ public class SQLInitServlet extends HttpServlet {
     /**
      * Gets a field value from properties by its key name
      *
-     * @param key
+     * @param key properties kie
      * @return String The value of field
      */
     public static String getField(String key) {
@@ -125,7 +129,7 @@ public class SQLInitServlet extends HttpServlet {
     /**
      * Gets a field value by its key name from the enterprise.properties file
      *
-     * @param key
+     * @param key properties key
      * @return String The value of field
      */
     public static String getEnterpriseField(String key) {
@@ -141,12 +145,7 @@ public class SQLInitServlet extends HttpServlet {
      * The only reason why this is done this way is for unit testing
      * to work properly.
      *
-     * EntityDAO uses SQLInitServlet.getDBName().equals("oracle") , This works
-     * fine in the Servlet environment because of this class but in a unit test
-     * it does not
-     *
      * @author Krikor Krumlian the return portion
-     *
      */
     public static String getDBName() {
         String name = params.getProperty("dataBase");
@@ -179,10 +178,11 @@ public class SQLInitServlet extends HttpServlet {
 
     /**
      * Overrides a configuration in a properties file with a value read from the database.
-     * @param configurationDao
-     * @param propertyNameInDatabase
-     * @param properties
-     * @param propertyNameInProperties
+     * 
+     * @param configurationDao configuration DAO
+     * @param propertyNameInDatabase property name in database
+     * @param properties properties
+     * @param propertyNameInProperties property name in properites
      */
     private void overridePropertyFromDatabase(ConfigurationDao configurationDao, String propertyNameInDatabase,
                                               Properties properties, String propertyNameInProperties) {

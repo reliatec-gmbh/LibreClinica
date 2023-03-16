@@ -14,7 +14,11 @@ import org.akaza.openclinica.bean.core.AuditableEntityBean;
  *
  */
 public class SubjectGroupMapBean extends AuditableEntityBean {
-    // subject_group_map_id serial NOT NULL,
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1239732103175932301L;
+	// subject_group_map_id serial NOT NULL,
     // study_group_class_id numeric,
     // study_subject_id numeric,
     // study_group_id numeric,

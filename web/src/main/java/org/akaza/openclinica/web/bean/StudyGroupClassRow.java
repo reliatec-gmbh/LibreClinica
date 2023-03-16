@@ -17,7 +17,7 @@ import java.util.ArrayList;
  * TODO To change the template for this generated type comment go to Window -
  * Preferences - Java - Code Style - Code Templates
  */
-public class StudyGroupClassRow extends EntityBeanRow {
+public class StudyGroupClassRow extends EntityBeanRow<StudyGroupClassBean, StudyGroupClassRow> {
     // columns:
     public static final int COL_NAME = 0;
     public static final int COL_TYPE = 1;
@@ -31,13 +31,13 @@ public class StudyGroupClassRow extends EntityBeanRow {
      *      int)
      */
     @Override
-    protected int compareColumn(Object row, int sortingColumn) {
+    protected int compareColumn(StudyGroupClassRow row, int sortingColumn) {
         if (!row.getClass().equals(StudyGroupClassRow.class)) {
             return 0;
         }
 
-        StudyGroupClassBean thisStudy = (StudyGroupClassBean) bean;
-        StudyGroupClassBean argStudy = (StudyGroupClassBean) ((StudyGroupClassRow) row).bean;
+        StudyGroupClassBean thisStudy = bean;
+        StudyGroupClassBean argStudy = row.bean;
 
         int answer = 0;
         switch (sortingColumn) {
@@ -70,15 +70,12 @@ public class StudyGroupClassRow extends EntityBeanRow {
      * @see org.akaza.openclinica.core.EntityBeanRow#generatRowsFromBeans(java.util.ArrayList)
      */
     @Override
-    public ArrayList generatRowsFromBeans(ArrayList beans) {
+    public ArrayList<StudyGroupClassRow> generatRowsFromBeans(ArrayList<StudyGroupClassBean> beans) {
         return StudyGroupClassRow.generateRowsFromBeans(beans);
     }
 
-    public static ArrayList generateRowsFromBeans(ArrayList beans) {
-        ArrayList answer = new ArrayList();
-
-        Class[] parameters = null;
-        Object[] arguments = null;
+    public static ArrayList<StudyGroupClassRow> generateRowsFromBeans(ArrayList<StudyGroupClassBean> beans) {
+        ArrayList<StudyGroupClassRow> answer = new ArrayList<>();
 
         for (int i = 0; i < beans.size(); i++) {
             try {

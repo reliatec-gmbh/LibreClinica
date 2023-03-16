@@ -22,7 +22,11 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
 import java.util.ArrayList;
 
 public class ViewUserAccountServlet extends SecureController {
-    public static final String PATH = "ViewUserAccount";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 2096237550544873731L;
+	public static final String PATH = "ViewUserAccount";
     public static final String ARG_USER_ID = "userId";
 
     public static String getLink(int userId) {
@@ -112,7 +116,7 @@ public class ViewUserAccountServlet extends SecureController {
         UserAccountBean answer = (UserAccountBean) udao.findByPK(id);
         StudyDAO sdao = new StudyDAO(sm.getDataSource());
 
-        ArrayList roles = answer.getRoles();
+        ArrayList<StudyUserRoleBean> roles = answer.getRoles();
 
         for (int i = 0; i < roles.size(); i++) {
             StudyUserRoleBean sur = (StudyUserRoleBean) roles.get(i);

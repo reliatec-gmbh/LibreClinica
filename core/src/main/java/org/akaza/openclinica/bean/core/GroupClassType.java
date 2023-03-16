@@ -10,6 +10,7 @@ package org.akaza.openclinica.bean.core;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Type safe enumeration of study group types
@@ -20,7 +21,11 @@ import java.util.List;
 // Internationalized name and description in Term.getName and
 // Term.getDescription()
 public class GroupClassType extends Term {
-    public static final GroupClassType INVALID = new GroupClassType(0, "invalid");
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 7593727578100651577L;
+	public static final GroupClassType INVALID = new GroupClassType(0, "invalid");
     public static final GroupClassType ARM = new GroupClassType(1, "Arm");
 
     public static final GroupClassType FAMILY = new GroupClassType(2, "Family/Pedigree");
@@ -31,7 +36,7 @@ public class GroupClassType extends Term {
 
     private static final GroupClassType[] members = { ARM, FAMILY, DEMOGRAPHIC, OTHER };
 
-    public static final List list = Arrays.asList(members);
+    public static final List<GroupClassType> list = Arrays.asList(members);
 
     private GroupClassType(int id, String name) {
         super(id, name);
@@ -45,13 +50,14 @@ public class GroupClassType extends Term {
     }
 
     public static GroupClassType get(int id) {
-        Term t = Term.get(id, list);
-
-        if (!t.isActive()) {
-            return INVALID;
-        } else {
-            return (GroupClassType) t;
-        }
+    	Optional<GroupClassType> optional = list.stream().filter(t -> new Term(id, "").equals(t)).findFirst();
+    	GroupClassType result = optional.orElse(new GroupClassType());
+    	
+    	if(!result.isActive()) {
+    		return INVALID;
+    	} else {
+    		return result;
+    	}
     }
 
     public static boolean findByName(String name) {
@@ -74,8 +80,8 @@ public class GroupClassType extends Term {
         return GroupClassType.INVALID;
     }
 
-    public static ArrayList toArrayList() {
-        return new ArrayList(list);
+    public static ArrayList<GroupClassType> toArrayList() {
+        return new ArrayList<GroupClassType>(list);
     }
 
 }

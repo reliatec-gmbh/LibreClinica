@@ -24,7 +24,11 @@ import javax.persistence.Table;
 @Table(name = "measurement_unit")
 @GenericGenerator(name = "id-generator", strategy = "native", parameters = { @Parameter(name = "sequence_name", value = "measurement_unit_measurement_unit_id") })
 public class MeasurementUnit extends AbstractMutableDomainObject {
-    private String name;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8859073963987251591L;
+	private String name;
     private String description;
     private String ocOid;
 

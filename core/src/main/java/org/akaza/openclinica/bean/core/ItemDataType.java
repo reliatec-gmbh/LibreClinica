@@ -9,6 +9,7 @@ package org.akaza.openclinica.bean.core;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * BL - Boolean
@@ -37,7 +38,11 @@ import java.util.List;
 
 // Internationalized description in Term.getDescription()
 public class ItemDataType extends Term {
-    public static final ItemDataType INVALID = new ItemDataType(0, "invalid", "Invalid_Type");
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8264124183770114374L;
+	public static final ItemDataType INVALID = new ItemDataType(0, "invalid", "Invalid_Type");
     public static final ItemDataType BL = new ItemDataType(1, "bl", "Boolean");
 
     public static final ItemDataType BN = new ItemDataType(2, "bln", "Boolean_Non_Null");
@@ -59,7 +64,7 @@ public class ItemDataType extends Term {
 
     private static final ItemDataType[] members = { BL, BN, ED, TEL, ST, INTEGER, REAL, SET, DATE, PDATE, FILE };
 
-    public static final List list = Arrays.asList(members);
+    public static final List<ItemDataType> list = Arrays.asList(members);
 
     private ItemDataType(int id, String name, String description) {
         super(id, name, description);
@@ -73,7 +78,8 @@ public class ItemDataType extends Term {
     }
 
     public static ItemDataType get(int id) {
-        return (ItemDataType) Term.get(id, list);
+    	Optional<ItemDataType> o = list.stream().filter(r -> r.getId() == id).findFirst();
+    	return o.orElse(new ItemDataType());
     }
 
     public static ItemDataType getByName(String name) {

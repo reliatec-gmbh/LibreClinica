@@ -7,6 +7,10 @@
  */
 package org.akaza.openclinica.control.managestudy;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+
 import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.core.Status;
@@ -22,9 +26,7 @@ import org.akaza.openclinica.bean.submit.EventCRFBean;
 import org.akaza.openclinica.bean.submit.ItemDataBean;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
-import org.akaza.openclinica.core.EmailEngine;
 import org.akaza.openclinica.dao.admin.CRFDAO;
-import org.akaza.openclinica.dao.core.CoreResources;
 import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDAO;
@@ -33,16 +35,8 @@ import org.akaza.openclinica.dao.managestudy.StudySubjectDAO;
 import org.akaza.openclinica.dao.submit.CRFVersionDAO;
 import org.akaza.openclinica.dao.submit.EventCRFDAO;
 import org.akaza.openclinica.dao.submit.ItemDataDAO;
-import org.akaza.openclinica.service.pmanage.Authorization;
-import org.akaza.openclinica.service.pmanage.ParticipantPortalRegistrar;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
-
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 
 /**
  * @author jxu
@@ -51,6 +45,11 @@ import java.util.HashMap;
  */
 public class RemoveStudyEventServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1651245666702474675L;
+
+	/**
      *
      */
     @Override
@@ -115,10 +114,10 @@ public class RemoveStudyEventServlet extends SecureController {
 
                 EventDefinitionCRFDAO edcdao = new EventDefinitionCRFDAO(sm.getDataSource());
                 // find all crfs in the definition
-                ArrayList eventDefinitionCRFs = (ArrayList) edcdao.findAllByEventDefinitionId(study, sed.getId());
+                ArrayList<EventDefinitionCRFBean> eventDefinitionCRFs = edcdao.findAllByEventDefinitionId(study, sed.getId());
 
                 EventCRFDAO ecdao = new EventCRFDAO(sm.getDataSource());
-                ArrayList eventCRFs = ecdao.findAllByStudyEvent(event);
+                ArrayList<EventCRFBean> eventCRFs = ecdao.findAllByStudyEvent(event);
 
                 // construct info needed on view study event page
                 DisplayStudyEventBean de = new DisplayStudyEventBean();
@@ -140,7 +139,7 @@ public class RemoveStudyEventServlet extends SecureController {
                 // remove all event crfs
                 EventCRFDAO ecdao = new EventCRFDAO(sm.getDataSource());
 
-                ArrayList eventCRFs = ecdao.findAllByStudyEvent(event);
+                ArrayList<EventCRFBean> eventCRFs = ecdao.findAllByStudyEvent(event);
 
                 ItemDataDAO iddao = new ItemDataDAO(sm.getDataSource());
                 for (int k = 0; k < eventCRFs.size(); k++) {
@@ -151,7 +150,7 @@ public class RemoveStudyEventServlet extends SecureController {
                         eventCRF.setUpdatedDate(new Date());
                         ecdao.update(eventCRF);
                         // remove all the item data
-                        ArrayList itemDatas = iddao.findAllByEventCRFId(eventCRF.getId());
+                        ArrayList<ItemDataBean> itemDatas = iddao.findAllByEventCRFId(eventCRF.getId());
                         for (int a = 0; a < itemDatas.size(); a++) {
                             ItemDataBean item = (ItemDataBean) itemDatas.get(a);
                             if (!item.getStatus().equals(Status.DELETED)) {
@@ -187,13 +186,13 @@ public class RemoveStudyEventServlet extends SecureController {
      *            The list of event definition CRFs for this study event.
      * @return The list of DisplayEventCRFBeans for this study event.
      */
-    private ArrayList getDisplayEventCRFs(ArrayList eventCRFs, ArrayList eventDefinitionCRFs) {
-        ArrayList answer = new ArrayList();
+    private ArrayList<DisplayEventCRFBean> getDisplayEventCRFs(ArrayList<EventCRFBean> eventCRFs, ArrayList<EventDefinitionCRFBean> eventDefinitionCRFs) {
+        ArrayList<DisplayEventCRFBean> answer = new ArrayList<>();
 
-        HashMap definitionsById = new HashMap();
+        HashMap<Integer, EventDefinitionCRFBean> definitionsById = new HashMap<>();
         int i;
         for (i = 0; i < eventDefinitionCRFs.size(); i++) {
-            EventDefinitionCRFBean edc = (EventDefinitionCRFBean) eventDefinitionCRFs.get(i);
+            EventDefinitionCRFBean edc = eventDefinitionCRFs.get(i);
             definitionsById.put(new Integer(edc.getStudyEventDefinitionId()), edc);
         }
 
@@ -202,7 +201,7 @@ public class RemoveStudyEventServlet extends SecureController {
         CRFVersionDAO cvdao = new CRFVersionDAO(sm.getDataSource());
 
         for (i = 0; i < eventCRFs.size(); i++) {
-            EventCRFBean ecb = (EventCRFBean) eventCRFs.get(i);
+            EventCRFBean ecb = eventCRFs.get(i);
 
             // populate the event CRF with its crf bean
             int crfVersionId = ecb.getCRFVersionId();
@@ -226,18 +225,4 @@ public class RemoveStudyEventServlet extends SecureController {
 
         return answer;
     }
-
-    /**
-     * Send email to director and administrator
-     *
-     */
-    private void sendEmail(String emailBody) throws Exception {
-
-        logger.info("Sending email...");
-        // to study director
-        sendEmail(ub.getEmail().trim(), respage.getString("remove_event_from_study"), emailBody, false);
-        sendEmail(EmailEngine.getAdminEmail(), respage.getString("remove_event_from_study"), emailBody, false, false);
-        logger.info("Sending email done..");
-    }
-
 }

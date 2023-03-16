@@ -14,6 +14,7 @@ package org.akaza.openclinica.control.form;
  * Time: 7:37:05 PM
  * To change this template use File | Settings | File Templates.
  */
+// TODO duplicate of the version in the web module?
 public class EanCheckDigit {
 
     private static final int[] POSITION_WEIGHT = new int[] {3, 1};

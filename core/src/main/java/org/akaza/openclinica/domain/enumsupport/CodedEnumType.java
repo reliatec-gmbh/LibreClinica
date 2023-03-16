@@ -7,16 +7,6 @@
  */
 package org.akaza.openclinica.domain.enumsupport;
 
-import org.hibernate.Hibernate;
-import org.hibernate.HibernateException;
-import org.hibernate.engine.spi.SharedSessionContractImplementor;
-import org.hibernate.type.IntegerType;
-import org.hibernate.usertype.EnhancedUserType;
-import org.hibernate.usertype.ParameterizedType;
-import org.hibernate.internal.util.ReflectHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -24,6 +14,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Properties;
+
+import org.hibernate.HibernateException;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
+import org.hibernate.internal.util.ReflectHelper;
+import org.hibernate.type.IntegerType;
+import org.hibernate.usertype.EnhancedUserType;
+import org.hibernate.usertype.ParameterizedType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -42,10 +41,11 @@ public class CodedEnumType implements EnhancedUserType, ParameterizedType {
     private Class<CodedEnum> enumClass;
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "deprecation" })
     public void setParameterValues(Properties parameters) {
         String enumClassName = parameters.getProperty("enumClassname");
         try {
+        	// TODO replace deprecated class/method
             enumClass = ReflectHelper.classForName(enumClassName);
         } catch (ClassNotFoundException cnfe) {
             throw new HibernateException("Enum class not found", cnfe);

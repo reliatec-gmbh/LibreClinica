@@ -3,7 +3,8 @@
 /* general style propertyies */
 
 body.login_BG {}
-
+/*
+the following classes have been moved to styles.css
 div.login_BG {padding-top: 117px; }
 
 #logo { background: url(../images/login_logo.png) no-repeat top left; width: 428px; height: 112px; }
@@ -27,3 +28,5 @@ div.login_BG {padding-top: 117px; }
 .loginBox li { margin-bottom: 13px; }
 
 .footer { background-image: url(../images/login_footer_BG.gif); }
+
+*/

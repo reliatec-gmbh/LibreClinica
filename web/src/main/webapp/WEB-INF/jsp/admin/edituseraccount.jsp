@@ -34,8 +34,6 @@
   </tr>
 <jsp:include page="../include/sideInfo.jsp"/>
 
-
-
 <jsp:useBean scope='session' id='userBean' class='org.akaza.openclinica.bean.login.UserAccountBean'/>
 <jsp:useBean scope='request' id='presetValues' class='java.util.HashMap' />
 <jsp:useBean scope='request' id='userTypes' class='java.util.ArrayList' />
@@ -47,6 +45,7 @@
 <c:set var="userTypeId" value="${0}" />
 <c:set var="resetPassword" value="${0}" />
 <c:set var="displayPwd" value="no" />
+<c:set var="authtype" value="" />
 
 <c:forEach var="presetValue" items="${presetValues}">
     <c:if test='${presetValue.key == "firstName"}'>
@@ -79,7 +78,9 @@
     <c:if test='${presetValue.key == "ldapUser"}'>
         <c:set var="ldapUser" value="${presetValue.value}" />
     </c:if>
-    
+    <c:if test='${presetValue.key == "authtype"}'>
+        <c:set var="authtype" value="${presetValue.value}" />
+    </c:if>
 </c:forEach>
 <script type="text/JavaScript" language="JavaScript">
   <!--
@@ -229,42 +230,65 @@
             </table>
         </td>
     </tr>
-    
-    <c:if test="${not ldapUser}">
-    <tr valign="top">
-        <td class="table_header_column"><fmt:message key="can_run_web_services" bundle="${resword}"/>:</td>
+  			
+    <c:if test="${factorService.twoFactorActivated}">
+    	<td class="table_header_column"><fmt:message key="auth_type" bundle="${resword}"/>:</td>
         <td valign="top">
             <table border="0" cellpadding="0" cellspacing="0">
                 <tr>
                     <td valign="top">
-                        <input type="checkbox" name="runWebServices" id="runWebServices" value="1"
-                            <c:if test="${runWebServices != 0}">checked</c:if>
-                        >
+                    	<div class="formfieldM_BG">
+		                    <input type="radio" name="authtype" style="display:inline-block;" value="STANDARD" <c:if test="${authtype eq 'STANDARD'}">checked</c:if> /> Standard Authentication <br/>
+							<c:if test="${factorService.twoFactorActivatedLetter}">
+								<input type="radio" name="authtype" style="display:inline-block;" value="MARKED" <c:if test="${authtype eq 'MARKED'}">checked</c:if>/> Marked for 2-Factor Authentication <br/>
+							</c:if>
+							<input type="radio" name="authtype" style="display:inline-block;" value="TWO_FACTOR" <c:if test="${authtype eq 'TWO_FACTOR'}">checked</c:if>/> 2-Factor Authentication <br/>
+						</div>
                     </td>
-                    <td> </td>
+                    <td>*</td>
                 </tr>
                 <tr>
-                    <td colspan="2"><jsp:include page="../showMessage.jsp"><jsp:param name="key" value="runWebServices" /></jsp:include></td>
+                    <td colspan="2"><jsp:include page="../showMessage.jsp"><jsp:param name="key" value="auth_type" /></jsp:include></td>
                 </tr>
             </table>
         </td>
-    </tr>
+    </c:if>
     
-    <SCRIPT LANGUAGE="JavaScript">
-     function a() {
-       if (document.getElementById('resetPassword').checked){
-         <c:if test="${notifyPassword eq 'email'}">
-            document.getElementById('displayPwd0').disabled=false
-         </c:if>    
-         document.getElementById('displayPwd1').disabled=false
-       } else {
-         <c:if test="${notifyPassword eq 'email'}">
-             document.getElementById('displayPwd0').disabled=true
-         </c:if>    
-         document.getElementById('displayPwd1').disabled=true
-       }
-     }
-    </SCRIPT>
+    <c:if test="${not ldapUser}">
+	    <tr valign="top">
+	        <td class="table_header_column"><fmt:message key="can_run_web_services" bundle="${resword}"/>:</td>
+	        <td valign="top">
+	            <table border="0" cellpadding="0" cellspacing="0">
+	                <tr>
+	                    <td valign="top">
+	                        <input type="checkbox" name="runWebServices" id="runWebServices" value="1"
+	                            <c:if test="${runWebServices != 0}">checked</c:if>
+	                        >
+	                    </td>
+	                    <td> </td>
+	                </tr>
+	                <tr>
+	                    <td colspan="2"><jsp:include page="../showMessage.jsp"><jsp:param name="key" value="runWebServices" /></jsp:include></td>
+	                </tr>
+	            </table>
+	        </td>
+	    </tr>
+	    
+	    <SCRIPT LANGUAGE="JavaScript">
+	     function a() {
+	       if (document.getElementById('resetPassword').checked){
+	         <c:if test="${notifyPassword eq 'email'}">
+	            document.getElementById('displayPwd0').disabled=false
+	         </c:if>    
+	         document.getElementById('displayPwd1').disabled=false
+	       } else {
+	         <c:if test="${notifyPassword eq 'email'}">
+	             document.getElementById('displayPwd0').disabled=true
+	         </c:if>    
+	         document.getElementById('displayPwd1').disabled=true
+	       }
+	     }
+	    </SCRIPT>
     <tr>
         <td colspan=2 class="table_header_column">
             <input type="checkbox" name="resetPassword" id="resetPassword" value="1"

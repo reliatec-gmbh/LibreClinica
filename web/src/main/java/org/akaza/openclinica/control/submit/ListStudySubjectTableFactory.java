@@ -261,7 +261,7 @@ public class ListStudySubjectTableFactory extends AbstractTableFactory {
             }
             SubjectGroupMapBean subjectGroupMapBean;
             for (StudyGroupClassBean studyGroupClass : getStudyGroupClasses()) {
-                subjectGroupMapBean = getSubjectGroupMapDAO().findAllByStudySubjectAndStudyGroupClass(studySubjectBean.getId(), studyGroupClass.getId());
+                subjectGroupMapBean = getSubjectGroupMapDAO().findByStudySubjectAndStudyGroupClass(studySubjectBean.getId(), studyGroupClass.getId());
                 if (null != subjectGroupMapBean) {
                     theItem.put("sgc_" + studyGroupClass.getId(), subjectGroupMapBean.getStudyGroupId());
                     theItem.put("grpName_sgc_" + studyGroupClass.getId(), subjectGroupMapBean.getStudyGroupName());
@@ -320,7 +320,6 @@ public class ListStudySubjectTableFactory extends AbstractTableFactory {
         return isSignable;
     }
 
-    @SuppressWarnings("unchecked")
     private boolean eventHasRequiredUncompleteCRFs(StudyEventBean studyEventBean) {
 
         List<EventCRFBean> eventCrfBeans = new ArrayList<EventCRFBean>();
@@ -337,24 +336,6 @@ public class ListStudySubjectTableFactory extends AbstractTableFactory {
             }
         }
         return false;
-    }
-
-    private void getColumnNames() {
-        ArrayList<String> columnNamesList = new ArrayList<String>();
-        columnNamesList.add("label");
-        columnNamesList.add("status");
-        columnNamesList.add("enrolledAt");
-        columnNamesList.add("oid");
-        columnNamesList.add("subject.charGender");
-        columnNamesList.add("secondaryLabel");
-        for (StudyGroupClassBean studyGroupClass : getStudyGroupClasses()) {
-            columnNamesList.add("sgc_" + studyGroupClass.getId());
-        }
-        for (StudyEventDefinitionBean studyEventDefinition : getStudyEventDefinitions()) {
-            columnNamesList.add("sed_" + studyEventDefinition.getId());
-        }
-        columnNamesList.add("actions");
-        columnNames = columnNamesList.toArray(columnNames);
     }
 
     private void getColumnNamesMap() {
@@ -427,7 +408,6 @@ public class ListStudySubjectTableFactory extends AbstractTableFactory {
         return this.studyEventDefinitions;
     }
 
-    @SuppressWarnings("unchecked")
     private ArrayList<StudyGroupClassBean> getStudyGroupClasses() {
         if (this.studyGroupClasses == null) {
             if (studyBean.getParentStudyId() > 0) {
@@ -580,7 +560,6 @@ public class ListStudySubjectTableFactory extends AbstractTableFactory {
     public class SubjectEventStatusFilterMatcher implements FilterMatcher {
         public boolean evaluate(Object itemValue, String filterValue) {
             String item = StringUtils.lowerCase(SubjectEventStatus.getSubjectEventStatusName((Integer) itemValue));
-            String filter = StringUtils.lowerCase(String.valueOf(filterValue));// .trim().replace(" ", "_");
             if (filterValue.equals(resterms.getString(item))) {
                 return true;
             }
@@ -664,51 +643,11 @@ public class ListStudySubjectTableFactory extends AbstractTableFactory {
             return groupName != null ? groupName : "";
         }
 
-        public Object getValue(Object item, String property, int rowcount) {
+        @SuppressWarnings("unchecked")
+		public Object getValue(Object item, String property, int rowcount) {
             groupName = (String) ((HashMap<Object, Object>) item).get("grpName_sgc_" + studyGroupClass.getId());
             return logic();
         }
-    }
-
-    private class StudyEventDefinitionCellEditor implements CellEditor {
-
-        StudyEventDefinitionBean studyEventDefinition;
-        StudySubjectBean studySubjectBean;
-        SubjectEventStatus subjectEventStatus;
-        List<StudyEventBean> studyEvents;
-
-        public StudyEventDefinitionCellEditor(StudyEventDefinitionBean studyEventDefinition) {
-            this.studyEventDefinition = studyEventDefinition;
-        }
-
-        @SuppressWarnings("unchecked")
-        private void logic() {
-            studyEvents = getStudyEventDAO().findAllByStudySubjectAndDefinition(studySubjectBean, studyEventDefinition);
-            if (studyEvents.size() < 1) {
-                subjectEventStatus = SubjectEventStatus.NOT_SCHEDULED;
-            } else {
-                subjectEventStatus = studyEvents.get(studyEvents.size() - 1).getSubjectEventStatus();
-
-            }
-        }
-
-        private String getCount() {
-            return studyEvents.size() < 2 ? "" : "&nbsp;&nbsp;&nbsp;x" + String.valueOf(studyEvents.size() + "");
-        }
-
-        public Object getValue(Object item, String property, int rowcount) {
-
-            studySubjectBean = (StudySubjectBean) ((HashMap<Object, Object>) item).get("studySubject");
-
-            logic();
-
-            StringBuilder url = new StringBuilder();
-            url.append("<img src='" + imageIconPaths.get(subjectEventStatus.getId()) + "' border='0' style='position: relative; left: 7px;'>");
-            url.append(getCount());
-
-            return url.toString();
-        }
-
     }
 
     private class StudyEventDefinitionMapCellEditor implements CellEditor {
@@ -955,16 +894,11 @@ public class ListStudySubjectTableFactory extends AbstractTableFactory {
         String tableHeaderRowLeftStyleClass = "table_header_row_left";
         String add_another_occurrence = resword.getString("add_another_occurrence");
         String click_for_more_options = resword.getString("click_for_more_options");
-        String schedule = resword.getString("schedule");
-        String view = resword.getString("view") + "/" + resword.getString("enter_data");
-        String edit = resword.getString("edit");
-        String remove = resword.getString("remove");
         String occurrence_x_of = resword.getString("ocurrence");
         String subjectText = resword.getString("subject");
         String eventText = resword.getString("event");
         String status = resword.getString("status");
 
-        StudyEventBean defaultEvent = studyEvents.get(0);
         String studySubjectLabel = studySubject.getLabel();
         Status eventSysStatus = studySubject.getStatus();
         Integer studyEventsSize = studyEvents.size();
@@ -1157,7 +1091,6 @@ public class ListStudySubjectTableFactory extends AbstractTableFactory {
         String status = resword.getString("status");
 
         SubjectEventStatus eventStatus = studyEvents.size() == 0 ? SubjectEventStatus.NOT_SCHEDULED : studyEvents.get(0).getSubjectEventStatus();
-        String studyEventName = studyEvents.size() == 0 ? "" : studyEvents.get(0).getName();
         String studyEventId = studyEvents.size() == 0 ? "" : String.valueOf(studyEvents.get(0).getId());
         Status eventSysStatus = studySubject.getStatus();
         String studySubjectLabel = studySubject.getLabel();

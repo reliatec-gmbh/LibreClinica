@@ -20,6 +20,11 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
  */
 public abstract class ChangeOrdinalServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = -8449306173274291659L;
+
+	/**
      * Checks whether the user has the correct privilege
      */
     @Override

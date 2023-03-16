@@ -7,25 +7,20 @@
  */
 package org.akaza.openclinica.control.admin;
 
+import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
 import org.akaza.openclinica.bean.core.ApplicationConstants;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 public final class SpreadsheetPreviewNw implements Preview {
     public static final String ITEMS = "Items";
@@ -56,10 +51,11 @@ public final class SpreadsheetPreviewNw implements Preview {
      * are items, sections, groups, and crf_info. Here is an example return value: groups: {1={group_repeat_number=1.0, group_header=, group_layout=Horizontal,
      * group_repeat_array=, group_row_start_number=2.0, group_sub_header=, group_label=MyGroupLabel, group_repeat_max=3.0}}
      */
-    public Map<String, Map> createCrfMetaObject(HSSFWorkbook workbook) {
+	@SuppressWarnings("rawtypes")
+	public Map<String, Map> createCrfMetaObject(HSSFWorkbook workbook) {
         if (workbook == null)
-            return new HashMap<String, Map>();
-        Map<String, Map> spreadSheetMap = new HashMap<String, Map>();
+            return new HashMap<>();
+        Map<String, Map> spreadSheetMap = new HashMap<>();
         Map<Integer, Map<String, String>> sections = createItemsOrSectionMap(workbook, SECTIONS);
         Map<Integer, Map<String, String>> items = createItemsOrSectionMap(workbook, ITEMS);
         Map<String, String> crfInfo = createCrfMap(workbook);
@@ -201,7 +197,8 @@ public final class SpreadsheetPreviewNw implements Preview {
         HSSFCell cell;
         sheet = workbook.getSheetAt(4);
         cell = sheet.getRow(1).getCell((short) 0);
-        String version = cell.getStringCellValue();
+        @SuppressWarnings("deprecation")
+		String version = cell.getStringCellValue();
         // static group headers for a CRF; TODO: change these so they are not
         // static and hard-coded
         // BWP>>remove "group_borders" column
@@ -251,7 +248,8 @@ public final class SpreadsheetPreviewNw implements Preview {
         // new SimpleDateFormat("yyyy-MM-dd").format(cell.getDateCellValue());
         switch (cell.getCellType()) {
         case HSSFCell.CELL_TYPE_STRING:
-            return cell.getStringCellValue();
+            @SuppressWarnings("deprecation") String stringCellValue = cell.getStringCellValue();
+			return stringCellValue;
         case HSSFCell.CELL_TYPE_NUMERIC:
             val = Double.toString(cell.getNumericCellValue());
             // code derived from SpreadsheetTableRepeating.java
@@ -267,24 +265,6 @@ public final class SpreadsheetPreviewNw implements Preview {
 
         }
         return "";
-    }
-
-    public static void main(String[] args) throws IOException {
-
-        // Simple3.xls , Cancer_History5.xls , Can3.xls
-        POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(new File("d:/23TestComma2.xls")));
-        HSSFWorkbook wb = new HSSFWorkbook(fs);
-        SpreadsheetPreviewNw spnw = new SpreadsheetPreviewNw();
-        // createSectionsMap createItemsMap
-        Map map = spnw.createCrfMetaObject(wb);
-        // Map map2 = spnw.createItemsOrSectionMap(wb,"items");
-        Map.Entry me;
-        for (Iterator iter = map.entrySet().iterator(); iter.hasNext();) {
-            me = (Map.Entry) iter.next();
-            Map mp = (Map) me.getValue();
-            logger.debug(me.getKey() + ": " + me.getValue());
-        }
-
     }
 
     /*
@@ -321,7 +301,8 @@ public final class SpreadsheetPreviewNw implements Preview {
 
                         switch (cell.getCellType()) {
                         case HSSFCell.CELL_TYPE_STRING:
-                            val = cell.getStringCellValue();
+                            @SuppressWarnings("deprecation") String stringCellValue = cell.getStringCellValue();
+							val = stringCellValue;
                             break;
                         case HSSFCell.CELL_TYPE_NUMERIC:
                             val = Double.toString(cell.getNumericCellValue());

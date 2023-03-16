@@ -36,10 +36,6 @@ public class ApiSecurityFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-
-        System.out.println("Oh look at you triggering API calls i see !!!!!!");
-
-
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null) {
             StringTokenizer st = new StringTokenizer(authHeader);
@@ -52,12 +48,11 @@ public class ApiSecurityFilter extends OncePerRequestFilter {
                         int p = credentials.indexOf(":");
                         if (p != -1) {
                             String _username = credentials.substring(0, p).trim();
-                            String _password = credentials.substring(p + 1).trim();
 
                             UserAccountDAO userAccountDAO = new UserAccountDAO(dataSource);
-                            UserAccountBean ub = (UserAccountBean) userAccountDAO.findByApiKey(_username);
+                            UserAccountBean ub = userAccountDAO.findByApiKey(_username);
                             if (!_username.equals("") && ub.getId() != 0) {
-                                request.getSession().setAttribute("userBean",ub);
+                                request.getSession().setAttribute("userBean", ub);
                             }else{
                                 unauthorized(response, "Bad credentials");
                                 return;

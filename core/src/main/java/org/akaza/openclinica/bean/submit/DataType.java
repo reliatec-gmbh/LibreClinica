@@ -7,12 +7,13 @@
  */
 package org.akaza.openclinica.bean.submit;
 
-import org.akaza.openclinica.bean.core.Privilege;
-import org.akaza.openclinica.bean.core.Term;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+
+import org.akaza.openclinica.bean.core.Privilege;
+import org.akaza.openclinica.bean.core.Term;
 
 /**
  * BL - Boolean
@@ -39,7 +40,11 @@ import java.util.List;
  */
 @Deprecated
 public class DataType extends Term {
-    public static final DataType INVALID = new DataType(0, "INVALID", null);
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6282835406766655030L;
+	public static final DataType INVALID = new DataType(0, "INVALID", null);
     public static final DataType BN = new DataType(1, "BN", null);
     public static final DataType ED = new DataType(2, "ED", null);
     public static final DataType TEL = new DataType(3, "TEL", null);
@@ -50,9 +55,7 @@ public class DataType extends Term {
 
     private static final DataType[] members = { BN, ED, TEL, ST, INT, REAL, SET };
 
-    public static final List list = Arrays.asList(members);
-
-    private List privileges;
+    public static final List<DataType> list = Arrays.asList(members);
 
     private DataType(int id, String name, Privilege[] myPrivs) {
         super(id, name);
@@ -66,7 +69,8 @@ public class DataType extends Term {
     }
 
     public static DataType get(int id) {
-        return (DataType) Term.get(id, list);
+    	Optional<DataType> result = list.stream().filter(t -> new Term(id, "").equals(t)).findFirst();
+    	return result.orElse(new DataType());
     }
 
     public static DataType getByName(String name) {
@@ -89,8 +93,8 @@ public class DataType extends Term {
         return false;
     }
 
-    public static ArrayList toArrayList() {
-        return new ArrayList(list);
+    public static ArrayList<DataType> toArrayList() {
+        return new ArrayList<DataType>(list);
     }
 
     @Override

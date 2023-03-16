@@ -7,6 +7,18 @@
  */
 package org.akaza.openclinica.control.managestudy;
 
+import static org.akaza.openclinica.core.util.ClassCastHelper.asArrayList;
+import static org.akaza.openclinica.core.util.ClassCastHelper.asHashMap;
+import static org.akaza.openclinica.core.util.ClassCastHelper.getAsType;
+
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.core.NullValue;
 import org.akaza.openclinica.bean.core.NumericComparisonOperator;
@@ -19,34 +31,18 @@ import org.akaza.openclinica.control.SpringServletAccess;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.control.form.Validator;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.admin.CRFDAO;
-import org.akaza.openclinica.dao.core.CoreResources;
 import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;
-import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDefinitionDAO;
 import org.akaza.openclinica.dao.service.StudyParameterValueDAO;
 import org.akaza.openclinica.dao.submit.CRFVersionDAO;
 import org.akaza.openclinica.domain.SourceDataVerification;
 import org.akaza.openclinica.service.managestudy.EventDefinitionCrfTagService;
-import org.akaza.openclinica.service.pmanage.Authorization;
-import org.akaza.openclinica.service.pmanage.ParticipantPortalRegistrar;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.akaza.openclinica.web.bean.CRFRow;
 import org.akaza.openclinica.web.bean.EntityBeanTable;
 import org.apache.commons.lang.StringUtils;
-
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 /**
  * @author jxu
@@ -54,7 +50,11 @@ import java.util.Map;
  * Defines a new study event
  */
 public class DefineStudyEventServlet extends SecureController {
-    EventDefinitionCrfTagService eventDefinitionCrfTagService = null;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -4421505680553105618L;
+	EventDefinitionCrfTagService eventDefinitionCrfTagService = null;
 
     /**
      * Checks whether the user has the correct privilege
@@ -87,21 +87,17 @@ public class DefineStudyEventServlet extends SecureController {
      */
     @Override
     public void processRequest() throws Exception {
-        FormProcessor fpr = new FormProcessor(request);
-        // logger.info("actionName*******" + fpr.getString("actionName"));
-        // logger.info("pageNum*******" + fpr.getString("pageNum"));
-
         String actionName = request.getParameter("actionName");
-        ArrayList crfsWithVersion = (ArrayList) session.getAttribute("crfsWithVersion");
+        ArrayList<CRFBean> crfsWithVersion = asArrayList(session.getAttribute("crfsWithVersion"), CRFBean.class);
         if (crfsWithVersion == null) {
-            crfsWithVersion = new ArrayList();
+            crfsWithVersion = new ArrayList<>();
             CRFDAO cdao = new CRFDAO(sm.getDataSource());
             CRFVersionDAO cvdao = new CRFVersionDAO(sm.getDataSource());
-            ArrayList crfs = (ArrayList) cdao.findAllByStatus(Status.AVAILABLE);
+            ArrayList<CRFBean> crfs = cdao.findAllByStatus(Status.AVAILABLE);
 
             for (int i = 0; i < crfs.size(); i++) {
                 CRFBean crf = (CRFBean) crfs.get(i);
-                ArrayList versions = cvdao.findAllByCRFId(crf.getId());
+                ArrayList<CRFVersionBean> versions = cvdao.findAllByCRFId(crf.getId());
                 if (!versions.isEmpty()) {
                     crfsWithVersion.add(crf);
                 }
@@ -109,7 +105,7 @@ public class DefineStudyEventServlet extends SecureController {
             }
             session.setAttribute("crfsWithVersion", crfsWithVersion);
         }
-        if (StringUtil.isBlank(actionName)) {
+        if (actionName == null || actionName.trim().isEmpty()) {
             StudyEventDefinitionBean sed = new StudyEventDefinitionBean();
             sed.setStudyId(currentStudy.getId());
             session.setAttribute("definition", sed);
@@ -131,19 +127,9 @@ public class DefineStudyEventServlet extends SecureController {
                             forwardPage(Page.LIST_DEFINITION_SERVLET);
                         } else if (nextAction.intValue() == 2) {
                             submitDefinition();
-                            //forwardPage(Page.LIST_DEFINITION_SERVLET);
-                            ArrayList pageMessages = (ArrayList) request.getAttribute(PAGE_MESSAGE);
-                            session.setAttribute("pageMessages", pageMessages);
+                            ArrayList<String> pageMessages = asArrayList(request.getAttribute(PAGE_MESSAGE), String.class);
+                            session.setAttribute(PAGE_MESSAGE, pageMessages);
                             response.sendRedirect(request.getContextPath() + Page.MANAGE_STUDY_MODULE.getFileName());
-                            //forwardPage(Page.MANAGE_STUDY_MODULE);
-//                            request.getRequestDispatcher("/pages/studymodule").forward(request, response);
-//                            org.akaza.openclinica.service.sdv.SDVUtil sdvUtil = new org.akaza.openclinica.service.sdv.SDVUtil();
-//                            sdvUtil.forwardRequestFromController(request,response,"http://localhost:8080/OpenClinica-SNAPSHOT/pages/studymodule");
-
-                            //This last part is necessary because the compiler will complain about the return;
-                            //statement in the absence of the "if" [the following statements are "reachable"]
-//                            boolean redir = "y".equalsIgnoreCase((String)request.getParameter("r"));
-//                            if(redir)  { return;}
                         } else {
                             logger.debug("actionName ==> 3");
                             submitDefinition();
@@ -209,26 +195,22 @@ public class DefineStudyEventServlet extends SecureController {
 
         if (errors.isEmpty()) {
             logger.debug("no errors in the first section");
-            // logger.debug("actionName*******" + fp.getString("actionName"));
-            //debugger.debug("pageNum*******" + fp.getString("pageNum"));
-            CRFVersionDAO vdao = new CRFVersionDAO(sm.getDataSource());
-            ArrayList crfArray = new ArrayList();
             /*
              * The tmpCRFIdMap will hold all the selected CRFs in the session
              * when the user is navigating through the list. This has been done
              * so that when the user moves to the next page of CRF list, the
              * selection made in the previous page doesn't get lost.
              */
-            Map tmpCRFIdMap = (HashMap) session.getAttribute("tmpCRFIdMap");
+            Map<Integer, String> tmpCRFIdMap = asHashMap(session.getAttribute("tmpCRFIdMap"), Integer.class, String.class);
             if (tmpCRFIdMap == null) {
-                tmpCRFIdMap = new HashMap();
+                tmpCRFIdMap = new HashMap<>();
             }
-            ArrayList crfsWithVersion = (ArrayList) session.getAttribute("crfsWithVersion");
+            ArrayList<CRFBean> crfsWithVersion = asArrayList(session.getAttribute("crfsWithVersion"), CRFBean.class);
             for (int i = 0; i < crfsWithVersion.size(); i++) {
                 int id = fp.getInt("id" + i);
                 String name = fp.getString("name" + i);
                 String selected = fp.getString("selected" + i);
-                if (!StringUtil.isBlank(selected) && "yes".equalsIgnoreCase(selected.trim())) {
+                if (!(selected == null || selected.trim().isEmpty()) && "yes".equalsIgnoreCase(selected.trim())) {
                     tmpCRFIdMap.put(id, name);
                 } else {
                     // Removing the elements from session which has been
@@ -241,14 +223,14 @@ public class DefineStudyEventServlet extends SecureController {
             session.setAttribute("tmpCRFIdMap", tmpCRFIdMap);
 
             EntityBeanTable table = fp.getEntityBeanTable();
-            ArrayList allRows = CRFRow.generateRowsFromBeans(crfsWithVersion);
+            ArrayList<CRFRow> allRows = CRFRow.generateRowsFromBeans(crfsWithVersion);
             String[] columns =
                 { resword.getString("CRF_name"), resword.getString("date_created"), resword.getString("owner"), resword.getString("date_updated"),
                     resword.getString("last_updated_by"), resword.getString("selected") };
-            table.setColumns(new ArrayList(Arrays.asList(columns)));
+            table.setColumns(new ArrayList<String>(Arrays.asList(columns)));
             table.hideColumnLink(5);
-            StudyEventDefinitionBean def1 = (StudyEventDefinitionBean) session.getAttribute("definition");
-            HashMap args = new HashMap();
+            StudyEventDefinitionBean def1 = getAsType(session.getAttribute("definition"), StudyEventDefinitionBean.class);
+            HashMap<String, Object> args = new HashMap<>();
             args.put("actionName", "next");
             args.put("pageNum", "1");
             args.put("name", URLEncoder.encode(def1.getName(),"UTF-8"));
@@ -283,7 +265,7 @@ public class DefineStudyEventServlet extends SecureController {
         
 
         
-        ArrayList eventDefinitionCRFs = new ArrayList();
+        ArrayList<EventDefinitionCRFBean> eventDefinitionCRFs = new ArrayList<>();
         CRFVersionDAO cvdao = new CRFVersionDAO(sm.getDataSource());
         for (int i = 0; i < sed.getCrfs().size(); i++) {
             EventDefinitionCRFBean edcBean = new EventDefinitionCRFBean();
@@ -307,17 +289,14 @@ public class DefineStudyEventServlet extends SecureController {
             String allowAnonymousSubmission = fp.getString("allowAnonymousSubmission" + i);
             String submissionUrl = fp.getString("submissionUrl" + i);
             String offline = fp.getString("offline" + i);
-            
 
-            // issue 312 BWP<<
             String hiddenCrf = fp.getString("hiddenCrf" + i);
             // hideCRF is false by default in the bean
-            if (!StringUtil.isBlank(hiddenCrf) && "yes".equalsIgnoreCase(hiddenCrf.trim())) {
+            if (!(hiddenCrf == null || hiddenCrf.trim().isEmpty()) && "yes".equalsIgnoreCase(hiddenCrf.trim())) {
                 edcBean.setHideCrf(true);
             } else {
                 edcBean.setHideCrf(false);
-              }
-            // >>
+            }
             String sdvOption = fp.getString("sdvOption" + i);
             if (!StringUtils.isBlank(sdvOption)) {
                 int id = Integer.valueOf(sdvOption);
@@ -371,7 +350,7 @@ public class DefineStudyEventServlet extends SecureController {
 
             String nullString = "";
             // process null values
-            ArrayList nulls = NullValue.toArrayList();
+            ArrayList<NullValue> nulls = NullValue.toArrayList();
             for (int a = 0; a < nulls.size(); a++) {
                 NullValue n = (NullValue) nulls.get(a);
                 String myNull = fp.getString(n.getName().toLowerCase() + i);
@@ -398,7 +377,7 @@ public class DefineStudyEventServlet extends SecureController {
         request.setAttribute("eventDefinitionCRFs", eventDefinitionCRFs);
         session.setAttribute("edCRFs", eventDefinitionCRFs);// not used on page
     
-        ArrayList <EventDefinitionCRFBean>  edcsInSession = (ArrayList<EventDefinitionCRFBean>) session.getAttribute("edCRFs");
+        ArrayList <EventDefinitionCRFBean>  edcsInSession = asArrayList(session.getAttribute("edCRFs"), EventDefinitionCRFBean.class);
         int parentStudyId=sed.getStudyId();
         EventDefinitionCRFDAO edcdao = new EventDefinitionCRFDAO(sm.getDataSource());
         ArrayList <EventDefinitionCRFBean> eventDefCrfList =(ArrayList <EventDefinitionCRFBean>) edcdao.findAllActiveSitesAndStudiesPerParentStudy(parentStudyId);
@@ -466,30 +445,28 @@ public class DefineStudyEventServlet extends SecureController {
     private void confirmDefinition2() throws Exception {
         FormProcessor fp = new FormProcessor(request);
         CRFVersionDAO vdao = new CRFVersionDAO(sm.getDataSource());
-        ArrayList crfArray = new ArrayList();
-        Map tmpCRFIdMap = (HashMap) session.getAttribute("tmpCRFIdMap");
+        ArrayList<CRFBean> crfArray = new ArrayList<>();
+        Map<Integer, String> tmpCRFIdMap = asHashMap(session.getAttribute("tmpCRFIdMap"), Integer.class, String.class);
         // trying to avoid NPE not sure why we would get it there ((tmpCRFIdMap.containsKey(id))), tbh
         if (tmpCRFIdMap == null) {
-            tmpCRFIdMap = new HashMap();
+            tmpCRFIdMap = new HashMap<>();
         }
         
 
         
-        ArrayList crfsWithVersion = (ArrayList) session.getAttribute("crfsWithVersion");
+        ArrayList<CRFBean> crfsWithVersion = asArrayList(session.getAttribute("crfsWithVersion"), CRFBean.class);
         for (int i = 0; i < crfsWithVersion.size(); i++) {
             int id = fp.getInt("id" + i);
             String name = fp.getString("name" + i);
-            // String label = fp.getString("label" + i);
             String selected = fp.getString("selected" + i);
-            // logger.info("selected:" + selected);
             if (!StringUtils.isBlank(selected) && "yes".equalsIgnoreCase(selected.trim())) {
                 logger.debug("one crf selected");
                 CRFBean cb = new CRFBean();
                 cb.setId(id);
                 cb.setName(name);
 
-                // only find active verions
-                ArrayList versions = (ArrayList) vdao.findAllActiveByCRF(cb.getId());
+                // only find active versions
+                ArrayList<CRFVersionBean> versions = vdao.findAllActiveByCRF(cb.getId());
                 cb.setVersions(versions);
 
                 crfArray.add(cb);
@@ -500,12 +477,10 @@ public class DefineStudyEventServlet extends SecureController {
             }
         }
 
-        for (Iterator tmpCRFIterator = tmpCRFIdMap.keySet().iterator(); tmpCRFIterator.hasNext();) {
-            int id = (Integer) tmpCRFIterator.next();
-            String name = (String) tmpCRFIdMap.get(id);
+        for (Integer id : tmpCRFIdMap.keySet()) {
+            String name = tmpCRFIdMap.get(id);
             boolean isExists = false;
-            for (Iterator it = crfArray.iterator(); it.hasNext();) {
-                CRFBean cb = (CRFBean) it.next();
+            for (CRFBean cb : crfArray) {
                 if (id == cb.getId()) {
                     isExists = true;
                 }
@@ -516,7 +491,7 @@ public class DefineStudyEventServlet extends SecureController {
                 cb.setName(name);
 
                 // only find active verions
-                ArrayList versions = (ArrayList) vdao.findAllActiveByCRF(cb.getId());
+                ArrayList<CRFVersionBean> versions = vdao.findAllActiveByCRF(cb.getId());
                 cb.setVersions(versions);
 
                 crfArray.add(cb);
@@ -525,24 +500,20 @@ public class DefineStudyEventServlet extends SecureController {
         session.removeAttribute("tmpCRFIdMap");
         StudyParameterValueDAO spvdao = new StudyParameterValueDAO(sm.getDataSource());    
         
-        if (crfArray.size() == 0) {// no crf seleted
-            // addPageMessage("At least one CRF must be selected.");
-            // request.setAttribute("crfs", crfs);
+        if (crfArray.size() == 0) {
             addPageMessage(respage.getString("no_CRF_selected_for_definition_add_later"));
-            StudyEventDefinitionBean sed = (StudyEventDefinitionBean) session.getAttribute("definition");
-            sed.setCrfs(new ArrayList());
+            StudyEventDefinitionBean sed = getAsType(session.getAttribute("definition"), StudyEventDefinitionBean.class);
+            sed.setCrfs(new ArrayList<>());
             String participateFormStatus = spvdao.findByHandleAndStudy(sed.getStudyId(), "participantPortal").getValue();
              request.setAttribute("participateFormStatus",participateFormStatus );
             session.setAttribute("definition", sed);
-            request.setAttribute("eventDefinitionCRFs", new ArrayList());
-            session.setAttribute("edCRFs", new ArrayList());// not used on page
+            request.setAttribute("eventDefinitionCRFs", new ArrayList<>());
+            session.setAttribute("edCRFs", new ArrayList<>());
             forwardPage(Page.DEFINE_STUDY_EVENT_CONFIRM);
-            // forwardPage(Page.DEFINE_STUDY_EVENT2);
-
         } else {
             StudyEventDefinitionBean sed = (StudyEventDefinitionBean) session.getAttribute("definition");
-            sed.setCrfs(crfArray);// crfs selected by user
-            session.setAttribute("eventDefinitionCRFs", new ArrayList());
+            sed.setCrfs(crfArray);
+            session.setAttribute("eventDefinitionCRFs", new ArrayList<>());
             session.setAttribute("definition", sed);
             String participateFormStatus = spvdao.findByHandleAndStudy(sed.getStudyId(), "participantPortal").getValue();
             if (participateFormStatus.equals("enabled")) baseUrl();
@@ -575,7 +546,7 @@ public class DefineStudyEventServlet extends SecureController {
         logger.debug("Definition bean to be created:" + sed.getName() + sed.getStudyId());
 
         // fine the last one's ordinal
-        ArrayList defs = edao.findAllByStudy(currentStudy);
+        ArrayList<StudyEventDefinitionBean> defs = edao.findAllByStudy(currentStudy);
         if (defs == null || defs.isEmpty()) {
             sed.setOrdinal(1);
         } else {
@@ -591,12 +562,12 @@ public class DefineStudyEventServlet extends SecureController {
         EventDefinitionCRFDAO cdao = new EventDefinitionCRFDAO(sm.getDataSource());
         CRFDAO crfdao = new CRFDAO(sm.getDataSource());
         StudyEventDefinitionDAO seddao = new StudyEventDefinitionDAO(sm.getDataSource());
-        ArrayList eventDefinitionCRFs = new ArrayList();
+        ArrayList<EventDefinitionCRFBean> eventDefinitionCRFs = new ArrayList<>();
         if (session.getAttribute("edCRFs") != null) {
-            eventDefinitionCRFs = (ArrayList) session.getAttribute("edCRFs");
+            eventDefinitionCRFs = asArrayList(session.getAttribute("edCRFs"), EventDefinitionCRFBean.class);
         }
         for (int i = 0; i < eventDefinitionCRFs.size(); i++) {
-            EventDefinitionCRFBean edc = (EventDefinitionCRFBean) eventDefinitionCRFs.get(i);
+            EventDefinitionCRFBean edc = eventDefinitionCRFs.get(i);
             edc.setOwner(ub);
             edc.setCreatedDate(new Date());
             edc.setStatus(Status.AVAILABLE);

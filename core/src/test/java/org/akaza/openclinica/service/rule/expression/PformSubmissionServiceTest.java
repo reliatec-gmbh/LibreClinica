@@ -8,22 +8,11 @@
 
 package org.akaza.openclinica.service.rule.expression;
 
-import java.util.Locale;
-
-import javax.validation.constraints.AssertTrue;
-
 import junit.framework.TestCase;
-
 import org.akaza.openclinica.bean.submit.ItemBean;
 import org.akaza.openclinica.bean.submit.ItemDataBean;
-import org.akaza.openclinica.dao.hibernate.AuthoritiesDao;
-import org.akaza.openclinica.domain.user.AuthoritiesBean;
 import org.akaza.openclinica.service.PformSubmissionService;
-import org.akaza.openclinica.service.PformValidator;
-import org.akaza.openclinica.templates.HibernateOcDbTestCase;
 import org.springframework.validation.Errors;
-
-import static org.mockito.Mockito.*;
 
 public class PformSubmissionServiceTest extends TestCase {
 

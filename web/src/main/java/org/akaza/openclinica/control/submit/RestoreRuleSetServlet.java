@@ -75,12 +75,7 @@ public class RestoreRuleSetServlet extends SecureController {
             }
         }
     }
-
-    private RuleSetDAO getRuleSetDao() {
-        ruleSetDao = this.ruleSetDao != null ? ruleSetDao : new RuleSetDAO(sm.getDataSource());
-        return ruleSetDao;
-    }
-
+    
     private RuleSetServiceInterface getRuleSetService() {
         ruleSetService =
             this.ruleSetService != null ? ruleSetService : (RuleSetServiceInterface) SpringServletAccess.getApplicationContext(context).getBean("ruleSetService");

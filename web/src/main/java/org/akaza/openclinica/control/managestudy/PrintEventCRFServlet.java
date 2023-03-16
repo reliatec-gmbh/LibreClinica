@@ -7,6 +7,13 @@
  */
 package org.akaza.openclinica.control.managestudy;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.login.StudyUserRoleBean;
@@ -20,7 +27,6 @@ import org.akaza.openclinica.bean.submit.DisplayItemBean;
 import org.akaza.openclinica.bean.submit.DisplayItemGroupBean;
 import org.akaza.openclinica.bean.submit.DisplaySectionBean;
 import org.akaza.openclinica.bean.submit.EventCRFBean;
-import org.akaza.openclinica.bean.submit.ItemBean;
 import org.akaza.openclinica.bean.submit.ItemGroupBean;
 import org.akaza.openclinica.bean.submit.SectionBean;
 import org.akaza.openclinica.control.form.DiscrepancyValidator;
@@ -38,21 +44,17 @@ import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.view.display.DisplaySectionBeanHandler;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 /**
  * @author Shamim
  * Date: Nov 19, 2009
  * Time: 9:19:46 AM
  */
 public class PrintEventCRFServlet extends DataEntryServlet {
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -2429929031727045805L;
+	Locale locale;
 
     /**
      * Checks whether the user has the correct privilege
@@ -94,17 +96,17 @@ public class PrintEventCRFServlet extends DataEntryServlet {
             StudyEventDefinitionBean sed = (StudyEventDefinitionBean) sedao.findByPK(defId);
 
             EventDefinitionCRFDAO edao = new EventDefinitionCRFDAO(getDataSource());
-            ArrayList eventDefinitionCRFs = (ArrayList) edao.findAllByDefinition(defId);
+            ArrayList<EventDefinitionCRFBean> eventDefinitionCRFs = edao.findAllByDefinition(defId);
 
             CRFVersionDAO cvdao = new CRFVersionDAO(getDataSource());
             CRFDAO cdao = new CRFDAO(getDataSource());
-            ArrayList defaultVersions = new ArrayList();
+            ArrayList<CRFVersionBean> defaultVersions = new ArrayList<>();
 
             for (int i = 0; i < eventDefinitionCRFs.size(); i++) {
-                EventDefinitionCRFBean edc = (EventDefinitionCRFBean) eventDefinitionCRFs.get(i);
-                ArrayList versions = (ArrayList) cvdao.findAllByCRF(edc.getCrfId());
+                EventDefinitionCRFBean edc = eventDefinitionCRFs.get(i);
+                ArrayList<CRFVersionBean> versions = cvdao.findAllByCRF(edc.getCrfId());
                 edc.setVersions(versions);
-                CRFBean crf = (CRFBean) cdao.findByPK(edc.getCrfId());
+                CRFBean crf = cdao.findByPK(edc.getCrfId());
                 // edc.setCrfLabel(crf.getLabel());
                 edc.setCrfName(crf.getName());
                 // to show/hide edit action on jsp page
@@ -112,7 +114,7 @@ public class PrintEventCRFServlet extends DataEntryServlet {
                     edc.setOwner(crf.getOwner());
                 }
 
-                CRFVersionBean defaultVersion = (CRFVersionBean) cvdao.findByPK(edc.getDefaultVersionId());
+                CRFVersionBean defaultVersion = cvdao.findByPK(edc.getDefaultVersionId());
                 //There could be separate EventDefinitionCRF objects with same default version id.
                 if (defaultVersions.contains(defaultVersion)) {
                     continue;
@@ -130,18 +132,14 @@ public class PrintEventCRFServlet extends DataEntryServlet {
                 request.setAttribute("isInternetExplorer", "true");
             }
 
-            int eventDefinitionCRFId = fp.getInt("eventDefinitionCRFId");
-            // EventDefinitionCRFDao findByStudyEventIdAndCRFVersionId(int
-            // studyEventId, int crfVersionId)
             SectionDAO sdao = new SectionDAO(getDataSource());
             CRFVersionDAO crfVersionDAO = new CRFVersionDAO(getDataSource());
             CRFDAO crfDao = new CRFDAO(getDataSource());
-            ArrayList printCrfBeans = new ArrayList();
+            ArrayList<PrintCRFBean> printCrfBeans = new ArrayList<>();
 
-            for (Iterator it = defaultVersions.iterator(); it.hasNext();) {
-                allSectionBeans = new ArrayList<SectionBean>();
-                ArrayList sectionBeans = new ArrayList();
-                CRFVersionBean crfVersionBean = (CRFVersionBean) it.next();
+            for (CRFVersionBean crfVersionBean : defaultVersions) {
+                allSectionBeans = new ArrayList<>();
+                ArrayList<DisplaySectionBean> sectionBeans = new ArrayList<>();
                 // The existing application doesn't print null values, even if they are
                 // defined in the event definition
                 //            int crfVersionId = fp.getInt("id");
@@ -191,7 +189,7 @@ public class PrintEventCRFServlet extends DataEntryServlet {
                 ecb = new EventCRFBean();
            ecb.setCRFVersionId(crfVersionBean.getId());
                 CRFVersionBean version = (CRFVersionBean) crfVersionDAO.findByPK(crfVersionBean.getId());
-                ArrayList sects = (ArrayList) sdao.findByVersionId(version.getId());
+                ArrayList<SectionBean> sects = sdao.findByVersionId(version.getId());
                 for (int i = 0; i < sects.size(); i++) {
                      sb = (SectionBean) sects.get(i);
                     //super.sb = sb;
@@ -321,7 +319,6 @@ public class PrintEventCRFServlet extends DataEntryServlet {
      */
     @Override
     protected DisplayItemBean validateDisplayItemBean(DiscrepancyValidator v, DisplayItemBean dib, String inputName, HttpServletRequest request) {
-        ItemBean ib = dib.getItem();
         org.akaza.openclinica.bean.core.ResponseType rt = dib.getMetadata().getResponseSet().getResponseType();
 
         // note that this step sets us up both for

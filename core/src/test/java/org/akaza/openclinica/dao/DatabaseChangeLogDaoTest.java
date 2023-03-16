@@ -11,12 +11,7 @@ import org.akaza.openclinica.dao.hibernate.DatabaseChangeLogDao;
 import org.akaza.openclinica.domain.technicaladmin.DatabaseChangeLogBean;
 import org.akaza.openclinica.templates.HibernateOcDbTestCase;
 
-import java.util.ArrayList;
-
 public class DatabaseChangeLogDaoTest extends HibernateOcDbTestCase {
-
-    private final Integer POSTGRES_COUNT = 833;
-    private final Integer ORACLE_COUNT = 833;
 
     public DatabaseChangeLogDaoTest() {
         super();
@@ -28,9 +23,6 @@ public class DatabaseChangeLogDaoTest extends HibernateOcDbTestCase {
 
         if (getDbName().equals("postgres")) {
             assertEquals("Total Count should be", String.valueOf(POSTGRES_COUNT), String.valueOf(count));
-        }
-        if (getDbName().equals("oracle")) {
-            assertEquals("Total Count should be", String.valueOf(ORACLE_COUNT), String.valueOf(count));
         }
 
     }
@@ -44,9 +36,7 @@ public class DatabaseChangeLogDaoTest extends HibernateOcDbTestCase {
         if (getDbName().equals("postgres")) {
             assertEquals("Total Count should be", String.valueOf(POSTGRES_COUNT), String.valueOf(databaseChangeLogBeans.size()));
         }
-        if (getDbName().equals("oracle")) {
-            assertEquals("Total Count should be", String.valueOf(ORACLE_COUNT), String.valueOf(databaseChangeLogBeans.size()));
-        }
+        
         assertNotNull(databaseChangeLogBean);
 
     }

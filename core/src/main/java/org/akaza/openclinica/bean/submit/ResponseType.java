@@ -7,12 +7,13 @@
  */
 package org.akaza.openclinica.bean.submit;
 
-import org.akaza.openclinica.bean.core.Privilege;
-import org.akaza.openclinica.bean.core.Term;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+
+import org.akaza.openclinica.bean.core.Privilege;
+import org.akaza.openclinica.bean.core.Term;
 
 /**
  * @author jxu
@@ -36,7 +37,12 @@ import java.util.List;
 // Internationalized description in Term.getDescription()
 @Deprecated
 public class ResponseType extends Term {
-    public static final ResponseType TEXT = new ResponseType(1, "text", null);
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 213278797848776832L;
+
+	public static final ResponseType TEXT = new ResponseType(1, "text", null);
 
     public static final ResponseType TEXT_AREA = new ResponseType(2, "text area", null);
 
@@ -52,10 +58,8 @@ public class ResponseType extends Term {
 
     private static final ResponseType[] members = { TEXT, TEXT_AREA, SINGLE_SELECT, MULTI_SELECT, CHECKBOX, RADIOBUTTON, FILE };
 
-    public static final List list = Arrays.asList(members);
-
-    private List privileges;
-
+    public static final List<ResponseType> list = Arrays.asList(members);
+    
     private ResponseType(int id, String name, Privilege[] myPrivs) {
         super(id, name);
     }
@@ -68,7 +72,8 @@ public class ResponseType extends Term {
     }
 
     public static ResponseType get(int id) {
-        return (ResponseType) Term.get(id, list);
+    	Optional<ResponseType> o = list.stream().filter(r -> r.getId() == id).findFirst();
+    	return o.orElse(new ResponseType());
     }
 
     public static ResponseType getByName(String name) {
@@ -91,8 +96,8 @@ public class ResponseType extends Term {
         return false;
     }
 
-    public static ArrayList toArrayList() {
-        return new ArrayList(list);
+    public static ArrayList<ResponseType> toArrayList() {
+        return new ArrayList<>(list);
     }
 
     @Override

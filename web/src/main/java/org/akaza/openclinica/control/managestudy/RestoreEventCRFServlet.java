@@ -44,6 +44,11 @@ import java.util.Date;
  */
 public class RestoreEventCRFServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = -2651073493567393033L;
+
+	/**
      * 
      */
     @Override
@@ -127,7 +132,7 @@ public class RestoreEventCRFServlet extends SecureController {
             // find all item data
             ItemDataDAO iddao = new ItemDataDAO(sm.getDataSource());
 
-            ArrayList itemData = iddao.findAllByEventCRFId(eventCRF.getId());
+            ArrayList<ItemDataBean> itemData = iddao.findAllByEventCRFId(eventCRF.getId());
 
             request.setAttribute("items", itemData);
 

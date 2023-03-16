@@ -13,7 +13,11 @@ import java.util.*;
 // Term.getDescription()
 // Description identifiers are taken from facilityinfo.properties
 public class Role extends Term {
-    public static final Role INVALID = new Role(0, "invalid", "invalid", null);
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8374394924123285829L;
+	public static final Role INVALID = new Role(0, "invalid", "invalid", null);
     public static final Role ADMIN = new Role(1, "admin", "System_Administrator", null);
     public static final Role COORDINATOR = new Role(2, "coordinator", "Study_Coordinator", null);
     public static final Role STUDYDIRECTOR = new Role(3, "director", "Study_Director", null);
@@ -24,9 +28,9 @@ public class Role extends Term {
    
     
     private static final Role[] members = { ADMIN, COORDINATOR, STUDYDIRECTOR, INVESTIGATOR, MONITOR, RESEARCHASSISTANT,RESEARCHASSISTANT2};
-    public static final List list = Arrays.asList(members);
+    public static final List<Role> list = Arrays.asList(members);
     
-    public static final Map studyRoleMap = new LinkedHashMap();
+    public static final Map<Integer, String> studyRoleMap = new LinkedHashMap<>();
     static {
         studyRoleMap.put(2, "Study_Coordinator");
         studyRoleMap.put(3, "Study_Director");
@@ -35,7 +39,7 @@ public class Role extends Term {
         studyRoleMap.put(6, "Monitor");
            }
 
-    public static final Map siteRoleMap = new LinkedHashMap();
+    public static final Map<Integer, String> siteRoleMap = new LinkedHashMap<>();
     static {
         siteRoleMap.put(2, "site_Study_Coordinator");
         siteRoleMap.put(3, "site_Study_Director");
@@ -45,7 +49,7 @@ public class Role extends Term {
         siteRoleMap.put(7, "site_Data_Entry_Person2");
     }
 
-    private List privileges;
+    private List<Privilege> privileges;
 
     private Role(int id, String name, String description, Privilege[] myPrivs) {
         super(id, name, description);
@@ -60,7 +64,8 @@ public class Role extends Term {
     }
 
     public static Role get(int id) {
-        return (Role) Term.get(id, list);
+    	Optional<Role> role = list.stream().filter(r -> r.getId() == id).findFirst();
+    	return role.orElse(new Role());
     }
 
     public static Role getByName(String name) {
@@ -73,15 +78,12 @@ public class Role extends Term {
         return INVALID;
     }
 
-    public static ArrayList toArrayList() {
-        return new ArrayList(list);
+    public static ArrayList<Role> toArrayList() {
+        return new ArrayList<Role>(list);
     }
 
     public boolean hasPrivilege(Privilege p) {
-        Iterator it = privileges.iterator();
-
-        while (it.hasNext()) {
-            Privilege myPriv = (Privilege) it.next();
+        for(Privilege myPriv : privileges) {
             if (myPriv.equals(p)) {
                 return true;
             }

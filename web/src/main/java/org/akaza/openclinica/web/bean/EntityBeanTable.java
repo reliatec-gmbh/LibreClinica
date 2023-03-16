@@ -10,9 +10,6 @@
  */
 package org.akaza.openclinica.web.bean;
 
-import org.akaza.openclinica.control.form.FormProcessor;
-import org.akaza.openclinica.view.Link;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -21,6 +18,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+
+import org.akaza.openclinica.control.form.FormProcessor;
+import org.akaza.openclinica.view.Link;
 
 /**
  * A class for displaying a table of EntityBean objects on the screen.
@@ -35,10 +35,10 @@ import java.util.Set;
  * </ul>
  * 
  * <p>
- * The process for deploying these features is as follows:
+ * The process for deploying these features is as follows:</p>
  * 
  * <ol>
- * <li>Implement an EntityBeanRow class to store the rows of your table.
+ * <li>Implement an EntityBeanRow class to store the rows of your table.</li>
  * 
  * <li>In the servlet, obtain a new EntityBeanTable from the FormProcessor:
  * <br/><code>EntityBeanTable table = fp.getEntityBeanTable();</code> <br/> Note
@@ -46,37 +46,39 @@ import java.util.Set;
  * the first time, and the case where the table has already been displayed, and
  * the user has requested a modification to the display (e.g., go to the next
  * page or sort by a specific column) - the FormProcessor automatically reads in
- * any requested modifications from the request and applies them to the table.
+ * any requested modifications from the request and applies them to the table.</li>
  * 
  * <li>Populate the table with all of the rows you wish to display: <br/> <code>
  * ArrayList allUsers = uadao.findAll();
  * ArrayList allUsersRows = UserAccountRow.generateRows(allUsers);
  * table.setRows(allUsersRows);
- * </code>
+ * </code></li>
  * 
  * <li>Populate the table with the columns you wish to display: <br/> <code>
  * String columns[] = { "username", "first name", "last name", "status", "actions"};
  * table.setColumns(new ArrayList(Arrays.asList(columns)));
- * </code>
+ * </code></li>
  * 
  * <li>Populate the table with the base query which invokes the screen you're
  * about to display: <code>
  * HashMap args = new HashMap();
  * args.put("userId", userBean.getId());
  * table.setBaseQuery("ViewUserAccount", args);
- * </code>
+ * </code></li>
  * 
  * <li>Force the table to compute its display: <br/>
- * <code>table.computeDisplay();</code>
+ * <code>table.computeDisplay();</code></li>
  * 
- * <li>Put the table in the request: <br/><code>setTable(table);
- * <br/>This method is inherited from SecureController.
+ * <li>Put the table in the request: <br/><code>setTable(table);</code>
+ * <br/>This method is inherited from SecureController.</li>
  * 
- * <li> Send the user to the JSP with forwardPage as usual.
- * </ul>
+ * <li> Send the user to the JSP with forwardPage as usual.</li>
+ * </ol>
  * 
  * <p>In the JSP, the table will be displayed by include/showTable.jsp,
- * which
+ * which</p>
+ * 
+ * <p>TODO possible duplicate of {@code org.akaza.openclinica.web.domain.EntityBeanTable}</p>
  * 
  * @author ssachs
  * @see EntityBeanRow
@@ -97,12 +99,13 @@ public class EntityBeanTable {
      * <a href="{@docRoot}
      * /org/akaza/openclinica/core/EntityBeanRow.html">EntityBeanRow</a>s
      */
-    protected ArrayList rows;
+    @SuppressWarnings("rawtypes")
+	protected ArrayList<? extends EntityBeanRow> rows;
 
     /**
      * An array of EntityBeanColumn objects which represent column headings.
      */
-    protected ArrayList columns;
+    protected ArrayList<EntityBeanColumn> columns;
 
     /**
      * Always equal to columns.size(); maintained by setColumns.
@@ -161,18 +164,18 @@ public class EntityBeanTable {
      * A set of links to display in the upper-right hand corner. Each element is
      * a Link object.
      */
-    protected ArrayList links;
+    protected ArrayList<Link> links;
 
     protected String postAction;
-    protected HashMap postArgs;
+    protected HashMap<String, Object> postArgs;
     protected String baseGetQuery;
 
     protected String noRowsMessage;
     protected String noColsMessage;
 
     public EntityBeanTable() {
-        rows = new ArrayList();
-        columns = new ArrayList();
+        rows = new ArrayList<>();
+        columns = new ArrayList<>();
         numColumns = 0;
 
         currPageNumber = 1;
@@ -183,13 +186,13 @@ public class EntityBeanTable {
         keywordFilter = "";
 
         postAction = "";
-        postArgs = new HashMap();
+        postArgs = new HashMap<>();
         baseGetQuery = "";
 
         noRowsMessage = "";
         noColsMessage = "";
 
-        links = new ArrayList();
+        links = new ArrayList<>();
     }
 
     /**
@@ -202,7 +205,7 @@ public class EntityBeanTable {
     /**
      * @return Returns the columns.
      */
-    public ArrayList getColumns() {
+    public ArrayList<EntityBeanColumn> getColumns() {
         return columns;
     }
 
@@ -211,12 +214,11 @@ public class EntityBeanTable {
      *            The columns to set. Each element is a String with the column
      *            name.
      */
-    public void setColumns(ArrayList columns) {
+    public void setColumns(ArrayList<String> columns) {
         // this.columns = columns;
-        ArrayList newColumns = new ArrayList();
+        ArrayList<EntityBeanColumn> newColumns = new ArrayList<>();
 
-        for (int i = 0; i < columns.size(); i++) {
-            String name = (String) columns.get(i);
+        for (String name : columns) {
             EntityBeanColumn c = new EntityBeanColumn();
             c.setName(name);
             newColumns.add(c);
@@ -250,7 +252,8 @@ public class EntityBeanTable {
     /**
      * @return Returns the rows.
      */
-    public ArrayList getRows() {
+    @SuppressWarnings("rawtypes")
+	public ArrayList<? extends EntityBeanRow> getRows() {
         return rows;
     }
 
@@ -271,7 +274,7 @@ public class EntityBeanTable {
      * 
      * @param rows
      */
-    public void setRows(ArrayList rows) {
+    public void setRows(@SuppressWarnings("rawtypes") ArrayList<? extends EntityBeanRow> rows) {
         this.rows = rows;
         updateTotalPageNumbers();
     }
@@ -306,10 +309,10 @@ public class EntityBeanTable {
         return numColumns;
     }
 
-    public void setQuery(String baseURL, HashMap args) {
+    public void setQuery(String baseURL, HashMap<String, Object> args) {
     	 setQuery(  baseURL,   args, false) ;
     }
-    public void setQuery(String baseURL, HashMap args, boolean isUTFEncode) {
+    public void setQuery(String baseURL, HashMap<String, Object> args, boolean isUTFEncode) {
         postAction = baseURL;
         postArgs = args;
 
@@ -350,7 +353,7 @@ public class EntityBeanTable {
     /**
      * @return Returns the postArgs.
      */
-    public HashMap getPostArgs() {
+    public HashMap<String, Object> getPostArgs() {
         return postArgs;
     }
 
@@ -428,9 +431,10 @@ public class EntityBeanTable {
      * the tabling parameters should be set properly before this method is
      * called!
      */
-    public void computeDisplay() {
-        ArrayList displayRows;
-        Set temprows = new HashSet();
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	public void computeDisplay() {
+        ArrayList<EntityBeanRow> displayRows;
+        Set<EntityBeanRow> temprows = new HashSet<>();
 
         // *****************
         // FILTER BY KEYWORD
@@ -441,7 +445,7 @@ public class EntityBeanTable {
         // and if there is at least one keyword to search by
         boolean filterExecuted = false;
 
-        displayRows = new ArrayList();
+        displayRows = new ArrayList<>();
         if (filtered) {
 
             String[] keywords = null;
@@ -470,9 +474,7 @@ public class EntityBeanTable {
 
                     filterExecuted = true;
 
-                    loopRows: for (int i = 0; i < rows.size(); i++) {
-                        EntityBeanRow row = (EntityBeanRow) rows.get(i);
-
+                    loopRows: for (EntityBeanRow row : rows) {
                         String searchString = row.getSearchString().toLowerCase();
                         // If the keyword matches the whole search string,
                         // return a match
@@ -544,14 +546,14 @@ public class EntityBeanTable {
                     } // end of loop iterating over rows
                 } // end of loop iterating over keywords
             }
-            Iterator it = temprows.iterator();
+            Iterator<EntityBeanRow> it = temprows.iterator();
             while (it.hasNext()) {
                 displayRows.add(it.next());
             }
         } // end of filtering by keywords
 
         if (!filterExecuted) {
-            displayRows = rows;
+            displayRows = new ArrayList<>(rows);
         }
 
         // this seems redundant, since we set the rows property below before
@@ -565,7 +567,7 @@ public class EntityBeanTable {
         // *************
 
         for (int i = 0; i < displayRows.size(); i++) {
-            EntityBeanRow row = (EntityBeanRow) displayRows.get(i);
+            EntityBeanRow<?,?> row = displayRows.get(i);
             row.setSortingColumn(sortingColumnInd);
             row.setAscendingSort(ascendingSort);
             displayRows.set(i, row);
@@ -595,7 +597,7 @@ public class EntityBeanTable {
                 firstInd = 0;
             }
 
-            ArrayList currPage = new ArrayList(displayRows.subList(firstInd, lastInd));
+            ArrayList<EntityBeanRow> currPage = new ArrayList<>(displayRows.subList(firstInd, lastInd));
 
             // it's important not to use setRows here
             // calling setRows will change totalNumPages to be the number of
@@ -611,7 +613,7 @@ public class EntityBeanTable {
     /**
      * @return Returns the links.
      */
-    public ArrayList getLinks() {
+    public ArrayList<Link> getLinks() {
         return links;
     }
 
@@ -619,7 +621,7 @@ public class EntityBeanTable {
      * @param links
      *            The links to set.
      */
-    public void setLinks(ArrayList links) {
+    public void setLinks(ArrayList<Link> links) {
         this.links = links;
     }
 

@@ -28,6 +28,10 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class ResponseType  extends DataMapDomainObject {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3071468642031537688L;
 	private int responseTypeId;
 	private String name;
 	private String description;

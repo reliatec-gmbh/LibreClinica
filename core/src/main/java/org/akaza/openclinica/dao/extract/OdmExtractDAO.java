@@ -72,7 +72,6 @@ import org.akaza.openclinica.bean.submit.crfdata.ExportSubjectDataBean;
 import org.akaza.openclinica.bean.submit.crfdata.ImportItemDataBean;
 import org.akaza.openclinica.bean.submit.crfdata.ImportItemGroupDataBean;
 import org.akaza.openclinica.bean.submit.crfdata.SubjectGroupDataBean;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.admin.CRFDAO;
 import org.akaza.openclinica.dao.core.CoreResources;
 import org.akaza.openclinica.dao.core.SQLFactory;
@@ -82,7 +81,6 @@ import org.akaza.openclinica.dao.service.StudyParameterValueDAO;
 import org.akaza.openclinica.dao.submit.CRFVersionDAO;
 import org.akaza.openclinica.dao.submit.SectionDAO;
 import org.akaza.openclinica.domain.SourceDataVerification;
-import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
 import org.akaza.openclinica.job.JobTerminationMonitor;
 import org.akaza.openclinica.logic.odmExport.ClinicalDataUtil;
 import org.akaza.openclinica.logic.odmExport.MetaDataCollector;
@@ -95,9 +93,7 @@ import org.akaza.openclinica.logic.odmExport.MetadataUnit;
  */
 
 public class OdmExtractDAO extends DatasetDAO {
-
-	
-
+    
     public OdmExtractDAO(DataSource ds) {
         super(ds);
     }
@@ -285,12 +281,9 @@ public class OdmExtractDAO extends DatasetDAO {
             this.setTypeExpected(12, TypeNames.STRING);// definition_oid;
             this.setTypeExpected(13, TypeNames.BOOL);// definition_repeating
             this.setTypeExpected(14, TypeNames.INT);// sample_ordinal
-            this.setTypeExpected(15, TypeNames.STRING);// se_location (study
-            // event)
-            this.setTypeExpected(16, TypeNames.DATE);// date_start (study
-            // event)
-            this.setTypeExpected(17, TypeNames.DATE);// date_end (study
-            // event)
+            this.setTypeExpected(15, TypeNames.STRING);// se_location (study event)
+            this.setTypeExpected(16, TypeNames.TIMESTAMP);// date_start (study event)
+            this.setTypeExpected(17, TypeNames.TIMESTAMP);// date_end (study event)
             this.setTypeExpected(18, TypeNames.BOOL);// start_time_flag
             this.setTypeExpected(19, TypeNames.BOOL);// end_time_flag
             this.setTypeExpected(20, TypeNames.INT);// event_status_id
@@ -478,7 +471,7 @@ public class OdmExtractDAO extends DatasetDAO {
         ++i;
         this.setTypeExpected(i, TypeNames.INT); // owner_id
         ++i;
-        this.setTypeExpected(i, TypeNames.DATE); // date_created
+        this.setTypeExpected(i, TypeNames.TIMESTAMP); // date_created
         ++i;
         this.setTypeExpected(i, TypeNames.STRING); // status
         ++i;
@@ -502,7 +495,7 @@ public class OdmExtractDAO extends DatasetDAO {
         ++i;
         this.setTypeExpected(i, TypeNames.INT); // owner_id
         ++i;
-        this.setTypeExpected(i, TypeNames.DATE); // date_created
+        this.setTypeExpected(i, TypeNames.TIMESTAMP); // date_created
         ++i;
         this.setTypeExpected(i, TypeNames.STRING); // status
         ++i;
@@ -524,7 +517,7 @@ public class OdmExtractDAO extends DatasetDAO {
         ++i;
         this.setTypeExpected(i, TypeNames.INT); // owner_id
         ++i;
-        this.setTypeExpected(i, TypeNames.DATE); // date_created
+        this.setTypeExpected(i, TypeNames.TIMESTAMP); // date_created
         ++i;
         this.setTypeExpected(i, TypeNames.STRING); // status
         ++i;
@@ -546,7 +539,7 @@ public class OdmExtractDAO extends DatasetDAO {
         ++i;
         this.setTypeExpected(i, TypeNames.INT); // owner_id
         ++i;
-        this.setTypeExpected(i, TypeNames.DATE); // date_created
+        this.setTypeExpected(i, TypeNames.TIMESTAMP); // date_created
         ++i;
         this.setTypeExpected(i, TypeNames.STRING); // status
         ++i;
@@ -592,15 +585,21 @@ public class OdmExtractDAO extends DatasetDAO {
         ArrayList<MeasurementUnitBean> units = basicDef.getMeasurementUnits();
         String uprev = "";
         this.setStudyMeasurementUnitsTypesExpected();
-        ArrayList rows = this.select(this.getStudyMeasurementUnitsSql(studyId));
-        Iterator it = rows.iterator();
-        while (it.hasNext()) {
-            HashMap row = (HashMap) it.next();
+
+        HashMap<Integer, Object> studyMeasurementUnitsQueryParameters = new HashMap<>();
+        studyMeasurementUnitsQueryParameters.put(1, studyId);
+
+        ArrayList<HashMap<String, Object>> rows = this.select(
+                this.getStudyMeasurementUnitsSqlByStudyId(),
+                studyMeasurementUnitsQueryParameters
+        );
+        
+        for(HashMap<String, Object> row : rows) {
             String oid = (String) row.get("mu_oid");
             String name = (String) row.get("name");
             MeasurementUnitBean u = new MeasurementUnitBean();
             SymbolBean symbol = new SymbolBean();
-            ArrayList<TranslatedTextBean> texts = new ArrayList<TranslatedTextBean>();
+            ArrayList<TranslatedTextBean> texts = new ArrayList<>();
             if (uprev.equals(oid)) {
                 u = units.get(units.size() - 1);
                 symbol = u.getSymbol();
@@ -622,15 +621,21 @@ public class OdmExtractDAO extends DatasetDAO {
         ArrayList<MeasurementUnitBean> units = basicDef.getMeasurementUnits();
         String uprev = "";
         this.setStudyMeasurementUnitsTypesExpected();
-        ArrayList rows = this.select(this.getStudyMeasurementUnitsSql(crfVersionOID));
-        Iterator it = rows.iterator();
-        while (it.hasNext()) {
-            HashMap row = (HashMap) it.next();
+
+        HashMap<Integer, Object> studyMeasurementUnitsQueryParameters = new HashMap<>();
+        studyMeasurementUnitsQueryParameters.put(1, crfVersionOID);
+
+        ArrayList<HashMap<String, Object>> rows = this.select(
+                this.getStudyMeasurementUnitsSqlByCrfVersionOid(),
+                studyMeasurementUnitsQueryParameters
+        );
+        
+        for(HashMap<String, Object> row : rows) {
             String oid = (String) row.get("mu_oid");
             String name = (String) row.get("name");
             MeasurementUnitBean u = new MeasurementUnitBean();
             SymbolBean symbol = new SymbolBean();
-            ArrayList<TranslatedTextBean> texts = new ArrayList<TranslatedTextBean>();
+            ArrayList<TranslatedTextBean> texts = new ArrayList<>();
             if (uprev.equals(oid)) {
                 u = units.get(units.size() - 1);
                 symbol = u.getSymbol();
@@ -647,15 +652,14 @@ public class OdmExtractDAO extends DatasetDAO {
             u.setSymbol(symbol);
         }
     }
+
     public void getUpdatedSiteMetadata(int parentStudyId, int studyId, MetaDataVersionBean metadata, String odmVersion) {
         HashMap<Integer, Integer> cvIdPoses = new HashMap<Integer, Integer>();
         this.setStudyEventAndFormMetaTypesExpected();
-        ArrayList rows = this.select(this.getStudyEventAndFormMetaSql(parentStudyId, studyId, true));
-        Iterator it = rows.iterator();
+        ArrayList<HashMap<String, Object>> rows = this.select(this.getStudyEventAndFormMetaSql(parentStudyId, studyId, true));
         String sedprev = "";
         MetaDataVersionProtocolBean protocol = metadata.getProtocol();
-        while (it.hasNext()) {
-            HashMap row = (HashMap) it.next();
+        for(HashMap<String, Object> row : rows) {
             Integer sedOrder = (Integer) row.get("definition_order");
             Integer cvId = (Integer) row.get("crf_version_id");
             String sedOID = (String) row.get("definition_oid");
@@ -736,7 +740,7 @@ public class OdmExtractDAO extends DatasetDAO {
     public void getODMMetadataForForm(MetaDataVersionBean metadata,String formVersionOID,String odmVersion){
     	  FormDefBean formDef = new FormDefBean();
     	  String cvIds = new String("");
-    	  CRFVersionDAO<String, ArrayList> crfVersionDAO = new CRFVersionDAO<String, ArrayList>(this.ds);
+    	  CRFVersionDAO crfVersionDAO = new CRFVersionDAO(this.ds);
   	 	CRFVersionBean crfVersionBean = crfVersionDAO.findByOid(formVersionOID);
   	 	cvIds =crfVersionBean.getId()+"";
   	 	
@@ -744,7 +748,7 @@ public class OdmExtractDAO extends DatasetDAO {
     	
     	fetchItemGroupMetaData(metadata,cvIds,odmVersion);
     	getOCMetadataForGlobals(crfVersionBean.getId(),metadata,odmVersion);
-    	 ArrayList rows  = new ArrayList();
+    	 ArrayList<HashMap<String, Object>> rows  = new ArrayList<>();
          ArrayList<ItemGroupDefBean> igs = (ArrayList<ItemGroupDefBean>)metadata.getItemGroupDefs();
          HashMap<String,Integer> igPoses = getItemGroupOIDPos(metadata);
          ArrayList<ItemDefBean> its = (ArrayList<ItemDefBean>)metadata.getItemDefs();
@@ -753,7 +757,6 @@ public class OdmExtractDAO extends DatasetDAO {
          HashMap<String,Integer> itPoses = getItemOIDPos(metadata);
          HashMap<String,Integer> inPoses = new HashMap<String, Integer>();
          ItemGroupDefBean ig = new ItemGroupDefBean();
-    	 Iterator it ;
     	 	
     	 	metadata.setCvIds(cvIds);
  
@@ -762,9 +765,7 @@ public class OdmExtractDAO extends DatasetDAO {
             rows.clear();
             logger.debug("Begin to execute GetItemDataMaxLengths");
             rows = select(this.getItemDataMaxLengths(cvIds));
-            it = rows.iterator();
-            while (it.hasNext()) {
-                HashMap row = (HashMap) it.next();
+            for(HashMap<String, Object> row : rows) {
                 maxLengths.put((Integer) row.get("item_id"), (Integer) row.get("max_length"));
             }
             ItemDefBean itDef = new ItemDefBean();
@@ -780,9 +781,7 @@ public class OdmExtractDAO extends DatasetDAO {
             logger.debug("Begin to execute GetItemGroupAndItemMetaWithUnitSql");
             logger.debug("getItemGroupandItemMetaWithUnitsql= " + this.getItemGroupAndItemMetaOC1_3Sql(cvIds));
              rows = select(this.getItemGroupAndItemMetaOC1_3Sql(cvIds));
-            Iterator iter = rows.iterator();
-            while (iter.hasNext()) {
-                HashMap row = (HashMap) iter.next();
+            for(HashMap<String, Object> row : rows) {
                 Integer cvId = (Integer) row.get("crf_version_id");
                 Integer igId = (Integer) row.get("item_group_id");
                 String cvOID = (String) row.get("crf_version_oid");
@@ -879,7 +878,7 @@ public class OdmExtractDAO extends DatasetDAO {
 
 	public FormDefBean fetchFormDetails(CRFVersionBean crfVBean,FormDefBean formDef){
     
-    	CRFDAO<String, ArrayList> crfDao = new CRFDAO(this.ds);
+    	CRFDAO crfDao = new CRFDAO(this.ds);
     	CRFBean crfBean   = (CRFBean) crfDao.findByPK(crfVBean.getCrfId());  	
     	formDef.setOid(crfVBean.getOid());
     	formDef.setName(crfBean.getName() + " - " +crfVBean.getName());
@@ -907,14 +906,12 @@ public class OdmExtractDAO extends DatasetDAO {
         this.setStudyEventAndFormMetaTypesExpected();
         logger.debug("Begin to execute GetStudyEventAndFormMetaSql");
         logger.debug("getStudyEventAndFormMetaSQl= " + this.getStudyEventAndFormMetaSql(parentStudyId, studyId, false));
-        ArrayList rows = this.select(this.getStudyEventAndFormMetaSql(parentStudyId, studyId, false));
-        Iterator it = rows.iterator();
+        ArrayList<HashMap<String, Object>> rows = this.select(this.getStudyEventAndFormMetaSql(parentStudyId, studyId, false));
         String sedprev = "";
         MetaDataVersionProtocolBean protocol = metadata.getProtocol();
         HashMap<Integer, String> nullMap = new HashMap<Integer, String>();
         HashMap<String, String> nullValueCVs = new HashMap<String, String>();
-        while (it.hasNext()) {
-            HashMap row = (HashMap) it.next();
+        for(HashMap<String, Object> row : rows) {
             Integer sedOrder = (Integer) row.get("definition_order");
             Integer cvId = (Integer) row.get("crf_version_id");
             String sedOID = (String) row.get("definition_oid");
@@ -974,9 +971,7 @@ public class OdmExtractDAO extends DatasetDAO {
         rows.clear();
         logger.debug("Begin to execute GetItemDataMaxLengths");
         rows = select(this.getItemDataMaxLengths(cvIds));
-        it = rows.iterator();
-        while (it.hasNext()) {
-            HashMap row = (HashMap) it.next();
+        for(HashMap<String, Object> row : rows) {
             maxLengths.put((Integer) row.get("item_id"), (Integer) row.get("max_length"));
         }
 
@@ -985,7 +980,6 @@ public class OdmExtractDAO extends DatasetDAO {
         logger.debug("Begin to execute GetItemGroupAndItemMetaWithUnitSql");
         logger.debug("getItemGroupandItemMetaWithUnitsql= " + this.getItemGroupAndItemMetaWithUnitSql(cvIds));
         rows = select(this.getItemGroupAndItemMetaWithUnitSql(cvIds));
-        it = rows.iterator();
         ArrayList<ItemGroupDefBean> itemGroupDefs = (ArrayList<ItemGroupDefBean>) metadata.getItemGroupDefs();
         ArrayList<ItemDefBean> itemDefs = (ArrayList<ItemDefBean>) metadata.getItemDefs();
         ArrayList<CodeListBean> codeLists = (ArrayList<CodeListBean>) metadata.getCodeLists();
@@ -1007,14 +1001,11 @@ public class OdmExtractDAO extends DatasetDAO {
         int itOrder = 0;
         Integer igId = -1;
         String sectionIds = ",";
-        while (it.hasNext()) {
-            HashMap row = (HashMap) it.next();
-            Integer cId = (Integer) row.get("crf_id");
+        for(HashMap<String, Object> row : rows) {
             Integer cvId = (Integer) row.get("crf_version_id");
             igId = (Integer) row.get("item_group_id");
             Integer itId = (Integer) row.get("item_id");
             Integer rsId = (Integer) row.get("response_set_id");
-            String cvOID = (String) row.get("crf_version_oid");
             String igOID = (String) row.get("item_group_oid");
             String itOID = (String) row.get("item_oid");
             String igName = (String) row.get("item_group_name");
@@ -1266,11 +1257,7 @@ public class OdmExtractDAO extends DatasetDAO {
         sectionIds = sectionIds.length()>0?sectionIds.substring(1, sectionIds.length()-1):"";
         metadata.setSectionIds(sectionIds);
     }
-
     
-    public void getODMMetadata(int parentStudyId,int crfVersionOID,MetaDataVersionBean metadata){
-    	
-    }
     /**
      * Metadata for ODM_1.2 OpenClinica extension and partial ODM_1.3 OpenClinica extension
      *
@@ -1286,13 +1273,8 @@ public class OdmExtractDAO extends DatasetDAO {
             // add CRFVersions that itemDef belong to
             HashMap<String, String> itDefCVs = new HashMap<String, String>();
             this.setItemCVOIDsTypesExpected();
-            ArrayList al = this.select(this.getItemCVOIDsSql(cvIds));
-            Iterator iter = al.iterator();
-            while (iter.hasNext()) {
-                HashMap row = (HashMap) iter.next();
-                Integer cId = (Integer) row.get("crf_id");
-                Integer cvId = (Integer) row.get("crf_version_id");
-                Integer itId = (Integer) row.get("item_id");
+            ArrayList<HashMap<String, Object>> al = this.select(this.getItemCVOIDsSql(cvIds));
+            for(HashMap<String, Object> row : al) {
                 String cvOID = (String) row.get("cv_oid");
                 String itOID = (String) row.get("item_oid");
                 if (itDefCVs.containsKey(itOID)) {
@@ -1317,12 +1299,10 @@ public class OdmExtractDAO extends DatasetDAO {
             this.setStudyGroupClassTypesExpected();
             logger.debug("Begin to execute GetStudyGroupClassSql");
             logger.debug("getStudyGroupClassSql=" + getStudyGroupClassSql(parentStudyId));
-            ArrayList rows = select(this.getStudyGroupClassSql(parentStudyId));
-            Iterator it = rows.iterator();
+            ArrayList<HashMap<String, Object>> rows = select(this.getStudyGroupClassSql(parentStudyId));            
             ArrayList<StudyGroupClassListBean> sgcLists = (ArrayList<StudyGroupClassListBean>) metadata.getStudyGroupClassLists();
             String sgcprev = "";
-            while (it.hasNext()) {
-                HashMap row = (HashMap) it.next();
+            for(HashMap<String, Object> row : rows) {
                 Integer sgcid = (Integer) row.get("study_group_class_id");
                 String sgcname = (String) row.get("sgc_name");
                 String sgctype = (String) row.get("sgc_type");
@@ -1366,13 +1346,8 @@ public class OdmExtractDAO extends DatasetDAO {
             // add CRFVersions that itemDef belong to
             HashMap<String, String> itDefCVs = new HashMap<String, String>();
             this.setItemCVOIDsTypesExpected();
-            ArrayList al = this.select(this.getItemCVOIDsSql(cvIds));
-            Iterator iter = al.iterator();
-            while (iter.hasNext()) {
-                HashMap row = (HashMap) iter.next();
-                Integer cId = (Integer) row.get("crf_id");
-                Integer cvId = (Integer) row.get("crf_version_id");
-                Integer itId = (Integer) row.get("item_id");
+            ArrayList<HashMap<String, Object>> al = this.select(this.getItemCVOIDsSql(cvIds));
+            for(HashMap<String, Object> row : al) {
                 String cvOID = (String) row.get("cv_oid");
                 String itOID = (String) row.get("item_oid");
                 if (itDefCVs.containsKey(itOID)) {
@@ -1392,52 +1367,8 @@ public class OdmExtractDAO extends DatasetDAO {
                     itdef.setFormOIDs(cvs.substring(0, cvs.length() - 1));
                 }
             }
-
-            // add StudyGroupClassList
-/*            this.setStudyGroupClassTypesExpected();
-            logger.debug("Begin to execute GetStudyGroupClassSql");
-            logger.debug("getStudyGroupClassSql=" + getStudyGroupClassSql(parentStudyId));
-            ArrayList rows = select(this.getStudyGroupClassSql(parentStudyId));
-            Iterator it = rows.iterator();
-            ArrayList<StudyGroupClassListBean> sgcLists = (ArrayList<StudyGroupClassListBean>) metadata.getStudyGroupClassLists();
-            String sgcprev = "";
-            while (it.hasNext()) {
-                HashMap row = (HashMap) it.next();
-                Integer sgcid = (Integer) row.get("study_group_class_id");
-                String sgcname = (String) row.get("sgc_name");
-                String sgctype = (String) row.get("sgc_type");
-                Integer statusid = (Integer) row.get("status_id");
-                String subassign = (String) row.get("subject_assignment");
-                String sgname = (String) row.get("sg_name");
-                String des = (String) row.get("description");
-
-                if (sgcprev.equals(sgcid + "")) {
-                    StudyGroupItemBean sg = new StudyGroupItemBean();
-                    sg.setName(sgname);
-                    sg.setDescription(des);
-                    StudyGroupClassListBean sgc = sgcLists.get(sgcLists.size() - 1);
-                    sgc.getStudyGroupItems().add(sg);
-                } else {
-                    sgcprev = sgcid + "";
-                    StudyGroupClassListBean sgc = new StudyGroupClassListBean();
-                    sgc.setID("SGC_" + sgcid);
-                    sgc.setName(sgcname);
-                    sgc.setType(sgctype);
-                    sgc.setStatus(Status.get(statusid).getName());
-                    sgc.setSubjectAssignment(subassign);
-                    StudyGroupItemBean sg = new StudyGroupItemBean();
-                    sg.setName(sgname);
-                    sg.setDescription(des);
-                    sgc.getStudyGroupItems().add(sg);
-                    sgcLists.add(sgc);
-                }
-            }*/
         }
-        // return nullClSet;
     }
-
-  
-    
     
     public void getStudyEventAndFormMetaOC1_3(int parentStudyId, int studyId, MetaDataVersionBean metadata, String odmVersion, boolean isIncludedSite) {
         ArrayList<StudyEventDefBean> seds = (ArrayList<StudyEventDefBean>)metadata.getStudyEventDefs();
@@ -1447,11 +1378,8 @@ public class OdmExtractDAO extends DatasetDAO {
         this.setStudyEventAndFormMetaOC1_3TypesExpected();
         logger.debug("Begin to execute GetStudyEventAndFormMetaOC1_3Sql");
         logger.debug("getStudyEventAndFormMetaOC1_3SQl= " + this.getStudyEventAndFormMetaOC1_3Sql(parentStudyId, studyId, isIncludedSite));
-        ArrayList rows = this.select(this.getStudyEventAndFormMetaOC1_3Sql(parentStudyId, studyId, isIncludedSite));
-        Iterator iter = rows.iterator();
-        String sedOIDs = "";
-        while (iter.hasNext()) {
-            HashMap row = (HashMap) iter.next();
+        ArrayList<HashMap<String, Object>> rows = this.select(this.getStudyEventAndFormMetaOC1_3Sql(parentStudyId, studyId, isIncludedSite));
+        for(HashMap<String, Object> row : rows) {
             Integer cvId = (Integer) row.get("crf_version_id");
             String sedOID = (String) row.get("definition_oid");
             String cvOID = (String) row.get("cv_oid");
@@ -1531,18 +1459,13 @@ public class OdmExtractDAO extends DatasetDAO {
     }
 
     
-    private FormDetailsBean setSectionBean(FormDetailsBean formDetail,Integer crfVId){
-    	
-    	HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(crfVId));
+    private FormDetailsBean setSectionBean(FormDetailsBean formDetail,Integer crfVId){    	
         ArrayList<SectionDetails>sectionBeans = new ArrayList<SectionDetails>();
         
         SectionDAO secdao = new SectionDAO(this.ds);
-        ArrayList sections = secdao.findAllByCRFVersionId (crfVId);
-    	Iterator iter = sections.iterator();
-    	 while(iter.hasNext()){
+        ArrayList<SectionBean> sections = secdao.findAllByCRFVersionId(crfVId);
+    	for(SectionBean sectionBean : sections){
     		 SectionDetails sectionDetails = new SectionDetails();
-    		 SectionBean sectionBean = (SectionBean) iter.next();
     		 sectionDetails.setSectionId(sectionBean.getId());
     		 sectionDetails.setSectionLabel(sectionBean.getLabel());
     		 sectionDetails.setSectionTitle(sectionBean.getTitle());
@@ -1555,18 +1478,9 @@ public class OdmExtractDAO extends DatasetDAO {
     	 formDetail.setSectionDetails(sectionBeans);
     	 return formDetail;
     }
+    
     public void getMetadataOC1_3(int parentStudyId, int studyId, MetaDataVersionBean metadata, String odmVersion) {
         this.getOCMetadata(parentStudyId, studyId, metadata, odmVersion);
-
-        //StudyBean study = metadata.getStudy();
-        //if(study.getId()>0) {
-        //} else {
-        //    StudyDAO sdao = new StudyDAO(this.ds);
-        //    study = (StudyBean)sdao.findByPK(studyId);
-        //}
-        //StudyConfigService studyConfig = new StudyConfigService(this.ds);
-        //study = studyConfig.setParametersForStudy(study);
-
 
         this.getStudyEventAndFormMetaOC1_3(parentStudyId, studyId, metadata, odmVersion, false);
 
@@ -1584,10 +1498,8 @@ public class OdmExtractDAO extends DatasetDAO {
         this.setItemGroupAndItemMetaOC1_3TypesExpected();
         logger.debug("Begin to execute GetItemGroupAndItemMetaWithUnitSql");
         logger.debug("getItemGroupandItemMetaWithUnitsql= " + this.getItemGroupAndItemMetaOC1_3Sql(cvIds));
-        ArrayList rows = select(this.getItemGroupAndItemMetaOC1_3Sql(cvIds));
-        Iterator iter = rows.iterator();
-        while (iter.hasNext()) {
-            HashMap row = (HashMap) iter.next();
+        ArrayList<HashMap<String, Object>> rows = select(this.getItemGroupAndItemMetaOC1_3Sql(cvIds));
+        for(HashMap<String, Object> row : rows) {
             //Integer cId = (Integer) row.get("crf_id");
             Integer cvId = (Integer) row.get("crf_version_id");
             Integer igId = (Integer) row.get("item_group_id");
@@ -1664,13 +1576,11 @@ public class OdmExtractDAO extends DatasetDAO {
     protected void getSCDs(String crfVersionIds, ArrayList<ItemDefBean> its, HashMap<String,Integer> itPoses, HashMap<String,Integer> inFormPoses) {
         logger.debug("Begin to execute getSCDsSql");
         this.setSCDsTypesExpected();
-        ArrayList rows = this.select(this.getSCDsSql(crfVersionIds));
+        ArrayList<HashMap<String, Object>> rows = this.select(this.getSCDsSql(crfVersionIds));
         if(rows==null || rows.size()<1) {
             logger.info("OdmExtracDAO.getSCDsSql returns no rows.");
         } else {
-            Iterator iter = rows.iterator();
-            while(iter.hasNext()) {
-                HashMap row = (HashMap) iter.next();
+            for(HashMap<String, Object> row : rows) {
                 String cvOID = (String) row.get("crf_version_oid");
                 String itOID = (String) row.get("item_oid");
                 String controlItemName = (String) row.get("control_item_name");
@@ -1694,304 +1604,282 @@ public class OdmExtractDAO extends DatasetDAO {
             }
         }
     }
-private void fetchItemGroupMetaData(MetaDataVersionBean metadata,String cvIds, String odmVersion)
+    
+    private void fetchItemGroupMetaData(MetaDataVersionBean metadata,String cvIds, String odmVersion) {
+        this.setItemGroupAndItemMetaWithUnitTypesExpected();
+        logger.debug("Begin to execute GetItemGroupAndItemMetaWithUnitSql");
+        logger.debug("getItemGroupAndItemMetaWithUnitSql= " + this.getItemGroupAndItemMetaWithUnitSql(cvIds));
+        ArrayList<HashMap<String, Object>> rows = select(this.getItemGroupAndItemMetaWithUnitSql(cvIds));
+        ArrayList<ItemGroupDefBean> itemGroupDefs = (ArrayList<ItemGroupDefBean>) metadata.getItemGroupDefs();
+        ArrayList<ItemDefBean> itemDefs = (ArrayList<ItemDefBean>) metadata.getItemDefs();
+        ArrayList<CodeListBean> codeLists = (ArrayList<CodeListBean>) metadata.getCodeLists();
+        ArrayList<MultiSelectListBean> multiSelectLists = (ArrayList<MultiSelectListBean>) metadata.getMultiSelectLists();
+        ArrayList<ElementRefBean> itemGroupRefs = new ArrayList<>();
+        Set<String> igset = new HashSet<>();
+        HashMap<String,Integer> igdPos = new HashMap<>();
+        Set<String> itset = new HashSet<>();
+        Set<Integer> itdset = new HashSet<>();
+        Set<Integer> clset = new HashSet<>();
+        Set<Integer> mslset = new HashSet<>();
+        ItemGroupDefBean igdef = new ItemGroupDefBean();
+        HashMap<String, String> igMandatories = new HashMap<>();
+        boolean isLatest = false;
+        int cvprev = -1;
+        String igrprev = "";
+        String igdprev = "";
+        String itMandatory = "No";
+        int itOrder = 0;
+        Integer igId = -1;
+        String sectionIds = ",";
+        for(HashMap<String, Object> row : rows) {
+            Integer cvId = (Integer) row.get("crf_version_id");
+            igId = (Integer) row.get("item_group_id");
+            Integer itId = (Integer) row.get("item_id");
+            Integer rsId = (Integer) row.get("response_set_id");
+            String igOID = (String) row.get("item_group_oid");
+            String itOID = (String) row.get("item_oid");
+            String igName = (String) row.get("item_group_name");
+            String itName = (String) row.get("item_name");
+            Integer dataTypeId = (Integer) row.get("item_data_type_id");
+            Integer secId = (Integer) row.get("section_id");
+            String header = (String) row.get("item_header");
+            String left = (String) row.get("left_item_text");
+            String right = (String) row.get("right_item_text");
+            Boolean itRequired = (Boolean) row.get("item_required");
+            String regexp = (String) row.get("regexp");
+            String regexpErr = (String) row.get("regexp_error_msg");
+            String widthDecimal = (String) row.get("width_decimal");
+            Integer rsTypeId = (Integer) row.get("response_type_id");
+            String rsText = (String) row.get("options_text");
+            String rsValue = (String) row.get("options_values");
+            String rsLabel = (String) row.get("response_label");
+            String igHeader = (String) row.get("item_group_header");
 
-{
-	  ArrayList rows = select(this.getItemDataMaxLengths(cvIds));
-      Iterator it = rows.iterator();
-      HashMap maxLengths = null;
-//	while (it.hasNext()) {
-//          HashMap row = (HashMap) it.next();
-//          maxLengths.put((Integer) row.get("item_id"), (Integer) row.get("max_length"));
-//      }
+            Boolean isRepeating = (Boolean)row.get("repeating_group");
+            String itDesc = (String) row.get("item_description");
+            String itQuesNum = (String) row.get("question_number_label");
+            String muOid = (String) row.get("mu_oid");
+            if (cvprev != cvId) {
+                // at this point, itemGroupRefs is for old cvId
+                if (itemGroupRefs != null && itemGroupRefs.size() > 0) {
+                    String temp = igMandatories.containsKey(igdprev) ? igMandatories.get(igdprev) : itMandatory;
+                    itemGroupRefs.get(itemGroupRefs.size() - 1).setMandatory(temp);
+                }
+                itMandatory = "No";
+                // now update to new cvId
+                cvprev = cvId;
+                FormDefBean formDef = new FormDefBean();
+                itemGroupRefs = (ArrayList<ElementRefBean>) formDef.getItemGroupRefs();
+            }
 
-      this.setItemGroupAndItemMetaWithUnitTypesExpected();
-      rows.clear();
-      logger.debug("Begin to execute GetItemGroupAndItemMetaWithUnitSql");
-      logger.debug("getItemGroupandItemMetaWithUnitsql= " + this.getItemGroupAndItemMetaWithUnitSql(cvIds));
-      rows = select(this.getItemGroupAndItemMetaWithUnitSql(cvIds));
-      it = rows.iterator();
-      ArrayList<ItemGroupDefBean> itemGroupDefs = (ArrayList<ItemGroupDefBean>) metadata.getItemGroupDefs();
-      ArrayList<ItemDefBean> itemDefs = (ArrayList<ItemDefBean>) metadata.getItemDefs();
-      ArrayList<CodeListBean> codeLists = (ArrayList<CodeListBean>) metadata.getCodeLists();
-      ArrayList<MultiSelectListBean> multiSelectLists = (ArrayList<MultiSelectListBean>) metadata.getMultiSelectLists();
-      ArrayList<ElementRefBean> itemGroupRefs = new ArrayList<ElementRefBean>();
-      Set<String> igset = new HashSet<String>();
-      HashMap<String,Integer> igdPos = new HashMap<String,Integer>();
-      Set<String> itset = new HashSet<String>();
-      Set<Integer> itdset = new HashSet<Integer>();
-      Set<Integer> clset = new HashSet<Integer>();
-      Set<Integer> mslset = new HashSet<Integer>();
-      ItemGroupDefBean igdef = new ItemGroupDefBean();
-      HashMap<String, String> igMandatories = new HashMap<String, String>();
-      boolean isLatest = false;
-      int cvprev = -1;
-      String igrprev = "";
-      String igdprev = "";
-      String itMandatory = "No";
-      int itOrder = 0;
-      Integer igId = -1;
-      String sectionIds = ",";
-      while (it.hasNext()) {
-          HashMap row = (HashMap) it.next();
-          Integer cId = (Integer) row.get("crf_id");
-          Integer cvId = (Integer) row.get("crf_version_id");
-          igId = (Integer) row.get("item_group_id");
-          Integer itId = (Integer) row.get("item_id");
-          Integer rsId = (Integer) row.get("response_set_id");
-          String cvOID = (String) row.get("crf_version_oid");
-          String igOID = (String) row.get("item_group_oid");
-          String itOID = (String) row.get("item_oid");
-          String igName = (String) row.get("item_group_name");
-          String itName = (String) row.get("item_name");
-          Integer dataTypeId = (Integer) row.get("item_data_type_id");
-          Integer secId = (Integer) row.get("section_id");
-          String header = (String) row.get("item_header");
-          String left = (String) row.get("left_item_text");
-          String right = (String) row.get("right_item_text");
-          Boolean itRequired = (Boolean) row.get("item_required");
-          String regexp = (String) row.get("regexp");
-          String regexpErr = (String) row.get("regexp_error_msg");
-          String widthDecimal = (String) row.get("width_decimal");
-          Integer rsTypeId = (Integer) row.get("response_type_id");
-          String rsText = (String) row.get("options_text");
-          String rsValue = (String) row.get("options_values");
-          String rsLabel = (String) row.get("response_label");
-          String igHeader = (String) row.get("item_group_header");
-          
-          Boolean isRepeating = (Boolean)row.get("repeating_group");
-          String itDesc = (String) row.get("item_description");
-          String itQuesNum = (String) row.get("question_number_label");
-          String muOid = (String) row.get("mu_oid");
-          if (cvprev != cvId) {
-              // at this point, itemGroupRefs is for old cvId
-              if (itemGroupRefs != null && itemGroupRefs.size() > 0) {
-                  String temp = igMandatories.containsKey(igdprev) ? igMandatories.get(igdprev) : itMandatory;
-                  itemGroupRefs.get(itemGroupRefs.size() - 1).setMandatory(temp);
-              }
-              itMandatory = "No";
-              // now update to new cvId
-              cvprev = cvId;
-              FormDefBean formDef = new FormDefBean();
-              HashMap cvIdPoses = null;
-//			if (cvIdPoses.containsKey(cvId)) {
-//                  int p = (Integer) cvIdPoses.get(cvId);
-//                  formDef = metadata.getFormDefs().get(p);
-//              } else {
-//                  logger.debug("crf_version_id=" + cvId + " couldn't find from studyEventAndFormMetaSql");
-//              }
-              itemGroupRefs = (ArrayList<ElementRefBean>) formDef.getItemGroupRefs();
-          }
+            // mandatory is based on the last crf-version
+            String igDefKey = igId + "";
 
-          // mandatory is based on the last crf-version
-          String igDefKey = igId + "";
+            if (!igdprev.equals(igDefKey)) {
+                if (igdPos.containsKey(igDefKey)) {
+                    igdef = itemGroupDefs.get(igdPos.get(igDefKey));
+                    isLatest = false;
+                    itOrder = igdef.getItemRefs().size();
+                } else {
+                    igdef = new ItemGroupDefBean();
+                    itOrder = 0;
+                    igMandatories.put(igdprev, itMandatory);
+                    isLatest = true;
+                    igdef.setOid(igOID);
+                    igdef.setName("ungrouped".equalsIgnoreCase(igName) ? igOID : igName);
+                    //igdef.setName(igName);
+                    igdef.setRepeating(isRepeating ? "Yes" : "No");
+                    igdef.setComment(igHeader);
+                    igdef.setPreSASDatasetName(igName.toUpperCase());
+                    itemGroupDefs.add(igdef);
+                    igdPos.put(igDefKey, itemGroupDefs.size()-1);
+                }
+                igdprev = igDefKey;
+            }
 
-          if (!igdprev.equals(igDefKey)) {
-              if(igdPos.containsKey(igDefKey)) {
-                  igdef = itemGroupDefs.get(igdPos.get(igDefKey));
-                  isLatest = false;
-                  itOrder = igdef.getItemRefs().size();
-              } else {
-                  igdef = new ItemGroupDefBean();
-                  itOrder = 0;
-                  igMandatories.put(igdprev, itMandatory);
-                  isLatest = true;
-                  igdef.setOid(igOID);
-                  igdef.setName("ungrouped".equalsIgnoreCase(igName) ? igOID : igName);
-                  //igdef.setName(igName);
-                  igdef.setRepeating(isRepeating ? "Yes" : "No");
-                  igdef.setComment(igHeader);
-                  igdef.setPreSASDatasetName(igName.toUpperCase());
-                  itemGroupDefs.add(igdef);
-                  igdPos.put(igDefKey, itemGroupDefs.size()-1);
-              }
-              igdprev = igDefKey;
-          }
+            String igRefKey = igId + "-" + cvId;
+            if (igrprev.equals(igRefKey)) {
+                itMandatory = isLatest && itRequired && "No".equals(itMandatory) ? "Yes" : itMandatory;
+            } else {
+                if (!igset.contains(igRefKey)) {
+                    igset.add(igRefKey);
+                    ElementRefBean igref = new ElementRefBean();
+                    igref.setElementDefOID(igOID);
+                    int size = itemGroupRefs.size();
+                    if (size > 0) {
+                        String prev = igrprev.split("-")[0].trim();
+                        String temp = igMandatories.containsKey(prev) ? igMandatories.get(prev) : itMandatory;
+                        itemGroupRefs.get(size - 1).setMandatory(temp);
+                    }
+                    itemGroupRefs.add(igref);
+                    itMandatory = "No";
+                }
+                igrprev = igRefKey;
+            }
 
-          String igRefKey = igId + "-" + cvId;
-          if (igrprev.equals(igRefKey)) {
-              itMandatory = isLatest && itRequired && "No".equals(itMandatory) ? "Yes" : itMandatory;
-          } else {
-              if (!igset.contains(igRefKey)) {
-                  igset.add(igRefKey);
-                  ElementRefBean igref = new ElementRefBean();
-                  igref.setElementDefOID(igOID);
-                  int size = itemGroupRefs.size();
-                  if (size > 0) {
-                      String prev = igrprev.split("-")[0].trim();
-                      String temp = igMandatories.containsKey(prev) ? igMandatories.get(prev) : itMandatory;
-                      itemGroupRefs.get(size - 1).setMandatory(temp);
-                  }
-                  itemGroupRefs.add(igref);
-                  itMandatory = "No";
-              }
-              igrprev = igRefKey;
-          }
+            String mandatory = itRequired ? "Yes" : "No";
+            if (!itset.contains(igDefKey + "-" + itId)) {
+                ++itOrder;
+                itset.add(igDefKey + "-" + itId);
+                ElementRefBean itemRef = new ElementRefBean();
+                itemRef.setElementDefOID(itOID);
+                if (itemRef.getMandatory() == null || itemRef.getMandatory().length() <= 0) {
+                    itemRef.setMandatory(mandatory);
+                }
+                itemRef.setOrderNumber(itOrder);
+                igdef.getItemRefs().add(itemRef);
+            }
 
-          String mandatory = itRequired ? "Yes" : "No";
-          if (!itset.contains(igDefKey + "-" + itId)) {
-              ++itOrder;
-              itset.add(igDefKey + "-" + itId);
-              ElementRefBean itemRef = new ElementRefBean();
-              itemRef.setElementDefOID(itOID);
-              if (itemRef.getMandatory() == null || itemRef.getMandatory().length() <= 0) {
-                  itemRef.setMandatory(mandatory);
-              }
-              itemRef.setOrderNumber(itOrder);
-              igdef.getItemRefs().add(itemRef);
-          }
+            boolean hasCode = MetadataUnit.needCodeList(rsTypeId, dataTypeId);
+            LinkedHashMap<String, String> codes = new LinkedHashMap<>();
+            if (hasCode) {
+                /*
+                 * //null value will not be added to codelist if (nullMap.containsKey(cvId)) { codes = MetadataUnit.parseCode(rsText, rsValue,
+                 * nullMap.get(cvId)); } else { codes = MetadataUnit.parseCode(rsText, rsValue); }
+                */
+                codes = MetadataUnit.parseCode(rsText, rsValue);
+                // no action has been taken if rsvalue/rstext go wrong,
+                // since they have been validated when uploading crf.
+            }
 
-          boolean hasCode = MetadataUnit.needCodeList(rsTypeId, dataTypeId);
-          LinkedHashMap<String, String> codes = new LinkedHashMap<String, String>();
-          if (hasCode) {
-              /*
-               * //null value will not be added to codelist if (nullMap.containsKey(cvId)) { codes = MetadataUnit.parseCode(rsText, rsValue,
-               * nullMap.get(cvId)); } else { codes = MetadataUnit.parseCode(rsText, rsValue); }
-               */
-              codes = MetadataUnit.parseCode(rsText, rsValue);
-              // no action has been taken if rsvalue/rstext go wrong,
-              // since they have been validated when uploading crf.
-          }
+            boolean hasMultiSelect = MetadataUnit.needMultiSelectList(rsTypeId);
+            LinkedHashMap<String, String> multi = new LinkedHashMap<>();
+            if (hasMultiSelect) {
+                multi = MetadataUnit.parseCode(rsText, rsValue);
+                // no action has been taken if rsvalue/rstext go wrong,
+                // since they have been validated when uploading crf.
+            }
 
-          boolean hasMultiSelect = MetadataUnit.needMultiSelectList(rsTypeId);
-          LinkedHashMap<String, String> multi = new LinkedHashMap<String, String>();
-          if (hasMultiSelect) {
-              multi = MetadataUnit.parseCode(rsText, rsValue);
-              // no action has been taken if rsvalue/rstext go wrong,
-              // since they have been validated when uploading crf.
-          }
+            String datatype = MetadataUnit.getOdmItemDataType(rsTypeId, dataTypeId, odmVersion);
+            if (sectionIds.contains(","+secId+",")) {
+                // NOOP
+            } else {
+                sectionIds += secId+",";
+            }
 
-          String datatype = MetadataUnit.getOdmItemDataType(rsTypeId, dataTypeId, odmVersion);
-          if(sectionIds.contains(","+secId+",")) {
-          }else {
-              sectionIds += secId+",";
-          }
+            if (!itdset.contains(itId)) {
+                itdset.add(itId);
+                ItemDefBean idef = new ItemDefBean();
+                idef.setOid(itOID);
+                idef.setName(itName);
+                idef.setComment(itDesc);
+                if (muOid != null && muOid.length() > 0) {
+                    ElementRefBean measurementUnitRef = new ElementRefBean();
+                    measurementUnitRef.setElementDefOID(muOid);
+                    idef.setMeasurementUnitRef(measurementUnitRef);
+                }
+                idef.setPreSASFieldName(itName);
+                idef.setCodeListOID(hasCode ? "CL_" + rsId : "");
+                if (hasMultiSelect) {
+                    ElementRefBean multiSelectListRef = new ElementRefBean();
+                    multiSelectListRef.setElementDefOID("MSL_" + rsId);
+                    idef.setMultiSelectListRef(multiSelectListRef);
+                }
+                idef.getQuestion().setQuestionNumber(itQuesNum);
+                idef.getQuestion().getQuestion().setText(MetadataUnit.getItemQuestionText(header, left, right));
+                if (regexp != null && regexp.startsWith("func:")) {
+                    idef.setRangeCheck(MetadataUnit.getItemRangeCheck(regexp.substring(5).trim(), metadata.getSoftHard(), regexpErr, muOid));
+                }
+                idef.setDataType(datatype);
+                int len = 0;
+                int sig = 0;
+                if (widthDecimal != null && widthDecimal.length() > 0) {
+                    // now there is no validation for width_decimal here.
+                    len = parseWidth(widthDecimal);
+                    sig = parseDecimal(widthDecimal);
+                }
+                if (rsTypeId == 3 || rsTypeId == 7) {// 3:checkbox;
+                    // 7:multi-select
+                    //len = maxLengths.containsKey(itId) ? maxLengths.get(itId) : 0;
+                    //len = Math.max(len, Math.max(rsText.length(), rsValue.length()));
+                    Iterator<String> iter = multi.keySet().iterator();
+                    String temp = "";
+                    while (iter.hasNext()) {
+                        temp += iter.next();
+                        temp += ",";
+                    }
+                    idef.setLength(temp.length());
+                } else if ("text".equalsIgnoreCase(datatype)) {
+                    if (len > 0) {
+                        idef.setLength(len);
+                    } else {
+                        //idef.setLength((Integer) (hasCode ? MetadataUnit.getDataTypeLength(codes.keySet()) : maxLengths.containsKey(itId) ? maxLengths.get(itId) : MetaDataCollector.getTextLength()));
+                        idef.setLength(0);
+                    }
+                } else if ("integer".equalsIgnoreCase(datatype)) {
+                    if (len > 0) {
+                        idef.setLength(len);
+                    } else {
+                        idef.setLength(hasCode ? MetadataUnit.getDataTypeLength(codes.keySet()) : 10);
+                    }
+                } else if ("float".equalsIgnoreCase(datatype)) {
+                    if (len > 0) {
+                        idef.setLength(len);
+                    } else {
+                        // idef.setLength(hasCode ?
+                        // MetadataUnit.getDataTypeLength(codes.keySet()) : 32);
+                        idef.setLength(hasCode ? MetadataUnit.getDataTypeLength(codes.keySet()) : 25);
+                    }
+                } else {
+                    idef.setLength(0);
+                }
+                idef.setSignificantDigits(sig > 0 ? sig : MetadataUnit.getSignificantDigits(datatype, codes.keySet(), hasCode));
+                itemDefs.add(idef);
+            }
 
-          if (!itdset.contains(itId)) {
-              itdset.add(itId);
-              ItemDefBean idef = new ItemDefBean();
-              idef.setOid(itOID);
-              idef.setName(itName);
-              idef.setComment(itDesc);
-              if (muOid != null && muOid.length() > 0) {
-                  ElementRefBean measurementUnitRef = new ElementRefBean();
-                  measurementUnitRef.setElementDefOID(muOid);
-                  idef.setMeasurementUnitRef(measurementUnitRef);
-              }
-              idef.setPreSASFieldName(itName);
-              idef.setCodeListOID(hasCode ? "CL_" + rsId : "");
-              if (hasMultiSelect) {
-                  ElementRefBean multiSelectListRef = new ElementRefBean();
-                  multiSelectListRef.setElementDefOID("MSL_" + rsId);
-                  idef.setMultiSelectListRef(multiSelectListRef);
-              }
-              // if(nullMap.containsKey(cvId)) {
-              // }
-              idef.getQuestion().setQuestionNumber(itQuesNum);
-              idef.getQuestion().getQuestion().setText(MetadataUnit.getItemQuestionText(header, left, right));
-              if (regexp != null && regexp.startsWith("func:")) {
-                  idef.setRangeCheck(MetadataUnit.getItemRangeCheck(regexp.substring(5).trim(), metadata.getSoftHard(), regexpErr, muOid));
-              }
-              idef.setDataType(datatype);
-              int len = 0;
-              int sig = 0;
-              if (widthDecimal != null && widthDecimal.length() > 0) {
-                  // now there is no validation for width_decimal here.
-                  len = parseWidth(widthDecimal);
-                  sig = parseDecimal(widthDecimal);
-              }
-              if (rsTypeId == 3 || rsTypeId == 7) {// 3:checkbox;
-                  // //7:multi-select
-                 // len = maxLengths.containsKey(itId) ? maxLengths.get(itId) : 0;
-                  //len = Math.max(len, Math.max(rsText.length(), rsValue.length()));
-                  Iterator<String> iter = multi.keySet().iterator();
-                  String temp = "";
-                  while (iter.hasNext()) {
-                  temp += iter.next();
-                  temp += ",";
+            if (hasCode && !clset.contains(rsId)) {
+                clset.add(rsId);
+                CodeListBean cl = new CodeListBean();
+                cl.setOid("CL_" + rsId);
+                cl.setName(rsLabel);
+                cl.setPreSASFormatName(rsLabel);
+                cl.setDataType(datatype);
+                Iterator<String> iter = codes.keySet().iterator();
+                while (iter.hasNext()) {
+                    String de = iter.next();
+                    CodeListItemBean cli = new CodeListItemBean();
+                    cli.setCodedValue(de);
+                    TranslatedTextBean tt = cli.getDecode();
+                    // cli.getDecode().setText(codes.get(de));
+                    tt.setText(codes.get(de));
+                    tt.setXmlLang(CoreResources.getField("translated_text_language"));
+                    cli.setDecode(tt);
+                    cl.getCodeListItems().add(cli);
+                }
+                codeLists.add(cl);
+            }
 
-                  }
-                  idef.setLength(temp.length());
-              } else if ("text".equalsIgnoreCase(datatype)) {
-                  if (len > 0) {
-                      idef.setLength(len);
-                  } else {
-                     //idef.setLength((Integer) (hasCode ? MetadataUnit.getDataTypeLength(codes.keySet()) : maxLengths.containsKey(itId) ? maxLengths.get(itId)            : MetaDataCollector.getTextLength()));
-                     
-                	  idef.setLength(0);
-                  }
-              } else if ("integer".equalsIgnoreCase(datatype)) {
-                  if (len > 0) {
-                      idef.setLength(len);
-                  } else {
-                      idef.setLength(hasCode ? MetadataUnit.getDataTypeLength(codes.keySet()) : 10);
-                  }
-              } else if ("float".equalsIgnoreCase(datatype)) {
-                  if (len > 0) {
-                      idef.setLength(len);
-                  } else {
-                      // idef.setLength(hasCode ?
-                      // MetadataUnit.getDataTypeLength(codes.keySet()) : 32);
-                     idef.setLength(hasCode ? MetadataUnit.getDataTypeLength(codes.keySet()) : 25);
-                  }
-              } else {
-                  idef.setLength(0);
-              }
-              idef.setSignificantDigits(sig > 0 ? sig : MetadataUnit.getSignificantDigits(datatype, codes.keySet(), hasCode));
-              itemDefs.add(idef);
-          }
+            if (odmVersion.startsWith("oc") && hasMultiSelect && !mslset.contains(rsId)) {
+                mslset.add(rsId);
+                MultiSelectListBean msl = new MultiSelectListBean();
+                msl.setOid("MSL_" + rsId);
+                msl.setName(rsLabel);
+                msl.setDataType(datatype);
+                msl.setActualDataType(datatype);
+                Iterator<String> iter = multi.keySet().iterator();
+                while (iter.hasNext()) {
+                    String de = iter.next();
+                    MultiSelectListItemBean msli = new MultiSelectListItemBean();
+                    msli.setCodedOptionValue(de);
+                    TranslatedTextBean tt = new TranslatedTextBean();
+                    String t = multi.get(de);
+                    tt.setText(t);
+                    tt.setXmlLang(CoreResources.getField("translated_text_language"));
+                    msli.setDecode(tt);
+                    msl.getMultiSelectListItems().add(msli);
+                }
+                multiSelectLists.add(msl);
+            }
 
-          if (hasCode && !clset.contains(rsId)) {
-              clset.add(rsId);
-              CodeListBean cl = new CodeListBean();
-              cl.setOid("CL_" + rsId);
-              cl.setName(rsLabel);
-              cl.setPreSASFormatName(rsLabel);
-              cl.setDataType(datatype);
-              Iterator<String> iter = codes.keySet().iterator();
-              while (iter.hasNext()) {
-                  String de = iter.next();
-                  CodeListItemBean cli = new CodeListItemBean();
-                  cli.setCodedValue(de);
-                  TranslatedTextBean tt = cli.getDecode();
-                  // cli.getDecode().setText(codes.get(de));
-                  tt.setText(codes.get(de));
-                  tt.setXmlLang(CoreResources.getField("translated_text_language"));
-                  cli.setDecode(tt);
-                  cl.getCodeListItems().add(cli);
-              }
-              codeLists.add(cl);
-          }
+        }
+        if (itemGroupRefs != null && itemGroupRefs.size() > 0) {
+            String last = igMandatories.containsKey(igId + "") ? igMandatories.get(igId + "") : itMandatory;
+            itemGroupRefs.get(itemGroupRefs.size() - 1).setMandatory(last);
+        }
+        sectionIds = sectionIds.length() > 0 ? sectionIds.substring(1, sectionIds.length() - 1) : "";
+        metadata.setSectionIds(sectionIds);
+    }
 
-          if (odmVersion.startsWith("oc") && hasMultiSelect && !mslset.contains(rsId)) {
-              mslset.add(rsId);
-              MultiSelectListBean msl = new MultiSelectListBean();
-              msl.setOid("MSL_" + rsId);
-              msl.setName(rsLabel);
-              msl.setDataType(datatype);
-              msl.setActualDataType(datatype);
-              Iterator<String> iter = multi.keySet().iterator();
-              while (iter.hasNext()) {
-                  String de = iter.next();
-                  MultiSelectListItemBean msli = new MultiSelectListItemBean();
-                  msli.setCodedOptionValue(de);
-                  TranslatedTextBean tt = new TranslatedTextBean();
-                  String t = multi.get(de);
-                  tt.setText(t);
-                  tt.setXmlLang(CoreResources.getField("translated_text_language"));
-                  msli.setDecode(tt);
-                  msl.getMultiSelectListItems().add(msli);
-              }
-              multiSelectLists.add(msl);
-          }
-      }
-      if (itemGroupRefs != null && itemGroupRefs.size() > 0) {
-          String last = igMandatories.containsKey(igId + "") ? igMandatories.get(igId + "") : itMandatory;
-          itemGroupRefs.get(itemGroupRefs.size() - 1).setMandatory(last);
-      }
-      sectionIds = sectionIds.length()>0?sectionIds.substring(1, sectionIds.length()-1):"";
-      metadata.setSectionIds(sectionIds);
-}
     public int parseWidth(String widthDecimal) {
         String w = "";
         widthDecimal = widthDecimal.trim();
@@ -2024,12 +1912,9 @@ private void fetchItemGroupMetaData(MetaDataVersionBean metadata,String cvIds, S
     }
 
     public void getAdminData(StudyBean study, DatasetBean dataset, OdmAdminDataBean data, String odmVersion) {
-        String dbName = CoreResources.getDBName();
         this.setStudyUsersTypesExpected();
-        ArrayList rows = this.select(this.getStudyUsersSql(study.getId() + ""));
-        Iterator it = rows.iterator();
-        while (it.hasNext()) {
-            HashMap row = (HashMap) it.next();
+        ArrayList<HashMap<String, Object>> rows = this.select(this.getStudyUsersSql(study.getId() + ""));
+        for(HashMap<String, Object> row : rows) {
             Integer userId = (Integer) row.get("user_id");
             String firstName = (String) row.get("first_name");
             String lastName = (String) row.get("last_name");
@@ -2042,22 +1927,17 @@ private void fetchItemGroupMetaData(MetaDataVersionBean metadata,String cvIds, S
             user.setOrganization(organization);
             data.getUsers().add(user);
         }
-        // LocationBean loc = new LocationBean();
-        // loc.setOid("LOC_"+study.getOid());
-        // loc.setName(study.getName());
         MetaDataVersionRefBean meta = new MetaDataVersionRefBean();
         meta.setElementDefOID(data.getMetaDataVersionOID());
         meta.setStudyOID(study.getOid());
         meta.setEffectiveDate(study.getCreatedDate());
-        // loc.setMetaDataVersionRef(meta);
-        // data.getLocations().add(loc);
     }
 
     protected HashMap<String, String> getNullValueCVs(StudyBean study) {
         HashMap<String, String> nullValueCVs = new HashMap<String, String>();
         int studyId = study.getId();
         this.setNullValueCVsTypesExpected();
-        ArrayList viewRows = new ArrayList();
+        ArrayList<HashMap<String, Object>> viewRows = new ArrayList<>();
         if (study.getParentStudyId() > 0) {
             viewRows = select(this.getNullValueCVsSql(studyId + ""));
             if (viewRows.size() <= 0) {
@@ -2066,9 +1946,7 @@ private void fetchItemGroupMetaData(MetaDataVersionBean metadata,String cvIds, S
         } else {
             viewRows = select(this.getNullValueCVsSql(studyId + ""));
         }
-        Iterator iter = viewRows.iterator();
-        while (iter.hasNext()) {
-            HashMap row = (HashMap) iter.next();
+        for(HashMap<String, Object> row : viewRows) {
             String sedOID = (String) row.get("definition_oid");
             String cvOID = (String) row.get("crf_version_oid");
             String nullValues = (String) row.get("null_values");
@@ -2089,18 +1967,6 @@ private void fetchItemGroupMetaData(MetaDataVersionBean metadata,String cvIds, S
         HashMap<Integer, String> oidPoses = new HashMap<Integer, String>();
         HashMap<Integer, String> idataOidPoses = new HashMap<Integer, String>();
 
-        // String studyIds = "";
-        // if (study.getParentStudyId() > 0) {
-        // studyIds += study.getId();
-        // } else {
-        // ArrayList<Integer> ids = (ArrayList<Integer>) (new
-        // StudyDAO(this.ds)).findAllSiteIdsByStudy(study);
-        // for (int i = 0; i < ids.size() - 1; ++i) {
-        // studyIds += ids.get(i) + ",";
-        // }
-        // studyIds += ids.get(ids.size() - 1);
-        // }
-
         String studyIds = study.getId() + "";
         int datasetItemStatusId = dataset.getDatasetItemStatus().getId();
         String sql = dataset.getSQLStatement().split("order by")[0].trim();
@@ -2113,29 +1979,25 @@ private void fetchItemGroupMetaData(MetaDataVersionBean metadata,String cvIds, S
         if ("postgres".equalsIgnoreCase(dbName)) {
             dateConstraint = "and " + sss[1] + " and " + sss[2];
             dateConstraint = dateConstraint.replace("date_created", "ss.enrollment_date");
-        } else if ("oracle".equalsIgnoreCase(dbName)) {
-            String[] os = (sss[1] + sss[2]).split("'");
-            dateConstraint = "and trunc(ss.enrollment_date) >= to_date('" + os[1] + "') and trunc(ss.enrollment_date) <= to_date('" + os[3] + "')";
         }
         logger.debug("Begin to GetSubjectEventFormSql");
         if (odmVersion.startsWith("oc")) {
             logger.debug("getOCSubjectEventFormSql="
                 + getOCSubjectEventFormSqlSS(studyIds, sedIds, itemIds, dateConstraint, datasetItemStatusId, studySubjectIds));
+            logger.debug("odmVersion " + odmVersion);
             this.setSubjectEventFormDataTypesExpected(odmVersion);
-            ArrayList viewRows = select(getOCSubjectEventFormSqlSS(studyIds, sedIds, itemIds, dateConstraint, datasetItemStatusId, studySubjectIds));
-            Iterator iter = viewRows.iterator();
-            this.setDataWithOCAttributes(study, dataset, data, odmVersion, iter, oidPoses, odmType);
+            ArrayList<HashMap<String, Object>> viewRows = select(getOCSubjectEventFormSqlSS(studyIds, sedIds, itemIds, dateConstraint, datasetItemStatusId, studySubjectIds));
+            logger.debug("number of rows: " + viewRows.size());
+            this.setDataWithOCAttributes(study, dataset, data, odmVersion, viewRows, oidPoses, odmType);
         } else {
             logger.debug("getSubjectEventFormSql=" + getSubjectEventFormSqlSS(studyIds, sedIds, itemIds, dateConstraint, datasetItemStatusId, studySubjectIds));
             this.setSubjectEventFormDataTypesExpected();
-            ArrayList viewRows = select(getSubjectEventFormSqlSS(studyIds, sedIds, itemIds, dateConstraint, datasetItemStatusId, studySubjectIds));
-            Iterator iter = viewRows.iterator();
+            ArrayList<HashMap<String, Object>> viewRows = select(getSubjectEventFormSqlSS(studyIds, sedIds, itemIds, dateConstraint, datasetItemStatusId, studySubjectIds));
             // if any algorithm modification has been done in this block,
             // the method "setDataWithOCAttributes" should be checked about the
             // updated as well because this method came from here.
-            while (iter.hasNext()) {
+            for(HashMap<String, Object> row : viewRows) {
                 JobTerminationMonitor.check();
-                HashMap row = (HashMap) iter.next();
                 String studySubjectLabel = (String) row.get("study_subject_oid");
                 String sedOID = (String) row.get("definition_oid");
                 Boolean studyEventRepeating = (Boolean) row.get("definition_repeating");
@@ -2193,12 +2055,11 @@ private void fetchItemGroupMetaData(MetaDataVersionBean metadata,String cvIds, S
 
         this.setEventGroupItemDataWithUnitTypesExpected();
         logger.debug("Begin to GetEventGroupItemWithUnitSql");
-        ArrayList viewRows = select(getEventGroupItemWithUnitSql(studyIds, sedIds, itemIds, dateConstraint, datasetItemStatusId, studySubjectIds));
+        ArrayList<HashMap<String, Object>> viewRows = select(getEventGroupItemWithUnitSql(studyIds, sedIds, itemIds, dateConstraint, datasetItemStatusId, studySubjectIds));
         logger.debug("getEventGroupItemWithUnitSql : "
             + getEventGroupItemWithUnitSql(studyIds, sedIds, itemIds, dateConstraint, datasetItemStatusId, studySubjectIds));
         String idataIds = "";
         if (viewRows.size() > 0) {
-            Iterator iter = viewRows.iterator();
             ExportSubjectDataBean sub = new ExportSubjectDataBean();
             ExportStudyEventDataBean se = new ExportStudyEventDataBean();
             ExportFormDataBean form = new ExportFormDataBean();
@@ -2210,12 +2071,8 @@ private void fetchItemGroupMetaData(MetaDataVersionBean metadata,String cvIds, S
             // ClinicalDataUnit.getNullValueMap();
 
             HashMap<String, String> nullValueCVs = this.getNullValueCVs(study);
-            HashSet<Integer> itemDataIds = new HashSet<Integer>();
-            String yearMonthFormat = StringUtil.parseDateFormat(ResourceBundleProvider.getFormatBundle(locale).getString("date_format_year_month"));
-            String yearFormat = StringUtil.parseDateFormat(ResourceBundleProvider.getFormatBundle(locale).getString("date_format_year"));
-            while (iter.hasNext()) {
+            for(HashMap<String, Object> row : viewRows) {
                 JobTerminationMonitor.check();
-                HashMap row = (HashMap) iter.next();
                 Integer ecId = (Integer) row.get("event_crf_id");
                 Integer igId = (Integer) row.get("item_group_id");
                 String igOID = (String) row.get("item_group_oid");
@@ -2268,12 +2125,6 @@ private void fetchItemGroupMetaData(MetaDataVersionBean metadata,String cvIds, S
                         it.setTransactionType("Insert");
                         String nullKey = study.getId() + "-" + se.getStudyEventOID() + "-" + form.getFormOID();
                         if (ClinicalDataUtil.isNull(itValue, nullKey, nullValueCVs)) {
-                            // if
-                            // (nullValueMap.containsKey(itValue.trim().toUpperCase()))
-                            // {
-                            // itValue =
-                            // nullValueMap.get(itValue.trim().toUpperCase());
-
                             it.setIsNull("Yes");
                             String nullvalues = ClinicalDataUtil.presetNullValueStr(nullValueCVs.get(nullKey));
                             boolean hasValueWithNull = ClinicalDataUtil.isValueWithNull(itValue, nullvalues);
@@ -2292,31 +2143,6 @@ private void fetchItemGroupMetaData(MetaDataVersionBean metadata,String cvIds, S
                                     logger.debug("Item -" + itOID + " value " + itValue + " might not be ODM date format yyyy-MM-dd.");
                                 }
                             }
-                            /* not be supported in openclinica-3.0.40.1
-                            else if (datatypeid == 10 && odmVersion.contains("1.3")) {
-                                if (StringUtil.isFormatDate(itValue, oc_df_string)) {
-                                    try {
-                                        itValue = new SimpleDateFormat("yyyy-MM-dd").format(new SimpleDateFormat(oc_df_string).parse(itValue));
-                                    } catch (Exception e) {
-                                        logger.info("Item -" + itOID + " value " + itValue + " might not be ODM partialDate format yyyy[-MM[-dd]].");
-                                    }
-                                } else {
-                                    if (StringUtil.isPartialYearMonth(itValue, yearMonthFormat)) {
-                                        try {
-                                            itValue = new SimpleDateFormat("yyyy-MM").format(new SimpleDateFormat(yearMonthFormat).parse(itValue));
-                                        } catch (Exception e) {
-                                            logger.info("Item -" + itOID + " value " + itValue + " might not be ODM partialDate format yyyy[-MM[-dd]].");
-                                        }
-                                    } else {
-                                        try {
-                                            itValue = new SimpleDateFormat("yyyy").format(new SimpleDateFormat(yearFormat).parse(itValue));
-                                        } catch (Exception e) {
-                                            logger.info("Item -" + itOID + " value " + itValue + " might not be ODM partialDate format yyyy[-MM[-dd]].");
-                                        }
-                                    }
-                                }
-                            }
-                            */
                             it.setValue(itValue);
                         }
                         if (muOid != null && muOid.length() > 0) {
@@ -2353,32 +2179,13 @@ private void fetchItemGroupMetaData(MetaDataVersionBean metadata,String cvIds, S
         }
     }
 
-    
-    
-    public void getClinicalData(StudyBean study,OdmClinicalDataBean data,String odmVersion,String studySubjectIds,String odmType){
-    	
-    	String dbName = CoreResources.getDBName();
-        String subprev = "";
-        HashMap<String, Integer> sepos = new HashMap<String, Integer>();
-        String seprev = "";
-        String formprev = "";
-        HashMap<String, Integer> igpos = new HashMap<String, Integer>();
-        String igprev = "";
-        String oidPos = "";
-        HashMap<Integer, String> oidPoses = new HashMap<Integer, String>();
-        HashMap<Integer, String> idataOidPoses = new HashMap<Integer, String>();
-        String studyIds = study.getId() + "";
-        
-    }
     protected void setErasedScoreItemDataValues(OdmClinicalDataBean data, String itemIds, String itemDataIds, HashMap<Integer,String> idataOidPoses, String odmVersion) {
         this.setErasedScoreItemDataIdsTypesExpected();
-        ArrayList<Integer> rows = this.select(this.getErasedScoreItemDataIdsSql(itemIds, itemDataIds));
+        ArrayList<HashMap<String, Object>> rows = this.select(this.getErasedScoreItemDataIdsSql(itemIds, itemDataIds));
         if(rows==null || rows.size()<1) {
             logger.debug("OdmExtractDAO.getErasedScoreItemDataIdsSql return no erased score item_data_id" );
         }else {
-            Iterator iter = rows.iterator();
-            while(iter.hasNext()) {
-                HashMap row = (HashMap) iter.next();
+            for (HashMap<String, Object> row : rows) {
                 Integer idataId = (Integer) row.get("item_data_id");
                 if(idataOidPoses.containsKey(idataId)) {
                     String[] poses = idataOidPoses.get(idataId).split("---");
@@ -2399,10 +2206,8 @@ private void fetchItemGroupMetaData(MetaDataVersionBean metadata,String cvIds, S
         this.setOCSubjectDataAuditsTypesExpected();
         logger.debug("Begin to execute GetOCSubjectDataAuditsSql");
         logger.debug("getOCSubjectDataAuditsSql= " + this.getOCSubjectDataAuditsSql(studySubjectOids));
-        ArrayList rows = select(this.getOCSubjectDataAuditsSql(studySubjectOids));
-        Iterator iter = rows.iterator();
-        while (iter.hasNext()) {
-            HashMap row = (HashMap) iter.next();
+        ArrayList<HashMap<String, Object>> rows = select(this.getOCSubjectDataAuditsSql(studySubjectOids));
+        for(HashMap<String, Object> row : rows) {
             String studySubjectLabel = (String) row.get("study_subject_oid");
             Integer auditId = (Integer) row.get("audit_id");
             String type = (String) row.get("name");
@@ -2452,10 +2257,8 @@ private void fetchItemGroupMetaData(MetaDataVersionBean metadata,String cvIds, S
         this.setOCEventDataAuditsTypesExpected();
         logger.debug("Begin to execute GetOCEventDataAuditsSql");
         logger.debug("getOCEventDataAuditsSql= " + this.getOCEventDataAuditsSql(studySubjectOids));
-        ArrayList rows = select(this.getOCEventDataAuditsSql(studySubjectOids));
-        Iterator iter = rows.iterator();
-        while (iter.hasNext()) {
-            HashMap row = (HashMap) iter.next();
+        ArrayList<HashMap<String, Object>> rows = select(this.getOCEventDataAuditsSql(studySubjectOids));
+        for(HashMap<String, Object> row : rows) {
             String studySubjectLabel = (String) row.get("study_subject_oid");
             String sedOid = (String) row.get("definition_oid");
             Integer auditId = (Integer) row.get("audit_id");
@@ -2508,10 +2311,8 @@ private void fetchItemGroupMetaData(MetaDataVersionBean metadata,String cvIds, S
         String dbName = CoreResources.getDBName();
         logger.debug("Begin to execute GetOCFormDataAuditsSql");
         logger.debug("getOCFormDataAuditsSql= " + this.getOCFormDataAuditsSql(studySubjectOids, ecIds));
-        ArrayList rows = select(this.getOCFormDataAuditsSql(studySubjectOids, ecIds));
-        Iterator iter = rows.iterator();
-        while (iter.hasNext()) {
-            HashMap row = (HashMap) iter.next();
+        ArrayList<HashMap<String, Object>> rows = select(this.getOCFormDataAuditsSql(studySubjectOids, ecIds));
+        for(HashMap<String, Object> row : rows) {
             Integer ecId = (Integer) row.get("event_crf_id");
             Integer auditId = (Integer) row.get("audit_id");
             String type = (String) row.get("name");
@@ -2545,22 +2346,7 @@ private void fetchItemGroupMetaData(MetaDataVersionBean metadata,String cvIds, S
                         auditLog.setOldValue(Status.getFromMap(Integer.parseInt(oldValue)).getName());
                     }
                 } //Fix for 0011675: SDV'ed subject is dipslayed as not SDV'ed in the 1.3 Full ODM Extract commenting out the following lines as these are treated like booleans while they are strings
-                //JN:The Oracle still continues to have 1 and 2 for this audit type 32 so enabling the following code for oracle only, ideally the trigger should be coded same for both postgres and oracle and since the trigger doesnt do same things, the existing data would still be a problem, so doing this patch work
-               
-                 else if ((typeId == 32) &&
-                	  ("oracle".equalsIgnoreCase(dbName))){
-                    if ("1".equals(newValue)) {
-                        auditLog.setNewValue("TRUE");
-                    } else {
-                        auditLog.setNewValue("FALSE");
-                    }
-                    if ("1".equals(oldValue)) {
-                        auditLog.setOldValue("TRUE");
-                    } else {
-                        auditLog.setOldValue("FALSE");
-                    }
-                	 }
-                 else {
+                else {
                     auditLog.setNewValue(newValue);
                     auditLog.setOldValue(oldValue);
                 }
@@ -2578,10 +2364,8 @@ private void fetchItemGroupMetaData(MetaDataVersionBean metadata,String cvIds, S
         this.setOCItemDataAuditsTypesExpected();
         logger.debug("Begin to execute GetOCItemDataAuditsSql");
         logger.debug("getOCItemDataAuditsSql= " + this.getOCItemDataAuditsSql(idataIds));
-        ArrayList rows = select(this.getOCItemDataAuditsSql(idataIds));
-        Iterator iter = rows.iterator();
-        while (iter.hasNext()) {
-            HashMap row = (HashMap) iter.next();
+        ArrayList<HashMap<String, Object>> rows = select(this.getOCItemDataAuditsSql(idataIds));
+        for(HashMap<String, Object> row : rows) {
             Integer idataId = (Integer) row.get("item_data_id");
             Integer auditId = (Integer) row.get("audit_id");
             String type = (String) row.get("name");
@@ -2634,10 +2418,8 @@ private void fetchItemGroupMetaData(MetaDataVersionBean metadata,String cvIds, S
         // HashMap<String, ArrayList<DiscrepancyNoteBean>> sDNs = new HashMap<String, ArrayList<DiscrepancyNoteBean>>();
         logger.debug("Begin to execute GetOCSubjectDataDNsSql");
         logger.debug("getOCSubjectDataDNsSql= " + this.getOCSubjectDataDNsSql(studySubjectOids));
-        ArrayList rows = select(this.getOCSubjectDataDNsSql(studySubjectOids));
-        Iterator iter = rows.iterator();
-        while (iter.hasNext()) {
-            HashMap row = (HashMap) iter.next();
+        ArrayList<HashMap<String, Object>> rows = select(this.getOCSubjectDataDNsSql(studySubjectOids));
+        for(HashMap<String, Object> row : rows) {
             String studySubjectLabel = (String) row.get("study_subject_oid");
             Integer pdnId = (Integer) row.get("parent_dn_id");
             Integer dnId = (Integer) row.get("dn_id");
@@ -2691,10 +2473,8 @@ private void fetchItemGroupMetaData(MetaDataVersionBean metadata,String cvIds, S
         // HashMap<String, ArrayList<DiscrepancyNoteBean>> sDNs = new HashMap<String, ArrayList<DiscrepancyNoteBean>>();
         logger.debug("Begin to execute GetOCEventDataDNsSql");
         logger.debug("getOCEventDataDNsSql= " + this.getOCEventDataDNsSql(definitionOids, studySubjectOids));
-        ArrayList rows = select(this.getOCEventDataDNsSql(definitionOids, studySubjectOids));
-        Iterator iter = rows.iterator();
-        while (iter.hasNext()) {
-            HashMap row = (HashMap) iter.next();
+        ArrayList<HashMap<String, Object>> rows = select(this.getOCEventDataDNsSql(definitionOids, studySubjectOids));
+        for(HashMap<String, Object> row : rows) {
             String studySubjectLabel = (String) row.get("study_subject_oid");
             String defOid = (String) row.get("definition_oid");
             Integer pdnId = (Integer) row.get("parent_dn_id");
@@ -2752,10 +2532,8 @@ private void fetchItemGroupMetaData(MetaDataVersionBean metadata,String cvIds, S
         // HashMap<String, ArrayList<DiscrepancyNoteBean>> sDNs = new HashMap<String, ArrayList<DiscrepancyNoteBean>>();
         logger.debug("Begin to execute GetOCEventDataDNsSql");
         logger.debug("getOCFormDataDNsSql= " + this.getOCFormDataDNsSql(ecIds));
-        ArrayList rows = select(this.getOCFormDataDNsSql(ecIds));
-        Iterator iter = rows.iterator();
-        while (iter.hasNext()) {
-            HashMap row = (HashMap) iter.next();
+        ArrayList<HashMap<String, Object>> rows = select(this.getOCFormDataDNsSql(ecIds));
+        for(HashMap<String, Object> row : rows) {
             Integer ecId = (Integer) row.get("event_crf_id");
             Integer pdnId = (Integer) row.get("parent_dn_id");
             Integer dnId = (Integer) row.get("dn_id");
@@ -2814,10 +2592,8 @@ private void fetchItemGroupMetaData(MetaDataVersionBean metadata,String cvIds, S
         // HashMap<String, ArrayList<DiscrepancyNoteBean>> sDNs = new HashMap<String, ArrayList<DiscrepancyNoteBean>>();
         logger.debug("Begin to execute GetOCItemDataDNsSql");
         logger.debug("getOCItemDataDNsSql= " + this.getOCItemDataDNsSql(idataIds));
-        ArrayList rows = select(this.getOCItemDataDNsSql(idataIds));
-        Iterator iter = rows.iterator();
-        while (iter.hasNext()) {
-            HashMap row = (HashMap) iter.next();
+        ArrayList<HashMap<String, Object>> rows = select(this.getOCItemDataDNsSql(idataIds));
+        for(HashMap<String, Object> row : rows) {
             Integer idataId = (Integer) row.get("item_data_id");
             Integer pdnId = (Integer) row.get("parent_dn_id");
             Integer dnId = (Integer) row.get("dn_id");
@@ -2874,14 +2650,12 @@ private void fetchItemGroupMetaData(MetaDataVersionBean metadata,String cvIds, S
         }
     }
 
-    protected void setDataWithOCAttributes(StudyBean study, DatasetBean dataset, OdmClinicalDataBean data, String odmVersion, Iterator iter,
+    protected void setDataWithOCAttributes(StudyBean study, DatasetBean dataset, OdmClinicalDataBean data, String odmVersion, ArrayList<HashMap<String, Object>> viewRows,
             HashMap<Integer, String> oidPoses, String odmType) {
         String subprev = "";
         HashMap<String, Integer> sepos = new HashMap<String, Integer>();
         String seprev = "";
         String formprev = "";
-        HashMap<String, Integer> igpos = new HashMap<String, Integer>();
-        String igprev = "";
         String oidPos = "";
         StudyBean parentStudy = study.getParentStudyId() > 0 ? (StudyBean) new StudyDAO(this.ds).findByPK(study.getParentStudyId()) : study;
         setStudyParemeterConfig(parentStudy);
@@ -2891,8 +2665,7 @@ private void fetchItemGroupMetaData(MetaDataVersionBean metadata,String cvIds, S
         String studySubjectOids = "";
         String sedOids = "";
         String ecIds = "";
-        while (iter.hasNext()) {
-            HashMap row = (HashMap) iter.next();
+        for(HashMap<String, Object> row : viewRows) {
             String studySubjectLabel = (String) row.get("study_subject_oid");
             // String label = (String) row.get("label");
             Integer sgcId = (Integer) row.get("sgc_id");
@@ -2975,7 +2748,6 @@ private void fetchItemGroupMetaData(MetaDataVersionBean metadata,String cvIds, S
                 data.getExportSubjectData().add(sub);
                 seprev = "";
                 formprev = "";
-                igprev = "";
             }
 
             oidPos = data.getExportSubjectData().size() - 1 + "";
@@ -3017,7 +2789,6 @@ private void fetchItemGroupMetaData(MetaDataVersionBean metadata,String cvIds, S
                 se.setStudyEventRepeatKey(studyEventRepeating ? sampleOrdinal + "" : "-1");
                 sub.getExportStudyEventData().add(se);
                 formprev = "";
-                igprev = "";
             } else {
                 se = sub.getExportStudyEventData().get(sepos.get(key + sampleOrdinal));
             }
@@ -3053,7 +2824,6 @@ private void fetchItemGroupMetaData(MetaDataVersionBean metadata,String cvIds, S
                 }
                 // ----- finish adding crf attributes
                 se.getExportFormData().add(form);
-                igprev = "";
             }
             oidPos += "---" + (se.getExportFormData().size() - 1);
             // ecId should be distinct
@@ -3099,17 +2869,6 @@ private void fetchItemGroupMetaData(MetaDataVersionBean metadata,String cvIds, S
         DataEntryStage stage = DataEntryStage.INVALID;
         Status status = Status.get(ecStatusId);
 
-        // At this time, EventCRFBean stage is not in database.
-        //
-        // if (stage != null) {
-        // if (!stage.equals(DataEntryStage.INVALID)) {
-        // return stage.getName();
-        // }
-        // }
-        //
-        // if (!active || !status.isActive()) {
-        // stage = DataEntryStage.UNCOMPLETED;
-        // }
         if (stage.equals(DataEntryStage.INVALID) || status.equals(Status.INVALID)) {
             stage = DataEntryStage.UNCOMPLETED;
         }
@@ -3176,10 +2935,8 @@ private void fetchItemGroupMetaData(MetaDataVersionBean metadata,String cvIds, S
     protected HashMap<Integer,String> getSectionLabels(String sectionIds) {
         HashMap<Integer,String> labels = new HashMap<Integer,String>();
         this.setSectionLabelsTypesExpected();
-        ArrayList rows = this.select(this.getSectionLabelsSql(sectionIds));
-        Iterator it = rows.iterator();
-        while(it.hasNext()) {
-            HashMap row = (HashMap) it.next();
+        ArrayList<HashMap<String, Object>> rows = this.select(this.getSectionLabelsSql(sectionIds));
+        for(HashMap<String, Object> row : rows) {
             Integer secId = (Integer) row.get("section_id");
             String label = (String) row.get("label");
             labels.put(secId, label);
@@ -3190,10 +2947,8 @@ private void fetchItemGroupMetaData(MetaDataVersionBean metadata,String cvIds, S
     protected HashMap<Integer,String> getParentItemOIDs(String crfVersionIds) {
         HashMap<Integer,String> oids = new HashMap<Integer,String>();
         this.setParentItemOIDsTypesExpected();
-        ArrayList rows = this.select(this.getParentItemOIDsSql(crfVersionIds));
-        Iterator it = rows.iterator();
-        while(it.hasNext()) {
-            HashMap row = (HashMap) it.next();
+        ArrayList<HashMap<String, Object>> rows = this.select(this.getParentItemOIDsSql(crfVersionIds));
+        for(HashMap<String, Object> row : rows) {
             Integer itId = (Integer) row.get("item_id");
             String oid = (String) row.get("oc_oid");
             oids.put(itId, oid);
@@ -3229,7 +2984,6 @@ private void fetchItemGroupMetaData(MetaDataVersionBean metadata,String cvIds, S
     }
 
     protected String studyEventAndFormMetaTables() {
-   //     return "study_event_definition sed, event_definition_crf edc, crf, crf_version cv ";
         return "event_definition_crf edc Join crf crf on crf.crf_id = edc.crf_id "
               +" Join crf_version cv on cv.crf_id=crf.crf_id Join study_event_definition sed on sed.study_event_definition_id = edc.study_event_definition_id"
               +"  left Join  event_definition_crf_tag edc_tag on edc_tag.path::text = ((sed.oc_oid::text || '.'::text) || crf.oc_oid::text)";
@@ -3523,16 +3277,16 @@ private void fetchItemGroupMetaData(MetaDataVersionBean metadata,String cvIds, S
         }
     }
 
-    protected String getStudyMeasurementUnitsSql(int studyId) {
-        return "select distinct mu.oc_oid as mu_oid, mu.name from event_definition_crf edc, crf_version cv, versioning_map vm, item, measurement_unit mu"
-            + " where edc.study_id =" + studyId + " and edc.crf_id = cv.crf_id" + " and cv.crf_version_id = vm.crf_version_id and vm.item_id = item.item_id "
-            + " and item.units = mu.name order by mu.oc_oid";
+    protected String getStudyMeasurementUnitsSqlByStudyId() {
+        return "select distinct mu.oc_oid as mu_oid, mu.name from event_definition_crf edc, crf_version cv, versioning_map vm, item, measurement_unit mu " +
+                "where edc.study_id = ? and edc.crf_id = cv.crf_id and cv.crf_version_id = vm.crf_version_id and vm.item_id = item.item_id " +
+                "and item.units = mu.name order by mu.oc_oid";
     }
 
-    protected String getStudyMeasurementUnitsSql(String crfVersionOid) {
-        return "select distinct mu.oc_oid as mu_oid, mu.name from  crf_version cv, versioning_map vm, item, measurement_unit mu " +
-        		"where cv.oc_OID in (\'"+crfVersionOid +"\')   and cv.crf_version_id = vm.crf_version_id and vm.item_id = item.item_id " +
-        		"and item.units = mu.name order by mu.oc_oid";
+    protected String getStudyMeasurementUnitsSqlByCrfVersionOid() {
+        return "select distinct mu.oc_oid as mu_oid, mu.name from crf_version cv, versioning_map vm, item, measurement_unit mu " +
+                "where cv.oc_OID in (?) and cv.crf_version_id = vm.crf_version_id and vm.item_id = item.item_id " +
+                "and item.units = mu.name order by mu.oc_oid";
     }
   
     protected String getEventGroupItemWithUnitSql(String studyIds, String sedIds, String itemIds, String dateConstraint, int datasetItemStatusId,
@@ -3695,16 +3449,9 @@ private void fetchItemGroupMetaData(MetaDataVersionBean metadata,String cvIds, S
             + " select rs.response_set_id from response_set rs where rs.response_type_id in (8,9))"
             + "      and ifm.item_id in " + itemIds + " limit 999)";
     }
-	
     
-    protected String getSectionDetails(String CrfVersionOID)
-    {
+    protected String getSectionDetails(String CrfVersionOID) {
     	return "select section_id, label,title,subtitle,instructions,page_number_label from section section where crf_version_id=?";
     }
-    
-    
-    
-    
-    
     
 }

@@ -9,7 +9,6 @@
 <fmt:setBundle basename="org.akaza.openclinica.i18n.format" var="resformat"/>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
-
 <jsp:useBean scope='session' id='userBean' class='org.akaza.openclinica.bean.login.UserAccountBean'/>
 <jsp:useBean scope='session' id='study' class='org.akaza.openclinica.bean.managestudy.StudyBean' />
 <jsp:useBean scope='session' id='userRole' class='org.akaza.openclinica.bean.login.StudyUserRoleBean' />
@@ -21,14 +20,15 @@
 <jsp:useBean scope='request' id='formMessages' class='java.util.HashMap'/>
 <jsp:useBean scope='request' id='markComplete' class='java.lang.String'/>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
-<head><title><fmt:message key="openclinica" bundle="${resword}"/> <fmt:message key="double_data_entry" bundle="${resword}"/></title>
+<head>
+    <title><fmt:message key="openclinica" bundle="${resword}"/> <fmt:message key="double_data_entry" bundle="${resword}"/></title>
     <meta http-equiv="X-UA-Compatible" content="IE=8" />
 
+    <link rel="shortcut icon" type="image/x-icon" href="<c:url value='/images/favicon.ico'/>">
     <link rel="stylesheet" href="includes/styles.css" type="text/css" media="screen">
-<%-- <link rel="stylesheet" href="includes/styles2.css" type="text/css">--%>
+    <%--<link rel="stylesheet" href="includes/styles2.css" type="text/css">--%>
     <link rel="stylesheet" href="includes/print.css" type="text/css" media="print">
 
     <script type="text/javascript" language="JavaScript">
@@ -38,7 +38,7 @@
     <script type="text/JavaScript" language="JavaScript" src="includes/global_functions_javascript.js"></script>
     <script type="text/JavaScript" language="JavaScript" src="includes/Tabs.js"></script>
     <script type="text/JavaScript" language="JavaScript" src="includes/CalendarPopup.js"></script>
-     <!-- Added for the new Calender -->
+     <!-- Added for the new Calendar -->
 
     <link rel="stylesheet" type="text/css" media="all" href="includes/new_cal/skins/aqua/theme.css" title="Aqua" />
     <script type="text/javascript" src="includes/new_cal/calendar.js"></script>
@@ -46,11 +46,10 @@
     <script type="text/javascript" src="includes/new_cal/lang/<fmt:message key="jscalendar_language_file" bundle="${resformat}"/>"></script>
     <script type="text/javascript" src="includes/new_cal/calendar-setup.js"></script>
     <!-- End -->
-    <script type="text/javascript"  language="JavaScript" src=   "includes/repetition-model/repetition-model.js"></script>
+    <script type="text/javascript" language="JavaScript" src="includes/repetition-model/repetition-model.js"></script>
     <script type="text/JavaScript" language="JavaScript" src="includes/prototype.js"></script>
     <script type="text/JavaScript" language="JavaScript" src="includes/scriptaculous.js?load=effects"></script>
     <script type="text/JavaScript" language="JavaScript" src="includes/effects.js"></script>
-
 </head>
 <body class="aka_bodywidth" onload="document.getElementById('CRF_infobox_closed').style.display='block';document.getElementById('CRF_infobox_open').style.display='none';"  onunload="javascript:clsWin();">
 <div id="centralContainer" style=

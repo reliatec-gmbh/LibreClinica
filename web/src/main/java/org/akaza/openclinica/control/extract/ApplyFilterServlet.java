@@ -7,24 +7,23 @@
  */
 package org.akaza.openclinica.control.extract;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.extract.FilterBean;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.control.form.Validator;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.extract.FilterDAO;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.akaza.openclinica.web.bean.EntityBeanTable;
 import org.akaza.openclinica.web.bean.FilterRow;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
 
 /**
  * <P>
@@ -41,7 +40,11 @@ import java.util.List;
  */
 public class ApplyFilterServlet extends SecureController {
 
-    public static final String BEAN_YEARS = "years";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -194005692268217488L;
+	public static final String BEAN_YEARS = "years";
     public static final String BEAN_MONTHS = "months";
     public static final String BEAN_FILTER = "filter";
     public static final String DETAILS_URL = "ApplyFilter?action=details";
@@ -60,7 +63,7 @@ public class ApplyFilterServlet extends SecureController {
         // if validate -- check to make sure one is chosen
         // if return -- return to the create dataset workflow
         // if details == show details with an option to return to the list page
-        if (StringUtil.isBlank(action)) {
+        if (action == null || action.trim().isEmpty()) {
 
             EntityBeanTable table = getFilterTable();
             request.setAttribute("table", table);
@@ -68,7 +71,7 @@ public class ApplyFilterServlet extends SecureController {
             forwardPage(Page.APPLY_FILTER);
         } else if ("validate".equalsIgnoreCase(action)) {
             FormProcessor fp = new FormProcessor(request);
-            HashMap errors = new HashMap();
+            HashMap<String, ArrayList<String>> errors = new HashMap<>();
             if (fp.getString("submit").equalsIgnoreCase(resword.getString("apply_filter"))) {
                 if (fp.getInt("filterId") > 0) {
                     FilterDAO fdao = new FilterDAO(sm.getDataSource());
@@ -141,8 +144,8 @@ public class ApplyFilterServlet extends SecureController {
 
     }
 
-    private ArrayList getMonths() {
-        ArrayList answer = new ArrayList();
+    private ArrayList<String> getMonths() {
+        ArrayList<String> answer = new ArrayList<>();
 
         answer.add(resword.getString("January"));
         answer.add(resword.getString("February"));
@@ -160,8 +163,8 @@ public class ApplyFilterServlet extends SecureController {
         return answer;
     }
 
-    private ArrayList getYears() {
-        ArrayList answer = new ArrayList();
+    private ArrayList<String> getYears() {
+        ArrayList<String> answer = new ArrayList<>();
 
         Calendar currTime = Calendar.getInstance();
         int currYear = currTime.get(Calendar.YEAR);
@@ -176,10 +179,10 @@ public class ApplyFilterServlet extends SecureController {
     /*
      * might be worth adding this to the core servlets?
      */
-    private ArrayList getStatuses() {
+    private ArrayList<Status> getStatuses() {
         Status statusesArray[] = { Status.AVAILABLE, Status.PENDING, Status.PRIVATE, Status.UNAVAILABLE };
-        List statuses = Arrays.asList(statusesArray);
-        return new ArrayList(statuses);
+        List<Status> statuses = Arrays.asList(statusesArray);
+        return new ArrayList<>(statuses);
     }
 
     private EntityBeanTable getFilterTable() {
@@ -187,22 +190,22 @@ public class ApplyFilterServlet extends SecureController {
         FilterDAO fdao = new FilterDAO(sm.getDataSource());
         EntityBeanTable table = fp.getEntityBeanTable();
 
-        ArrayList filters = new ArrayList();
+        ArrayList<FilterBean> filters = new ArrayList<>();
         if (ub.isSysAdmin()) {
-            filters = (ArrayList) fdao.findAllAdmin();
+            filters = fdao.findAllAdmin();
         } else {
-            filters = (ArrayList) fdao.findAll();
+            filters = fdao.findAll();
         }
         // TODO make findAllByProject????
-        ArrayList filterRows = FilterRow.generateRowsFromBeans(filters);
+        ArrayList<FilterRow> filterRows = FilterRow.generateRowsFromBeans(filters);
 
         String[] columns =
             { resword.getString("filter_name"), resword.getString("description"), resword.getString("created_by"), resword.getString("created_date"),
                 resword.getString("status"), resword.getString("actions") };
 
-        table.setColumns(new ArrayList(Arrays.asList(columns)));
+        table.setColumns(new ArrayList<String>(Arrays.asList(columns)));
         table.hideColumnLink(5);
-        table.setQuery("ApplyFilter", new HashMap());
+        table.setQuery("ApplyFilter", new HashMap<>());
         table.setRows(filterRows);
         table.computeDisplay();
         return table;

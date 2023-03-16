@@ -71,7 +71,6 @@ public class SoapCreateSubject extends WebServiceGatewaySupport implements Subje
         return mapRewardConfirmation(DomUtils.getChildElementByTagName(responseElement, "result"));
     }
 
-    @SuppressWarnings("unchecked")
     private String mapRewardConfirmation(Element confirmationElement) {
         String confirmationNumber = confirmationElement.getAttribute("success");
         return confirmationNumber;

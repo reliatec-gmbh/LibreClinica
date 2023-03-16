@@ -8,6 +8,7 @@
 package org.akaza.openclinica.web.pform;
 
 import java.net.URL;
+
 import java.util.Calendar;
 import java.util.Date;
 
@@ -22,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.MessageDigestPasswordEncoder;
 import org.springframework.web.client.RestTemplate;
 
+@SuppressWarnings("deprecation")
 public class EnketoAPI {
 
     private final String enketoURL;

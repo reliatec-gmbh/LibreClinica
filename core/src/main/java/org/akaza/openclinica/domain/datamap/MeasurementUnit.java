@@ -29,6 +29,10 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
 public class MeasurementUnit  extends AbstractMutableDomainObject {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4099230698393387808L;
 	private int id;
 	private Integer version;
 	private String ocOid;

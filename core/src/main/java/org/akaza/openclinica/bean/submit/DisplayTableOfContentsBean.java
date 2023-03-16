@@ -46,7 +46,7 @@ public class DisplayTableOfContentsBean {
     private StudySubjectBean studySubject;
     private StudyEventBean studyEvent;
     private EventCRFBean eventCRF;
-    private ArrayList sections; // this really should be metadata, but the
+    private ArrayList<SectionBean> sections; // this really should be metadata, but the
 
     // sections are populated with the number of
     // items completed, so there's some data in them
@@ -147,7 +147,7 @@ public class DisplayTableOfContentsBean {
     /**
      * @return Returns the sections.
      */
-    public ArrayList getSections() {
+    public ArrayList<SectionBean> getSections() {
         return sections;
     }
 
@@ -155,7 +155,7 @@ public class DisplayTableOfContentsBean {
      * @param sections
      *            The sections to set.
      */
-    public void setSections(ArrayList sections) {
+    public void setSections(ArrayList<SectionBean> sections) {
         this.sections = sections;
     }
 

@@ -5,15 +5,17 @@
  * For details see: https://libreclinica.org/license
  * LibreClinica, copyright (C) 2020
  */
-// default package
-// Generated Jul 31, 2013 2:03:33 PM by Hibernate Tools 3.4.0.CR1
 package org.akaza.openclinica.domain.datamap;
+
+import static javax.persistence.EnumType.STRING;
+import static org.akaza.openclinica.domain.managestudy.MailNotificationType.DISABLED;
+
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -27,6 +29,7 @@ import javax.persistence.UniqueConstraint;
 
 import org.akaza.openclinica.domain.DataMapDomainObject;
 import org.akaza.openclinica.domain.Status;
+import org.akaza.openclinica.domain.managestudy.MailNotificationType;
 import org.akaza.openclinica.domain.user.UserAccount;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -42,10 +45,9 @@ import org.hibernate.annotations.Type;
 @GenericGenerator(name = "id-generator", strategy = "native", parameters = { @Parameter(name = "sequence_name", value = "study_study_id_seq") })
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Study   extends DataMapDomainObject {
-
+	private static final long serialVersionUID = -1650053070213212481L;
 	private int studyId;
 	private UserAccount userAccount;
-	private StudyType studyType;
 	private Study study;
 	private Status status;
 	private String uniqueIdentifier;
@@ -99,20 +101,16 @@ public class Study   extends DataMapDomainObject {
 	private Boolean resultsReference;
 	private String oc_oid;
 	private Integer oldStatusId;
-	private List<CrfBean> crfs ;
-	private List<StudyEventDefinition> studyEventDefinitions ;
+	private List<CrfBean> crfs;
+	private List<StudyEventDefinition> studyEventDefinitions;
 	private List<Study> studies;
-	private List<StudyUserRole> studyUserRoles;
-	//private Set datasets = new HashSet(0);
-	private List<StudyParameterValue> studyParameterValues;
 	private List<StudySubject> studySubjects ;
 	private List<EventDefinitionCrf> eventDefinitionCrfs;
-	private List<DiscrepancyNote> discrepancyNotes ;
-	private List<StudyModuleStatus> studyModuleStatuses ;
-	private Integer version;
+	private List<DiscrepancyNote> discrepancyNotes;
+	private MailNotificationType mailNotification = DISABLED;
+    private String contactEmail;
 
-	public Study() {
-	}
+    public Study() {}
 
 	public Study(int studyId, String ocOid) {
 		this.studyId = studyId;
@@ -140,13 +138,12 @@ public class Study   extends DataMapDomainObject {
 			String duration, String selection, String timing,
 			String officialTitle, Boolean resultsReference, String ocOid,
 			Integer oldStatusId, List<CrfBean> crfs, List<StudyEventDefinition> studyEventDefinitions,
-			List<Study> studies, List<StudyUserRole> studyUserRoles, Set datasets,
+			List<Study> studies, List<StudyUserRole> studyUserRoles,
 			List<StudyParameterValue> studyParameterValues, List<StudySubject> studySubjects,
 			List<EventDefinitionCrf> eventDefinitionCrfs, List<DiscrepancyNote> discrepancyNotes,
-			List<StudyModuleStatus> studyModuleStatuses) {
+            List<StudyModuleStatus> studyModuleStatuses, MailNotificationType mailNotification) {
 		this.studyId = studyId;
 		this.userAccount = userAccount;
-		this.studyType = studyType;
 		this.study = study;
 		this.status = status;
 		this.uniqueIdentifier = uniqueIdentifier;
@@ -203,13 +200,10 @@ public class Study   extends DataMapDomainObject {
 		this.crfs = crfs;
 		this.studyEventDefinitions = studyEventDefinitions;
 		this.studies = studies;
-		this.studyUserRoles = studyUserRoles;
-	//	this.datasets = datasets;
-		this.studyParameterValues = studyParameterValues;
 		this.studySubjects = studySubjects;
 		this.eventDefinitionCrfs = eventDefinitionCrfs;
 		this.discrepancyNotes = discrepancyNotes;
-		this.studyModuleStatuses = studyModuleStatuses;
+		this.mailNotification = mailNotification;
 	}
 
 	@Id
@@ -807,6 +801,8 @@ public class Study   extends DataMapDomainObject {
 		this.discrepancyNotes = discrepancyNotes;
 	}
 
+
+
 	//@OneToMany(fetch = FetchType.LAZY, mappedBy = "study")
 	/*public List<StudyModuleStatus> getStudyModuleStatuses() {
 		return this.studyModuleStatuses;
@@ -816,5 +812,22 @@ public class Study   extends DataMapDomainObject {
 		this.studyModuleStatuses = studyModuleStatuses;
 	}*/
 
-	
+	@Enumerated(STRING)
+	@Column(name = "mail_notification", length = 255)
+    public MailNotificationType getMailNotification() {
+        return mailNotification;
+    }
+
+    public void setMailNotification(MailNotificationType mailNotification) {
+        this.mailNotification = mailNotification;
+    }
+
+    @Column(name = "contact_email")
+    public String getContactEmail() {
+        return contactEmail;
+    }
+
+    public void setContactEmail(String contactEmail) {
+        this.contactEmail = contactEmail;
+    }
 }

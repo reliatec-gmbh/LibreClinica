@@ -37,7 +37,12 @@ import java.util.List;
  */
 public class EditFilterServlet extends SecureController {
 
-    public static String getLink(int filterId) {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 4863574561291316253L;
+
+	public static String getLink(int filterId) {
         return "EditFilter?filterId=" + filterId;
     }
 
@@ -53,7 +58,7 @@ public class EditFilterServlet extends SecureController {
             v.addValidation("fDesc", Validator.NO_BLANKS);
             v.addValidation("fStatusId", Validator.IS_VALID_TERM, TermType.STATUS);
 
-            HashMap errors = v.validate();
+            HashMap<String, ArrayList<String>> errors = v.validate();
             if (!errors.isEmpty()) {
                 String fieldNames[] = { "fName", "fDesc" };
                 fp.setCurrentStringValuesAsPreset(fieldNames);
@@ -88,17 +93,17 @@ public class EditFilterServlet extends SecureController {
                 FilterDAO fdao = new FilterDAO(sm.getDataSource());
                 EntityBeanTable table = fp.getEntityBeanTable();
 
-                ArrayList filters = (ArrayList) fdao.findAll();// TODO make
+                ArrayList<FilterBean> filters = fdao.findAll();// TODO make
                 // findAllByProject
-                ArrayList filterRows = FilterRow.generateRowsFromBeans(filters);
+                ArrayList<FilterRow> filterRows = FilterRow.generateRowsFromBeans(filters);
 
                 String[] columns =
                     { resword.getString("filter_name"), resword.getString("description"), resword.getString("created_by"), resword.getString("created_date"),
                         resword.getString("status"), resword.getString("actions") };
 
-                table.setColumns(new ArrayList(Arrays.asList(columns)));
+                table.setColumns(new ArrayList<String>(Arrays.asList(columns)));
                 table.hideColumnLink(5);
-                table.setQuery("CreateFiltersOne", new HashMap());
+                table.setQuery("CreateFiltersOne", new HashMap<>());
                 table.setRows(filterRows);
                 table.computeDisplay();
 
@@ -133,10 +138,10 @@ public class EditFilterServlet extends SecureController {
         // TODO add a limit so that the owner can edit, no one else?
     }
 
-    private ArrayList getStatuses() {
+    private ArrayList<Status> getStatuses() {
         Status statusesArray[] = { Status.AVAILABLE, Status.PENDING, Status.PRIVATE, Status.UNAVAILABLE };
-        List statuses = Arrays.asList(statusesArray);
-        return new ArrayList(statuses);
+        List<Status> statuses = Arrays.asList(statusesArray);
+        return new ArrayList<>(statuses);
     }
 
 }

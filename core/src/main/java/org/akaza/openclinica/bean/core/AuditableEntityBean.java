@@ -32,7 +32,12 @@ import java.util.Date;
  */
 public class AuditableEntityBean extends EntityBean {
 
-    protected Date createdDate;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 7308348836586459009L;
+
+	protected Date createdDate;
 
     protected Date updatedDate;
 

@@ -7,8 +7,12 @@
  */
 package org.akaza.openclinica.control.admin;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Set;
+
 import org.akaza.openclinica.bean.admin.TriggerBean;
-import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.extract.DatasetBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.control.SpringServletAccess;
@@ -16,24 +20,18 @@ import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.dao.extract.DatasetDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
+import org.akaza.openclinica.service.extract.XsltTriggerService;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.akaza.openclinica.web.bean.EntityBeanTable;
 import org.akaza.openclinica.web.bean.TriggerRow;
 import org.akaza.openclinica.web.job.ExampleSpringJob;
-import org.akaza.openclinica.service.extract.XsltTriggerService;
 import org.quartz.JobDataMap;
 import org.quartz.Trigger;
 import org.quartz.Trigger.TriggerState;
 import org.quartz.TriggerKey;
 import org.quartz.impl.StdScheduler;
 import org.quartz.impl.matchers.GroupMatcher;
-import org.springframework.scheduling.quartz.SchedulerFactoryBean;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Set;
 
 /**
  * 
@@ -42,10 +40,12 @@ import java.util.Set;
 public class ViewJobServlet extends SecureController {
 
    
-    private static String SCHEDULER = "schedulerFactoryBean";
-    private static String EXPORT_TRIGGER = "exportTrigger";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1226529718566575419L;
+	private static String SCHEDULER = "schedulerFactoryBean";
 
-    private SchedulerFactoryBean schedulerFactoryBean;
     private StdScheduler scheduler;
 
     @Override
@@ -85,7 +85,7 @@ public class ViewJobServlet extends SecureController {
         Set<TriggerKey> triggerKeySet = scheduler.getTriggerKeys(GroupMatcher.triggerGroupEquals(xsltTriggerSrvc.getTriggerGroupNameForExportJobs()));
         TriggerKey[] triggerKeys = triggerKeySet.stream().toArray(TriggerKey[]::new);
 
-        ArrayList triggerBeans = new ArrayList();
+        ArrayList<TriggerBean> triggerBeans = new ArrayList<>();
         for (TriggerKey triggerKey : triggerKeys) {
             Trigger trigger = scheduler.getTrigger(triggerKey);
             try {
@@ -133,16 +133,16 @@ public class ViewJobServlet extends SecureController {
             // our wrapper to show triggers
         }
 
-        ArrayList allRows = TriggerRow.generateRowsFromBeans(triggerBeans);
+        ArrayList<TriggerRow> allRows = TriggerRow.generateRowsFromBeans(triggerBeans);
 
         EntityBeanTable table = fp.getEntityBeanTable();
         String[] columns =
             { resword.getString("name"), resword.getString("previous_fire_time"), resword.getString("next_fire_time"), resword.getString("description"),
                 resword.getString("period_to_run"), resword.getString("dataset"), resword.getString("study"), resword.getString("actions") };
-        table.setColumns(new ArrayList(Arrays.asList(columns)));
+        table.setColumns(new ArrayList<String>(Arrays.asList(columns)));
         table.hideColumnLink(3);
         table.hideColumnLink(7);
-        table.setQuery("ViewJob", new HashMap());
+        table.setQuery("ViewJob", new HashMap<>());
         // table.addLink("", "CreateUserAccount");
         table.setSortingColumnInd(0);
         table.setRows(allRows);

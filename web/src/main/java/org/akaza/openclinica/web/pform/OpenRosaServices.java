@@ -14,8 +14,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringWriter;
-import java.net.FileNameMap;
-import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -24,7 +22,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 import javax.ws.rs.GET;
-import javax.ws.rs.HEAD;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -34,7 +31,6 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.StreamingOutput;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -75,6 +71,7 @@ import org.akaza.openclinica.dao.service.StudyParameterValueDAO;
 import org.akaza.openclinica.dao.submit.CRFVersionDAO;
 import org.akaza.openclinica.dao.submit.SubjectDAO;
 import org.akaza.openclinica.domain.datamap.CrfVersionMedia;
+import org.akaza.openclinica.exception.OpenClinicaException;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.service.PformSubmissionService;
 import org.akaza.openclinica.service.pmanage.ParticipantPortalRegistrar;
@@ -91,7 +88,6 @@ import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.XMLContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -174,10 +170,6 @@ public class OpenRosaServices {
             @QueryParam("formID") String crfOID, @RequestHeader("Authorization") String authorization, @Context ServletContext context) throws Exception {
         if (!mayProceedPreview(studyOID))
             return null;
-
-        StudyDAO sdao = new StudyDAO(getDataSource());
-        StudyBean study = sdao.findByOid(studyOID);
-
         CRFDAO cdao = new CRFDAO(getDataSource());
         Collection<CRFBean> crfs = cdao.findAll();
 
@@ -423,17 +415,17 @@ public class OpenRosaServices {
             StudyBean studyBean = sdao.findByOid(studyOid);
             int studyEventDefnId = Integer.valueOf(userContext.get("studyEventDefinitionID"));
             int studyEventOrdinal = Integer.valueOf(userContext.get("studyEventOrdinal"));
-            UserAccountBean uBean = (UserAccountBean) udao.findByPK(1);
+            UserAccountBean uBean = udao.findByPK(1);
             // build Subject Account
             SubjectBean subjectBean = createSubjectBean(uBean);
-            subjectBean = (SubjectBean) subjectdao.findByPK(subjectBean.getId());
+            subjectBean = subjectdao.findByPK(subjectBean.getId());
             // build StudySubject Account
             ssBean = createStudySubjectBean(studyBean, subjectBean, uBean);
-            ssBean = (StudySubjectBean) ssdao.findByPK(ssBean.getId());
+            ssBean = ssdao.findByPK(ssBean.getId());
             System.out.println("study subject oid:  " + ssBean.getOid());
             // build User Account
             UserAccountBean userAccountBean = createUserAccount(uBean, studyBean, ssBean);
-            userAccountBean = (UserAccountBean) udao.findByPK(userAccountBean.getId());
+            userAccountBean = udao.findByPK(userAccountBean.getId());
             // build and schedule study Event
             StudyEventBean studyEventBean = createStudyEventBean(ssBean, studyEventDefnId, studyEventOrdinal, userAccountBean);
         }
@@ -459,8 +451,12 @@ public class OpenRosaServices {
         ssBean.setEnrollmentDate(new Date());
         int nextLabel = getStudySubjectDao().findTheGreatestLabel() + 1;
         ssBean.setLabel(Integer.toString(nextLabel));
-        StudySubjectDAO ssdao = new StudySubjectDAO(dataSource);
-        ssBean = (StudySubjectBean) ssdao.create(ssBean, false);
+        try {
+            StudySubjectDAO ssdao = new StudySubjectDAO(dataSource);
+            ssBean = ssdao.createWithoutGroup(ssBean);
+        } catch (OpenClinicaException err) {
+            logger.error("Study subject DAO create without group failed", err);
+        }
         return ssBean;
     }
 
@@ -474,7 +470,7 @@ public class OpenRosaServices {
         studyEventBean.setDateStarted(new Date());
         studyEventBean.setSubjectEventStatus(SubjectEventStatus.SCHEDULED);
         StudyEventDAO studyEventDao = new StudyEventDAO(dataSource);
-        studyEventBean = (StudyEventBean) studyEventDao.create(studyEventBean);
+        studyEventBean = studyEventDao.create(studyEventBean);
         return studyEventBean;
     }
 
@@ -521,7 +517,7 @@ public class OpenRosaServices {
             boolean isAnonymous = false;
             if (userContext.get("studySubjectOID") == null) isAnonymous = true;
 
-            StudySubjectDAO ssdao = new StudySubjectDAO<String, ArrayList>(dataSource);
+            StudySubjectDAO ssdao = new StudySubjectDAO(dataSource);
             StudySubjectBean ssBean = getSSBean(userContext);
 
 
@@ -692,12 +688,11 @@ public class OpenRosaServices {
             @PathParam("studyOID") String studyOID, @RequestHeader("Authorization") String authorization) throws Exception {
 
         String ssoid = request.getParameter("studySubjectOID");
-        StudySubjectDAO ssdao = new StudySubjectDAO<String, ArrayList>(dataSource);
+        StudySubjectDAO ssdao = new StudySubjectDAO(dataSource);
         StudySubjectBean ssBean = ssdao.findByOid(ssoid);
         if (!mayProceedSubmission(studyOID, ssBean))
             return null;
 
-        HashMap<String, String> urlCache = (HashMap<String, String>) context.getAttribute("pformURLCache");
         context.getAttribute("subjectContextCache");
         if (ssoid == null) {
             return "<error>studySubjectOID is null :(</error>";
@@ -711,8 +706,7 @@ public class OpenRosaServices {
             ArrayList<CRFVersionBean> crfs = versionDAO.findDefCRFVersionsByStudyEvent(nextEvent.getStudyEventDefinitionId());
             PFormCache cache = PFormCache.getInstance(context);
             for (CRFVersionBean crfVersion : crfs) {
-                String enketoURL = cache.getPFormURL(studyOID, crfVersion.getOid());
-                String contextHash = cache.putSubjectContext(ssoid, String.valueOf(nextEvent.getStudyEventDefinitionId()),
+                cache.putSubjectContext(ssoid, String.valueOf(nextEvent.getStudyEventDefinitionId()),
                         String.valueOf(nextEvent.getSampleOrdinal()), crfVersion.getOid());
             }
         } catch (Exception e) {
@@ -724,8 +718,8 @@ public class OpenRosaServices {
         response.setHeader("Content-Type", "text/xml; charset=UTF-8");
         response.setHeader("Content-Disposition", "attachment; filename=\"schedule.xml\";");
         response.setContentType("text/xml; charset=utf-8");
+        
         return "<result>success</result>";
-
     }
 
     public DataSource getDataSource() {
@@ -778,7 +772,7 @@ public class OpenRosaServices {
 
     private StudyBean getStudy(String oid) {
         sdao = new StudyDAO(dataSource);
-        StudyBean studyBean = (StudyBean) sdao.findByOid(oid);
+        StudyBean studyBean = sdao.findByOid(oid);
         return studyBean;
     }
 
@@ -787,7 +781,7 @@ public class OpenRosaServices {
         if (study.getParentStudyId() == 0) {
             return study;
         } else {
-            StudyBean parentStudy = (StudyBean) sdao.findByPK(study.getParentStudyId());
+            StudyBean parentStudy = sdao.findByPK(study.getParentStudyId());
             return parentStudy;
         }
 
@@ -815,7 +809,7 @@ public class OpenRosaServices {
             Element group = (Element) expr.evaluate(doc, XPathConstants.NODE);
             Element ordinal = doc.createElement("OC.REPEAT_ORDINAL");
         	group.appendChild(ordinal);
-            }
+        }
 
         TransformerFactory transformFactory = TransformerFactory.newInstance();
         Transformer transformer = transformFactory.newTransformer();
@@ -946,7 +940,7 @@ public class OpenRosaServices {
         createdUserAccountBean.addUserType(type);
 
         UserAccountDAO udao = new UserAccountDAO(dataSource);
-        createdUserAccountBean = (UserAccountBean) udao.create(createdUserAccountBean);
+        createdUserAccountBean = udao.create(createdUserAccountBean);
         // authoritiesDao.saveOrUpdate(new AuthoritiesBean(createdUserAccountBean.getName()));
         return createdUserAccountBean;
     }
@@ -974,7 +968,7 @@ public class OpenRosaServices {
 
     private StudyBean getStudy(Integer id) {
         sdao = new StudyDAO(dataSource);
-        StudyBean studyBean = (StudyBean) sdao.findByPK(id);
+        StudyBean studyBean = sdao.findByPK(id);
         return studyBean;
     }
 

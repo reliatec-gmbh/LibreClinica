@@ -7,8 +7,6 @@
  */
 package org.akaza.openclinica.patterns.ocobserver;
 
-import org.akaza.openclinica.domain.datamap.StudyEvent;
-
 public class OnStudyEventUpdated extends OnStudyEventChanged {
 
 	/**

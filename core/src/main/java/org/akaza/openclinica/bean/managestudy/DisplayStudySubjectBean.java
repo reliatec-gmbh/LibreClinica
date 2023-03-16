@@ -8,6 +8,7 @@
 package org.akaza.openclinica.bean.managestudy;
 
 import org.akaza.openclinica.bean.core.AuditableEntityBean;
+import org.akaza.openclinica.bean.submit.SubjectGroupMapBean;
 
 import java.util.ArrayList;
 
@@ -18,9 +19,13 @@ import java.util.ArrayList;
  * Preferences - Java - Code Style - Code Templates
  */
 public class DisplayStudySubjectBean extends AuditableEntityBean {
-    private StudySubjectBean studySubject;
-    private ArrayList studyGroups;
-    private ArrayList<StudyEventBean> studyEvents;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -8981178788935993373L;
+	private StudySubjectBean studySubject;
+    private ArrayList<SubjectGroupMapBean> studyGroups;
+    private ArrayList<? extends AuditableEntityBean> studyEvents;
 
     // YW
     private int sedId;
@@ -67,7 +72,7 @@ public class DisplayStudySubjectBean extends AuditableEntityBean {
     /**
      * @return Returns the studyEvents.
      */
-    public ArrayList getStudyEvents() {
+    public ArrayList<? extends AuditableEntityBean> getStudyEvents() {
         return studyEvents;
     }
 
@@ -75,7 +80,7 @@ public class DisplayStudySubjectBean extends AuditableEntityBean {
      * @param studyEvents
      *            The studyEvents to set.
      */
-    public void setStudyEvents(ArrayList studyEvents) {
+    public void setStudyEvents(ArrayList<? extends AuditableEntityBean> studyEvents) {
         this.studyEvents = studyEvents;
     }
 
@@ -97,7 +102,7 @@ public class DisplayStudySubjectBean extends AuditableEntityBean {
     /**
      * @return Returns the studyGroups.
      */
-    public ArrayList getStudyGroups() {
+    public ArrayList<SubjectGroupMapBean> getStudyGroups() {
         return studyGroups;
     }
 
@@ -105,7 +110,7 @@ public class DisplayStudySubjectBean extends AuditableEntityBean {
      * @param studyGroups
      *            The studyGroups to set.
      */
-    public void setStudyGroups(ArrayList studyGroups) {
+    public void setStudyGroups(ArrayList<SubjectGroupMapBean> studyGroups) {
         this.studyGroups = studyGroups;
     }
 }

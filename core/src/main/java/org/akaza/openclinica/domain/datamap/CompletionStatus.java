@@ -37,6 +37,10 @@ import org.hibernate.annotations.Type;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class CompletionStatus  extends DataMapDomainObject {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3664908939254477581L;
 	private int completionStatusId;
 	private Status status;
 	private String name;

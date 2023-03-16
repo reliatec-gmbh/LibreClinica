@@ -65,6 +65,7 @@ import javax.sql.DataSource;
  * @author Luke Taylor
  * @since 3.0
  */
+// TODO duplicate of the version in the web module?
 public class OpenClinicaUsernamePasswordAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
     //~ Static fields/initializers =====================================================================================
 

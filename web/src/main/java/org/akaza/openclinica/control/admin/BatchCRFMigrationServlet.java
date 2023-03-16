@@ -57,7 +57,6 @@ public class BatchCRFMigrationServlet extends SecureController {
 
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public void processRequest() throws Exception {
 
@@ -125,13 +124,10 @@ public class BatchCRFMigrationServlet extends SecureController {
         }
     }
 
-
-    @SuppressWarnings("rawtypes")
     private StudyDAO sdao() {
         return new StudyDAO(sm.getDataSource());
     }
 
-    @SuppressWarnings("rawtypes")
     private StudyEventDefinitionDAO seddao() {
         return new StudyEventDefinitionDAO(sm.getDataSource());
     }

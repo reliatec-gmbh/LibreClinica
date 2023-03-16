@@ -18,7 +18,11 @@ import java.text.SimpleDateFormat;
  */
 public class OpenClinicaException extends Exception {
 
-    protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1690013927444642305L;
+	protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
     public StringBuffer logInfo = new StringBuffer("----> ");
 
     public String errorID;

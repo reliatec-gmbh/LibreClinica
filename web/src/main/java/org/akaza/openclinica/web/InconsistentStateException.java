@@ -26,7 +26,11 @@ import org.akaza.openclinica.view.Page;
  * @author ssachs
  */
 public class InconsistentStateException extends OpenClinicaException {
-    private Page goTo; // this is the page the user should be forwarded to
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -2863667653984318263L;
+	private Page goTo; // this is the page the user should be forwarded to
 
     public InconsistentStateException(Page goTo, String message, String type, String methodName, String className) {
         super(message, type, methodName, className, "inconsistentState");

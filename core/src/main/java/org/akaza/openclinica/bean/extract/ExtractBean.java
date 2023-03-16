@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import javax.sql.DataSource;
 
@@ -94,9 +95,9 @@ public class ExtractBean {
     private Date dateCreated;
 
     // an array of StudyEventDefinitionBean objects
-    private ArrayList studyEvents;
+    private ArrayList<StudyEventDefinitionBean> studyEvents;
 
-    private HashMap eventData;
+    private HashMap<String, StudyEventBean> eventData;
 
     /**
      * @vbc 08/06/2008 NEW EXTRACT DATA IMPLEMENTATION - separate the subjects
@@ -105,18 +106,17 @@ public class ExtractBean {
      *      different because they are not synchronized in the code
      */
     // an array of subjects and study_subject
-    private final ArrayList subjects;
-    private ArrayList subjectsnostudy;
-    private ArrayList hBASE_EVENTSIDE;
-    private ArrayList hBASE_ITEMGROUPSIDE;
-    private ArrayList aBASE_ITEMDATAID;
+    private final ArrayList<StudySubjectBean> subjects;
+    private ArrayList<extractDataset_EVENTSIDE> hBASE_EVENTSIDE;
+    private ArrayList<extractDataset_ITEMGROUPSIDE> hBASE_ITEMGROUPSIDE;
+    private ArrayList<Integer> aBASE_ITEMDATAID;
 
     // an array of discrepancy notes, followed by a hash map of notes
     // private ArrayList discrepancies;
 
     // private HashMap discrepancyNotes;
 
-    private HashMap groupNames;
+    private HashMap<String, Integer> groupNames;
 
     // a hashmap of group names to use for generating the keys and column names
     /**
@@ -124,7 +124,7 @@ public class ExtractBean {
      *      it is not used - add InKeysHelper - a HashMap that will speed up the
      *      data extract display
      */
-    private HashMap hmInKeys;
+    private HashMap<String, Boolean> hmInKeys;
 
     // a hashmap indicating which subjects have already been added
     // key is subjectId as Integer, value is Boolean.TRUE
@@ -133,21 +133,21 @@ public class ExtractBean {
     // keys are studySubjectId-studyEventDefinitionId-sampleOrdinal-crfId-ItemID
     // strings
     // values are the corresponding values in the item_data table
-    private HashMap data;
+    private HashMap<String, String> data;
 
     // keys are studyEventDefinitionId Integer
     // values are the maximum sample ordinal for that sed
-    private final HashMap maxOrdinals;
+    private final HashMap<Integer, Integer> maxOrdinals;
 
     // keys are itemId Integer
     // values are Boolean.TRUE
     // if an item has its id in the keySet for this HashMap,
     // that means the user has chosen to display this item in the report
-    private final HashMap selectedItems;
+    private final HashMap<Integer, Boolean> selectedItems;
 
-    private final HashMap selectedSEDs;
+    private final HashMap<Integer, Boolean> selectedSEDs;
 
-    private final HashMap selectedSEDCRFs;
+    private final HashMap<String, Boolean> selectedSEDCRFs;
 
     private HashMap<String, String> eventDescriptions;// for spss only
 
@@ -156,18 +156,18 @@ public class ExtractBean {
 
     // header
 
-    private ArrayList<Object> itemNames;// for displaying dataset in HTML
+    private ArrayList<DisplayItemHeaderBean> itemNames;// for displaying dataset in HTML
     // view,item header
 
-    private ArrayList rowValues; // for displaying dataset in html view
+    private ArrayList<DisplayItemDataBean> rowValues; // for displaying dataset in html view
 
-    private HashMap studyGroupMap;
+    private HashMap<Integer, StudyGroupBean> studyGroupMap;
 
-    private HashMap studyGroupMaps;
+    private HashMap<Integer, ArrayList<HashMap<Integer, StudyGroupBean>>> studyGroupMaps;
 
     // to contain all the studysubject ids and link them to another hashmap, the
     // study group map above, tbh
-    private ArrayList studyGroupClasses; // for displaying groups for
+    private ArrayList<StudyGroupClassBean> studyGroupClasses; // for displaying groups for
     // subjects in the exported dataset,
     // tbh
 
@@ -177,8 +177,6 @@ public class ExtractBean {
 
     private CRFBean currentCRF;
 
-    private int crfIndex = -1;
-
     private int maxItemDataBeanOrdinal = 0;
 
     private StudyEventDefinitionBean currentDef;
@@ -187,10 +185,6 @@ public class ExtractBean {
 
     private ItemBean currentItem;
 
-    private int itemIndex = -1;
-
-    private final boolean defChanged = false;
-
     // Added By Hamid
     // EventCRFBean eventCRF = new EventCRFBean();
 
@@ -198,30 +192,30 @@ public class ExtractBean {
         this.ds = ds;
         study = new StudyBean();
         parentStudy = new StudyBean();
-        studyEvents = new ArrayList();
+        studyEvents = new ArrayList<>();
 
-        data = new HashMap();
-        maxOrdinals = new HashMap();
-        subjects = new ArrayList();
-        // discrepancies = new ArrayList();
-        // discrepancyNotes = new HashMap();
+        data = new HashMap<>();
+        maxOrdinals = new HashMap<>();
+        subjects = new ArrayList<>();
+        // discrepancies = new ArrayList<>();
+        // discrepancyNotes = new HashMap<>();
         // above added 7/07, tbh
-        // subjectsAdded = new HashMap();
-        selectedItems = new HashMap();
-        selectedSEDs = new HashMap();
-        groupNames = new HashMap();
-        selectedSEDCRFs = new HashMap();
-        itemNames = new ArrayList<Object>();
-        rowValues = new ArrayList();
-        eventHeaders = new ArrayList<String>();
-        eventDescriptions = new HashMap<String, String>();
-        // groups = new HashMap();
+        // subjectsAdded = new HashMap<>();
+        selectedItems = new HashMap<>();
+        selectedSEDs = new HashMap<>();
+        groupNames = new HashMap<>();
+        selectedSEDCRFs = new HashMap<>();
+        itemNames = new ArrayList<>();
+        rowValues = new ArrayList<>();
+        eventHeaders = new ArrayList<>();
+        eventDescriptions = new HashMap<>();
+        // groups = new HashMap<>();
         // above added 7/07, tbh
 
-        hmInKeys = new HashMap();
-        hBASE_EVENTSIDE = new ArrayList();
-        hBASE_ITEMGROUPSIDE = new ArrayList();
-        aBASE_ITEMDATAID = new ArrayList();
+        hmInKeys = new HashMap<>();
+        hBASE_EVENTSIDE = new ArrayList<>();
+        hBASE_ITEMGROUPSIDE = new ArrayList<>();
+        aBASE_ITEMDATAID = new ArrayList<>();
     }
 
     public ExtractBean(DataSource ds, SimpleDateFormat sdf, SimpleDateFormat long_sdf) {
@@ -231,32 +225,32 @@ public class ExtractBean {
         this.ds = ds;
         study = new StudyBean();
         parentStudy = new StudyBean();
-        studyEvents = new ArrayList();
+        studyEvents = new ArrayList<>();
 
-        data = new HashMap();
-        maxOrdinals = new HashMap();
-        subjects = new ArrayList();
-        // subjectsAdded = new HashMap();
-        selectedItems = new HashMap();
-        selectedSEDs = new HashMap();
-        groupNames = new HashMap();
-        selectedSEDCRFs = new HashMap();
-        itemNames = new ArrayList<Object>();
-        rowValues = new ArrayList();
-        eventHeaders = new ArrayList<String>();
-        eventDescriptions = new HashMap<String, String>();
+        data = new HashMap<>();
+        maxOrdinals = new HashMap<>();
+        subjects = new ArrayList<>();
+        // subjectsAdded = new HashMap<>();
+        selectedItems = new HashMap<>();
+        selectedSEDs = new HashMap<>();
+        groupNames = new HashMap<>();
+        selectedSEDCRFs = new HashMap<>();
+        itemNames = new ArrayList<>();
+        rowValues = new ArrayList<>();
+        eventHeaders = new ArrayList<>();
+        eventDescriptions = new HashMap<>();
 
-        hmInKeys = new HashMap();
-        hBASE_EVENTSIDE = new ArrayList();
-        hBASE_ITEMGROUPSIDE = new ArrayList();
-        aBASE_ITEMDATAID = new ArrayList();
+        hmInKeys = new HashMap<>();
+        hBASE_EVENTSIDE = new ArrayList<>();
+        hBASE_ITEMGROUPSIDE = new ArrayList<>();
+        aBASE_ITEMDATAID = new ArrayList<>();
 
     }
 
     /**
      * @return Returns the eventDescriptions.
      */
-    public HashMap getEventDescriptions() {
+    public HashMap<String, String> getEventDescriptions() {
         return eventDescriptions;
     }
 
@@ -271,7 +265,7 @@ public class ExtractBean {
     //
     // TODO place to add additional metadata, tbh
     //
-    public void computeReportMetadata(ReportBean answer) {
+    public void computeReportMetadata(ReportBean<?> answer) {
         // ///////////////////
         // //
         // HEADER //
@@ -329,7 +323,7 @@ public class ExtractBean {
         }
     }
 
-    public void computeReportData(ReportBean answer) {
+    public void computeReportData(ReportBean<?> answer) {
         answer.nextCell("Subject Event Item Values (Item-CRF-Ordinal)");
         answer.nextRow();
 
@@ -444,7 +438,6 @@ public class ExtractBean {
             // 03/08
             // int numSEDCRFs = getSEDNumCRFs(i);
             for (int j = 1; j <= numSamples; j++) {
-                int numSEDCRFs = getSEDNumCRFs(i);
                 if (dataset.isShowCRFcompletionDate()) {
                     // logger.info();
                     String crfCompletionDate = getColumnLabel(i, j, "CompletionDate", numSamples);
@@ -516,10 +509,8 @@ public class ExtractBean {
 
                     int numItems = getNumItems(i, k);
                     for (int l = 1; l <= numItems; l++) {
-                        // for (int m = 0; m <= maxItemDataBeanOrdinal; m++) {
-                        for (Iterator iter = groupNames.entrySet().iterator(); iter.hasNext();) {
-                            java.util.Map.Entry groupEntry = (java.util.Map.Entry) iter.next();
-                            String groupName = (String) groupEntry.getKey();
+                    	for(Map.Entry<String, Integer> groupEntry : groupNames.entrySet()) {
+                            String groupName = groupEntry.getKey();
 
                             logger.info("*** Found a row in groupNames: key " + groupName);
                             // + ", value "+
@@ -604,21 +595,13 @@ public class ExtractBean {
                 didb.setSubjectSecondaryId(secondaryId);
             }
             if (dataset.isShowSubjectGroupInformation()) {
-                ArrayList studyGroupList = new ArrayList();
-                studyGroupList = getStudyGroupMap(h);// studyGroupMap =
-                // getStudyGroupMap(h);
-                // logger.info("+++ picture of study group classes:
-                // "+studyGroupClasses.toString());
-                // logger.info("+++ picture of study group list:
-                // "+studyGroupList);
-                // logger.info("+++ picture of study group map:
-                // "+studyGroupMap.toString());
+                ArrayList<HashMap<Integer, StudyGroupBean>> studyGroupList = getStudyGroupMap(h);
                 for (int y = 0; y < studyGroupClasses.size(); y++) {
                     StudyGroupClassBean sgcBean = (StudyGroupClassBean) studyGroupClasses.get(y);
                     // if the subject is in the group...
                     // logger.info("iterating through keys:
                     // "+sgcBean.getId());
-                    Iterator iter = studyGroupList.iterator();
+                    Iterator<HashMap<Integer, StudyGroupBean>> iter = studyGroupList.iterator();
                     /*
                      * case 0 - no groups assigned - should just have a blank
                      * here
@@ -633,7 +616,7 @@ public class ExtractBean {
                      * maps and assigns them in rows
                      */
                     while (iter.hasNext()) {
-                        studyGroupMap = (HashMap) iter.next();
+                        studyGroupMap = (HashMap<Integer, StudyGroupBean>) iter.next();
 
                         // logger.info("+++ picture of study group map:
                         // "+studyGroupMap.toString());
@@ -749,31 +732,16 @@ public class ExtractBean {
                         for (int l = 1; l <= numItems; l++) {
                             // adding the extra loop here for repeating items in
                             // extract data, tbh
-                            // for (int m = 0; m <= maxItemDataBeanOrdinal; m++)
-                            // {
-                            for (java.util.Iterator iter = groupNames.entrySet().iterator(); iter.hasNext();) {
-                                java.util.Map.Entry groupEntry = (java.util.Map.Entry) iter.next();
+                            for(Map.Entry<String, Integer> groupEntry : groupNames.entrySet()) {
                                 String groupName = (String) groupEntry.getKey();
                                 if (inKeys(i, j, k, l, groupName)) {
-                                    // logger.info("found group name at line
-                                    // 703: " + groupName);
                                     Integer groupCount = (Integer) groupEntry.getValue();
-                                    // logger.info("found groupCount of " +
-                                    // groupCount);
                                     for (int m = 1; m <= groupCount.intValue(); m++) {
                                         String data = getDataByIndex(h, i, j, k, l, m, groupName);
-                                        // a guard clause here to take care of
-                                        // empties...
-                                        // if (!data.equals("") ||
-                                        // !groupName.equals(UNGROUPED)) {
                                         answer.nextCell(data);
                                         didb.getItemValues().add(data);
                                     }
                                 }
-                                // }
-                                // removing guard clause for now, tbh
-                                // and the column code above should look about
-                                // the same, tbh
                             }
 
                         }
@@ -785,19 +753,19 @@ public class ExtractBean {
         }
     }
 
-    public void computeReport(ReportBean answer) {
+    public void computeReport(ReportBean<?> answer) {
         computeReportMetadata(answer);
         answer.closeMetadata();
         computeReportData(answer);
     }
 
-    private HashMap displayed = new HashMap();
+    private HashMap<String, Boolean> displayed = new HashMap<>();
 
     // keys are Strings returned by getColumnKeys, values are ArrayLists of
     // ItemBean objects in order of their display in the SED/CRF
-    private HashMap sedCrfColumns = new HashMap();
+    private HashMap<String, ArrayList<ItemBean>> sedCrfColumns = new HashMap<>();
 
-    private HashMap sedCrfItemFormMetadataBeans = new HashMap();
+    private HashMap<String, ArrayList<ItemFormMetadataBean>> sedCrfItemFormMetadataBeans = new HashMap<>();
 
     /**
      * Implements the Column algorithm in "Dataset Export Algorithms" Must be
@@ -812,15 +780,15 @@ public class ExtractBean {
         StudyGroupDAO studygroupDAO = new StudyGroupDAO(ds);
         StudyGroupClassDAO studygroupclassDAO = new StudyGroupClassDAO(ds);
         // SubjectGroupMapDAO subjectGroupMapDAO = new SubjectGroupMapDAO(ds);
-        studyGroupClasses = new ArrayList();
-        studyGroupMap = new HashMap();
-        studyGroupMaps = new HashMap<Integer, ArrayList>();
-        sedCrfColumns = new HashMap();
-        displayed = new HashMap();
-        sedCrfItemFormMetadataBeans = new HashMap();
+        studyGroupClasses = new ArrayList<>();
+        studyGroupMap = new HashMap<>();
+        studyGroupMaps = new HashMap<>();
+        sedCrfColumns = new HashMap<>();
+        displayed = new HashMap<>();
+        sedCrfItemFormMetadataBeans = new HashMap<>();
 
         studyEvents = seddao.findAllByStudy(study);
-        ArrayList finalStudyEvents = new ArrayList();
+        ArrayList<StudyEventDefinitionBean> finalStudyEvents = new ArrayList<>();
         // set up group classes first, tbh
         // this bit of code throws an error b/c we try to access
         // currentSubject...
@@ -849,13 +817,13 @@ public class ExtractBean {
             }
         }
         for (int i = 0; i < studyEvents.size(); i++) {
-            StudyEventDefinitionBean sed = (StudyEventDefinitionBean) studyEvents.get(i);
+            StudyEventDefinitionBean sed = studyEvents.get(i);
 
             if (!selectedSED(sed)) {
                 continue;
             }
-            ArrayList CRFs = (ArrayList) cdao.findAllActiveByDefinition(sed);
-            ArrayList CRFsDisplayedInThisSED = new ArrayList();
+            ArrayList<CRFBean> CRFs = cdao.findAllActiveByDefinition(sed);
+            ArrayList<CRFBean> CRFsDisplayedInThisSED = new ArrayList<>();
 
             for (int j = 0; j < CRFs.size(); j++) {
                 CRFBean cb = (CRFBean) CRFs.get(j);
@@ -866,11 +834,11 @@ public class ExtractBean {
 
                     CRFsDisplayedInThisSED.add(cb);
 
-                    ArrayList CRFVersions = cvdao.findAllByCRFId(cb.getId());
+                    ArrayList<CRFVersionBean> CRFVersions = cvdao.findAllByCRFId(cb.getId());
                     for (int k = 0; k < CRFVersions.size(); k++) {
                         CRFVersionBean cvb = (CRFVersionBean) CRFVersions.get(k);
 
-                        ArrayList Items = idao.findAllItemsByVersionId(cvb.getId());
+                        ArrayList<ItemBean> Items = idao.findAllItemsByVersionId(cvb.getId());
                         // sort by ordinal/name
                         Collections.sort(Items);
                         for (int l = 0; l < Items.size(); l++) {
@@ -917,22 +885,22 @@ public class ExtractBean {
 
     private void addColumn(StudyEventDefinitionBean sed, CRFBean cb, ItemBean ib) {
         String key = getColumnsKey(sed, cb);
-        ArrayList columns = (ArrayList) sedCrfColumns.get(key);
+        ArrayList<ItemBean> columns = sedCrfColumns.get(key);
 
         if (columns == null) {
-            columns = new ArrayList();
+            columns = new ArrayList<>();
         }
 
         columns.add(ib);
         sedCrfColumns.put(key, columns);
     }
 
-    public ArrayList getColumns(StudyEventDefinitionBean sed, CRFBean cb) {
+    public ArrayList<ItemBean> getColumns(StudyEventDefinitionBean sed, CRFBean cb) {
         String key = getColumnsKey(sed, cb);
-        ArrayList columns = (ArrayList) sedCrfColumns.get(key);
+        ArrayList<ItemBean> columns = sedCrfColumns.get(key);
 
         if (columns == null) {
-            columns = new ArrayList();
+            columns = new ArrayList<>();
         }
 
         return columns;
@@ -940,22 +908,22 @@ public class ExtractBean {
 
     private void addItemFormMetadataBeans(StudyEventDefinitionBean sed, CRFBean cb, ItemFormMetadataBean ifmb) {
         String key = sed.getId() + "_" + cb.getId();
-        ArrayList columns = (ArrayList) sedCrfItemFormMetadataBeans.get(key);
+        ArrayList<ItemFormMetadataBean> columns = sedCrfItemFormMetadataBeans.get(key);
 
         if (columns == null) {
-            columns = new ArrayList();
+            columns = new ArrayList<>();
         }
 
         columns.add(ifmb);
         sedCrfItemFormMetadataBeans.put(key, columns);
     }
 
-    public ArrayList getItemFormMetadataBeans(StudyEventDefinitionBean sed, CRFBean cb) {
+    public ArrayList<ItemFormMetadataBean> getItemFormMetadataBeans(StudyEventDefinitionBean sed, CRFBean cb) {
         String key = sed.getId() + "_" + cb.getId();
-        ArrayList columns = (ArrayList) sedCrfItemFormMetadataBeans.get(key);
+        ArrayList<ItemFormMetadataBean> columns = sedCrfItemFormMetadataBeans.get(key);
 
         if (columns == null) {
-            columns = new ArrayList();
+            columns = new ArrayList<>();
         }
 
         return columns;
@@ -965,10 +933,10 @@ public class ExtractBean {
      * @vbc 08/06/2008 NEW EXTRACT DATA IMPLEMENTATION replaced the old one with
      *      a new function
      */
-    public void addStudySubjectData(ArrayList objs) {
+    public void addStudySubjectData(ArrayList<StudySubjectBean> objs) {
         for (int i = 0; i < objs.size(); i++) {
             StudySubjectBean sub = new StudySubjectBean();
-            sub = (StudySubjectBean) objs.get(i);
+            sub = objs.get(i);
             subjects.add(sub);
         }// for
     }// addStudySubjectData
@@ -1003,10 +971,9 @@ public class ExtractBean {
          * The two ArrayList are synchronized because they are extracted with
          * "ORDER BY aitem_data_id"
          */
-        boolean isfnd = false;
-
+    	
         // initialize
-        eventData = new HashMap();
+        eventData = new HashMap<>();
 
         for (int ik = 0; ik < aBASE_ITEMDATAID.size(); ik++) {
             // get the item_group side
@@ -1096,7 +1063,7 @@ public class ExtractBean {
 
                 eventCRF.setCrfVersion(crfVersion);
 
-                ArrayList events = new ArrayList();
+                ArrayList<EventCRFBean> events = new ArrayList<>();
                 events.add(eventCRF);
                 // logger.info("///adding an event CRF..."
                 // + eventCRF.getInterviewerName());
@@ -1111,9 +1078,9 @@ public class ExtractBean {
                 /* sampleOrdinal.intValue()) */objev.sampleOrdinal.intValue());
 
                 if (eventData == null) {
-                    eventData = new HashMap();
+                    eventData = new HashMap<>();
                 }
-                StudyEventBean checkEvent = (StudyEventBean) eventData.get(key);
+                StudyEventBean checkEvent = eventData.get(key);
                 // debug(event);
 
                 if (checkEvent == null) {
@@ -1125,9 +1092,7 @@ public class ExtractBean {
                     // OK - already saved
                 }
 
-            } else {
-                isfnd = true;
-            }//
+            }
         }// for
 
      
@@ -1157,10 +1122,7 @@ public class ExtractBean {
         // YW 08-21-2007 << fetch start_time_flag and end_time_flag
         StudyEventDAO sedao = new StudyEventDAO(ds);
         StudyEventBean se = (StudyEventBean) sedao.findByStudySubjectIdAndDefinitionIdAndOrdinal(studySubjectId, studyEventDefinitionId, sampleOrdinal);
-        // YW >>
-        if (se == null) {
-            se.setStatus(Status.INVALID);
-        }
+        
         StudyEventBean event = new StudyEventBean();
         EventCRFBean eventCRF = new EventCRFBean();
 
@@ -1199,7 +1161,7 @@ public class ExtractBean {
 
         eventCRF.setCrfVersion(crfVersion);
         // logger.info();
-        ArrayList events = new ArrayList();
+        ArrayList<EventCRFBean> events = new ArrayList<>();
         events.add(eventCRF);
         // logger.info("///adding an event CRF..."
         // + eventCRF.getInterviewerName());
@@ -1210,7 +1172,7 @@ public class ExtractBean {
         // FIXME def not one to one relationship, tbh, 03.08
         String key = getStudyEventDataKey(studySubjectId.intValue(), studyEventDefinitionId.intValue(), sampleOrdinal.intValue());
         if (eventData == null) {
-            eventData = new HashMap();
+            eventData = new HashMap<>();
         }
         StudyEventBean checkEvent = (StudyEventBean) eventData.get(key);
         // debug(event);
@@ -1298,7 +1260,7 @@ public class ExtractBean {
         if (!groupNames.containsKey(name)) {
             groupNames.put(name, ordinal);
         } else {
-            Integer numTimes = (Integer) groupNames.get(name);
+            Integer numTimes = groupNames.get(name);
 
             if (numTimes > ordinal) {
                 groupNames.put(name, numTimes);
@@ -1316,10 +1278,9 @@ public class ExtractBean {
          * The two ArrayList are synchronized because they are extracted with
          * "ORDER BY aitem_data_id"
          */
-        boolean isfnd = false;
 
         // initialize
-        data = new HashMap();
+        data = new HashMap<>();
 
         for (int ik = 0; ik < aBASE_ITEMDATAID.size(); ik++) {
             // get the item_group side
@@ -1362,37 +1323,23 @@ public class ExtractBean {
                      *
                      *      TODO - validate the logic
                      */
-                    String key = getDataKey(/* studySubjectId.intValue() */objev.studySubjectId.intValue(),
-                    /* studyEventDefinitionId.intValue() */objev.studyEvenetDefinitionId.intValue(),
-                    /* sampleOrdinal.intValue() */objev.sampleOrdinal.intValue(),
-                    /* crfId.intValue() */objgrp.crfid.intValue(),
-                    /* itemId.intValue() */objgrp.itemId.intValue(),
-                    /* itemDataOrdinal.intValue() */objgrp.itemGroupRepeatNumber.intValue(),
-                    /* groupName */objgrp.itemGroupName);
+                    String key = getDataKey(objev.studySubjectId.intValue(),
+                    objev.studyEvenetDefinitionId.intValue(),
+                    objev.sampleOrdinal.intValue(),
+                    objgrp.crfid.intValue(),
+                    objgrp.itemId.intValue(),
+                    objgrp.itemGroupRepeatNumber.intValue(),
+                    objgrp.itemGroupName);
 
-                    data.put(key, objgrp.itemValue/* itemValue */);
-                    // logger.info("*** just put in data for " + key + " and
-                    // value " + objgrp.itemValue/*itemValue*/);
-                    // groups.put(key, itemGroupName);
-                    int maxOrdinal = getMaxOrdinal(/*
-                                                    * studyEventDefinitionId.intValue
-                                                    * ()
-                                                    */objev.studyEvenetDefinitionId.intValue());
-                    if (maxOrdinal < objev.sampleOrdinal.intValue()) { // /*
-                        // sampleOrdinal
-                        // .
-                        // intValue
-                        // ()*/
+                    data.put(key, objgrp.itemValue);
+                    int maxOrdinal = getMaxOrdinal(objev.studyEvenetDefinitionId.intValue());
+                    if (maxOrdinal < objev.sampleOrdinal.intValue()) {                    	
                         setMaxOrdinal(objev.studyEvenetDefinitionId.intValue(), objev.sampleOrdinal.intValue());
-                    }// if
+                    }
 
-                    selectedItems.put(objgrp.itemId /* itemId */, Boolean.TRUE);
-                    selectedSEDCRFs.put(objev.studyEvenetDefinitionId.intValue() + "_" + objgrp.crfid.intValue()
-                    /*
-                     * studyEventDefinitionId.intValue() + "_" +
-                     * crfId.intValue()
-                     */, Boolean.TRUE);
-                    selectedSEDs.put(objev.studyEvenetDefinitionId /* studyEventDefinitionId */, Boolean.TRUE);
+                    selectedItems.put(objgrp.itemId, Boolean.TRUE);
+                    selectedSEDCRFs.put(objev.studyEvenetDefinitionId.intValue() + "_" + objgrp.crfid.intValue(), Boolean.TRUE);
+                    selectedSEDs.put(objev.studyEvenetDefinitionId, Boolean.TRUE);
 
                     // TODO - see comment above
                     if ( /* itemDataOrdinal.intValue() */objgrp.itemGroupRepeatNumber.intValue() > getMaxItemDataBeanOrdinal()) {
@@ -1407,9 +1354,7 @@ public class ExtractBean {
                     }
                 }
                 addGroupName(/* itemGroupName_temp, itemDataOrdinal */objgrp.itemGroupName, objgrp.itemGroupRepeatNumber);
-            } else {
-                // ERROR - not match
-            }// if
+            }
         }// for
 
     }
@@ -1615,11 +1560,11 @@ public class ExtractBean {
         return currentSubject.getSecondaryLabel();
     }
 
-    private ArrayList getStudyGroupMap(int h) {
+    private ArrayList<HashMap<Integer, StudyGroupBean>> getStudyGroupMap(int h) {
         syncSubjectIndex(h);
         Integer key = Integer.valueOf(currentSubject.getId());
-        ArrayList value = (ArrayList) studyGroupMaps.get(key);
-        return value != null ? value : new ArrayList();
+        ArrayList<HashMap<Integer, StudyGroupBean>> value = studyGroupMaps.get(key);
+        return value != null ? value : new ArrayList<>();
     }
 
     private String getSubjectYearOfBirth(int h) {
@@ -1644,7 +1589,7 @@ public class ExtractBean {
 
     private void syncSEDIndex(int ind) {
         if (sedIndex != ind) {
-            currentDef = (StudyEventDefinitionBean) studyEvents.get(ind - 1);
+            currentDef = studyEvents.get(ind - 1);
             sedIndex = ind;
         }
     }
@@ -1671,10 +1616,9 @@ public class ExtractBean {
         // return currentCRF.getStatus().getName();
         StudyEventBean seb = getEvent(h, i, j);
 
-        ArrayList crfbeans = currentDef.getCrfs();
         EventCRFBean eventCRF = null;
         if (seb.getEventCRFs().size() > 0) {
-            eventCRF = (EventCRFBean) seb.getEventCRFs().get(0);
+            eventCRF = seb.getEventCRFs().get(0);
         }
 
         return eventCRF != null ? eventCRF.getStatus().getName() : "";
@@ -1687,9 +1631,9 @@ public class ExtractBean {
         StudyEventBean seb = getEvent(h, i, j);
         EventCRFBean eventCRF = null;
         if (seb.getEventCRFs().size() == 1) {
-            eventCRF = (EventCRFBean) seb.getEventCRFs().get(0);
+            eventCRF = seb.getEventCRFs().get(0);
         } else {
-            eventCRF = (EventCRFBean) seb.getEventCRFs().get(j - 1);
+            eventCRF = seb.getEventCRFs().get(j - 1);
         }
 
         return eventCRF != null ? eventCRF.getCrfVersion().getName() : "";
@@ -1793,8 +1737,6 @@ public class ExtractBean {
             logger.info("found exception");
             currentCRF = (CRFBean) currentDef.getCrfs().get(0);
         }
-        crfIndex = crfInd;
-
     }
 
     // private String getSEDCRFName(int sedInd, int crfInd) {
@@ -1881,17 +1823,15 @@ public class ExtractBean {
 
     protected int getNumItems(int sedInd, int crfInd) {
         syncCRFIndex(sedInd, crfInd);
-        ArrayList items = getColumns(currentDef, currentCRF);
+        ArrayList<ItemBean> items = getColumns(currentDef, currentCRF);
         return items.size();
     }
 
     private void syncItemIndex(int sedInd, int crfInd, int itemInd) {
         syncCRFIndex(sedInd, crfInd);
 
-        ArrayList items = getColumns(currentDef, currentCRF);
+        ArrayList<ItemBean> items = getColumns(currentDef, currentCRF);
         currentItem = (ItemBean) items.get(itemInd - 1);
-        itemIndex = itemInd;
-
     }
 
     private String getItemName(int sedInd, int crfInd, int itemInd) {
@@ -2081,7 +2021,7 @@ public class ExtractBean {
     /**
      * @return Returns the studyEvents.
      */
-    public ArrayList getStudyEvents() {
+    public ArrayList<StudyEventDefinitionBean> getStudyEvents() {
         return studyEvents;
     }
 
@@ -2120,18 +2060,8 @@ public class ExtractBean {
         StudyEventBean seb = (StudyEventBean) eventData.get(key);
 
         if (seb == null) {
-            // logger.info("did not find seb, h" + h + " i" + i + " j" + j + "
-            // key "+key);
-            // logger.info("dump of event data: "+eventData.toString());
             return new StudyEventBean();
         } else {
-            // debug(seb);
-            // logger.info("FOUND seb, h" + h + " i" + i + " j" + j + " key
-            // "+key);
-            if (seb.getEventCRFs().size() > 0) {
-                EventCRFBean ecbean = (EventCRFBean) seb.getEventCRFs().get(0);
-            }
-            // logger.info("int.name "+ecbean.getInterviewerName());
             return seb;
         }
     }
@@ -2218,7 +2148,7 @@ public class ExtractBean {
         return answer;
     }
 
-    protected ArrayList getSubjects() {
+    protected ArrayList<StudySubjectBean> getSubjects() {
         return this.subjects;
     }
 
@@ -2257,7 +2187,7 @@ public class ExtractBean {
     /**
      * @return Returns the itemNames.
      */
-    public ArrayList getItemNames() {
+    public ArrayList<DisplayItemHeaderBean> getItemNames() {
         return itemNames;
     }
 
@@ -2265,14 +2195,14 @@ public class ExtractBean {
      * @param itemNames
      *            The itemNames to set.
      */
-    public void setItemNames(ArrayList itemNames) {
+    public void setItemNames(ArrayList<DisplayItemHeaderBean> itemNames) {
         this.itemNames = itemNames;
     }
 
     /**
      * @return Returns the rowValues.
      */
-    public ArrayList getRowValues() {
+    public ArrayList<DisplayItemDataBean> getRowValues() {
         return rowValues;
     }
 
@@ -2280,14 +2210,14 @@ public class ExtractBean {
      * @param rowValues
      *            The rowValues to set.
      */
-    public void setRowValues(ArrayList rowValues) {
+    public void setRowValues(ArrayList<DisplayItemDataBean> rowValues) {
         this.rowValues = rowValues;
     }
 
     /**
      * @return Returns the eventHeaders.
      */
-    public ArrayList getEventHeaders() {
+    public ArrayList<String> getEventHeaders() {
         return eventHeaders;
     }
 
@@ -2295,23 +2225,23 @@ public class ExtractBean {
      * @param eventHeaders
      *            The eventHeaders to set.
      */
-    public void setEventHeaders(ArrayList eventHeaders) {
+    public void setEventHeaders(ArrayList<String> eventHeaders) {
         this.eventHeaders = eventHeaders;
     }
 
-    public ArrayList getStudyGroupClasses() {
+    public ArrayList<StudyGroupClassBean> getStudyGroupClasses() {
         return studyGroupClasses;
     }
 
-    public void setStudyGroupClasses(ArrayList studyGroupClasses) {
+    public void setStudyGroupClasses(ArrayList<StudyGroupClassBean> studyGroupClasses) {
         this.studyGroupClasses = studyGroupClasses;
     }
 
-    public HashMap getGroupNames() {
+    public HashMap<String, Integer> getGroupNames() {
         return groupNames;
     }
 
-    public void setGroupNames(HashMap groupNames) {
+    public void setGroupNames(HashMap<String, Integer> groupNames) {
         this.groupNames = groupNames;
     }
 
@@ -2326,7 +2256,7 @@ public class ExtractBean {
     /**
      * @return the hmInKeys
      */
-    public HashMap getHmInKeys() {
+    public HashMap<String, Boolean> getHmInKeys() {
         return hmInKeys;
     }
 
@@ -2334,7 +2264,7 @@ public class ExtractBean {
      * @param hmInKeys
      *            the hmInKeys to set
      */
-    public void setHmInKeys(HashMap hmInKeys) {
+    public void setHmInKeys(HashMap<String, Boolean> hmInKeys) {
         this.hmInKeys = hmInKeys;
     }
 
@@ -2355,16 +2285,16 @@ public class ExtractBean {
      * This sets the values from the two querries
      */
     public void resetEntryBASE_EVENTSIDE() {
-        hBASE_EVENTSIDE = new ArrayList();
+        hBASE_EVENTSIDE = new ArrayList<>();
 
     }
 
     public void resetEntryBASE_ITEMGROUPSIDE() {
-        hBASE_ITEMGROUPSIDE = new ArrayList();
+        hBASE_ITEMGROUPSIDE = new ArrayList<>();
     }
 
     public void resetArrayListEntryBASE_ITEMGROUPSIDE() {
-        aBASE_ITEMDATAID = new ArrayList();
+        aBASE_ITEMDATAID = new ArrayList<>();
     }
 
     /**
@@ -2489,11 +2419,6 @@ public class ExtractBean {
         public Integer crfVersionId;
         public Integer eventCrfId;
         public Integer studyEventId;
-
-        // ctor
-        void extractDataset_EVENTSIDE() {
-            // ctor
-        }
 
         public void setSQLDatasetBASE_EVENTSIDE(Integer pitemDataId, Integer pstudySubjectId, Integer psampleOrdinal, Integer pstudyEvenetDefinitionId,
                 String pstudyEventDefinitionName, String pstudyEventLoacation, Timestamp pstudyEventDateStart, Timestamp pstudyEventDateEnd,
@@ -2697,12 +2622,6 @@ public class ExtractBean {
         public Integer eventCrfId;
         public Integer itemId;
         public Integer crfVersionId;
-
-        // ctor
-
-        void extractDataset_ITEMGROUPSIDE() {
-            // empty ctor
-        }
 
         public void setSQLDatasetBASE_ITEMGROUPSIDE(Integer pitemDataId, Integer pitemdataordinal, Integer pitemGroupId, String pitemGroupName,
                 Integer pitemDatatypeId, String pitemDescription, String pitemName, String pitemValue, String pitemUnits, String pcrfVersionName, Integer pcrfVersionStatusId,
@@ -2913,7 +2832,7 @@ public class ExtractBean {
     /**
      * @return the hBASE_EVENTSIDE
      */
-    public ArrayList getHBASE_EVENTSIDE() {
+    public ArrayList<extractDataset_EVENTSIDE> getHBASE_EVENTSIDE() {
         return hBASE_EVENTSIDE;
     }
 
@@ -2921,14 +2840,14 @@ public class ExtractBean {
      * @param hbase_eventside
      *            the hBASE_EVENTSIDE to set
      */
-    public void setHBASE_EVENTSIDE(ArrayList hbase_eventside) {
+    public void setHBASE_EVENTSIDE(ArrayList<extractDataset_EVENTSIDE> hbase_eventside) {
         hBASE_EVENTSIDE = hbase_eventside;
     }
 
     /**
      * @return the hBASE_ITEMGROUPSIDE
      */
-    public ArrayList getHBASE_ITEMGROUPSIDE() {
+    public ArrayList<extractDataset_ITEMGROUPSIDE> getHBASE_ITEMGROUPSIDE() {
         return hBASE_ITEMGROUPSIDE;
     }
 
@@ -2936,14 +2855,14 @@ public class ExtractBean {
      * @param hbase_itemgroupside
      *            the hBASE_ITEMGROUPSIDE to set
      */
-    public void setHBASE_ITEMGROUPSIDE(ArrayList hbase_itemgroupside) {
+    public void setHBASE_ITEMGROUPSIDE(ArrayList<extractDataset_ITEMGROUPSIDE> hbase_itemgroupside) {
         hBASE_ITEMGROUPSIDE = hbase_itemgroupside;
     }
 
     /**
      * @return the aBASE_ITEMDATAID
      */
-    public ArrayList getABASE_ITEMDATAID() {
+    public ArrayList<Integer> getABASE_ITEMDATAID() {
         return aBASE_ITEMDATAID;
     }
 
@@ -2951,7 +2870,7 @@ public class ExtractBean {
      * @param abase_itemdataid
      *            the aBASE_ITEMDATAID to set
      */
-    public void setABASE_ITEMDATAID(ArrayList abase_itemdataid) {
+    public void setABASE_ITEMDATAID(ArrayList<Integer> abase_itemdataid) {
         aBASE_ITEMDATAID = abase_itemdataid;
     }
 

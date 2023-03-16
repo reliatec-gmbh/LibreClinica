@@ -22,8 +22,9 @@ import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.akaza.openclinica.web.SQLInitServlet;
 
-// allows both deletion and restoration of a study user role
-
+/**
+ * Allows both deletion and restoration of a study user role
+ */
 public class UnLockUserServlet extends SecureController {
 
     private static final long serialVersionUID = 5028384981301316490L;
@@ -49,8 +50,6 @@ public class UnLockUserServlet extends SecureController {
         if (!ub.isSysAdmin()) {
             throw new InsufficientPermissionException(Page.MENU, resexception.getString("you_may_not_perform_administrative_functions"), "1");
         }
-
-        return;
     }
 
     @Override
@@ -60,7 +59,7 @@ public class UnLockUserServlet extends SecureController {
         FormProcessor fp = new FormProcessor(request);
         int userId = fp.getInt(ARG_USERID);
 
-        UserAccountBean u = (UserAccountBean) udao.findByPK(userId);
+        UserAccountBean u = udao.findByPK(userId);
 
         String message;
         if (!u.isActive() || u.getAccountNonLocked()) {
@@ -72,7 +71,7 @@ public class UnLockUserServlet extends SecureController {
 
             String password = sm.genPassword();
             if (!u.isLdapUser()) {
-                String passwordHash = sm.encrytPassword(password, getUserDetails());
+                String passwordHash = sm.encryptPassword(password, u.getRunWebservices());
                 u.setPasswd(passwordHash);
             }
             u.setPasswdTimestamp(null);
@@ -105,14 +104,14 @@ public class UnLockUserServlet extends SecureController {
     private void sendRestoreEmail(UserAccountBean u, String password) throws Exception {
         logger.info("Sending restore and password reset notification to " + u.getName());
 
-        String body = resword.getString("dear") + u.getFirstName() + " " + u.getLastName() + ",<br>";
-        body += restext.getString("your_account_has_been_unlocked_and_password_reset") + ":<br><br>";
-        body += resword.getString("user_name") + u.getName() + "<br>";
-        body += resword.getString("password") + password + "<br><br>";
-        body += restext.getString("please_test_your_login_information_and_let") + "<br>";
-        body += "<A HREF='" + SQLInitServlet.getField("sysURL.base") + "'>";
-        body += SQLInitServlet.getField("sysURL.base") + "</A> <br><br>";
-        body += restext.getString("openclinica_system_administrator");
+        String body = resword.getString("dear") + u.getFirstName() + " " + u.getLastName() + ",<br>" +
+            restext.getString("your_account_has_been_unlocked_and_password_reset") + ":<br><br>" +
+            resword.getString("user_name") + u.getName() + "<br>" +
+            resword.getString("password") + password + "<br><br>" +
+            restext.getString("please_test_your_login_information_and_let") + "<br>" + "<A HREF='" +
+            SQLInitServlet.getField("sysURL.base") + "'>" +
+            SQLInitServlet.getField("sysURL.base") + "</A> <br><br>" +
+            restext.getString("openclinica_system_administrator");
 
         logger.info("Sending email...begin");
         sendEmail(u.getEmail().trim(), restext.getString("your_new_openclinica_account_has_been_restored"), body, false);
@@ -123,4 +122,5 @@ public class UnLockUserServlet extends SecureController {
     protected String getAdminServlet() {
         return SecureController.ADMIN_SERVLET_CODE;
     }
+    
 }

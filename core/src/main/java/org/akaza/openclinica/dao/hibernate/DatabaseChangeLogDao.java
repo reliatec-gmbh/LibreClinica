@@ -7,11 +7,12 @@
  */
 package org.akaza.openclinica.dao.hibernate;
 
+import java.util.ArrayList;
+
 import org.akaza.openclinica.domain.technicaladmin.DatabaseChangeLogBean;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-
-import java.util.ArrayList;
+import org.hibernate.query.Query;
 
 public class DatabaseChangeLogDao {
 
@@ -25,20 +26,21 @@ public class DatabaseChangeLogDao {
         return DatabaseChangeLogBean.class;
     }
 
-    @SuppressWarnings("unchecked")
     public ArrayList<DatabaseChangeLogBean> findAll() {
         String query = "from " + getDomainClassName() + " dcl order by dcl.id desc ";
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
-        return (ArrayList<DatabaseChangeLogBean>) q.list();
+        Query<DatabaseChangeLogBean> q = getCurrentSession().createQuery(query, DatabaseChangeLogBean.class);
+        return new ArrayList<>(q.list());
     }
 
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("deprecation")
     public DatabaseChangeLogBean findById(String id, String author, String fileName) {
         String query = "from " + getDomainClassName() + " do  where do.id = :id and do.author = :author and do.fileName = :fileName ";
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
+        Query<DatabaseChangeLogBean> q = getCurrentSession().createQuery(query, DatabaseChangeLogBean.class);
         q.setString("id", id);
         q.setString("author", author);
         q.setString("fileName", fileName);
-        return (DatabaseChangeLogBean) q.uniqueResult();
+        return q.uniqueResult();
     }
 
     public Long count() {

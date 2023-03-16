@@ -7,6 +7,11 @@
  */
 package org.akaza.openclinica.core;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+import org.springframework.security.crypto.codec.Hex;
+import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 public class OpenClinicaPasswordEncoder implements PasswordEncoder {
@@ -15,6 +20,7 @@ public class OpenClinicaPasswordEncoder implements PasswordEncoder {
     PasswordEncoder oldPasswordEncoder;
 
     public OpenClinicaPasswordEncoder() {
+        // NOOP
     }
 
     public PasswordEncoder getCurrentPasswordEncoder() {
@@ -33,6 +39,15 @@ public class OpenClinicaPasswordEncoder implements PasswordEncoder {
         this.oldPasswordEncoder = oldPasswordEncoder;
     }
 
+    public String soapEncode(CharSequence rawPassword) throws NoSuchAlgorithmException {
+        String hexResult;
+        MessageDigest digest = MessageDigest.getInstance("SHA-1");
+        digest.update(Utf8.encode(rawPassword));
+        hexResult = new String(Hex.encode(digest.digest()));
+
+        return hexResult;
+    }
+
 	@Override
 	public String encode(CharSequence rawPassword) {
 		return currentPasswordEncoder.encode(rawPassword);
@@ -40,8 +55,7 @@ public class OpenClinicaPasswordEncoder implements PasswordEncoder {
 
 	@Override
 	public boolean matches(CharSequence rawPassword, String encodedPassword) {
-        boolean result = false;
-        result = result || currentPasswordEncoder.matches(rawPassword, encodedPassword);
+        boolean result = currentPasswordEncoder.matches(rawPassword, encodedPassword);
         result = result || oldPasswordEncoder.matches(rawPassword, encodedPassword);
 		return result;
 	}

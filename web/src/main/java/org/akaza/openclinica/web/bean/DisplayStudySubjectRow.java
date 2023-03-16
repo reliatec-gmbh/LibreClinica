@@ -20,7 +20,7 @@ import java.util.ArrayList;
  * TODO To change the template for this generated type comment go to Window -
  * Preferences - Java - Code Style - Code Templates
  */
-public class DisplayStudySubjectRow extends EntityBeanRow {
+public class DisplayStudySubjectRow extends EntityBeanRow<DisplayStudySubjectBean, DisplayStudySubjectRow> {
 
     // columns:
     // YW << the order of columns has been changed to couple with modified view
@@ -47,13 +47,13 @@ public class DisplayStudySubjectRow extends EntityBeanRow {
      *      int)
      */
     @Override
-    protected int compareColumn(Object row, int sortingColumn) {
+    protected int compareColumn(DisplayStudySubjectRow row, int sortingColumn) {
         if (!row.getClass().equals(DisplayStudySubjectRow.class)) {
             return 0;
         }
 
-        DisplayStudySubjectBean thisStudy = (DisplayStudySubjectBean) bean;
-        DisplayStudySubjectBean argStudy = (DisplayStudySubjectBean) ((DisplayStudySubjectRow) row).bean;
+        DisplayStudySubjectBean thisStudy = bean;
+        DisplayStudySubjectBean argStudy = row.bean;
         int answer = 0;
         // YW <<
         int groupSize = thisStudy.getStudyGroups().size();
@@ -227,20 +227,17 @@ public class DisplayStudySubjectRow extends EntityBeanRow {
      * @see org.akaza.openclinica.core.EntityBeanRow#generatRowsFromBeans(java.util.ArrayList)
      */
     @Override
-    public ArrayList generatRowsFromBeans(ArrayList beans) {
+    public ArrayList<DisplayStudySubjectRow> generatRowsFromBeans(ArrayList<DisplayStudySubjectBean> beans) {
         return DisplayStudySubjectRow.generateRowsFromBeans(beans);
     }
 
-    public static ArrayList generateRowsFromBeans(ArrayList beans) {
-        ArrayList answer = new ArrayList();
-
-        Class[] parameters = null;
-        Object[] arguments = null;
+    public static ArrayList<DisplayStudySubjectRow> generateRowsFromBeans(ArrayList<DisplayStudySubjectBean> beans) {
+        ArrayList<DisplayStudySubjectRow> answer = new ArrayList<>();
 
         for (int i = 0; i < beans.size(); i++) {
             try {
                 DisplayStudySubjectRow row = new DisplayStudySubjectRow();
-                row.setBean((DisplayStudySubjectBean) beans.get(i));
+                row.setBean(beans.get(i));
                 answer.add(row);
             } catch (Exception e) {
             }
@@ -248,17 +245,4 @@ public class DisplayStudySubjectRow extends EntityBeanRow {
 
         return answer;
     }
-
-    private int compare(int thisStatus, int argStatus) {
-        int result;
-        if (thisStatus < argStatus) {
-            result = -1;
-        } else if (thisStatus == argStatus) {
-            result = 0;
-        } else {
-            result = 1;
-        }
-        return result;
-    }
-
 }

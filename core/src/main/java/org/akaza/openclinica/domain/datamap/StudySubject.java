@@ -43,6 +43,10 @@ import org.hibernate.annotations.Type;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class StudySubject  extends DataMapDomainObject {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6543557040164941778L;
 	private int studySubjectId;
 	private UserAccount userAccount;
 	private Study study;
@@ -59,7 +63,6 @@ public class StudySubject  extends DataMapDomainObject {
 	private List<DnStudySubjectMap> dnStudySubjectMaps;
 	private List<StudyEvent> studyEvents ;
 	private List<EventCrf> eventCrfs;
-	private List<StudyEventDefinition> studyEventDefinitions;
 	
 	public StudySubject() {
 	}

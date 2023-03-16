@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 
 import org.akaza.openclinica.bean.core.DiscrepancyNoteType;
 import org.akaza.openclinica.bean.core.NumericComparisonOperator;
@@ -25,20 +24,19 @@ import org.akaza.openclinica.bean.managestudy.DiscrepancyNoteBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventDefinitionBean;
+import org.akaza.openclinica.bean.managestudy.StudyGroupBean;
 import org.akaza.openclinica.bean.managestudy.StudyGroupClassBean;
 import org.akaza.openclinica.bean.managestudy.StudySubjectBean;
 import org.akaza.openclinica.bean.service.StudyParameterValueBean;
 import org.akaza.openclinica.bean.submit.DisplaySubjectBean;
 import org.akaza.openclinica.bean.submit.SubjectBean;
 import org.akaza.openclinica.bean.submit.SubjectGroupMapBean;
-import org.akaza.openclinica.control.SpringServletAccess;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.DiscrepancyValidator;
 import org.akaza.openclinica.control.form.FormDiscrepancyNotes;
 import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.control.form.Validator;
 import org.akaza.openclinica.core.form.StringUtil;
-import org.akaza.openclinica.dao.hibernate.RuleSetDao;
 import org.akaza.openclinica.dao.managestudy.DiscrepancyNoteDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDAO;
@@ -49,9 +47,7 @@ import org.akaza.openclinica.dao.managestudy.StudySubjectDAO;
 import org.akaza.openclinica.dao.service.StudyParameterValueDAO;
 import org.akaza.openclinica.dao.submit.SubjectDAO;
 import org.akaza.openclinica.dao.submit.SubjectGroupMapDAO;
-import org.akaza.openclinica.domain.rule.RuleSetBean;
 import org.akaza.openclinica.exception.OpenClinicaException;
-import org.akaza.openclinica.service.rule.RuleSetService;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.apache.commons.lang.StringUtils;
@@ -69,7 +65,12 @@ import org.slf4j.LoggerFactory;
  */
 public class AddNewSubjectServlet extends SecureController {
 
-    protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8547182499466284586L;
+
+	protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
 
     // Shaoyu Su
     private final Object simpleLockObj = new Object();
@@ -130,7 +131,8 @@ public class AddNewSubjectServlet extends SecureController {
      * 
      * @see org.akaza.openclinica.control.core.SecureController#processRequest()
      */
-    @Override
+    @SuppressWarnings("deprecation")
+	@Override
     protected void processRequest() throws Exception {
 
         checkStudyLocked(Page.LIST_STUDY_SUBJECTS, respage.getString("current_study_locked"));
@@ -139,7 +141,7 @@ public class AddNewSubjectServlet extends SecureController {
         StudySubjectDAO ssd = new StudySubjectDAO(sm.getDataSource());
         StudyDAO stdao = new StudyDAO(sm.getDataSource());
         StudyGroupClassDAO sgcdao = new StudyGroupClassDAO(sm.getDataSource());
-        ArrayList classes = new ArrayList();
+        ArrayList<StudyGroupClassBean> classes = new ArrayList<>();
         panel.setStudyInfoShown(false);
         FormProcessor fp = new FormProcessor(request);
         FormDiscrepancyNotes discNotes;
@@ -157,7 +159,7 @@ public class AddNewSubjectServlet extends SecureController {
             parentStudyId = currentStudy.getId();
             classes = sgcdao.findAllActiveByStudy(currentStudy);
         } else {
-            StudyBean parentStudy = (StudyBean) stdao.findByPK(parentStudyId);
+            StudyBean parentStudy = stdao.findByPK(parentStudyId);
             classes = sgcdao.findAllActiveByStudy(parentStudy);
         }
         StudyParameterValueDAO spvdao = new StudyParameterValueDAO(sm.getDataSource());
@@ -263,7 +265,7 @@ public class AddNewSubjectServlet extends SecureController {
                 logger.info("should read this only if DOB not used");
             }
 
-            ArrayList acceptableGenders = new ArrayList();
+            ArrayList<String> acceptableGenders = new ArrayList<>();
             acceptableGenders.add("m");
             acceptableGenders.add("f");
 
@@ -285,13 +287,12 @@ public class AddNewSubjectServlet extends SecureController {
                 }
             }
 
-            HashMap errors = v.validate();
+            HashMap<String, ArrayList<String>> errors = v.validate();
 
             SubjectDAO sdao = new SubjectDAO(sm.getDataSource());
             String uniqueIdentifier = fp.getString(INPUT_UNIQUE_IDENTIFIER);// global
             // Id
             SubjectBean subjectWithSameId = new SubjectBean();
-            SubjectBean subjectWithSameIdInParent = new SubjectBean();
             boolean showExistingRecord = false;
             if (!uniqueIdentifier.equals("")) {
                 boolean subjectWithSameIdInCurrentStudyTree = false;
@@ -458,7 +459,7 @@ public class AddNewSubjectServlet extends SecureController {
                              Validator.addError(errors, STUDY_EVENT_DEFINITION, resexception.getString("input_not_acceptable_option"));
                         }
                         String location = fp.getString(LOCATION);
-                        if (location == null && location.length() == 0) {
+                        if (location == null || location.trim().length() == 0) {
                             Validator.addError(errors, LOCATION, resexception.getString("field_not_blank"));
                         }
                         request.setAttribute("showOverlay", true);
@@ -744,8 +745,6 @@ public class AddNewSubjectServlet extends SecureController {
                     SubjectGroupMapDAO sgmdao = new SubjectGroupMapDAO(sm.getDataSource());
                     for (int i = 0; i < classes.size(); i++) {
                         StudyGroupClassBean group = (StudyGroupClassBean) classes.get(i);
-                        int studyGroupId = group.getStudyGroupId();
-                        String notes = group.getGroupNotes();
                         SubjectGroupMapBean map = new SubjectGroupMapBean();
                         map.setNotes(group.getGroupNotes());
                         map.setStatus(Status.AVAILABLE);
@@ -801,7 +800,6 @@ public class AddNewSubjectServlet extends SecureController {
 
                 String submitEvent = fp.getString(SUBMIT_EVENT_BUTTON);
                 String submitEnroll = fp.getString(SUBMIT_ENROLL_BUTTON);
-                String submitDone = fp.getString(SUBMIT_DONE_BUTTON);
 
                 session.removeAttribute(FORM_DISCREPANCY_NOTES_NAME);
                 if (!StringUtil.isBlank(submitEvent)) {
@@ -851,26 +849,7 @@ public class AddNewSubjectServlet extends SecureController {
     }
 
     
-    private List<RuleSetBean> createRuleSet(StudySubjectBean ssub,
-			StudyEventDefinitionBean sed) {
-    	
-    	return getRuleSetDao().findAllByStudyEventDef(sed);
-    	
-    	
-	}
-    private RuleSetService getRuleSetService() {
-        return (RuleSetService) SpringServletAccess.getApplicationContext(context).getBean("ruleSetService");
-    }
-
-    
-    private RuleSetDao getRuleSetDao() {
-       return (RuleSetDao) SpringServletAccess.getApplicationContext(context).getBean("ruleSetDao");
-        
-    }
-
-    
-    
-    protected void createStudyEvent(FormProcessor fp, StudySubjectBean s) {
+    protected void createStudyEvent(FormProcessor fp, StudySubjectBean s) throws OpenClinicaException {
         int studyEventDefinitionId = fp.getInt("studyEventDefinition");
         String location = fp.getString("location");
         Date startDate = s.getEventStartDate();
@@ -932,7 +911,7 @@ public class AddNewSubjectServlet extends SecureController {
         throw new InsufficientPermissionException(Page.MENU_SERVLET, exceptionName, "1");
     }
 
-    protected void setUpBeans(ArrayList classes) throws Exception {
+    protected void setUpBeans(ArrayList<StudyGroupClassBean> classes) throws Exception {
         StudyGroupDAO sgdao = new StudyGroupDAO(sm.getDataSource());
         // addEntityList(BEAN_GROUPS, sgdao.findAllByStudy(currentStudy),
         // "A group must be available in order to add new subjects to this
@@ -942,8 +921,8 @@ public class AddNewSubjectServlet extends SecureController {
         // Page.SUBMIT_DATA);
 
         for (int i = 0; i < classes.size(); i++) {
-            StudyGroupClassBean group = (StudyGroupClassBean) classes.get(i);
-            ArrayList studyGroups = sgdao.findAllByGroupClass(group);
+            StudyGroupClassBean group = classes.get(i);
+            ArrayList<StudyGroupBean> studyGroups = sgdao.findAllByGroupClass(group);
             group.setStudyGroups(studyGroups);
         }
 
@@ -959,22 +938,23 @@ public class AddNewSubjectServlet extends SecureController {
      * @param entityId
      * @param entityType
      * @param sb
+     * @throws OpenClinicaException 
      */
-    public static void saveFieldNotes(String field, FormDiscrepancyNotes notes, DiscrepancyNoteDAO dndao, int entityId, String entityType, StudyBean sb) {
+    public static void saveFieldNotes(String field, FormDiscrepancyNotes notes, DiscrepancyNoteDAO dndao, int entityId, String entityType, StudyBean sb) throws OpenClinicaException {
     	
     	 saveFieldNotes( field,  notes,  dndao,  entityId,  entityType,  sb, -1) ;
 	
     	}
     public static void saveFieldNotes(String field, FormDiscrepancyNotes notes, 
     		DiscrepancyNoteDAO dndao, int entityId, String entityType, StudyBean sb,
-    		int event_crf_id) {
+    		int event_crf_id) throws OpenClinicaException {
 
         if (notes == null || dndao == null || sb == null) {
             // logger.info("AddNewSubjectServlet,saveFieldNotes:parameter is
             // null, cannot proceed:");
             return;
         }
-        ArrayList fieldNotes = notes.getNotes(field);
+        ArrayList<DiscrepancyNoteBean> fieldNotes = notes.getNotes(field);
         if ((fieldNotes == null || fieldNotes.size() < 1 ) && event_crf_id >0){
           	fieldNotes = notes.getNotes(field);
         }
@@ -1037,11 +1017,11 @@ public class AddNewSubjectServlet extends SecureController {
      * @param displayArray
      * @param subjects
      */
-    public static void displaySubjects(ArrayList displayArray, ArrayList subjects, StudySubjectDAO ssdao, StudyDAO stdao) {
+    public static void displaySubjects(ArrayList<DisplaySubjectBean> displayArray, ArrayList<SubjectBean> subjects, StudySubjectDAO ssdao, StudyDAO stdao) {
 
         for (int i = 0; i < subjects.size(); i++) {
-            SubjectBean subject = (SubjectBean) subjects.get(i);
-            ArrayList studySubs = ssdao.findAllBySubjectId(subject.getId());
+            SubjectBean subject = subjects.get(i);
+            ArrayList<StudySubjectBean> studySubs = ssdao.findAllBySubjectId(subject.getId());
             String protocolSubjectIds = "";
             for (int j = 0; j < studySubs.size(); j++) {
                 StudySubjectBean studySub = (StudySubjectBean) studySubs.get(j);

@@ -1,7 +1,7 @@
-LibreClinica 1.0 for Monitors
+LibreClinica 1.2 for Monitors
 =============================
 
-[https://libreclinica.org](https://libreclinica.org) © 2020
+[https://libreclinica.org](https://libreclinica.org) © 2022
 
 **Preface**
 
@@ -31,9 +31,10 @@ The manual is a distributed under the <a name="firstheading">Creative Commons At
 
 1. [Changing your password](#changing-your-password)
 
-1. [When you've lost your password](#when-youve-lost-your-password)
+1. [When you've lost your password](#when-you-ve-lost-your-password)
 
-1. [Change Study/Site](#change-studysite)
+1. [Change Study/Site](#change-study-site)
+
 1. [Your "Home" in LibreClinica](#your-home-in-libreclinica)
 
 1. [How data is organised in LibreClinica](#how-data-is-organised-in-libreclinica)
@@ -42,7 +43,7 @@ The manual is a distributed under the <a name="firstheading">Creative Commons At
 
 1. [Elements of a CRF](#elements-of-a-crf)
 
-1. [Notes & Discrepancies](#notes--discrepancies)
+1. [Notes & Discrepancies](#notes-discrepancies)
 
 1. [An example of a Query](#an-example-of-a-query)
 

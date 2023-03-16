@@ -8,6 +8,7 @@
 package org.akaza.openclinica.dao.hibernate;
 
 import org.akaza.openclinica.domain.rule.RuleBean;
+import org.hibernate.query.Query;
 
 public class RuleDao extends AbstractDomainDao<RuleBean> {
 
@@ -16,20 +17,24 @@ public class RuleDao extends AbstractDomainDao<RuleBean> {
         return RuleBean.class;
     }
 
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("deprecation")
     public RuleBean findByOid(RuleBean ruleBean) {
         String query = "from " + getDomainClassName() + " rule  where rule.oid = :oid and  rule.studyId = :studyId ";
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
+        Query<RuleBean> q = getCurrentSession().createQuery(query, RuleBean.class);
         q.setString("oid", ruleBean.getOid());
         q.setInteger("studyId", ruleBean.getStudyId());
-        return (RuleBean) q.uniqueResult();
+        return q.uniqueResult();
     }
 
+    // TODO update to CriteriaQuery 
+    @SuppressWarnings("deprecation")
     public RuleBean findByOid(String oid, Integer studyId) {
         String query = "from " + getDomainClassName() + " rule  where rule.oid = :oid and  rule.studyId = :studyId ";
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
+        Query<RuleBean> q = getCurrentSession().createQuery(query, RuleBean.class);
         q.setString("oid", oid);
         q.setInteger("studyId", studyId);
-        return (RuleBean) q.uniqueResult();
+        return q.uniqueResult();
     }
 
 }

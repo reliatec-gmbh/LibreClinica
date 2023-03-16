@@ -17,7 +17,11 @@ import java.util.ArrayList;
  * Object for study group class
  */
 public class StudyGroupClassBean extends AuditableEntityBean {
-    // STUDY_GROUP_ID NAME STUDY_ID OWNER_ID
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6776249940673906418L;
+	// STUDY_GROUP_ID NAME STUDY_ID OWNER_ID
     // DATE_CREATED GROUP_CLASS_TYPE_ID STATUS_ID DATE_UPDATED
     // UPDATE_ID subject_assignment
     private int studyId = 0;
@@ -26,7 +30,7 @@ public class StudyGroupClassBean extends AuditableEntityBean {
     private String groupClassTypeName = ""; // not in db
     private String subjectAssignment = "";
 
-    private ArrayList studyGroups = new ArrayList();// not in DB
+    private ArrayList<StudyGroupBean> studyGroups = new ArrayList<>();// not in DB
     private int studyGroupId = 0;// not in DB, indicates which group a
     // subject is in
     private String groupNotes = "";// not in DB
@@ -119,7 +123,7 @@ public class StudyGroupClassBean extends AuditableEntityBean {
     /**
      * @return Returns the studyGroups.
      */
-    public ArrayList getStudyGroups() {
+    public ArrayList<StudyGroupBean> getStudyGroups() {
         return studyGroups;
     }
 
@@ -127,7 +131,7 @@ public class StudyGroupClassBean extends AuditableEntityBean {
      * @param studyGroups
      *            The studyGroups to set.
      */
-    public void setStudyGroups(ArrayList studyGroups) {
+    public void setStudyGroups(ArrayList<StudyGroupBean> studyGroups) {
         this.studyGroups = studyGroups;
     }
 

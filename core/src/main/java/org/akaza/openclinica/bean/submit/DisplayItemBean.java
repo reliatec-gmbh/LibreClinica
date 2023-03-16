@@ -18,7 +18,7 @@ import java.util.ArrayList;
 /**
  * @author ssachs
  */
-public class DisplayItemBean implements Comparable {
+public class DisplayItemBean implements Comparable<DisplayItemBean> {
     private ItemDataBean data;
     private ItemBean item;
     private ItemFormMetadataBean metadata;
@@ -50,7 +50,7 @@ public class DisplayItemBean implements Comparable {
      * Furthermore, they must be ordered in increasing value of their
      * metadata.columnNumber property.
      */
-    private ArrayList children;
+    private ArrayList<DisplayItemBean> children;
 
     /**
      * Not a database column. Always equal to children.size(). Is primarily used
@@ -100,7 +100,7 @@ public class DisplayItemBean implements Comparable {
         data = new ItemDataBean();
         item = new ItemBean();
         metadata = new ItemFormMetadataBean();
-        children = new ArrayList();
+        children = new ArrayList<>();
         numChildren = 0;
         numColumns = 0;
         dbData = new ItemDataBean();
@@ -177,7 +177,7 @@ public class DisplayItemBean implements Comparable {
             || rt.equals(org.akaza.openclinica.bean.core.ResponseType.SELECT) || rt.equals(org.akaza.openclinica.bean.core.ResponseType.SELECTMULTI)) {
 
             if (eventDefinitionCRF != null) {
-                ArrayList nullValues = eventDefinitionCRF.getNullValuesList();
+                ArrayList<NullValue> nullValues = eventDefinitionCRF.getNullValuesList();
                 for (int i = 0; i < nullValues.size(); i++) {
                     NullValue nv = (NullValue) nullValues.get(i);
                     ResponseOptionBean ro = new ResponseOptionBean();
@@ -194,7 +194,7 @@ public class DisplayItemBean implements Comparable {
     /**
      * @return Returns the children.
      */
-    public ArrayList getChildren() {
+    public ArrayList<DisplayItemBean> getChildren() {
         return children;
     }
 
@@ -205,7 +205,7 @@ public class DisplayItemBean implements Comparable {
      * @param children
      *            The children to set.
      */
-    public void setChildren(ArrayList children) {
+    public void setChildren(ArrayList<DisplayItemBean> children) {
         this.children = children;
         numChildren = children.size();
 
@@ -243,13 +243,8 @@ public class DisplayItemBean implements Comparable {
      *         this DisplayItemBean's A positive number if o is a
      *         DisplayItemBean with a lesser ordinal than this DisplayItemBean's
      */
-    public int compareTo(Object o) {
-        if (!o.getClass().equals(this.getClass())) {
-            return 0;
-        }
-
-        DisplayItemBean arg = (DisplayItemBean) o;
-        return getMetadata().getOrdinal() - arg.getMetadata().getOrdinal();
+    public int compareTo(DisplayItemBean o) {
+        return getMetadata().getOrdinal() - o.getMetadata().getOrdinal();
     }
 
     /**
@@ -259,14 +254,13 @@ public class DisplayItemBean implements Comparable {
      *
      * @param values
      */
-    public void loadFormValue(ArrayList values) {
+    public void loadFormValue(ArrayList<String> values) {
         ResponseSetBean rsb = getMetadata().getResponseSet();
 
         String valueForDB = "";
         String glue = "";
 
-        for (int i = 0; i < values.size(); i++) {
-            String value = (String) values.get(i);
+        for(String value : values) {
 
             if (value == null || value.equals("")) {
                 continue;

@@ -17,7 +17,7 @@ import java.util.ArrayList;
  * TODO To change the template for this generated type comment go to Window -
  * Preferences - Java - Code Style - Code Templates
  */
-public class StudyEventRow extends EntityBeanRow {
+public class StudyEventRow extends EntityBeanRow<StudyEventBean, StudyEventRow> {
     // columns:
 
     public static final int COL_STUDY_SUBJECT_LABEL = 0;
@@ -33,13 +33,13 @@ public class StudyEventRow extends EntityBeanRow {
      *      int)
      */
     @Override
-    protected int compareColumn(Object row, int sortingColumn) {
+    protected int compareColumn(StudyEventRow row, int sortingColumn) {
         if (!row.getClass().equals(StudyEventRow.class)) {
             return 0;
         }
 
-        StudyEventBean thisEvent = (StudyEventBean) bean;
-        StudyEventBean argEvent = (StudyEventBean) ((StudyEventRow) row).bean;
+        StudyEventBean thisEvent = bean;
+        StudyEventBean argEvent = row.bean;
 
         int answer = 0;
         switch (sortingColumn) {
@@ -72,20 +72,17 @@ public class StudyEventRow extends EntityBeanRow {
      * @see org.akaza.openclinica.core.EntityBeanRow#generatRowsFromBeans(java.util.ArrayList)
      */
     @Override
-    public ArrayList generatRowsFromBeans(ArrayList beans) {
+    public ArrayList<StudyEventRow> generatRowsFromBeans(ArrayList<StudyEventBean> beans) {
         return StudyEventRow.generateRowsFromBeans(beans);
     }
 
-    public static ArrayList generateRowsFromBeans(ArrayList beans) {
-        ArrayList answer = new ArrayList();
-
-        Class[] parameters = null;
-        Object[] arguments = null;
+    public static ArrayList<StudyEventRow> generateRowsFromBeans(ArrayList<StudyEventBean> beans) {
+        ArrayList<StudyEventRow> answer = new ArrayList<>();
 
         for (int i = 0; i < beans.size(); i++) {
             try {
                 StudyEventRow row = new StudyEventRow();
-                row.setBean((StudyEventBean) beans.get(i));
+                row.setBean(beans.get(i));
                 answer.add(row);
             } catch (Exception e) {
             }

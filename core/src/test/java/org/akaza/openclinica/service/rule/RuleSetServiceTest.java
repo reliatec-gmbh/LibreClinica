@@ -102,14 +102,14 @@ public class RuleSetServiceTest extends HibernateOcDbTestCase {
 
     }
 
-    private List<RuleSetBean> getRuleSets() {
-        List<RuleSetBean> ruleSets = null;
-        ruleSets = getRuleSetsByCrfStudyAndStudyEventDefinition();
-
-        RuleSetServiceInterface instance = (RuleSetServiceInterface) getContext().getBean("ruleSetService");
-        ruleSets = instance.filterByStatusEqualsAvailable(ruleSets);
-        return ruleSets;
-
-    }
+//    private List<RuleSetBean> getRuleSets() {
+//        List<RuleSetBean> ruleSets = null;
+//        ruleSets = getRuleSetsByCrfStudyAndStudyEventDefinition();
+//
+//        RuleSetServiceInterface instance = (RuleSetServiceInterface) getContext().getBean("ruleSetService");
+//        ruleSets = instance.filterByStatusEqualsAvailable(ruleSets);
+//        return ruleSets;
+//
+//    }
 
 }

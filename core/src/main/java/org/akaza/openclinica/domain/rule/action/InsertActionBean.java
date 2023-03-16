@@ -27,7 +27,11 @@ import javax.persistence.Transient;
 @DiscriminatorValue("4")
 public class InsertActionBean extends RuleActionBean {
 
-    private List<PropertyBean> properties;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -7394184994695190833L;
+	private List<PropertyBean> properties;
 
     public InsertActionBean() {
         setActionType(ActionType.INSERT);

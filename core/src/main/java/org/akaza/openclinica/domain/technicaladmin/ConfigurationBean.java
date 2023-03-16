@@ -33,7 +33,11 @@ import javax.persistence.Table;
 @GenericGenerator(name = "id-generator", strategy = "native", parameters = { @Parameter(name = "sequence_name", value = "configuration_id_seq") })
 public class ConfigurationBean extends AbstractMutableDomainObject {
 
-    private String key;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -2830582941154210275L;
+	private String key;
     private String value;
     private String description;
 

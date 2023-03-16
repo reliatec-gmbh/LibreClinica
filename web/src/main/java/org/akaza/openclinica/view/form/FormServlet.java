@@ -26,13 +26,18 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
+import static org.akaza.openclinica.core.util.ClassCastHelper.*;
 /**
  * Created by IntelliJ IDEA. User: bruceperry Date: May 19, 2007
  */
 public class FormServlet extends HttpServlet {
 
-    @Override
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 7478852107497070710L;
+
+	@Override
     protected void doGet(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
         PrintWriter pw = httpServletResponse.getWriter();
         HorizontalFormBuilder builder = new HorizontalFormBuilder();
@@ -42,7 +47,8 @@ public class FormServlet extends HttpServlet {
         String path = context.getRealPath("/");
         POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(new File(path + "group_demo_nw.xls")));
         HSSFWorkbook wb = new HSSFWorkbook(fs);
-        Map<String, Map> allMap = spnw.createCrfMetaObject(wb);
+        @SuppressWarnings("rawtypes")
+        Map<String, Map>  allMap = (Map<String, Map>) spnw.createCrfMetaObject(wb);
         /*
          * Map gmap = spnw.createGroupsMap(wb); Map map2 =
          * spnw.createItemsOrSectionMap(wb,"items"); FormGroupBean fgBean =
@@ -53,11 +59,16 @@ public class FormServlet extends HttpServlet {
          * displayGroup.setItems(itemsDisplayList);
          */
         List<DisplayItemGroupBean> formGroupsL = new ArrayList<DisplayItemGroupBean>();
-        String crfName = (String) allMap.get("crf_info").get("crf_name");
-        Map sections = allMap.get("sections");
-        Map sectionMap = (Map) sections.get(1);
+        String crfName = getAsType(allMap.get("crf_info").get("crf_name"), String.class);
+        @SuppressWarnings("unchecked")
+		Map<Integer, Map<String, String>> sections = allMap.get("sections");
+        Map<String, String> sectionMap = sections.get(1);
         String sectionLabel = (String) sectionMap.get("section_label");
-        formGroupsL = beanFactory.createGroupBeans(allMap.get("items"), allMap.get("groups"), sectionLabel, crfName);
+		@SuppressWarnings("unchecked")
+		Map<Integer, Map<String, String>> items = allMap.get("items");
+        @SuppressWarnings("unchecked")
+		Map<Integer, Map<String, String>> groups = allMap.get("groups");
+		formGroupsL = beanFactory.createGroupBeans(items, groups, sectionLabel, crfName);
         // formGroupsL.add(displayGroup);
         builder.setDisplayItemGroups(formGroupsL);
         pw.write("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n"

@@ -38,7 +38,7 @@ public class UserType  extends DataMapDomainObject implements java.io.Serializab
 	private static final long serialVersionUID = 1L;
 	private int userTypeId;
 	private String userType;
-	private Set<UserAccount> userAccounts = new HashSet(0);
+	private Set<UserAccount> userAccounts = new HashSet<>(0);
 
 	public UserType() {
 	}
@@ -47,7 +47,7 @@ public class UserType  extends DataMapDomainObject implements java.io.Serializab
 		this.userTypeId = userTypeId;
 	}
 
-	public UserType(int userTypeId, String userType, Set userAccounts) {
+	public UserType(int userTypeId, String userType, Set<UserAccount> userAccounts) {
 		this.userTypeId = userTypeId;
 		this.userType = userType;
 		this.userAccounts = userAccounts;

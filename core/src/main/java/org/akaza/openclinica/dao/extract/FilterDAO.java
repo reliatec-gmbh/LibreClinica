@@ -7,6 +7,11 @@
  */
 package org.akaza.openclinica.dao.extract;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import javax.sql.DataSource;
+
 import org.akaza.openclinica.bean.core.EntityBean;
 import org.akaza.openclinica.bean.extract.FilterBean;
 import org.akaza.openclinica.bean.extract.FilterObjectBean;
@@ -15,20 +20,13 @@ import org.akaza.openclinica.dao.core.DAODigester;
 import org.akaza.openclinica.dao.core.SQLFactory;
 import org.akaza.openclinica.dao.core.TypeNames;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-
-import javax.sql.DataSource;
-
 /**
  * The data access object for filters.
  *
  * @author thickerson
  *
  */
-public class FilterDAO extends AuditableEntityDAO {
+public class FilterDAO extends AuditableEntityDAO<FilterBean> {
     private DAODigester digester;
 
     @Override
@@ -73,10 +71,9 @@ public class FilterDAO extends AuditableEntityDAO {
         this.setTypeExpected(9, TypeNames.INT);// update id
     }
 
-    public EntityBean update(EntityBean eb) {
-        FilterBean fb = (FilterBean) eb;
-        HashMap variables = new HashMap();
-        HashMap nullVars = new HashMap();
+    public FilterBean update(FilterBean fb) {
+        HashMap<Integer, Object> variables = new HashMap<>();
+		HashMap<Integer, Integer> nullVars = new HashMap<>();
         variables.put(new Integer(1), fb.getName());
         variables.put(new Integer(2), fb.getDescription());
         variables.put(new Integer(3), new Integer(fb.getStatus().getId()));
@@ -84,16 +81,14 @@ public class FilterDAO extends AuditableEntityDAO {
         // filterid
         variables.put(new Integer(5), new Integer(fb.getUpdaterId()));
         variables.put(new Integer(6), new Integer(fb.getId()));
-        this.execute(digester.getQuery("update"), variables, nullVars);
+        this.executeUpdate(digester.getQuery("update"), variables, nullVars);
         return fb;
     }
 
-    public EntityBean create(EntityBean eb) {
-        FilterBean fb = (FilterBean) eb;
+    public FilterBean create(FilterBean fb) {
         logger.info("logged following owner id: " + fb.getOwnerId() + " vs. " + fb.getOwner().getId());
-        HashMap variables = new HashMap();
         int id = getNextPK();
-        // HashMap nullVars = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), fb.getId());
         variables.put(new Integer(2), fb.getName());
         // name desc sql, status id owner id
@@ -103,13 +98,13 @@ public class FilterDAO extends AuditableEntityDAO {
         variables.put(new Integer(6), new Integer(fb.getOwner().getId()));
         // changed from get owner id, tbh
 
-        this.execute(digester.getQuery("create"), variables);
+        this.executeUpdate(digester.getQuery("create"), variables);
 
         fb.setId(id);
         return fb;
     }
 
-    public Object getEntityFromHashMap(HashMap hm) {
+    public FilterBean getEntityFromHashMap(HashMap<String, Object> hm) {
         FilterBean fb = new FilterBean();
         this.setEntityAuditInformation(fb, hm);
         fb.setDescription((String) hm.get("description"));
@@ -119,64 +114,64 @@ public class FilterDAO extends AuditableEntityDAO {
         return fb;
     }
 
-    public Collection findAll() {
+    public ArrayList<FilterBean> findAll() {
         this.setTypesExpected();
-        ArrayList alist = this.select(digester.getQuery("findAll"));
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            FilterBean fb = (FilterBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findAll"));
+        ArrayList<FilterBean> al = new ArrayList<>();
+        for (HashMap<String, Object> hm : alist) {
+            FilterBean fb = (FilterBean) this.getEntityFromHashMap(hm);
             al.add(fb);
         }
         return al;
     }
 
-    public Collection findAllAdmin() {
+    public ArrayList<FilterBean> findAllAdmin() {
         this.setTypesExpected();
-        ArrayList alist = this.select(digester.getQuery("findAllAdmin"));
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            FilterBean fb = (FilterBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findAllAdmin"));
+        ArrayList<FilterBean> al = new ArrayList<>();
+        for (HashMap<String, Object> hm : alist) {
+            FilterBean fb = (FilterBean) this.getEntityFromHashMap(hm);
             al.add(fb);
         }
         return al;
     }
 
-    public Collection findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
-
-        return al;
+     /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<FilterBean> findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+        throw new RuntimeException("Not implemented");
     }
 
     public EntityBean findByPK(int ID) {
         FilterBean fb = new FilterBean();
         this.setTypesExpected();
 
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), new Integer(ID));
 
         String sql = digester.getQuery("findByPK");
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            fb = (FilterBean) this.getEntityFromHashMap((HashMap) it.next());
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
+        
+        if (alist != null && alist.size() > 0) {
+            fb = (FilterBean) this.getEntityFromHashMap(alist.get(0));
         }
 
         return fb;
     }
 
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
-
-        return al;
+     /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<FilterBean> findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+        throw new RuntimeException("Not implemented");
     }
 
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType) {
-        ArrayList al = new ArrayList();
-
-        return al;
+     /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<FilterBean> findAllByPermission(Object objCurrentUser, int intActionType) {
+        throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -191,7 +186,7 @@ public class FilterDAO extends AuditableEntityDAO {
      * @param connector
      * @param filterObjs
      */
-    public String genSQLStatement(String oldSQLStatement, String connector, ArrayList filterObjs) {
+    public String genSQLStatement(String oldSQLStatement, String connector, ArrayList<FilterObjectBean> filterObjs) {
         StringBuffer sb = new StringBuffer();
         // sb.append(" and subject_id in "+
         // "(select subject_id from extract_data_table where ");
@@ -201,10 +196,8 @@ public class FilterDAO extends AuditableEntityDAO {
             sb.append(" and subject_id in " + "(select subject_id from extract_data_table where ");
         }
         String tailEnd = "";
-        Iterator it = filterObjs.iterator();
         int count = 0;
-        while (it.hasNext()) {
-            FilterObjectBean fob = (FilterObjectBean) it.next();
+        for (FilterObjectBean fob : filterObjs) {
             tailEnd = "(" + tailEnd;
             if (count != 0) {
                 tailEnd = tailEnd + " " + connector + " ";// fob.getOperand();
@@ -237,17 +230,15 @@ public class FilterDAO extends AuditableEntityDAO {
      * @param connector
      * @param filterObjs
      */
-    public ArrayList genExplanation(ArrayList oldExplanation, String connector, ArrayList filterObjs) {
-        ArrayList sb = new ArrayList();
+    public ArrayList<String> genExplanation(ArrayList<String> oldExplanation, String connector, ArrayList<FilterObjectBean> filterObjs) {
+        ArrayList<String> sb = new ArrayList<>();
         if (oldExplanation != null) {
             sb.addAll(oldExplanation);
         } else {
             sb.add("This Filter will look for:");
         }
-        Iterator it = filterObjs.iterator();
         int count = 0;
-        while (it.hasNext()) {
-            FilterObjectBean fob = (FilterObjectBean) it.next();
+        for (FilterObjectBean fob : filterObjs) {
             String answerLine = "A value " + fob.getOperand() + " " + fob.getValue() + " " + "for question " + fob.getItemName();
 
             sb.add(answerLine);
@@ -258,4 +249,9 @@ public class FilterDAO extends AuditableEntityDAO {
         }
         return sb;
     }
+
+	@Override
+	public FilterBean emptyBean() {
+		return new FilterBean();
+	}
 }

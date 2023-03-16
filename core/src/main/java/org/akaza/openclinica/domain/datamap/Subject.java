@@ -40,6 +40,10 @@ import org.hibernate.annotations.Type;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Subject  extends DataMapDomainObject {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6155235038996943278L;
 	private int subjectId;
 	private UserAccount userAccount;
 	private Subject subjectByMotherId;

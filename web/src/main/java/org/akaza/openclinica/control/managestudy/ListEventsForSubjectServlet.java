@@ -7,6 +7,11 @@
  */
 package org.akaza.openclinica.control.managestudy;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Locale;
+
 import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.managestudy.DisplayStudyEventBean;
 import org.akaza.openclinica.bean.managestudy.DisplayStudySubjectBean;
@@ -28,7 +33,6 @@ import org.akaza.openclinica.dao.managestudy.StudyEventDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDefinitionDAO;
 import org.akaza.openclinica.dao.managestudy.StudyGroupClassDAO;
 import org.akaza.openclinica.dao.managestudy.StudySubjectDAO;
-import org.akaza.openclinica.dao.submit.EventCRFDAO;
 import org.akaza.openclinica.dao.submit.SubjectGroupMapDAO;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.service.crfdata.HideCRFManager;
@@ -37,17 +41,16 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.akaza.openclinica.web.bean.DisplayStudySubjectEventsRow;
 import org.akaza.openclinica.web.bean.EntityBeanTable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Locale;
-
 /**
  * @author jxu
  */
 public class ListEventsForSubjectServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -6801521619122202852L;
+	Locale locale;
 
     // < ResourceBundleresword;
     /*
@@ -118,16 +121,14 @@ public class ListEventsForSubjectServlet extends SecureController {
         SubjectGroupMapDAO sgmdao = new SubjectGroupMapDAO(sm.getDataSource());
         StudyGroupClassDAO sgcdao = new StudyGroupClassDAO(sm.getDataSource());
 
-        EventCRFDAO ecdao = new EventCRFDAO(sm.getDataSource());
         EventDefinitionCRFDAO edcdao = new EventDefinitionCRFDAO(sm.getDataSource());
         CRFDAO crfdao = new CRFDAO(sm.getDataSource());
 
         // find all the groups in the current study
-        ArrayList studyGroupClasses = sgcdao.findAllActiveByStudy(currentStudy);
+        ArrayList<StudyGroupClassBean> studyGroupClasses = sgcdao.findAllActiveByStudy(currentStudy);
 
         // information for the event tabs
-        ArrayList allDefs = seddao.findAllActiveByStudy(currentStudy);
-        boolean isASite = false;
+        ArrayList<StudyEventDefinitionBean> allDefs = seddao.findAllActiveByStudy(currentStudy);
 
         if (currentStudy.getParentStudyId() > 0) {
 
@@ -138,7 +139,7 @@ public class ListEventsForSubjectServlet extends SecureController {
 
         }
 
-        ArrayList eventDefinitionCRFs = (ArrayList) edcdao.findAllActiveByEventDefinitionId(this.currentStudy, definitionId);
+        ArrayList<EventDefinitionCRFBean> eventDefinitionCRFs = edcdao.findAllActiveByEventDefinitionId(this.currentStudy, definitionId);
 
         for (int i = 0; i < eventDefinitionCRFs.size(); i++) {
             EventDefinitionCRFBean edc = (EventDefinitionCRFBean) eventDefinitionCRFs.get(i);
@@ -156,15 +157,15 @@ public class ListEventsForSubjectServlet extends SecureController {
         request.setAttribute("eventDefCRFs", eventDefinitionCRFs);
 
         // find all the subjects in current study
-        ArrayList subjects = sdao.findAllByStudyId(currentStudy.getId());
+        ArrayList<StudySubjectBean> subjects = sdao.findAllByStudyId(currentStudy.getId());
 
-        ArrayList displayStudySubs = new ArrayList();
+        ArrayList<DisplayStudySubjectBean> displayStudySubs = new ArrayList<>();
         for (int i = 0; i < subjects.size(); i++) {
-            StudySubjectBean studySub = (StudySubjectBean) subjects.get(i);
+            StudySubjectBean studySub = subjects.get(i);
 
-            ArrayList groups = (ArrayList) sgmdao.findAllByStudySubject(studySub.getId());
+            ArrayList<SubjectGroupMapBean> groups = sgmdao.findAllByStudySubject(studySub.getId());
 
-            ArrayList subGClasses = new ArrayList();
+            ArrayList<SubjectGroupMapBean> subGClasses = new ArrayList<>();
             for (int j = 0; j < studyGroupClasses.size(); j++) {
                 StudyGroupClassBean sgc = (StudyGroupClassBean) studyGroupClasses.get(j);
                 boolean hasClass = false;
@@ -183,11 +184,8 @@ public class ListEventsForSubjectServlet extends SecureController {
 
             }
 
-            // find all eventcrfs for each event, for each event tab
-            ArrayList displaySubjectEvents = new ArrayList();
-
             ArrayList<DisplayStudyEventBean> displayEvents = new ArrayList<DisplayStudyEventBean>();
-            ArrayList events = sedao.findAllByStudySubjectAndDefinition(studySub, sed);
+            ArrayList<StudyEventBean> events = sedao.findAllByStudySubjectAndDefinition(studySub, sed);
 
             for (int k = 0; k < events.size(); k++) {
                 StudyEventBean seb = (StudyEventBean) events.get(k);
@@ -202,10 +200,9 @@ public class ListEventsForSubjectServlet extends SecureController {
                 displayEvents.add(dseb);
             }
 
-            ArrayList al = new ArrayList();
             for (int k = 0; k < displayEvents.size(); k++) {
                 DisplayStudyEventBean dseb = displayEvents.get(k);
-                ArrayList eventCRFs = dseb.getDisplayEventCRFs();
+                ArrayList<DisplayEventCRFBean> eventCRFs = dseb.getDisplayEventCRFs();
                 // ArrayList uncompletedCRFs = dseb.getUncompletedCRFs();
 
                 for (int a = 0; a < eventDefinitionCRFs.size(); a++) {
@@ -276,9 +273,9 @@ public class ListEventsForSubjectServlet extends SecureController {
         }
 
         EntityBeanTable table = fp.getEntityBeanTable();
-        ArrayList allStudyRows = DisplayStudySubjectEventsRow.generateRowsFromBeans(displayStudySubs);
+        ArrayList<DisplayStudySubjectEventsRow> allStudyRows = DisplayStudySubjectEventsRow.generateRowsFromBeans(displayStudySubs);
 
-        ArrayList columnArray = new ArrayList();
+        ArrayList<String> columnArray = new ArrayList<>();
 
         columnArray.add(resword.getString("ID"));
         columnArray.add(resword.getString("subject_status"));
@@ -314,8 +311,8 @@ public class ListEventsForSubjectServlet extends SecureController {
         String columns[] = new String[columnArray.size()];
         columnArray.toArray(columns);
 
-        table.setColumns(new ArrayList(Arrays.asList(columns)));
-        table.setQuery("ListEventsForSubject?module=" + module + "&defId=" + definitionId + "&tab=" + tabId, new HashMap());
+        table.setColumns(new ArrayList<String>(Arrays.asList(columns)));
+        table.setQuery("ListEventsForSubject?module=" + module + "&defId=" + definitionId + "&tab=" + tabId, new HashMap<>());
         table.hideColumnLink(columnArray.size() - 1);
 
         // if(currentStudy.getStatus().isAvailable()){

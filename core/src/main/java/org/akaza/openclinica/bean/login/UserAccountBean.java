@@ -7,6 +7,10 @@
  */
 package org.akaza.openclinica.bean.login;
 
+import static org.akaza.openclinica.domain.user.AuthType.MARKED;
+import static org.akaza.openclinica.domain.user.AuthType.STANDARD;
+import static org.akaza.openclinica.domain.user.AuthType.TWO_FACTOR;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -17,6 +21,7 @@ import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.core.UserType;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
+import org.akaza.openclinica.domain.user.AuthType;
 
 /**
  * @author thickerson
@@ -26,8 +31,9 @@ public class UserAccountBean extends AuditableEntityBean {
     /*
      * since we extend entity bean, we already have the following: user_id, user_name, owner_id, date_created, date_updated, update_id
      */
+	private static final long serialVersionUID = 5521122073133301334L;
 
-    /**
+	/**
      * LDAP/Active Directory users are identified by having this password stored in the database
      */
     public static final String LDAP_PASSWORD = "*";
@@ -50,6 +56,8 @@ public class UserAccountBean extends AuditableEntityBean {
     private String time_zone;
     private boolean enableApiKey;
     private String apiKey;
+    private String authtype = AuthType.STANDARD.name();
+    private String authsecret;
 
     /**
      * Counts the number of times the user visited Main Menu servlet.
@@ -72,7 +80,7 @@ public class UserAccountBean extends AuditableEntityBean {
     private boolean sysAdmin; // this is true if the user is the business
     // dmin, false otherwise
     private boolean techAdmin;
-    private final ArrayList userTypes;
+    private final ArrayList<UserType> userTypes;
 
     //
     // the following invariant is maintained at all times:
@@ -89,11 +97,11 @@ public class UserAccountBean extends AuditableEntityBean {
     //
 
     // elements are StudyUserRoleBeans
-    private ArrayList roles = new ArrayList();
+    private ArrayList<StudyUserRoleBean> roles = new ArrayList<>();
 
     // key is Integer whose intValue is a studyId, value is StudyUserRoleBean
     // for that study
-    private final HashMap rolesByStudy = new HashMap();
+    private final HashMap<Integer, Integer> rolesByStudy = new HashMap<>();
 
     private String notes; // not in the DB, only for showing some notes for
 
@@ -115,7 +123,7 @@ public class UserAccountBean extends AuditableEntityBean {
         sysAdmin = false;
         techAdmin = false;
 
-        userTypes = new ArrayList();
+        userTypes = new ArrayList<>();
         status = Status.AVAILABLE;
         numVisitsToMainMenu = 0;
         notes = "";
@@ -352,10 +360,10 @@ public class UserAccountBean extends AuditableEntityBean {
     }
 
     public boolean hasUserType(UserType u) {
-        Iterator userTypesIt = userTypes.iterator();
+        Iterator<UserType> userTypesIt = userTypes.iterator();
 
         while (userTypesIt.hasNext()) {
-            UserType myType = (UserType) userTypesIt.next();
+            UserType myType = userTypesIt.next();
             if (myType.equals(u)) {
                 return true;
             }
@@ -387,7 +395,7 @@ public class UserAccountBean extends AuditableEntityBean {
 
         Integer key = new Integer(sur.getStudyId());
         if (rolesByStudy.containsKey(key)) {
-            Integer index = (Integer) rolesByStudy.get(key);
+            Integer index = rolesByStudy.get(key);
             roles.set(index.intValue(), sur);
         } else {
             roles.add(sur);
@@ -403,8 +411,8 @@ public class UserAccountBean extends AuditableEntityBean {
         Integer key = new Integer(studyId);
 
         if (rolesByStudy.containsKey(key)) {
-            Integer index = (Integer) rolesByStudy.get(key);
-            StudyUserRoleBean s = (StudyUserRoleBean) roles.get(index.intValue());
+            Integer index = rolesByStudy.get(key);
+            StudyUserRoleBean s = roles.get(index.intValue());
 
             if (s != null && !s.getStatus().equals(Status.DELETED) && !s.getStatus().equals(Status.AUTO_DELETED)) {
                 return s;
@@ -451,7 +459,7 @@ public class UserAccountBean extends AuditableEntityBean {
     /**
      * @return Returns the roles.
      */
-    public ArrayList getRoles() {
+    public ArrayList<StudyUserRoleBean> getRoles() {
         return roles;
     }
 
@@ -459,12 +467,12 @@ public class UserAccountBean extends AuditableEntityBean {
      * @param roles
      *            The roles to set.
      */
-    public void setRoles(ArrayList roles) {
-        this.roles = new ArrayList();
+    public void setRoles(ArrayList<StudyUserRoleBean> roles) {
+        this.roles = new ArrayList<>();
         rolesByStudy.clear();
 
         for (int i = 0; i < roles.size(); i++) {
-            StudyUserRoleBean sur = (StudyUserRoleBean) roles.get(i);
+            StudyUserRoleBean sur = roles.get(i);
 
             if (sur.getRole().equals(Role.ADMIN)) {
                 addUserType(UserType.SYSADMIN);
@@ -564,6 +572,60 @@ public class UserAccountBean extends AuditableEntityBean {
 		this.enableApiKey = enableApiKey;
 	}
 
+    public String getAuthtype() {
+        if (!AuthType.isValid(this.authtype)) {
+            this.authtype = STANDARD.name();
+        }
+        return authtype;
+    }
 
+    public void setAuthtype(String authtype) {
+        if (!AuthType.isValid(authtype)) {
+            this.authtype = STANDARD.name();
+            return;
+        }
+        this.authtype = authtype;
+    }
 
+    public boolean isAuthsecretPresent() {
+        return !isAuthsecretAbsent();
+    }
+
+    public boolean isAuthsecretAbsent() {
+        return null == authsecret || "".equals(authsecret);
+    }
+
+    public String getAuthsecret() {
+        return authsecret;
+    }
+
+    public void setAuthsecret(String authsecret) {
+        this.authsecret = authsecret;
+    }
+
+    /**
+	 * Returns true if according user has actives 2-FA - false otherwise.
+	 */
+    public boolean isTwoFactorActivated() {
+        return TWO_FACTOR.name().equals(this.authtype);
+    }
+
+	/**
+	 * Returns true if according user is deactivated for 2-FA.
+	 */
+	public boolean isTwoFactorDeactivated() {
+        return STANDARD.name().equals(this.authtype);
+	}
+
+	/**
+	 * Returns true if according user is marked to use 2-FA in the future - false
+	 * otherwise.
+	 */
+	public boolean isTwoFactorMarked() {
+        return MARKED.name().equals(this.authtype);
+	}
+
+    public boolean isTwoFactorMarkedOrActivated() {
+        return isTwoFactorMarked() || isTwoFactorActivated();
+    }
 }

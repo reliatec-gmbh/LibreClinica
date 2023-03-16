@@ -7,6 +7,27 @@
  */
 package org.akaza.openclinica.controller;
 
+import static org.akaza.openclinica.core.util.ClassCastHelper.asArrayList;
+
+import java.sql.Connection;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.sql.DataSource;
+
+import org.akaza.openclinica.bean.admin.CRFBean;
+import org.akaza.openclinica.bean.core.Role;
+import org.akaza.openclinica.bean.core.Status;
+import org.akaza.openclinica.bean.core.SubjectEventStatus;
+import org.akaza.openclinica.bean.login.StudyUserRoleBean;
+import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.bean.managestudy.EventDefinitionCRFBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventBean;
@@ -29,6 +50,7 @@ import org.akaza.openclinica.dao.submit.EventCRFDAO;
 import org.akaza.openclinica.dao.submit.ItemDAO;
 import org.akaza.openclinica.dao.submit.ItemGroupMetadataDAO;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
+import org.akaza.openclinica.view.StudyInfoPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,26 +62,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.akaza.openclinica.view.StudyInfoPanel;
-import java.sql.Connection;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.sql.DataSource;
-import org.akaza.openclinica.bean.admin.CRFBean;
-import org.akaza.openclinica.bean.core.Role;
-import org.akaza.openclinica.bean.core.Status;
-import org.akaza.openclinica.bean.core.SubjectEventStatus;
-import org.akaza.openclinica.bean.login.StudyUserRoleBean;
-import org.akaza.openclinica.bean.login.UserAccountBean;
-
 
 /**
  * Implement the functionality for displaying a table of Event CRFs for Source Data
@@ -277,7 +279,6 @@ public class ChangeCRFVersionController {
 	       
         try{
         	ItemDAO item_dao = new ItemDAO(dataSource);
-        	ItemDataBean d_bean = null;
         	//get metadata to find repeat group or not
 	        ItemGroupMetadataDAO dao_item_form_mdata = new ItemGroupMetadataDAO(dataSource);
 	        List<ItemGroupMetadataBean> beans_item_form_mdata = dao_item_form_mdata.findByCrfVersion( crfVersionId);
@@ -579,23 +580,6 @@ public class ChangeCRFVersionController {
         throw ex;
     }
 
-    private void setUpSidebar(HttpServletRequest request) {
-        if (sidebarInit.getAlertsBoxSetup() == SidebarEnumConstants.OPENALERTS) {
-            request.setAttribute("alertsBoxSetup", true);
-        }
-
-        if (sidebarInit.getInfoBoxSetup() == SidebarEnumConstants.OPENINFO) {
-            request.setAttribute("infoBoxSetup", true);
-        }
-        if (sidebarInit.getInstructionsBoxSetup() == SidebarEnumConstants.OPENINSTRUCTIONS) {
-            request.setAttribute("instructionsBoxSetup", true);
-        }
-
-        if (sidebarInit.getEnableIconsBoxSetup() == SidebarEnumConstants.DISABLEICONS) {
-            request.setAttribute("enableIconsBoxSetup", false);
-        }
-      
-    }
     //to be depricated in aquamarine
     private boolean mayProceed(HttpServletRequest request) {
 
@@ -647,7 +631,7 @@ public class ChangeCRFVersionController {
     }
     
     private  ArrayList<String> initPageMessages(HttpServletRequest request){
-    	ArrayList<String> pageMessages = (ArrayList<String>) request.getAttribute("pageMessages");
+    	ArrayList<String> pageMessages = asArrayList(request.getAttribute("pageMessages"), String.class);
     
 	    if (pageMessages == null) {
 	        pageMessages = new ArrayList<String>();

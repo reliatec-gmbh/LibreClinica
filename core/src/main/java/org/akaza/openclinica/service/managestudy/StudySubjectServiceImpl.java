@@ -10,7 +10,6 @@ package org.akaza.openclinica.service.managestudy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -124,13 +123,13 @@ public class StudySubjectServiceImpl implements StudySubjectService {
         return displayEvents;
     }
 
-    private List<DisplayEventCRFBean> getDisplayEventCRFs(List eventCRFs, UserAccountBean ub, StudyUserRoleBean currentRole, SubjectEventStatus status,
+    private List<DisplayEventCRFBean> getDisplayEventCRFs(List<EventCRFBean> eventCRFs, UserAccountBean ub, StudyUserRoleBean currentRole, SubjectEventStatus status,
             StudyBean study, Set<Integer> nonEmptyEventCrf, Map<Integer, CRFVersionBean> crfVersionById, Map<Integer, CRFBean> crfById,
-            Integer studyEventDefinitionId, List eventDefinitionCRFs) {
+            Integer studyEventDefinitionId, List<EventDefinitionCRFBean> eventDefinitionCRFs) {
         ArrayList<DisplayEventCRFBean> answer = new ArrayList<DisplayEventCRFBean>();
 
         for (int i = 0; i < eventCRFs.size(); i++) {
-            EventCRFBean ecb = (EventCRFBean) eventCRFs.get(i);
+            EventCRFBean ecb = eventCRFs.get(i);
 
             // populate the event CRF with its crf bean
             int crfVersionId = ecb.getCRFVersionId();
@@ -144,9 +143,7 @@ public class StudySubjectServiceImpl implements StudySubjectService {
             ecb.setCrf(cb);
 
             EventDefinitionCRFBean edc = null;
-            Iterator it = eventDefinitionCRFs.iterator();
-            while (it.hasNext()) {
-                EventDefinitionCRFBean edcBean = (EventDefinitionCRFBean) it.next();
+            for(EventDefinitionCRFBean edcBean : eventDefinitionCRFs) {
                 if (edcBean.getCrfId() == cb.getId()) {
                     edc = edcBean;
                     break;
@@ -191,7 +188,7 @@ public class StudySubjectServiceImpl implements StudySubjectService {
         return answer;
     }
 
-    private ArrayList<DisplayEventDefinitionCRFBean> getUncompletedCRFs(List eventDefinitionCRFs, List eventCRFs, SubjectEventStatus status,
+    private ArrayList<DisplayEventDefinitionCRFBean> getUncompletedCRFs(List<EventDefinitionCRFBean> eventDefinitionCRFs, List<EventCRFBean> eventCRFs, SubjectEventStatus status,
             Set<Integer> nonEmptyEventCrf, Map<Integer, CRFVersionBean> crfVersionById, Map<Integer, CRFBean> crfById) {
         int i;
         HashMap<Integer, Boolean> completed = new HashMap<Integer, Boolean>();
@@ -214,13 +211,13 @@ public class StudySubjectServiceImpl implements StudySubjectService {
          */
 
         for (i = 0; i < eventDefinitionCRFs.size(); i++) {
-            EventDefinitionCRFBean edcrf = (EventDefinitionCRFBean) eventDefinitionCRFs.get(i);
+            EventDefinitionCRFBean edcrf = eventDefinitionCRFs.get(i);
             completed.put(new Integer(edcrf.getCrfId()), Boolean.FALSE);
             startedButIncompleted.put(new Integer(edcrf.getCrfId()), new EventCRFBean());
         }
 
         for (i = 0; i < eventCRFs.size(); i++) {
-            EventCRFBean ecrf = (EventCRFBean) eventCRFs.get(i);
+            EventCRFBean ecrf = eventCRFs.get(i);
             // System.out.println("########event crf id:" + ecrf.getId());
             // int crfId =
             // crfVersionDao.getCRFIdFromCRFVersionId(ecrf.getCRFVersionId());
@@ -258,7 +255,6 @@ public class StudySubjectServiceImpl implements StudySubjectService {
         return answer;
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     public void populateUncompletedCRFsWithCRFAndVersions(ArrayList<DisplayEventDefinitionCRFBean> uncompletedEventDefinitionCRFs,
             Map<Integer, CRFVersionBean> crfVersionById, Map<Integer, CRFBean> crfById) {
 

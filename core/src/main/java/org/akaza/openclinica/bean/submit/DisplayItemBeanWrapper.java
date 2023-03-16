@@ -8,6 +8,7 @@
 package org.akaza.openclinica.bean.submit;
 
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +24,7 @@ public class DisplayItemBeanWrapper {
     boolean isOverwrite = false;
     boolean isSavable = false;
     List<DisplayItemBean> displayItemBeans;
-    HashMap validationErrors;
+    HashMap<String, ArrayList<String>> validationErrors;
     // Values to display on the jsp
     String studyEventId;
     String crfVersionId;
@@ -40,7 +41,7 @@ public class DisplayItemBeanWrapper {
     // need to add here
     // study_subject_id, date_of_event, name_of_event, crf_name and version
 
-    public DisplayItemBeanWrapper(List<DisplayItemBean> displayItemBeans, boolean isSavable, boolean isOverwrite, HashMap validationErrors,
+    public DisplayItemBeanWrapper(List<DisplayItemBean> displayItemBeans, boolean isSavable, boolean isOverwrite, HashMap<String, ArrayList<String>> validationErrors,
             String studyEventId, String crfVersionId, String studyEventName, String studySubjectName, Date dateOfEvent, String crfName, String crfVersionName, String studySubjectOid, String studyEventRepeatKey) {
         this.isSavable = isSavable;
         this.isOverwrite = isOverwrite;
@@ -58,11 +59,11 @@ public class DisplayItemBeanWrapper {
 
     }
 
-    public HashMap getValidationErrors() {
+    public HashMap<String, ArrayList<String>> getValidationErrors() {
         return validationErrors;
     }
 
-    public void setValidationErrors(HashMap validationErrors) {
+    public void setValidationErrors(HashMap<String, ArrayList<String>> validationErrors) {
         this.validationErrors = validationErrors;
     }
 

@@ -7,9 +7,13 @@
  */
 package org.akaza.openclinica.dao.admin;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import javax.sql.DataSource;
+
 import org.akaza.openclinica.bean.admin.AuditEventBean;
 import org.akaza.openclinica.bean.admin.TriggerBean;
-import org.akaza.openclinica.bean.core.EntityBean;
 import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.submit.SubjectBean;
@@ -21,21 +25,12 @@ import org.akaza.openclinica.dao.login.UserAccountDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.submit.SubjectDAO;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-
-import javax.sql.DataSource;
-
 /**
  * @author jxu, thickerson
  * 
  * 
  */
-public class AuditEventDAO extends AuditableEntityDAO {
+public class AuditEventDAO extends AuditableEntityDAO<AuditEventBean> {
     // private DAODigester digester;
 
     public AuditEventDAO(DataSource ds) {
@@ -71,7 +66,7 @@ public class AuditEventDAO extends AuditableEntityDAO {
      * getEntityFromHashMap, the method that gets the object from the database
      * query.
      */
-    public Object getEntityFromHashMap(HashMap hm) {
+    public AuditEventBean getEntityFromHashMap(HashMap<String, Object> hm) {
         AuditEventBean eb = new AuditEventBean();
         // AUDIT_ID AUDIT_DATE AUDIT_TABLE USER_ID ENTITY_ID
         // REASON_FOR_CHANGE
@@ -93,7 +88,7 @@ public class AuditEventDAO extends AuditableEntityDAO {
      * getEntityFromHashMap, the method that gets the object from the database
      * query.
      */
-    public Object getEntityFromHashMap(HashMap hm, boolean hasValue, boolean hasColumnName, boolean hasContextIds) {
+    public AuditEventBean getEntityFromHashMap(HashMap<String, Object> hm, boolean hasValue, boolean hasColumnName, boolean hasContextIds) {
         AuditEventBean eb = new AuditEventBean();
         // AUDIT_ID AUDIT_DATE AUDIT_TABLE USER_ID ENTITY_ID
         // REASON_FOR_CHANGE ACTION_MESSAGE
@@ -170,76 +165,34 @@ public class AuditEventDAO extends AuditableEntityDAO {
      * getEntityFromHashMap, the method that gets the object from the database
      * query.
      */
-    public Object getColumnNameFromHashMap(HashMap hm) {
+    public AuditEventBean getColumnNameFromHashMap(HashMap<String, Object> hm) {
         AuditEventBean eb = new AuditEventBean();
 
-        eb.setUpdateCount(((Integer) hm.get("count")).intValue());
         eb.setColumnName((String) hm.get("column_name"));
         return eb;
     }
 
-    public Collection findAll() {
-        this.setTypesExpected();
-        ArrayList alist = this.select(digester.getQuery("findAll"));
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
-        while (it.hasNext()) {
-            AuditEventBean eb = (AuditEventBean) this.getEntityFromHashMap((HashMap) it.next());
-            al.add(eb);
-        }
-        return al;
+    public ArrayList<AuditEventBean> findAll() {
+    	String queryName = "findAll";
+    	return executeFindAllQuery(queryName);
     }
 
-    public Collection findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<AuditEventBean>  findAll(String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+    	throw new RuntimeException("Not implemented");
     }
 
-    public EntityBean findByPK(int id) {
-        AuditEventBean eb = new AuditEventBean();
-        this.setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(id));
-
-        String sql = digester.getQuery("findByPK");
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        if (it.hasNext()) {
-            eb = (AuditEventBean) this.getEntityFromHashMap((HashMap) it.next());
-        }
-
-        return eb;
+    public AuditEventBean findByPK(int id) {
+    	String queryName = "findByPK";
+    	return (AuditEventBean) executeFindByPKQuery(queryName);
     }
-
-    // public Collection findAllByAuditTable(String tableName) {
-    // ArrayList al = new ArrayList();
-    // AuditEventBean eb = new AuditEventBean();
-    // this.setTypesExpected();
-    //
-    // HashMap variables = new HashMap();
-    // variables.put(new Integer(1), tableName);
-    //
-    // String sql = digester.getQuery("findByPK");
-    // ArrayList alist = this.select(sql, variables);
-    // Iterator it = alist.iterator();
-    //
-    // while (it.hasNext()) {
-    // AuditEventBean auditEventBean = new AuditEventBean();
-    // auditEventBean = (AuditEventBean) this.getEntityFromHashMap((HashMap)
-    // it.next());
-    // al.add(auditEventBean);
-    // }
-    // return al;
-    // }
 
     /**
      * Creates a new row in the audit_log_event table
      */
-    public EntityBean create(EntityBean eb) {
-        AuditEventBean sb = (AuditEventBean) eb;
+    public AuditEventBean create(AuditEventBean sb) {
         HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
         // INSERT INTO audit_event
         // (AUDIT_DATE,AUDIT_TABLE,USER_ID,ENTITY_ID,REASON_FOR_CHANGE,
@@ -257,7 +210,7 @@ public class AuditEventDAO extends AuditableEntityDAO {
         variables.put(new Integer(4), sb.getReasonForChangeKey());
         variables.put(new Integer(5), sb.getActionMessageKey());
 
-        this.execute(digester.getQuery("create"), variables);
+        this.executeUpdate(digester.getQuery("create"), variables);
 
         return sb;
     }
@@ -274,7 +227,7 @@ public class AuditEventDAO extends AuditableEntityDAO {
         auditEvent.setReasonForChange("");
         // need to set type_id either (success) or (failure), tbh
         // use custom SQL here?
-        AuditEventBean new_aeb = (AuditEventBean) create(auditEvent);
+        create(auditEvent);
     }
 
     public void createRowForUserAccount(UserAccountBean uab, String reasonForChange, String actionMessage) {
@@ -287,7 +240,7 @@ public class AuditEventDAO extends AuditableEntityDAO {
         aeb.setAuditTable("__user_account");
         aeb.setReasonForChange(reasonForChange);
         aeb.setActionMessage(actionMessage);
-        AuditEventBean new_aeb = (AuditEventBean) create(aeb);
+        create(aeb);
 
     }
 
@@ -311,7 +264,7 @@ public class AuditEventDAO extends AuditableEntityDAO {
         // 
         auditEventBean.setReasonForChange(reasonForChange);
         auditEventBean.setActionMessage(actionMessage);
-        AuditEventBean newAeb = (AuditEventBean) create(auditEventBean);
+        create(auditEventBean);
     }
 
     public void createRowForExtractDataJobSuccess(TriggerBean triggerBean) {
@@ -330,45 +283,29 @@ public class AuditEventDAO extends AuditableEntityDAO {
         createRowForJobExecution(triggerBean, "__job_fired_fail", message);
     }
 
-    public ArrayList findAllByAuditTable(String tableName) {
-        ArrayList<AuditEventBean> al = new ArrayList<AuditEventBean>();
-
-        this.setTypesExpected();
-
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), tableName);
-
-        String sql = digester.getQuery("findAllByAuditTable");
-        ArrayList alist = this.select(sql, variables);
-        Iterator it = alist.iterator();
-
-        while (it.hasNext()) {
-            AuditEventBean eb = new AuditEventBean();
-            eb = (AuditEventBean) this.getEntityFromHashMap((HashMap) it.next());
-            al.add(eb);
-        }
-
-        return al;
+    public ArrayList<AuditEventBean> findAllByAuditTable(String tableName) {
+        HashMap<Integer, Object> variables = variables(tableName);
+        String queryName = "findAllByAuditTable";
+        return executeFindAllQuery(queryName, variables);
     }
 
-    public Collection findAggregatesByTableName(String tableName) {
+    public ArrayList<AuditEventBean> findAggregatesByTableName(String tableName) {
         this.unsetTypeExpected();
-        this.setTypeExpected(1, TypeNames.INT);
+        this.setTypeExpected(1, TypeNames.LONG);
         this.setTypeExpected(2, TypeNames.STRING);
-        HashMap variables = new HashMap();
+        HashMap<Integer, Object> variables = new HashMap<>();
         variables.put(new Integer(1), tableName);
 
         String sql = digester.getQuery("findAggregatesByTableName");
         logger.debug("sql is: " + sql);
-        ArrayList alist = this.select(sql, variables);
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
         logger.debug("size is: " + alist.size());
 
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
+        ArrayList<AuditEventBean> al = new ArrayList<>();
 
-        while (it.hasNext()) {
-            logger.debug("has next..");
-            AuditEventBean eb = (AuditEventBean) this.getColumnNameFromHashMap((HashMap) it.next());
+        for (HashMap<String, Object> map : alist) {
+			logger.debug("has next..");
+            AuditEventBean eb = this.getColumnNameFromHashMap(map);
             logger.debug("got bean");
             al.add(eb);
         }
@@ -376,72 +313,8 @@ public class AuditEventDAO extends AuditableEntityDAO {
         return al;
 
     }
-
-    // public AuditEventBean getContextFromDB(AuditEventBean aeb) {
-    // /*
-    // * select * from audit_event_context where audit_id = ?
-    // */
-    // this.unsetTypeExpected();
-    // this.setTypeExpected(1, TypeNames.INT);
-    // this.setTypeExpected(2, TypeNames.INT);
-    // this.setTypeExpected(3, TypeNames.INT);
-    // this.setTypeExpected(4, TypeNames.INT);
-    // this.setTypeExpected(5, TypeNames.STRING);
-    // this.setTypeExpected(6, TypeNames.INT);
-    // this.setTypeExpected(7, TypeNames.INT);
-    // this.setTypeExpected(8, TypeNames.INT);
-    // this.setTypeExpected(9, TypeNames.INT);
-    // this.setTypeExpected(10, TypeNames.INT);
-    // this.setTypeExpected(11, TypeNames.INT);
-    // this.setTypeExpected(12, TypeNames.INT);
-    // String sql = digester.getQuery("findContextByPK");
-    // HashMap variables = new HashMap();
-    // variables.put(new Integer(1), new Integer(aeb.getId()));
-    // ArrayList alist = this.select(sql,variables);
-    // ArrayList al = new ArrayList();
-    // Iterator it = alist.iterator();
-    // if (it.hasNext()) {
-    // HashMap hm = (HashMap) it.next();
-    // //right now we are only looking for subject_id and study_id
-    // int studyId = ((Integer) hm.get("study_id")).intValue();
-    // int subjectId = ((Integer) hm.get("subject_id")).intValue();
-    // try {
-    // SubjectDAO sdao = new SubjectDAO(ds);
-    // SubjectBean sbean = (SubjectBean)sdao.findByPK(subjectId);
-    // aeb.setSubjectName(sbean.getName());
-    // StudyDAO stdao = new StudyDAO(ds);
-    // StudyBean stbean = (StudyBean)stdao.findByPK(studyId);
-    // aeb.setStudyName(stbean.getName());
-    // } catch (RuntimeException e) {
-    // logger.warn("threw exception while trying to access db");
-    // // TODO Auto-generated catch block
-    // e.printStackTrace();
-    // }
-    // }
-    // return aeb;
-    // }
-
-    /*
-     * find all by subject id currently not used; find event status log is being
-     * used instead, tbh
-     */
-
-    // public ArrayList findAllBySubjectId(int subjectId) {
-    // /*
-    // * select ae.* , aev.old_value, aev.new_value, aev.column_name,
-    // aec.study_id, aec.subject_id
-    // from audit_event ae, audit_event_values aev, audit_event_context aec
-    // where ae.audit_id=aev.audit_id
-    // and ae.audit_id = aec.audit_id
-    // and aec.subject_id=?
-    // order by ae.audit_date
-    // */
-    // this.unsetTypeExpected();
-    // ArrayList al = new ArrayList();
-    //
-    // return al;
-    // }
-    public ArrayList findAllByStudyId(int studyId) {
+    
+    public ArrayList<AuditEventBean> findAllByStudyId(int studyId) {
         /*
          * select ae. , aev.old_value, aev.new_value, aev.column_name,
          * aec.study_id, aec.subject_id from audit_event ae, audit_event_values
@@ -449,12 +322,12 @@ public class AuditEventDAO extends AuditableEntityDAO {
          * ae.audit_id = aec.audit_id and aec.study_id=? order by ae.audit_date
          */
 
-        ArrayList al = this.findAllByEntityName(studyId, "findAllByStudyId");
+        ArrayList<AuditEventBean> al = this.findAllByEntityName(studyId, "findAllByStudyId");
 
         return al;
     }
 
-    public ArrayList findAllByStudyIdAndLimit(int studyId) {
+    public ArrayList<AuditEventBean> findAllByStudyIdAndLimit(int studyId) {
         /*
          * select ae. , aev.old_value, aev.new_value, aev.column_name,
          * aec.study_id, aec.subject_id from audit_event ae, audit_event_values
@@ -462,12 +335,12 @@ public class AuditEventDAO extends AuditableEntityDAO {
          * ae.audit_id = aec.audit_id and aec.study_id=? order by ae.audit_date
          */
 
-        ArrayList al = this.findAllByEntityName(studyId, "findAllByStudyIdAndLimit");
+        ArrayList<AuditEventBean> al = this.findAllByEntityName(studyId, "findAllByStudyIdAndLimit");
 
         return al;
     }
 
-    public ArrayList findAllByEntityName(int entityId, String digesterName) {
+    public ArrayList<AuditEventBean> findAllByEntityName(int entityId, String digesterName) {
 
         this.unsetTypeExpected();
 
@@ -483,47 +356,37 @@ public class AuditEventDAO extends AuditableEntityDAO {
         this.setTypeExpected(10, TypeNames.STRING); // column_name
         this.setTypeExpected(11, TypeNames.INT); // study_id
         this.setTypeExpected(12, TypeNames.INT); // subject_id
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(entityId));
+        
+        HashMap<Integer, Object> variables = variables(entityId);
 
         String sql = digester.getQuery(digesterName);
-        ArrayList alist = this.select(sql, variables);
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
+        ArrayList<AuditEventBean> al = new ArrayList<>();
         AuditEventBean ebCheck = new AuditEventBean();
-        HashMap AuditEventHashMap = new HashMap();
+        HashMap<Integer, AuditEventBean> AuditEventHashMap = new HashMap<>();
         AuditEventBean eb = new AuditEventBean();
-        while (it.hasNext()) {
-            HashMap nextEb = (HashMap) it.next();
-            eb = (AuditEventBean) this.getEntityFromHashMap(nextEb, true, true, true);
+        for (HashMap<String, Object> nextEb : alist) {
+            eb = this.getEntityFromHashMap(nextEb, true, true, true);
 
-            ebCheck = (AuditEventBean) AuditEventHashMap.get(new Integer(eb.getId()));
+            ebCheck = AuditEventHashMap.get(eb.getId());
             if (ebCheck == null) {
-                AuditEventHashMap.put(new Integer(eb.getId()), eb);
-                // logger.warn("Put into hashmap: "+eb.getId());
+                AuditEventHashMap.put(eb.getId(), eb);
+                al.add(eb);
             } else {
-                HashMap changes = ebCheck.getChanges();
+            	// update changes
+                HashMap<String, String> changes = ebCheck.getChanges();
                 changes.put(eb.getColumnName(), eb.getNewValue());
-                ebCheck.setChanges(changes);
-                AuditEventHashMap.put(new Integer(eb.getId()), ebCheck);
             }
 
-        }// end of first iterator loop
-        Set s = AuditEventHashMap.entrySet();
-        Iterator sit = s.iterator();
-        while (sit.hasNext()) {
-            Map.Entry mentry = (Map.Entry) sit.next();
-            AuditEventBean newAEBean = (AuditEventBean) mentry.getValue();
+        }// end of first iterator loop        
+        for (AuditEventBean newAEBean : al) {
             newAEBean = this.setStudyAndSubjectInfo(newAEBean);
-            // al.add(mentry.getValue());
-            al.add(newAEBean);
-
         }// end of second iterator loop
 
         return al;
     }
 
-    public ArrayList findAllByUserId(int userId) {
+    public ArrayList<AuditEventBean> findAllByUserId(int userId) {
         /*
          * select ae. , aev.old_value, aev.new_value, aev.column_name from
          * audit_event ae, audit_event_values aev where ae.audit_id=aev.audit_id
@@ -547,57 +410,31 @@ public class AuditEventDAO extends AuditableEntityDAO {
         this.setTypeExpected(10, TypeNames.STRING); // column_name
         this.setTypeExpected(11, TypeNames.INT); // study_id
         this.setTypeExpected(12, TypeNames.INT); // subject_id
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(userId));
+        HashMap<Integer, Object> variables = variables(userId);
 
         String sql = digester.getQuery("findAllByUserId");
-        ArrayList alist = this.select(sql, variables);
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
+        ArrayList<HashMap<String, Object>> alist = this.select(sql, variables);
+        ArrayList<AuditEventBean> al = new ArrayList<>();
         AuditEventBean ebCheck = new AuditEventBean();
-        HashMap AuditEventHashMap = new HashMap();
+        HashMap<Integer, AuditEventBean> AuditEventHashMap = new HashMap<>();
         AuditEventBean eb = new AuditEventBean();
-        while (it.hasNext()) {
-            HashMap nextEb = (HashMap) it.next();
-            eb = (AuditEventBean) this.getEntityFromHashMap(nextEb, true, true, true);
+        for (HashMap<String, Object> nextEb : alist) {
+            eb = this.getEntityFromHashMap(nextEb, true, true, true);
             // currently added here, but is there repeated work?
             // create a method instead to just add the names to the ids
             // found in the context, tbh
-            ebCheck = (AuditEventBean) AuditEventHashMap.get(new Integer(eb.getId()));
+            ebCheck = AuditEventHashMap.get(eb.getId());
             if (ebCheck == null) {
                 AuditEventHashMap.put(new Integer(eb.getId()), eb);
                 logger.warn("Put into hashmap: " + eb.getId());
+                al.add(eb);
             } else {
-                HashMap changes = ebCheck.getChanges();
+                HashMap<String, String> changes = ebCheck.getChanges();
                 changes.put(eb.getColumnName(), eb.getNewValue());
-                ebCheck.setChanges(changes);
-                AuditEventHashMap.put(new Integer(eb.getId()), ebCheck);
             }
-            // go ahead and check to see if they match
-            /*
-             * if (eb.getAuditTable().equals(ebCheck.getAuditTable()) &&
-             * eb.getEntityId()==ebCheck.getEntityId()) { //get the other
-             * column, new value, old value information and //keep on iterating
-             * HashMap changes = ebCheck.getChanges();
-             * changes.put(eb.getColumnName(),eb.getNewValue());
-             * ebCheck.setChanges(changes); } else { //go ahead and add the
-             * ebCheck to the list, //reset the ebCheck to review next changes
-             * if (ebCheck.getEntityId()!=0) { al.add(ebCheck); } //else {
-             * ebCheck = (AuditEventBean) this.getEntityFromHashMap(nextEb,
-             * true, true); //}
-             * logger.warn("*** Switched entity info: "+eb.getEntityId()+" "+
-             * ebCheck.getEntityId()); }
-             */
-
         }// end of first iterator loop
-        Set s = AuditEventHashMap.entrySet();
-        Iterator sit = s.iterator();
-        while (sit.hasNext()) {
-            Map.Entry mentry = (Map.Entry) sit.next();
-            AuditEventBean newAEBean = (AuditEventBean) mentry.getValue();
+        for(AuditEventBean newAEBean: al) {
             newAEBean = this.setStudyAndSubjectInfo(newAEBean);
-            // al.add(mentry.getValue());
-            al.add(newAEBean);
 
         }// end of second iterator loop
         // add check for the context here, add in study name and subject name
@@ -606,7 +443,7 @@ public class AuditEventDAO extends AuditableEntityDAO {
         return al;
     }
 
-    public ArrayList findEventStatusLogByStudySubject(int studySubjectId) {
+    public ArrayList<AuditEventBean> findEventStatusLogByStudySubject(int studySubjectId) {
 
         /*
          * select ae. , aev.old_value, aev.new_value from audit_event ae,
@@ -628,16 +465,15 @@ public class AuditEventDAO extends AuditableEntityDAO {
         this.setTypeExpected(8, TypeNames.STRING); // old_value
         this.setTypeExpected(9, TypeNames.STRING); // new_value
         this.setTypeExpected(10, TypeNames.STRING); // column name
-        HashMap variables = new HashMap();
-        variables.put(new Integer(1), new Integer(studySubjectId));
+        HashMap<Integer, Object> variables = variables(studySubjectId);
         logger.debug("&&& querying study log...");
-        String sql = digester.getQuery("findEventStatusLogByStudySubject");
-        ArrayList alist = this.select(sql, variables);
-        ArrayList al = new ArrayList();
-        Iterator it = alist.iterator();
+        String query = digester.getQuery("findEventStatusLogByStudySubject");
+        
+        ArrayList<HashMap<String, Object>> alist = this.select(query, variables);
+        ArrayList<AuditEventBean> al = new ArrayList<>();
         logger.debug("&&& about to get entities from HM...");
-        while (it.hasNext()) {
-            AuditEventBean eb = (AuditEventBean) this.getEntityFromHashMap((HashMap) it.next(), true, true, false);
+        for (HashMap<String, Object> nextEb : alist) {
+            AuditEventBean eb = this.getEntityFromHashMap(nextEb, true, true, false);
             al.add(eb);
         }
         logger.debug("&&& returning array list...");
@@ -648,21 +484,26 @@ public class AuditEventDAO extends AuditableEntityDAO {
     /**
      * Updates a AuditEvent
      */
-    public EntityBean update(EntityBean eb) {
-        AuditEventBean sb = (AuditEventBean) eb;
-        return sb;
+    public AuditEventBean update(AuditEventBean eb) {
+        return eb;
     }
 
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<AuditEventBean> findAllByPermission(Object objCurrentUser, int intActionType, String strOrderByColumn, boolean blnAscendingSort, String strSearchPhrase) {
+       throw new RuntimeException("Not implemented");
     }
 
-    public Collection findAllByPermission(Object objCurrentUser, int intActionType) {
-        ArrayList al = new ArrayList();
-
-        return al;
+    /**
+     * NOT IMPLEMENTED
+     */
+    public ArrayList<AuditEventBean> findAllByPermission(Object objCurrentUser, int intActionType) {
+    	throw new RuntimeException("Not implemented");
     }
 
+	@Override
+	public AuditEventBean emptyBean() {
+		return new AuditEventBean();
+	}
 }

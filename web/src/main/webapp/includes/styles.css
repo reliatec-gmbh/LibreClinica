@@ -446,9 +446,13 @@ a:hover, a:active {
     font-weight: bold;
 }
 
-.background { 
+.background {
+	width: 100%;
 }
 
+.header_td{ /* is used in login-header, header, sidebar etc. */ 
+	vertical-align: top;
+}
 .disabled_header { 
  position: absolute;
  left: 0px;
@@ -559,6 +563,8 @@ a:hover, a:active {
  padding-right: 16px;
  padding-top: 7px;
  padding-bottom: 12px;
+ /* border-width: 1px;
+ box-shadow: 4px 4px 4px #CACACA; */
 }
 
 .userboxtext_center { padding-left: 11px;
@@ -575,6 +581,7 @@ a:hover, a:active {
 }
 
 .navbox_center {
+	width: 875px;
 }
 
 
@@ -750,12 +757,13 @@ a.breadcrumb_completed:hover, a.breadcrumb_completed:active { font-family: Tahom
  padding-bottom: 6px;
 }
 
-.table_title_Admin { font-family: Tahoma, Arial, Helvetica, sans-serif;
- font-size: 14px;
- line-height: 18px;
- font-weight: bold;
- color: var(--lightblue);
- padding-bottom: 6px;
+.table_title_Admin { 
+	font-family: Tahoma, Arial, Helvetica, sans-serif;
+	font-size: 14px;
+	line-height: 18px;
+	font-weight: bold;
+	color: var(--lightblue);
+	padding-bottom: 6px;
 }
 
 .table_title_TechAdmin { font-family: Tahoma, Arial, Helvetica, sans-serif;
@@ -786,7 +794,14 @@ a.breadcrumb_completed:hover, a.breadcrumb_completed:active { font-family: Tahom
  font-family: Tahoma, Arial, Helvetica, Sans-Serif;
  font-size: 11px;
  line-height: 13px;
- color: var(--lightblue)
+ color: var(--lightblue);
+ vertical-align: top;
+}
+
+.sidebar_collapse_expand{
+	border: 0px;
+	float: right;
+	padding-right: 10px;
 }
 
 .content { padding-left: 22px;
@@ -794,6 +809,7 @@ a.breadcrumb_completed:hover, a.breadcrumb_completed:active { font-family: Tahom
  padding-top: 8px;
  padding-bottom: 18px;
  width: 615px;
+ vertical-align: top;
 }
 
 
@@ -827,7 +843,11 @@ a.breadcrumb_completed:hover, a.breadcrumb_completed:active { font-family: Tahom
  color: #666666;
  vertical-align: top;
 }
-
+.statistics_td{ /* is used in menu.jsp for the study statistics */
+	vertical-align: top;
+	padding-right: 2em;
+	padding-bottom: 2em;
+}
 .table_header_row_left { padding-top: 3px;
  padding-left: 6px;
  padding-right: 1px;
@@ -982,6 +1002,51 @@ padding-bottom: 3px;
  padding-right: 5px;
 }
 
+/* the following classes were copied from NewLoginStyles.css */
+div.login_BG {
+	padding-top: 117px;
+	margin: 0 auto;
+	width: 428px;
+}
+
+#logo { 
+	background: url(../images/login_logo.png) no-repeat top left; 
+	width: 428px; 
+	height: 112px;
+}
+
+.loginBoxes {
+	width: 100%;
+	margin-bottom: 100px;
+}
+
+.loginBoxes td { width: 100%; vertical-align: top; text-align: left; }
+
+.loginBox_T { }
+
+.loginBox {
+	width: 428px;	
+}
+
+#loginBox { padding: 10px 28px; background-color: var(--lightblue-l20); }
+
+#loginBox H1, #loginBox a { color: var(--lightblue-d20); }
+
+.loginBox form, .loginBox H1 { margin-top: 0px; }
+
+.loginBox li, .loginBox ul { list-style-image: url(../images/bullet.gif); margin-left: 7px; padding-left: 7px; }
+
+.loginBox li { margin-bottom: 13px; }
+
+.footer { background-image: url(../images/login_footer_BG.gif); }
+/* end of classes from NewLoginStyles.css */
+
+.reset_password{
+	width: 630px; 
+	height: 330px; 
+	background:#FFFFFF; 
+	padding:5px 8px 0px 8px
+}
 .button {
    background-color: var(--lightblue-d20);
    border-width: 0px;
@@ -992,7 +1057,7 @@ padding-bottom: 3px;
    font-weight: bold;
    width: 80px;
    height: 17px;
-   margin-top: 6px;
+   /* margin-top: 6px; */
    margin-right: 10px;
    border-radius: 3px;
 }
@@ -1011,7 +1076,6 @@ padding-bottom: 3px;
    margin-right: 10px;
    border-radius: 3px;
 }
-
 
 .loginbutton {
    background-color: var(--lightblue-d20);
@@ -1132,7 +1196,7 @@ padding-bottom: 3px;
    font-family: Tahoma Arial, Helvetica, sans-serif;
    font-size: 11px;
    color: #4D4D4D;
-   border: 1px solid var(--lightblue-d40);
+   /* border: 1px solid var(--lightblue-d40); */
    background-color: white;
    width: 45px;
    margin-left: 4px;
@@ -1149,7 +1213,7 @@ padding-bottom: 3px;
    font-size: 11px;
    color: #4D4D4D;
    background-color: white;
-   border: 1px solid var(--lightblue-d40);
+   /* border: 1px solid var(--lightblue-d40); */
    width: 95px;
    margin-left: 4px;
    margin-right: 9px;
@@ -1163,10 +1227,10 @@ padding-bottom: 3px;
 .formfieldM { 
    font-family: Tahoma Arial, Helvetica, sans-serif;
    font-size: 11px;
-   line-height: 15px;
+   /* line-height: 15px; */
    color: black;
    background-color: white;
-   border: 1px solid var(--lightblue-d40);
+   /* border: 1px solid var(--lightblue-d40); */
    width: 145px;
    margin-top: 1px;
 }
@@ -1177,9 +1241,9 @@ padding-bottom: 3px;
 .formfieldL {
    font-family: Tahoma Arial, Helvetica, sans-serif;
    font-size: 11px;
-   color: #4D4D4D;
+   /* color: #4D4D4D; */
    background-color: white;
-   border: 1px solid var(--lightblue-d40);
+   /* border: 1px solid var(--lightblue-d40); */
    width: 195px;
    margin-left: 4px;
    margin-right: 9px;
@@ -1195,9 +1259,9 @@ padding-bottom: 3px;
    font-size: 11px;
    color: #4D4D4D;
    background-color: white;
-   border: 1px solid var(--lightblue-d40);
+   /* border: 1px solid var(--lightblue-d40); */
    width: 245px;
-   margin-left: 4px;
+   /* margin-left: 4px; */
    margin-right: 9px;
    margin-top: 1px;
    margin-bottom: 7px;
@@ -1211,7 +1275,7 @@ padding-bottom: 3px;
    font-size: 11px;
    color: #4D4D4D;
    background-color: white;
-   border: 1px solid var(--lightblue-d40);
+   /* border: 1px solid var(--lightblue-d40); */
    width: 195px;
    height: 66px;
    margin-left: 4px;
@@ -1228,7 +1292,7 @@ padding-bottom: 3px;
    font-size: 11px;
    color: #4D4D4D;
    background-color: white;
-   border: 1px solid var(--lightblue-d40);
+   /* border: 1px solid var(--lightblue-d40); */
    width: 245px;
    height: 66px;
    margin-left: 4px;
@@ -1240,12 +1304,17 @@ padding-bottom: 3px;
 .formtextareaXL4_BG {
 }
 
+.contact_message{
+	margin-left: 4px;
+	height: 4em;
+	width: 243px;
+}
 .loginbox {
    font-family: Tahoma Arial, Helvetica, sans-serif;
    font-size: 11px;
    color: #4D4D4D;
    background-color: white;
-   border: 1px solid var(--lightblue-d40);
+   /* border: 1px solid var(--lightblue-d40); */
    width: 105px;
    margin-left: 4px;
    margin-right: 9px;
@@ -1267,7 +1336,6 @@ padding-bottom: 3px;
 
 .vline_B { background-image: url(../images/leftbar_vline.gif);
  background-repeat: no-repeat;
- background-position: top-right;
  padding-top: 6px;
  padding-left: 3px;
 }
@@ -1306,6 +1374,13 @@ padding-bottom: 3px;
    text-align: center;
 }
 
+.add_new_subject_div{
+	text-align: left;
+	width: 500px; 
+	height: 550px; 
+	overflow: scroll; 
+	background:#FFFFFF;
+}
 .ViewSubjectsPopup { background-color: #FFFFE5;
 }
 
@@ -1520,7 +1595,9 @@ body { margin: 0px; }
 
 .title_extract { color: #AF7CE2; }
 
-.title_manage { color: var(--lightblue-d30); }
+.title_manage { 
+	color: var(--lightblue-d30);
+}
 
 .title_admin { color: #66CCCC; }
 
@@ -1546,11 +1623,14 @@ body { margin: 0px; }
 
 #ol{
     background-image: url(overlay.png);
+    /*
     filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src="overlay.png", sizingMethod="scale");
+    */
 }
 
+
 #box {
-    display:none
+    display:none;
 }
 
 * html
@@ -1565,16 +1645,13 @@ container
 
 akaza_logo{
     margin-left: 0px;
-    width: 359;
     height:81px;
     float: left;
 }
 
 /* initially created for creating new or child dn box */
-.dnBoxCol1 { float:left; width:120; }
-.dnBoxCol1-1 { float:left; width:120; margin-top:10; }
-.dnBoxCol2 { margin: 0 0 0 120; /* 0 right 0 left*/	width: 260; }
-.dnBoxCol2-1 { margin: 0 0 0 120; width: 260; margin-top:10 }
+.dnBoxCol1 { float:left; }
+.dnBoxCol1-1 { float:left;}
 .dnBoxCol3 { float: right; }
 .icon_dnBox { width: 23px; height: 13px; border: 0px; }
 .dnBoxText {
@@ -1594,16 +1671,21 @@ table.summaryTable{
 }
 
 
-div#sumBox { -moz-border-radius: 3px 3px 3px 3px;
+div#sumBox { 
+	/*
+	-moz-border-radius: 3px 3px 3px 3px;
+	*/
 	border: 1px solid #b2b2b2;
 	display: inline-block;
 	margin-bottom: 18px;
 	margin-top: 6px;
+	/*
 	-moz-box-shadow: 4px 4px 4px #CACACA;
 	-webkit-box-shadow: 4px 4px 4px #CACACA;
+	*/
 	box-shadow: 4px 4px 4px #CACACA;
 	}
-	}
+	
 
 div#sumBox table { border-style: none; }
 
@@ -1638,9 +1720,47 @@ div#sumBox table tr:first-child td { border-top-width: 0px;
    height: 68px;
 }
 
-#StudyInfo { float: left; color: var(--lightblue); }
+/* next classes were added for studymodule.jsp */
+.contenttable{
+	border-left: 1px solid #ccc;
+    border-top: 1px solid #ccc;
+    border-spacing: 0px;
+}
+.contenttable tbody tr td, .contenttable thead td {
+	border-right: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;
+	border-left: 0px solid #ccc;
+	border-top: 0px solid #ccc;
+	border-spacing: 0px;
+	vertical-align:top;
+	text-align: left;
+	padding-left: 1em;
+	padding-right: 1em;
+	padding-top: 0.5em;
+	padding-top: 0.5em;	
+}
+.contenttable.hiddencontent td {
+	border-left: 0px;
+	border-top: 0px;
+	border-bottom: 0px;
+}
+/* end of classes for studymodule.jsp */
 
-#UserInfo { float: right; color: var(--lightblue); padding-right: 8px;}
+#StudyModule{ /* the div that holds all study info studymodule.jsp */
+	max-width: 840px;
+}
+#StudyInfo { 
+	float: left; 
+	color: var(--lightblue);
+	margin-left: 5px; 
+	}
+
+#UserInfo { 
+	float: right; 
+	color: var(--lightblue); 
+	padding-right: 6px;
+}
+#SearchBox { float: right; color: var(--lightblue); padding-right: 8px;}
 
 #bt_Home, #bt_SubmitData, #bt_ExtractData, #bt_ManageStudy, .nav_bt, .subnav {
    color: #FFFFFF;
@@ -1664,9 +1784,35 @@ div#sumBox table tr:first-child td { border-top-width: 0px;
 #bt_Home div div div, #bt_SubmitData div div div, #bt_ExtractData div div div, #bt_ManageStudy div div div {
    padding: 3px 12px 4px 12px;
 }
-
+/* start for the graphs in MainMenu - menu.jsp */
+.graph {
+	position: relative; /* IE is dumb */
+	width: 100px;
+	border: 1px solid #3876C1;
+	padding: 2px;
+}
+.graph .bar {
+	display: block;
+	position: relative;
+	background: #E8D28C;
+	text-align: center;
+	color: #333;
+	height: 1em;
+	line-height: 1em;
+}
+.graph .bar span { 
+	position: absolute; 
+	left: 1em; 
+} 
+/* end of part for the graphs in MainMenu - menu.jsp */
 .nav_bt a:link, .nav_bt a:visited, .nav_bt_current a:link, .nav_bt_current a:visited, .subnav a:link, .subnav a:visited { color: #FFFFFF;
    text-decoration: none;
+}
+
+.div_with_border{
+	border: 1px solid #ccc;
+	padding: 1em;	
+	border-radius: 3px;
 }
 
 .nav_bt a:hover, .nav_bt_current a:hover, .subnav a:hover {
@@ -1676,7 +1822,7 @@ div#sumBox table tr:first-child td { border-top-width: 0px;
 
 #bt_Home td, #bt_Home li { color: #FFFFFF;}
 
-#bt_Home ul, #bt_Home li { display: inline; float: left; margin: 0px; padding: 0px; list-style-item: none; }
+#bt_Home ul, #bt_Home li { display: inline; float: left; margin: 0px; padding: 0px; }
 
 #bt_Home form { margin: 0px; }
 
@@ -1740,9 +1886,8 @@ div#sumBox table tr:first-child td { border-top-width: 0px;
    font-weight: bold;
 }
 
-.footer_bottom { /*background-image: url(../images/footer_BG.gif);
-    background-repeat: repeat-x;
-    background-position: bottom;*/
+.footer_bottom { 
+    width: 240px;
     vertical-align: top;
     padding-right: 10px;
 	padding-top: 10px;
@@ -1750,18 +1895,31 @@ div#sumBox table tr:first-child td { border-top-width: 0px;
     line-height: 15px;
 	text-align:left;
 }
-.footer_table{
 
-min-width: 700px;
-    overflow: hidden;
-   
-}
 .footer_table  {
-table-layout: fixed;
-width:100%;
-min-width: 700px;
+	width:100%;
+	min-width: 700px;
+	max-width: 1100px;
     overflow: hidden;
-background-color: transparent;
+	background-color: transparent;
+}
+.footer_left  {
+	width:20%;
+	vertical-align: top;
+}
+.footer_middle  {
+	width:60%;
+	vertical-align: top;
+}
+.footer_right  {
+	width:20%;
+	vertical-align: top;
+}
+
+.footer_login{
+	/* just to center the footer in the login-form, login-include/login-footer.jsp */
+	margin: 0 auto;
+	width: 1100px;
 }
 
 #ft_tooltip {
@@ -1774,8 +1932,10 @@ background-color: transparent;
 		font-family:Verdana,Geneva,sans-serif;
 		padding:3px;
 		font-size:11px;
+		/*
 		-moz-box-shadow: 2px 2px 11px #C0C0C0;
 		-webkit-box-shadow: 2px 2px 11px #C0C0C0;
+		*/
 	}
 
 	
@@ -1799,7 +1959,9 @@ margin: 2px;;
     border: 1px solid #E7E6DE;
     padding: 10px;
     border-radius: 5px;
+    /*
     -moz-border-radius: 5px;
+    */
 }
 
 .connect-widget:hover {
@@ -1925,10 +2087,15 @@ form[name="subjectForm"] td img {
 }
 
 input {
-   border: 1px solid var(--darkblue-l20);
-   border-radius: 0;
+   border: 1px solid silver; /* was var(--darkblue-l20) */
+   border-radius: 3px;
 }
 
 input.no-border {
    border: none;
 }
+/* 20210724 added for 404.jsp and maybe not used */
+frm_msg{
+    color:#ff0000;
+}
+

@@ -20,12 +20,6 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
 
 import java.util.Locale;
 
-// import org.apache.commons.logging.Log;
-// import org.apache.commons.logging.impl.SimpleLog;
-//
-// import org.quartz.*;
-// import org.quartz.impl.jdbcjobstore.*;
-
 /**
  * @author thickerson
  *
@@ -34,7 +28,11 @@ import java.util.Locale;
  */
 public class ViewSchedulerServlet extends SecureController {
 
-    Locale locale;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -4488744121360370880L;
+	Locale locale;
 
     // < ResourceBundleresexception;
 

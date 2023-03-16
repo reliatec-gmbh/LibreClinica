@@ -7,6 +7,10 @@
  */
 package org.akaza.openclinica.control.managestudy;
 
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Date;
+
 import org.akaza.openclinica.bean.admin.DisplayStudyBean;
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.core.Status;
@@ -16,17 +20,12 @@ import org.akaza.openclinica.bean.submit.SubjectBean;
 import org.akaza.openclinica.bean.submit.SubjectGroupMapBean;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.managestudy.StudySubjectDAO;
 import org.akaza.openclinica.dao.submit.SubjectDAO;
 import org.akaza.openclinica.dao.submit.SubjectGroupMapDAO;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
-
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Date;
 
 /**
  * @author jxu
@@ -35,6 +34,11 @@ import java.util.Date;
  */
 public class ReassignStudySubjectServlet extends SecureController {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1589960233538141490L;
+
+	/**
      *
      */
     @Override
@@ -75,25 +79,22 @@ public class ReassignStudySubjectServlet extends SecureController {
             request.setAttribute("subject", subject);
 
             SubjectGroupMapDAO sgmdao = new SubjectGroupMapDAO(sm.getDataSource());
-            ArrayList groupMaps = (ArrayList) sgmdao.findAllByStudySubject(studySubId);
+            ArrayList<SubjectGroupMapBean> groupMaps = sgmdao.findAllByStudySubject(studySubId);
 
-            if (StringUtil.isBlank(action)) {
-                ArrayList studies = null;
+            if (action == null || action.trim().isEmpty()) {
                 DisplayStudyBean displayStudy = new DisplayStudyBean();
-                StudyBean study = (StudyBean) sdao.findByPK(studySub.getStudyId());
-                if (study.getParentStudyId() > 0) {// current in site
-                    studies = (ArrayList) sdao.findAllByParent(study.getParentStudyId());
-                    StudyBean parent = (StudyBean) sdao.findByPK(study.getParentStudyId());
-                    displayStudy.setParent(parent);
-                    // studies.add(parent);
-                    displayStudy.setChildren(studies);
+                StudyBean study = sdao.findByPK(studySub.getStudyId());
+                StudyBean parent;
+				if (study.getParentStudyId() > 0) {
+					// parent study available
+                    parent = sdao.findByPK(study.getParentStudyId());
                 } else {
-                    studies = (ArrayList) sdao.findAllByParent(study.getId());
-                    displayStudy.setParent(study);
-                    displayStudy.setChildren(studies);
-                    // studies.add(study);
+					// no parent study available
+                	parent = study;
                 }
-                // request.setAttribute("studies", studies);
+                ArrayList<StudyBean> studies = sdao.findAllByParent(parent.getId());
+                displayStudy.setParent(parent);
+                displayStudy.setChildren(studies);
                 request.setAttribute("displayStudy", displayStudy);
                 forwardPage(Page.REASSIGN_STUDY_SUBJECT);
             } else {

@@ -7,24 +7,20 @@
  */
 package org.akaza.openclinica.control;
 
-import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
+import java.util.Locale;
+
 import org.jmesa.view.html.AbstractHtmlView;
 import org.jmesa.view.html.HtmlBuilder;
 import org.jmesa.view.html.HtmlSnippets;
 
-import java.util.Locale;
-import java.util.ResourceBundle;
-
 public class DefaultView extends AbstractHtmlView {
-
-    private ResourceBundle resword;
 
     public DefaultView() {
         // TODO Auto-generated constructor stub
     }
 
     public DefaultView(Locale locale) {
-        resword = ResourceBundleProvider.getWordsBundle(locale);
+    	// TODO local not used
     }
 
     public Object render() {

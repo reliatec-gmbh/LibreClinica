@@ -10,9 +10,14 @@ package org.akaza.openclinica.bean.core;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 public class DatasetItemStatus extends Term {
-    public static final DatasetItemStatus COMPLETED = new DatasetItemStatus(1, "completed", "completed_items");
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -3460188291953236215L;
+	public static final DatasetItemStatus COMPLETED = new DatasetItemStatus(1, "completed", "completed_items");
     public static final DatasetItemStatus NONCOMPLETED = new DatasetItemStatus(2, "non_completed", "non_completed_items");
     public static final DatasetItemStatus COMPLETED_AND_NONCOMPLETED =
         new DatasetItemStatus(3, "completed_and_non_completed", "completed_and_non_completed_items");
@@ -32,7 +37,8 @@ public class DatasetItemStatus extends Term {
     }
 
     public static DatasetItemStatus get(int id) {
-        return (DatasetItemStatus) Term.get(id, list);
+    	Optional<DatasetItemStatus> result = list.stream().filter(t -> new Term(id, "").equals(t)).findFirst();
+    	return result.orElse(new DatasetItemStatus());
     }
 
     public static ArrayList<DatasetItemStatus> toArrayList() {

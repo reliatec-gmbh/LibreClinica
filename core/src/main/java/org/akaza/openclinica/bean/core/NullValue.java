@@ -10,6 +10,9 @@ package org.akaza.openclinica.bean.core;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Jun Xu
@@ -55,7 +58,11 @@ import java.util.List;
 
 // Internationalized description in Term.getDescription()
 public class NullValue extends Term {
-    public static final NullValue INVALID = new NullValue(0, "invalid", "invalid");
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 5622065318952364131L;
+	public static final NullValue INVALID = new NullValue(0, "invalid", "invalid");
     public static final NullValue NI = new NullValue(1, "NI", "no_information");
     public static final NullValue NA = new NullValue(2, "NA", "not_applicable");
     public static final NullValue UNK = new NullValue(3, "UNK", "unknown");
@@ -71,7 +78,7 @@ public class NullValue extends Term {
 
     private static final NullValue[] members = { NI, NA, UNK, NASK, ASKU, NAV, OTH, PINF, NINF, MSK, NP, NPE };
 
-    public static final List list = Arrays.asList(members);
+    public static final List<NullValue> list = Arrays.asList(members);
 
     private NullValue(int id, String name, String description) {
         super(id, name, description);
@@ -85,11 +92,12 @@ public class NullValue extends Term {
     }
 
     public static NullValue get(int id) {
-        Term t = Term.get(id, list);
+    	Optional<NullValue> o = list.stream().filter(r -> r.getId() == id).findFirst();
+    	NullValue t = o.orElse(new NullValue());
         if (!t.isActive()) {
             return INVALID;
         } else {
-            return (NullValue) t;
+            return t;
         }
     }
 
@@ -103,12 +111,49 @@ public class NullValue extends Term {
         return INVALID;
     }
 
-    public static ArrayList toArrayList() {
-        return new ArrayList(list);
+    public static ArrayList<NullValue> toArrayList() {
+        return new ArrayList<>(list);
     }
 
     @Override
     public String getName() {
         return name;
+    }
+    
+    /**
+     * Converts a list of {@link NullValue} to a comma separated string of their names.
+     * 
+     * @param values list of  {@link NullValue}
+     * @return comma separated string of the names
+     * @see NullValue#listFromString(String)
+     */
+    public static String listToString(ArrayList<NullValue> values) {
+    	String result;
+    	if(values != null) {
+    		result = values.stream().map(n -> n.getName()).collect(Collectors.joining(","));
+    	} else {
+    		result = "";
+    	}
+    	return result;
+    }
+    
+    /**
+     * Converts a comma separated list of null value names to a list of {@link NullValue}.
+     * 
+     * @param values comma separated list of null value names
+     * @param filterActive indicates if only active values should be returned
+     * @return list with {@link NullValue}
+     * @see NullValue#getName()}
+     * @see NullValue#listToString(ArrayList)
+     */
+    public static ArrayList<NullValue> listFromString(String values, boolean filterActive) {
+    	if(values == null) {
+    		values = "";
+    	}
+    	Stream<NullValue> map = Arrays.stream(values.split(",")).map(v -> NullValue.getByName(v));
+    	if(filterActive) {
+    		map = map.filter(v -> v.isActive());
+    	}
+        return new ArrayList<>(map.collect(Collectors.toList()));
     }
 }

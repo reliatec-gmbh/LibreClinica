@@ -41,7 +41,6 @@ public class SubjectGroupMap extends DataMapDomainObject {
 	private UserAccount userAccount;
 	private StudySubject studySubject;
 	private StudyGroupClass studyGroupClass;
-	private Status status;
 	private StudyGroup studyGroup;
 	private Date dateCreated;
 	private Date dateUpdated;
@@ -63,7 +62,6 @@ public class SubjectGroupMap extends DataMapDomainObject {
 		this.userAccount = userAccount;
 		this.studySubject = studySubject;
 		this.studyGroupClass = studyGroupClass;
-		this.status = status;
 		this.studyGroup = studyGroup;
 		this.dateCreated = dateCreated;
 		this.dateUpdated = dateUpdated;

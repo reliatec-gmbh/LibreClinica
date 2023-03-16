@@ -27,7 +27,11 @@ public class AuditEventBean extends AuditableEntityBean {
     // AUDIT_ID AUDIT_DATE AUDIT_TABLE USER_ID
     // ENTITY_ID REASON_FOR_CHANGE ACTION_MESSAGE
 
-    private Date auditDate;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 2845332018129239636L;
+	private Date auditDate;
     private String auditTable = "";
     private int userId = 0;
     private int entityId = 0;
@@ -36,9 +40,7 @@ public class AuditEventBean extends AuditableEntityBean {
     private String columnName = "";
     private String oldValue = "";
     private String newValue = "";
-    private int updateCount = 0;
-    private HashMap changes = new HashMap();
-    private HashMap otherInfo = new HashMap();
+    private HashMap<String, String> changes = new HashMap<>();
     private String studyName = "NULL";
     private String subjectName = "NULL";
     private int studyId = 0;
@@ -185,24 +187,9 @@ public class AuditEventBean extends AuditableEntityBean {
     }
 
     /**
-     * @return Returns the updateCount.
-     */
-    public int getUpdateCount() {
-        return userId;
-    }
-
-    /**
-     * @param updateCount
-     *            The updateCount to set.
-     */
-    public void setUpdateCount(int updateCount) {
-        this.updateCount = updateCount;
-    }
-
-    /**
      * @return Returns the changes.
      */
-    public HashMap getChanges() {
+    public HashMap<String, String> getChanges() {
         return changes;
     }
 
@@ -210,23 +197,8 @@ public class AuditEventBean extends AuditableEntityBean {
      * @param changes
      *            The changes to set.
      */
-    public void setChanges(HashMap changes) {
+    public void setChanges(HashMap<String, String> changes) {
         this.changes = changes;
-    }
-
-    /**
-     * @return Returns the otherInfo.
-     */
-    public HashMap getOtherInfo() {
-        return otherInfo;
-    }
-
-    /**
-     * @param otherInfo
-     *            The otherInfo to set.
-     */
-    public void setOtherInfo(HashMap otherInfo) {
-        this.otherInfo = otherInfo;
     }
 
     /**

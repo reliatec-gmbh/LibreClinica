@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-
 <web-app version="2.4"
          xmlns="http://java.sun.com/xml/ns/j2ee"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
-    <display-name>OpenClinica</display-name>
-    <description>
-        OpenClinica web interface
-    </description>
+    <display-name>LibreClinica</display-name>
+    <description>LibreClinica Web Interface</description>
 
     <context-param>
         <param-name>contextConfigLocation</param-name>
@@ -1330,13 +1327,17 @@
         <display-name>ParticipantFormServlet</display-name>
         <servlet-class>org.akaza.openclinica.control.submit.ParticipantFormServlet</servlet-class>
     </servlet>
-
-
     <servlet>
         <servlet-name>OpenRosaFormDownloadServlet</servlet-name>
         <display-name>OpenRosaFormDownloadServlet</display-name>
         <servlet-class>org.akaza.openclinica.web.openrosa.OpenRosaFormDownloadServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>PrintoutCertificateServlet</servlet-name>
+        <display-name>PrintoutCertificate</display-name>
+        <servlet-class>org.akaza.openclinica.control.admin.PrintoutCertificateServlet</servlet-class>
+    </servlet>
+    
     <servlet-mapping>
         <servlet-name>OpenRosaFormDownloadServlet</servlet-name>
         <url-pattern>/openrosa/formXml</url-pattern>
@@ -2184,6 +2185,10 @@
     <servlet-mapping>
         <servlet-name>UploadFileServlet</servlet-name>
         <url-pattern>/UploadFile</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PrintoutCertificateServlet</servlet-name>
+        <url-pattern>/PrintoutCertificate</url-pattern>
     </servlet-mapping>
 
     <!-- just for testing purposes -->

@@ -15,11 +15,14 @@ package org.akaza.openclinica.control.admin;
 
 import static org.jmesa.facade.TableFacadeFactory.createTableFacade;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.submit.CRFVersionBean;
-import org.akaza.openclinica.control.SpringServletAccess;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.core.util.ItemGroupCrvVersionUtil;
@@ -27,28 +30,13 @@ import org.akaza.openclinica.dao.admin.CRFDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.submit.CRFVersionDAO;
 import org.akaza.openclinica.dao.submit.ItemDAO;
-import org.akaza.openclinica.domain.rule.RuleSetBean;
-import org.akaza.openclinica.domain.rule.RuleSetRuleBean;
-import org.akaza.openclinica.domain.rule.action.RuleActionBean;
-import org.akaza.openclinica.service.rule.RuleSetServiceInterface;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.akaza.openclinica.web.table.sdv.SDVUtil;
 import org.jmesa.facade.TableFacade;
-import org.jmesa.view.component.Column;
-import org.jmesa.view.component.Row;
-import org.jmesa.view.component.Table;
-import org.jmesa.view.editor.BasicCellEditor;
-import org.jmesa.view.editor.CellEditor;
-import org.jmesa.view.html.HtmlBuilder;
 import org.jmesa.view.html.component.HtmlColumn;
 import org.jmesa.view.html.component.HtmlRow;
 import org.jmesa.view.html.component.HtmlTable;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
 
 /**
  * @author jxu
@@ -58,9 +46,12 @@ import java.util.List;
  */
 public class ViewCRFServlet extends SecureController {
 
-    private static String CRF_ID = "crfId";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 9110391473513698480L;
+	private static String CRF_ID = "crfId";
     private static String CRF = "crf";
-    private RuleSetServiceInterface ruleSetService;
 
     /**
      *
@@ -125,8 +116,7 @@ public class ViewCRFServlet extends SecureController {
                 request.setAttribute("studiesTableHTML", studyHtml);
                 //>>
             }
-             Collection<TableColumnHolder> items = populate(crf, versions);
-            request.setAttribute(CRF, crf);
+             request.setAttribute(CRF, crf);
             forwardPage(Page.VIEW_CRF);
 
         }
@@ -137,8 +127,7 @@ public class ViewCRFServlet extends SecureController {
 		
 		//get all items with group / version info from db 
 		 ItemDAO idao = new ItemDAO(sm.getDataSource());
-		 int check_group_count = 0;
-		 StringBuffer item_messages = null; String temp_buffer=null; //use for first record in the group
+		 String temp_buffer=null; //use for first record in the group
 		 ArrayList< ItemGroupCrvVersionUtil> results = new ArrayList< ItemGroupCrvVersionUtil>();
 		 ItemGroupCrvVersionUtil cur_item = null;
 		 StringBuffer error_message = null;
@@ -168,7 +157,7 @@ public class ViewCRFServlet extends SecureController {
 		   		//	if ( temp_buffer != null){cur_item.setErrorMesages(cur_item.getErrorMesages() + temp_buffer);}
 		   			if ( temp_buffer != null){cur_item.getArrErrorMesages().add( temp_buffer);}
 		   			temp_buffer=null;
-		   			cur_item.getArrErrorMesages().add(  error_message);
+		   			cur_item.getArrErrorMesages().add(error_message.toString());
 		   			if (check_group.getCrfVersionStatus() == 1 && cur_item.getCrfVersionStatus()!= 1){
 		   				cur_item.setCrfVersionStatus(1);
 		   			}
@@ -264,212 +253,6 @@ public class ViewCRFServlet extends SecureController {
         return studyBeans;
     }
 
-    private Collection<TableColumnHolder> populate(CRFBean crf, ArrayList<CRFVersionBean> versions) {
-        HashMap<CRFVersionBean, ArrayList<TableColumnHolder>> hm = new HashMap<CRFVersionBean, ArrayList<TableColumnHolder>>();
-        List<TableColumnHolder> tableColumnHolders = new ArrayList<TableColumnHolder>();
-        for (CRFVersionBean versionBean : versions) {
-            hm.put(versionBean, new ArrayList<TableColumnHolder>());
-        }
-        List<RuleSetBean> ruleSets = getRuleSetService().getRuleSetsByCrfAndStudy(crf, currentStudy);
-        ruleSets = getRuleSetService().filterByStatusEqualsAvailable(ruleSets);
-        for (RuleSetBean ruleSetBean : ruleSets) {
-            if (ruleSetBean.getCrfVersion() == null) {
-                for (CRFVersionBean key : hm.keySet()) {
-                    hm.get(key).addAll(createFromRuleSet(ruleSetBean, key));
-                }
-            }
-            if (ruleSetBean.getCrfVersion() != null) {
-                hm.get(ruleSetBean.getCrfVersion()).addAll(createFromRuleSet(ruleSetBean, ruleSetBean.getCrfVersion()));
-            }
-        }
-        for (ArrayList<TableColumnHolder> list : hm.values()) {
-            tableColumnHolders.addAll(list);
-        }
-        return tableColumnHolders;
-    }
-
-    private List<TableColumnHolder> createFromRuleSet(RuleSetBean ruleSet, CRFVersionBean crfVersion) {
-        List<TableColumnHolder> tchs = new ArrayList<TableColumnHolder>();
-        for (RuleSetRuleBean ruleSetRule : ruleSet.getRuleSetRules()) {
-            String ruleExpression = ruleSetRule.getRuleBean().getExpression().getValue();
-            String ruleName = ruleSetRule.getRuleBean().getName();
-            TableColumnHolder tch =
-                new TableColumnHolder(crfVersion.getName(), crfVersion.getId(), ruleName, ruleExpression, ruleSetRule.getActions(), ruleSetRule.getId());
-            tchs.add(tch);
-
-        }
-        return tchs;
-    }
-
-    private String html(TableFacade tableFacade) {
-
-        // set the column properties
-        tableFacade.setColumnProperties("versionName", "ruleName", "ruleExpression", "executeOnPlaceHolder", "actionTypePlaceHolder",
-                "actionSummaryPlaceHolder", "link");
-
-        HtmlTable table = (HtmlTable) tableFacade.getTable();
-        table.setCaption(resword.getString("rule_rules"));
-        table.getTableRenderer().setWidth("800px");
-
-        HtmlRow row = table.getRow();
-
-        HtmlColumn versionName = row.getColumn("versionName");
-        versionName.setTitle(resword.getString("CRF_version"));
-
-        HtmlColumn ruleName = row.getColumn("ruleName");
-        ruleName.setTitle(resword.getString("rule_name"));
-
-        HtmlColumn career = row.getColumn("ruleExpression");
-        career.setWidth("100px");
-        career.setTitle(resword.getString("rule_expression"));
-
-        HtmlColumn executeOn = row.getColumn("executeOnPlaceHolder");
-        executeOn.setSortable(false);
-        executeOn.setFilterable(false);
-        executeOn.setTitle(resword.getString("rule_execute_on"));
-        executeOn.getCellRenderer().setCellEditor(new CellEditor() {
-            @SuppressWarnings("unchecked")
-            public Object getValue(Object item, String property, int rowcount) {
-                String value = "";
-                List<RuleActionBean> ruleActions = (List<RuleActionBean>) new BasicCellEditor().getValue(item, "actions", rowcount);
-                for (int i = 0; i < ruleActions.size(); i++) {
-                    value += ruleActions.get(i).getExpressionEvaluatesTo();
-                    // Do not add horizontal line after last Summary
-                    if (i != ruleActions.size() - 1) {
-                        value += "<hr>";
-                    }
-                }
-                return value;
-            }
-        });
-
-        HtmlColumn actionTypePlaceHolder = row.getColumn("actionTypePlaceHolder");
-        actionTypePlaceHolder.setSortable(false);
-        actionTypePlaceHolder.setFilterable(false);
-        actionTypePlaceHolder.setTitle(resword.getString("rule_action_type"));
-        actionTypePlaceHolder.getCellRenderer().setCellEditor(new CellEditor() {
-            @SuppressWarnings("unchecked")
-            public Object getValue(Object item, String property, int rowcount) {
-                String value = "";
-                List<RuleActionBean> ruleActions = (List<RuleActionBean>) new BasicCellEditor().getValue(item, "actions", rowcount);
-                for (int i = 0; i < ruleActions.size(); i++) {
-                    value += ruleActions.get(i).getActionType().name();
-                    // Do not add horizontal line after last Summary
-                    if (i != ruleActions.size() - 1) {
-                        value += "<hr>";
-                    }
-                }
-                return value;
-            }
-        });
-
-        HtmlColumn actionSummaryPlaceHolder = row.getColumn("actionSummaryPlaceHolder");
-        actionSummaryPlaceHolder.setSortable(false);
-        actionSummaryPlaceHolder.setFilterable(false);
-        actionSummaryPlaceHolder.setTitle(resword.getString("rule_action_summary"));
-        actionSummaryPlaceHolder.getCellRenderer().setCellEditor(new CellEditor() {
-            @SuppressWarnings("unchecked")
-            public Object getValue(Object item, String property, int rowcount) {
-                String value = "";
-                List<RuleActionBean> ruleActions = (List<RuleActionBean>) new BasicCellEditor().getValue(item, "actions", rowcount);
-                for (int i = 0; i < ruleActions.size(); i++) {
-                    value += ruleActions.get(i).getSummary();
-                    // Do not add horizontal line after last Summary
-                    if (i != ruleActions.size() - 1) {
-                        value += "<hr>";
-                    }
-                }
-                return value;
-            }
-        });
-
-        HtmlColumn link = row.getColumn("link");
-        link.setSortable(false);
-        link.setFilterable(false);
-        link.setTitle(resword.getString("action"));
-        link.getCellRenderer().setCellEditor(new CellEditor() {
-            @SuppressWarnings("unchecked")
-            public Object getValue(Object item, String property, int rowcount) {
-                String param1 = (String) new BasicCellEditor().getValue(item, "ruleSetRuleId", rowcount);
-                String param2 = (String) new BasicCellEditor().getValue(item, "versionId", rowcount);
-                HtmlBuilder html = new HtmlBuilder();
-                html.a().href().quote().append(request.getContextPath() + "/RunRule?ruleSetRuleId=" + param1 + "&versionId=" + param2 + "&action=dryRun")
-                        .quote().close();
-                html.img().name("bt_View1").src("images/bt_ExexuteRules.gif").border("0").end();
-                html.aEnd();
-                return html.toString();
-            }
-        });
-
-        return tableFacade.render(); // Return the Html.
-    }
-
-    private void export(TableFacade tableFacade) {
-        // set the column properties
-        tableFacade.setColumnProperties("versionName", "ruleName", "ruleExpression", "executeOnPlaceHolder", "actionTypePlaceHolder",
-                "actionSummaryPlaceHolder");
-        Table table = tableFacade.getTable();
-        table.setCaption("Rules");
-
-        Row row = table.getRow();
-
-        Column executeOn = row.getColumn("executeOnPlaceHolder");
-        executeOn.setTitle("Execute On");
-        executeOn.getCellRenderer().setCellEditor(new CellEditor() {
-            @SuppressWarnings("unchecked")
-            public Object getValue(Object item, String property, int rowcount) {
-                String value = "";
-                List<RuleActionBean> ruleActions = (List<RuleActionBean>) new BasicCellEditor().getValue(item, "actions", rowcount);
-                for (int i = 0; i < ruleActions.size(); i++) {
-                    value += ruleActions.get(i).getExpressionEvaluatesTo();
-                    // Do not add horizontal line after last Summary
-                    if (i != ruleActions.size() - 1) {
-                        value += " | ";
-                    }
-                }
-                return value;
-            }
-        });
-
-        Column actionTypePlaceHolder = row.getColumn("actionTypePlaceHolder");
-        actionTypePlaceHolder.setTitle("Action Type");
-        actionTypePlaceHolder.getCellRenderer().setCellEditor(new CellEditor() {
-            @SuppressWarnings("unchecked")
-            public Object getValue(Object item, String property, int rowcount) {
-                String value = "";
-                List<RuleActionBean> ruleActions = (List<RuleActionBean>) new BasicCellEditor().getValue(item, "actions", rowcount);
-                for (int i = 0; i < ruleActions.size(); i++) {
-                    value += ruleActions.get(i).getActionType().name();
-                    // Do not add horizontal line after last Summary
-                    if (i != ruleActions.size() - 1) {
-                        value += " | ";
-                    }
-                }
-                return value;
-            }
-        });
-
-        Column actionSummaryPlaceHolder = row.getColumn("actionSummaryPlaceHolder");
-        actionSummaryPlaceHolder.setTitle("Action Summary");
-        actionSummaryPlaceHolder.getCellRenderer().setCellEditor(new CellEditor() {
-            @SuppressWarnings("unchecked")
-            public Object getValue(Object item, String property, int rowcount) {
-                String value = "";
-                List<RuleActionBean> ruleActions = (List<RuleActionBean>) new BasicCellEditor().getValue(item, "actions", rowcount);
-                for (int i = 0; i < ruleActions.size(); i++) {
-                    value += ruleActions.get(i).getSummary();
-                    // Do not add horizontal line after last Summary
-                    if (i != ruleActions.size() - 1) {
-                        value += " | ";
-                    }
-                }
-                return value;
-            }
-        });
-
-        tableFacade.render();
-    }
-
     @Override
     protected String getAdminServlet() {
         if (ub.isSysAdmin()) {
@@ -477,16 +260,6 @@ public class ViewCRFServlet extends SecureController {
         } else {
             return "";
         }
-    }
-
-    private RuleSetServiceInterface getRuleSetService() {
-        ruleSetService =
-            this.ruleSetService != null ? ruleSetService : (RuleSetServiceInterface) SpringServletAccess.getApplicationContext(context).getBean(
-                    "ruleSetService");
-
-        /*ruleSetService =
-            this.ruleSetService != null ? ruleSetService : new RuleSetService(sm.getDataSource(), getRequestURLMinusServletPath(), getContextPath());*/
-        return ruleSetService;
     }
 
 }

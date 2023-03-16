@@ -11,27 +11,29 @@ import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.control.form.Validator;
 import org.akaza.openclinica.core.EmailEngine;
-import org.akaza.openclinica.core.form.StringUtil;
 import org.akaza.openclinica.view.Page;
-
 import org.akaza.openclinica.web.InsufficientPermissionException;
+import org.akaza.openclinica.web.SQLInitServlet;
 
 /**
- * @author jxu
- *
  * Sends user message to the administrator
+ *
+ * @author jxu
  */
 public class ContactServlet extends SecureController {
-    @Override
-    public void mayProceed() throws InsufficientPermissionException {
 
+	private static final long serialVersionUID = 1418512105084748633L;
+
+	@Override
+    public void mayProceed() throws InsufficientPermissionException {
+        // NOOP
     }
 
     @Override
     public void processRequest() throws Exception {
         String action = request.getParameter("action");
 
-        if (StringUtil.isBlank(action)) {
+        if (action == null || action.trim().isEmpty()) {
             if (ub != null && ub.getId() > 0) {
                 request.setAttribute("name", ub.getName());
                 request.setAttribute("email", ub.getEmail());
@@ -71,18 +73,34 @@ public class ContactServlet extends SecureController {
     }
 
     private void sendEmail() throws Exception {
+
         FormProcessor fp = new FormProcessor(request);
         String name = fp.getString("name");
         String email = fp.getString("email");
         String subject = fp.getString("subject");
         String message = fp.getString("message");
+
         logger.info("Sending email...");
 
-        StringBuffer emailBody = new StringBuffer(restext.getString("dear_openclinica_administrator") + ", <br>");
-        emailBody.append(name + " " + restext.getString("sent_you_the_following_message_br") + "<br>");
-        emailBody.append("<br>" + resword.getString("email") + ": " + email);
-        emailBody.append("<br>" + resword.getString("subject") + ":" + subject);
-        emailBody.append("<br>" + resword.getString("message") + ": " + message);
+        StringBuilder emailBody = new StringBuilder(restext.getString("dear_openclinica_administrator") + ",<br>");
+        emailBody.append("<br>").append(name).append(" ").append(restext.getString("sent_you_the_following_message_br")).append("<br>");
+        emailBody.append("<br>").append(resword.getString("email")).append(": ").append(email);
+        emailBody.append("<br>").append(resword.getString("subject")).append(": ").append(subject);
+        emailBody.append("<br>").append(resword.getString("message")).append(": ").append(message);
+        if (currentStudy != null && currentStudy.isActive()) {
+
+            String activeStudyLabel;
+            // If current study is site
+            if (currentStudy.getParentStudyId() > 0) {
+                activeStudyLabel = currentStudy.getParentStudyName() + ": " + currentStudy.getName() + " (" + currentStudy.getIdentifier()  + ")";
+            } else { // Otherwise, it is parent study
+                activeStudyLabel = currentStudy.getName() + " (" + currentStudy.getIdentifier()  + ")";
+            }
+
+            emailBody.append("<br>").append(resword.getString("active_study")).append(": ").append(activeStudyLabel);
+        }
+        String sysUrl = SQLInitServlet.getField("sysURL");
+        emailBody.append("<br><br>").append("System URL: ").append("<a href='").append(sysUrl).append("'>").append(sysUrl).append("</a><br>");
 
         sendEmail(EmailEngine.getAdminEmail(),email, subject, emailBody.toString(),true);
 

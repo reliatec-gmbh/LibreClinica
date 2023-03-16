@@ -51,7 +51,11 @@ import org.hibernate.annotations.Type;
 
 public class RuleActionBean extends AbstractAuditableMutableDomainObject implements Comparable<ActionType>, Serializable {
 
-    private RuleSetRuleBean ruleSetRule;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -7698362282635119633L;
+	private RuleSetRuleBean ruleSetRule;
     private ActionType actionType;
     private Boolean expressionEvaluatesTo;
     private String summary;

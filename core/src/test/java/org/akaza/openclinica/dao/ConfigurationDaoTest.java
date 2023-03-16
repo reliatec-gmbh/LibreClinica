@@ -7,6 +7,9 @@
  */
 package org.akaza.openclinica.dao;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import org.akaza.openclinica.dao.hibernate.ConfigurationDao;
 import org.akaza.openclinica.domain.technicaladmin.ConfigurationBean;
 import org.akaza.openclinica.templates.HibernateOcDbTestCase;

@@ -7,20 +7,23 @@
  */
 package org.akaza.openclinica.bean.managestudy;
 
+import java.util.ArrayList;
+import java.util.Map;
+
 import org.akaza.openclinica.bean.core.AuditableEntityBean;
 import org.akaza.openclinica.bean.oid.OidGenerator;
 import org.akaza.openclinica.bean.oid.StudyEventDefinitionOidGenerator;
-
-import java.util.ArrayList;
-import java.util.Map;
 
 /**
  * @author thickerson
  *
  *
  */
-public class StudyEventDefinitionBean extends AuditableEntityBean implements Comparable {
-    private String description = "";
+public class StudyEventDefinitionBean extends AuditableEntityBean implements Comparable<StudyEventDefinitionBean> {    
+	// generated serial id
+	private static final long serialVersionUID = 8068375291853079273L;
+
+	private String description = "";
 
     private boolean repeating = false;
 
@@ -30,7 +33,8 @@ public class StudyEventDefinitionBean extends AuditableEntityBean implements Com
 
     private int studyId;// fk for study table
 
-    private ArrayList crfs = new ArrayList();
+    // TODO is either CRFBean or EventdefinitionCRFBean, fix this
+    private ArrayList<? extends AuditableEntityBean> crfs = new ArrayList<>();
 
     private int crfNum = 0; // number of crfs, not in DB
 
@@ -44,7 +48,7 @@ public class StudyEventDefinitionBean extends AuditableEntityBean implements Com
 
     // Will be used to show CRFs and their default version in the Event
     // Definition matrix
-    private Map crfsWithDefaultVersion;
+    private Map<String, String> crfsWithDefaultVersion;
 
     private String oid;
     private OidGenerator oidGenerator;
@@ -87,7 +91,7 @@ public class StudyEventDefinitionBean extends AuditableEntityBean implements Com
     /**
      * @return Returns the crfs.
      */
-    public ArrayList getCrfs() {
+    public ArrayList<? extends AuditableEntityBean> getCrfs() {
         return crfs;
     }
 
@@ -95,7 +99,7 @@ public class StudyEventDefinitionBean extends AuditableEntityBean implements Com
      * @param crfs
      *            The crfs to set.
      */
-    public void setCrfs(ArrayList crfs) {
+    public void setCrfs(ArrayList<? extends AuditableEntityBean> crfs) {
         this.crfs = crfs;
     }
 
@@ -219,25 +223,16 @@ public class StudyEventDefinitionBean extends AuditableEntityBean implements Com
         this.crfNum = crfNum;
     }
 
-    public Map getCrfsWithDefaultVersion() {
+    public Map<String, String> getCrfsWithDefaultVersion() {
         return crfsWithDefaultVersion;
     }
 
-    public void setCrfsWithDefaultVersion(Map crfsWithDefaultVersion) {
+    public void setCrfsWithDefaultVersion(Map<String, String> crfsWithDefaultVersion) {
         this.crfsWithDefaultVersion = crfsWithDefaultVersion;
     }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Comparable#compareTo(java.lang.Object)
-     */
-    public int compareTo(Object o) {
-        if (o == null || !o.getClass().equals(this.getClass())) {
-            return 0;
-        }
-
-        StudyEventDefinitionBean sedb = (StudyEventDefinitionBean) o;
+    
+    @Override
+    public int compareTo(StudyEventDefinitionBean sedb) {
         return this.ordinal - sedb.ordinal;
     }
 

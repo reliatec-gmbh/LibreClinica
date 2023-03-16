@@ -23,6 +23,7 @@ import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -39,6 +40,7 @@ public class Utils {
     private static Utils ref;
 
     private Utils() {
+        // NOOP
     }
 
     public static Utils getInstacne() {
@@ -57,11 +59,9 @@ public class Utils {
      * This Method will compare the two Dates and return a String with number of years , weeks and days.
      * 
      * @author Krikor Krumlian 10/20/2006
-     * @param eventStartDate
-     *            The event start date
-     * @param subjectDOB
-     *            the Subject's date of birth
-     * @return
+     * @param eventStartDate The event start date
+     * @param subjectDOB the Subject's date of birth
+     * @return String with number of years , weeks and days
      */
     public String processAge(Date eventStartDate, Date subjectDOB) {
         int years = 0, months = 0, days = 0;
@@ -128,10 +128,10 @@ public class Utils {
     /**
      * Convert string with from_pattern to string with to_pattern. Use SimpleDateFormat with no Locale parameter.
      * 
-     * @param itemValue
-     * @param from_pattern
-     * @param to_pattern
-     * @return
+     * @param itemValue String item value
+     * @param from_pattern source String pattern
+     * @param to_pattern target String pattern
+     * @return Item value in target string pattern
      */
     // ywang 12-06-2007
     public static String convertedItemDateValue(String itemValue, String from_pattern, String to_pattern) {
@@ -169,19 +169,19 @@ public class Utils {
     /**
      * Zip StringBuffer to a file
      * 
-     * @param fileName
-     * @param filePath
-     * @param content
-     * 
+     * @param fileName filename
+     * @param filePath file path
+     * @param content content
+     * @return true if succeeded
      */
-    // ywang (07-2008)
     public static boolean createZipFile(String fileName, String filePath, StringBuffer content) {
+    	ZipOutputStream z = null;
         try {
             File dir = new File(filePath);
             if (!dir.isDirectory()) {
                 dir.mkdirs();
             }
-            ZipOutputStream z = new ZipOutputStream(new FileOutputStream(new File(dir, fileName + ".zip")));
+            z = new ZipOutputStream(new FileOutputStream(new File(dir, fileName + ".zip")));
             z.putNextEntry(new ZipEntry(fileName));
             byte[] bytes = content.toString().getBytes();
             z.write(bytes, 0, bytes.length);
@@ -191,18 +191,27 @@ public class Utils {
         } catch (Exception e) {
             e.printStackTrace();
             return false;
+        } finally {
+			try {
+				if(z != null) {
+					z.close();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
         }
     }
 
     /**
+     * Calculate age at specified control date
      * age = the_year_of_controlDate - the_year_of_birthDate
      * 
-     * @param birthDate
-     * @param controlDate
-     * @return
+     * @param birthDate birthdate
+     * @param controlDate control date
+     * @return Age at specified control date
      */
     public static Integer getAge(Date birthDate, Date controlDate) {
-        Integer age = -1;
+        int age = -1;
         if (birthDate.before(controlDate)) {
             Calendar dateOfBirth = Calendar.getInstance();
             dateOfBirth.setTime(birthDate);
@@ -221,18 +230,7 @@ public class Utils {
     }
 
     public static String getAttachedFilePath(StudyBean study) {
-        String attachedFilePath = CoreResources.getField("attached_file_location");
-        // @pgawade 15-April-2011: issue #8682
-        if (attachedFilePath == null || attachedFilePath.length() <= 0) {
-            // attachedFilePath = CoreResources.getField("filePath") +
-            // "attached_files" + File.separator + study.getIdentifier() +
-            // File.separator;
-            attachedFilePath = CoreResources.getField("filePath") + "attached_files" + File.separator + study.getOid() + File.separator;
-        } else {
-            // attachedFilePath += study.getIdentifier() + File.separator;
-            attachedFilePath += study.getOid() + File.separator;
-        }
-        return attachedFilePath;
+        return CoreResources.getStudyAttachedFilePath(study.getOid());
     }
 
     public static String getCrfMediaFilePath(CrfBean crf, CrfVersion version) {
@@ -247,16 +245,8 @@ public class Utils {
         return attachedFilePath;
     }
 
-    public static String getAttachedFileRootPath() {
-        String rootPath = CoreResources.getField("attached_file_location");
-        if (rootPath == null || rootPath.length() <= 0) {
-            rootPath = CoreResources.getField("filePath") + "attached_files" + File.separator;
-        }
-        return rootPath;
-    }
-
     /*
-     * see if a regular expression fits
+     * See if a regular expression fits
      * 
      * @author thickerson August 5th 2010
      */
@@ -271,4 +261,5 @@ public class Utils {
         Matcher m = p.matcher(input);
         return m.find();
     }
+
 }

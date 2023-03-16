@@ -81,9 +81,6 @@ public class QueryStore implements Serializable, ResourceLoaderAware {
             if (url.startsWith("jdbc:postgresql")) {
                 return "postgres";
             }
-            if (url.startsWith("jdbc:oracle")) {
-                return "oracle";
-            }
             throw new BeanInitializationException("Unrecognized JDBC url " + url);
         } catch (SQLException e) {
             throw new BeanInitializationException("Unable to read datasource information", e);

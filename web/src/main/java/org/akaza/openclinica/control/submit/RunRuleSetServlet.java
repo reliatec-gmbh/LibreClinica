@@ -32,7 +32,11 @@ import java.util.List;
  */
 public class RunRuleSetServlet extends SecureController {
 
-    private static String RULESET_ID = "ruleSetId";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1100558170089534106L;
+	private static String RULESET_ID = "ruleSetId";
     private static String RULE_ID = "ruleId";
     private static String RULESET = "ruleSet";
     private static String RULESET_RESULT = "ruleSetResult";
@@ -67,7 +71,7 @@ public class RunRuleSetServlet extends SecureController {
             List<RuleSetBean> ruleSets = new ArrayList<RuleSetBean>();
             ruleSets.add(ruleSetBean);
             if (dryRun != null && dryRun.equals("no")) {
-                List<RuleSetBasedViewContainer> resultOfRunningRules = getRuleSetService().runRulesInBulk(ruleSets, false, currentStudy, ub ,false);
+                getRuleSetService().runRulesInBulk(ruleSets, false, currentStudy, ub ,false);
                 addPageMessage(respage.getString("actions_successfully_taken"));
                 forwardPage(Page.LIST_RULE_SETS_SERVLET);
 

@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.akaza.openclinica.domain.datamap.IdtView;
-import org.akaza.openclinica.domain.datamap.ItemData;
+import org.hibernate.query.Query;
 
 public class IdtViewDao extends AbstractDomainDao<IdtView> {
 
@@ -44,10 +44,10 @@ public class IdtViewDao extends AbstractDomainDao<IdtView> {
  
         query = query + " order by itemDataId";
        
-        org.hibernate.Query q = getCurrentSession().createQuery(query);
+        Query<IdtView> q = getCurrentSession().createQuery(query, IdtView.class);
         q.setMaxResults(per_page); // limit
         q.setFirstResult((page - 1) * per_page); // offset
-        return (List<IdtView>) q.list();
+        return q.list();
     }
 
     

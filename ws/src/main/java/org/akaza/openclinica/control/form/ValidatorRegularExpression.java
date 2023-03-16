@@ -7,6 +7,7 @@
  */
 package org.akaza.openclinica.control.form;
 
+// TODO duplicate of the version in the web module?
 public class ValidatorRegularExpression {
     private String description;
     private String regularExpression;

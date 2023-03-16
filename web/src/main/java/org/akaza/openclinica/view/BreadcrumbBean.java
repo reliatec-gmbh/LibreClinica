@@ -25,7 +25,11 @@ import org.akaza.openclinica.bean.core.Status;
  */
 public class BreadcrumbBean extends EntityBean {
 
-    private String url;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -4443848689812370318L;
+	private String url;
     private Status status;
 
     public BreadcrumbBean(String name, String url, int statusId) {
