@@ -27,8 +27,9 @@ changes to another step._
     1. configuration directory: `sudo mkdir -p /usr/share/tomcat9/libreclinica/config`
     1. log directory: `sudo mkdir /usr/share/tomcat9/libreclinica/logs`
     1. data directory: `sudo mkdir /usr/share/tomcat9/libreclinica/data`
-    1. change owner: `sudo chown -R tomcat:tomcat /usr/share/tomcat9/libreclinica`
-    1. create softlink: `sudo ln -s /usr/share/tomcat9/libreclinica/config/ /usr/share/tomcat9/libreclinica.config`
+    1. change owner: `sudo chown -R tomcat:tomcat /usr/share/tomcat9/libreclinica
+    1. create config softlink: `sudo ln -s /usr/share/tomcat9/libreclinica/config/ /usr/share/tomcat9/libreclinica.config`
+    1. create data softlink: `sudo ln -s /usr/share/tomcat9/libreclinica/data/ /usr/share/tomcat9/libreclinica.data`
 1. **setup database**
     1. create role: `sudo -u postgres createuser -e -I -D -R -S -P clinica`  
         *update datainfo.properties with the password you entered for the new postgres user (step 5)*
@@ -62,8 +63,6 @@ changes to another step._
         * db=libreclinica
         * dbPort=5432
         * dbHost=localhost
-    1. **filePath**
-        * filePath=${catalina.home}/${WEBAPP.lower}/data/ _(mind the . and /)_
     1. **email server**
         * mailHost=smtp.example.com
         * mailPort=25|465|custom port
@@ -133,7 +132,7 @@ changes to another step._
     create and edit /etc/systemd/system/tomcat9.service.d/override.conf
     adding
     ```
-    [Services]
+    [Service]
     ReadWritePaths=/usr/share/tomcat9/libreclinica
     ```  
     Reload the unit files with `sudo systemctl daemon-reload`
