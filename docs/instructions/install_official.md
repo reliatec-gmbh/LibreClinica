@@ -63,8 +63,6 @@ changes to another step._
         * db=libreclinica
         * dbPort=5432
         * dbHost=localhost
-    1. **filePath**
-        * filePath=${catalina.home}/${WEBAPP.lower}/data/ _(mind the . and /)_
     1. **email server**
         * mailHost=smtp.example.com
         * mailPort=25|465|custom port
@@ -134,7 +132,7 @@ changes to another step._
     create and edit /etc/systemd/system/tomcat9.service.d/override.conf
     adding
     ```
-    [Services]
+    [Service]
     ReadWritePaths=/usr/share/tomcat9/libreclinica
     ```  
     Reload the unit files with `sudo systemctl daemon-reload`
