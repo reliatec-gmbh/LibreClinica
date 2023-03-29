@@ -27,7 +27,7 @@ changes to another step._
     1. configuration directory: `sudo mkdir -p /usr/share/tomcat9/libreclinica/config`
     1. log directory: `sudo mkdir /usr/share/tomcat9/libreclinica/logs`
     1. data directory: `sudo mkdir /usr/share/tomcat9/libreclinica/data`
-    1. change owner: `sudo chown -R tomcat:tomcat /usr/share/tomcat9/libreclinica
+    1. change owner: `sudo chown -R tomcat:tomcat /usr/share/tomcat9/libreclinica`
     1. create config softlink: `sudo ln -s /usr/share/tomcat9/libreclinica/config/ /usr/share/tomcat9/libreclinica.config`
     1. create data softlink: `sudo ln -s /usr/share/tomcat9/libreclinica/data/ /usr/share/tomcat9/libreclinica.data`
 1. **setup database**
