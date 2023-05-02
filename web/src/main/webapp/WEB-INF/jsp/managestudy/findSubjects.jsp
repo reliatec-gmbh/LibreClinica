@@ -5,8 +5,8 @@
 <fmt:setBundle basename="org.akaza.openclinica.i18n.words" var="resword"/>
 <fmt:setBundle basename="org.akaza.openclinica.i18n.notes" var="restext"/>
 
-
 <jsp:include page="../include/submit-header.jsp"/>
+
 <!-- move the alert message to the sidebar-->
 <jsp:include page="../include/sideAlert.jsp"/>
 
@@ -15,9 +15,7 @@
 <script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jquery.min.js"></script>
 <script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jquery.jmesa.js"></script>
 <script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jmesa.js"></script>
-<%-- <script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jmesa-original.js"></script> --%>
 <script type="text/javascript" language="JavaScript" src="includes/jmesa/jquery.blockUI.js"></script>
-
 <script type="text/javascript" language="JavaScript" src="includes/jmesa/jquery-migrate-1.1.1.js"></script>
 
 <script type="text/javascript">
@@ -89,9 +87,3 @@
 
 <br>
 <jsp:include page="../include/footer.jsp"/>
-
-<script type="text/javascript">
-    <c:if test="${showOverlay}">
-        jQuery.blockUI({ message: jQuery('#addSubjectForm'), css:{left: "300px", top:"10px" } });
-    </c:if>
-</script>
