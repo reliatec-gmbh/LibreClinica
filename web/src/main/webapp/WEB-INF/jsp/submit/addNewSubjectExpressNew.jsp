@@ -1,11 +1,3 @@
-<%--
-    User: Hamid
-  Date: May 8, 2009
-  Time: 8:29:31 PM
-  To change this template use File | Settings | File Templates.
---%>
-
-
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
@@ -17,7 +9,6 @@
 <jsp:useBean scope="session" id="study" class="org.akaza.openclinica.bean.managestudy.StudyBean" />
 <jsp:useBean scope="request" id="pageMessages" class="java.util.ArrayList" />
 <jsp:useBean scope="request" id="presetValues" class="java.util.HashMap" />
-
 <jsp:useBean scope="request" id="groups" class="java.util.ArrayList" />
 
 <c:set var="uniqueIdentifier" value="" />
@@ -73,38 +64,33 @@
 <form name="subjectForm" action="AddNewSubject" method="post">
 <input type="hidden" name="subjectOverlay" value="true">
 
-<div style="width: 500px; height: 550px; overflow: scroll; background:#FFFFFF; cursor:default">
-<table border="0" cellpadding="0" >
-    <tr style="height:10px;">
-        <td width="35%"><h3><fmt:message key="add_new_subject" bundle="${resword}"/></h3></td>
-        <td >&nbsp;</td>
-    </tr>
+<div class="tableboxcenter">
+	<h3><fmt:message key="add_new_subject" bundle="${resword}"/></h3>
+	<table class="contenttable" align="center">
+		
     <tr valign="top">
         <td class="formlabel">
             <jsp:include page="../include/showSubmitted.jsp" />
             <input type="hidden" name="addWithEvent" value="1"/>
             <fmt:message key="study_subject_ID" bundle="${resword}"/>:</td>
-        <td valign="top">
-            <table border="0" cellpadding="0" cellspacing="0">
-                <tr>
-                    <td valign="top"><div class="formfieldXL_BG">
-                    <c:choose>
-                     <c:when test="${study.studyParameterConfig.subjectIdGeneration =='auto non-editable'}">
-                      <input onfocus="this.select()" type="text" value="<c:out value="${label}"/>" size="45" class="formfield" disabled>
-                      <input type="hidden" name="label" value="<c:out value="${label}"/>">
-                     </c:when>
-                     <c:otherwise>
-                       <input onfocus="this.select()" type="text" name="label" value="<c:out value="${label}"/>" size="50" class="formfieldXL">
-                     </c:otherwise>
-                    </c:choose>
-                    </div></td>
-                    <td>*</td>
-                </tr>
-                <tr>
-                    <td><jsp:include page="../showMessage.jsp"><jsp:param name="key" value="label"/></jsp:include></td>
-                </tr>
-                
-            </table>
+        <td>
+			<div class="formfieldXL_BG">
+				<nobr>
+					<c:choose>
+						<c:when test="${study.studyParameterConfig.subjectIdGeneration =='auto non-editable'}">
+							<input onfocus="this.select()" type="text" value="<c:out value="${label}"/>" class="formfieldS" disabled>
+							<input type="hidden" name="label" value="<c:out value="${label}"/>">
+						</c:when>
+						<c:otherwise>
+							<input onfocus="this.select()" type="text" name="label" value="<c:out value="${label}"/>" class="formfieldS">
+						</c:otherwise>
+					</c:choose>
+				&nbsp;
+	            <span class="alert">*</span>
+            	</nobr>
+				<br />
+				<jsp:include page="../showMessage.jsp"><jsp:param name="key" value="label"/></jsp:include>
+			</div>
         </td>
     </tr>
     <c:choose>
@@ -112,14 +98,16 @@
     <tr valign="top">
         <td class="formlabel"><fmt:message key="person_ID" bundle="${resword}"/>:</td>
         <td valign="top">
-            <table border="0" cellpadding="0" cellspacing="0">
+            <table>
                 <tr>
                     <td valign="top"><div class="formfieldXL_BG">
                         <input onfocus="this.select()" type="text" name="uniqueIdentifier" value="<c:out value="${uniqueIdentifier}"/>" size="50" class="formfieldXL">
                     </div></td>
-                    <td>*</td>
+                    <td><span class="alert">*</span></td>
                 </tr>
-                <td colspan="2"><jsp:include page="../showMessage.jsp"><jsp:param name="key" value="uniqueIdentifier"/></jsp:include></td>
+                <tr>
+                	<td colspan="2"><jsp:include page="../showMessage.jsp"><jsp:param name="key" value="uniqueIdentifier"/></jsp:include></td>
+                </tr>
             </table>
         </td>
     </tr>
@@ -128,7 +116,7 @@
     <tr valign="top">
         <td class="formlabel"><fmt:message key="person_ID" bundle="${resword}"/>:</td>
         <td valign="top">
-            <table border="0" cellpadding="0" cellspacing="0">
+            <table>
                 <tr>
                     <td valign="top"><div class="formfieldXL_BG">
                         <input onfocus="this.select()" type="text" name="uniqueIdentifier" value="<c:out value="${uniqueIdentifier}"/>" size="50" class="formfieldXL">
@@ -153,12 +141,13 @@
             <fmt:message key="enrollment_date" bundle="${resword}"/>:
         </td>
         <td valign="top">
-            <table border="0" cellpadding="0" cellspacing="0">
+            <table>
                 <tr>
                     <td valign="top">
-            <!--layer-background-color:white;-->
+            
             <div class="formfieldM_BG">
                         <input onfocus="this.select()" type="text" name="enrollmentDate" size="15" value="<c:out value="${enrollmentDate}" />" class="formfieldM" id="enrollmentDateField" />
+                   </div>
                     </td>
                     <td>
                     <A HREF="#">
@@ -166,8 +155,8 @@
                         <script type="text/javascript">
                         Calendar.setup({inputField  : "enrollmentDateField", ifFormat    : "<fmt:message key="date_format_calender" bundle="${resformat}"/>", button      : "enrollmentDateTrigger", customPX: 300, customPY: 10 });
                         </script>
-                    </a>
-                        *
+                    </a>&nbsp;
+                        <span class="alert">*</span>
                     </td>
                 </tr>
                 <tr>
@@ -181,7 +170,7 @@
         <c:if test="${study.studyParameterConfig.genderRequired !='not used'}">
         <td class="formlabel"><fmt:message key="gender" bundle="${resword}"/>:</td>
         <td valign="top">
-            <table border="0" cellpadding="0" cellspacing="0">
+            <table>
                 <tr>
                     <td valign="top"><div class="formfieldS_BG">
                         <select name="gender" class="formfieldS">
@@ -205,11 +194,12 @@
                                 </c:otherwise>
                             </c:choose>
                             </select>
+					</div>
                 </td>
     <td align="left">
         <c:choose>
         <c:when test="${study.studyParameterConfig.genderRequired !='false'}">
-           <span class="formlabel">*</span>
+           <span class="alert">*</span>
         </c:when>
         </c:choose>
     </td>
@@ -228,10 +218,11 @@
     <tr valign="top">
         <td class="formlabel"><fmt:message key="date_of_birth" bundle="${resword}"/>:</td>
         <td valign="top">
-            <table border="0" cellpadding="0" cellspacing="0">
+            <table>
                 <tr>
                     <td valign="top"><div class="formfieldM_BG">
                         <input onfocus="this.select()" type="text" name="dob" size="15" value="<c:out value="${dob}" />" class="formfieldM" id="dobField" />
+                    </div>
                     </td>
                     <td>
                     <A HREF="#">
@@ -241,7 +232,7 @@
                         </script>
                     </a>
                     </td>
-                    <td>* </td>
+                    <td><span class="alert">*</span></td>
                 </tr>
             </table>
         </td>
@@ -255,10 +246,11 @@
     <tr valign="top">
         <td class="formlabel"><fmt:message key="year_of_birth" bundle="${resword}"/>:</td>
         <td valign="top">
-            <table border="0" cellpadding="0" cellspacing="0">
+            <table>
                 <tr>
                     <td valign="top"><div class="formfieldM_BG">
                         <input onfocus="this.select()" type="text" name="yob" size="15" value="<c:out value="${yob}" />" class="formfieldM" />
+                        </div>
                     </td>
                     <td>(<fmt:message key="date_format_year" bundle="${resformat}"/>) *</td>
                 </tr>
@@ -307,7 +299,7 @@
     <tr valign="top">
         <td class="formlabel"><fmt:message key="SED_2" bundle="${resword}"/>:</td>
         <td valign="top">
-            <table border="0" cellpadding="0" cellspacing="0">
+            <table>
                 <tr><td>
                     <div class="formfieldM_BG">
                         <select name="studyEventDefinition" class="formfieldM">
@@ -319,7 +311,7 @@
                         </select>
                     </div>
                     </td>
-                    <td><span class="formlabel">*</span></td>
+                    <td><span class="alert">*</span></td>
                 </tr>
                 <tr>
                     <td colspan="2"><jsp:include page="../showMessage.jsp"><jsp:param name="key" value="studyEventDefinition"/></jsp:include></td>
@@ -379,7 +371,7 @@
     <tr valign="top">
         <td class="formlabel"><fmt:message key="location" bundle="${resword}"/>:</td>
         <td valign="top">
-            <table border="0" cellpadding="0" cellspacing="0">
+            <table>
                 <tr>
                     <td valign="top"><div class="formfieldXL_BG">
                        <input type="text" name="location"size="50" class="formfieldXL">
@@ -396,16 +388,19 @@
     </c:choose>
     <tr>
         <td colspan="2" align="center">
-        <input type="submit" name="addSubject" value="<fmt:message key="add2" bundle="${resword}"/>" class="button" />
-        &nbsp;
-        <input type="button" id="cancel" name="cancel" value="   <fmt:message key="cancel" bundle="${resword}"/>" class="button"/>
+        
 
         <div id="dvForCalander" style="width:1px; height:1px;"></div>
     </td>
     </tr>
 
 </table>
-
+	<br />
+	<input type="submit" name="addSubject" value="<fmt:message key="add2" bundle="${resword}"/>" class="button" />
+    &nbsp;
+    <input type="button" id="cancel" name="cancel" value="   <fmt:message key="cancel" bundle="${resword}"/>" class="button"/>
+	<br />
+	&nbsp;
 </div>
 
 </form>
