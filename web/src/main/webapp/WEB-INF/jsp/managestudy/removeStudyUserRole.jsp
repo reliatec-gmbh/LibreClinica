@@ -5,9 +5,9 @@
 <fmt:setBundle basename="org.akaza.openclinica.i18n.format" var="resformat"/>
 <fmt:setBundle basename="org.akaza.openclinica.i18n.words" var="resword"/>
 <fmt:setBundle basename="org.akaza.openclinica.i18n.workflow" var="resworkflow"/>
+<fmt:setBundle basename="org.akaza.openclinica.i18n.terms" var="resterm"/>
 
 <jsp:include page="../include/managestudy-header.jsp"/>
-
 
 <!-- move the alert message to the sidebar-->
 <jsp:include page="../include/sideAlert.jsp"/>
@@ -25,9 +25,8 @@
 		</div>
 
 		</td>
-	
-	</tr>
-	<tr id="sidebar_Instructions_closed" style="display: none">
+</tr>
+<tr id="sidebar_Instructions_closed" style="display: none">
 		<td class="sidebar_tab">
 
 		<a href="javascript:leftnavExpand('sidebar_Instructions_open'); leftnavExpand('sidebar_Instructions_closed');"><img src="images/sidebar_expand.gif" border="0" align="right" hspace="10"></a>
@@ -35,7 +34,7 @@
 		<b><fmt:message key="instructions" bundle="${resword}"/></b>
 
 		</td>
-  </tr>
+</tr>
 <jsp:include page="../include/sideInfo.jsp"/>
 
 <jsp:useBean scope="request" id="user" class="org.akaza.openclinica.bean.login.UserAccountBean"/>
@@ -54,12 +53,16 @@
 
 <div class="tablebox_center">
 <table border="0" cellpadding="0" cellspacing="0" width="100%">
-  <tr><td class="table_header_column_top"><fmt:message key="first_name" bundle="${resword}"/>:</td><td class="table_cell"><c:out value="${user.firstName}"/></td></tr>
-  <tr><td class="table_header_column_top"><fmt:message key="last_name" bundle="${resword}"/>:</td><td class="table_cell"><c:out value="${user.lastName}"/></td></tr>
-  <tr><td class="table_header_column_top"><fmt:message key="role" bundle="${resword}"/>:</td><td class="table_cell"><c:out value="${uRole.role.description}"/></td>  
-  </tr>  
-  
- 
+	<tr><td class="table_header_column_top"><fmt:message key="first_name" bundle="${resword}"/>:</td><td class="table_cell"><c:out value="${user.firstName}"/></td></tr>
+	<tr><td class="table_header_column_top"><fmt:message key="last_name" bundle="${resword}"/>:</td><td class="table_cell"><c:out value="${user.lastName}"/></td></tr>
+	<tr><td class="table_header_column_top"><fmt:message key="role" bundle="${resword}"/>:</td><td class="table_cell">
+	<c:if test="${uStudy.parentStudyId > 0}">
+		<fmt:message key="${siteRoleMap[uRole.role.id] }" bundle="${resterm}"></fmt:message>
+	</c:if>
+	<c:if test="${uStudy.parentStudyId == 0}">
+		<c:out value="${uRole.role.description}"/>
+	</c:if>
+	</td></tr>
 </table>
 </div>
 </div></div></div></div></div></div></div></div>

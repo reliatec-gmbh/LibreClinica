@@ -9,6 +9,7 @@
 package org.akaza.openclinica.control.core;
 
 import static org.akaza.openclinica.core.util.ClassCastHelper.asArrayList;
+import static org.springframework.web.context.support.WebApplicationContextUtils.getWebApplicationContext;
 
 import java.io.DataInputStream;
 import java.io.File;
@@ -204,6 +205,15 @@ public abstract class SecureController extends HttpServlet implements SingleThre
     public static final String MODULE = "module";// to determine which module
 
     private CRFLocker crfLocker;
+
+    protected <T> T getBean(Class<T> clazz) {
+        return getWebApplicationContext(getServletContext()).getBean(clazz);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected <T> T getBean(String name) {
+        return (T) getWebApplicationContext(getServletContext()).getBean(name);
+    }
 
     // user is in
 
@@ -427,7 +437,7 @@ public abstract class SecureController extends HttpServlet implements SingleThre
             if (currentStudy == null || currentStudy.getId() <= 0) {
                 if (ub.getId() > 0 && ub.getActiveStudyId() > 0) {
                     StudyParameterValueDAO spvdao = new StudyParameterValueDAO(sm.getDataSource());
-                    currentStudy = (StudyBean) sdao.findByPK(ub.getActiveStudyId());
+                    currentStudy = sdao.findByPK(ub.getActiveStudyId());
 
                     ArrayList<StudyParamsConfig> studyParameters = spvdao.findParamConfigByStudy(currentStudy);
 
@@ -439,7 +449,7 @@ public abstract class SecureController extends HttpServlet implements SingleThre
 
                     } else {
                         // YW <<
-                        currentStudy.setParentStudyName(((StudyBean) sdao.findByPK(currentStudy.getParentStudyId())).getName());
+                        currentStudy.setParentStudyName(sdao.findByPK(currentStudy.getParentStudyId()).getName());
                         // YW >>
                         scs.setParametersForSite(currentStudy);
                     }
@@ -461,7 +471,7 @@ public abstract class SecureController extends HttpServlet implements SingleThre
                 // YW 06-20-2007<< set site's parentstudy name when site is
                 // restored
                 if (currentStudy.getParentStudyId() > 0) {
-                    currentStudy.setParentStudyName(((StudyBean) sdao.findByPK(currentStudy.getParentStudyId())).getName());
+                    currentStudy.setParentStudyName(sdao.findByPK(currentStudy.getParentStudyId()).getName());
                 }
                 // YW >>
             }
@@ -788,7 +798,7 @@ public abstract class SecureController extends HttpServlet implements SingleThre
      */
     protected boolean entityIncluded(int entityId, String userName, AuditableEntityDAO<?> adao, DataSource ds) {
         StudyDAO sdao = new StudyDAO(ds);
-        ArrayList<StudyBean> studies = (ArrayList<StudyBean>) sdao.findAllByUserNotRemoved(userName);
+        ArrayList<StudyBean> studies = sdao.findAllByUserNotRemoved(userName);
         for (int i = 0; i < studies.size(); ++i) {
             if (adao.findByPKAndStudy(entityId, studies.get(i)).getId() > 0) {
                 return true;
@@ -796,7 +806,7 @@ public abstract class SecureController extends HttpServlet implements SingleThre
             // Here follow the current logic - study subjects at sites level are
             // visible to parent studies.
             if (studies.get(i).getParentStudyId() <= 0) {
-                ArrayList<StudyBean> sites = (ArrayList<StudyBean>) sdao.findAllByParent(studies.get(i).getId());
+                ArrayList<StudyBean> sites = sdao.findAllByParent(studies.get(i).getId());
                 if (sites.size() > 0) {
                     for (int j = 0; j < sites.size(); ++j) {
                         if (adao.findByPKAndStudy(entityId, sites.get(j)).getId() > 0) {
@@ -899,7 +909,7 @@ public abstract class SecureController extends HttpServlet implements SingleThre
         }
 
         for (int i = 0; i < studyGroupClasses.size(); i++) {
-            StudyGroupClassBean sgc = (StudyGroupClassBean) studyGroupClasses.get(i);
+            StudyGroupClassBean sgc = studyGroupClasses.get(i);
             ArrayList<StudyGroupBean> groups = studyGroupDAO.findAllByGroupClass(sgc);
             sgc.setStudyGroups(groups);
         }
@@ -1053,18 +1063,18 @@ public abstract class SecureController extends HttpServlet implements SingleThre
             ItemDAO idao = new ItemDAO(sm.getDataSource());
             String entityName = note.getEntityName();
             if (entityName == null || entityName.trim().isEmpty()) {
-                ItemBean item = (ItemBean) idao.findByPK(itemData.getItemId());
+                ItemBean item = idao.findByPK(itemData.getItemId());
                 note.setEntityName(item.getName());
                 request.setAttribute("item", item);
             }
             EventCRFDAO ecdao = new EventCRFDAO(sm.getDataSource());
             StudyEventDAO svdao = new StudyEventDAO(sm.getDataSource());
 
-            EventCRFBean ec = (EventCRFBean) ecdao.findByPK(itemData.getEventCRFId());
-            StudyEventBean event = (StudyEventBean) svdao.findByPK(ec.getStudyEventId());
+            EventCRFBean ec = ecdao.findByPK(itemData.getEventCRFId());
+            StudyEventBean event = svdao.findByPK(ec.getStudyEventId());
 
             StudyEventDefinitionDAO seddao = new StudyEventDefinitionDAO(sm.getDataSource());
-            StudyEventDefinitionBean sed = (StudyEventDefinitionBean) seddao.findByPK(event.getStudyEventDefinitionId());
+            StudyEventDefinitionBean sed = seddao.findByPK(event.getStudyEventDefinitionId());
             note.setEventName(sed.getName());
             note.setEventStart(event.getDateStarted());
 
@@ -1075,7 +1085,7 @@ public abstract class SecureController extends HttpServlet implements SingleThre
             
             String subjectName = note.getSubjectName();
             if (subjectName == null || subjectName.trim().isEmpty()) {
-                StudySubjectBean ss = (StudySubjectBean) ssdao.findByPK(ec.getStudySubjectId());
+                StudySubjectBean ss = ssdao.findByPK(ec.getStudySubjectId());
                 note.setSubjectName(ss.getName());
             }
 
@@ -1089,37 +1099,37 @@ public abstract class SecureController extends HttpServlet implements SingleThre
             EventCRFDAO ecdao = new EventCRFDAO(sm.getDataSource());
             StudyEventDAO svdao = new StudyEventDAO(sm.getDataSource());
 
-            EventCRFBean ec = (EventCRFBean) ecdao.findByPK(eventCRFId);
-            StudyEventBean event = (StudyEventBean) svdao.findByPK(ec.getStudyEventId());
+            EventCRFBean ec = ecdao.findByPK(eventCRFId);
+            StudyEventBean event = svdao.findByPK(ec.getStudyEventId());
 
             StudyEventDefinitionDAO seddao = new StudyEventDefinitionDAO(sm.getDataSource());
-            StudyEventDefinitionBean sed = (StudyEventDefinitionBean) seddao.findByPK(event.getStudyEventDefinitionId());
+            StudyEventDefinitionBean sed = seddao.findByPK(event.getStudyEventDefinitionId());
             note.setEventName(sed.getName());
             note.setEventStart(event.getDateStarted());
 
             CRFDAO cdao = new CRFDAO(sm.getDataSource());
             CRFBean crf = cdao.findByVersionId(ec.getCRFVersionId());
             note.setCrfName(crf.getName());
-            StudySubjectBean ss = (StudySubjectBean) ssdao.findByPK(ec.getStudySubjectId());
+            StudySubjectBean ss = ssdao.findByPK(ec.getStudySubjectId());
             note.setSubjectName(ss.getName());
             note.setEventCRFId(ec.getId());
 
         } else if ("studyEvent".equalsIgnoreCase(note.getEntityType())) {
             int eventId = note.getEntityId();
             StudyEventDAO svdao = new StudyEventDAO(sm.getDataSource());
-            StudyEventBean event = (StudyEventBean) svdao.findByPK(eventId);
+            StudyEventBean event = svdao.findByPK(eventId);
 
             StudyEventDefinitionDAO seddao = new StudyEventDefinitionDAO(sm.getDataSource());
-            StudyEventDefinitionBean sed = (StudyEventDefinitionBean) seddao.findByPK(event.getStudyEventDefinitionId());
+            StudyEventDefinitionBean sed = seddao.findByPK(event.getStudyEventDefinitionId());
             note.setEventName(sed.getName());
             note.setEventStart(event.getDateStarted());
 
-            StudySubjectBean ss = (StudySubjectBean) ssdao.findByPK(event.getStudySubjectId());
+            StudySubjectBean ss = ssdao.findByPK(event.getStudySubjectId());
             note.setSubjectName(ss.getName());
 
         } else if ("studySub".equalsIgnoreCase(note.getEntityType())) {
             int studySubjectId = note.getEntityId();
-            StudySubjectBean ss = (StudySubjectBean) ssdao.findByPK(studySubjectId);
+            StudySubjectBean ss = ssdao.findByPK(studySubjectId);
             note.setSubjectName(ss.getName());
 
         } else if ("Subject".equalsIgnoreCase(note.getEntityType())) {
@@ -1180,12 +1190,7 @@ public abstract class SecureController extends HttpServlet implements SingleThre
         }
     }
 
-
     public CRFLocker getCrfLocker() {
         return crfLocker;
     }
-
-    
-    
-    
 }

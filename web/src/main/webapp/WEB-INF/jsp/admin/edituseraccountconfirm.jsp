@@ -76,6 +76,9 @@
     <c:if test='${presetValue.key == "runWebServices"}'>
         <c:set var="runWebServices" value="${presetValue.value}" />
     </c:if>
+    <c:if test='${presetValue.key == "authtype"}'>
+        <c:set var="authtype" value="${presetValue.value}" />
+    </c:if>
 </c:forEach>
 <script type="text/JavaScript" language="JavaScript">
   <!--
@@ -110,6 +113,7 @@
 <input type="hidden" name="resetPassword" value='<c:out value="${resetPassword}"/>'/>
 <input type="hidden" name="displayPwd" value='<c:out value="${displayPwd}"/>'/>
 <input type="hidden" name="runWebServices" value='<c:out value="${runWebServices}"/>'/>
+<input type="hidden" name="authtype" value='<c:out value="${authtype}"/>'/>
 
 <div style="width: 400px">
 
@@ -166,19 +170,18 @@
   </tr>
   
   <tr>
-        <td class="table_header_column"><fmt:message key="authorized_run_web_services" bundle="${resword}"/>?</td>
-        <td class="table_cell">
-            <c:choose>
-                <c:when test="${runWebServices == 1}">
-                    <fmt:message key="yes" bundle="${resword}"/>
-                </c:when>
-                <c:otherwise>
-                    <fmt:message key="no" bundle="${resword}"/>
-                </c:otherwise>
-            </c:choose>
+      <td class="table_header_column"><fmt:message key="authorized_run_web_services" bundle="${resword}"/>?</td>
+      <td class="table_cell">
+          <c:choose>
+              <c:when test="${runWebServices == 1}">
+                  <fmt:message key="yes" bundle="${resword}"/>
+              </c:when>
+              <c:otherwise>
+                  <fmt:message key="no" bundle="${resword}"/>
+              </c:otherwise>
+          </c:choose>
+       </td>
     </tr>
-
-
     <tr>
         <td class="table_header_column"><fmt:message key="reset_password?" bundle="${resword}"/></td>
         <td class="table_cell">
@@ -198,8 +201,19 @@
                     <fmt:message key="no" bundle="${resword}"/>
                 </c:otherwise>
             </c:choose>
+        </td>
     </tr>
-
+	<c:if test="${factorService.twoFactorActivated}">
+		<tr>
+			<td class="table_header_column">
+				<fmt:message key="auth_type" bundle="${resword}"/>
+			</td>
+			<td class="table_cell">
+				<fmt:message key="auth_type.${authtype}" bundle="${resword}" />
+			</td>
+		</tr>
+	</c:if>
+        
     </table>
     </div>
 
@@ -208,20 +222,21 @@
     </div>
 <br>
 <table border="0" cellpadding="0" cellspacing="0">
-<tr>
-<td>
-<input type="submit" name="submit" value="<fmt:message key="back" bundle="${resword}"/>" class="button">
-</td>
-<td>
-<input type="submit" name="submit" value="<fmt:message key="confirm" bundle="${resword}"/>" class="button">
-</td>
-<td><input type="button" name="Cancel" id="cancel" value="<fmt:message key="cancel" bundle="${resword}"/>" class="button_medium" onClick="javascript:myCancel();"/>
-</td>
-</tr>
+	<tr>
+		<td>
+			<input type="submit" name="submit" value="<fmt:message key="back" bundle="${resword}" />" class="button">
+		</td>
+		<td>
+			<input type="submit" name="submit" value="<fmt:message key="confirm" bundle="${resword}" />" class="button">
+		</td>
+		<td>
+			<input type="button" name="Cancel" id="cancel" value="<fmt:message key="cancel" bundle="${resword}"/>" class="button" onClick="javascript:myCancel();" />
+		</td>
+	</tr>
 </table>
 </form>
 
 <c:import url="../include/workflow.jsp">
- <c:param name="module" value="admin"/>
+	<c:param name="module" value="admin"/>
 </c:import>
 <jsp:include page="../include/footer.jsp"/>

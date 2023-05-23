@@ -1,4 +1,4 @@
-# installation instructions for LibreClinica-1.0 on Debian 10 (Buster)
+# installation instructions for LibreClinica-1.0 - 1.2 on Debian 10 (Buster)
 
 **prerequisite**  
 It is expected that you have experience on how to install software and how to edit text files on Debian. 
@@ -18,7 +18,8 @@ changes to another step._
 1. **install required software components:**
     1. update package list: `sudo apt update`
     1. install software: `sudo apt install tomcat9 postgresql-11`  
-        _openjdk-11 is installed as a dependency of tomcat9_
+        _openjdk-11 is installed as a dependency of tomcat9_  
+        _eventually change tomcat and postgresql to the version recommended in [system requirements](https://libreclinica.org/download.html#headSystemRequirements)_
 1. **setup directories:**  
     _The folder in this example is named libreclinica since this is the default path used when the
     *.war archive copied is named libreclinica.war. If you like to name the folder differently then name your
@@ -27,17 +28,18 @@ changes to another step._
     1. log directory: `sudo mkdir /usr/share/tomcat9/libreclinica/logs`
     1. data directory: `sudo mkdir /usr/share/tomcat9/libreclinica/data`
     1. change owner: `sudo chown -R tomcat:tomcat /usr/share/tomcat9/libreclinica`
-    1. create softlink: `sudo ln -s /usr/share/tomcat9/libreclinica/config/ /usr/share/tomcat9/libreclinica.config`
+    1. create config softlink: `sudo ln -s /usr/share/tomcat9/libreclinica/config/ /usr/share/tomcat9/libreclinica.config`
+    1. create data softlink: `sudo ln -s /usr/share/tomcat9/libreclinica/data/ /usr/share/tomcat9/libreclinica.data`
 1. **setup database**
     1. create role: `sudo -u postgres createuser -e -I -D -R -S -P clinica`  
         *update datainfo.properties with the password you entered for the new postgres user (step 5)*
     1. create database: `sudo -u postgres createdb -e -O clinica -E UTF8 libreclinica`
 1. **copy the \*.war archive** to the webapps folder  
-    `cp LibreClinica-1.0.0.war /var/lib/tomcat9/webapps/<context name>.war`  
-    `chown tomcat:tomcat /var/lib/tomcat9/webapps/<context name>.war`  
+    `sudo cp LibreClinica-web-<version>.war /var/lib/tomcat9/webapps/<context name>.war`  
+    `sudo chown tomcat:tomcat /var/lib/tomcat9/webapps/<context name>.war`  
     *context name is the name that comes usually after the slash  
-    e.g. for https://libreclinica.org/libreclinica it is
-    /var/lib/tomcat9/webapps/libreclinica.war*
+    e.g. for https://libreclinica.org/libreclinica and LibreClinica 1.1 the above copy command would read  
+    cp LibreClinica-web-1.1.0.war /var/lib/tomcat9/webapps/libreclinica.war*
 1. **create datainfo.properties**  
    You can create your own version of datainfo.properties or copy a template from LibreClinica by executing the command  
    ```
@@ -50,7 +52,7 @@ changes to another step._
     _Detailed instructions on how to configure it properly can be found in the different 
     sections of the datainfo.properties._  
     Make sure, that tomcat can read the file by issuing  
-    `chmod o+r /usr/share/tomcat9/libreclinica.config/datainfo.properties`
+    `sudo chmod o+r /usr/share/tomcat9/libreclinica.config/datainfo.properties`
     
     **relevant keys for your datainfo.properties**  
     For a common installation it should be sufficient to change the following keys:
@@ -78,7 +80,12 @@ changes to another step._
         * sysURL=https://example.com/libreclinica/MainMenu
              
     For an enterprise installation you may want to additionally enable user authentication against an LDAP/Active Directory server:
+    
+    <details>
+    <summary>Click to expand!</summary>
+   
     1. **LDAP/Active Directory server**
+    
         * ldap.enabled=true
         
         LDAP/ActiveDirectory server host can be configured with standard (usually port 389) or encrypted communication (usually port 636):
@@ -118,12 +125,18 @@ changes to another step._
     One can check if the certificate was installed (e.g. using keytool):
     
     `JAVA_HOME/bin/keytool -list -keystore JAVA_HOME/jre/lib/security/cacerts`
+    </details>
     
-1. **setup ReadWritePaths**  
-    edit /etc/systemd/system/multi-user.target.wants/tomcat9.service and  
-    add `ReadWritePaths=/usr/share/tomcat9/libreclinica`  
-    and reload the unit files with `systemctl daemon-reload`
-1. **restart tomcat** `systemctl restart tomcat9`
+1. **setup ReadWritePaths for Tomcat**  
+    `sudo mkdir /etc/systemd/system/tomcat9.service.d` 
+    create and edit /etc/systemd/system/tomcat9.service.d/override.conf
+    adding
+    ```
+    [Service]
+    ReadWritePaths=/usr/share/tomcat9/libreclinica
+    ```  
+    Reload the unit files with `sudo systemctl daemon-reload`
+1. **restart tomcat** `sudo systemctl restart tomcat9`
 
 You now should be able to access your LibreClinica installation port 8080. e.g.  
 http://\<ip of your machine\>:8080/libreclinica with the default credentials (user: root, password: 12345678).
@@ -131,3 +144,8 @@ http://\<ip of your machine\>:8080/libreclinica with the default credentials (us
 In a productive environment your system administrator should configure a web server 
 like nginx or apache to act as a reverse proxy for your LibreClinica installation so that
 you can access your installation from the URL configured for key _sysURL_.
+
+# Troubleshooting
+* **Problem:** On some systems an error 500 (Message "Servlet.init() for servlet [pages] threw exception") appears when requesting the login-screen for the very first time
+* **Cause:** 2 versions of the castor library in the WAR
+* **Fix:** delete castor-1.2.jar from the WEB-INF/lib by issuing ``rm delete castor-1.2.jar``. If you followed the instructions above, the extracted WAR containing WEB-INF/lib should be found under /var/lib/tomcat9/webapps/.

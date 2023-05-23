@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-<!-- Alert Box -->
+
+<!-- start of login/login-alertbox.jsp, which is used when you enter a wrong account and/or pass word-->
 
 <fmt:setBundle basename="org.akaza.openclinica.i18n.notes" var="restext"/> 
 
@@ -25,4 +26,17 @@
     }
 
 %>
+
+<% 
+    if (action!=null) {
+       if (action.equals("2faOutdated")) { 
+%>
+    <div class="alertbox_center"><fmt:message key="2fa.outdated" bundle="${restext}"/></div>
+<%
+       } 
+    }
+
+%>
+
 <jsp:include page="../include/showPageMessages.jsp" />
+<!-- end of login/login-alertbox.jsp -->

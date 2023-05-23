@@ -278,42 +278,6 @@ public class DatasetBean extends AuditableEntityBean {
     }
 
     /**
-     * generateOracleQuery, generates the Oracle syntax for the query (this may
-     * have to be changed to reflect different syntaxes in the future)
-     * 
-     * @return the Oracle SQL syntax to capture datasets.
-     */
-    public String generateOracleQuery() {
-        StringBuffer sb = new StringBuffer();
-        sb.append("select distinct * from " + VIEW_NAME + " where ");
-        if (!this.getEventIds().isEmpty()) {
-            String idList = this.getEventIds().toString();
-            sb.append("study_event_definition_id in (" + idList + ") and ");
-        }
-
-        if (!this.getItemIds().isEmpty()) {
-            String idList = this.getItemIds().toString();
-            sb.append("item_id in (" + idList + ") and ");
-        }
-        String pattern = "dd-MMM-yyyy";// changed by bads issue 2152
-        SimpleDateFormat sdf = new SimpleDateFormat(pattern);
-        String beginDate = sdf.format(this.dateStart);
-        String stopDate = sdf.format(this.dateEnd);
-
-        sb.append("(date_created >= '" + beginDate + "') and (date_created <= '" + stopDate + "')");
-        // perform regexp here that pulls out [] square brackets
-
-        logger.info("-----------------------------");
-        logger.info(sb.toString());
-        logger.info("-----------------------------");
-        String returnMe = sb.toString().replaceAll("\\[|\\]", "");
-        // returnMe = returnMe.replaceAll("[^0-9])",")");
-        // return sb.toString();
-        returnMe = returnMe + " order by date_start";
-        return returnMe;
-    }
-
-    /**
      * @return Returns the itemIds.
      */
     public ArrayList<Integer> getItemIds() {

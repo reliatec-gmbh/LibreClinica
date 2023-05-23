@@ -14,15 +14,17 @@ public class EventCrfFlagDao extends AbstractDomainDao<EventCrfFlag> {
 
     @Override
     Class<EventCrfFlag> domainClass() {
-        // TODO Auto-generated method stub
         return EventCrfFlag.class;
     }
 
     public EventCrfFlag findByEventCrfPath(int tagId, String path) {
-        String query = "from " + getDomainClassName() + " where path = '" + path + "' and tagId=" + tagId;
-        Query<EventCrfFlag> q = getCurrentSession().createQuery(query, EventCrfFlag.class);
-        return (EventCrfFlag) q.uniqueResult();
+        String query = "from " + getDomainClassName() + " where path = :path and tagId = :tagId";
+        Query<EventCrfFlag> q = getCurrentSession()
+                .createQuery(query, EventCrfFlag.class)
+                .setParameter("path", path)
+                .setParameter("tagId", tagId);
 
+        return q.uniqueResult();
     }
 
 }

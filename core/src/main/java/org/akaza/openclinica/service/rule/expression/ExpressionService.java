@@ -16,7 +16,6 @@ package org.akaza.openclinica.service.rule.expression;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
@@ -26,7 +25,6 @@ import java.util.regex.Pattern;
 import javax.sql.DataSource;
 
 import org.akaza.openclinica.bean.admin.CRFBean;
-import org.akaza.openclinica.bean.core.EntityBean;
 import org.akaza.openclinica.bean.core.ItemDataType;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.core.SubjectEventStatus;
@@ -320,8 +318,7 @@ public class ExpressionService {
         if (formValues != null && !formValues.isEmpty()) {
             String withGroup = getItemGroupPLusItem(expression);
             String withoutGroup = getItemOidFromExpression(expression);
-            result = formValues.containsKey(withGroup) ? formValues.get(withGroup) : formValues
-                    .containsKey(withoutGroup) ? formValues.get(withoutGroup) : null;
+            result = formValues.containsKey(withGroup) ? formValues.get(withGroup) : formValues.getOrDefault(withoutGroup, null);
         } else {
             logger.warn("The HashMap that stores form values was null, Better this be a Bulk operation");
         }
@@ -337,11 +334,9 @@ public class ExpressionService {
         if (formValues != null && !formValues.isEmpty()) {
             String withGroup = getItemGroupPLusItem(expression);
             String withoutGroup = getItemOidFromExpression(expression);
-            result = formValues.containsKey(withGroup) ? formValues.get(withGroup) : formValues
-                    .containsKey(withoutGroup) ? formValues.get(withoutGroup) : null;
+            result = formValues.containsKey(withGroup) ? formValues.get(withGroup) : formValues.getOrDefault(withoutGroup, null);
             if (itemBeans != null) {
-                ItemBean itemBean = itemBeans.containsKey(withGroup) ? itemBeans.get(withGroup) : itemBeans
-                        .containsKey(withoutGroup) ? itemBeans.get(withoutGroup) : null;
+                ItemBean itemBean = itemBeans.containsKey(withGroup) ? itemBeans.get(withGroup) : itemBeans.getOrDefault(withoutGroup, null);
                 result = ifValueIsDate(itemBean, result);
             }
         } else {
@@ -355,9 +350,7 @@ public class ExpressionService {
         Map<Integer, ItemBean> itemBeansI = new HashMap<>();
 
         if (items != null) {
-            Iterator<ItemBean> iter = items.values().iterator();
-            while (iter.hasNext()) {
-                ItemBean item = iter.next();
+            for (ItemBean item : items.values()) {
                 itemBeansI.put(item.getId(), item);
             }
         }
@@ -736,8 +729,8 @@ public class ExpressionService {
             } else {
                 buildExpression = buildExpression + splitRuleSetExpression[i] + SEPARATOR;
             }
-
         }
+
         return buildExpression + ruleExpression;
     }
 
@@ -1254,47 +1247,60 @@ public class ExpressionService {
     public String checkValidityOfItemOrItemGroupOidInCrf(String oid, RuleSetBean ruleSet) {
         oid = oid.trim();
         String[] theOid = oid.split(ESCAPED_SEPARATOR);
+
+        // OID expression consists from ItemGroupOID and ItemOID
         if (theOid.length == 2) {
+
+            // Query for ItemGroup with OID specified in the expression
             ItemGroupBean itemGroup = getItemGroupDao().findByOid(theOid[0]);
             boolean isItemGroupBePartOfCrfOrNull = ruleSet.getCrfId() == null || itemGroup.getCrfId().equals(ruleSet.getCrfId());
-            // TODO: because of DAO refactoring we may need to also check itemGroup.isActive()
-            if (itemGroup != null && isItemGroupBePartOfCrfOrNull) {
+
+            if (itemGroup != null && itemGroup.isActive() && isItemGroupBePartOfCrfOrNull) {
+
                 if (ruleSet.getCrfId() != null && itemGroup.getCrfId().equals(ruleSet.getCrfId())) {
                     return "OK";
                 }
                 if (ruleSet.getCrfId() != null && !itemGroup.getCrfId().equals(ruleSet.getCrfId())) {
                     return oid;
                 }
+
+                // Query for Item in existing ItemGroup with OID specified in the expression
                 ItemBean item = getItemDao().findItemByGroupIdandItemOid(itemGroup.getId(), theOid[1]);
-                // TODO: because of DAO refactoring we may need to also check item.isActive()
-                if (item != null) {
+
+                if (item != null && item.isActive()) {
                     return "OK";
                 }
             }
-
         }
-        if (theOid.length == 1) {
+        else if (theOid.length == 1) { // OID expression consists from ItemGroupOID or Item OID only
+
+            // Query for ItemGroup with OID specified in the expression
             ItemGroupBean itemGroup = getItemGroupDao().findByOid(oid);
-            // TODO: because of DAO refactoring we may need to also check itemGroup.isActive()
-            if (itemGroup != null) {
+
+            // When such ItemGroup exist in database
+            if (itemGroup != null && itemGroup.isActive()) {
+
                 if (ruleSet.getCrfId() != null && itemGroup.getCrfId().equals(ruleSet.getCrfId())) {
                     return "OK";
                 }
                 if (ruleSet.getCrfId() != null && !itemGroup.getCrfId().equals(ruleSet.getCrfId())) {
                     return oid;
                 }
+
+                // TODO: if this statement reached it will force to pass validity check, seems wierd...
                 return "OK";
             }
 
-            // ItemBean item =
-            // getItemDao().findItemByGroupIdandItemOid(getItemGroupExpression(ruleSet.getTarget().getValue()).getId(),
-            // oid);
+            // No ItemGroup was found so the expression is supposed to be ItemOID
             ArrayList<ItemBean> items = getItemDao().findByOid(oid);
+
+            // Corresponding item was found in database
             if (items == null || items.size() != 0) {
                 return "OK";
             }
         }
 
+        // Return the expression that did not pass the validity check
         return oid;
     }
 

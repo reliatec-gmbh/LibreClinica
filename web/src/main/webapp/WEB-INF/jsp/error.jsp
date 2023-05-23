@@ -11,21 +11,24 @@
 
 <c:choose>
 	<c:when test="${userBean != null && userRole != null && userRole.role.name != 'invalid' && passwordExpired == 'no'}">
+		<!-- homeheader.jsp BEGIN -->
 		<jsp:include page="include/home-header.jsp"/>
-
-
+		<!-- homeheader.jsp END -->
 		<jsp:include page="include/sidebar.jsp"/>
 	</c:when>
 	<c:otherwise>
 		<jsp:include page="login-include/login-header.jsp"/>
-
 		<jsp:include page="include/userbox-inactive.jsp"/>
-		<table border="0" cellpadding=0" cellspacing="0">
-			<tr><td class="sidebar" valign="top"><br><b><a href="j_spring_security_logout"><fmt:message key="logout" bundle="${restext}"/></a></b></br></td>
-				<td class="content" valign="top">
+		<table>
+			<tr><td class="sidebar" valign="top">
+				<br /><b><a href="${pageContext.request.contextPath}/j_spring_security_logout"><fmt:message key="logout" bundle="${restext}"/></a></b>
+				<br /><b><a href="${pageContext.request.contextPath}/MainMenu"><fmt:message key="nav_home" bundle="${resword}"/></a></b>
+			</td>
+			<td class="content">
 	</c:otherwise>
 </c:choose>
 
+<!-- start of error.jsp -->
 <h1><span class="title_manage"><fmt:message key="an_error_has_ocurred" bundle="${resword}"/></span></h1>
 
 <font class="bodytext">
@@ -54,3 +57,4 @@
 		<jsp:include page="login-include/login-footer.jsp"/>
 	</c:otherwise>
 </c:choose>
+<!-- end of error.jsp -->

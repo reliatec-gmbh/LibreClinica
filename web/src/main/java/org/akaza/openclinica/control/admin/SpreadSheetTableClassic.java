@@ -20,7 +20,6 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.regex.PatternSyntaxException;
 
 import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.admin.NewCRFBean;
@@ -205,19 +204,11 @@ public class SpreadSheetTableClassic implements SpreadSheetTable {// extends
                     // Create oid for Item Group
                     String defaultGroupOid = itemGroupDao.getValidOid(defaultGroup, crfName, defaultGroup.getName(), itemGroupOids);
                     itemGroupOids.add(defaultGroupOid);
-
-                    String defaultSql = "";
-                    if (dbName.equals("oracle")) {
-                        defaultSql =
-                            "INSERT INTO ITEM_GROUP ( " + "name, crf_id, status_id, date_created ,owner_id,oc_oid)" + "VALUES ('" + defaultGroup.getName()
-                                + "', " + defaultGroup.getCrfId() + "," + defaultGroup.getStatus().getId() + "," + "sysdate," + ub.getId() + ",'"
-                                + defaultGroupOid + "')";
-                    } else {
-                        defaultSql =
+                    
+                    String defaultSql =
                             "INSERT INTO ITEM_GROUP ( " + "name, crf_id, status_id, date_created ,owner_id,oc_oid)" + "VALUES ('" + defaultGroup.getName()
                                 + "', " + defaultGroup.getCrfId() + "," + defaultGroup.getStatus().getId() + "," + "now()," + ub.getId() + ",'"
                                 + defaultGroupOid + "')";
-                    }
 
                     if (!GroupCheck.containsKey("Ungrouped")) {
                         queries.add(defaultSql);
@@ -759,20 +750,11 @@ public class SpreadSheetTableClassic implements SpreadSheetTable {// extends
 
                         // better spot for checking item might be right here,
                         // tbh 7-25
-                        String vlSql = "";
-                        if (dbName.equals("oracle")) {
-                            vlSql =
-                                "INSERT INTO ITEM (NAME,DESCRIPTION,UNITS,PHI_STATUS,"
-                                    + "ITEM_DATA_TYPE_ID, ITEM_REFERENCE_TYPE_ID,STATUS_ID,OWNER_ID,DATE_CREATED,OC_OID) " + "VALUES ('"
-                                    + stripQuotes(itemName) + "','" + stripQuotes(descLabel) + "','" + stripQuotes(unit) + "'," + (phiBoolean == true ? 1 : 0)
-                                    + "," + dataTypeIdString + ",1,1," + ub.getId() + ", sysdate" + ",'" + itemOid + "')";
-                        } else {
-                            vlSql =
+                        String vlSql =
                                 "INSERT INTO ITEM (NAME,DESCRIPTION,UNITS,PHI_STATUS,"
                                     + "ITEM_DATA_TYPE_ID, ITEM_REFERENCE_TYPE_ID,STATUS_ID,OWNER_ID,DATE_CREATED,OC_OID) " + "VALUES ('"
                                     + stripQuotes(itemName) + "','" + stripQuotes(descLabel) + "','" + stripQuotes(unit) + "'," + phiBoolean + ","
                                     + dataTypeIdString + ",1,1," + ub.getId() + ", NOW()" + ",'" + itemOid + "')";
-                        }
 
                         backupItemQueries.put(itemName, vlSql);
                         // to compare items from DB later, if two items have the
@@ -811,63 +793,33 @@ public class SpreadSheetTableClassic implements SpreadSheetTable {// extends
                                 if (!cvdao.hasItemData(oldItem.getId())) {// no
                                     // item
                                     // data
-                                    String upSql = "";
-                                    if (dbName.equals("oracle")) {
-                                        upSql =
-                                            "UPDATE ITEM SET DESCRIPTION='" + stripQuotes(descLabel) + "'," + "UNITS='" + stripQuotes(unit) + "',"
-                                                + "PHI_STATUS=" + (phiBoolean ? 1 : 0) + "," + "ITEM_DATA_TYPE_ID=" + dataTypeIdString
-                                                + " WHERE exists (SELECT versioning_map.item_id from versioning_map, crf_version where"
-                                                + " versioning_map.crf_version_id = crf_version.crf_version_id" + " AND crf_version.crf_id= " + crfId
-                                                + " AND item.item_id = versioning_map.item_id)" + " AND item.name='" + stripQuotes(itemName)
-                                                + "' AND item.owner_id = " + ownerId;
-                                    } else {
-                                        upSql =
+                                    String upSql =
                                             "UPDATE ITEM SET DESCRIPTION='" + stripQuotes(descLabel) + "'," + "UNITS='" + stripQuotes(unit) + "',"
                                                 + "PHI_STATUS=" + phiBoolean + "," + "ITEM_DATA_TYPE_ID=" + dataTypeIdString
                                                 + " FROM versioning_map, crf_version" + " WHERE item.name='" + stripQuotes(itemName) + "' AND item.owner_id = "
                                                 + ownerId + " AND item.item_id = versioning_map.item_id AND"
                                                 + " versioning_map.crf_version_id = crf_version.crf_version_id" + " AND crf_version.crf_id = " + crfId;
-                                    }// end of if dbname
+
                                     openQueries.put(itemName, upSql);
                                 } else {
-                                    String upSql = "";
-                                    if (dbName.equals("oracle")) {
-                                        upSql =
-                                            "UPDATE ITEM SET DESCRIPTION='" + stripQuotes(descLabel) + "'," + "PHI_STATUS=" + (phiBoolean ? 1 : 0)
-                                                + " WHERE exists (SELECT versioning_map.item_id from versioning_map, crf_version where"
-                                                + " versioning_map.crf_version_id = crf_version.crf_version_id" + " AND crf_version.crf_id= " + crfId
-                                                + " AND item.item_id = versioning_map.item_id)" + " AND item.name='" + stripQuotes(itemName)
-                                                + "' AND item.owner_id = " + ownerId;
-
-                                    } else {
-                                        upSql =
+                                    String upSql =
                                             "UPDATE ITEM SET DESCRIPTION='" + stripQuotes(descLabel) + "'," + "PHI_STATUS=" + phiBoolean
                                                 + " FROM versioning_map, crf_version" + " WHERE item.name='" + stripQuotes(itemName) + "' AND item.owner_id = "
                                                 + ownerId + " AND item.item_id = versioning_map.item_id AND"
                                                 + " versioning_map.crf_version_id = crf_version.crf_version_id" + " AND crf_version.crf_id = " + crfId;
-                                    }// end of if dbName
+
                                     openQueries.put(itemName, upSql);
                                 }
                             } else {
                                 ownerId = oldItem.getOwner().getId();
                             }
                         }
-                        String sql = "";
-                        if (dbName.equals("oracle")) {
-                            // resOptions = resOptions.replaceAll("\\\\,",
-                            // "\\,");
-                            sql =
-                                "INSERT INTO RESPONSE_SET (LABEL, OPTIONS_TEXT, OPTIONS_VALUES, " + "RESPONSE_TYPE_ID, VERSION_ID)" + " VALUES ('"
-                                    + stripQuotes(responseLabel) + "', '" + stripQuotes(resOptions.replaceAll("\\\\,", "\\,")) + "','"
-                                    + stripQuotes(resValues.replace("\\\\", "\\")) + "'," + "(SELECT RESPONSE_TYPE_ID From RESPONSE_TYPE Where NAME='"
-                                    + stripQuotes(responseType.toLowerCase()) + "')," + versionIdString + ")";
-                        } else {
-                            sql =
+                        String sql =
                                 "INSERT INTO RESPONSE_SET (LABEL, OPTIONS_TEXT, OPTIONS_VALUES, " + "RESPONSE_TYPE_ID, VERSION_ID)" + " VALUES ('"
                                     + stripQuotes(responseLabel) + "', E'" + stripQuotes(resOptions) + "', E'" + stripQuotes(resValues) + "',"
                                     + "(SELECT RESPONSE_TYPE_ID From RESPONSE_TYPE Where NAME='" + stripQuotes(responseType.toLowerCase()) + "'),"
                                     + versionIdString + ")";
-                        }
+
                         if (!resNames.contains(responseLabel)) {
                             queries.add(sql);
                             resNames.add(responseLabel);
@@ -881,14 +833,9 @@ public class SpreadSheetTableClassic implements SpreadSheetTable {// extends
                         }
                         String parentItemString = "0";
                         if (!(parentItem == null || parentItem.trim().isEmpty())) {
-                            if (dbName.equals("oracle")) {
-                                parentItemString =
-                                    "(SELECT MAX(ITEM_ID) FROM ITEM WHERE NAME='" + stripQuotes(parentItem) + "' AND owner_id = " + ownerId + " )";
-                            } else {
-                                parentItemString =
-                                    "(SELECT ITEM_ID FROM ITEM WHERE NAME='" + stripQuotes(parentItem) + "' AND owner_id = " + ownerId
-                                        + " ORDER BY OC_OID DESC LIMIT 1)";
-                            }
+                            parentItemString =
+                                "(SELECT ITEM_ID FROM ITEM WHERE NAME='" + stripQuotes(parentItem) + "' AND owner_id = " + ownerId
+                                    + " ORDER BY OC_OID DESC LIMIT 1)";
                         }
 
                         String selectCorrectItemQueryPostgres =
@@ -909,65 +856,8 @@ public class SpreadSheetTableClassic implements SpreadSheetTable {// extends
                                 + crfId
                                 + " ) "
                                 + " ORDER BY I.OC_ID DESC LIMIT 1) ";
-
-                        String selectCorrectItemQueryOracle =
-                            " (SELECT MAX(I.ITEM_ID) FROM ITEM I LEFT OUTER JOIN ITEM_FORM_METADATA IFM ON I.ITEM_Id = IFM.ITEM_ID LEFT OUTER JOIN CRF_VERSION CV ON IFM.CRF_VERSION_ID = CV.CRF_VERSION_ID  WHERE "
-                                + " ( I.NAME='"
-                                + itemName
-                                + "'"
-                                + " AND I.owner_id = "
-                                + ownerId
-                                + " AND CV.CRF_VERSION_ID is null )"
-                                + " OR "
-                                + " ( I.NAME='"
-                                + itemName + "'" + " AND I.owner_id = " + ownerId + " AND CV.CRF_VERSION_ID is not null AND CV.CRF_ID =" + crfId + " )) ";
-
-                        String sql2 = "";
-                        if (dbName.equals("oracle")) {
-                            sql2 =
-                                "INSERT INTO ITEM_FORM_METADATA (CRF_VERSION_ID, RESPONSE_SET_ID," + "ITEM_ID,SUBHEADER,header,LEFT_ITEM_TEXT,"
-                                    + "RIGHT_ITEM_TEXT,PARENT_ID,SECTION_ID,ORDINAL,PARENT_LABEL,COLUMN_NUMBER,PAGE_NUMBER_LABEL,question_number_label,"
-                                    + "REGEXP,REGEXP_ERROR_MSG,REQUIRED)" + " VALUES ("
-                                    + versionIdString
-                                    + ",(SELECT RESPONSE_SET_ID FROM RESPONSE_SET WHERE LABEL='"
-                                    + stripQuotes(responseLabel)
-                                    + "'"
-                                    + " AND VERSION_ID="
-                                    + versionIdString
-                                    + "),"
-                                    + selectCorrectItemQueryOracle
-                                    + ",'"
-                                    + stripQuotes(subHeader)
-                                    + "','"
-                                    + stripQuotes(header)
-                                    + "','"
-                                    + stripQuotes(leftItemText)
-                                    + "','"
-                                    + stripQuotes(rightItemText)
-                                    + "',"
-                                    + parentItemString
-                                    + ", (SELECT SECTION_ID FROM SECTION WHERE LABEL='"
-                                    + secName
-                                    + "' AND "
-                                    + "CRF_VERSION_ID IN "
-                                    + versionIdString
-                                    + "), "
-                                    + k
-                                    + ",'"
-                                    + parentItem
-                                    + "',"
-                                    + columnNum
-                                    + ",'"
-                                    + stripQuotes(page)
-                                    + "','"
-                                    + stripQuotes(questionNum)
-                                    + "','"
-                                    + stripQuotes(regexp1) + "','" + stripQuotes(regexpError) + "', " + (isRequired ? 1 : 0) + ")";
-
-                            logger.warn(sql2);
-
-                        } else {
-                            sql2 =
+                        
+                        String sql2 =
                                 "INSERT INTO ITEM_FORM_METADATA (CRF_VERSION_ID, RESPONSE_SET_ID," + "ITEM_ID,SUBHEADER,HEADER,LEFT_ITEM_TEXT,"
                                     + "RIGHT_ITEM_TEXT,PARENT_ID,SECTION_ID,ORDINAL,PARENT_LABEL,COLUMN_NUMBER,PAGE_NUMBER_LABEL,question_number_label,"
                                     + "REGEXP,REGEXP_ERROR_MSG,REQUIRED)" + " VALUES ("
@@ -1006,53 +896,15 @@ public class SpreadSheetTableClassic implements SpreadSheetTable {// extends
                                     + stripQuotes(questionNum)
                                     + "','"
                                     + stripQuotes(regexp1) + "','" + stripQuotes(regexpError) + "', " + isRequired + ")";
-                        }
 
                         queries.add(sql2);
                         // link version with items now
-                        String sql3 = "";
-                        if (dbName.equals("oracle")) {
-                            sql3 =
-                                "INSERT INTO VERSIONING_MAP (CRF_VERSION_ID, ITEM_ID) VALUES ( " + versionIdString + "," + selectCorrectItemQueryOracle + ")";
-                        } else {
-                            sql3 =
+                        String sql3 =
                                 "INSERT INTO VERSIONING_MAP (CRF_VERSION_ID, ITEM_ID) VALUES ( " + versionIdString + "," + selectCorrectItemQueryPostgres + ")";
-                        }
                         queries.add(sql3);
 
-                        // this item doesn't have group, so put it into
-                        // 'Ungrouped' group
-                        String sqlGroupLabel = "";
-                        if (dbName.equals("oracle")) {
-                            sqlGroupLabel =
-                                "INSERT INTO ITEM_GROUP_METADATA (" + "item_group_id,header," + "subheader, layout, repeat_number, repeat_max,"
-                                    + " repeat_array,row_start_number, crf_version_id," + "item_id , ordinal, borders) VALUES ("
-                                    + "(SELECT MAX(ITEM_GROUP_ID) FROM ITEM_GROUP WHERE NAME='Ungrouped' AND crf_id = "
-                                    + crfId
-                                    + " ),'"
-                                    + ""
-                                    + "', '"
-                                    + ""
-                                    + "', '"
-                                    + ""
-                                    + "', "
-                                    + 1
-                                    + ", "
-                                    + 1
-                                    + ", '', 1,"
-                                    + versionIdString
-                                    + ","
-                                    // + "(SELECT MAX(ITEM_ID) FROM ITEM WHERE
-                                    // NAME='"
-                                    // + itemName + "' ),"
-                                    + "(SELECT MAX(ITEM.ITEM_ID) FROM ITEM,ITEM_FORM_METADATA,CRF_VERSION WHERE ITEM.NAME='"
-                                    + itemName
-                                    + "' "
-                                    + "AND ITEM.ITEM_ID = ITEM_FORM_METADATA.ITEM_ID and ITEM_FORM_METADATA.CRF_VERSION_ID=CRF_VERSION.CRF_VERSION_ID "
-                                    + "AND CRF_VERSION.CRF_ID= " + crfId + " )," + k + ",0)";
-
-                        } else {
-                            sqlGroupLabel =
+                        // this item doesn't have group, so put it into 'Ungrouped' group
+                        String sqlGroupLabel =
                                 "INSERT INTO ITEM_GROUP_METADATA (" + "item_group_id,HEADER," + "subheader, layout, repeat_number, repeat_max,"
                                     + " repeat_array,row_start_number, crf_version_id," + "item_id , ordinal, borders) VALUES ("
                                     + "(SELECT ITEM_GROUP_ID FROM ITEM_GROUP WHERE NAME='Ungrouped' AND crf_id = "
@@ -1078,7 +930,6 @@ public class SpreadSheetTableClassic implements SpreadSheetTable {// extends
                                     + "' "
                                     + "AND ITEM.ITEM_ID = ITEM_FORM_METADATA.ITEM_ID and ITEM_FORM_METADATA.CRF_VERSION_ID=CRF_VERSION.CRF_VERSION_ID "
                                     + "AND CRF_VERSION.CRF_ID= " + crfId + " ORDER BY ITEM.OC_OID DESC LIMIT 1)," + k + ",0)";
-                        }
 
                         queries.add(sqlGroupLabel);
                     }
@@ -1156,20 +1007,11 @@ public class SpreadSheetTableClassic implements SpreadSheetTable {// extends
                                 parentId = 0;
                             }
                         }
-                        String sql = "";
-                        if (dbName.equals("oracle")) {
-                            sql =
-                                "INSERT INTO SECTION (CRF_VERSION_ID," + "STATUS_ID,LABEL, TITLE, INSTRUCTIONS, SUBTITLE, PAGE_NUMBER_LABEL,"
-                                    + "ORDINAL, PARENT_ID, OWNER_ID, DATE_CREATED) " + "VALUES (" + versionIdString + ",1,'" + secLabel + "','"
-                                    + stripQuotes(title) + "', '" + stripQuotes(instructions) + "', '" + stripQuotes(subtitle) + "','" + pageNumber + "'," + k
-                                    + "," + parentId + "," + ub.getId() + ",sysdate)";
-                        } else {
-                            sql =
+                        String sql =
                                 "INSERT INTO SECTION (CRF_VERSION_ID," + "STATUS_ID,LABEL, TITLE, INSTRUCTIONS, SUBTITLE, PAGE_NUMBER_LABEL,"
                                     + "ORDINAL, PARENT_ID, OWNER_ID, DATE_CREATED) " + "VALUES (" + versionIdString + ",1,'" + secLabel + "','"
                                     + stripQuotes(title) + "', '" + stripQuotes(instructions) + "', '" + stripQuotes(subtitle) + "','" + pageNumber + "'," + k
                                     + "," + parentId + "," + ub.getId() + ",NOW())";
-                        }
                         queries.add(sql);
                     }// end for loop
                 } else if (sheetName.equalsIgnoreCase("CRF")) {
@@ -1284,29 +1126,16 @@ public class SpreadSheetTableClassic implements SpreadSheetTable {// extends
                              * id.
                              */
 
-                            ResultSet nextIdRs;
-                            if (dbName.equals("oracle")) {
-                                nextIdRs = con.createStatement().executeQuery("select crf_id_seq.nextval from dual");
-                            } else {
-                                nextIdRs = con.createStatement().executeQuery("select nextval('crf_crf_id_seq')");
-                            }
+                            ResultSet nextIdRs = con.createStatement().executeQuery("select nextval('crf_crf_id_seq')");
 
                             nextIdRs.next();
                             nextCRFId = nextIdRs.getInt(1);
                             crfId = nextCRFId;
                             ncrf.setCrfId(crfId);
-                            String createCRFSql = "";
-                            if (dbName.equals("oracle")) {
-                                createCRFSql =
-                                    "INSERT INTO CRF (CRF_ID, STATUS_ID, NAME, DESCRIPTION, OWNER_ID, DATE_CREATED, OC_OID, SOURCE_STUDY_ID) VALUES (" + crfId
-                                        + ", 1,'" + stripQuotes(crfName) + "','" + stripQuotes(versionDesc) + "'," + ub.getId() + ",sysdate" + ",'" + crfOid
-                                        + "'," + studyId + ")";
-                            } else {
-                                createCRFSql =
+                            String createCRFSql =
                                     "INSERT INTO CRF (CRF_ID, STATUS_ID, NAME, DESCRIPTION, OWNER_ID, DATE_CREATED, OC_OID, SOURCE_STUDY_ID) VALUES (" + crfId
                                         + ", 1,'" + stripQuotes(crfName) + "','" + stripQuotes(versionDesc) + "'," + ub.getId() + ",NOW()" + ",'" + crfOid
                                         + "'," + studyId + ")";
-                            }
                             queries.add(createCRFSql);
                         } catch (SQLException e) {
                             logger.warn("Exception encountered with query select nextval('crf_crf_id_seq'), Message-" + e.getMessage());
@@ -1315,7 +1144,7 @@ public class SpreadSheetTableClassic implements SpreadSheetTable {// extends
                                 try {
                                     con.close();
                                 } catch (SQLException e) {
-                                    logger.warn("Connectin can't be closed");
+                                    logger.warn("Connection can't be closed");
                                 }
                             }
                         }
@@ -1348,36 +1177,21 @@ public class SpreadSheetTableClassic implements SpreadSheetTable {// extends
                         oid = cvdao.getValidOid(new CRFVersionBean(), crfBean.getOid(), version);
                     }
                     String sql = "";
-                    if (dbName.equals("oracle")) {
-                        logger.warn("TEST 2");
-                        if (crfId == 0) {
-                            sql =
-                                "INSERT INTO CRF_VERSION (NAME, DESCRIPTION, CRF_ID, STATUS_ID,DATE_CREATED," + "OWNER_ID,REVISION_NOTES,OC_OID) "
-                                    + "VALUES ('" + stripQuotes(version) + "','" + stripQuotes(versionDesc) + "'," + "(SELECT CRF_ID FROM CRF WHERE NAME='"
-                                    + crfName + "'),1,sysdate," + ub.getId() + ",'" + stripQuotes(revisionNotes) + "','" + oid + "')";
-                        } else {
-                            sql =
-                                "INSERT INTO CRF_VERSION (NAME,DESCRIPTION, CRF_ID, STATUS_ID,DATE_CREATED," + "OWNER_ID,REVISION_NOTES,OC_OID) " + "VALUES ('"
-                                    + version + "','" + stripQuotes(versionDesc) + "'," + crfId + ",1,sysdate," + ub.getId() + ",'"
-                                    + stripQuotes(revisionNotes) + "','" + oid + "')";
-                        }
+                    if (crfId == 0) {
+                        sql =
+                            "INSERT INTO CRF_VERSION (NAME, DESCRIPTION, CRF_ID, STATUS_ID,DATE_CREATED," + "OWNER_ID,REVISION_NOTES,OC_OID) "
+                                + "VALUES ('" + stripQuotes(version) + "','" + stripQuotes(versionDesc) + "'," + "(SELECT CRF_ID FROM CRF WHERE NAME='"
+                                + crfName + "'),1,NOW()," + ub.getId() + ",'" + stripQuotes(revisionNotes) + "','" + oid + "')";
                     } else {
-                        if (crfId == 0) {
-                            sql =
-                                "INSERT INTO CRF_VERSION (NAME, DESCRIPTION, CRF_ID, STATUS_ID,DATE_CREATED," + "OWNER_ID,REVISION_NOTES,OC_OID) "
-                                    + "VALUES ('" + stripQuotes(version) + "','" + stripQuotes(versionDesc) + "'," + "(SELECT CRF_ID FROM CRF WHERE NAME='"
-                                    + crfName + "'),1,NOW()," + ub.getId() + ",'" + stripQuotes(revisionNotes) + "','" + oid + "')";
-                        } else {
-                            sql =
-                                "INSERT INTO CRF_VERSION (NAME,DESCRIPTION, CRF_ID, STATUS_ID,DATE_CREATED," + "OWNER_ID,REVISION_NOTES,OC_OID) " + "VALUES ('"
-                                    + version + "','" + stripQuotes(versionDesc) + "'," + crfId + ",1,NOW()," + ub.getId() + ",'" + stripQuotes(revisionNotes)
-                                    + "','" + oid + "')";
-                        }
+                        sql =
+                            "INSERT INTO CRF_VERSION (NAME,DESCRIPTION, CRF_ID, STATUS_ID,DATE_CREATED," + "OWNER_ID,REVISION_NOTES,OC_OID) " + "VALUES ('"
+                                + version + "','" + stripQuotes(versionDesc) + "'," + crfId + ",1,NOW()," + ub.getId() + ",'" + stripQuotes(revisionNotes)
+                                + "','" + oid + "')";
                     }
 
                     queries.add(sql);
                     for (int i = 0; i < queries.size(); i++) {
-                        String s = (String) queries.get(i);
+                        String s = queries.get(i);
                         logger.info("====================" + s);
                     }
                     pVersion = version;

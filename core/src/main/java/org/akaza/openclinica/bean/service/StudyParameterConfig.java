@@ -51,8 +51,9 @@ public class StudyParameterConfig {
     
     private String participantPortal;
 
-    private String randomization;                       
+    private String randomization;    
     
+
     public String getRandomization() {
         return randomization;
     }

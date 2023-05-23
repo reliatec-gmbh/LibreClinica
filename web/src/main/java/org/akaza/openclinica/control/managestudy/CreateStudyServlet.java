@@ -7,7 +7,12 @@
  */
 package org.akaza.openclinica.control.managestudy;
 
+import static org.akaza.openclinica.control.form.Validator.IS_A_EMAIL;
+import static org.akaza.openclinica.control.form.Validator.NO_BLANKS;
 import static org.akaza.openclinica.core.util.ClassCastHelper.asArrayList;
+import static org.akaza.openclinica.domain.managestudy.MailNotificationType.ENABLED;
+import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 import java.text.MessageFormat;
 import java.text.ParseException;
@@ -84,7 +89,7 @@ public class CreateStudyServlet extends SecureController {
 
     static HashMap<String, String> controlMap = new LinkedHashMap<String, String>();
 
-    static HashMap<String, String> assignmentMap = new LinkedHashMap<String, String>();
+    static HashMap<String, String> assignmentMap = new LinkedHashMap<String, String>();                                                                 
 
     static HashMap<String, String> endpointMap = new LinkedHashMap<String, String>();
 
@@ -366,52 +371,59 @@ public class CreateStudyServlet extends SecureController {
      * @throws Exception
      */
     private void confirmStudy1() throws Exception {
-        Validator v = new Validator(request);
-        FormProcessor fp = new FormProcessor(request);
+        Validator validator = new Validator(request);
+        FormProcessor formProcessor = new FormProcessor(request);
 
-        v.addValidation("name", Validator.NO_BLANKS);
-        v.addValidation("uniqueProId", Validator.NO_BLANKS);
-        v.addValidation("description", Validator.NO_BLANKS);
-        v.addValidation("prinInvestigator", Validator.NO_BLANKS);
-        v.addValidation("sponsor", Validator.NO_BLANKS);
+        validator.addValidation("name", Validator.NO_BLANKS);
+        validator.addValidation("uniqueProId", Validator.NO_BLANKS);
+        validator.addValidation("description", Validator.NO_BLANKS);
+        validator.addValidation("prinInvestigator", Validator.NO_BLANKS);
+        validator.addValidation("sponsor", Validator.NO_BLANKS);
+        validator.addValidation("secondProId", Validator.LENGTH_NUMERIC_COMPARISON, NumericComparisonOperator.LESS_THAN_OR_EQUAL_TO, 255);
+        validator.addValidation("collaborators", Validator.LENGTH_NUMERIC_COMPARISON, NumericComparisonOperator.LESS_THAN_OR_EQUAL_TO, 1000);
+        validator.addValidation("protocolDescription", Validator.LENGTH_NUMERIC_COMPARISON, NumericComparisonOperator.LESS_THAN_OR_EQUAL_TO, 1000);
 
-        v.addValidation("secondProId", Validator.LENGTH_NUMERIC_COMPARISON, NumericComparisonOperator.LESS_THAN_OR_EQUAL_TO, 255);
-        v.addValidation("collaborators", Validator.LENGTH_NUMERIC_COMPARISON, NumericComparisonOperator.LESS_THAN_OR_EQUAL_TO, 1000);
-        v.addValidation("protocolDescription", Validator.LENGTH_NUMERIC_COMPARISON, NumericComparisonOperator.LESS_THAN_OR_EQUAL_TO, 1000);
+        if (isNotBlank(formProcessor.getString("contactEmail"))) {
+            validator.addValidation("contactEmail", NO_BLANKS);
+            validator.addValidation("contactEmail", IS_A_EMAIL);
+        }
 
-        errors = v.validate();
+        errors = validator.validate();
         // check to see if name and uniqueProId are unique, tbh
         StudyDAO studyDAO = new StudyDAO(sm.getDataSource());
-        ArrayList<StudyBean> allStudies = (ArrayList<StudyBean>) studyDAO.findAll();
+        ArrayList<StudyBean> allStudies = studyDAO.findAll();
         for (StudyBean thisBean : allStudies) {
-            if (fp.getString("name").trim().equals(thisBean.getName())) {
+            if (formProcessor.getString("name").trim().equals(thisBean.getName())) {
                 MessageFormat mf = new MessageFormat("");
                 mf.applyPattern(respage.getString("brief_title_existed"));
-                Object[] arguments = { fp.getString("name").trim() };
+                Object[] arguments = {formProcessor.getString("name").trim()};
 
                 Validator.addError(errors, "name", mf.format(arguments));
             }
-            if (fp.getString("uniqueProId").trim().equals(thisBean.getIdentifier())) {
+            if (formProcessor.getString("uniqueProId").trim().equals(thisBean.getIdentifier())) {
                 Validator.addError(errors, "uniqueProId", resexception.getString("unique_protocol_id_existed"));
             }
         }
-        if (fp.getString("name").trim().length() > 100) {
+        if (formProcessor.getString("name").trim().length() > 100) {
             Validator.addError(errors, "name", resexception.getString("maximum_lenght_name_100"));
         }
-        if (fp.getString("uniqueProId").trim().length() > 30) {
+        if (formProcessor.getString("uniqueProId").trim().length() > 30) {
             Validator.addError(errors, "uniqueProId", resexception.getString("maximum_lenght_unique_protocol_30"));
         }
-        if (fp.getString("description").trim().length() > 255) {
+        if (formProcessor.getString("description").trim().length() > 255) {
             Validator.addError(errors, "description", resexception.getString("maximum_lenght_brief_summary_255"));
         }
-        if (fp.getString("prinInvestigator").trim().length() > 255) {
+        if (formProcessor.getString("prinInvestigator").trim().length() > 255) {
             Validator.addError(errors, "prinInvestigator", resexception.getString("maximum_lenght_principal_investigator_255"));
         }
-        if (fp.getString("sponsor").trim().length() > 255) {
+        if (formProcessor.getString("sponsor").trim().length() > 255) {
             Validator.addError(errors, "sponsor", resexception.getString("maximum_lenght_sponsor_255"));
         }
-        if (fp.getString("officialTitle").trim().length() > 255) {
+        if (formProcessor.getString("officialTitle").trim().length() > 255) {
             Validator.addError(errors, "officialTitle", resexception.getString("maximum_lenght_official_title_255"));
+        }
+        if (isBlank(formProcessor.getString("contactEmail")) && ENABLED.name().equalsIgnoreCase(formProcessor.getString("mailNotification"))) {
+            Validator.addError(errors, "contactEmail", resexception.getString("contact_email_mandatory"));
         }
 
         StudyBean studyBean = createStudyBean();
@@ -426,17 +438,19 @@ public class CreateStudyServlet extends SecureController {
                 studyBean.setOwner(ub);
                 studyBean.setCreatedDate(new Date());
                 studyBean.setStatus(Status.PENDING);
-                studyBean = (StudyBean) sdao.create(studyBean);
-                StudyBean newstudyBean = (StudyBean) sdao.findByName(studyBean.getName());
+                
+                studyBean = sdao.create(studyBean);
+                
+                StudyBean newstudyBean = sdao.findByName(studyBean.getName());
 
                 UserAccountDAO udao = new UserAccountDAO(sm.getDataSource());
-                String selectedUserIdStr = fp.getString("selectedUser");
+                String selectedUserIdStr = formProcessor.getString("selectedUser");
                 int selectedUserId = 0;
                 if (selectedUserIdStr != null && selectedUserIdStr.length() > 0) {
-                    selectedUserId = Integer.parseInt(fp.getString("selectedUser"));
+                    selectedUserId = Integer.parseInt(formProcessor.getString("selectedUser"));
                 }
                 if (selectedUserId > 0) {
-                    UserAccountBean user = (UserAccountBean) udao.findByPK(selectedUserId);
+                    UserAccountBean user = udao.findByPK(selectedUserId);
                     StudyUserRoleBean sub = new StudyUserRoleBean();
                     sub.setRole(Role.COORDINATOR);
                     sub.setStudyId(newstudyBean.getId());
@@ -808,7 +822,7 @@ public class CreateStudyServlet extends SecureController {
         newStudy.setOwner(ub);
         newStudy.setCreatedDate(new Date());
         // newStudy.setStatus(Status.AVAILABLE);
-        StudyBean finalStudy = (StudyBean) sdao.create(newStudy);
+        StudyBean finalStudy = sdao.create(newStudy);
 
         logger.info("new study created");
         StudyParameterValueBean spv = new StudyParameterValueBean();
@@ -892,13 +906,12 @@ public class CreateStudyServlet extends SecureController {
         newStudy.setSecondaryIdentifier(fp.getString("secondProId"));
         newStudy.setPrincipalInvestigator(fp.getString("prinInvestigator"));
         newStudy.setProtocolType(fp.getString("protocolType"));
-
         newStudy.setSummary(fp.getString("description"));
         newStudy.setProtocolDescription(fp.getString("protocolDescription"));
-
         newStudy.setSponsor(fp.getString("sponsor"));
         newStudy.setCollaborators(fp.getString("collaborators"));
-
+        newStudy.setMailNotification(fp.getString("mailNotification"));
+        newStudy.setContactEmail(fp.getString("contactEmail"));
         return newStudy;
 
     }

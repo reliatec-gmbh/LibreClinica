@@ -27,6 +27,7 @@ import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.apache.commons.lang.StringUtils;
+
 /**
  * Reset expired password
  *
@@ -34,18 +35,11 @@ import org.apache.commons.lang.StringUtils;
  */
 public class ResetPasswordServlet extends SecureController {
 
-    /**
-	 * 
-	 */
 	private static final long serialVersionUID = -5259201015824317949L;
-
-	/**
-	 * 
-	 */
-	
 
 	@Override
     public void mayProceed() throws InsufficientPermissionException {
+	    // NOOP
     }
 
     /**
@@ -74,7 +68,6 @@ public class ResetPasswordServlet extends SecureController {
         String passwdChallengeQ = fp.getString("passwdChallengeQ");
         String passwdChallengeA = fp.getString("passwdChallengeA");
 
-
         if ("yes".equalsIgnoreCase(mustChangePwd)) {
             addPageMessage(respage.getString("your_password_has_expired_must_change"));
         } else {
@@ -91,11 +84,11 @@ public class ResetPasswordServlet extends SecureController {
         request.setAttribute("userBean1", ubForm);
         
         SecurityManager sm = ((SecurityManager) SpringServletAccess.getApplicationContext(context).getBean("securityManager"));
- if (!sm.verifyPassword(oldPwd, getUserDetails())) {         
-		 Validator.addError(errors, "oldPasswd", resexception.getString("wrong_old_password"));
+        if (!sm.verifyPassword(oldPwd, getUserDetails())) {
+
+            Validator.addError(errors, "oldPasswd", resexception.getString("wrong_old_password"));
             request.setAttribute("formMessages", errors);
-           
-            
+
             forwardPage(Page.RESET_PASSWORD);
         } else {
             if (mustChangePwd.equalsIgnoreCase("yes")) {
@@ -106,9 +99,9 @@ public class ResetPasswordServlet extends SecureController {
                 v.addValidation("passwd", Validator.CHECK_DIFFERENT, "oldPasswd");
             }
 
-            String newDigestPass = sm.encrytPassword(newPwd, getUserDetails());
+            String newDigestPass = sm.encryptPassword(newPwd, ub.getRunWebservices());
 
-            List<String> pwdErrors = new ArrayList<String>();
+            List<String> pwdErrors = new ArrayList<>();
 
             if (!StringUtils.isEmpty(newPwd)) {
                 v.addValidation("passwd", Validator.IS_A_PASSWORD);
@@ -124,13 +117,13 @@ public class ResetPasswordServlet extends SecureController {
                 ResourceBundle resexception = ResourceBundleProvider.getExceptionsBundle(locale);
 
                 pwdErrors = PasswordValidator.validatePassword(
-                                passwordRequirementsDao,
-                                udao,
-                                ub.getId(),
-                                newPwd,
-                                newDigestPass,
-                                resexception);
-
+                    passwordRequirementsDao,
+                    udao,
+                    ub.getId(),
+                    newPwd,
+                    newDigestPass,
+                    resexception
+                );
             }
             errors = v.validate();
             for (String err: pwdErrors) {
@@ -151,19 +144,18 @@ public class ResetPasswordServlet extends SecureController {
                     ub.setPasswdTimestamp(new Date());
                 }
                 ub.setOwner(ub);
-                ub.setUpdater(ub);// when update ub, updator id is required
+                ub.setUpdater(ub);// when update ub, updater id is required
                 ub.setPasswdChallengeQuestion(passwdChallengeQ);
                 ub.setPasswdChallengeAnswer(passwdChallengeA);
                 udao.update(ub);
 
-                ArrayList<String> pageMessages = new ArrayList<String>();
+                ArrayList<String> pageMessages = new ArrayList<>();
                 request.setAttribute(PAGE_MESSAGE, pageMessages);
                 addPageMessage(respage.getString("your_expired_password_reset_successfully"));
                 ub.incNumVisitsToMainMenu();
                 forwardPage(Page.MENU_SERVLET);
             }
         }
-
     }
 
 }

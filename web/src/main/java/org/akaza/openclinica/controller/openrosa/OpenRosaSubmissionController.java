@@ -9,6 +9,7 @@ package org.akaza.openclinica.controller.openrosa;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -92,19 +93,18 @@ public class OpenRosaSubmissionController {
         DataBinder dataBinder = new DataBinder(null);
         Errors errors = dataBinder.getBindingResult();
         Study study = studyDao.findByOcOID(studyOID);
-        String requestBody=null;
+        String requestBody = null;
 
         HashMap<String,String> map = new HashMap<>();
         ArrayList<HashMap<String,String>> listOfUploadFilePaths = new ArrayList<>();
 
         try {
             // Verify Study is allowed to submit
-            if (!mayProceed(studyOID)) {
+            if (!mayProceed(study.getOc_oid())) {
                 logger.info("Submissions to the study not allowed.  Aborting submission.");
                 return new ResponseEntity<String>(org.springframework.http.HttpStatus.NOT_ACCEPTABLE);
             }
             if (ServletFileUpload.isMultipartContent(request)) {
-                String dir = getAttachedFilePath(studyOID);
                 FileProperties fileProperties= new FileProperties();
                 DiskFileItemFactory factory = new DiskFileItemFactory();
                 ServletFileUpload upload = new ServletFileUpload(factory);
@@ -112,11 +112,10 @@ public class OpenRosaSubmissionController {
                 List<FileItem> items = upload.parseRequest(request);              
                 for (FileItem item : items) {
                     if (item.getContentType() != null && !item.getFieldName().equals("xml_submission_file") ) {
-                        if (!new File(dir).exists()) new File(dir).mkdirs();
-
-                        File file = processUploadedFile(item, dir);
-                        map.put(item.getFieldName(), file.getPath());
-
+                        File file = processUploadedFile(item, study.getOc_oid());
+                        if (file != null) {
+                            map.put(item.getFieldName(), file.getPath());
+                        }
                     } else if (item.getFieldName().equals("xml_submission_file")) {
                         requestBody = item.getString("UTF-8");
                     }
@@ -147,7 +146,7 @@ public class OpenRosaSubmissionController {
 
         if (!errors.hasErrors()) {
             // Log submission with Participate
-            notifier.notify(studyOID, subjectContext);
+            notifier.notify(study.getOc_oid(), subjectContext);
             logger.info("Completed xform submission. Sending successful response");
             String responseMessage = "<OpenRosaResponse xmlns=\"http://openrosa.org/http/response\">" + "<message>success</message>" + "</OpenRosaResponse>";
             return new ResponseEntity<String>(responseMessage, org.springframework.http.HttpStatus.CREATED);
@@ -160,13 +159,13 @@ public class OpenRosaSubmissionController {
     private Study getParentStudy(String studyOid) {
         Study study = studyDao.findByOcOID(studyOid);
         Study parentStudy = study.getStudy();
-        if (parentStudy != null && parentStudy.getStudyId() > 0)
+        if (parentStudy != null && parentStudy.getStudyId() > 0) {
             return parentStudy;
-        else
+        }  else {
             return study;
+        }
     }
-
-
+    
     private boolean mayProceed(String studyOid) throws Exception {
         return mayProceed(studyOid, null);
     }
@@ -178,13 +177,13 @@ public class OpenRosaSubmissionController {
         StudyParameterValue pStatus = studyParameterValueDao.findByStudyIdParameter(study.getStudyId(), "participantPortal");
 
         // ACTIVE, PENDING, or INACTIVE
-        String pManageStatus = participantPortalRegistrar.getRegistrationStatus(studyOid).toString();
+        String pManageStatus = participantPortalRegistrar.getRegistrationStatus(studyOid);
 
         // enabled or disabled
-        String participateStatus = pStatus.getValue().toString();
+        String participateStatus = pStatus.getValue();
 
         // available, pending, frozen, or locked
-        String studyStatus = study.getStatus().getName().toString();
+        String studyStatus = study.getStatus().getName();
 
         if (ssBean == null) {
             logger.info("pManageStatus: " + pManageStatus + "  participantStatus: " + participateStatus + "   studyStatus: " + studyStatus);
@@ -200,37 +199,68 @@ public class OpenRosaSubmissionController {
         return accessPermission;
     }
 
-    public static String getAttachedFilePath(String studyOid) {
-        String attachedFilePath = CoreResources.getField("attached_file_location");
-        if (attachedFilePath == null || attachedFilePath.length() <= 0) {
-            attachedFilePath = CoreResources.getField("filePath") + "attached_files" + File.separator + studyOid + File.separator;
-        } else {
-            attachedFilePath += studyOid + File.separator;
+    public static String getAttachedFilePath() {
+        String basePath = CoreResources.getField("attached_file_location");
+        if (basePath == null || basePath.length() <= 0) {
+            basePath = CoreResources.getField("filePath") + "attached_files" + File.separator;
         }
-        return attachedFilePath;
+        return basePath;
     }
 
-    private File processUploadedFile(FileItem item, String dirToSaveUploadedFileIn) {
-        dirToSaveUploadedFileIn = dirToSaveUploadedFileIn == null ? System.getProperty("java.io.tmpdir") : dirToSaveUploadedFileIn;
+    private File processUploadedFile(FileItem item, String studyOid) {
+
+        String basePath = getAttachedFilePath();
+
+        String studyAttachedFileRelDir = studyOid + File.separator;
+        String normalisedFilePath = Paths.get(studyAttachedFileRelDir).normalize().toString();
+
+        File dir = new File(basePath, normalisedFilePath);
+        try {
+            if (dir.getCanonicalPath().startsWith(new File(basePath).getCanonicalPath())) {
+                if (!dir.exists()) {
+                    dir.mkdirs();
+                }
+            }
+        } catch (IOException e) {
+            logger.debug(e.getMessage(), e);
+            throw new OpenClinicaSystemException("Unable to read file or dictionary", e);
+        }
+
         String fileName = item.getName();
         // Some browsers IE 6,7 getName returns the whole path
         int startIndex = fileName.lastIndexOf('\\');
         if (startIndex != -1) {
-            fileName = fileName.substring(startIndex + 1, fileName.length());
+            fileName = fileName.substring(startIndex + 1);
         }
 
-        File uploadedFile = new File(dirToSaveUploadedFileIn + File.separator + fileName);
+        if (!dir.exists()) {
+            basePath = System.getProperty("java.io.tmpdir");
+        }
+
+        String studyAttachedUploadedFileRelDir = studyAttachedFileRelDir + fileName;
+        String normalisedUploadedFilePath = Paths.get(studyAttachedUploadedFileRelDir).normalize().toString();
+
+        File uploadedFile = new File(basePath, normalisedUploadedFilePath);
+
         try {
-            uploadedFile = new UploadFileServlet().new OCFileRename().rename(uploadedFile, item.getInputStream());
+            if (uploadedFile.getCanonicalPath().startsWith(new File(basePath).getCanonicalPath())) {
+                uploadedFile = new UploadFileServlet().new OCFileRename().rename(uploadedFile, item.getInputStream());
+            } else {
+                uploadedFile = null;
+            }
         } catch (IOException e) {
             throw new OpenClinicaSystemException(e.getMessage());
         }
 
         try {
-            item.write(uploadedFile);
+            if (uploadedFile != null) {
+                item.write(uploadedFile);
+            }
         } catch (Exception e) {
             throw new OpenClinicaSystemException(e.getMessage());
         }
+        
         return uploadedFile;
     }
+    
 }

@@ -22,42 +22,33 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
-import oracle.jdbc.pool.OracleDataSource;
-
-;
-
 /**
- * Utility which handles connection and login, as prompted by OpenClinica
- * control servlets. Updated August 2004 to better handle connection pooling.
- * Updated again in August 2004 to support SQL Statements in XML. Will require a
- * change to all control servlets; new SessionManagers will have to be stored in
- * session, since we don't want to take in all this information every time a
- * user clicks on a new servlet.
+ * Utility which handles connection and login, as prompted by LibreClinica control servlets.
+ * Updated August 2004 to better handle connection pooling.
+ * Updated again in August 2004 to support SQL Statements in XML.
+ * Will require a change to all control servlets; new SessionManagers will have to be stored in session,
+ * since we don't want to take in all this information every time a user clicks on a new servlet.
  *
  * @author Tom Hickerson
  * @author Jun Xu
  */
 public class SessionManager {
-    private UserAccountBean ub;
-
-    private OracleDataSource ods;
-
-    private DataSource ds;
 
     final Logger logger = LoggerFactory.getLogger(getClass().getName());
 
-    private String dbName;
-    private UserAccountDAO uDAO = null;
+    private UserAccountBean ub;
 
-    //TODO: this is a hack needs to be refactord
+    private DataSource ds;
+
+    //TODO: this is a hack needs to be refactored
     private static DataSource staticDataSource;
 
     /**
      * Constructor of SessionManager
      *
-     * @param userFromSession
-     * @param userName
-     * @throws SQLException
+     * @param userFromSession user from session
+     * @param userName username
+     * @throws SQLException SQL exception
      */
     public SessionManager(UserAccountBean userFromSession, String userName) throws SQLException {
         setupDataSource();
@@ -67,9 +58,10 @@ public class SessionManager {
     /**
      * Constructor of SessionManager
      *
-     * @param userFromSession
-     * @param userName
-     * @throws SQLException
+     * @param userFromSession user from session
+     * @param userName username
+     * @param applicationContext application context
+     * @throws SQLException SQL exception
      */
     public SessionManager(UserAccountBean userFromSession, String userName, ApplicationContext applicationContext) throws SQLException {
         this.ds = (DataSource) applicationContext.getBean("dataSource");
@@ -80,44 +72,34 @@ public class SessionManager {
     public SessionManager( ApplicationContext applicationContext) {
         this.ds = (DataSource) applicationContext.getBean("dataSource");
         staticDataSource = ds;
-
     }
+
     public void setupUser(UserAccountBean userFromSession, String userName) {
-    	String userNameFromSession = userFromSession.getName();
-        if (userFromSession == null || userNameFromSession == null || userNameFromSession.trim().isEmpty()) {
-            // create a new user account bean form database
-            uDAO = new UserAccountDAO(ds);
+        if (userFromSession == null ||
+            userFromSession.getName() == null ||
+            userFromSession.getName().trim().isEmpty()) {
+
+            // Load a new user account bean from database
+            UserAccountDAO userDao = new UserAccountDAO(ds);
             if (userName == null) {
                 userName = "";
             }
-            ub = (UserAccountBean) uDAO.findByUserName(userName);
+            ub = userDao.findByUserName(userName);
             logger.debug("User  : {} , email address : {} Logged In ", ub.getName(), ub.getEmail());
-
         } else {
             ub = userFromSession;
         }
     }
-
-
-
+    
     public void setupDataSource() {
-        // begin remove later
-        // logger.info("***** BEGIN LISTING PROPERTIES *****");
-        // System.getProperties().list(System.out);
-        // logger.info("***** END LISTING PROPERTIES *****");
-        // end remove later
         try {
             Context ctx = new InitialContext();
             Context env = (Context) ctx.lookup("java:comp/env");
-            dbName = CoreResources.getField("dataBase");
-            if ("oracle".equals(dbName)) {
-                logger.debug("looking up oracle...");
-                ds = (DataSource) env.lookup("SQLOracle");
-            } else if ("postgres".equals(dbName)) {
-                // logger.info("looking up postgres...");
+            String dbName = CoreResources.getField("dataBase");
+            if ("postgres".equals(dbName)) {
+                // logger.debug("looking up postgres...");
                 ds = (DataSource) env.lookup("SQLPostgres");
             }
-
         } catch (NamingException ne) {
             ne.printStackTrace();
             logger.warn("This is :" + ne.getMessage() + " when we tried to get the connection");
@@ -142,11 +124,6 @@ public class SessionManager {
 
     public DataSource getDataSource() {
         return ds;
-    }
-
-    /** added 08-04-2004 by tbh, supporting Oracle 10g */
-    public OracleDataSource getOracleDataSource() {
-        return ods;
     }
 
     public static DataSource getStaticDataSource() {
