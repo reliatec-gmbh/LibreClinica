@@ -1,3 +1,4 @@
+<%@ page contentType="text/html; charset=UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
@@ -33,7 +34,9 @@
 	jQuery(document).ready(function() {
 		// add a listener to the add subject link
 		jQuery('#addSubject').click(function() {
-			jQuery.blockUI({message: jQuery('#addSubjectForm'), css:{left: "300px", top:"10px", cursor:"default"}});
+			// this prepares the overlay that is displayed when clickking add new subject; use 'css: etc' for overridin the default appearance of the div
+			jQuery.blockUI({message: jQuery('#addSubjectForm'), css:{left: "10%", top:"10%", width: "", padding: "1em", cursor:"default"}});
+			// defaults can be found inline in includes/jmesa/jquery.blockUI.js
 		});
 		// add a listerner to the cancel button in submit/addNewSubjectExpressNew.jsp 
 		jQuery('#cancel').click(function() {

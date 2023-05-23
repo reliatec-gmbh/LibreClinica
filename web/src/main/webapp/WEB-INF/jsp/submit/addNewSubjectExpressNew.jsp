@@ -86,7 +86,7 @@
 							<input onfocus="this.select()" type="text" name="label" value="<c:out value="${label}"/>" class="formfieldL">&nbsp;
 						</c:otherwise>
 					</c:choose>
-					<span class="alert">*</span>
+					<span class="required">*</span>
 					<br />
 					<jsp:include page="../showMessage.jsp"><jsp:param name="key" value="label"/></jsp:include>
 				</div>
@@ -102,7 +102,7 @@
 			<td>
 				<div class="formfieldXL_BG">
 				<input onfocus="this.select()" type="text" name="uniqueIdentifier" value="<c:out value="${uniqueIdentifier}"/>" class="formfieldL">&nbsp;
-				<span class="alert">*</span>
+				<span class="required">*</span>
 				<br />
 				<jsp:include page="../showMessage.jsp"><jsp:param name="key" value="uniqueIdentifier"/></jsp:include>
 				</div>
@@ -139,7 +139,7 @@
 					<img src="images/bt_Calendar.gif" alt="<fmt:message key="show_calendar" bundle="${resword}"/>" title="<fmt:message key="show_calendar" bundle="${resword}"/>" border="0" id="enrollmentDateTrigger" />
 					<script type="text/javascript">Calendar.setup({inputField  : "enrollmentDateField", ifFormat    : "<fmt:message key="date_format_calender" bundle="${resformat}"/>", button      : "enrollmentDateTrigger", customPX: 300, customPY: 10 }); </script>
 				</a>&nbsp;
-				<span class="alert">*</span>
+				<span class="required">*</span>
 				<br />
 				<jsp:include page="../showMessage.jsp"><jsp:param name="key" value="enrollmentDate"/></jsp:include>
 			</div>
@@ -169,14 +169,14 @@
 							</c:choose>
 		                </c:when>
 		                <c:otherwise>
-		                                    <option value="m"><fmt:message key="male" bundle="${resword}"/></option>
-		                                    <option value="f"><fmt:message key="female" bundle="${resword}"/></option>
+							<option value="m"><fmt:message key="male" bundle="${resword}"/></option>
+							<option value="f"><fmt:message key="female" bundle="${resword}"/></option>
 		                </c:otherwise>
 					</c:choose>
 				</select>&nbsp;
 				<c:choose>
 					<c:when test="${study.studyParameterConfig.genderRequired !='false'}">
-						<span class="alert">*</span>
+						<span class="required">*</span>
 					</c:when>
 				</c:choose>
 				<br />
@@ -201,7 +201,7 @@
                         Calendar.setup({inputField  : "dobField", ifFormat    : "<fmt:message key="date_format_calender" bundle="${resformat}"/>", button      : "dobTrigger", customPX: 300, customPY: 10 });
 					</script>
 				</a>&nbsp;
-				<span class="alert">* </span>
+				<span class="required">* </span>
 			</div>
 			<br />
 			<jsp:include page="../showMessage.jsp"><jsp:param name="key" value="dob"/></jsp:include>
@@ -217,7 +217,7 @@
 	        	<div class="formfieldM_BG">
 		        	<input onfocus="this.select()" type="text" name="yob" value="<c:out value="${yob}" />" class="formfieldM" />&nbsp;
 					(<fmt:message key="date_format_year" bundle="${resformat}"/>)&nbsp; 
-					<span class="alert">*</span>
+					<span class="required">*</span>
 					<jsp:include page="../showMessage.jsp"><jsp:param name="key" value="yob"/></jsp:include>
 				</div>
 			</td>
@@ -237,7 +237,7 @@
       		<div class="formfieldM_BG">
 				<c:set var="count" value="0"/>
 				<c:forEach var="group" items="${studyGroupClasses}">
-					<c:out value="${group.name}"/>&nbsp;
+					<span class="groupclass_name"><c:out value="${group.name}"/></span>&nbsp;
              		<select name="studyGroupId<c:out value="${count}"/>" class="formfieldM">
 						<option value=""><c:out value="${group.name}"/>:</option>
 							<c:forEach var="studyGroup" items="${group.studyGroups}">
@@ -245,7 +245,7 @@
 							</c:forEach>
 					</select>&nbsp;
 					<c:if test="${group.subjectAssignment=='Required'}">
-						<span class="alert">*</span>
+						<span class="required">*</span>
 					</c:if>
               		<br />
 					<c:import url="../showMessage.jsp"><c:param name="key" value="studyGroupId${count}" /></c:import>
@@ -269,7 +269,7 @@
 	                    </option>
 	                </c:forEach>
 	            </select>&nbsp;
-				<span class="alert">*</span>
+				<span class="required">*</span>
 				<br />
 				<jsp:include page="../showMessage.jsp"><jsp:param name="key" value="studyEventDefinition"/></jsp:include>
 			</div>
@@ -290,7 +290,7 @@
                 	Calendar.setup({inputField  : "enrollmentDateField2", ifFormat    : "<fmt:message key="date_format_calender" bundle="${resformat}"/>", button      : "enrollmentDateTrigger2" ,customPX: 300, customPY: 10 });
 				</script>
                 &nbsp;
-				<span class="alert">*</span>
+				<span class="required">*</span>
 				<br />
 				<jsp:include page="../showMessage.jsp"><jsp:param name="key" value="startDate"/></jsp:include>
 			</div>
@@ -306,7 +306,7 @@
 			<td>
 				<div class="formfieldXL_BG">
 	                <input type="text" name="location" value="<c:out value="${location}"/>" class="formfieldXL">&nbsp;
-					<span class="alert">*</span>
+					<span class="required">*</span>
 					<br />
 					<jsp:include page="../showMessage.jsp"><jsp:param name="key" value="location"/></jsp:include>
 				</div>
