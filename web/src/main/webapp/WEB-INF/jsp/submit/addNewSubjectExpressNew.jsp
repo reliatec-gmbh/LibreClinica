@@ -52,8 +52,7 @@
 	</c:if>
 	<c:if test='${presetValue.key == "group"}'>
 		<c:set var="groupId" value="${presetValue.value}" />
-	</c:if>
-	
+	</c:if>	
 	<c:if test='${presetValue.key == "studyEventDefinition"}'>
 		<c:set var="studyEventDefinition" value="${presetValue.value}" />
 	</c:if>

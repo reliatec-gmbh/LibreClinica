@@ -35,7 +35,7 @@
 		// add a listener to the add subject link
 		jQuery('#addSubject').click(function() {
 			// this prepares the overlay that is displayed when clickking add new subject; use 'css: etc' for overridin the default appearance of the div
-			jQuery.blockUI({message: jQuery('#addSubjectForm'), css:{left: "300px", top:"10px", width: "", padding: "1em", cursor:"default"}});
+			jQuery.blockUI({message: jQuery('#addSubjectForm'), css:{left: "300px", top:"10px", width:"", padding:"1em", cursor:"default"}});
 			// defaults can be found inline in includes/jmesa/jquery.blockUI.js
 		});
 		// add a listerner to the cancel button in submit/addNewSubjectExpressNew.jsp 
