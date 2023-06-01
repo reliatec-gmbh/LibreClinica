@@ -52,8 +52,7 @@
 	</c:if>
 	<c:if test='${presetValue.key == "group"}'>
 		<c:set var="groupId" value="${presetValue.value}" />
-	</c:if>
-	
+	</c:if>	
 	<c:if test='${presetValue.key == "studyEventDefinition"}'>
 		<c:set var="studyEventDefinition" value="${presetValue.value}" />
 	</c:if>
@@ -235,22 +234,29 @@
 		</td>
       	<td>
       		<div class="formfieldM_BG">
+      			<table>
 				<c:set var="count" value="0"/>
 				<c:forEach var="group" items="${studyGroupClasses}">
-					<span class="groupclass_name"><c:out value="${group.name}"/></span>&nbsp;
-             		<select name="studyGroupId<c:out value="${count}"/>" class="formfieldM">
-						<option value=""><c:out value="${group.name}"/>:</option>
-							<c:forEach var="studyGroup" items="${group.studyGroups}">
-								<option value="<c:out value="${studyGroup.id}"/>"><c:out value="${studyGroup.name}"/></option>
-							</c:forEach>
-					</select>&nbsp;
-					<c:if test="${group.subjectAssignment=='Required'}">
-						<span class="required">*</span>
-					</c:if>
-              		<br />
-					<c:import url="../showMessage.jsp"><c:param name="key" value="studyGroupId${count}" /></c:import>
+					<tr>
+						<td style="border: none;">
+							<span class="groupclass_name"><c:out value="${group.name}"/></span>&nbsp;
+						</td>
+						<td style="border: none;">
+		             		<select name="studyGroupId<c:out value="${count}"/>" class="formfieldM">
+								<option value=""><c:out value="${group.name}"/>:</option>
+									<c:forEach var="studyGroup" items="${group.studyGroups}">
+										<option value="<c:out value="${studyGroup.id}"/>"><c:out value="${studyGroup.name}"/></option>
+									</c:forEach>
+							</select>&nbsp;
+							<c:if test="${group.subjectAssignment=='Required'}">
+								<span class="required">*</span>
+							</c:if>
+							<c:import url="../showMessage.jsp"><c:param name="key" value="studyGroupId${count}" /></c:import>
+						</td>
              		<c:set var="count" value="${count+1}"/>
+             		</tr>
 				</c:forEach>
+				</table>
 			</div>
 		</td>
     </tr>
