@@ -11,11 +11,14 @@ Check out [LibreClinica Documentation](https://libreclinica.org/documentation) t
 
 #### System Requirements
 
-These versions of required software packages are currently available in Debian 10 (Buster) Linux.
+Recommended system software packages considering Debian Linux based environment for running particular LibreClinica release including overview of database schema changes.
 
-| Application Server | Java       | Database      | 
-|--------------------|------------|---------------|
-| Tomcat 9           | OpenJDK 11 | PostgreSQL 11 |
+| LibreClinica | Application Server  | Java       | Database                     | Schema Changeset | 
+|--------------|---------------------|------------|------------------------------|------------------|
+| v1.2.1       | Tomcat 9            | OpenJDK 11 | PostgreSQL 12, PostgreSQL 13 | --               |
+| v1.2.0       | Tomcat 9            | OpenJDK 11 | PostgreSQL 12, PostgreSQL 13 | lc-1.2.0         |
+| v1.1.0       | Tomcat 9            | OpenJDK 11 | PostgreSQL 11                | --               |
+| v1.0.0       | Tomcat 9            | OpenJDK 11 | PostgreSQL 11                | lc-1.0.0         |
 
 > **_NOTE:_** LibreClinica SOAP web API is legacy, not tested and not actively developed.
 
