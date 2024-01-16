@@ -17,13 +17,11 @@ These versions of required software packages are currently available in Debian 1
 |--------------------|------------|---------------|
 | Tomcat 9           | OpenJDK 11 | PostgreSQL 11 |
 
-> **_NOTE:_** Installing LibreClinica in as docker image is currently not officially supported.
-
 > **_NOTE:_** LibreClinica SOAP web API is legacy, not tested and not actively developed.
 
 ### Development
 
-[LibreClinica Aims](https://libreclinica.org/goals.html) define main activities where community members can actively participate in the development process. In case of interest in contributing into the codebase, check out [LibreClinica Developer Documentation](https://libreclinica-docs.readthedocs.io) to learn how to [set up the development workstation](https://libreclinica-docs.readthedocs.io/en/latest/dev/dev-machine.html) and understand the [branching strategy](https://libreclinica-docs.readthedocs.io/en/latest/dev/developer.html) that is used to control the contribution workflows.
+[LibreClinica Aims](https://libreclinica.org/goals.html) define main activities where community members can actively participate in the development process. In case of interest in contributing into the codebase, check out [LibreClinica Developer Documentation](https://libreclinica.org/documentation/development.html) to learn how to [set up the development workstation](https://libreclinica.org/documentation/development/docsify.html#/development/dev-machine) and understand the [branching strategy](https://libreclinica.org/documentation/development/docsify.html#/development/developer) that is used to control the contribution workflows.
 
 ### Contributions
                           
