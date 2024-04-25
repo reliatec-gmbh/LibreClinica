@@ -86,7 +86,7 @@ public class StudyStatisticsTableFactory extends AbstractTableFactory {
         }
 
         // Get number of subjects enrolled at a specific study or site
-        Integer countofStudySubjectsAtStudy = studySubjectDao.getCountofStudySubjectsAtStudy(currentStudy);
+        Integer countofStudySubjectsAtStudy = studySubjectDao.getCountofStudySubjectsRandomized(currentStudy);
         Integer expectedTotalEnrollment = currentStudy.getExpectedTotalEnrollment();
         Long percentage =
             expectedTotalEnrollment == 0 ? 0 : Math.round((countofStudySubjectsAtStudy.doubleValue() / expectedTotalEnrollment.doubleValue()) * 100);

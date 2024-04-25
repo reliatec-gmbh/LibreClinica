@@ -843,6 +843,5 @@
 </c:if>
 </c:if>
 
-
 <jsp:include page="../include/footer.jsp"/>
 

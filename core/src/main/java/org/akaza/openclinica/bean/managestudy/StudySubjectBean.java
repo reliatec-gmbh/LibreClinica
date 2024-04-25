@@ -70,6 +70,7 @@ public class StudySubjectBean extends AuditableEntityBean {
 
     private OidGenerator oidGenerator = new StudySubjectOidGenerator();
     private String time_zone;
+    private String regimen;
     	
 	public StudySubjectBean() {
         studyGroupMaps = new ArrayList<>();
@@ -287,6 +288,12 @@ public class StudySubjectBean extends AuditableEntityBean {
 	public void setTime_zone(String time_zone) {
 		this.time_zone = time_zone;
 	}
-    
 
+    public String getRegimen() {
+        return regimen;
+    }
+
+    public void setRegimen(String regimen) {
+        this.regimen = regimen;
+    }
 }

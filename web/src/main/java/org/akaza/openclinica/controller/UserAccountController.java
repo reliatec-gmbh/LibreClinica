@@ -349,6 +349,7 @@ public class UserAccountController {
 		v.addValidation("fName", Validator.LENGTH_NUMERIC_COMPARISON, NumericComparisonOperator.LESS_THAN_OR_EQUAL_TO, 50);
 		v.addValidation("lName", Validator.LENGTH_NUMERIC_COMPARISON, NumericComparisonOperator.LESS_THAN_OR_EQUAL_TO, 50);
 
+		v.addValidation("email", Validator.EMAIL_UNIQUE, udao);
 		v.addValidation("email", Validator.NO_BLANKS);
 		v.addValidation("email", Validator.LENGTH_NUMERIC_COMPARISON, NumericComparisonOperator.LESS_THAN_OR_EQUAL_TO, 120);
 		v.addValidation("email", Validator.IS_A_EMAIL);

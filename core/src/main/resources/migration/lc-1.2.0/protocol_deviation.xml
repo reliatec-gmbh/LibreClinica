@@ -1,0 +1,160 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+	
+	<changeSet id="3" author="dx31">
+		<comment>Protocol deviations.</comment>
+		<createTable tableName="protocol_deviation_severity">
+			<column autoIncrement="true" name="protocol_deviation_severity_id" type="int">
+				<constraints nullable="false" primaryKey="true"/>
+			</column>
+			<column name="label" type="VARCHAR(50)">
+				<constraints nullable="false" />
+			</column>
+		</createTable>
+		<insert tableName="protocol_deviation_severity">
+			<column name="protocol_deviation_severity_id" valueNumeric="1"/>
+			<column name="label" value="No impact on data quality or patient safety"/>
+		</insert>
+		<insert tableName="protocol_deviation_severity">
+			<column name="protocol_deviation_severity_id" valueNumeric="2"/>
+			<column name="label" value="Minor impact on data quality"/>
+		</insert>
+		<insert tableName="protocol_deviation_severity">
+			<column name="protocol_deviation_severity_id" valueNumeric="3"/>
+			<column name="label" value="Minor impact on patient safety"/>
+		</insert>
+		<insert tableName="protocol_deviation_severity">
+			<column name="protocol_deviation_severity_id" valueNumeric="4"/>
+			<column name="label" value="Major impact on data quality or patient safety"/>
+		</insert>
+		<insert tableName="protocol_deviation_severity">
+			<column name="protocol_deviation_severity_id" valueNumeric="5"/>
+			<column name="label" value="Leading to patient/(s) death"/>
+		</insert>
+
+
+		<createTable tableName="protocol_deviation">
+			<column autoIncrement="true" name="protocol_deviation_id" type="int">
+				<constraints nullable="false" primaryKey="true"/>
+			</column>
+			<column name="label" type="java.sql.Types.VARCHAR(20)">
+				<constraints nullable="false" />
+			</column>
+			<column name="protocol_deviation_severity_id" type="java.sql.Types.INTEGER">
+				<constraints nullable="false" />
+			</column>
+			<column name="description" type="TEXT">
+				<constraints nullable="false" />
+			</column>
+			<column name="study_id" type="java.sql.Types.INTEGER">
+				<constraints nullable="false" />
+			</column>
+		</createTable>
+
+		<createTable tableName="protocol_deviation_subject">
+			<column autoIncrement="true" name="id" type="int">
+				<constraints nullable="false" primaryKey="true"/>
+			</column>
+			<column name="protocol_deviation_id" type="java.sql.Types.INTEGER">
+				<constraints nullable="false" />
+			</column>
+			<column name="subject_id" type="java.sql.Types.INTEGER">
+				<constraints nullable="false" />
+			</column>
+		</createTable>
+	</changeSet>
+
+	<changeSet id="4" author="dx31">
+		<addColumn tableName="protocol_deviation">
+			<column name="item_a_1" type="SMALLINT" defaultValue="0"/>
+			<column name="item_a_2" type="SMALLINT" defaultValue="0"/>
+			<column name="item_a_3" type="DATE"  />
+			<column name="item_a_4" type="DATE"/>
+			<column name="item_a_5" type="DATE"/>
+			<column name="item_a_6" type="SMALLINT" defaultValue="0"/>
+			<column name="item_a_7" type="SMALLINT" defaultValue="0"/>
+			<column name="item_a_7_1" type="DATE"/>
+			<column name="item_a_8" type="SMALLINT" defaultValue="0"/>
+			<column name="item_b_1" type="SMALLINT" defaultValue="0"/>
+			<column name="item_b_2" type="SMALLINT" defaultValue="0"/>
+			<column name="item_b_3" type="SMALLINT" defaultValue="0"/>
+			<column name="item_b_4" type="SMALLINT" defaultValue="0"/>
+			<column name="item_b_5" type="SMALLINT" defaultValue="0"/>
+			<column name="item_b_6" type="SMALLINT" defaultValue="0"/>
+			<column name="item_b_7" type="SMALLINT" defaultValue="0"/>
+			<column name="item_b_8" type="SMALLINT" defaultValue="0"/>
+			<column name="item_b_9" type="SMALLINT" defaultValue="0"/>
+			<column name="item_b_10" type="SMALLINT" defaultValue="0"/>
+			<column name="item_b_11" type="SMALLINT" defaultValue="0"/>
+			<column name="item_b_12" type="SMALLINT" defaultValue="0"/>
+			<column name="item_b_13" type="SMALLINT" defaultValue="0"/>
+			<column name="item_b_14" type="SMALLINT" defaultValue="0"/>
+			<column name="item_b_15" type="SMALLINT" defaultValue="0"/>
+			<column name="item_b_16" type="SMALLINT" defaultValue="0"/>
+			<column name="item_b_17" type="SMALLINT" defaultValue="0"/>
+			<column name="item_b_18" type="SMALLINT" defaultValue="0"/>
+			<column name="item_c_1_1" type="SMALLINT" defaultValue="0"/>
+			<column name="item_c_1_2" type="SMALLINT" defaultValue="0"/>
+			<column name="item_c_1_3" type="SMALLINT" defaultValue="0"/>
+			<column name="item_c_1_4" type="SMALLINT" defaultValue="0"/>
+			<column name="item_c_1_5" type="SMALLINT" defaultValue="0"/>
+			<column name="item_c_1_6" type="SMALLINT" defaultValue="0"/>
+			<column name="item_c_1_7" type="SMALLINT" defaultValue="0"/>
+			<column name="item_c_1_8" type="SMALLINT" defaultValue="0"/>
+			<column name="item_c_1_9" type="SMALLINT" defaultValue="0"/>
+			<column name="item_c_1_10" type="VARCHAR(40)"/>
+			<column name="item_c_2" type="VARCHAR(400)"/>
+			<column name="item_d_1_a" type="DATE"/>
+			<column name="item_d_1_b" type="VARCHAR(400)"/>
+			<column name="item_e_1_a" type="VARCHAR(400)"/>
+			<column name="item_e_1_b" type="VARCHAR(400)"/>
+			<column name="item_e_1_c" type="VARCHAR(400)"/>
+			<column name="item_e_1_d" type="VARCHAR(400)"/>
+			<column name="item_f_1" type="VARCHAR(200)"/>
+			<column name="item_f_2" type="VARCHAR(200)"/>
+			<column name="item_f_3" type="DATE"/>
+			<column name="item_g_1" type="SMALLINT" defaultValue="0"/>
+			<column name="item_g_2_1" type="SMALLINT" defaultValue="0"/>
+			<column name="item_g_2_2" type="SMALLINT" defaultValue="0"/>
+			<column name="item_g_2_3" type="SMALLINT" defaultValue="0"/>
+			<column name="item_g_2_4" type="SMALLINT" defaultValue="0"/>
+			<column name="item_g_3" type="SMALLINT" defaultValue="0"/>
+			<column name="item_g_4" type="SMALLINT" defaultValue="0"/>
+			<column name="item_g_5" type="SMALLINT" defaultValue="0"/>
+			<column name="item_g_6" type="DATE"/>
+			<column name="item_g_6_1_a" type="VARCHAR(200)"/>
+			<column name="item_g_6_1_b" type="SMALLINT" defaultValue="0"/>
+			<column name="item_g_6_1_c" type="VARCHAR(200)"/>
+			<column name="item_g_6_2_a" type="VARCHAR(200)"/>
+			<column name="item_g_6_2_b" type="SMALLINT" defaultValue="0"/>
+			<column name="item_g_6_2_c" type="VARCHAR(200)"/>
+			<column name="item_g_6_3_a" type="VARCHAR(200)"/>
+			<column name="item_g_6_3_b" type="SMALLINT" defaultValue="0"/>
+			<column name="item_g_6_3_c" type="VARCHAR(200)"/>
+			<column name="item_g_6_4_a" type="VARCHAR(200)"/>
+			<column name="item_g_6_4_b" type="SMALLINT" defaultValue="0"/>
+			<column name="item_g_6_4_c" type="VARCHAR(200)"/>
+			<column name="item_g_7" type="VARCHAR(200)"/>
+			<column name="item_g_8" type="VARCHAR(200)"/>
+			<column name="item_g_9" type="VARCHAR(400)"/>
+		</addColumn>
+
+	</changeSet>
+	<changeSet id="5" author="dx31">
+		<dropColumn tableName="protocol_deviation"
+					columnName="protocol_deviation_severity_id"/>
+		<dropColumn tableName="protocol_deviation"
+					columnName="description"/>
+	</changeSet>
+	<changeSet id="6" author="dx31">
+		<renameColumn tableName="protocol_deviation"
+					  oldColumnName="item_e_1_a" newColumnName="item_e1"/>
+		<renameColumn tableName="protocol_deviation"
+					  oldColumnName="item_e_1_b" newColumnName="item_e2"/>
+		<renameColumn tableName="protocol_deviation"
+					  oldColumnName="item_e_1_c" newColumnName="item_e3"/>
+		<renameColumn tableName="protocol_deviation"
+					  oldColumnName="item_e_1_d" newColumnName="item_e4"/>
+	</changeSet>
+</databaseChangeLog>

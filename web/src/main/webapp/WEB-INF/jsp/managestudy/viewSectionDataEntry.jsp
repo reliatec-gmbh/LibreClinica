@@ -961,5 +961,6 @@ but the custom tag uses that, not this jstl code--%>
 </div>
 <div id="testdiv1" style=
   "position:absolute;visibility:hidden;background-color:white"></div>
+<script type="text/javascript" src="includes/rt_functions.js"></script>
 </body>
 </html>

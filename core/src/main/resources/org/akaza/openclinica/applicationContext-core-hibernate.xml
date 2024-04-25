@@ -45,6 +45,8 @@
                 <value>org.akaza.openclinica.domain.rule.action.StratificationFactorBean</value>
                 <value>org.akaza.openclinica.domain.user.AuthoritiesBean</value>
                 <value>org.akaza.openclinica.domain.managestudy.StudyModuleStatus</value>
+                <value>org.akaza.openclinica.domain.managestudy.ProtocolDeviation</value>
+                <value>org.akaza.openclinica.domain.managestudy.ProtocolDeviationSubject</value>
                 <value>org.akaza.openclinica.domain.technicaladmin.AuditUserLoginBean</value>
                 <value>org.akaza.openclinica.domain.technicaladmin.DatabaseChangeLogBean</value>
                 <value>org.akaza.openclinica.domain.technicaladmin.ConfigurationBean</value>

@@ -17,9 +17,10 @@ import org.jmesa.view.component.Table;
 public class XmlView extends AbstractExportView {
 
     public XmlView(Table table, CoreContext coreContext) {
-        super(table, coreContext);
-        //setTable(table);
-        //setCoreContext(coreContext);
+        //super(table, coreContext);
+        super();
+        setTable(table);
+        setCoreContext(coreContext);
     }
 
     public byte[] getBytes() {

@@ -238,6 +238,12 @@ public class ViewSectionDataEntryServlet extends DataEntryServlet {
             StudySubjectDAO ssdao = new StudySubjectDAO(getDataSource());
             StudySubjectBean sub = (StudySubjectBean) ssdao.findByPK(studySubjectId);
             request.setAttribute("studySubject", sub);
+            request.setAttribute("regimenName",
+                    sub.getRegimen()== null || sub.getRegimen().isEmpty()
+                            ?"NA": sub.getRegimen());
+        } else {
+            String regimenName = "NA";
+            request.setAttribute("regimenName", regimenName);
         }
 
         if (eventCRFId > 0) {

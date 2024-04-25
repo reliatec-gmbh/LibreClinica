@@ -16,6 +16,7 @@
 
     <!-- Simple redirects to internal resources; URL path substring becomes view name (e.g. '/login.htm' -> 'login') -->
     <bean name="/login/login" class="org.springframework.web.servlet.mvc.UrlFilenameViewController" />
+    <bean name="/welcome" class="org.springframework.web.servlet.mvc.UrlFilenameViewController" />
     <bean name="/denied" class="org.springframework.web.servlet.mvc.UrlFilenameViewController"/>
     
     <bean class="org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter" />

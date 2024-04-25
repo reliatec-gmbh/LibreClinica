@@ -337,7 +337,7 @@ public class ViewStudySubjectServlet extends SecureController {
             table.hideColumnLink(5);
             // YW 11-08-2007 <<
             if (!"removed".equalsIgnoreCase(studySub.getStatus().getName()) && !"auto-removed".equalsIgnoreCase(studySub.getStatus().getName())) {
-                if (currentStudy.getStatus().isAvailable() && !currentRole.getRole().equals(Role.MONITOR)) {
+                if (currentStudy.getStatus().isAvailable() && !currentRole.getRole().equals(Role.MONITOR) && !studySub.getSecondaryLabel().isEmpty()) {
                     table.addLink(resword.getString("add_new_event"), "CreateNewStudyEvent?"
                         + CreateNewStudyEventServlet.INPUT_STUDY_SUBJECT_ID_FROM_VIEWSUBJECT + "=" + studySub.getId());
                 }

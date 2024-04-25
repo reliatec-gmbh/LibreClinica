@@ -15,6 +15,7 @@
 <jsp:useBean scope='request' id='intrvDates' class='java.util.ArrayList'/>
 <jsp:useBean scope='request' id='existingNameNotes' class='java.util.ArrayList'/>
 <jsp:useBean scope='request' id='existingIntrvDateNotes' class='java.util.ArrayList'/>
+<jsp:useBean scope='request' id='regimenName' type='java.lang.String'/>
 
 
 <script type="text/javascript" src="includes/wz_tooltip/wz_tooltip.js"></script>
@@ -32,9 +33,9 @@
 <style type="text/css">
 
 .tooltip {
-		
+
 	width:100%;
-	
+
 }
 
 </style>
@@ -65,20 +66,20 @@ var closing = true;
            closing = false;
         });
        //jquery('.CRF_infobox_closed').show();
-      
+
      //  jQuery('#nameNote1').mouseover(function(event){
        //  jQuery.getJSON("InitialDataEntry",{ name:0 },function(discrepancyNote){
     	//		alert('w'+discrepancyNote);
         //});
        // });
-      
+
        });
-     
 
 
 
 
-   
+
+
       function genToolTipFromArray(flag){
     	  var resStatus = new Array();
     	  var detailedNotes= new Array();
@@ -94,7 +95,7 @@ var closing = true;
     	     	{
     	     	<c:forEach var="discrepancyNoteBeans" items="${nameNotes}">
     	     		resStatus[i]=<c:out value="${discrepancyNoteBeans.resolutionStatusId}"/>;
-    	     		detailedNotes[i]= '<c:out value="${discrepancyNoteBeans.description}"/>';   			
+    	     		detailedNotes[i]= '<c:out value="${discrepancyNoteBeans.description}"/>';
     	  			discrepancyType[i] = '<c:out value="${discrepancyNoteBeans.disType.name}"/>';
     	  			updatedDates[i]= '<c:out value="${discrepancyNoteBeans.createdDate}"/>';
 					parentDnids[i] = '<c:out value="${discrepancyNoteBeans.parentDnId}"/>';
@@ -108,7 +109,7 @@ var closing = true;
     	     {
     	     	<c:forEach var="discrepancyNoteBeans" items="${intrvDates}">
     	     		resStatus[i]=<c:out value="${discrepancyNoteBeans.resolutionStatusId}"/>;
-    	     		detailedNotes[i]= '<c:out value="${discrepancyNoteBeans.description}"/>';   			
+    	     		detailedNotes[i]= '<c:out value="${discrepancyNoteBeans.description}"/>';
     	  			discrepancyType[i] = '<c:out value="${discrepancyNoteBeans.disType.name}"/>';
     	  			updatedDates[i]= '<c:out value="${discrepancyNoteBeans.createdDate}"/>';
 					parentDnids[i] = '<c:out value="${discrepancyNoteBeans.parentDnId}"/>';
@@ -116,37 +117,37 @@ var closing = true;
     	     	</c:forEach>
     	   title = '<fmt:message key="tooltip_name_title" bundle="${resword}"/>';
 		   totNotes = ${fn:length(existingIntrvDateNotes)};
-		   
+
 	if(totNotes >0) footNote = totNotes + " " + '<fmt:message key="foot_threads" bundle="${resword}"/>' + " " + '<fmt:message key="footNote_threads" bundle="${resword}"/>';
     	   }
-    	
-	
-    		   var htmlgen = 
+
+
+    		   var htmlgen =
 		 	          '<div class=\"tooltip\">'+
 		 	          '<table  width="250">'+
 		 	          ' <tr><td  align=\"center\" class=\"header1\">'+title +
 		 	          ' </td></tr><tr></tr></table><table  style="border-collapse:collapse" cellspacing="0" cellpadding="0" width="225" >'+
 		 	          drawRows(i,resStatus,detailedNotes,discrepancyType,updatedDates,parentDnids)+
-		 	          '</table><table width="250"  class="tableborder" align="left">'+  	
+		 	          '</table><table width="250"  class="tableborder" align="left">'+
 		 	          '</table><table><tr></tr></table>'+
-		 	          '<table width="200"><tbody><td height="50" colspan="3">'+						
+		 	          '<table width="200"><tbody><td height="50" colspan="3">'+
 						'<span class=\"note\">'+footNote +'</span>'+
-						
-						
-		 	          
-		 	         
+
+
+
+
 		 	          '</td></tr></tbody></table></table></div>';
 		  return htmlgen;
     }
-    
+
       function drawRows(i,resStatus,detailedNotes,discrepancyType,updatedDates,parentDnIds)
       {
      	var row = '';
      	var noteType = '';
      		for(var x=0;x<i;x++)
      		{
-     		
-     	
+
+
      			if(resStatus[x]=='1')
      			{
 				if(parentDnIds[x] == '0')
@@ -192,13 +193,13 @@ var closing = true;
 				else
      			row+='<tr> <td width="16"  class=\"label\"><img src="images/icon_flagWhite.gif" width="16" height="13" alt="Note"></td>'+'<td width="180"  align="left" class=\"label\" nowrap>&nbsp; <fmt:message key="not_applicable" bundle="${resword}"/>: &nbsp;'+discrepancyType[x] +'&nbsp;'+updatedDates[x]+'</td></tr><tr><td class=\"borderlabel\"></td><td class=\"borderlabel\" nowrap>&nbsp;'+detailedNotes[x].substring(0,60)+'...</td></tr>';
      			}
-     			
-     			
+
+
      		}
-     	
+
      	return row;
      }
-      
+
 function callTip(html)
 {
 	Tip(html,BGCOLOR,'#FFFFE5',BORDERCOLOR,'' );
@@ -329,7 +330,7 @@ function callTip(html)
                 <img src="images/icon_Invalid.gif" alt="<fmt:message key="invalid" bundle="${resword}"/>" title="<fmt:message key="invalid" bundle="${resword}"/>">
             </c:when>
             <c:otherwise>
-               --> <!-- leave blank --><!-- 
+               --> <!-- leave blank --><!--
             </c:otherwise>
         </c:choose></b>
 
@@ -363,7 +364,7 @@ function callTip(html)
         </c:otherwise>
     </c:choose>
 </tr>
---><!-- 
+--><!--
 <tr>
     <c:choose>
         <c:when test="${study.studyParameterConfig.secondaryLabelViewable == 'true'}">
@@ -394,7 +395,7 @@ function callTip(html)
     </td>
 	<td class="table_cell_top" >
 <span><b><fmt:message key="gender" bundle="${resword}"/>:</b></span>
-        
+
         </td>
          <td class="table_cell_noborder" style="padding-left:3px">
 	       <c:choose>
@@ -405,24 +406,24 @@ function callTip(html)
 	                   </c:otherwise>
         </c:choose>
     </td>
-	
 
-   
+
+
 </tr>
 
 <tr>
   <!-- Occurence id-->
         <td class="table_cell_noborder" >
 <c:if test="${toc.studyEventDefinition.repeating}">
-   
+
             <b><fmt:message key="occurrence_number" bundle="${resword}"/>:</b>
-</c:if>     
+</c:if>
 	 </td>
-		
+
         <td class="table_cell_noborder" >
-<c:if test="${toc.studyEventDefinition.repeating}">         
+<c:if test="${toc.studyEventDefinition.repeating}">
 		 <c:out value="${toc.studyEvent.sampleOrdinal}" />
-   </c:if> 
+   </c:if>
    </td>
 
 
@@ -436,16 +437,16 @@ function callTip(html)
      <td class="table_cell_noborder" >
         <c:out value="${age}" /><br>
     </td>
-	
+
 	</tr>
-	
+
 	<tr>
 		<!--study-->
 	 <td class="table_cell_noborder" >
 
         <b><fmt:message key="study" bundle="${resword}"/>:</b><br>
     </td>
-	
+
     <td class="table_cell_noborder" >
      <c:out value="${studyTitle}" /><br>
     </td>
@@ -456,7 +457,7 @@ function callTip(html)
                     <b><fmt:message key="date_of_birth" bundle="${resword}"/>:</b><br />
                 </c:when>
                 <c:otherwise>
-                    <b><fmt:message key="year_of_birth" bundle="${resword}"/>:</b><br />                    
+                    <b><fmt:message key="year_of_birth" bundle="${resword}"/>:</b><br />
                 </c:otherwise>
             </c:choose>
         </c:if>
@@ -465,26 +466,26 @@ function callTip(html)
           <c:if test="${study.studyParameterConfig.collectDob != '3'}">
                     <%-- BWP 3105 Until the SubjectBean uses the Calendar object to represent
          the date of birth, we will have to use the Date.getYear() deprecated method.--%>
-    
+
                 <c:choose>
                     <c:when test="${study.studyParameterConfig.collectDob == '2' && subject.dateOfBirth.year != null}">${subject.dateOfBirth.year + 1900}</c:when>
                     <c:otherwise> <fmt:formatDate value="${subject.dateOfBirth}" pattern="${dteFormat}" /></c:otherwise>
                 </c:choose>
                 <%-->> --%>
             </c:if>
-    
-            
+
+
             <br />
         </td>
 
     </tr>
 	<tr>
 	<!--site to be implemented -->
-	          <td class="table_cell_noborder" >
+        <td class="table_cell_noborder" >
 
         <b><fmt:message key="site" bundle="${resword}"/>:</b><br>
     </td>
-	
+
     <td class="table_cell_noborder" >
         <c:if test="${study.parentStudyId > '0'}">
             <c:out value="${siteTitle}" /><br>
@@ -493,6 +494,12 @@ function callTip(html)
             <fmt:message key="na" bundle="${resword}"/><br>
         </c:if>
     </td>
+        <td class="table_cell_noborder" >
+            <b>PID: <c:out value="${studySubject.secondaryLabel}" />
+        </td>
+        <td class="table_cell_noborder" >
+            <b>Regimen: <c:out value="${regimenName}" />
+        </td>
 	<!--person id todo -->
        <c:choose>
         <c:when test="${study.studyParameterConfig.personIdShownOnCRF == 'true'}">
@@ -511,11 +518,11 @@ function callTip(html)
     </c:choose>
 	</tr>
 <tr>
- 
 
 
-       
-    
+
+
+
 
 </tr>
 <%--<tr>
@@ -555,7 +562,7 @@ form element in red <c:out value="FORMMESSAGES: ${formMessages} "/><br/>--%>
     <c:choose>
         <c:when test="${isInError_Int}">
             <fmt:message key="interviewer_name" bundle="${resword}"/>: <span class="aka_exclaim_error">! </span> &nbsp;
-            
+
         </c:when>
 
         <c:otherwise>
@@ -675,7 +682,7 @@ form element in red <c:out value="FORMMESSAGES: ${formMessages} "/><br/>--%>
     </c:choose>
     </c:if>
 </td><!--</a>-->
-<td class="table_cell_left"> 
+<td class="table_cell_left">
     <c:if test="${study.studyParameterConfig.interviewDateRequired != 'not_used'}">
     <table border="0" cellpadding="0" cellspacing="0">
 
@@ -781,7 +788,7 @@ form element in red <c:out value="FORMMESSAGES: ${formMessages} "/><br/>--%>
 <tr>
 
   <td colspan="5" valign="top" class="table_cell_left"  ><b>Discrepancy Notes on this CRF:</b></td>
- 
+
 </tr>
 
 <tr>

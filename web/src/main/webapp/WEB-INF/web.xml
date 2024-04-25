@@ -200,8 +200,14 @@
 
     <servlet-mapping>
         <servlet-name>pages</servlet-name>
+        <url-pattern>/pages/oauth/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>pages</servlet-name>
         <url-pattern>/oauth/*</url-pattern>
     </servlet-mapping>
+
 
     <servlet>
         <servlet-name>ws</servlet-name>
@@ -370,12 +376,57 @@
         <description>The Main Servlet</description>
         <servlet-class>org.akaza.openclinica.control.MainMenuServlet</servlet-class>
     </servlet>
+
     <servlet>
         <servlet-name>LogoutServlet</servlet-name>
         <display-name>LogoutServlet</display-name>
         <description>The log out Servlet</description>
         <servlet-class>org.akaza.openclinica.control.login.LogoutServlet</servlet-class>
     </servlet>
+
+    <servlet>
+        <servlet-name>AppointmentServlet</servlet-name>
+        <display-name>AppointmentServlet</display-name>
+        <description>Servlet for appointments</description>
+        <servlet-class>org.akaza.openclinica.control.managestudy.AppointmentServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>ProtocolDeviationServlet</servlet-name>
+        <display-name>ProtocolDeviationServlet</display-name>
+        <description>Servlet for protocol deviations</description>
+        <servlet-class>org.akaza.openclinica.control.managestudy.ProtocolDeviationServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>IrbStudyServlet</servlet-name>
+        <display-name>IrbStudyServlet</display-name>
+        <description>Servlet for IRB Study</description>
+        <servlet-class>org.akaza.openclinica.control.managestudy.IRBStudyServlet</servlet-class>
+    </servlet>
+
+
+    <servlet>
+        <servlet-name>VisitErrorServlet</servlet-name>
+        <display-name>VisitErrorServlet</display-name>
+        <description>Servlet for IRB Study</description>
+        <servlet-class>org.akaza.openclinica.control.managestudy.VisitErrorServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>IrbSiteServlet</servlet-name>
+        <display-name>IrbSiteServlet</display-name>
+        <description>Servlet for IRB Site</description>
+        <servlet-class>org.akaza.openclinica.control.managestudy.IRBSiteServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>IrbStudyNotificationServlet</servlet-name>
+        <display-name>IrbStudyNotificationServlet</display-name>
+        <description>Servlet for IRB Study</description>
+        <servlet-class>org.akaza.openclinica.control.managestudy.IrbStudyNotificationServlet</servlet-class>
+    </servlet>
+
     <!--    <servlet>
             <servlet-name>EnterpriseServlet</servlet-name>
             <display-name>EnterpriseServlet</display-name>
@@ -2189,6 +2240,32 @@
     <servlet-mapping>
         <servlet-name>PrintoutCertificateServlet</servlet-name>
         <url-pattern>/PrintoutCertificate</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>AppointmentServlet</servlet-name>
+        <url-pattern>/Appointments</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>ProtocolDeviationServlet</servlet-name>
+        <url-pattern>/ProtocolDeviations</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>IrbStudyServlet</servlet-name>
+        <url-pattern>/IrbStudy</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>VisitErrorServlet</servlet-name>
+        <url-pattern>/VisitError</url-pattern>
+    </servlet-mapping>
+
+
+    <servlet-mapping>
+        <servlet-name>IrbSiteServlet</servlet-name>
+        <url-pattern>/IrbSite</url-pattern>
     </servlet-mapping>
 
     <!-- just for testing purposes -->

@@ -18,7 +18,11 @@
   <security:http entry-point-ref="authenticationProcessingFilterEntryPoint" use-expressions="true">
     
     <security:anonymous />
+    <security:intercept-url pattern="/pages/login/welcome" access="permitAll"/>
+    <security:intercept-url pattern="/pages/welcome" access="permitAll"/>
+      <security:intercept-url pattern="/welcome" access="permitAll"/>
     <security:intercept-url pattern="/pages/login/login" access="permitAll"/>
+    <security:intercept-url pattern="/oauth" access="permitAll"/>
     <security:intercept-url pattern="/SystemStatus" access="permitAll"/>
     <security:intercept-url pattern="/RequestPassword" access="permitAll"/>
     <security:intercept-url pattern="/RequestAccount" access="permitAll"/>
@@ -55,7 +59,9 @@
 
     <bean id="authenticationProcessingFilterEntryPoint"
           class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
-        <constructor-arg name="loginFormUrl" value="/pages/login/login"/>
+        <!-- <constructor-arg name="loginFormUrl" value="/pages/login/login"/> -->
+        <constructor-arg name="loginFormUrl" value="/pages/welcome"/>
+
         <property name="forceHttps" value="false"/>
     </bean>
     

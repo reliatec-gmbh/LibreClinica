@@ -87,10 +87,10 @@ public class StudySubjectStatusStatisticsTableFactory extends AbstractTableFacto
             tableFacade.setTotalRows(totalRows);
         }
 
-        Integer totalStudySubjects = studySubjectDao.getCountofStudySubjects(currentStudy);
+        Integer totalStudySubjects = studySubjectDao.getCountofStudySubjectsRandomized(currentStudy);
 
         for (Status status : statuses) {
-            Integer totalStudySubjectsByStatus = studySubjectDao.getCountofStudySubjectsBasedOnStatus(currentStudy, status);
+            Integer totalStudySubjectsByStatus = studySubjectDao.getCountofStudySubjectsBasedOnStatusRandomized(currentStudy, status);
 
             Long percentage = totalStudySubjects == 0 ? 0 : Math.round((totalStudySubjectsByStatus.doubleValue() / totalStudySubjects.doubleValue()) * 100);
 

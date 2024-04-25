@@ -198,6 +198,8 @@ public class CreateUserAccountServlet extends SecureController {
 
             v.addValidation(INPUT_USERNAME, Validator.USERNAME_UNIQUE, udao);
 
+
+
             v.addValidation(INPUT_FIRST_NAME, Validator.NO_BLANKS);
             v.addValidation(INPUT_LAST_NAME, Validator.NO_BLANKS);
             v.addValidation(INPUT_FIRST_NAME, Validator.LENGTH_NUMERIC_COMPARISON, NumericComparisonOperator.LESS_THAN_OR_EQUAL_TO, 50);
@@ -206,6 +208,7 @@ public class CreateUserAccountServlet extends SecureController {
             v.addValidation(INPUT_EMAIL, Validator.NO_BLANKS);
             v.addValidation(INPUT_EMAIL, Validator.LENGTH_NUMERIC_COMPARISON, NumericComparisonOperator.LESS_THAN_OR_EQUAL_TO, 120);
             v.addValidation(INPUT_EMAIL, Validator.IS_A_EMAIL);
+            v.addValidation(INPUT_EMAIL, Validator.EMAIL_UNIQUE, udao);
 
             v.addValidation(INPUT_INSTITUTION, Validator.NO_BLANKS);
             v.addValidation(INPUT_INSTITUTION, Validator.LENGTH_NUMERIC_COMPARISON, NumericComparisonOperator.LESS_THAN_OR_EQUAL_TO, 255);

@@ -23,20 +23,21 @@ public enum Page {
     /**
      * Page for logging in
      */
-      	LOGIN("/WEB-INF/jsp/login/login.jsp", "OpenClinica Login"),
+        WELCOME("/WEB-INF/jsp/welcome.jsp", "Welcome LibreClinica"),
+      	LOGIN("/WEB-INF/jsp/login/login.jsp", "LibreClinica Login"),
     	LOGIN_USER_ACCOUNT_DELETED("/WEB-INF/jsp/login/login.jsp" + "?action=userAccountDeleted",
                 "Unsuccessful Login Due to Account Deletion"),
-                ENTERPRISE("/WEB-INF/jsp/login/enterprise.jsp", "OpenClinica Enterprise"),
+                ENTERPRISE("/WEB-INF/jsp/login/enterprise.jsp", "LibreClinica Enterprise"),
    /**
      * Page for logging out
      */
-                LOGOUT("/WEB-INF/jsp/login/logout.jsp", "OpenClinica Log Out"),
+                LOGOUT("/WEB-INF/jsp/login/logout.jsp", "LibreClinica Log Out"),
 
     /**
      * Page to show the main menu of openclinica
      */
-                MENU("/WEB-INF/jsp/menu.jsp", "Welcome to OpenClinica"),
-                MENU_SERVLET("/MainMenu", "Welcome to OpenClinica Main Servlet"),
+                MENU("/WEB-INF/jsp/menu.jsp", "Welcome to LibreClinica"),
+                MENU_SERVLET("/MainMenu", "Welcome to LibreClinica Main Servlet"),
               
     // YW 06-25-2007 <<
     /**
@@ -80,6 +81,7 @@ public enum Page {
      * Page for changing study
      */
    CHANGE_STUDY ("/WEB-INF/jsp/login/changeStudy.jsp", "Change Study"),
+   APPOINTMENT("/WEB-INF/jsp/admin/appointments.jsp", "Appointment"),
     CHANGE_STUDY_CONFIRM ("/WEB-INF/jsp/login/changeStudyConfirm.jsp", "Change Study Confirm"),
 
     REQUEST_ACCOUNT("/WEB-INF/jsp/login/requestAccount.jsp", "Request account form"),
@@ -134,6 +136,11 @@ public enum Page {
     CREATE_STUDY7 ("/WEB-INF/jsp/managestudy/createStudy7.jsp", "Create a new Study seventh section"),
      CREATE_STUDY8 ("/WEB-INF/jsp/managestudy/createStudy8.jsp", "Create a new Study last section"),
 
+   PROTOCOL_DEVIATIONS("/WEB-INF/jsp/managestudy/protocolDeviations.jsp", "Protocol deviations"),
+   IRB_STUDY("/WEB-INF/jsp/managestudy/irbStudy.jsp", "IRB Study"),
+   IRB_SITE("/WEB-INF/jsp/managestudy/irbSite.jsp", "IRB Site"),
+
+   VISIT_ERROR("/WEB-INF/jsp/managestudy/visitError.jsp", "Visit Error"),
     /**
      * Page for confirming a new study.
      */

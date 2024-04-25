@@ -1285,9 +1285,18 @@ function openNewWindow(inURL, name, features, windowSize) {
         height = 700;
         width = 900;
     }
-
-
-
+    if(windowSize == 'whodrug')
+    {
+        height = 700;
+        width = 750;
+    }
+     
+    if(windowSize == 'labels')
+    {
+        height = 150;
+        width = 60;
+    }
+    
     if (window.screen != null)
     {
         screenHeight = window.screen.height;

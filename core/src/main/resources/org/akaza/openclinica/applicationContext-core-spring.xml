@@ -30,6 +30,7 @@
         <property name="dataInfo" ref="dataInfo"/>
         <property name="extractInfo" ref="extractInfo"/>
         <!--  <property name="messageSource" ref="messageSource"/> -->
+        <constructor-arg ref="dataInfo"/>
     </bean>
 
 
@@ -54,7 +55,7 @@
         </property>
     </bean>
 
-    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"
+    <bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer"
           p:placeholderPrefix="s["
           p:placeholderSuffix="]"
     >

@@ -31,13 +31,23 @@
             WHERE SS.oc_oid = ?
         </sql>
     </query>
+	<query>
+		<name>getNoEnrollment</name>
+		<sql>select * from study_subject where label  like '%N%'</sql>
+	</query>
     <query>
         <name>getCountofStudySubjectsAtStudyOrSite</name>
         <sql>select count(*) from study_subject where study_id = ?</sql>
     </query>
+	<query>
+		<name>getCountofStudySubjectsAtStudyOrSiteRandomized</name>
+		<sql>select count(*) from study_subject where study_id = ? AND
+				secondary_label IS NOT NULL AND
+				length(secondary_label)>0 </sql>
+	</query>
     <query>
-        <name>getCountofStudySubjectsAtStudyOrSite</name>
-        <sql>select count(*) from study_subject where study_id = ?</sql>
+        <name>getCountofStudySubjectsAtStudyOrSiteRandomized</name>
+        <sql>select count(*) from study_subject where study_id = ? AND (secondary_label IS NOT NULL) AND (NOT secondary_label='')</sql>
     </query>
     <query>
         <name>getCountofStudySubjectsAtStudy</name>
@@ -47,14 +57,22 @@
                 (s.study_id = ? or s.parent_study_id = ?)
         </sql>
     </query>
-    <query>
-        <name>getCountofStudySubjects</name>
-        <sql>
-            select count (*) from (select distinct ss.* from study_subject ss, study s where
-                ss.study_id = s.study_id AND
-                ( s.study_id = ? or s.parent_study_id = ? )) as ss
-        </sql>
-    </query>
+	<query>
+		<name>getCountofStudySubjectsRandomized</name>
+		<sql>
+			select count (*) from (select distinct ss.* from study_subject ss, study s where
+			ss.study_id = s.study_id AND ss.secondary_label IS NOT NULL AND (NOT ss.secondary_label='') AND
+			( s.study_id = ? or s.parent_study_id = ? )) as ss
+		</sql>
+	</query>
+	<query>
+		<name>getCountofStudySubjects</name>
+		<sql>
+			select count (*) from (select distinct ss.* from study_subject ss, study s where
+			ss.study_id = s.study_id AND
+			( s.study_id = ? or s.parent_study_id = ? )) as ss
+		</sql>
+	</query>
     <query>
         <name>getCountofStudySubjectsBasedOnStatus</name>
         <sql>
@@ -65,7 +83,18 @@
                 status.status_id = ? ) as ss
         </sql>
     </query>
-    <query>
+	<query>
+		<name>getCountofStudySubjectsBasedOnStatusRandomized</name>
+		<sql>
+			select count (*) from (select DISTINCT(ss.*) from study_subject ss,study s, status where
+			status.status_id = ss.status_id  AND
+			ss.study_id = s.study_id AND
+			( s.study_id = ? or s.parent_study_id = ? ) AND
+			ss.secondary_label IS NOT NULL AND (NOT ss.secondary_label='') AND
+			status.status_id = ? ) as ss
+		</sql>
+	</query>
+	<query>
         <name>getCountWithFilter</name>
         <sql>SELECT COUNT( DISTINCT  SS.study_subject_id)
                 FROM study_subject ss LEFT JOIN study_event se ON ss.study_subject_id = se.study_subject_id,STUDY ST,SUBJECT S
@@ -75,6 +104,28 @@
                     AND (ST.study_id=? or ST.parent_study_id=?)
         </sql>
     </query>
+	<query>
+		<name>getCountWithFilterNoEnrrollment</name>
+		<sql>SELECT COUNT( DISTINCT  SS.study_subject_id)
+			FROM study_subject ss LEFT JOIN study_event se ON ss.study_subject_id = se.study_subject_id,STUDY ST,SUBJECT S
+			where
+			SS.SUBJECT_ID=S.SUBJECT_ID
+			AND SS.study_id = ST.study_id
+			AND (ST.study_id=? or ST.parent_study_id=?)
+			AND label  like '%N%'
+		</sql>
+	</query>
+	<query>
+		<name>getCountWithFilterNoEnrrollment</name>
+		<sql>SELECT COUNT( DISTINCT  SS.study_subject_id)
+			FROM study_subject ss LEFT JOIN study_event se ON ss.study_subject_id = se.study_subject_id,STUDY ST,SUBJECT S
+			where
+			SS.SUBJECT_ID=S.SUBJECT_ID
+			AND SS.study_id = ST.study_id
+			AND (ST.study_id=? or ST.parent_study_id=?)
+			AND label  like '%N%'
+		</sql>
+	</query>
     <query>
         <name>getWithFilterAndSort</name>
         <sql>SELECT DISTINCT(ss.*), ST.unique_identifier 
@@ -85,6 +136,23 @@
                     AND (ST.study_id=? or ST.parent_study_id=?)
         </sql>
     </query>
+	<query>
+		<name>getWithFilterAndSortByEnrollment</name>
+		<sql>SELECT DISTINCT(ss.*), ST.unique_identifier,
+			CASE
+				WHEN SS.label ~ '^\d{2}[A-Z]?-P\d{5}$' THEN 1
+				WHEN SS.label ~ '^\d{2}-\d{2}[A-Z]?-\d{5}$' THEN 2
+				WHEN SS.label ~ '^\d{2}-\d{2}[A-Z]?-E\d{5}$' THEN 3
+				WHEN SS.label ~ '^\d{2}-\d{2}[A-Z]?-N\d{5}$' THEN 4
+				ELSE 5
+			END AS sort_order_by_enrollment
+			FROM study_subject ss LEFT JOIN study_event se ON ss.study_subject_id = se.study_subject_id,STUDY ST,SUBJECT S
+			WHERE
+				SS.SUBJECT_ID=S.SUBJECT_ID
+				AND SS.study_id = ST.study_id
+				AND (ST.study_id=? or ST.parent_study_id=?)
+		</sql>
+	</query>
     <query>
         <name>getCountWithFilterListDiscNotes</name>
         <sql><![CDATA[SELECT COUNT( DISTINCT  SS.study_subject_id)
@@ -141,6 +209,18 @@
                     AND (ST.study_id=? or ST.parent_study_id=?)
         </sql>
     </query>
+	<query>
+		<name>getWithFilterAndSortAuditLogNoEnrrollment</name>
+		<sql>SELECT DISTINCT(ss.*), s.date_of_birth,s.unique_identifier, ua.user_name
+			FROM study_subject ss LEFT JOIN study_event se ON ss.study_subject_id = se.study_subject_id,STUDY ST,SUBJECT S,USER_ACCOUNT UA
+			where
+			SS.SUBJECT_ID=S.SUBJECT_ID
+			AND SS.study_id = ST.study_id
+			AND SS.owner_id = UA.user_id
+			AND (ST.study_id=? or ST.parent_study_id=?)
+			AND SS.label  like '%N%'
+		</sql>
+	</query>
 
 	<query>
 		<name>findAll</name>
@@ -262,7 +342,7 @@
 		<sql>
 		  UPDATE study_subject SET LABEL=?,  SUBJECT_ID=?,  STUDY_ID=?,
 		  STATUS_ID=?, ENROLLMENT_DATE=?, DATE_UPDATED=now(),
-		  UPDATE_ID=?, SECONDARY_LABEL=?, TIME_ZONE=? WHERE STUDY_SUBJECT_ID=?
+		  UPDATE_ID=?, SECONDARY_LABEL=?, TIME_ZONE=?, REGIMEN=? WHERE STUDY_SUBJECT_ID=?
 	    </sql>
 	</query>
 	<query>

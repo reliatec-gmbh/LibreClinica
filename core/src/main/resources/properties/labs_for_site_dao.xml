@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<queries>
+    <query>
+        <name>findAll</name>
+        <sql>SELECT * from LABS_FOR_SITE</sql>
+    </query>
+    <query>
+        <name>findBySiteId</name>
+        <sql>SELECT * from LABS_FOR_SITE WHERE SITE_ID = ?</sql>
+    </query>
+    <query>
+        <name>findByLabId</name>
+        <sql>SELECT * from LABS_FOR_SITE WHERE LABORATORY_ID = ?</sql>
+    </query>
+    <query>
+        <name>findBySiteIdAndLabId</name>
+        <sql>SELECT * from LABS_FOR_SITE WHERE SITE_ID = ? AND LABORATORY_ID = ?</sql>
+    </query>
+    <query>
+        <name>create</name>
+        <sql>INSERT INTO LABS_FOR_SITE (ID, SITE_ID, LABORATORY_ID) VALUES (?, ?, ?)</sql>
+    </query>
+    <query>
+        <name>findNextKey</name>
+        <sql>select nextval('LABS_FOR_SITE_ID_SEQ') as key</sql>
+    </query>
+    <query>
+        <name>deleteBySiteId</name>
+        <sql>DELETE FROM LABS_FOR_SITE WHERE SITE_ID = ?</sql>
+    </query>
+    <query>
+        <name>deleteByLabId</name>
+        <sql>DELETE FROM LABS_FOR_SITE WHERE LAB_ID = ?</sql>
+    </query>
+    <query>
+        <name>deleteBySiteIdAndLabId</name>
+        <sql>DELETE FROM LABS_FOR_SITE WHERE SITE_ID = ? AND LAB_ID = ?</sql>
+    </query>
+    <query>
+        <name>deleteById</name>
+        <sql>DELETE FROM LABS_FOR_SITE WHERE ID = ?</sql>
+    </query>
+</queries>

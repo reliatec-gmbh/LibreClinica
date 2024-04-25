@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<queries>
+	<query>
+		<name>findByPK</name>
+		<sql>SELECT * FROM LABORATORIES WHERE LABID = ?</sql>
+	</query>
+	<query>
+		<name>findByName</name>
+		<sql>SELECT * FROM LABORATORIES WHERE LABNAME = ?</sql>
+	</query>
+    <query>
+		<name>findAll</name>
+		<sql>SELECT * from LABORATORIES</sql>
+	</query>
+</queries>

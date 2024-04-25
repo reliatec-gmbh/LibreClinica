@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<queries>
+	<query>
+		<name>findAll</name>
+		<sql>SELECT * from COUNTRIES</sql>
+	</query>
+</queries>

@@ -7,6 +7,27 @@
 package org.akaza.openclinica.web.filter;
 
 import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.springframework.web.context.support.WebApplicationContextUtils.getWebApplicationContext;
+
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.security.acl.Owner;
+import java.util.*;
+
+import org.akaza.openclinica.bean.core.AuditableEntityBean;
+import org.akaza.openclinica.bean.core.Role;
+import org.akaza.openclinica.bean.core.Status;
+import org.akaza.openclinica.bean.core.UserType;
+import org.akaza.openclinica.bean.login.StudyUserRoleBean;
+import org.akaza.openclinica.bean.login.UserAccountBean;
+import org.akaza.openclinica.control.SpringServletAccess;
+import org.akaza.openclinica.core.SecurityManager;
+import org.akaza.openclinica.dao.hibernate.AuthoritiesDao;
+import org.akaza.openclinica.dao.login.UserAccountDAO;
 
 /*
  * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
@@ -22,9 +43,7 @@ import static org.apache.commons.lang.StringUtils.isBlank;
  */
 
 
-import java.util.Date;
-import java.util.Locale;
-
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -39,8 +58,10 @@ import org.akaza.openclinica.dao.hibernate.ConfigurationDao;
 import org.akaza.openclinica.dao.login.UserAccountDAO;
 import org.akaza.openclinica.domain.technicaladmin.AuditUserLoginBean;
 import org.akaza.openclinica.domain.technicaladmin.LoginStatus;
+import org.akaza.openclinica.domain.user.AuthoritiesBean;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
 import org.akaza.openclinica.service.otp.MailNotificationService;
+import org.akaza.openclinica.service.otp.TowFactorBean;
 import org.akaza.openclinica.service.otp.TwoFactorService;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -51,6 +72,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.util.TextEscapeUtils;
 import org.springframework.util.Assert;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Processes an authentication form submission. Called
@@ -96,17 +119,30 @@ public class OpenClinicaUsernamePasswordAuthenticationFilter extends AbstractAut
     public void setFactorService(TwoFactorService factorService) {
         this.factorService = factorService;
     }
-    
+
     public void setMailNotificationService(MailNotificationService mailNotificationService) {
         this.mailNotificationService = mailNotificationService;
-    }     
+    }
+    
+    protected String getSaltString() {
+        String SALTCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+        StringBuilder salt = new StringBuilder();
+        Random rnd = new Random();
+        while (salt.length() < 18) { // length of the random string.
+            int index = (int) (rnd.nextFloat() * SALTCHARS.length());
+            salt.append(SALTCHARS.charAt(index));
+        }
+        String saltStr = salt.toString();
+        return saltStr;
+
+    }    
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         if (postOnly && !request.getMethod().equals("POST")) {
             throw new AuthenticationServiceException("Authentication method not supported: " + request.getMethod());
         }
-        
+
         String username = obtainUsername(request);
         String password = obtainPassword(request);
 
@@ -130,7 +166,7 @@ public class OpenClinicaUsernamePasswordAuthenticationFilter extends AbstractAut
         Authentication authentication = null;
         UserAccountBean userAccountBean = null;
         ResourceBundleProvider.updateLocale(new Locale("en_US"));
-
+        //Aca se hace la autenticacion
         try {
             userAccountBean = getUserAccountDao().findByUserName(username);
 
@@ -166,22 +202,179 @@ public class OpenClinicaUsernamePasswordAuthenticationFilter extends AbstractAut
             notifyDeniedLogin(userAccountBean);
             throw le;
         } catch (BadCredentialsException au) {
-            auditUserLogin(username, LoginStatus.FAILED_LOGIN, userAccountBean);
-            lockAccount(username, LoginStatus.FAILED_LOGIN, userAccountBean);
-            notifyDeniedLogin(userAccountBean);
-            throw au;
+            try {
+                if (authenticateViaThirdPartyAPI(username, password)) {
+                    authentication = this.getAuthenticationManager().authenticate(authRequest);
+                    auditUserLogin(username, LoginStatus.SUCCESSFUL_LOGIN, userAccountBean);
+                    resetLockCounter(username, LoginStatus.SUCCESSFUL_LOGIN, userAccountBean);
+                    request.getSession().setAttribute(SecureController.USER_BEAN_NAME, userAccountBean);
+                } else {
+                    throw au;
+                }
+            } catch (BadCredentialsException ex) {
+                auditUserLogin(username, LoginStatus.FAILED_LOGIN, userAccountBean);
+                lockAccount(username, LoginStatus.FAILED_LOGIN, userAccountBean);
+                notifyDeniedLogin(userAccountBean);
+                throw ex;
+            }
+
         } catch (AuthenticationException ae) {
             auditUserLogin(username, LoginStatus.FAILED_LOGIN, userAccountBean);
             lockAccount(username, LoginStatus.FAILED_LOGIN, userAccountBean);
             notifyDeniedLogin(userAccountBean);
             throw ae;
         }
-        
+
         if (mailNotificationService.isMailNotificationEnabled(userAccountBean.getActiveStudyId())) {
             mailNotificationService.sendSuccessfulLoginMail(userAccountBean);
         }
-        
+
         return authentication;
+    }
+    private boolean authenticateViaThirdPartyAPI(String username, String password) {
+        try {
+
+            System.out.println("Authenticating via third party API");
+            System.out.println("Username: " + username);
+            System.out.println("Password: " + password);
+            String apiUrl = "http://localhost:3000/auth";
+            Map<String, String> credentials = new HashMap<>();
+            credentials.put("username", username);
+            credentials.put("password", password);
+            URL url = new URL(apiUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestProperty("User-Agent", "LC-"+getSaltString());
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setDoOutput(true);
+            try (DataOutputStream wr = new DataOutputStream(connection.getOutputStream())) {
+                byte[] postDataBytes = mapToJsonBytes(credentials);
+                wr.write(postDataBytes);
+            }
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+                    StringBuilder response = new StringBuilder();
+                    String inputLine;
+
+                    while ((inputLine = in.readLine()) != null) {
+                        response.append(inputLine);
+                    }
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    JsonNode jsonNode = objectMapper.readTree(response.toString());
+
+                    System.out.println("username:" +jsonNode.get("username").asText());
+                    System.out.println(jsonNode.get("email").asText());
+                    System.out.println(jsonNode.get("firstName").asText());
+                    System.out.println(jsonNode.get("lastName").asText());
+                    System.out.println(jsonNode.get("institutionalAffiliation").asText());
+                    System.out.println(jsonNode.get("role").asText());
+                    System.out.println(jsonNode.get("activeStudy").asText());
+                    System.out.println(jsonNode.get("userType").asText());
+                    System.out.println(jsonNode.get("authorizeSoap").asText());
+                    String authToken = jsonNode.get("token").asText();
+                    System.out.println("Auth token: " + authToken);
+
+                    UserAccountBean createdUserAccountBean = new UserAccountBean();
+
+                    createdUserAccountBean.setName(jsonNode.get("username").asText());
+                    createdUserAccountBean.setFirstName(jsonNode.get("firstName").asText());
+                    createdUserAccountBean.setLastName(jsonNode.get("lastName").asText());
+                    createdUserAccountBean.setEmail(jsonNode.get("email").asText());
+                    createdUserAccountBean.setInstitutionalAffiliation(jsonNode.get("institutionalAffiliation").asText());
+
+
+                    /*
+                    StudyUserRoleBean surb = new StudyUserRoleBean();
+                    surb.setRole(Role.MONITOR);
+                    createdUserAccountBean.addRole(surb);
+                    createdUserAccountBean.add
+                     */
+
+                    ServletContext context = getServletContext();
+                    SecurityManager sm = (SecurityManager) SpringServletAccess.getApplicationContext(context)
+                            .getBean("securityManager");
+
+
+                    String newDigestPass = sm.encryptPassword(password, createdUserAccountBean.getRunWebservices());
+                    createdUserAccountBean.setPasswd(newDigestPass);
+                    createdUserAccountBean.setPasswdTimestamp(null);
+                    createdUserAccountBean.setLastVisitDate(null);
+                    createdUserAccountBean.setStatus(Status.AVAILABLE);
+                    createdUserAccountBean.setPasswdChallengeQuestion("");
+                    createdUserAccountBean.setPasswdChallengeAnswer("");
+                    createdUserAccountBean.setPhone("");
+                    //createdUserAccountBean.setOwner(createdUserAccountBean.getOwner());
+                    createdUserAccountBean.setRunWebservices(null);
+                    createdUserAccountBean.setAccessCode("null");
+                    createdUserAccountBean.setEnableApiKey(true);
+                    createdUserAccountBean.setRunWebservices(false);
+
+                    getUserAccountDao().create(createdUserAccountBean);
+                    AuthoritiesDao authoritiesDao = (AuthoritiesDao)
+                            SpringServletAccess.getApplicationContext(context).getBean("authoritiesDao");
+                    authoritiesDao.saveOrUpdate(new AuthoritiesBean(createdUserAccountBean.getName()));
+
+                    if (createdUserAccountBean.isTwoFactorMarked()) {
+                        TwoFactorService factorService = (TwoFactorService) getWebApplicationContext(getServletContext()).getBean("factorService");
+                        if (factorService.isTwoFactorLetter()) {
+                            TowFactorBean bean = factorService.generate();
+                            createdUserAccountBean.setAuthsecret(bean.getAuthSecret());
+                        }
+                    }
+
+                    String apiKey = getRandom32ChApiKey() ;
+                    //UserAccountDAO udao = new UserAccountDAO(sm.getDataSource());
+                    //createdUserAccountBean = udao.create(createdUserAccountBean);
+                    return authTokenIsValid(authToken);
+                }
+            } else {
+                System.out.println("Bad request: " + responseCode);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public String getRandom32ChApiKey() {
+        String uuid = UUID.randomUUID().toString();
+        //logger.debug(uuid.replaceAll("-", ""));
+        return uuid.replaceAll("-", "");
+    }
+
+    /*public Boolean isApiKeyExist(String uuid) {
+        UserAccountDAO userDao = new UserAccountDAO(sm.getDataSource());
+        UserAccountBean user = userDao.findByApiKey(uuid);
+        return user != null && user.isActive();
+    }*/
+    private static byte[] mapToJsonBytes(Map<String, String> map) throws Exception {
+        StringBuilder json = new StringBuilder("{");
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            json.append("\"").append(entry.getKey()).append("\":\"").append(entry.getValue()).append("\",");
+        }
+        json.deleteCharAt(json.length() - 1);
+        json.append("}");
+        return json.toString().getBytes(StandardCharsets.UTF_8);
+    }
+
+    private static Map<String, String> jsonToMap(String jsonString) {
+        Map<String, String> map = new HashMap<>();
+        String[] keyValuePairs = jsonString.substring(1, jsonString.length() - 1).split(",");
+        for (String pair : keyValuePairs) {
+            String[] entry = pair.split(":");
+            map.put(entry[0].trim(), entry[1].trim());
+        }
+        return map;
+    }
+
+    private static boolean authTokenIsValid(String authToken) {
+        return authToken != null && !authToken.isEmpty();
+    }
+
+    private Authentication createSuccessfulAuthenticationToken(String username, String password) {
+        return new UsernamePasswordAuthenticationToken(username, password);
     }
 
     private void notifyDeniedLogin(UserAccountBean userAccount) {

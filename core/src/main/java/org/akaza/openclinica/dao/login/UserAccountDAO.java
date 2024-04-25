@@ -271,7 +271,11 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
         variables.put(7, uab.getActiveStudyId());
         variables.put(8, uab.getInstitutionalAffiliation());
         variables.put(9, uab.getStatus().getId());
-        variables.put(10, uab.getOwnerId());
+        if(uab.getOwnerId()>0)
+            variables.put(10, uab.getOwnerId());
+        else
+            variables.put(10, null);
+
         variables.put(11, uab.getPasswdChallengeQuestion());
         variables.put(12, uab.getPasswdChallengeAnswer());
         variables.put(13, uab.getPhone());
@@ -296,6 +300,9 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
             nullables.put(20, STRING);
         }
 
+        if(uab.getOwnerId()<1)
+            nullables.put(10, TypeNames.INT);
+
         this.executeUpdate(digester.getQuery("insert"), variables, nullables);
         boolean success = isQuerySuccessful();
 
@@ -319,6 +326,15 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
         }
 
         return uab;
+    }
+
+    public boolean disableUpdatePassword(UserAccountBean uab) {
+        HashMap<Integer, Object> variables = new HashMap<>();
+        HashMap<Integer, Integer> nullables = new HashMap<>();
+
+        variables.put(1, uab.getId());
+        this.executeUpdate(digester.getQuery("disable_update_password"), variables, nullables);
+        return isQuerySuccessful();
     }
 
     public StudyUserRoleBean createStudyUserRole(UserAccountBean user, StudyUserRoleBean studyRole) {
@@ -537,6 +553,20 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
         variables.put(1, name);
 
         ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findByUserName"), variables);
+        UserAccountBean eb = new UserAccountBean();
+        if (alist != null && alist.size() > 0) {
+            eb = this.getEntityFromHashMap(alist.get(0), true);
+        }
+        return eb;
+    }
+
+    public UserAccountBean findByEmail(String email) {
+        this.setTypesExpected();
+        HashMap<Integer, Object> variables = new HashMap<>();
+
+        variables.put(1, email);
+
+        ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findByEmail"), variables);
         UserAccountBean eb = new UserAccountBean();
         if (alist != null && alist.size() > 0) {
             eb = this.getEntityFromHashMap(alist.get(0), true);

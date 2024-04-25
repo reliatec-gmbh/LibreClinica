@@ -1,0 +1,72 @@
+version: '3.1'
+services:
+  postgres:
+    #image: postgres:14-alpine
+    build:
+      context: docker
+      dockerfile: Dockerfile_postgres
+    ports:
+      - "5432:5432"
+    restart: always
+    env_file: .env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      #- ./postgres/init:/docker-entrypoint-initdb.d
+      - dbbackup:/dbbackup
+  adminer:
+    image: adminer
+    #restart: always
+    ports:
+      - "8181:8080"
+
+  libreclinica:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    env_file: .env
+    volumes:
+      - libreclinica:/libreclinica
+      - libreclinica_config:/usr/local/tomcat/libreclinica.config
+      - libreclinica_data:/usr/local/tomcat/libreclinica.data
+
+  dmm:
+    build:
+      context: ../libreclinica_drug_trial_module/
+      dockerfile: Dockerfile
+    ports:
+      - "81:81"  # Map port 81 of the host to port 81 of the container
+    volumes:
+      - ../libreclinica_drug_trial_module:/app  # Mount the current directory into the container's /app directory
+    environment:
+      FLASK_APP: flask_app  # Set the FLASK_APP environment variable
+    command: flask run -p 81 -h dmm --no-reload
+
+  cdc_oauth_portal_mockup:
+    build:
+      context: ../cdc_oauth_portal_mockup/
+      dockerfile: Dockerfile
+    ports:
+      - "82:82"  # Map port 82 of the host to port 82 of the container
+    volumes:
+      - ../cdc_oauth_portal_mockup:/app  # Mount the current directory into the container's /app directory
+    environment:
+      FLASK_APP: app  # Set the FLASK_APP environment variable
+    command: flask run -p 82 -h cdc_oauth_portal_mockup --no-reload
+
+volumes:
+  libreclinica:
+  libreclinica_config:
+    driver: local
+  libreclinica_data:
+    driver: local
+  pgdata:
+    driver: local
+  dbbackup:
+    driver_opts:
+      type: none
+      device: ${HOME}/dbbackup
+      o: bind

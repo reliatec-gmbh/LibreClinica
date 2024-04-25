@@ -135,7 +135,6 @@ public class CreateNewStudyEventServlet extends SecureController {
 
         // TODO: make this sensitive to permissions
         StudyEventDefinitionDAO seddao = new StudyEventDefinitionDAO(sm.getDataSource());
-
         StudyBean studyWithEventDefinitions = currentStudy;
         if (currentStudy.getParentStudyId() > 0) {
             studyWithEventDefinitions = new StudyBean();
@@ -307,6 +306,7 @@ public class CreateNewStudyEventServlet extends SecureController {
             // StudySubjectBean studySubject = (StudySubjectBean) sdao.findByPK(fp.getInt(INPUT_STUDY_SUBJECT));
             // sdao.findByLabelAndStudy(label, study)
             StudySubjectBean studySubject = sdao.findByLabelAndStudy(fp.getString(INPUT_STUDY_SUBJECT_LABEL), currentStudy);
+
             // >> 4358 tbh, 11/2009
             // what if we are sent here from AddNewSubjectServlet.java??? we need to get that study subject bean
             if (request.getAttribute(INPUT_STUDY_SUBJECT) != null) {
@@ -317,7 +317,14 @@ public class CreateNewStudyEventServlet extends SecureController {
             	// add an error here, tbh
             	Validator.addError(errors, INPUT_STUDY_SUBJECT, respage.getString("must_enter_subject_ID_for_identifying"));
             }
-
+            if(!"EN".equalsIgnoreCase(definition.getName())){
+                if(studySubject.getSecondaryLabel().isEmpty()) {
+                    //Validator.addError(errors, INPUT_STUDY_SUBJECT, "Study Subject is not enrolled. Enroll subject from subject matrix.");
+                    if(!definition.getName().isEmpty()){
+                        Validator.addError(errors, INPUT_STUDY_EVENT_DEFINITION, "Only the EN event can be scheduled for NEW or NON-ENROLLED subjects.");
+                    }
+                }
+            }
             if (!subjectMayReceiveStudyEvent(sm.getDataSource(), definition, studySubject)) {
                 Validator.addError(errors, INPUT_STUDY_EVENT_DEFINITION, restext.getString("not_added_since_event_not_repeating"));
             }
@@ -329,6 +336,14 @@ public class CreateNewStudyEventServlet extends SecureController {
                     int pk = fp.getInt(INPUT_STUDY_EVENT_DEFINITION_SCHEDULED[i]);
                     if (pk > 0) {
                         StudyEventDefinitionBean sedb = (StudyEventDefinitionBean) seddao.findByPK(pk);
+                        if("EN".equalsIgnoreCase(definition.getName())){
+                            if(studySubject.getSecondaryLabel().isEmpty()) {
+                                if(!sedb.getName().isEmpty()){
+                                    Validator.addError(errors, INPUT_STUDY_EVENT_DEFINITION_SCHEDULED[i], "Only the EN event can be scheduled for NEW or NON-ENROLLED subjects.");
+                                }
+                            }
+
+                        }
                         logger.debug("scheduled def:" + pk + " " + INPUT_STUDY_EVENT_DEFINITION_SCHEDULED[i] + " " + sedb.getName());
                         definitionScheduleds.add(sedb);
                         scheduledDefinitionIds[i] = pk;

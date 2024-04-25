@@ -4,5 +4,6 @@
 	
 	<include file="migration/lc-1.2.0/2-fauth.xml" />
 	<include file="migration/lc-1.2.0/mail_notification.xml" />
-	
+	<include file="migration/lc-1.2.0/protocol_deviation.xml" />
+	<include file="migration/lc-1.2.0/irb.xml" />
 </databaseChangeLog>

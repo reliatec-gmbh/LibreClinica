@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<queries>
+    <query>
+        <name>findAllResponseSetByItemId</name>
+        <sql>select rs.*
+            from item_form_metadata ifm join response_set rs on ifm.response_set_id = rs.response_set_id
+            where ifm.item_id = ?</sql>
+    </query>
+    <query>
+        <name>findAllResponseSetByItemIdAndCrfVersionId</name>
+        <sql>select rs.*
+            from item_form_metadata ifm join response_set rs on ifm.response_set_id = rs.response_set_id
+            where ifm.item_id = ? AND ifm.crf_version_id=?</sql>
+    </query>
+</queries>

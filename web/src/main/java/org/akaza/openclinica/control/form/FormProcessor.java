@@ -10,11 +10,7 @@ package org.akaza.openclinica.control.form;
 import static org.akaza.openclinica.core.util.ClassCastHelper.asEnumeration;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.ResourceBundle;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -112,6 +108,7 @@ public class FormProcessor {
     public void clearPresetValues() {
         presetValues = new HashMap<>();
     }
+
 
     public String getString(String fieldName, boolean searchAttributes) {
         String result = DEFAULT_STRING;

@@ -138,6 +138,9 @@ public class CreateCRFServlet extends SecureController {
                         crf = (CRFBean) cdao.findByName(crf.getName());
                         CRFVersionBean version = new CRFVersionBean();
                         version.setCrfId(crf.getId());
+
+                        //Send data to DMM
+
                         session.setAttribute("version", version);
                         session.setAttribute("crfName", crf.getName());
                         session.removeAttribute("crf");

@@ -9,6 +9,7 @@ package org.akaza.openclinica.control.managestudy;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.core.Role;
@@ -21,6 +22,7 @@ import org.akaza.openclinica.control.SpringServletAccess;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.dao.admin.CRFDAO;
 import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;
+import org.akaza.openclinica.dao.managestudy.LaboratoryDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDefinitionDAO;
 import org.akaza.openclinica.dao.service.StudyParameterValueDAO;
@@ -99,6 +101,9 @@ public class ViewSiteServlet extends SecureController {
             request.setAttribute("parentName", parentStudyName);
             request.setAttribute("siteToView", study);
             request.setAttribute("idToSort", request.getAttribute("idToSort"));
+            LaboratoryDAO laboratoryDAO = new LaboratoryDAO(sm.getDataSource());
+            List laboratories = laboratoryDAO.findAll();
+            request.setAttribute("laboratories", laboratories);
             viewSiteEventDefinitions(study);
 
             forwardPage(Page.VIEW_SITE);

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.akaza.openclinica.bean.extract.ExtractPropertyBean;
@@ -33,7 +34,10 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ResourceLoaderAware;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.StandardEnvironment;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -69,23 +73,28 @@ public class CoreResources implements ResourceLoaderAware {
 
     public static String ODM_MAPPING_DIR;
 
+    //@Autowired
+    private Environment environment;
+
     public CoreResources() {
         // NOOP
     }
 
     /**
      * TODO: Delete me!
-     * 
+     *
      * @param dataInfoProps data info properties
      * @throws IOException IOException
      */
     public CoreResources(Properties dataInfoProps) throws IOException {
         this.dataInfo = dataInfoProps;
+        this.environment = new StandardEnvironment();
         if (resourceLoader == null) {
-            resourceLoader = new DefaultResourceLoader();
+            this.setResourceLoader(new DefaultResourceLoader());
+            //the above function sets the webapp instance variable
+        } else {
+            webapp = getWebAppName(resourceLoader.getResource("/").getURI().getPath());
         }
-        
-        webapp = getWebAppName(resourceLoader.getResource("/").getURI().getPath());
     }
 
     public Properties getPropValues(Properties prop, String propFileName) throws IOException {
@@ -104,16 +113,17 @@ public class CoreResources implements ResourceLoaderAware {
 
     public void getPropertiesSource() {
         try {
-            String filePath = "$catalina.home/$WEBAPP.lower.config";
+            String filePath = "$catalina.home/$WEBAPP.lower:.config";
 
             filePath = replaceWebapp(filePath);
             filePath = replaceCatHome(filePath);
+            System.out.println("getPropertiesSource: " + filePath);
 
             String dataInfoPropFileName = filePath + "/datainfo.properties";
             String extractPropFileName = filePath + "/extract.properties";
 
-            Properties OC_dataDataInfoProperties = getPropValues(dataInfoProp, dataInfoPropFileName);
-            Properties OC_dataExtractProperties = getPropValues(extractProp, extractPropFileName);
+            Properties OC_dataDataInfoProperties = getPropValues(dataInfo, dataInfoPropFileName);
+            Properties OC_dataExtractProperties = getPropValues(extractInfo, extractPropFileName);
 
             if (OC_dataDataInfoProperties != null)
                 dataInfo = OC_dataDataInfoProperties;
@@ -139,12 +149,13 @@ public class CoreResources implements ResourceLoaderAware {
 
             filePath = replaceWebapp(filePath);
             filePath = replaceCatHome(filePath);
+            System.out.println("setResourceLoader: " + filePath);
 
             String dataInfoPropFileName = filePath + "/datainfo.properties";
             String extractPropFileName = filePath + "/extract.properties";
 
-            Properties OC_dataDataInfoProperties = getPropValues(dataInfoProp, dataInfoPropFileName);
-            Properties OC_dataExtractProperties = getPropValues(extractProp, extractPropFileName);
+            Properties OC_dataDataInfoProperties = getPropValues(dataInfo, dataInfoPropFileName);
+            Properties OC_dataExtractProperties = getPropValues(extractInfo, extractPropFileName);
 
             if (OC_dataDataInfoProperties != null)
                 dataInfo = OC_dataDataInfoProperties;
@@ -155,7 +166,7 @@ public class CoreResources implements ResourceLoaderAware {
 
             DATAINFO = dataInfo;
             dataInfo = setDataInfoProperties();// weird, but there are references to dataInfo...MainMenuServlet for
-                                               // instance
+            // instance
 
             EXTRACTINFO = extractInfo;
 
@@ -172,7 +183,7 @@ public class CoreResources implements ResourceLoaderAware {
                 copyImportRulesFiles();
                 copyConfig();
             }
-            
+
         } catch (OpenClinicaSystemException e) {
             logger.debug(e.getMessage());
             logger.debug(e.toString());
@@ -195,6 +206,8 @@ public class CoreResources implements ResourceLoaderAware {
             // replacePaths(vals);
             vals = replaceWebapp(vals);
             vals = replaceCatHome(vals);
+            vals = replaceEnvVariables(vals);
+            System.out.println("setDataInfoVals: " + key + ":" + vals);
             DATAINFO.setProperty(key, vals);
         }
 
@@ -204,9 +217,7 @@ public class CoreResources implements ResourceLoaderAware {
 
         if (value.contains("${WEBAPP}")) {
             value = value.replace("${WEBAPP}", webapp);
-        }
-
-        else if (value.contains("${WEBAPP.lower}")) {
+        } else if (value.contains("${WEBAPP.lower}")) {
             value = value.replace("${WEBAPP.lower}", webapp.toLowerCase());
         }
         if (value.contains("$WEBAPP.lower")) {
@@ -257,6 +268,41 @@ public class CoreResources implements ResourceLoaderAware {
         return value;
     }
 
+    public String replaceEnvVariables(String value) {
+        String pattern = "\\$\\{([a-zA-Z_]{1,}[a-zA-Z0-9_]*)\\}";//Environment variables should not start with a digit
+        Pattern expr = Pattern.compile(pattern);
+        int old_end = 0;
+        StringBuffer sbval = new StringBuffer();
+        Matcher matcher = expr.matcher(value);
+        while (matcher.find()) {
+            String key = matcher.group(1);
+            String envValue = null;
+            if (key.equals("MAILPASSWORD") && this.environment.containsProperty("MAILPASSWORD_FILE")) {
+                System.out.println(("getting password from file, as key is " + key + " and value is " + this.environment.getProperty("MAILPASSWORD_FILE")));
+                try {
+                    envValue = IOUtils.toString(new FileInputStream(this.environment.getProperty("MAILPASSWORD_FILE")));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                envValue = this.environment.getProperty(key);
+            }
+
+            if (envValue == null) {
+                System.out.println("Environment variable " + key + " not found, with value " + value);
+            } else {
+                matcher.appendReplacement(sbval, envValue.replace("\\", "\\\\"));
+                old_end = matcher.end();
+            }
+        }
+        if (old_end==0) {
+            return value;
+        } else {
+            matcher.appendTail(sbval);
+            return sbval.toString();
+        }
+    }
+
     private static String replacePaths(String vals) {
         if (vals != null) {
             if (vals.contains("/")) {
@@ -280,6 +326,7 @@ public class CoreResources implements ResourceLoaderAware {
         String database = DATAINFO.getProperty("dbType");
 
         setDatabaseProperties(database);
+        System.out.println("setDataInfoProperties: " + filePath + ", " + database);
 
         setDataInfoVals();
         if (DATAINFO.getProperty("filePath") == null || DATAINFO.getProperty("filePath").length() <= 0) {
@@ -295,7 +342,7 @@ public class CoreResources implements ResourceLoaderAware {
             DATAINFO.setProperty("org.quartz.jobStore.misfireThreshold", "60000");
         }
         DATAINFO.setProperty("org.quartz.jobStore.class", "org.quartz.impl.jdbcjobstore.JobStoreTX");
-        
+
         if (database.equalsIgnoreCase("postgres")) {
             DATAINFO.setProperty("org.quartz.jobStore.driverDelegateClass", "org.quartz.impl.jdbcjobstore.PostgreSQLDelegate");
         }
@@ -441,6 +488,7 @@ public class CoreResources implements ResourceLoaderAware {
             url = StringUtils.replace(url, "jdbc:", "jdbc:log4jdbc:");
         }
         DATAINFO.setProperty("dataBase", database);
+        System.out.println("dataUrl: " + url + ", dataBase: " + database);
         DATAINFO.setProperty("url", url);
         DATAINFO.setProperty("hibernate.dialect", hibernateDialect);
         DATAINFO.setProperty("driver", driver);
@@ -489,7 +537,7 @@ public class CoreResources implements ResourceLoaderAware {
 
     private void copyImportRulesFiles() throws IOException {
         ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(resourceLoader);
-        String[] fileNames = { "rules.xsd", "rules_template.xml", "rules_template_with_notes.xml" };
+        String[] fileNames = {"rules.xsd", "rules_template.xml", "rules_template_with_notes.xml"};
         Resource[] resources = null;
         FileOutputStream out = null;
 
@@ -530,6 +578,8 @@ public class CoreResources implements ResourceLoaderAware {
 
         filePath = replaceWebapp(filePath);
         filePath = replaceCatHome(filePath);
+        filePath = replaceEnvVariables(filePath);
+        System.out.println("copyConfig: " + filePath);
 
         File dest = new File(filePath);
         if (!dest.exists()) {
@@ -552,7 +602,7 @@ public class CoreResources implements ResourceLoaderAware {
         }
 
         /*
-         * 
+         *
          * for (Resource r: resources) { File f = new File(dest, r.getFilename()); if(!f.exists()){ out = new
          * FileOutputStream(f); IOUtils.copy(r.getInputStream(), out); out.close(); } }
          */
@@ -616,7 +666,7 @@ public class CoreResources implements ResourceLoaderAware {
                 ExtractPropertyBean epbean = new ExtractPropertyBean();
                 epbean.setId(i);
                 // we will implement a find by id function in the front end
-    
+
                 // check to make sure the file exists, if not throw an exception and system will abort to start.
                 checkForFile(getExtractFields("extract." + i + ".file"));
                 epbean.setFileName(getExtractFields("extract." + i + ".file"));
@@ -640,11 +690,11 @@ public class CoreResources implements ResourceLoaderAware {
                  * if(clinica.equalsIgnoreCase("clinical_data")) epbean.setFormat("occlinical_data"); else
                  * epbean.setFormat("oc1.3"); } else
                  */
-    
+
                 epbean.setOdmType(getExtractField("extract." + i + ".odmType"));
-    
+
                 epbean.setFormat("oc1.3");
-    
+
                 // destination file name of the copied files
                 epbean.setExportFileName(getExtractFields("extract." + i + ".exportname"));
                 // post-processing event after the creation
@@ -658,7 +708,7 @@ public class CoreResources implements ResourceLoaderAware {
                 if (epbean.getFileName().length != epbean.getExportFileName().length)
                     throw new OpenClinicaSystemException(
                             "The comma seperated values of file names and export file names should correspond 1 on 1 for the property number" + i);
-    
+
                 if ("sql".equals(whichFunction)) {
                     // set the bean within, so that we can access the file locations etc
                     SqlProcessingFunction function = new SqlProcessingFunction(epbean);
@@ -695,14 +745,14 @@ public class CoreResources implements ResourceLoaderAware {
                     // since the database is the last option TODO: think about custom post processing options
                     else {
                         SqlProcessingFunction function = new SqlProcessingFunction(epbean);
-    
+
                         function.setDatabaseType(getExtractFieldNoRep(whichFunction + ".dataBase").toLowerCase());
                         function.setDatabaseUrl(getExtractFieldNoRep(whichFunction + ".url"));
                         function.setDatabaseUsername(getExtractFieldNoRep(whichFunction + ".username"));
                         function.setDatabasePassword(getExtractFieldNoRep(whichFunction + ".password"));
                         epbean.setPostProcessing(function);
                     }
-    
+
                 } else {
                     // add a null here
                     epbean.setPostProcessing(null);
@@ -720,7 +770,7 @@ public class CoreResources implements ResourceLoaderAware {
     private int getMaxExtractCounterValue() {
         Set<String> properties = EXTRACTINFO.stringPropertyNames();
         int numExtractTypes = 0;
-        for (String property:properties) {
+        for (String property : properties) {
             if (property.split(Pattern.quote(".")).length == 3 && property.startsWith("extract.") && property.endsWith(".file")) {
                 try {
                     int value = Integer.parseInt(property.split(Pattern.quote("."))[1]);
@@ -768,7 +818,7 @@ public class CoreResources implements ResourceLoaderAware {
         return resourceLoader.getResource("classpath:properties/" + fileName).getURL();
     }
 
-	public File getFile(String fileName, String relDirectory) {
+    public File getFile(String fileName, String relDirectory) {
         return getFileFromPath(getField("filePath"), fileName, relDirectory);
     }
 
@@ -794,7 +844,7 @@ public class CoreResources implements ResourceLoaderAware {
     }
 
     public File getFileFromPath(String basePath, String fileName, String relDirectory) {
-        
+
         String normalisedFilePath = Paths.get(relDirectory + fileName).normalize().toString();
 
         File file = new File(basePath, normalisedFilePath);
@@ -830,8 +880,8 @@ public class CoreResources implements ResourceLoaderAware {
 
     /**
      * @pgawade 18-April-2011 - Fix for issue 8394 Method to set the absolute file path value to point to "odm_mapping"
-     *          in resources. cd_odm_mapping.xml file used by Castor API during CRF data import will be copied to this
-     *          location during application initialization
+     * in resources. cd_odm_mapping.xml file used by Castor API during CRF data import will be copied to this
+     * location during application initialization
      */
     public void setODM_MAPPING_DIR() {
         ODM_MAPPING_DIR = getField("filePath");
@@ -842,7 +892,7 @@ public class CoreResources implements ResourceLoaderAware {
             return "postgres";
         return DB_NAME;
     }
-    
+
     /**
      * Returns true if the manual download shoule be present within navbar.jsp -
      * false otherwise. When not configured the returned value defaults to
@@ -929,6 +979,8 @@ public class CoreResources implements ResourceLoaderAware {
     public void setExtractInfo(Properties extractInfo) {
         this.extractInfo = extractInfo;
     }
+
+    public Environment getEnvironment(){ return this.environment;}
 
     // Pradnya G code added by Jamuna
     public String getWebAppName(String servletCtxRealPath) {

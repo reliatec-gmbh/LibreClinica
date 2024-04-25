@@ -1009,6 +1009,74 @@ div.login_BG {
 	width: 428px;
 }
 
+div.login-welcome {
+    /* padding-top: 117px; */
+    margin: 0 auto;
+    width: 428px;
+    height: 400px;
+    margin-top: 107px;
+    padding-top: 36px;
+    margin-bottom: 48px;
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+
+div.login-options
+{
+    font-family: Tahoma, Arial, Helvetica, Sans-Serif;
+    font-size: 1.1rem;
+    color: #4D4D4D;
+    padding: 24px 24px;
+}
+
+div.login-options a {
+    display: block;
+    height: 24px;
+    align-items: center;
+    background-clip: padding-box;
+    /*background-color: #fa6400;*/
+    border: 1px solid transparent;
+    border-radius: .25rem;
+    box-shadow: rgba(0, 0, 0, 0.02) 0 1px 3px 0;
+    box-sizing: border-box;
+    /*color: #fff;*/
+    cursor: pointer;
+    font-family: system-ui,-apple-system,system-ui,"Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    justify-content: center;
+    text-align: center;
+    line-height: 1.25;
+    margin: 0;
+    min-height: 3rem;
+    padding: calc(.875rem - 1px) calc(1.5rem - 1px);
+    position: relative;
+    text-decoration: none;
+    transition: all 250ms;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    vertical-align: baseline;
+    margin-bottom: 26px;
+}
+div.login-options a:hover {
+    box-shadow: rgba(0, 0, 0, 0.1) 0 4px 12px;
+    transform: translateY(-1px);
+}
+
+div.login-options a.oauth-login {
+    color: #ffffff;
+    background-color: #367AF6;
+    background: linear-gradient(180deg, #4B91F7 0%, #367AF6 100%);
+}
+
+div.login-options a.local-login {
+    color: #24292E;
+    background-color: #FAFBFC;
+    border: 1px solid rgba(27, 31, 35, 0.15);
+}
+
+
+
 #logo { 
 	background: url(../images/login_logo.png) no-repeat top left; 
 	width: 428px; 
@@ -2103,3 +2171,49 @@ input.no-border {
 frm_msg{
     color:#ff0000;
 }
+
+.protocol-deviation-form {
+    width: 300px;
+    height: 600px;
+}
+.protocol-deviation-subject-container {
+    display: flex;
+    flex-direction: column;
+    overflow: scroll;
+    scroll-behavior: smooth;
+    max-height: 500px;
+}
+
+.protocol-deviation-subject-container .protocol-deviation-subject:nth-child(odd) {
+    background-color: var(--gray-l40);
+}
+
+.protocol-deviation-subject {
+    display: flex;
+    height: 32px;
+    align-items: center;
+}
+
+.protocol-deviation-subject > .remove-item {
+    width: 60px;
+}
+
+.form-standard {
+    font-family: Tahoma Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    color: #4D4D4D;
+}
+
+.protocol_deviation_editor_popup {
+    text-align: left;
+    width: 100%;
+    height: 550px;
+    overflow: scroll;
+    background: #FFFFFF;
+}
+
+.select-autosize select {
+    width:200px; }
+
+.select-autosize select:focus {
+    width:auto; }

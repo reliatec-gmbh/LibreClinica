@@ -1,0 +1,212 @@
+<?xml version="1.0"?>
+<queries>
+    <query>
+        <name>findAllProtocolActionTypes</name>
+        <sql>
+            SELECT irb_protocol_action_type_id, label
+            FROM irb_protocol_action_type
+            ORDER BY 1
+        </sql>
+    </query>
+    <query>
+        <name>findAllProtocolActionHistoryParameter</name>
+        <sql>
+            SELECT *
+            FROM irb_protocol_action_history_parameter
+            ORDER BY 1
+        </sql>
+    </query>
+    <query>
+        <name>findAllIrbStudyActionHistoryParameter</name>
+        <sql>
+            SELECT *
+            FROM irb_study_action_history_parameter
+            ORDER BY 1
+        </sql>
+    </query>
+    <query>
+        <name>findIRBStudyByStudyId</name>
+        <sql>
+            SELECT irb_study_id, study_id, cdc_irb_protocol_number, version1_protocol_date,
+            protocol_officer, submitted_cdc_irb, approval_by_cdc_irb, cdc_irb_expiration_date
+            FROM irb_study
+            WHERE study_id=?
+        </sql>
+    </query>
+    <query>
+        <name>findIRBSiteBySiteId</name>
+        <sql>
+            SELECT irb_site_id, site_id, version_number, site_relies_on_cdc_irb, is_1572,
+            COALESCE(cdc_irb_protocol_version_date, CAST('1900-1-1' AS DATE)) cdc_irb_protocol_version_date,
+            COALESCE(local_irb_approved_protocol, CAST('1900-1-1' AS DATE)) local_irb_approved_protocol,
+            COALESCE(cdc_received_local_documents, CAST('1900-1-1' AS DATE)) cdc_received_local_documents,
+            COALESCE(site_consent_package_send_to_cdc_irb, CAST('1900-1-1' AS DATE)) site_consent_package_send_to_cdc_irb,
+            COALESCE(initial_cdc_irb_approval, CAST('1900-1-1' AS DATE)) initial_cdc_irb_approval,
+            COALESCE(crb_approval_to_enroll, CAST('1900-1-1' AS DATE)) crb_approval_to_enroll,
+            COALESCE(irb_approval, CAST('1900-1-1' AS DATE)) irb_approval,
+            COALESCE(expiration_date, CAST('1900-1-1' AS DATE)) expiration_date,
+            active, "comments"
+            FROM irb_site
+            WHERE site_id=?
+        </sql>
+    </query>
+    <query>
+        <name>getCurrentIRBStudyPrimaryKey</name>
+        <sql>SELECT currval('irb_study_irb_study_id_seq') AS key</sql>
+    </query>
+    <query>
+        <name>getCurrentIRBProtocolActionPrimaryKey</name>
+        <sql>SELECT currval('irb_protocol_action_history_irb_protocol_action_history_id_seq') AS key</sql>
+    </query>
+    <query>
+        <name>createIRBStudy</name>
+        <sql>
+            INSERT INTO irb_study
+            (study_id, cdc_irb_protocol_number, version1_protocol_date, protocol_officer, submitted_cdc_irb,
+            approval_by_cdc_irb, cdc_irb_expiration_date)
+            VALUES(?, ?, ?, ?, ?, ?, ?);
+        </sql>
+    </query>
+    <query>
+        <name>updateIRBStudy</name>
+        <sql>UPDATE irb_study
+            SET cdc_irb_protocol_number=?, version1_protocol_date=?,
+            protocol_officer=?, submitted_cdc_irb=?,
+            approval_by_cdc_irb=?, cdc_irb_expiration_date=?
+            WHERE irb_study_id=?;
+        </sql>
+    </query>
+    <query>
+        <name>createIRBSite</name>
+        <sql>
+            INSERT INTO irb_site
+            (site_id, version_number, site_relies_on_cdc_irb, is_1572,
+            cdc_irb_protocol_version_date, local_irb_approved_protocol, cdc_received_local_documents,
+            site_consent_package_send_to_cdc_irb, initial_cdc_irb_approval, crb_approval_to_enroll,
+            irb_approval, expiration_date, active, "comments")
+            VALUES(?, ?, ?, ?,
+            ?, ?, ?,
+            ?, ?, ?,
+            ?, ?, ?, ?);
+        </sql>
+    </query>
+    <query>
+        <name>getCurrentIRBSitePrimaryKey</name>
+        <sql>SELECT currval('irb_site_irb_site_id_seq') AS key</sql>
+    </query>
+    <query>
+        <name>updateIRBSite</name>
+        <sql>
+            UPDATE irb_site
+            SET version_number=?, site_relies_on_cdc_irb=?, is_1572=?, cdc_irb_protocol_version_date=?,
+            local_irb_approved_protocol=?, cdc_received_local_documents=?, site_consent_package_send_to_cdc_irb=?,
+            initial_cdc_irb_approval=?, crb_approval_to_enroll=?, irb_approval=?, expiration_date=?,
+            active=?, "comments"=?
+            WHERE irb_site_id=?;
+        </sql>
+    </query>
+    <query>
+        <name>createProtocolActionHistory</name>
+        <sql>INSERT INTO public.irb_protocol_action_history
+            (irb_site_id, irb_protocol_action_type_id, version_date, version_number,
+             site_submitted_to_local_irb, local_irb_approval, received_docs_from_sites, package_sent_to_cdc_irb,
+             cdc_approval)
+            VALUES(?, ?, ?, ?,
+                ?, ?, ?, ?, ?)</sql>
+    </query>
+    <query>
+        <name>getCurrentIRBProtocolActionPrimaryKey</name>
+        <sql>SELECT currval('irb_protocol_action_history_irb_protocol_action_history_id_seq') AS key</sql>
+    </query>
+    <query>
+        <name>updateProtocolActionHistory</name>
+        <sql>UPDATE irb_protocol_action_history
+            SET irb_protocol_action_type_id=?, version_date=?, version_number=?,
+            site_submitted_to_local_irb=?, local_irb_approval=?, received_docs_from_sites=?,
+            package_sent_to_cdc_irb=?, cdc_approval=?
+            WHERE irb_protocol_action_history_id=?
+        </sql>
+    </query>
+    <query>
+        <name>findAllProtocolActionHistoryBySite</name>
+        <sql>
+            SELECT iah.irb_protocol_action_history_id,
+            iah.irb_protocol_action_type_id,
+            pat."action",
+            iah.version_date, iah.version_number, iah.site_submitted_to_local_irb,
+            iah.local_irb_approval, iah.received_docs_from_sites,
+            iah.package_sent_to_cdc_irb, iah.cdc_approval
+            FROM irb_protocol_action_history iah INNER JOIN irb_protocol_action_history_parameter pat ON
+            iah.irb_protocol_action_type_id = pat.irb_protocol_action_history_parameter_id
+            WHERE iah.irb_site_id = ?;
+        </sql>
+    </query>
+    <query>
+        <name>findProtocolActionHistoryById</name>
+        <sql>
+            SELECT iah.irb_protocol_action_history_id,
+            iah.irb_protocol_action_type_id,
+            pat."action",
+            iah.version_date, iah.version_number, iah.site_submitted_to_local_irb,
+            iah.local_irb_approval, iah.received_docs_from_sites,
+            iah.package_sent_to_cdc_irb, iah.cdc_approval
+            FROM irb_protocol_action_history iah INNER JOIN irb_protocol_action_history_parameter pat ON
+            iah.irb_protocol_action_type_id = pat.irb_protocol_action_history_parameter_id
+            WHERE iah.irb_protocol_action_history_id = ?;
+        </sql>
+    </query>
+    <query>
+        <name>createIRBStudyActionHistory</name>
+        <sql>
+            INSERT INTO irb_study_action_history
+            (study_id, irb_protocol_action_type_id, effective_date,
+            hrpo_action, version_number, version_date, submission_to_cdc_irb, cdc_irb_approval,
+            notification_sent_to_sites, enrollment_pause_date, enrollment_re_started_date,
+            reason_for_enrollment_pause)
+            VALUES(?, ?, ?,
+                ?, ?, ?, ?, ?,
+                ?, ?, ?,
+                ?);
+        </sql>
+    </query>
+    <query>
+        <name>getCurrentIRBStudyActionPrimaryKey</name>
+        <sql>
+            SELECT currval('irb_study_action_history_irb_study_action_history_id_seq') AS key
+        </sql>
+    </query>
+    <query>
+        <name>updateIRBStudyActionHistory</name>
+        <sql>
+            UPDATE public.irb_study_action_history
+            SET irb_protocol_action_type_id=?, effective_date=?, hrpo_action=?, version_number=?,
+                version_date=?, submission_to_cdc_irb=?, cdc_irb_approval=?, notification_sent_to_sites=?,
+                enrollment_pause_date=?, enrollment_re_started_date=?, reason_for_enrollment_pause=?
+            WHERE irb_study_action_history_id=?;
+        </sql>
+    </query>
+    <query>
+        <name>findIRBStudyActionHistoryById</name>
+        <sql>
+            SELECT H.irb_study_action_history_id, H.study_id, H.irb_protocol_action_type_id,
+            HP."action",  H.effective_date, H.hrpo_action, H.version_number, H.version_date,
+            H.submission_to_cdc_irb, H.cdc_irb_approval, H.notification_sent_to_sites,
+            H.enrollment_pause_date, H.enrollment_re_started_date, H.reason_for_enrollment_pause
+            FROM public.irb_study_action_history H INNER JOIN irb_study_action_history_parameter HP ON
+                H.irb_protocol_action_type_id = HP.irb_study_action_history_parameter_id
+            WHERE irb_study_action_history_id=?
+        </sql>
+    </query>
+    <query>
+        <name>findIRBStudyActionHistoryByStudyId</name>
+        <sql>
+            SELECT H.irb_study_action_history_id, H.study_id, H.irb_protocol_action_type_id,
+            HP."action",  H.effective_date, H.hrpo_action, H.version_number, H.version_date,
+            H.submission_to_cdc_irb, H.cdc_irb_approval, H.notification_sent_to_sites,
+            H.enrollment_pause_date, H.enrollment_re_started_date, H.reason_for_enrollment_pause
+            FROM public.irb_study_action_history H INNER JOIN irb_study_action_history_parameter HP ON
+            H.irb_protocol_action_type_id = HP.irb_study_action_history_parameter_id
+            WHERE study_id=?
+        </sql>
+    </query>
+</queries>

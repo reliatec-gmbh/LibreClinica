@@ -50,6 +50,10 @@ public class ListStudySubjectTableToolbar extends DefaultToolbar {
         if (addSubjectLinkShow) {
             addToolbarItem(createAddSubjectItem());
         }
+        addToolbarItem(ToolbarItemType.SEPARATOR);
+        addToolbarItem(createCustomItem(new ProtocolDeviationItem()));
+        addToolbarItem(ToolbarItemType.SEPARATOR);
+        addToolbarItem(createCustomItem(new NoEnrollmentItem()));
     }
 
     private ToolbarItem createCustomItem(AbstractItem item) {
@@ -108,7 +112,7 @@ public class ListStudySubjectTableToolbar extends DefaultToolbar {
          *      java.util.Locale)
          */
         String getIndexes() {
-            String result = "1,2,3,4,5,6";
+            String result = "1,2,3,4";
             for (int i = 0; i < studyGroupClasses.size(); i++) {
                 result += "," + (6 + i + 1);
             }

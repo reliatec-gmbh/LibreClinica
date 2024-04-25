@@ -9,13 +9,7 @@ package org.akaza.openclinica.control.submit;
 
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -38,6 +32,7 @@ import org.akaza.openclinica.bean.submit.SubjectGroupMapBean;
 import org.akaza.openclinica.control.AbstractTableFactory;
 import org.akaza.openclinica.control.DefaultActionsEditor;
 import org.akaza.openclinica.control.ListStudyView;
+import org.akaza.openclinica.dao.core.CoreResources;
 import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;
 import org.akaza.openclinica.dao.managestudy.FindSubjectsFilter;
 import org.akaza.openclinica.dao.managestudy.FindSubjectsSort;
@@ -94,17 +89,21 @@ public class ListStudySubjectTableFactory extends AbstractTableFactory {
     private final ResourceBundle resterms = ResourceBundleProvider.getTermsBundle();
     private StudyParameterValueDAO studyParameterValueDAO;
     private ParticipantPortalRegistrar participantPortalRegistrar;
+    private Integer countOfStudySubjectsAtStudyOrSite;
 
     final HashMap<Integer, String> imageIconPaths = new HashMap<Integer, String>(8);
 
+    private boolean EnrrollmentStatusIsComplete;
+    private String EnrrollmentCompleted;
+
     @Override
     // To avoid showing title in other pages, the request element is used to determine where the request came from.
-    public TableFacade createTable(HttpServletRequest request, HttpServletResponse response) {
+    public TableFacade createTable(HttpServletRequest request, HttpServletResponse response, String showNoEnrollment) {
         locale = LocaleResolver.getLocale(request);
         session = request.getSession();
         TableFacade tableFacade = getTableFacadeImpl(request, response);
         tableFacade.setStateAttr("restore");
-        setDataAndLimitVariables(tableFacade);
+        setDataAndLimitVariablesCustom(tableFacade, showNoEnrollment);
         configureTableFacade(response, tableFacade);
         if (!tableFacade.getLimit().isExported()) {
             configureColumns(tableFacade, locale);
@@ -146,7 +145,7 @@ public class ListStudySubjectTableFactory extends AbstractTableFactory {
         tableFacade.setColumnProperties(columnNames);
         Row row = tableFacade.getTable().getRow();
         int index = 0;
-        configureColumn(row.getColumn(columnNames[index]), resword.getString("study_subject_ID"), null, null);
+        configureColumn(row.getColumn(columnNames[index]), resword.getString("study_subject_ID"), new StudySubjectIdCellEditor(), null);
         ++index;
         configureColumn(row.getColumn(columnNames[index]), resword.getString("subject_status"), new StatusCellEditor(), new StatusDroplistFilterEditor());
         ++index;
@@ -156,16 +155,14 @@ public class ListStudySubjectTableFactory extends AbstractTableFactory {
         ++index;
         configureColumn(row.getColumn(columnNames[index]), resword.getString("gender"), null, null, true, false);
         ++index;
-        configureColumn(row.getColumn(columnNames[index]), resword.getString("secondary_ID"), null, null);
+        configureColumn(row.getColumn(columnNames[index]), resword.getString("subject_matrix_schedule"),
+                new PdfCellEditor(), null);
         ++index;
-        configureColumn(row.getColumn(columnNames[index]), resword.getString("subject_unique_ID"), null, null);
+        configureColumn(row.getColumn(columnNames[index]), "Appointments", new AppointmentCellEditor(), null);
         ++index;
         // group class columns
         for (int i = index; i < index + studyGroupClasses.size(); i++) {
             StudyGroupClassBean studyGroupClass = studyGroupClasses.get(i - index);
-            // configureColumn(row.getColumn(columnNames[i]),
-            // studyGroupClass.getName(), new
-            // StudyGroupClassCellEditor(studyGroupClass), null, false, false);
             configureColumn(row.getColumn(columnNames[i]), studyGroupClass.getName(), new StudyGroupClassCellEditor(studyGroupClass),
                     new SubjectGroupClassDroplistFilterEditor(studyGroupClass), true, false);
         }
@@ -179,18 +176,14 @@ public class ListStudySubjectTableFactory extends AbstractTableFactory {
                 + "&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;";
         configureColumn(row.getColumn(columnNames[columnNames.length - 1]), actionsHeader, new ActionsCellEditor(), new DefaultActionsEditor(locale), true,
                 false);
-
     }
 
     @Override
     public void configureTableFacade(HttpServletResponse response, TableFacade tableFacade) {
         super.configureTableFacade(response, tableFacade);
-        // getColumnNames();
         getColumnNamesMap();
         tableFacade.addFilterMatcher(new MatcherKey(Character.class), new CharFilterMatcher());
         tableFacade.addFilterMatcher(new MatcherKey(Status.class), new StatusFilterMatcher());
-        // tableFacade.addFilterMatcher(new MatcherKey(Integer.class), new
-        // SubjectEventStatusFilterMatcher());
 
         for (int i = 7; i < 7 + studyGroupClasses.size(); i++) {
             tableFacade.addFilterMatcher(new MatcherKey(Integer.class, columnNames[i]), new SubjectGroupFilterMatcher());
@@ -210,21 +203,34 @@ public class ListStudySubjectTableFactory extends AbstractTableFactory {
     }
 
     @Override
-    public void setDataAndLimitVariables(TableFacade tableFacade) {
+    public void setDataAndLimitVariables(TableFacade tableFacade){}
+
+    public void setDataAndLimitVariablesCustom(TableFacade tableFacade, String showNoEnrollment) {
         Limit limit = tableFacade.getLimit();
 
         FindSubjectsFilter subjectFilter = getSubjectFilter(limit);
 
         if (!limit.isComplete()) {
-            int totalRows = getStudySubjectDAO().getCountWithFilter(subjectFilter, getStudyBean());
-            tableFacade.setTotalRows(totalRows);
+            if(showNoEnrollment != null && showNoEnrollment.equals("true")){
+                int totalRows = getStudySubjectDAO().getCountWithFilterNoEnrrollment(subjectFilter, getStudyBean());
+                tableFacade.setTotalRows(totalRows);
+            }else{
+                int totalRows = getStudySubjectDAO().getCountWithFilter(subjectFilter, getStudyBean());
+                tableFacade.setTotalRows(totalRows);
+            }
+
         }
 
         FindSubjectsSort subjectSort = getSubjectSort(limit);
 
         int rowStart = limit.getRowSelect().getRowStart();
         int rowEnd = limit.getRowSelect().getRowEnd();
-        Collection<StudySubjectBean> items = getStudySubjectDAO().getWithFilterAndSort(getStudyBean(), subjectFilter, subjectSort, rowStart, rowEnd);
+        Collection<StudySubjectBean> items;
+        if ("true".equals(showNoEnrollment)) {
+            items = getStudySubjectDAO().getWithFilterAndSort(getStudyBean(), subjectFilter, subjectSort, rowStart, rowEnd, showNoEnrollment);
+        } else {
+            items = getStudySubjectDAO().getWithFilterAndSort(getStudyBean(), subjectFilter, subjectSort, rowStart, rowEnd, showNoEnrollment);
+        }
 
         Collection<HashMap<Object, Object>> theItems = new ArrayList<HashMap<Object, Object>>();
 
@@ -236,7 +242,8 @@ public class ListStudySubjectTableFactory extends AbstractTableFactory {
             theItem.put("enrolledAt", ((StudyBean) getStudyDAO().findByPK(studySubjectBean.getStudyId())).getIdentifier());
             theItem.put("studySubject.oid", studySubjectBean.getOid());
             theItem.put("studySubject.secondaryLabel", studySubjectBean.getSecondaryLabel());
-
+            theItem.put("pid", studySubjectBean.getSecondaryLabel());
+            theItems.add(theItem);
             SubjectBean subjectBean = (SubjectBean) getSubjectDAO().findByPK(studySubjectBean.getSubjectId());
             theItem.put("subject", subjectBean);
             theItem.put("subject.charGender", subjectBean.getGender());
@@ -290,7 +297,6 @@ public class ListStudySubjectTableFactory extends AbstractTableFactory {
 
             }
 
-            theItems.add(theItem);
         }
 
         // Do not forget to set the items back on the tableFacade.
@@ -345,8 +351,8 @@ public class ListStudySubjectTableFactory extends AbstractTableFactory {
         columnNamesList.add("enrolledAt");
         columnNamesList.add("studySubject.oid");
         columnNamesList.add("subject.charGender");
-        columnNamesList.add("studySubject.secondaryLabel");
-        columnNamesList.add("subject.uniqueIdentifier");
+        columnNamesList.add("PDF");
+        columnNamesList.add("Appointments");
         for (StudyGroupClassBean studyGroupClass : getStudyGroupClasses()) {
             columnNamesList.add("sgc_" + studyGroupClass.getId());
         }
@@ -380,7 +386,7 @@ public class ListStudySubjectTableFactory extends AbstractTableFactory {
      * A very custom way to sort the items. The PresidentSort acts as a command for the Hibernate criteria object. There
      * are probably many ways to do this, but this is the most flexible way I have found. The point is you need to
      * somehow take the Limit information and sort the rows.
-     * 
+     *
      * @param limit
      *            The Limit to use.
      */
@@ -532,6 +538,11 @@ public class ListStudySubjectTableFactory extends AbstractTableFactory {
         this.currentUser = currentUser;
     }
 
+    public void loadCountOfStudySubjectsAtStudyOrSiteToStudyBean() {
+        this.countOfStudySubjectsAtStudyOrSite = studySubjectDAO.getCountofStudySubjectsAtStudyOrSite(studyBean);
+        this.studyBean.setCountOfStudySubjectsAtStudyOrSite(this.countOfStudySubjectsAtStudyOrSite);
+    }
+
     private class CharFilterMatcher implements FilterMatcher {
         public boolean evaluate(Object itemValue, String filterValue) {
             String item = StringUtils.lowerCase(String.valueOf(itemValue));
@@ -644,7 +655,7 @@ public class ListStudySubjectTableFactory extends AbstractTableFactory {
         }
 
         @SuppressWarnings("unchecked")
-		public Object getValue(Object item, String property, int rowcount) {
+        public Object getValue(Object item, String property, int rowcount) {
             groupName = (String) ((HashMap<Object, Object>) item).get("grpName_sgc_" + studyGroupClass.getId());
             return logic();
         }
@@ -670,18 +681,96 @@ public class ListStudySubjectTableFactory extends AbstractTableFactory {
             subjectEventStatus = SubjectEventStatus.get((Integer) ((HashMap<Object, Object>) item).get(property));
             subject = (SubjectBean) ((HashMap<Object, Object>) item).get("subject");
             studySubjectBean = (StudySubjectBean) ((HashMap<Object, Object>) item).get("studySubject");
-
             StringBuilder url = new StringBuilder();
-            url.append(eventDivBuilder(subject, rowcount, studyEvents, studyEventDefinition, studySubjectBean));
-            url.append("<img src='" + imageIconPaths.get(subjectEventStatus.getId()) + "' border='0' style='position: relative; left: 7px;'>");
-            url.append(getCount());
-            url.append("</a></td></tr></table>");
-
+            String nameEvent = studyEventDefinition.getName();
+            String pid = studySubjectBean.getSecondaryLabel();
+            if(pid.isEmpty()){
+                EnrrollmentStatusIsComplete = false;
+            }else{
+                EnrrollmentStatusIsComplete = true;
+            }
+            if ((subjectEventStatus.getId() == 3 || subjectEventStatus.getId() == 4) && nameEvent.equalsIgnoreCase("EN")) {
+                EnrrollmentCompleted = "EN";
+            } if ((subjectEventStatus.getId()== 3 || subjectEventStatus.getId() == 4) && nameEvent.equalsIgnoreCase("NE")) {
+                EnrrollmentCompleted = "NE";
+            }
+            if(EnrrollmentStatusIsComplete || nameEvent.equalsIgnoreCase("EN") || nameEvent.equalsIgnoreCase("NE")){
+                if("NE".equalsIgnoreCase(EnrrollmentCompleted) || "EN".equalsIgnoreCase(EnrrollmentCompleted)){
+                    if(!"NE".equalsIgnoreCase(EnrrollmentCompleted)){
+                        url.append(eventDivBuilder(subject, rowcount, studyEvents, studyEventDefinition, studySubjectBean));
+                        url.append("<img src='" + imageIconPaths.get(subjectEventStatus.getId()) + "' border='0' style='position: relative; left: 7px;'>");
+                        url.append(getCount());
+                        url.append("</a></td></tr></table>");
+                    }
+                }else{
+                    url.append(eventDivBuilder(subject, rowcount, studyEvents, studyEventDefinition, studySubjectBean));
+                    url.append("<img src='" + imageIconPaths.get(subjectEventStatus.getId()) + "' border='0' style='position: relative; left: 7px;'>");
+                    url.append(getCount());
+                    url.append("</a></td></tr></table>");
+                }
+            }
             return url.toString();
         }
 
     }
 
+    private class PdfCellEditor implements CellEditor {
+        public Object getValue(Object item, String property, int rowcount) {
+            StudySubjectBean studySubjectBean = (StudySubjectBean) ((HashMap<Object, Object>) item).get("studySubject");
+
+            String secondaryLabel =  studySubjectBean.getSecondaryLabel();
+            if(secondaryLabel == null || secondaryLabel.isEmpty())
+                return "&nbsp;";
+            HtmlBuilder actionLink = new HtmlBuilder();
+
+            String url = CoreResources.getField("dmm.url") + "/subject_schedule/" + secondaryLabel;
+
+            actionLink.a().href(url).append("target=\"_blank\"").title("See subject schedule").end()
+                    .append("<img src='" + imageIconPaths.get(1) + "' border='0' style='position: relative; left: 7px;'>")
+                    /*.append("PDF")*/.aEnd();
+
+            return  actionLink.toString();
+        }
+    }
+
+    private class PidCellEditor implements CellEditor {
+        public Object getValue(Object item, String property, int rowcount) {
+            StudySubjectBean studySubjectBean = (StudySubjectBean) ((HashMap<Object, Object>) item).get("studySubject");
+            HtmlBuilder pidDiv = new HtmlBuilder();
+            pidDiv.div().style("text-align: center; padding-left: 15px; padding-right: 15px; white-space: nowrap; ").close();
+            pidDiv.append(studySubjectBean.getSecondaryLabel());
+            return pidDiv.toString();
+        }
+    }
+
+    private class StudySubjectIdCellEditor implements CellEditor {
+        public Object getValue(Object item, String property, int rowcount) {
+            StudySubjectBean studySubjectBean = (StudySubjectBean) ((HashMap<Object, Object>) item).get("studySubject");
+            String studySubjectLabel = studySubjectBean.getLabel();
+            HtmlBuilder pidDiv = new HtmlBuilder();
+            if (studySubjectLabel.contains("P")) {
+                pidDiv.div().style("color: #E46E16; ").close();
+            }
+            pidDiv.append(studySubjectLabel);
+            return pidDiv.toString();
+        }
+    }
+
+    private class AppointmentCellEditor implements CellEditor {
+        public Object getValue(Object item, String property, int rowcount) {
+            StudySubjectBean studySubjectBean = (StudySubjectBean) ((HashMap<Object, Object>) item).get("studySubject");
+
+            int subjectID =  studySubjectBean.getSubjectId();
+            HtmlBuilder actionLink = new HtmlBuilder();
+
+            //String url = "/LibreClinica/pages/appointments/" + subjectID;
+            String url = "/LibreClinica/Appointments?id=" + subjectID;
+            actionLink.a().href(url).append("target=\"_blank\"").title("See subject schedule").style("display: block; margin: auto; text-align: center;").end()
+                    .append("<img src='" + imageIconPaths.get(1) + "' border='0' style='position: relative; left: 7px;'>").aEnd();
+
+            return  actionLink;
+        }
+    }
     private class ActionsCellEditor implements CellEditor {
 
         @SuppressWarnings("unchecked")
@@ -831,6 +920,14 @@ public class ListStudySubjectTableFactory extends AbstractTableFactory {
 
     }
 
+    private String pdfScheduleStudySubjectLinkBuilder(StudySubjectBean studySubject) {
+        HtmlBuilder actionLink = new HtmlBuilder();
+        actionLink.a().href(CoreResources.getField("dmm.Url") +"/subject_schedule/" + studySubject
+                .getSecondaryLabel()).title("PDF").end().aEnd();
+        return actionLink.toString();
+
+    }
+
     private String restoreStudySubjectLinkBuilder(StudySubjectBean studySubject) {
         HtmlBuilder actionLink = new HtmlBuilder();
         actionLink.a().href(
@@ -845,7 +942,7 @@ public class ListStudySubjectTableFactory extends AbstractTableFactory {
     }
 
     private String eventDivBuilder(SubjectBean subject, Integer rowCount, List<StudyEventBean> studyEvents, StudyEventDefinitionBean sed,
-            StudySubjectBean studySubject) {
+                                   StudySubjectBean studySubject) {
 
         String studySubjectLabel = studySubject.getLabel();
 
@@ -887,7 +984,7 @@ public class ListStudySubjectTableFactory extends AbstractTableFactory {
     }
 
     private void repeatingEventDivBuilder(HtmlBuilder eventDiv, SubjectBean subject, Integer rowCount, List<StudyEventBean> studyEvents,
-            StudyEventDefinitionBean sed, StudySubjectBean studySubject) {
+                                          StudyEventDefinitionBean sed, StudySubjectBean studySubject) {
 
         String tableHeaderRowStyleClass = "table_header_row";
         String tableHeaderRowLeftStyleClass = "table_header_row_left";
@@ -1005,7 +1102,7 @@ public class ListStudySubjectTableFactory extends AbstractTableFactory {
     }
 
     private void linksDivBuilder(HtmlBuilder eventDiv, SubjectBean subject, Integer rowCount, List<StudyEventBean> studyEvents, StudyEventDefinitionBean sed,
-            StudySubjectBean studySubject, StudyEventBean currentEvent) {
+                                 StudySubjectBean studySubject, StudyEventBean currentEvent) {
 
         Status eventSysStatus = studySubject.getStatus();
         SubjectEventStatus eventStatus = currentEvent.getSubjectEventStatus();
@@ -1074,7 +1171,7 @@ public class ListStudySubjectTableFactory extends AbstractTableFactory {
     }
 
     private void singleEventDivBuilder(HtmlBuilder eventDiv, SubjectBean subject, Integer rowCount, List<StudyEventBean> studyEvents,
-            StudyEventDefinitionBean sed, StudySubjectBean studySubject) {
+                                       StudyEventDefinitionBean sed, StudySubjectBean studySubject) {
 
         String tableHeaderRowStyleClass = "table_header_row";
         String tableHeaderRowLeftStyleClass = "table_header_row_left";
@@ -1102,12 +1199,14 @@ public class ListStudySubjectTableFactory extends AbstractTableFactory {
             eventDiv.append(resword.getString("status")).append(":").append(eventStatus.getName()).br();
             eventDiv.tdEnd();
             eventDiv.td(0).styleClass(tableHeaderRowLeftStyleClass).align("right").close();
+            //LINEA A EDITAR
             linkBuilder(eventDiv, studySubjectLabel, rowCount, studyEvents, sed);
             eventDiv.tdEnd();
 
         } else {
             eventDiv.tdEnd();
             eventDiv.td(0).styleClass(tableHeaderRowLeftStyleClass).align("right").close();
+            //LINEA A EDITAR
             linkBuilder(eventDiv, studySubjectLabel, rowCount, studyEvents, sed);
             eventDiv.tdEnd();
 
@@ -1267,7 +1366,7 @@ public class ListStudySubjectTableFactory extends AbstractTableFactory {
     }
 
     private void repeatingLockLinkBuilder(HtmlBuilder builder, String studySubjectLabel, Integer rowCount, List<StudyEventBean> studyEvents,
-            StudyEventDefinitionBean sed) {
+                                          StudyEventDefinitionBean sed) {
         String href1 = "javascript:ExpandEventOccurrences('" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "'," + studyEvents.size() + "); ";
         // String href1 = "javascript:leftnavExpand('Menu_on_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount
         // + "'); ";
@@ -1287,7 +1386,7 @@ public class ListStudySubjectTableFactory extends AbstractTableFactory {
     }
 
     private void repeatingIconLinkBuilder(HtmlBuilder builder, String studySubjectLabel, Integer rowCount, List<StudyEventBean> studyEvents,
-            StudyEventDefinitionBean sed) {
+                                          StudyEventDefinitionBean sed) {
         String href1 = "javascript:ExpandEventOccurrences('" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "'," + studyEvents.size() + "); ";
         // String href1 = "javascript:leftnavExpand('Menu_on_" +
         // studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "'); ";
@@ -1327,7 +1426,7 @@ public class ListStudySubjectTableFactory extends AbstractTableFactory {
     }
 
     private void divCloseRepeatinglinkBuilder(HtmlBuilder builder, String studySubjectLabel, Integer rowCount, List<StudyEventBean> studyEvents,
-            StudyEventDefinitionBean sed) {
+                                              StudyEventDefinitionBean sed) {
         String href1 = "javascript:ExpandEventOccurrences('" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "'," + studyEvents.size() + "); ";
         String href2 = "javascript:leftnavExpand('Menu_off_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "'); ";
         String onClick1 = "layersShowOrHide('hidden','Lock_all'); ";
@@ -1341,16 +1440,20 @@ public class ListStudySubjectTableFactory extends AbstractTableFactory {
     }
 
     private void linkBuilder(HtmlBuilder builder, String studySubjectLabel, Integer rowCount, List<StudyEventBean> studyEvents, StudyEventDefinitionBean sed) {
-        String href1 = "javascript:leftnavExpand('Menu_on_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "'); ";
-        String href2 = "javascript:leftnavExpand('Menu_off_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "'); ";
-        String onClick1 = "layersShowOrHide('hidden','Lock_all'); ";
-        String onClick2 = "layersShowOrHide('hidden','Event_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "'); ";
-        String onClick3 = "layersShowOrHide('hidden','Lock_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "'); ";
-        String onClick4 = "javascript:setImage('ExpandIcon_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "','images/icon_blank.gif'); ";
-        builder.a().href(href1 + href2);
-        builder.onclick(onClick1 + onClick2 + onClick3 + onClick4);
-        builder.close().append("X").aEnd();
-
+        if(EnrrollmentStatusIsComplete){
+            String href1 = "javascript:leftnavExpand('Menu_on_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "'); ";
+            String href2 = "javascript:leftnavExpand('Menu_off_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "'); ";
+            String onClick1 = "layersShowOrHide('hidden','Lock_all'); ";
+            String onClick2 = "layersShowOrHide('hidden','Event_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "'); ";
+            String onClick3 = "layersShowOrHide('hidden','Lock_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "'); ";
+            String onClick4 = "javascript:setImage('ExpandIcon_" + studySubjectLabel + "_" + sed.getId() + "_" + rowCount + "','images/icon_blank.gif'); ";
+            builder.a().href(href1 + href2);
+            builder.onclick(onClick1 + onClick2 + onClick3 + onClick4);
+            builder.close().append("X").aEnd();
+        }else{
+            builder.a();
+            builder.close();
+        }
     }
 
     private String formatDate(Date date) {
@@ -1359,3 +1462,4 @@ public class ListStudySubjectTableFactory extends AbstractTableFactory {
         return sdf.format(date);
     }
 }
+

@@ -38,7 +38,7 @@
 <jsp:include page="../include/submitSideInfo.jsp"/>
 
 <jsp:useBean scope="request" id="toc" class="org.akaza.openclinica.bean.submit.DisplayTableOfContentsBean" />
-
+|
 <c:set var="interviewer" value="" />
 <c:set var="interviewDate" value="" />
 

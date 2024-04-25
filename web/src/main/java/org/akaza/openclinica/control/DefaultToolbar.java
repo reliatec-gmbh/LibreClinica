@@ -54,6 +54,35 @@ public class DefaultToolbar extends AbstractToolbar {
 
         return super.render();
     }
+    public class ProtocolDeviationItem extends AbstractItem {
+
+        @Override
+        public String disabled() {
+            return null;
+        }
+
+        @Override
+        public String enabled() {
+            HtmlBuilder html = new HtmlBuilder();
+            html.a().href("ProtocolDeviations").end().append("Protocol deviations").aEnd();
+            return html.toString();
+        }
+    }
+    public class NoEnrollmentItem extends AbstractItem {
+
+        @Override
+        public String disabled() {
+            return null;
+        }
+
+        @Override
+        public String enabled() {
+            HtmlBuilder html = new HtmlBuilder();
+            html.input().type("checkbox").id("showNoEnrollment").end();
+            html.label().forAttr("showNoEnrollment").style("color: var(--lightblue);").end().append("Show No Enrollment").labelEnd();
+            return html.toString();
+        }
+    }
     public class NewHiddenItem extends AbstractItem {
 
         @Override

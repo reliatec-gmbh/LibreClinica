@@ -188,7 +188,15 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
 			throw new RuntimeException(e);
 		}
     }
-    
+
+    public ArrayList<HashMap<String, Object>> delete(String query, HashMap<Integer, Object> variables) {
+        try {
+            Connection connection = getConnection(ds);
+            return select(query, variables, connection, false);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
     public void assertConnectionIsValid(Connection connection) throws IllegalArgumentException, RuntimeException {
     	if (connection == null) {
     		throw new IllegalArgumentException("The given connection is null.");
@@ -592,6 +600,12 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
                             cellValues.put(column, 0);
                         }
                         break;
+                    case TypeNames.SHORT:
+                        cellValues.put(column, rs.getShort(columnIndex));
+                        if (rs.wasNull()) {
+                            cellValues.put(column, 0);
+                        }
+                        break;
                     case TypeNames.LONG:
                         cellValues.put(column, rs.getLong(columnIndex));
                         if (rs.wasNull()) {
@@ -759,7 +773,7 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
         } else {
         	answer = emptyBean();
         	String msg = "found no object for query '%s'"; 
-            logger.debug(String.format(msg,  sql));
+                logger.debug(String.format(msg,  sql));
         }
 
         return answer;

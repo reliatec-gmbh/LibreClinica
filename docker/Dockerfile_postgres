@@ -1,0 +1,6 @@
+FROM postgres:14-alpine
+USER postgres
+LABEL maintainer="Lucio M. <lucioric2000@hotmail.com>"
+MAINTAINER   Lucio M. <lucioric2000@hotmail.com>
+#ADD ./backup_22_01_2024_bak.sql /docker-entrypoint-initdb.d/init.sql
+ADD . /docker-folder

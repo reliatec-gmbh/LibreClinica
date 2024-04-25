@@ -50,7 +50,202 @@
 	       ORDER BY s.subject_id, stu.study_id
 	  </sql>
 	</query>
+	<query>
+		<name>countProtocolDeviationByStudy</name>
+		<sql>
+			SELECT COUNT( mss.study_subject_id) FROM study_subject mss, study mst
+			WHERE
+			mss.study_id = mst.study_id AND
+			(mst.study_id=? or mst.parent_study_id=?)
+		</sql>
+	</query>
 
+	<query>
+		<name>findAllProtocolDeviationSeverity</name>
+		<sql>
+			SELECT * FROM protocol_deviation_severity
+			ORDER BY protocol_deviation_severity_id;
+		</sql>
+	</query>
+
+	<query>
+		<name>findProtocolDeviationSubjectById</name>
+		<sql>SELECT pds.id, pds.protocol_deviation_id, pds.subject_id,
+			ss.label, ss.secondary_label
+			FROM protocol_deviation_subject pds
+			INNER JOIN study_subject ss ON
+			pds.subject_id  = ss.study_subject_id
+			WHERE pds.protocol_deviation_id = ? AND pds.subject_id = ?
+		</sql>
+	</query>
+	<query>
+		<name>findProtocolDeviationByIdAndStudy</name>
+		<sql>
+			SELECT pd.protocol_deviation_id,
+			pd."label", pd.study_id, pd.item_a_1, pd.item_a_2, COALESCE(pd.item_a_3, CAST('1900-1-1' AS DATE)) item_a_3,
+			COALESCE(pd.item_a_4, CAST('1900-1-1' AS DATE)) item_a_4,
+			COALESCE(pd.item_a_5, CAST('1900-1-1' AS DATE)) item_a_5, pd.item_a_6, pd.item_a_7, /* 1 - 9*/
+			COALESCE(pd.item_a_7_1, CAST('1900-1-1' AS DATE)) item_a_7_1, pd.item_a_8, pd.item_b_1, pd.item_b_2, pd.item_b_3, pd.item_b_4, pd.item_b_5, pd.item_b_6, pd.item_b_7, pd.item_b_8, /* 10 - 19 */
+			pd.item_b_9, pd.item_b_10, pd.item_b_11, pd.item_b_12, pd.item_b_13, pd.item_b_14, pd.item_b_15, pd.item_b_16, pd.item_b_17, pd.item_b_18, /* 20 - 29 */
+			pd.item_c_1_1, pd.item_c_1_2, pd.item_c_1_3, pd.item_c_1_4, pd.item_c_1_5, pd.item_c_1_6, pd.item_c_1_7, pd.item_c_1_8, pd.item_c_1_9, pd.item_c_1_10, /* 30 - 39 */
+			pd.item_c_2, COALESCE(pd.item_d_1_a, CAST('1900-1-1' AS DATE)) item_d_1_a, pd.item_d_1_b, pd.item_e1, pd.item_e2, pd.item_e3, pd.item_e4, pd.item_f_1, pd.item_f_2,
+			COALESCE(pd.item_f_3, CAST('1900-1-1' AS DATE)) item_f_3, /* 40 - 49*/
+			pd.item_g_1, pd.item_g_2_1, pd.item_g_2_2, pd.item_g_2_3, pd.item_g_2_4, pd.item_g_3, pd.item_g_4, pd.item_g_5,
+			COALESCE(pd.item_g_6, CAST('1900-1-1' AS DATE)) item_g_6, pd.item_g_6_1_a, /* 50 - 59 */
+			pd.item_g_6_1_b, pd.item_g_6_1_c, pd.item_g_6_2_a, pd.item_g_6_2_b, pd.item_g_6_2_c, pd.item_g_6_3_a, pd.item_g_6_3_b, pd.item_g_6_3_c, /* 60 - 67 */
+			pd.item_g_6_4_a, pd.item_g_6_4_b, pd.item_g_6_4_c, pd.item_g_7, pd.item_g_8, pd.item_g_9
+			FROM protocol_deviation pd
+			WHERE pd.protocol_deviation_id = ? AND pd.study_id = ? AND
+			pd.study_id = ?
+		</sql>
+	</query>
+	<query>
+		<name>findAllProtocolDeviationsByStudyId</name>
+		<sql>
+			SELECT pd.protocol_deviation_id,
+			pd."label", pd.study_id, pd.item_a_1, pd.item_a_2, COALESCE(pd.item_a_3, CAST('1900-1-1' AS DATE)) item_a_3,
+				COALESCE(pd.item_a_4, CAST('1900-1-1' AS DATE)) item_a_4,
+				COALESCE(pd.item_a_5, CAST('1900-1-1' AS DATE)) item_a_5, pd.item_a_6, pd.item_a_7, /* 1 - 9*/
+			COALESCE(pd.item_a_7_1, CAST('1900-1-1' AS DATE)) item_a_7_1, pd.item_a_8, pd.item_b_1, pd.item_b_2, pd.item_b_3, pd.item_b_4, pd.item_b_5, pd.item_b_6, pd.item_b_7, pd.item_b_8, /* 10 - 19 */
+			pd.item_b_9, pd.item_b_10, pd.item_b_11, pd.item_b_12, pd.item_b_13, pd.item_b_14, pd.item_b_15, pd.item_b_16, pd.item_b_17, pd.item_b_18, /* 20 - 29 */
+			pd.item_c_1_1, pd.item_c_1_2, pd.item_c_1_3, pd.item_c_1_4, pd.item_c_1_5, pd.item_c_1_6, pd.item_c_1_7, pd.item_c_1_8, pd.item_c_1_9, pd.item_c_1_10, /* 30 - 39 */
+			pd.item_c_2, COALESCE(pd.item_d_1_a, CAST('1900-1-1' AS DATE)) item_d_1_a, pd.item_d_1_b, pd.item_e1, pd.item_e2, pd.item_e3, pd.item_e4, pd.item_f_1, pd.item_f_2,
+				COALESCE(pd.item_f_3, CAST('1900-1-1' AS DATE)) item_f_3, /* 40 - 49*/
+			pd.item_g_1, pd.item_g_2_1, pd.item_g_2_2, pd.item_g_2_3, pd.item_g_2_4, pd.item_g_3, pd.item_g_4, pd.item_g_5,
+				COALESCE(pd.item_g_6, CAST('1900-1-1' AS DATE)) item_g_6, pd.item_g_6_1_a, /* 50 - 59 */
+			pd.item_g_6_1_b, pd.item_g_6_1_c, pd.item_g_6_2_a, pd.item_g_6_2_b, pd.item_g_6_2_c, pd.item_g_6_3_a, pd.item_g_6_3_b, pd.item_g_6_3_c, /* 60 - 67 */
+			pd.item_g_6_4_a, pd.item_g_6_4_b, pd.item_g_6_4_c, pd.item_g_7, pd.item_g_8, pd.item_g_9
+			FROM protocol_deviation pd
+			WHERE study_id = ?
+			ORDER BY pd.label
+		</sql>
+	</query>
+	<query>
+		<name>findSubjectsByProtocolDeviationId</name>
+		<sql>SELECT pds.id, pds.protocol_deviation_id, pds.subject_id,
+			ss.label, ss.secondary_label
+			FROM protocol_deviation_subject pds INNER JOIN study_subject ss ON
+			pds.subject_id = ss.study_subject_id
+			WHERE protocol_deviation_id = ?
+		</sql>
+	</query>
+
+	<query>
+		<name>createProtocolDeviationSubject</name>
+		<sql>INSERT INTO protocol_deviation_subject(protocol_deviation_id, subject_id) VALUES(?, ?);
+		</sql>
+	</query>
+	<query>
+		<name>getCurrentProtocolDeviationPrimaryKey</name>
+		<sql>SELECT currval('protocol_deviation_protocol_deviation_id_seq') AS key</sql>
+	</query>
+	<query>
+		<name>getCurrentProtocolDeviationSubjectPrimaryKey</name>
+		<sql>SELECT currval('protocol_deviation_subject_id_seq') AS key</sql>
+	</query>
+
+	<query>
+		<name>createProtocolDeviation</name>
+		<sql>INSERT INTO public.protocol_deviation (
+			"label", study_id, item_a_1, item_a_2, item_a_3, item_a_4, item_a_5, item_a_6, item_a_7, /* 1 - 9*/
+			item_a_7_1, item_a_8, item_b_1, item_b_2, item_b_3, item_b_4, item_b_5, item_b_6, item_b_7, item_b_8, /* 10 - 19 */
+			item_b_9, item_b_10, item_b_11, item_b_12, item_b_13, item_b_14, item_b_15, item_b_16, item_b_17, item_b_18, /* 20 - 29 */
+			item_c_1_1, item_c_1_2, item_c_1_3, item_c_1_4, item_c_1_5, item_c_1_6, item_c_1_7, item_c_1_8, item_c_1_9, item_c_1_10, /* 30 - 39 */
+			item_c_2, item_d_1_a, item_d_1_b, item_e1, item_e2, item_e3, item_e4, item_f_1, item_f_2, item_f_3, /* 40 - 49*/
+			item_g_1, item_g_2_1, item_g_2_2, item_g_2_3, item_g_2_4, item_g_3, item_g_4, item_g_5, item_g_6, item_g_6_1_a, /* 50 - 59 */
+			item_g_6_1_b, item_g_6_1_c, item_g_6_2_a, item_g_6_2_b, item_g_6_2_c, item_g_6_3_a, item_g_6_3_b, item_g_6_3_c, /* 60 - 67 */
+			item_g_6_4_a, item_g_6_4_b, item_g_6_4_c, item_g_7, item_g_8, item_g_9 /* 68 - 73 */
+			) VALUES (
+			?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+			?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+			?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+			?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+			?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+			?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+			?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+			?, ?, ?
+			);
+
+		</sql>
+	</query>
+	<query>
+		<name>updateProtocolDeviation</name>
+		<sql>
+			UPDATE protocol_deviation SET
+			item_a_1 = ?,
+			item_a_2 = ?,
+			item_a_3 = ?,
+			item_a_4 = ?,
+			item_a_5 = ?,
+			item_a_6 = ?,
+			item_a_7 = ?,
+			item_a_7_1 = ?,
+			item_a_8 = ?,
+			item_b_1 = ?,
+			item_b_2 = ?,
+			item_b_3 = ?,
+			item_b_4 = ?,
+			item_b_5 = ?,
+			item_b_6 = ?,
+			item_b_7 = ?,
+			item_b_8 = ?,
+			item_b_9 = ?,
+			item_b_10 = ?,
+			item_b_11 = ?,
+			item_b_12 = ?,
+			item_b_13 = ?,
+			item_b_14 = ?,
+			item_b_15 = ?,
+			item_b_16 = ?,
+			item_b_17 = ?,
+			item_b_18 = ?,
+			item_c_1_1 = ?,
+			item_c_1_2 = ?,
+			item_c_1_3 = ?,
+			item_c_1_4 = ?,
+			item_c_1_5 = ?,
+			item_c_1_6 = ?,
+			item_c_1_7 = ?,
+			item_c_1_8 = ?,
+			item_c_1_9 = ?,
+			item_c_1_10 = ?,
+			item_c_2 = ?,
+			item_d_1_a = ?,
+			item_d_1_b = ?,
+			item_e1 = ?,
+			item_e2 = ?,
+			item_e3 = ?,
+			item_e4 = ?,
+			item_f_1 = ?,
+			item_f_2 = ?,
+			item_f_3 = ?,
+			item_g_1 = ?,
+			item_g_2_1 = ?,
+			item_g_2_2 = ?,
+			item_g_2_3 = ?,
+			item_g_2_4 = ?,
+			item_g_3 = ?,
+			item_g_4 = ?,
+			item_g_5 = ?,
+			item_g_6 = ?,
+			item_g_6_1_a = ?,
+			item_g_6_1_b = ?,
+			item_g_6_1_c = ?,
+			item_g_6_2_a = ?,
+			item_g_6_2_b = ?,
+			item_g_6_2_c = ?,
+			item_g_6_3_a = ?,
+			item_g_6_3_b = ?,
+			item_g_6_3_c = ?,
+			item_g_6_4_a = ?,
+			item_g_6_4_b = ?,
+			item_g_6_4_c = ?,
+			item_g_7 = ?,
+			item_g_8 = ?,
+			item_g_9 = ?
+			WHERE protocol_deviation_id = ?
+		</sql>
+	</query>
 	<query>
 		<name>findByUniqueIdentifierAndStudy</name>
 		<sql>

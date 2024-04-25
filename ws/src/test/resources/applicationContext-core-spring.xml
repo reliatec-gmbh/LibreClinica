@@ -7,7 +7,7 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd"
     >
     
-    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"
+    <bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer"
         p:locations="classpath:test.properties"
         p:placeholderPrefix="s["
         p:placeholderSuffix="]"

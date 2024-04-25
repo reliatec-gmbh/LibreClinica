@@ -10,10 +10,7 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toCollection;
 
 import java.sql.Types;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Locale;
+import java.util.*;
 import java.util.stream.Stream;
 
 import javax.sql.DataSource;
@@ -22,7 +19,6 @@ import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.managestudy.StudyType;
 import org.akaza.openclinica.dao.core.AuditableEntityDAO;
-import org.akaza.openclinica.dao.core.CoreResources;
 import org.akaza.openclinica.dao.core.DAODigester;
 import org.akaza.openclinica.dao.core.SQLFactory;
 import org.akaza.openclinica.dao.core.TypeNames;
@@ -174,6 +170,22 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
         this.setTypeExpected(56, TypeNames.INT);
         this.setTypeExpected(57, TypeNames.STRING); // e-mail notification
         this.setTypeExpected(58, TypeNames.STRING); // contact e-mail
+        // Facility Address (4 lines)
+        this.setTypeExpected(59, TypeNames.STRING); // facility_address_1
+        this.setTypeExpected(60, TypeNames.STRING); // facility_address_2
+        this.setTypeExpected(61, TypeNames.STRING); // facility_address_3
+        this.setTypeExpected(62, TypeNames.STRING); // facility_address_4
+        //
+        this.setTypeExpected(63, TypeNames.STRING); // sub_site
+        this.setTypeExpected(64, TypeNames.STRING); // contract_number
+        this.setTypeExpected(65, TypeNames.STRING); // location_type
+        this.setTypeExpected(66, TypeNames.BOOL); // active
+        this.setTypeExpected(67, TypeNames.STRING); // fwa_institution
+        this.setTypeExpected(68, TypeNames.STRING); // fwa_number
+        this.setTypeExpected(69, TypeNames.DATE); // fwa_expiration_date
+        this.setTypeExpected(70, TypeNames.STRING); // site_type
+        this.setTypeExpected(71, TypeNames.STRING); // laboratory_ids
+        this.setTypeExpected(72, TypeNames.STRING); // consortium_name
     }
 
     /**
@@ -261,9 +273,29 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
         } else {
             variables.put(25, sb.getContactEmail());
         }
-        
+
+        //Facility address
+        variables.put(26, sb.getFacilityAddress1());// facility address line 1
+        variables.put(27, sb.getFacilityAddress2());// facility address line 2
+        variables.put(28, sb.getFacilityAddress3());// facility address line 3
+        variables.put(29, sb.getFacilityAddress4());// facility address line 4
+
+        //Sub site, contracts, location type, active, fwa institution, fwa name, fwa expiration date
+        variables.put(30, sb.getSubSite());// sub_site
+        variables.put(31, sb.getContractNumber());// contract_number
+        variables.put(32, sb.getLocationType());// location_type
+        variables.put(33, sb.getActive());// active
+        variables.put(34, sb.getFwaInstitution());// fwa_institution
+        variables.put(35, sb.getFwaNumber());// fwa_number
+        variables.put(36, sb.getFwaExpirationDate());// fwa_expiration_date
+        variables.put(37, sb.getSiteType());// site_type
+        variables.put(38, String.join(",", sb.getLaboratoryIds()));// laboratory_ids
+        variables.put(39, String.join(",", sb.getConsortiumNames()));// consortium_name
+
+
+
         // SQL Update where
-        variables.put(26, sb.getId());// study id
+        variables.put(40, sb.getId());// study id
         
         this.executeUpdate(digester.getQuery("updateStepOne"), variables, nullVars);
         return sb;
@@ -372,6 +404,26 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
             variables.put(26, sb.getContactEmail());
         }
 
+        //Facility address
+        variables.put(27, sb.getFacilityAddress1());// facility address line 1
+        variables.put(28, sb.getFacilityAddress2());// facility address line 2
+        variables.put(29, sb.getFacilityAddress3());// facility address line 3
+        variables.put(30, sb.getFacilityAddress4());// facility address line 4
+
+        variables.put(31, sb.getSubSite());// sub_site
+        variables.put(32, sb.getContractNumber());// contract_number
+        variables.put(33, sb.getLocationType());// location_type
+        variables.put(34, sb.getActive());// active
+        variables.put(35, sb.getFwaInstitution());// fwa_institution
+        variables.put(36, sb.getFwaNumber());// fwa_number
+        Date fwaExpDate = sb.getFwaExpirationDate();
+        variables.put(37, fwaExpDate);// fwa_expiration_date
+        if (fwaExpDate== null) {
+            nullVars.put(37, Types.DATE);
+        }
+        variables.put(38, sb.getSiteType());// site_type
+        variables.put(39, String.join(",", sb.getLaboratoryIds()));// laboratory_ids
+        variables.put(40, String.join(",", sb.getConsortiumNames()));// consortium_name
         // replace this with the owner id
         this.executeUpdate(digester.getQuery("createStepOne"), variables, nullVars);
         return sb;
@@ -596,6 +648,23 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
         eb.setOldStatus(Status.get(oldStatusId));
         eb.setMailNotification(((String) hm.get("mail_notification")));
         eb.setContactEmail(((String) hm.get("contact_email")));
+        eb.setFacilityAddress1((String) hm.get("facility_address_1"));
+        eb.setFacilityAddress2((String) hm.get("facility_address_2"));
+        eb.setFacilityAddress3((String) hm.get("facility_address_3"));
+        eb.setFacilityAddress4((String) hm.get("facility_address_4"));
+
+        eb.setSubSite((String) hm.get("sub_site"));
+        eb.setContractNumber((String) hm.get("contract_number"));
+
+        eb.setLocationType((String) hm.get("location_type"));
+        eb.setActive((Boolean) hm.get("active"));
+        eb.setFwaInstitution((String) hm.get("fwa_institution"));
+        eb.setFwaNumber((String) hm.get("fwa_number"));
+        eb.setFwaExpirationDate((Date) hm.get("fwa_expiration_date"));
+        eb.setSiteType((String) hm.get("site_type"));
+        eb.setLaboratoryIds(Arrays.asList(((String) hm.get("laboratory_ids")).split(",")));
+        eb.setConsortiumNames(Arrays.asList(((String) hm.get("consortium_names")).split(",")));
+
         return eb;
     }
 
@@ -812,6 +881,10 @@ public class StudyDAO extends AuditableEntityDAO<StudyBean> {
         String queryName = "findAllByParentStudyIdOrderedByIdAsc";
         HashMap<Integer, Object> variables = variables(parentStudyId, parentStudyId);
         return executeFindAllQuery(queryName, variables);
+    }
+
+    public StudyBean getDefaultStudy() {
+        return executeFindByPKQuery("findDefaultStudy");
     }
 
     @Override

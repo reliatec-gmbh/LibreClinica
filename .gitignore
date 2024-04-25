@@ -1,5 +1,5 @@
 target/
-odm/src/main/java/
+#odm/src/main/java/
 odm/target/
 pom.xml.tag
 pom.xml.releaseBackup
@@ -29,3 +29,7 @@ ws/.DS_Store
 # netbeans
 nb-configuration.xml
 /.README.md.html
+
+/node_modules
+.env_emails
+.env

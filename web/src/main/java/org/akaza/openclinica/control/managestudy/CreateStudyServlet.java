@@ -61,6 +61,20 @@ public class CreateStudyServlet extends SecureController {
 
     public static final String FAC_NAME = "FacName";
 
+    public static final String FAC_ADDRESS_1 = "FacAddress1";
+    public static final String FAC_ADDRESS_2 = "FacAddress2";
+    public static final String FAC_ADDRESS_3 = "FacAddress3";
+    public static final String FAC_ADDRESS_4 = "FacAddress4";
+
+    public static final String SUB_SITE = "SubSite";
+    public static final String CONTRACT_NUMBER = "ContractNumber";
+    public static final String LOCATION_TYPE = "LocationType";
+    public static final String ACTIVE = "Active";
+    public static final String FWA_INSTITUTION = "FwaInstitution";
+    public static final String FWA_NUMBER = "FwaNumber";
+    public static final String FWA_EXPIRATION_DATE = "FwaExpirationDate";
+
+
     public static final String FAC_CITY = "FacCity";
 
     public static final String FAC_STATE = "FacState";
@@ -653,6 +667,12 @@ public class CreateStudyServlet extends SecureController {
         if (errors.isEmpty()) {
             // get default facility info from property file
             newStudy.setFacilityName(SQLInitServlet.getField(FAC_NAME));
+            //Still the frontend for studies does not consider the address, but the address fields are in the database table 'study',
+            //so we need to set the address fields to empty string.
+            newStudy.setFacilityAddress1(SQLInitServlet.getField(FAC_ADDRESS_1));
+            newStudy.setFacilityAddress2(SQLInitServlet.getField(FAC_ADDRESS_2));
+            newStudy.setFacilityAddress3(SQLInitServlet.getField(FAC_ADDRESS_3));
+            newStudy.setFacilityAddress4(SQLInitServlet.getField(FAC_ADDRESS_4));
             newStudy.setFacilityCity(SQLInitServlet.getField(FAC_CITY));
             newStudy.setFacilityState(SQLInitServlet.getField(FAC_STATE));
             newStudy.setFacilityCountry(SQLInitServlet.getField(FAC_COUNTRY));

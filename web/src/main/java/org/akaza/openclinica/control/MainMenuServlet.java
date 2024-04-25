@@ -136,7 +136,7 @@ public class MainMenuServlet extends SecureController {
 	            session.setAttribute("passwordExpired", "no");
 	
 	            if (!ub.isLdapUser() && pwdExpireDay > 0 && days >= pwdExpireDay) {// password expired, need to be changed
-			System.out.println("here");
+			//System.out.println("here");
 			studies = sdao.findAllByUser(ub.getName());
 	                request.setAttribute("studies", studies);
 	                session.setAttribute("userBean1", ub);
@@ -216,6 +216,7 @@ public class MainMenuServlet extends SecureController {
                     }
 
                 }
+
 
                 forwardPage(Page.MENU);
 //            }

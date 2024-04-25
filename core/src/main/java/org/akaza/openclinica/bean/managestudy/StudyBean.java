@@ -12,6 +12,11 @@ import static org.akaza.openclinica.domain.managestudy.MailNotificationType.ENAB
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.StringTokenizer;
+import java.util.List;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.stream.Collectors;
 
 import org.akaza.openclinica.bean.core.AuditableEntityBean;
 import org.akaza.openclinica.bean.core.Status;
@@ -41,7 +46,12 @@ public class StudyBean extends AuditableEntityBean {
     private String officialTitle = "";
     private String identifier = "";
     private String secondaryIdentifier = "";
+    private String subSite ="";
+    private String contractNumber = "";
+    private String siteType = "";
     private String summary = "";// need to be removed
+
+    private List<String> laboratoryIds = null;//laboratory ids are strings at rest, but it may change for it to be integers
 
     private Date datePlannedStart;
     private Date datePlannedEnd;
@@ -61,10 +71,23 @@ public class StudyBean extends AuditableEntityBean {
 
     private String principalInvestigator = "";
     private String facilityName = "";
+    private String facilityAddress1 = "";
+    private String facilityAddress2 = "";
+    private String facilityAddress3 = "";
+    private String facilityAddress4 = "";
     private String facilityCity = "";
     private String facilityState = "";
     private String facilityZip = "";
     private String facilityCountry = "";
+
+    private List<String> consortiumNames = null;
+
+    private String locationType = null;
+    //private Boolean active = null;
+
+    private String fwaInstitution = "";
+    private String fwaNumber = "";
+    private Date fwaExpirationDate = null;
     private String facilityRecruitmentStatus = "";
     private String facilityContactName = "";
     private String facilityContactDegree = "";
@@ -89,6 +112,7 @@ public class StudyBean extends AuditableEntityBean {
     private String studyUuid;
     private String mailNotification = MailNotificationType.DISABLED.name();
     private String contactEmail;
+    private Integer countOfStudySubjectsAtStudyOrSite;
 
     public boolean isPublished() {
         return published;
@@ -287,10 +311,6 @@ public class StudyBean extends AuditableEntityBean {
         return collaborators;
     }
 
-    /**
-     * @param collaborators
-     *            The collaborators to set.
-     */
     public void setSchemaName(String schemaName) {
         this.schemaName = schemaName;
     }
@@ -468,6 +488,66 @@ public class StudyBean extends AuditableEntityBean {
     }
 
     /**
+     * @return Returns the facilityAddress1.
+     */
+    public String getFacilityAddress1() {
+        return facilityAddress1;
+    }
+
+    /**
+     * @param facilityAddress1
+     *            The facilityAddress1 to set.
+     */
+    public void setFacilityAddress1(String facilityAddress1) {
+        this.facilityAddress1 = facilityAddress1;
+    }
+
+    /**
+     * @return Returns the facilityAddress2.
+     */
+    public String getFacilityAddress2() {
+        return facilityAddress2;
+    }
+
+    /**
+     * @param facilityAddress2
+     *            The facilityAddress2 to set.
+     */
+    public void setFacilityAddress2(String facilityAddress2) {
+        this.facilityAddress2 = facilityAddress2;
+    }
+
+    /**
+     * @return Returns the facilityAddress3.
+     */
+    public String getFacilityAddress3() {
+        return facilityAddress3;
+    }
+
+    /**
+     * @param facilityAddress3
+     *            The facilityAddress1 to set.
+     */
+    public void setFacilityAddress3(String facilityAddress3) {
+        this.facilityAddress3 = facilityAddress3;
+    }
+
+    /**
+     * @return Returns the facilityAddress4.
+     */
+    public String getFacilityAddress4() {
+        return facilityAddress4;
+    }
+
+    /**
+     * @param facilityAddress4
+     *            The facilityAddress4 to set.
+     */
+    public void setFacilityAddress4(String facilityAddress4) {
+        this.facilityAddress4 = facilityAddress4;
+    }
+
+    /**
      * @return Returns the facilityCity.
      */
     public String getFacilityCity() {
@@ -481,7 +561,6 @@ public class StudyBean extends AuditableEntityBean {
     public void setFacilityCity(String facilityCity) {
         this.facilityCity = facilityCity;
     }
-
     /**
      * @return Returns the facilityContactDegree.
      */
@@ -1202,5 +1281,126 @@ public class StudyBean extends AuditableEntityBean {
 
     public boolean contactEmailAbsentButNotification() {
         return ENABLED.name().equalsIgnoreCase(this.mailNotification) && contactEmailAbsent();
+    }
+
+    public Integer getCountOfStudySubjectsAtStudyOrSite() {
+        return countOfStudySubjectsAtStudyOrSite;
+    }
+
+    public Integer getNextCountOfStudySubjectsAtStudyOrSite() {
+        return Integer.sum(getCountOfStudySubjectsAtStudyOrSite(), 1);
+    }
+
+    public void setCountOfStudySubjectsAtStudyOrSite(Integer countOfStudySubjectsAtStudyOrSite) {
+        this.countOfStudySubjectsAtStudyOrSite = countOfStudySubjectsAtStudyOrSite;
+    }
+
+    public String getSiteIdOfStudy() {
+        if (parentStudyId > 0) {
+            String identifier = getIdentifier();
+            String[] splitStringIdentifier = identifier.split(" ");
+            return splitStringIdentifier[0];
+        } else {
+            return "00";
+        }
+
+    }
+
+    @Deprecated
+    public String newId() {
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyyHHmmss");
+        return now.format(formatter);
+    }
+
+    public String getSubSite() {
+        return subSite;
+    }
+
+    public void setSubSite(String subSite) {
+        this.subSite = subSite;
+    }
+
+    public List<String> getConsortiumNames() {
+        return consortiumNames;
+    }
+
+    public void setConsortiumNames(List<String> consortiumNames) {
+        this.consortiumNames = consortiumNames;
+    }
+
+    public String getLocationType() {
+        return locationType;
+    }
+
+    public String getLocationType1Letter() {
+        // Read-only 1-letter property for locationType
+        if (locationType == null || locationType.isEmpty()) {
+            return "";
+        } else {
+            return locationType.substring(0, 1).toUpperCase();
+        }
+    }
+    public void setLocationType(String locationType) {
+        this.locationType = locationType;
+    }
+
+    public Boolean getActive() {
+        return active;
+    }
+    public String getActiveString() {
+        //Read-only string property for active
+        return active?"Active":"Inactive";
+    }
+
+    public String getContractNumber() {
+        return contractNumber;
+    }
+
+    public void setContractNumber(String contractNumber) {
+        this.contractNumber = contractNumber;
+    }
+
+    public String getFwaInstitution() {
+        return fwaInstitution;
+    }
+
+    public void setFwaInstitution(String fwaInstitution) {
+        this.fwaInstitution = fwaInstitution;
+    }
+
+    public String getFwaNumber() {
+        return fwaNumber;
+    }
+
+    public void setFwaNumber(String fwaNumber) {
+        this.fwaNumber = fwaNumber;
+    }
+
+    public Date getFwaExpirationDate() {
+        return fwaExpirationDate;
+    }
+
+    public void setFwaExpirationDate(Date fwaExpirationDate) {
+        this.fwaExpirationDate = fwaExpirationDate;
+    }
+
+    public String getSiteType() {
+        return siteType;
+    }
+
+    public void setSiteType(String siteType) {
+        this.siteType = siteType;
+    }
+
+    public List<String> getLaboratoryIds() {
+        return laboratoryIds;
+    }
+
+    public void setLaboratoryIds(List<String> laboratoryIds) {
+        this.laboratoryIds = laboratoryIds;
+    }
+    public List<Integer> getLaboratoryIds_int() {
+        return laboratoryIds.stream().map(Integer::valueOf).collect(Collectors.toList());
     }
 }

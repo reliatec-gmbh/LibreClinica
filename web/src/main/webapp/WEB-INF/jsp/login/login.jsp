@@ -1,7 +1,45 @@
+<%
+    String self_url = ServletUriComponentsBuilder.fromCurrentContextPath().build().toString();
+    String oauth_client_id = CoreResources.getField("oauth.clientId");
+    String oauth_redirect_uri = self_url + CoreResources.getField("oauth.redirectUri") /* "/oauth"*/;
+    String oauth_authorize_url = CoreResources.getField("oauth.authorizeUrl") +
+            "?response_type=code&client_id="+oauth_client_id+"&"+
+            "redirect_uri="+oauth_redirect_uri+"&scope=openid%20profile";
+    String oauth_as_first_page = CoreResources.getField("oauth.as_login_page");
+    if("true".compareTo(oauth_as_first_page)==0)
+        response.sendRedirect(oauth_authorize_url);
+    String url_options = self_url + "/pages/welcome";
+%>
+
 <%@ include file="/WEB-INF/jsp/taglibs.jsp" %>
 <%@ page import="org.springframework.web.servlet.support.RequestContextUtils" %>
 <%@ page import="org.springframework.context.ApplicationContext" %>
 <%@ page import="org.akaza.openclinica.service.otp.TwoFactorService" %>
+<%@ page import="org.springframework.web.servlet.support.ServletUriComponentsBuilder" %>
+<%@ page import="java.net.URL" %>
+<%@ page import="java.net.HttpURLConnection" %>
+<%@ page import="java.util.Base64" %>
+<%@ page import="java.util.Map" %>
+<%@ page import="java.nio.charset.StandardCharsets" %>
+<%@ page import="com.fasterxml.jackson.databind.ObjectMapper" %>
+<%@ page import="java.io.*" %>
+<%@ page import="com.fasterxml.jackson.core.JsonParser" %>
+<%@ page import="com.fasterxml.jackson.databind.JsonNode" %>
+<%@ page import="java.util.logging.Logger" %>
+<%@ page import="org.slf4j.LoggerFactory" %>
+<%@ page import="java.net.URLEncoder" %>
+<%@ page import="org.akaza.openclinica.bean.login.UserAccountBean" %>
+<%@ page import="org.akaza.openclinica.core.SecurityManager" %>
+<%@ page import="org.akaza.openclinica.control.SpringServletAccess" %>
+<%@ page import="org.akaza.openclinica.bean.core.Status" %>
+<%@ page import="org.akaza.openclinica.dao.hibernate.AuthoritiesDao" %>
+<%@ page import="org.akaza.openclinica.domain.user.AuthoritiesBean" %>
+<%@ page import="org.akaza.openclinica.dao.hibernate.UserAccountDao" %>
+<%@ page import="org.akaza.openclinica.dao.login.UserAccountDAO" %>
+<%@ page import="javax.sql.DataSource" %>
+<%@ page import="org.akaza.openclinica.control.core.SecureController" %>
+<%@ page import="org.akaza.openclinica.dao.core.CoreResources" %>
+
 
 <!-- For Mantis Issue 6099 -->
 <jsp:useBean scope='session' id='userBean' class='org.akaza.openclinica.bean.login.UserAccountBean'/>
@@ -111,8 +149,11 @@ session.setAttribute("factorService", factorService);
                         </c:if>
 
                         <input type="submit" name="submit" value="<fmt:message key='login' bundle='${resword}'/>" class="loginbutton" />
+
                         <a href="#" id="requestPassword"> <fmt:message key="forgot_password" bundle="${resword}"/></a>
+                        <a href="<%= url_options %>" id="gowelcome" style="margin-left: 10px;"> Return to options</a>
                    </form>
+
                    <br/><jsp:include page="../login-include/login-alertbox.jsp"/>
                    <%-- <a href="<c:url value="/RequestPassword"/>"> <fmt:message key="forgot_password" bundle="${resword}"/></a> --%>
                	</div>

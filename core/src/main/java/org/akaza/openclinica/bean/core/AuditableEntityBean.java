@@ -96,7 +96,8 @@ public class AuditableEntityBean extends EntityBean {
      */
     public void setOwner(UserAccountBean owner) {
         this.owner = owner;
-        ownerId = owner.getId();
+        if(owner != null)
+            ownerId = owner.getId();
     }
 
     /**

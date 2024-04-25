@@ -22,7 +22,7 @@
      </bean>
       <bean id="testProperties" factory-bean="coreResources" factory-method="getDataInfo"/>
       
-    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"
+    <bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer"
         p:placeholderPrefix="s["
         p:placeholderSuffix="]"
      >

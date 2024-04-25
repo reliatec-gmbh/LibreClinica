@@ -15,8 +15,8 @@
 			  <input type="hidden" name="addWithEvent" value="1"/>
 				<c:choose>
 			      <c:when test="${study.studyParameterConfig.subjectIdGeneration =='auto non-editable'}">
-			       <input type="text" value="<c:out value="${label}"/>" tabindex ="<c:out value="${tabCount}"/>" size="12" class="formfield" disabled>
-			       <input type="hidden" name="label" value="<c:out value="${label}"/>">
+			       <input type="text" value="<c:out value="${study.newId()}"/>" tabindex ="<c:out value="${tabCount}"/>" size="12" class="formfield" disabled>
+			       <input type="hidden" name="label" value="<c:out value="${study.newId()}"/>">
 			      </c:when>
 			      <c:when test="${study.studyParameterConfig.subjectIdGeneration =='auto editable'}">
 			       <input onfocus="this.select()" onclick ="<%--if (this.value == '<fmt:message key="study_subject_ID" bundle="${resword}"/>'){ this.value =''}--%>" type="text" name="label" tabindex ="<c:out value="${tabCount}"/>" value="<c:out value="${label}"/>" size="12" class="formfield">

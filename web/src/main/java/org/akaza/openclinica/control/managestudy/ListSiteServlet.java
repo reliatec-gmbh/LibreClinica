@@ -83,9 +83,25 @@ public class ListSiteServlet extends SecureController {
             EntityBeanTable table = fp.getEntityBeanTable();
             ArrayList<StudyRow> allStudyRows = StudyRow.generateRowsFromBeans(studies);
 
+            Boolean fActive = fp.getString("active_site").equals("on");
+            Boolean fInactive = fp.getString("inactive_site").equals("on");
+            request.setAttribute("active_site", fp.getString("active_site"));
+            request.setAttribute("inactive_site", fp.getString("inactive_site"));
+            //System.out.println("atsite");
+            //System.out.println(request.getAttribute("inactive_site"));
+            if (fActive && !fInactive) {
+                allStudyRows.removeIf(row -> row.getBean().getStatus().getName().equals("available"));
+            } else if (!fActive && fInactive) {
+                allStudyRows.removeIf(row -> row.getBean().getStatus().getName().equals("unavailable"));
+            }
+
             String[] columns =
-                { resword.getString("name"), resword.getString("unique_identifier"), resword.getString("OID"), resword.getString("principal_investigator"),
-                    resword.getString("facility_name"), resword.getString("date_created"), resword.getString("status"), resword.getString("actions") };
+                { resword.getString("name"), resword.getString("unique_identifier"),
+                    resword.getString("OID"), resword.getString("sub_site"),
+                    resword.getString("facility_name"), resword.getString("date_created"),
+                    resword.getString("site_type"), resword.getString("consortium_name"),
+                    resword.getString("location_type_table"),
+                    resword.getString("status"), resword.getString("actions") };
             table.setColumns(new ArrayList<String>(Arrays.asList(columns)));
             table.hideColumnLink(2);
             table.hideColumnLink(6);

@@ -1,0 +1,188 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+
+    <changeSet id="1" author="lucioric2000">
+        <comment>Site module updates</comment>
+        <addColumn tableName="study">
+            <column name="sub_site" type="VARCHAR(3)">
+                <constraints nullable="true" />
+            </column>
+            <column name="contract_number" type="VARCHAR(20)">
+                <constraints nullable="true" />
+            </column>
+            <column name="location_type" type="VARCHAR(13)">
+                <constraints nullable="true" />
+            </column>
+            <column name="active" type="BOOLEAN">
+                <constraints nullable="true" />
+            </column>
+            <column name="fwa_institution" type="VARCHAR(200)">
+                <constraints nullable="true" />
+            </column>
+            <column name="fwa_name" type="VARCHAR(50)">
+                <constraints nullable="true" />
+            </column>
+            <column name="fwa_expiration_date" type="date">
+                <constraints nullable="true" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="2" author="lucioric2000">
+        <comment>Site module updates-adding site_type</comment>
+        <addColumn tableName="study">
+            <column name="site_type" type="VARCHAR(17)">
+                <constraints nullable="true" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="3" author="lucioric2000">
+        <comment>Adds a table with countries</comment>
+        <createTable tableName="countries">
+            <column name="sysid" type="INT">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="code" type="VARCHAR(3)">
+                <constraints nullable="false" />
+            </column>
+            <column name="displayname" type="VARCHAR(50)">
+                <constraints nullable="false" />
+            </column>
+            <column name="sortorder" type="INT">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+        <sqlFile encoding="UTF-8" path="countries.sql" relativeToChangelogFile="true"/>
+    </changeSet>
+    <changeSet id="4" author="lucioric2000">
+        <comment>Adds a table with laboratories for study 38</comment>
+        <createTable tableName="laboratories">
+            <column name="labId" type="INT">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="labName" type="VARCHAR(200)">
+                <constraints nullable="false" />
+            </column>
+            <column name="address1" type="VARCHAR(200)">
+                <constraints nullable="true" />
+            </column>
+            <column name="address2" type="VARCHAR(200)">
+                <constraints nullable="true" />
+            </column>
+            <column name="stateProvinceRegion" type="VARCHAR(100)">
+                <constraints nullable="true" />
+            </column>
+            <column name="city" type="VARCHAR(100)">
+                <constraints nullable="true" />
+            </column>
+            <column name="country" type="VARCHAR(100)">
+                <constraints nullable="true" />
+            </column>
+            <column name="zipPostal" type="VARCHAR(50)">
+                <constraints nullable="true" />
+            </column>
+            <column name="activeLab" type="BOOLEAN">
+                <constraints nullable="true" />
+            </column>
+            <column name="labTypes" type="VARCHAR(80)">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="5" author="lucioric2000">
+        <comment>Adds data to a table with laboratories for study 38</comment>
+        <sqlFile encoding="UTF-8" path="laboratories.sql" relativeToChangelogFile="true"/>
+    </changeSet>
+    <changeSet id="6" author="lucioric2000">
+        <comment>Creates a Foreign key to laboratory in the sites database</comment>
+        <addColumn tableName="study">
+            <column name="laboratory_id" type="INT">
+                <constraints nullable="true" />
+            </column>
+        </addColumn>
+        <addForeignKeyConstraint  baseColumnNames="laboratory_id"
+                                  baseTableCatalogName="cat"
+                                  baseTableName="study"
+                                  baseTableSchemaName="public"
+                                  constraintName="fk_study_laboratory"
+                                  deferrable="true"
+                                  initiallyDeferred="true"
+                                  onDelete="SET NULL"
+                                  onUpdate="RESTRICT"
+                                  referencedColumnNames="labId"
+                                  referencedTableCatalogName="cat"
+                                  referencedTableName="laboratories"
+                                  referencedTableSchemaName="public"
+                                  validate="true"/>
+    </changeSet>
+    <changeSet id="7" author="lucioric2000">
+        <renameColumn  catalogName="cat"
+                       columnDataType="VARCHAR(50)"
+                       newColumnName="fwa_number"
+                       oldColumnName="fwa_name"
+                       remarks="FWA number"
+                       schemaName="public"
+                       tableName="study"/>
+    </changeSet>
+    <changeSet id="8" author="lucioric2000">
+        <comment>Added consortium name</comment>
+        <addColumn tableName="study">
+            <column name="consortium_names" type="VARCHAR(50)">
+                <constraints nullable="true" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="9" author="lucioric2000">
+        <comment>Adds a table for correlating sites with laboratories</comment>
+        <createTable tableName="labs_for_site">
+            <column name="id" type="INT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="site_id" type="INT">
+                <constraints nullable="false" />
+            </column>
+            <column name="laboratory_id" type="INT">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+        <addForeignKeyConstraint  baseColumnNames="laboratory_id"
+                                  baseTableCatalogName="cat"
+                                  baseTableName="labs_for_site"
+                                  baseTableSchemaName="public"
+                                  constraintName="fk_site_laboratories"
+                                  deferrable="true"
+                                  initiallyDeferred="true"
+                                  onDelete="CASCADE"
+                                  onUpdate="RESTRICT"
+                                  referencedColumnNames="labId"
+                                  referencedTableCatalogName="cat"
+                                  referencedTableName="laboratories"
+                                  referencedTableSchemaName="public"
+                                  validate="true"/>
+        <addForeignKeyConstraint  baseColumnNames="site_id"
+                                  baseTableCatalogName="cat"
+                                  baseTableName="labs_for_site"
+                                  baseTableSchemaName="public"
+                                  constraintName="fk_site_for_laboratories"
+                                  deferrable="true"
+                                  initiallyDeferred="true"
+                                  onDelete="CASCADE"
+                                  onUpdate="RESTRICT"
+                                  referencedColumnNames="study_id"
+                                  referencedTableCatalogName="cat"
+                                  referencedTableName="study"
+                                  referencedTableSchemaName="public"
+                                  validate="true"/>
+    </changeSet>
+    <changeSet id="10" author="lucioric2000">
+        <comment>Deleted singular lab column and assed multiple labs column</comment>
+        <dropColumn tableName="study" columnName="id">
+                <column name="laboratory_id" type="INT"/>
+        </dropColumn>
+        <addColumn tableName="study">
+            <column name="laboratory_ids" type="TEXT">
+                <constraints nullable="true" />
+            </column>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>

@@ -120,6 +120,9 @@ public class CRFVersionBean extends AuditableEntityBean {
     public boolean isDownloadable() {
         return downloadable;
     }
+    public boolean getDownloadable() {
+        return downloadable;
+    }
 
     /**
      * @param downloadable

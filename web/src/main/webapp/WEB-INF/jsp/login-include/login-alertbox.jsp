@@ -12,7 +12,12 @@
 %>
     <div class="alertbox_center"><fmt:message key="password_failed" bundle="${restext}"/></div>
 <%
-       }  
+       }
+       if(action.equals("nooauthlogin")) {
+%>
+    <div class="alertbox_center"><fmt:message key="nooauth_login" bundle="${restext}"/></div>
+<%
+       }
     }
 %>
 

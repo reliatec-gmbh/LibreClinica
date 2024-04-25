@@ -456,6 +456,7 @@ public class Validator {
     
     public static final int NO_LEADING_OR_TRAILING_SPACES = 46;
     public static final int DOES_NOT_CONTAIN_HTML_LESSTHAN_GREATERTHAN_ELEMENTS = 47;
+    public static final int EMAIL_UNIQUE = 48;
 
     /**
      * The last field for which an addValidation method was invoked. This is
@@ -744,6 +745,9 @@ public class Validator {
             case USERNAME_UNIQUE:
                 errorMessage = resexception.getString("username_already_exists");
                 break;
+            case EMAIL_UNIQUE:
+                errorMessage = resexception.getString("email_already_exists");
+                break;
             case IS_AN_INTEGER:
                 errorMessage = resexception.getString("input_not_integer");
                 break;
@@ -959,6 +963,13 @@ public class Validator {
             UserAccountDAO udao = (UserAccountDAO) v.getArg(0);
 
             if (!usernameUnique(fieldName, udao)) {
+                addError(fieldName, v);
+            }
+            break;
+        case EMAIL_UNIQUE:
+            UserAccountDAO udao2 = (UserAccountDAO) v.getArg(0);
+
+            if (!emailUnique(fieldName, udao2)) {
                 addError(fieldName, v);
             }
             break;
@@ -1634,6 +1645,26 @@ break;
 
         try {
             UserAccountBean ub = (UserAccountBean) udao.findByUserName(fieldValue);
+
+            if (ub.isActive()) {
+                return false;
+            }
+        } catch (Exception e) {
+            return true;
+        }
+
+        return true;
+    }
+
+    protected boolean emailUnique(String email, UserAccountDAO udao) {
+        String fieldValue = getFieldValue(email);
+
+        if (fieldValue == null) {
+            return true;
+        }
+
+        try {
+            UserAccountBean ub = (UserAccountBean) udao.findByEmail(fieldValue);
 
             if (ub.isActive()) {
                 return false;

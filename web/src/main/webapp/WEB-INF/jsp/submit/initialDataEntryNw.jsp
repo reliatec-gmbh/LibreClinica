@@ -1409,6 +1409,6 @@ table-->
 <div id="testdiv1" style=
   "position:absolute;visibility:hidden;background-color:white"></div>
 </div>
-
+<script type="text/javascript" src="includes/rt_functions.js"></script>
 </body>
 </html>

@@ -60,6 +60,25 @@ public abstract class AbstractTableFactory {
 
     public abstract void setDataAndLimitVariables(TableFacade tableFacade);
 
+    public TableFacade createTable(HttpServletRequest request, HttpServletResponse response, String showNoEnrollment) {
+        locale = LocaleResolver.getLocale(request);
+        session = request.getSession();
+        TableFacade tableFacade = getTableFacadeImpl(request, response);
+        setStateAttr(tableFacade);
+        setDataAndLimitVariables(tableFacade);
+        configureTableFacade(response, tableFacade);
+        if (!tableFacade.getLimit().isExported()) {
+            configureColumns(tableFacade, locale);
+            tableFacade.setMaxRowsIncrements(getMaxRowIncrements());
+            configureTableFacadePostColumnConfiguration(tableFacade);
+            configureTableFacadeCustomView(tableFacade);
+            configureUnexportedTable(tableFacade, locale);
+        } else {
+            configureExportColumns(tableFacade, locale);
+        }
+        return tableFacade;
+    }
+
     public TableFacade createTable(HttpServletRequest request, HttpServletResponse response) {
         locale = LocaleResolver.getLocale(request);
         session = request.getSession();

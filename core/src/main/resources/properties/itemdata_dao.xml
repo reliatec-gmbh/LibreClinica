@@ -245,4 +245,15 @@
 		<name>isItemExists</name>
 		<sql>select item_data_id from item_data where item_id=? and ordinal=? AND event_crf_id = ?</sql>
 	</query>
+	<query>
+		<name>findAllItemDataBySubjectAndName</name>
+		<sql>select idat.*
+			FROM item_data idat
+			INNER JOIN item ON idat.item_id = item.item_id
+			INNER JOIN event_crf ecrf ON idat.event_crf_id = ecrf.event_crf_id
+			INNER JOIN study_subject ss ON ecrf.study_subject_id = ss.study_subject_id
+			WHERE ss.study_subject_id =? AND ss.study_id = ? AND item.name=?
+		</sql>
+	</query>
+
 </queries>

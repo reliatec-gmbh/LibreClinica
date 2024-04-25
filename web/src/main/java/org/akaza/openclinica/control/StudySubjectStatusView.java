@@ -46,7 +46,11 @@ public class StudySubjectStatusView  extends AbstractHtmlView {
 	        html.append(snippets.footer());
 	        html.append(snippets.tableEnd());
 	        html.append(snippets.themeEnd());
-	        html.append(snippets.initJavascriptLimit());
+
+			String scriptJQuery = snippets.initJavascriptLimit();
+			scriptJQuery = scriptJQuery.replace("$(document)", "jQuery(document)");
+			//html.append(snippets.initJavascriptLimit());
+			html.append(scriptJQuery);
 	       
 	        return html.toString();
 	    }

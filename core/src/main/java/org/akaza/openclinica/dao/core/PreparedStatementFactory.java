@@ -66,7 +66,7 @@ public class PreparedStatementFactory {
             if (objParam == null) {
                 logger.debug("found null object! " + order);
                 if (nullVars.get(order) != null) {
-                    Integer nullType = nullVars.get(order);
+                        Integer nullType = nullVars.get(order);
                     ps.setNull(order.intValue(), nullType.intValue());
                 } else {
                     throw new NullPointerException("No type found for this null object at order:" + order + ", make sure you set the type in your DAO.");
@@ -84,6 +84,9 @@ public class PreparedStatementFactory {
                 } else if ("java.lang.Integer".equals(objType)) {
                     Integer objIntParam = (Integer) objParam;
                     ps.setInt(order.intValue(), objIntParam.intValue());
+                } else if ("java.lang.Short".equals(objType)) {
+                    Short objIntParam = (Short) objParam;
+                    ps.setShort(order.intValue(), objIntParam.shortValue());
                 } else if ("java.util.Date".equals(objType)) {
                     java.util.Date objTempDate = (java.util.Date) objParam;
                     java.sql.Date objDateParam = new java.sql.Date(objTempDate.getTime());

@@ -83,15 +83,26 @@ public class SiteStatisticsTableFactory extends AbstractTableFactory {
          * set the totalRow before trying to get the row start and row end
          * variables.
          */
+        boolean isAParentSite = currentStudy.getParentStudyId()==0;
+        if(isAParentSite) {
+            StudyBean fakeStudyWithNoSite = new StudyBean();
+            fakeStudyWithNoSite.setName("(No site)");
+            fakeStudyWithNoSite.setId(currentStudy.getId());
+            fakeStudyWithNoSite.setExpectedTotalEnrollment(currentStudy.getExpectedTotalEnrollment());
+            studies.add(fakeStudyWithNoSite);
+        }
+
         if (!limit.isComplete()) {
             int totalRows = studies.size();
             tableFacade.setMaxRows(totalRows);
             tableFacade.setTotalRows(totalRows);
         }
 
+
+
         for (StudyBean studyBean : studies) {
             // Get number of subjects enrolled at a specific study or site
-            Integer countofStudySubjectsAtStudyOrSite = studySubjectDao.getCountofStudySubjectsAtStudyOrSite(studyBean);
+            Integer countofStudySubjectsAtStudyOrSite = studySubjectDao.getCountofStudySubjectsAtStudyOrSiteRandomized(studyBean);
             Integer expectedTotalEnrollment = studyBean.getExpectedTotalEnrollment();
             Long percentage =
                 expectedTotalEnrollment == 0 ? 0 : Math.round((countofStudySubjectsAtStudyOrSite.doubleValue() / expectedTotalEnrollment.doubleValue()) * 100);
@@ -103,6 +114,7 @@ public class SiteStatisticsTableFactory extends AbstractTableFactory {
             theItem.put("percentage", String.valueOf(percentage) + "%");
             theItems.add(theItem);
         }
+
 
         tableFacade.setItems(theItems);
     }

@@ -32,6 +32,7 @@ public class SQLFactory {
     // DAO KEYS TO USE FOR RETRIEVING DIGESTER
     public final String DAO_USERACCOUNT = "useraccount";
     public final String DAO_STUDY = "study";
+    public final String PROTOCOL_DEVIATION = "protocoldeviation";
     public final String DAO_STUDYEVENTDEFNITION = "studyeventdefintion";
     public final String DAO_SUBJECT = "subject";
     public final String DAO_STUDYSUBJECT = "study_subject";
@@ -45,9 +46,13 @@ public class SQLFactory {
 
     // public final String DAO_DATAVIEW = "dataview_dao";
 
+    public final String DAO_COUNTRY = "country";
+    public final String DAO_LABS_FOR_SITE = "labs_for_site";
+    public final String DAO_LABORATORY = "laboratory";
     public final String DAO_ITEM = "item";
     public final String DAO_ITEMDATA = "item_data";
     public final String DAO_ITEMFORMMETADATA = "item_form_metadata";
+    public final String DAO_RESPONSESET = "response_set";
     public final String DAO_CRF = "crf";
     public final String DAO_CRFVERSION = "crfversion";
     public final String DAO_DATASET = "dataset";
@@ -71,6 +76,7 @@ public class SQLFactory {
     public final String DAO_SUBJECTTRANSFER = "subjecttransfer";
     // YW, 05-2008, for odm extract
     public final String DAO_ODM_EXTRACT = "odm_extract";
+    public final String DAO_IRB = "irb";
 
     // EhCacheManagerFactoryBean cacheManagerBean = new EhCacheManagerFactoryBean();
     // cacheManagerBean.setConfigLocation= (new org.springframework.core.io.FileSystemResource("classpath:org/akaza/openclinica/ehcache.xml") );
@@ -142,7 +148,8 @@ public class SQLFactory {
                 cacheManager = new CacheManager(resourceLoader.getResource("classpath:org/akaza/openclinica/ehcache.xml").getInputStream());
             }
         } catch (CacheException | IOException e) {
-            e.printStackTrace();
+            cacheManager = CacheManager.create();
+            //e.printStackTrace();
         }
         EhCacheWrapper<String, ArrayList<HashMap<String, Object>>> ehCache = new EhCacheWrapper<>("com.akaza.openclinica.dao.core.DAOCache",cacheManager);
         
@@ -159,12 +166,18 @@ public class SQLFactory {
             fileList.put(this.DAO_STUDYSUBJECT, "study_subject_dao.xml");
             fileList.put(this.DAO_SUBJECT, "subject_dao.xml");
             fileList.put(this.DAO_SUBJECTGROUPMAP, "subject_group_map_dao.xml");
+            fileList.put(this.DAO_LABORATORY, "laboratory_dao.xml");
+            fileList.put(this.DAO_COUNTRY, "country_dao.xml");
+            fileList.put(this.DAO_LABS_FOR_SITE, "labs_for_site_dao.xml");
             fileList.put(this.DAO_EVENTDEFINITIONCRF, "event_definition_crf_dao.xml");
             fileList.put(this.DAO_AUDITEVENT, "audit_event_dao.xml");
             fileList.put(this.DAO_AUDIT, "audit_dao.xml");
             fileList.put(this.DAO_ITEM, "item_dao.xml");
             fileList.put(this.DAO_ITEMDATA, "itemdata_dao.xml");
             fileList.put(this.DAO_CRF, "crf_dao.xml");
+
+            fileList.put(this.DAO_RESPONSESET, "response_set_dao.xml");
+
             fileList.put(this.DAO_CRFVERSION, "crfversion_dao.xml");
             fileList.put(this.DAO_DATASET, "dataset_dao.xml");
             fileList.put(this.DAO_SECTION, "section_dao.xml");
@@ -186,6 +199,7 @@ public class SQLFactory {
             fileList.put(this.DAO_RULESETRULE_AUDIT, "rulesetrule_audit_dao.xml");            
 
             fileList.put(this.DAO_ODM_EXTRACT, "odm_extract_dao.xml");
+            fileList.put(this.DAO_IRB, "irb_dao.xml");
 
         } else { // should be postgres, but what if the file is gone?
             // throw an exception here, ssachs

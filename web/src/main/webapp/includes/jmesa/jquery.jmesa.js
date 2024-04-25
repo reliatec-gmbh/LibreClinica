@@ -591,7 +591,7 @@
     $.extend(coreapi, filterapi);
     $.extend(coreapi, worksheetapi);
     $.extend(coreapi, effectsapi);
-    $.jmesa = {};
+    $.jmesa = {setTotalRowsToLimit: function() {}};
     $.extend($.jmesa, coreapi);
 
 })(jQuery);

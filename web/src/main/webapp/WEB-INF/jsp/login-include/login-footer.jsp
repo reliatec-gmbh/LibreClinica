@@ -1,7 +1,10 @@
+<jsp:useBean id="DebugHelper" scope="request" class="org.akaza.openclinica.core.util.DebugHelper"/>
 <%@ include file="/WEB-INF/jsp/taglibs.jsp" %>
 
 <fmt:setBundle basename="org.akaza.openclinica.i18n.words" var="resword"/>
 <fmt:setBundle basename="org.akaza.openclinica.i18n.licensing" var="licensing"/>
+<fmt:setBundle basename="org.akaza.openclinica.datainfo" var="dataInfo"/>
+<fmt:setBundle basename="org.akaza.openclinica.i18n.debug" var="debug"/>
 
 <script type="text/javascript" src="<c:url value='/includes/wz_tooltip/wz_tooltip.js'/>"></script>
 
@@ -18,8 +21,8 @@
                 </td>
                 <td class="footer_middle" >
 				<fmt:message key="footer.license.1" bundle="${licensing}"/>
-               <fmt:message key="footer.license.2" bundle="${licensing}"/>
-			   <fmt:message key="footer.license.3" bundle="${licensing}"/></td>
+                <fmt:message key="footer.license.2" bundle="${licensing}"/>
+			    <fmt:message key="footer.license.3" bundle="${licensing}"/></td>
 
                 <td  class="footer_right">
                     <c:set var="tooltip"><fmt:message key="footer.tooltip" bundle="${licensing}"/></c:set>
@@ -39,7 +42,14 @@
                     </c:choose>
 					</div>
 
-					<div  id="version"></div><fmt:message key="Version_release" bundle="${licensing}"/> </div>
+					<div  id="version">
+                        <fmt:message key="Version_release" bundle="${licensing}"/> <%-- Change tag:
+                        <fmt:message key="test.message" bundle="${debug}"/> -->
+                        <%--
+                        Database host: <fmt:message key="dbHost" bundle="${dataInfo}"/>
+                        Branch: ${DebugHelper.currentGitBranch}
+                        --%>
+                    </div>
 
                 </td>
             </tr>

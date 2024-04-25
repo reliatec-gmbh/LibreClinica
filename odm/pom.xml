@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.libreclinica.odm</groupId>
     <artifactId>LibreClinica-odm</artifactId>
@@ -9,68 +9,103 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-    <dependencies />
+    <dependencies>
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+            <version>4.0.2</version>
+        </dependency>
+        <!-- Postgres JDBC driver -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.2.26</version>
+            <scope>runtime</scope>
+        </dependency>
+    </dependencies>
     <build>
         <plugins>
-            <!-- Automate the creation of binding classes for XML schemas - JAXB marshall/ unmarshall -->
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>jaxb2-maven-plugin</artifactId>
-                <version>2.3</version>
-                <executions>
-                    <execution>
-                        <id>schemas-generate</id>
-                        <goals>
-                            <goal>xjc</goal>
-                        </goals>
-                        <configuration>
-                            <schemaDirectory>src/main/schemas</schemaDirectory>
-                            <outputDirectory>src/main/java</outputDirectory>
-                            <bindingDirectory>src/main/xjb</bindingDirectory>
-                            <bindingFiles>src/main/xjb/binding-customization.xjb</bindingFiles>
-                            <clearOutputDir>false</clearOutputDir>
-                            <sources>
-                                <source>src/main/schemas</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <!-- Needed to run the xjc plugin with jdk8 -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>properties-maven-plugin</artifactId>
-                <version>1.0.0</version>
-                <executions>
-                    <execution>
-                        <id>set-additional-system-properties</id>
-                        <goals>
-                            <goal>set-system-properties</goal>
-                        </goals>
-                    </execution>
-                </executions>
                 <configuration>
-                    <properties>
-                        <property>
-                            <name>javax.xml.accessExternalSchema</name>
-                            <value>all</value>
-                        </property>
-                        <property>
-                            <name>javax.xml.accessExternalDTD</name>
-                            <value>all</value>
-                        </property>
-                    </properties>
+                    <propertyFile>../core/src/main/resources/org/akaza/openclinica/datainfo.properties</propertyFile>
+                    <username>clinica</username>
+                    <password>clinica</password>
+                    <url>jdbc:postgresql://postgres:5432/libreclinica</url>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.1</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-maven-plugin</artifactId>
+                <version>4.26.0</version>
             </plugin>
         </plugins>
+        <pluginManagement>
+            <plugins>
+                <!-- Automate the creation of binding classes for XML schemas - JAXB marshall/ unmarshall -->
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>jaxb2-maven-plugin</artifactId>
+                    <version>2.3.1</version>
+                    <executions>
+                        <execution>
+                            <id>xjc</id>
+                            <goals>
+                                <goal>xjc</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>schemas-generate</id>
+                            <goals>
+                                <goal>xjc</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <outputDirectory>${project.basedir}/src/main/java</outputDirectory>
+                        <xjbSources>
+                            <xjbSource>${project.basedir}/src/main/xjb/binding-customization.xjb</xjbSource>
+                        </xjbSources>
+                        <clearOutputDir>false</clearOutputDir>
+                        <sources>
+                            <source>${project.basedir}/src/main/schemas</source>
+                        </sources>
+                    </configuration>
+                </plugin>
+                <!-- Needed to run the xjc plugin with jdk8 -->
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>properties-maven-plugin</artifactId>
+                    <version>1.0.0</version>
+                    <executions>
+                        <execution>
+                            <id>set-additional-system-properties</id>
+                            <goals>
+                                <goal>set-system-properties</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <properties>
+                            <property>
+                                <name>javax.xml.accessExternalSchema</name>
+                                <value>all</value>
+                            </property>
+                            <property>
+                                <name>javax.xml.accessExternalDTD</name>
+                                <value>all</value>
+                            </property>
+                        </properties>
+                        <outputFile/>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>2.1</version>
+                    <configuration>
+                        <source>1.8</source>
+                        <target>1.8</target>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
 </project>

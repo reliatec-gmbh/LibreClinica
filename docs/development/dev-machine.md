@@ -158,12 +158,8 @@ installed the Tomcat (TOMCAT\_HOME). Locate the deployed LibreClinica in
 the *webapps* folder of your Tomcat and copy the *datainfo.properties*
 template file from there.
 
-``` {.sourceCode .bash}
-cp TOMCAT_HOME/webapps/LibreClinica/WEB-INF/classes/datainfo.properties TOMCAT_HOME/libreclinica.config/
-```
-
-You will need to edit this file to point to your database on developer
-machine. The usual configuration follows:
+You need to edit the `datainfo.properties` files in the folders core/src/main/resources/org/akaza/openclinica
+and (TOMCAT\_HOME)/libreclinica_config to point to your database on developer machine. The usual configuration follows:
 
 ``` {.sourceCode .bash}
 dbType=postgres

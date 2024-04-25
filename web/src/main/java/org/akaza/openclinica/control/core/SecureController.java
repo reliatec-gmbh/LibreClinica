@@ -19,15 +19,9 @@ import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.Normalizer;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Properties;
-import java.util.ResourceBundle;
-import java.util.StringTokenizer;
+import java.util.*;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
@@ -61,6 +55,7 @@ import org.akaza.openclinica.bean.submit.EventCRFBean;
 import org.akaza.openclinica.bean.submit.ItemBean;
 import org.akaza.openclinica.bean.submit.ItemDataBean;
 import org.akaza.openclinica.control.SpringServletAccess;
+import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.core.CRFLocker;
 import org.akaza.openclinica.core.EmailEngine;
 import org.akaza.openclinica.core.SessionManager;
@@ -253,6 +248,15 @@ public abstract class SecureController extends HttpServlet implements SingleThre
 
     protected void setPresetValues(HashMap<String, Object> presetValues) {
         request.setAttribute(PRESET_VALUES, presetValues);
+    }
+
+    protected FormProcessor setPresetValuesFromRequest(FormProcessor fp) {
+        Map<String, String[]> map = request.getParameterMap();
+        for(String key: map.keySet()) {
+            fp.addPresetValue(key, request.getParameter(key));
+        }
+
+        return fp;
     }
 
     protected void setTable(EntityBeanTable table) {
@@ -945,6 +949,7 @@ public abstract class SecureController extends HttpServlet implements SingleThre
     public Boolean sendEmail(String to, String from, String subject, String body, Boolean htmlEmail, String successMessage, String failMessage,
             Boolean sendMessage) throws Exception {
         Boolean messageSent = true;
+        System.out.println("Sending email via SecureController.sendEmail()");
         try {
             JavaMailSenderImpl mailSender = (JavaMailSenderImpl) SpringServletAccess.getApplicationContext(context).getBean("mailSender");
             //@pgawade 09-Feb-2012 #issue 13201 - setting the "mail.smtp.localhost" property to localhost when java API is not able to
@@ -955,11 +960,14 @@ public abstract class SecureController extends HttpServlet implements SingleThre
             		javaMailProperties.put("mail.smtp.localhost", "localhost");
             	}
             }
+            System.out.println("Mail localhost is: "+javaMailProperties.get("mail.smtp.localhost"));
+            logger.info("info log. Mail localhost is: "+javaMailProperties.get("mail.smtp.localhost"));//Check what happens with the logger INFO messages
 
             MimeMessage mimeMessage = mailSender.createMimeMessage();
 
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, htmlEmail);
-            helper.setFrom(from);
+            helper.setFrom(mailSender.getUsername());
+            helper.setReplyTo(from);
             helper.setTo(processMultipleImailAddresses(to.trim()));
             helper.setSubject(subject);
             helper.setText(body, true);
@@ -968,12 +976,13 @@ public abstract class SecureController extends HttpServlet implements SingleThre
             if (successMessage != null && sendMessage) {
                 addPageMessage(successMessage);
             }
-            logger.debug("Email sent successfully on {}", new Date());
+            logger.debug("Email sent successfully from the address "+mailSender.getUsername()+" on {}", new Date());
         } catch (MailException me) {
+            JavaMailSenderImpl mailSender = (JavaMailSenderImpl) SpringServletAccess.getApplicationContext(context).getBean("mailSender");
             if (failMessage != null && sendMessage) {
                 addPageMessage(failMessage);
             }
-            logger.debug("Email could not be sent on {} due to: {}", new Date(), me.toString());
+            System.out.println("Email could not be sent from the address "+mailSender.getUsername()+" due to: "+me.toString());
             messageSent = false;
         }
         return messageSent;

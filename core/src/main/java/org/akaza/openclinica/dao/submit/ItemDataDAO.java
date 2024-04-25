@@ -298,6 +298,16 @@ public class ItemDataDAO extends AuditableEntityDAO<ItemDataBean> {
         return idb;
     }
 
+    public ArrayList<ItemDataBean> findAllItemDatabySubjectAndName(int studySubjectId, int studyId, String name) {
+        setTypesExpected();
+        HashMap<Integer, Object> variables = new HashMap<Integer, Object>();
+        variables.put(new Integer(1), new Integer(studySubjectId));
+        variables.put(new Integer(2), new Integer(studyId));
+        variables.put(new Integer(3), new String(name));
+
+        return this.executeFindAllQuery("findAllItemDataBySubjectAndName", variables);
+    }
+
     @Override
     public ItemDataBean create(ItemDataBean idb) {
         // YW 12-06-2007 << convert to oc_date_format_string pattern before

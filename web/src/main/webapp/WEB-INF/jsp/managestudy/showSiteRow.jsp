@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 
 <fmt:setBundle basename="org.akaza.openclinica.i18n.words" var="resword"/>
 <fmt:setBundle basename="org.akaza.openclinica.i18n.format" var="resformat"/>
@@ -20,10 +21,13 @@
       <td class="table_cell_left"><c:out value="${currRow.bean.name}"/></td>
       <td class="table_cell"><c:out value="${currRow.bean.identifier}"/></td>
       <td class="table_cell"><c:out value="${currRow.bean.oid}"/></td>           
-      <td class="table_cell"><c:out value="${currRow.bean.principalInvestigator}"/></td>
+      <td class="table_cell"><c:out value="${currRow.bean.subSite}"/></td>
       <td class="table_cell"><c:out value="${currRow.bean.facilityName}"/>&nbsp;</td>         
       <td class="table_cell"><fmt:formatDate value="${currRow.bean.createdDate}" pattern="${dteFormat}"/></td>
-      <td class="table_cell <c:out value='${className}'/>"><c:out value="${currRow.bean.status.name}"/></td>
+      <td class="table_cell"><c:out value="${currRow.bean.siteType}"/></td>
+      <td class="table_cell"><c:out value="${fn:join(currRow.bean.consortiumNames.toArray(),' ')}"/></td>
+      <td class="table_cell"><c:out value="${currRow.bean.locationType1Letter}"/></td>
+      <td class="table_cell <c:out value='${className}'/>"><c:out value="${currRow.bean.activeString}"/></td>
       <td class="table_cell">
        <table border="0" cellpadding="0" cellspacing="0">
 		<tr>

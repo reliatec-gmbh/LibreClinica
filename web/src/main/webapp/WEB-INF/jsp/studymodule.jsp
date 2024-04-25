@@ -521,6 +521,26 @@
                 </c:choose>
             </td>
         </tr>
+        <tr>
+            <td>8</td>
+            <td><fmt:message key="irb_study" bundle="${resword}"/></td>
+            <td>
+
+            </td>
+            <td>
+
+            </td>
+            <td>
+
+            </td>
+            <td>
+                <c:url var="irbStudyUrl" value="/IrbStudy"/>
+                <a href="${irbStudyUrl}">
+                    <img src="../images/bt_Details.gif" border="0"
+                         alt="<fmt:message key="view" bundle="${resword}"/>"
+                         title="<fmt:message key="view" bundle="${resword}"/>"/></a>
+            </td>
+        </tr>
       </tbody>
   </table>
   <br>

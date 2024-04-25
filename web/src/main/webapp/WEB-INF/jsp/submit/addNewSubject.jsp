@@ -103,11 +103,12 @@
 					<td valign="top"><div class="formfieldXL_BG">
 					<c:choose>
 					 <c:when test="${study.studyParameterConfig.subjectIdGeneration =='auto non-editable'}">
-					  <input onfocus="this.select()" type="text" value="<c:out value="${label}"/>" size="45" class="formfield" disabled>
-					  <input type="hidden" name="label" value="<c:out value="${label}"/>">
+					  <input onfocus="this.select()" type="text" value="" id="studySubjectIdText" size="45" class="formfield" disabled>
+					  <input type="hidden" name="label" value="" id="studySubjectIdHidden">
 					 </c:when>
 					 <c:otherwise>
-					   <input onfocus="this.select()" type="text" name="label" value="<c:out value="${label}"/>" size="50" class="formfieldXL">
+					   <input onfocus="this.select()" onchange="validationStudySubjectId()" onkeyup="validationStudySubjectId()"
+							  id="studySubjectIdText" type="text" name="label" value="<c:out value="${label}"/>" size="50" class="formfieldXL">
 					 </c:otherwise>
 					</c:choose>
 					</div></td>
@@ -162,6 +163,31 @@
 	</c:otherwise>
 	</c:choose>
 
+	<tr>
+		<td class="formlabel"><fmt:message key="enrollment_type" bundle="${resword}"/>:</td>
+		<td>
+			<table>
+				<tr><td>
+					<div class="formfieldM_BG">
+						<select name="studyEventDefinition" class="formfieldM" id="enrollmentTypeSelection" onchange="handleSelection()">
+							<option value="">-<fmt:message key="select" bundle="${resword}"/>-</option>
+							<option value="EN"><fmt:message key="enrollment_type_enrollment" bundle="${resword}"/></option>
+							<option value="NE"><fmt:message key="enrollment_type_non_enrollment" bundle="${resword}"/></option>
+						</select>
+					</div>
+				</td>
+					<td><span class="formlabel">*</span></td>
+				</tr>
+				<%--
+                <tr>
+                    <td colspan="2"><jsp:include page="../showMessage.jsp"><jsp:param name="key" value="studyEventDefinition"/></jsp:include></td>
+                </tr>
+                --%>
+			</table>
+		</td>
+	</tr>
+
+	<%--
 	<tr valign="top">
 	  	<td class="formlabel"><fmt:message key="secondary_ID" bundle="${resword}"/></td>
 		<td valign="top">
@@ -178,6 +204,7 @@
 			</table>
 		</td>
 	</tr>
+	--%>
 	<tr valign="top">
 
 		<td class="formlabel">
@@ -417,3 +444,73 @@
 </c:import>
 
 <jsp:include page="../include/footer.jsp"/>
+
+<script>
+	function handleSelection() {
+		var selectedValue = document.getElementById("enrollmentTypeSelection").value;
+
+		var nextCountOfStudySubjectsAtStudyOrSite = "<%=study.getNextCountOfStudySubjectsAtStudyOrSite()%>";
+		var siteIdentifier = "<%=study.getSiteIdOfStudy()%>";
+
+		nextCountOfStudySubjectsAtStudyOrSite = nextCountOfStudySubjectsAtStudyOrSite.padStart(5, "0");
+		siteIdentifier = siteIdentifier.padStart(2, "0");
+
+		var studySubjectIdEnrollment = siteIdentifier + "-P" + nextCountOfStudySubjectsAtStudyOrSite;
+		var studySubjectIdNonEnrollment = "38-" + siteIdentifier + "-N" + nextCountOfStudySubjectsAtStudyOrSite;
+
+		switch (selectedValue) {
+			case "EN":
+				document.getElementById("studySubjectIdText").value = studySubjectIdEnrollment;
+				document.getElementById("studySubjectIdHidden").value = studySubjectIdEnrollment;
+				break;
+			case "NE":
+				document.getElementById("studySubjectIdText").value = studySubjectIdNonEnrollment;
+				document.getElementById("studySubjectIdHidden").value = studySubjectIdNonEnrollment;
+				break;
+			default:
+				document.getElementById("studySubjectId").value = "";
+				break;
+		}
+	}
+
+	function validationStudySubjectId() {
+		var selectedValue = document.getElementById("enrollmentTypeSelection").value;
+		var studySubjectIdValue = document.getElementById("studySubjectIdText").value;
+		var errorMessageValidationDiv = document.getElementById("spanAlert-Validation");
+		var submitBottom = document.getElementById("add");
+
+		var siteIdentifier = "<%=study.getSiteIdOfStudy()%>";
+		siteIdentifier = siteIdentifier.padStart(2, "0");
+
+		var regexStudySubjectIdEnrollment = new RegExp("^" + siteIdentifier + "-P\\d{5}$");
+		var regexStudySubjectIdNonEnrollment = new RegExp("^38-" + siteIdentifier + "-N\\d{5}$");
+
+		console.log(siteIdentifier)
+		console.log(studySubjectIdValue)
+		console.log(regexStudySubjectIdEnrollment)
+		console.log(regexStudySubjectIdNonEnrollment)
+
+		switch (selectedValue) {
+			case "EN":
+				if (regexStudySubjectIdEnrollment.test(studySubjectIdValue)) {
+					errorMessageValidationDiv.style.display = "none";
+					submitBottom.disabled = false;
+				} else {
+					errorMessageValidationDiv.style.display = "block";
+					submitBottom.disabled = true;
+				}
+				break;
+			case "NE":
+				if (regexStudySubjectIdNonEnrollment.test(studySubjectIdValue)) {
+					errorMessageValidationDiv.style.display = "none";
+					submitBottom.disabled = false;
+				} else {
+					errorMessageValidationDiv.style.display = "block";
+					submitBottom.disabled = true;
+				}
+				break;
+			default:
+				break;
+		}
+	}
+</script>

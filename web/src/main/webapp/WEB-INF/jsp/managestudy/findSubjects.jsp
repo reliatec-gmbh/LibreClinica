@@ -1,3 +1,7 @@
+<%
+    String showNoEnrollment = request.getParameter("enrollment");
+    request.setAttribute("showNoEnrollment", showNoEnrollment);
+%>
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
@@ -89,3 +93,34 @@
 <br />
 
 <jsp:include page="../include/footer.jsp"/>
+<script type="text/javascript">
+    <c:if test="${showOverlay}">
+        jQuery.blockUI({ message: jQuery('#addSubjectForm'), css:{left: "300px", top:"10px" } });
+    </c:if>
+</script>
+
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', ()=>{
+        var showNoEnrollment = localStorage.getItem('showNoEnrollment') === 'true';
+        var showNoEnrollmentInput = document.querySelector('#showNoEnrollment');
+        console.log(showNoEnrollment);
+        if(showNoEnrollment){
+            showNoEnrollmentInput.checked = true;
+        }else{
+            showNoEnrollmentInput.checked = false;
+        }
+        showNoEnrollmentInput.addEventListener('change', (e)=>{
+            var checked = e.target.checked;
+            var url = new URL(window.location.href);
+            var searchParams = url.searchParams;
+            if(checked){
+                searchParams.set('enrollment', 'true');
+                localStorage.setItem('showNoEnrollment', 'true');
+            }else{
+                searchParams.set('enrollment', 'false');
+                localStorage.setItem('showNoEnrollment', null);
+            }
+            window.location.href = url.toString();
+        })
+    })
+</script>

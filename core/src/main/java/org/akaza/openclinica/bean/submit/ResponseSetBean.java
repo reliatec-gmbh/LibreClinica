@@ -9,6 +9,7 @@ package org.akaza.openclinica.bean.submit;
 
 import org.akaza.openclinica.bean.core.EntityBean;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -41,6 +42,8 @@ public class ResponseSetBean extends EntityBean {
      * database.
      */
     private String value;
+
+
 
     public ResponseSetBean() {
         super();
@@ -204,5 +207,9 @@ public class ResponseSetBean extends EntityBean {
             list.add(rob);
         }
         return list;
+    }
+
+    public AbstractMap<String, Integer> getOptionsValue() {
+        return this.optionIndexesByValue;
     }
 }

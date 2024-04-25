@@ -5,6 +5,10 @@
 		<sql>SELECT * FROM USER_ACCOUNT WHERE USER_ID = ?</sql>
 	</query>
 	<query>
+		<name>findByEmail</name>
+		<sql>SELECT * FROM USER_ACCOUNT WHERE email = ?</sql>
+	</query>
+	<query>
 		<name>findAll</name>
 		<sql>SELECT * FROM USER_ACCOUNT WHERE USER_NAME NOT LIKE '%.SS_%'</sql>
 	</query>
@@ -40,6 +44,11 @@
 			passwd_timestamp=?, passwd_challenge_question=?,
 			passwd_challenge_answer=?, phone=?, user_type_id=?, account_non_locked=?,lock_counter=?,run_webservices=?,access_code=?,
 			time_zone=?, enable_api_key=?, api_key=?, authtype=?, authsecret=? where user_id=?</sql>
+	</query>
+	<query>
+		<name>disable_update_password</name>
+		<sql>update user_account set passwd_timestamp=now() where user_id=?
+		</sql>
 	</query>
 	<query>
 		<name>createRole</name>

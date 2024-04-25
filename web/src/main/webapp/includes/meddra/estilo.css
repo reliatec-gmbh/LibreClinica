@@ -1,0 +1,62 @@
+#popupContainer {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    max-width: 600px;
+    max-height: 400px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    z-index: 9999;
+    overflow: auto;
+  }
+
+  .closeButton {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    cursor: pointer;
+  }
+
+#popupContainer {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    max-width: 600px;
+    max-height: 400px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    z-index: 9999;
+    overflow: auto;
+}
+
+.closeButton {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    cursor: pointer;
+}
+
+#tableResult {
+    border-collapse: collapse;
+    width: 100%;
+}
+#tableResult th, #tableResult td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+#tableResult th {
+    background-color: #f2f2f2;
+}
+#tableResult tr:hover {
+    background-color: #f5f5f5;
+    cursor: pointer;
+}

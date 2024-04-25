@@ -1,0 +1,17 @@
+{
+  "name": "libreclinica",
+  "version": "1.0.0",
+  "description": "LibreClinica ============",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "cypress:open": "cypress open"
+  },
+  "author": "tepokev",
+  "license": "ISC",
+  "devDependencies": {
+    "cypress": "^13.6.3"
+  }
+}
