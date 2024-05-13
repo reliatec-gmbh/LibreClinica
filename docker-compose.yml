@@ -26,26 +26,27 @@ services:
       - "8080:8080"
     depends_on:
       - postgres
-    env_file: .env
+    env_file:
+      - .env
+      - .env_emails
     volumes:
-      - libreclinica:/libreclinica
+      - libreclinica_src:/libreclinica
       - libreclinica_config:/usr/local/tomcat/libreclinica.config
       - libreclinica_data:/usr/local/tomcat/libreclinica.data
-
-  dmm:
-    build:
-      context: ../libreclinica_drug_trial_module/
-      dockerfile: Dockerfile
-    ports:
-      - "81:81"  # Map port 81 of the host to port 81 of the container
-    volumes:
-      - ../libreclinica_drug_trial_module:/app  # Mount the current directory into the container's /app directory
+      - libreclinica_webapps:/usr/local/tomcat/webapps
+      - mvn_cache:/root/.m2
     environment:
-      FLASK_APP: flask_app  # Set the FLASK_APP environment variable
-      SQLALCHEMY_DATABASE_URI: postgresql://clinica:ready4Sprint@dmmlc.postgres.database.azure.com/dmm-dev  # Set the SQLALCHEMY_DATABASE_URI environment variable
-    command: python -mpytest
+      - MAILPASSWORD_FILE=/run/secrets/mail_password
+    secrets:
+      - mail_password
+
 volumes:
-  libreclinica:
+  libreclinica_src:
+    driver: local
+  libreclinica_webapps:
+    driver: local
+  mvn_cache:
+    driver: local
   libreclinica_config:
     driver: local
   libreclinica_data:
@@ -55,5 +56,8 @@ volumes:
   dbbackup:
     driver_opts:
       type: none
-      device: c/Users/lcog8/dbbackup
+      device: ${HOME}/dbbackup
       o: bind
+secrets:
+  mail_password:
+    environment: "MAILPASSWORD"
