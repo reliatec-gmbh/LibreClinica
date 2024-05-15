@@ -1,0 +1,18 @@
+# ignore everything
+*
+
+# include config files
+!/docker/config
+
+# include maven file
+!/pom.xml
+
+# include modules
+!/core
+!/docs
+!/odm
+!/web
+!/ws
+
+# ignore build files
+/*/target
