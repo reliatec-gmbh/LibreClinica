@@ -1,4 +1,4 @@
-## 1.3.0 (March 1, 2024)
+## 1.3.0 (May 15, 2024)
 
 **bugfix:**
 
@@ -13,5 +13,7 @@
 
 **enhancement:**
 * renewed layout of express add subject (#375)
+* added docker compose setup for local development (#394)
+* added send test email feature (#396)
 
 **tests:**
