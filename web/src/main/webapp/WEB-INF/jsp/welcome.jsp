@@ -1,11 +1,6 @@
 <%
     String self_url_temp = ServletUriComponentsBuilder.fromCurrentContextPath().build().toString();
-    String self_url = "";
-    if (self_url_temp.contains("localhost")) {
-        self_url = self_url_temp;
-    } else {
-        self_url = self_url_temp.replace("http:","https:");
-    }
+    String self_url = self_url_temp.replace("http:","https:");
     String oauth_client_id = CoreResources.getField("oauth.clientId");
 	String oauth_account_management_url = CoreResources.getField("oauth.url") + "/login";
 
@@ -117,6 +112,8 @@ session.setAttribute("factorService", factorService);
 			<a href="<%= oauth_account_management_url %>" class="oauth-login">Oauth Account Management</a>
 			<a href="<%= oauth_authorize_url %>" class="oauth-login">Oauth login</a>
 		</div>
+        <h1> <%= oauth_redirect_uri  %></h1>
+        <h1> <%= self_url  %></h1>
 </div>
 
 <!-- end of login/login.jsp -->
