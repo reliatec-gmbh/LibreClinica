@@ -1,5 +1,11 @@
 <%
-    String self_url = ServletUriComponentsBuilder.fromCurrentContextPath().build().toString();
+    String self_url_temp = ServletUriComponentsBuilder.fromCurrentContextPath().build().toString();
+    String self_url = "";
+    if (self_url_temp.contains("localhost")) {
+        self_url = self_url_temp;
+    } else {
+        self_url = self_url_temp.replace("http:","https:");
+    }
     String oauth_client_id = CoreResources.getField("oauth.clientId");
 	String oauth_account_management_url = CoreResources.getField("oauth.url") + "/login";
 
