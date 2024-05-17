@@ -76,7 +76,7 @@
 <table>
     <tr>
     	<td class="formlabel"></td>
-        <td><h3>Test: <fmt:message key="add_new_subject" bundle="${resword}"/></h3></td>
+        <td><h3><fmt:message key="add_new_subject" bundle="${resword}"/></h3></td>
         <td></td>
     </tr>
     <tr>
