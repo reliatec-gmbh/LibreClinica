@@ -31,10 +31,12 @@ COPY --from=builder $M2_HOME $M2_HOME
 
 
 # Copies to the tomcat webapps
-COPY --from=builder /libreclinica/ws/target/LibreClinica-ws-1.3.1.war /usr/local/tomcat/webapps/LibreClinica-ws-1.3.1.war
+# COPY --from=builder /libreclinica/ws/target/LibreClinica-ws-1.3.1.war /usr/local/tomcat/webapps/LibreClinica-ws-1.3.1.war
 COPY SampleWebApp.war /usr/local/tomcat/webapps/SampleWebApp.war
+COPY docker/datainfo_docker_${ENVIRONMENT}.properties /usr/local/tomcat/libreclinica.config/datainfo.properties
 COPY docker/index_${ENVIRONMENT}.html  /usr/local/tomcat/webapps/ROOT/index.html
 COPY docker/web.xml /usr/local/tomcat/webapps/ROOT/WEB-INF/web.xml
 COPY tomcat-users.xml /usr/local/tomcat/conf/tomcat-users.xml
 COPY docker/manager_context.xml /usr/local/tomcat/webapps/manager/META-INF/context.xml
 #COPY /libreclinica/web/target/LibreClinica-web-1.3.1.war  /usr/local/tomcat/webapps/LibreClinica.war
+COPY --from=builder /libreclinica/web/target/LibreClinica-web-1.3.1.war  /usr/local/tomcat/webapps/LibreClinica.war

@@ -34,6 +34,68 @@ These versions of required software packages are currently available in Debian 1
 
 ### Build and Deployment
 
+#### Environment Variables
+
+The `.env` and `.env_emails` files are environment variable files used in Docker and other development environments. They store key-value pairs that can be used to configure the application.
+
+1. `.env`: This file contains environment variables related to the PostgreSQL database and other settings. The variables include the PostgreSQL password, user, database name, host, and port. These variables are used to configure the PostgreSQL service in the Docker Compose file.
+
+```dotenv
+POSTGRES_PASSWORD=clinica
+PGPASSWORD=clinica
+PG_PASSWORD=clinica
+POSTGRES_USER=clinica
+POSTGRES_DB=libreclinica
+POSTGRES_HOST=postgres
+POSTGRES_PORT=5432
+MAILPASSWORD=your_password_here
+```
+
+2. `.env_emails`: This file contains environment variables related to email settings, such as the admin email, mail username, and developer emails. These variables are used to configure the email settings of the application.
+
+```dotenv
+ADMINEMAIL=admin@example.com
+MAILUSERNAME=user@example.com
+DEVELOPEREMAILS=dev1@example.com,dev2@example.com
+MAILPASSWORD=your_password_here
+```
+
+
+#### Local Development
+
+Here's a step-by-step guide to build and run the project:
+
+1. **Build the Docker Images**
+
+   You need to build the Docker images for your application and your PostgreSQL database. You can build these images using the `docker-compose build` command.
+
+   ```bash
+   docker-compose -f docker-compose-local.yml build
+   ```
+
+2. **Run Docker Compose**
+
+   You can start your application using the `docker-compose up` command.
+
+   ```bash
+   docker-compose -f docker-compose-local.yml up
+   ```
+
+   This command will start all the services defined in your `docker-compose-local.yml` file. In your case, it will start your application, PostgreSQL database, and Adminer.
+
+
+3. **Environment Variables**
+
+   Your application uses environment variables which are defined in the `.env` file. Docker Compose automatically picks up these variables when you run the `docker-compose up` command.
+
+
+4. **Access the Application**
+
+   Once all the services are up and running, you can access your application at `http://localhost:8080`.
+
+
+#### Production Deployment
+
 1. **Prerequisites:**
     - Docker installed on your machine.
     - Git installed on your machine.
