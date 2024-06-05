@@ -5,7 +5,7 @@
 	<groupId>org.libreclinica</groupId>
 	<artifactId>LibreClinica</artifactId>
 	<packaging>pom</packaging>
-	<version>1.2.0</version>
+	<version>1.2.1</version>
 	<name>LibreClinica</name>
 	<description>LibreClinica</description>
 
@@ -511,7 +511,7 @@
 				<groupId>xerces</groupId>
 				<artifactId>xmlParserAPIs</artifactId>
 				<version>2.2.1</version>
-				<scope>test</scope>			
+				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>jtidy</groupId>
@@ -593,7 +593,7 @@
              <artifactId>xws-security</artifactId>
              <!-- make sure the version matches the one used by the spring-ws-security -->
              <version>3.0</version>
-          </dependency>	       
+          </dependency>
 			<dependency>
 				<groupId>joda-time</groupId>
 				<artifactId>joda-time</artifactId>
@@ -688,7 +688,7 @@
 	            <artifactId>mockito-core</artifactId>
 	            <version>1.9.5</version>
 	            <scope>test</scope>
-	        </dependency>	        
+	        </dependency>
 			<!-- Needed by commons-validator -->
 	        <dependency>
 	        	<groupId>oro</groupId>
@@ -743,7 +743,7 @@
 			<version>1.7.6</version>
 			<scope>runtime</scope>
 		</dependency>
-		<!-- potentially replaces jul-to-slf4j 
+		<!-- potentially replaces jul-to-slf4j
 		<dependency>
     		<groupId>com.mattbertolini</groupId>
     		<artifactId>liquibase-slf4j</artifactId>
@@ -1031,7 +1031,7 @@
 						<ignoredUsedUndeclaredDependencies>
 							<ignoredUsedUndeclaredDependency>stax:stax-api</ignoredUsedUndeclaredDependency>
 						</ignoredUsedUndeclaredDependencies>
-						<ignoredUnusedDeclaredDependencies>							
+						<ignoredUnusedDeclaredDependencies>
 							<!-- Needed by commons-validator -->
 							<ignoredUnusedDeclaredDependency>oro:oro</ignoredUnusedDeclaredDependency>
 						</ignoredUnusedDeclaredDependencies>
@@ -1131,7 +1131,7 @@
 		<repository>
 			<id>jboss-public-repository-group</id>
 			<name>JBoss Public Repository Group</name>
-			<url>http://repository.jboss.org/nexus/content/groups/public/</url>
+			<url>https://repository.jboss.org/nexus/content/groups/public/</url>
 			<layout>default</layout>
 			<releases>
 				<enabled>true</enabled>
@@ -1147,7 +1147,7 @@
 		<pluginRepository>
 			<id>jboss-public-repository-group</id>
 			<name>JBoss Public Repository Group</name>
-			<url>http://repository.jboss.org/nexus/content/groups/public/</url>
+			<url>https://repository.jboss.org/nexus/content/groups/public/</url>
 			<releases>
 				<enabled>true</enabled>
 			</releases>
