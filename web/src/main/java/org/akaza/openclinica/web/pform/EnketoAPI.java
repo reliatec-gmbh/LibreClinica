@@ -9,6 +9,7 @@ package org.akaza.openclinica.web.pform;
 
 import java.net.URL;
 
+import java.security.MessageDigest;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -20,10 +21,10 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.MessageDigestPasswordEncoder;
+import org.springframework.security.crypto.codec.Hex;
+import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.web.client.RestTemplate;
 
-@SuppressWarnings("deprecation")
 public class EnketoAPI {
 
     private final String enketoURL;
@@ -38,8 +39,9 @@ public class EnketoAPI {
     }
 
     public String getOfflineFormURL(String crfOID) throws Exception {
-        if (enketoURL == null)
+        if (enketoURL == null) {
             return "";
+        }
         URL eURL = new URL(enketoURL + "/api/v2/survey/offline");
         EnketoURLResponse response = getURL(eURL, crfOID);
         if (response != null) {
@@ -48,13 +50,15 @@ public class EnketoAPI {
                 myUrl = myUrl.replaceFirst("http", "https");
             }
             return myUrl;
-        } else
+        } else {
             return "";
+        }
     }
 
     public String getFormURL(String crfOID) throws Exception {
-        if (enketoURL == null)
+        if (enketoURL == null) {
             return "";
+        }
         URL eURL = new URL(enketoURL + "/api/v1/survey/iframe");
         EnketoURLResponse response = getURL(eURL, crfOID);
         if (response != null) {
@@ -63,19 +67,22 @@ public class EnketoAPI {
                 myUrl = myUrl.replaceFirst("http", "https");
             }
             return myUrl;
-        } else
+        } else {
             return "";
+        }
     }
 
     public String getFormPreviewURL(String crfOID) throws Exception {
-        if (enketoURL == null)
+        if (enketoURL == null) {
             return "";
+        }
         URL eURL = new URL(enketoURL + "/api/v1/survey/preview");
         EnketoURLResponse response = getURL(eURL, crfOID);
-        if (response != null)
+        if (response != null) {
             return response.getPreview_url();
-        else
+        } else {
             return "";
+        }
     }
 
     private EnketoURLResponse getURL(URL url, String crfOID) {
@@ -89,12 +96,7 @@ public class EnketoAPI {
             HttpEntity<EnketoURLRequest> request = new HttpEntity<>(body, headers);
             RestTemplate rest = new RestTemplate();
             ResponseEntity<EnketoURLResponse> response = rest.postForEntity(url.toString(), request, EnketoURLResponse.class);
-            if (response != null) {
-                return response.getBody();
-            }
-            else {
-                return null;
-            }
+            return response.getBody();
 
         } catch (Exception e) {
             logger.error(e.getMessage());
@@ -104,17 +106,22 @@ public class EnketoAPI {
     }
 
     public EnketoURLResponse getEditURL(String crfOid, String instance, String ecid, String redirect) {
-        if (enketoURL == null)
+        if (enketoURL == null) {
             return null;
+        }
 
         try {
             // Build instanceId to cache populated instance at Enketo with
             Calendar cal = Calendar.getInstance();
             cal.setTime(new Date());
-            // TODO: careful here, I am not sure if this time hashing is the best approach, can be buggy
+
+            // Use additionally time to distinguish the form data instance time point
             String hashString = ecid + "." + cal.getTimeInMillis();
-            MessageDigestPasswordEncoder encoder = new MessageDigestPasswordEncoder("SHA-256");
-            String instanceId = encoder.encode(hashString);
+
+            // Hashing and hex encoding
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            digest.update(Utf8.encode(hashString));
+            String instanceId = new String(Hex.encode(digest.digest()));
 
             URL eURL = new URL(enketoURL + "/api/v1/instance/iframe");
             String userPasswdCombo = new String(Base64.encodeBase64((token + ":").getBytes()));
@@ -127,12 +134,7 @@ public class EnketoAPI {
             HttpEntity<EnketoEditURLRequest> request = new HttpEntity<>(body, headers);
             RestTemplate rest = new RestTemplate();
             ResponseEntity<EnketoURLResponse> response = rest.postForEntity(eURL.toString(), request, EnketoURLResponse.class);
-            if (response != null) {
-                return response.getBody();
-            }
-            else {
-                return null;
-            }
+            return response.getBody();
 
         } catch (Exception e) {
             logger.error(e.getMessage());

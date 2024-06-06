@@ -321,6 +321,10 @@
          <groupId>org.hibernate</groupId>
          <artifactId>hibernate-core</artifactId>
       </dependency>
+		<dependency>
+			<groupId>net.sf.saxon</groupId>
+			<artifactId>saxon-dom</artifactId>
+		</dependency>
 	</dependencies>
 	<build>
 		<finalName>${project.artifactId}</finalName>
@@ -354,7 +358,9 @@
 						<!-- Needed by LibreClinica-web when HttpComponentsClientHttpRequestFactory is used-->
 						<ignoredUnusedDeclaredDependency>org.apache.httpcomponents:httpclient</ignoredUnusedDeclaredDependency>
 						<!-- Needed by LibreClinica-web when docs module resources are used to pack the pdf manuals -->
-						<ignoredUnusedDeclaredDependency> org.libreclinica:LibreClinica-docs</ignoredUnusedDeclaredDependency>
+						<ignoredUnusedDeclaredDependency>org.libreclinica:LibreClinica-docs</ignoredUnusedDeclaredDependency>
+						<!-- Needed by LibreClinica-web for OpenRosa XFORMs -->
+						<ignoredUnusedDeclaredDependency>net.sf.saxon:saxon-dom</ignoredUnusedDeclaredDependency>
 					</ignoredUnusedDeclaredDependencies>
 		        </configuration>
 		      </plugin>
