@@ -1,11 +1,11 @@
-LibreClinica 1.2 for Monitors
+LibreClinica 1.3 for Monitors
 =============================
 
-[https://libreclinica.org](https://libreclinica.org) © 2022
+[https://libreclinica.org](https://libreclinica.org) © 2024
 
 **Preface**
 
-This manual describes the main activities of the Monitor-role in LibreClinica 1.0: Source Data Verification and Discrepancy handling.
+This manual describes the main activities of the Monitor-role in LibreClinica 1.3: Source Data Verification and Discrepancy handling.
 
 To use this manual an account with the role of Monitor is the only requirement.
 
