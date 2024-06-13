@@ -1388,7 +1388,13 @@
         <display-name>PrintoutCertificate</display-name>
         <servlet-class>org.akaza.openclinica.control.admin.PrintoutCertificateServlet</servlet-class>
     </servlet>
-    
+
+    <servlet>
+        <servlet-name>SendTestEmailServlet</servlet-name>
+        <description>SendTestEmailServlet</description>
+        <servlet-class>org.akaza.openclinica.control.admin.SendTestEmailServlet</servlet-class>
+    </servlet>
+
     <servlet-mapping>
         <servlet-name>OpenRosaFormDownloadServlet</servlet-name>
         <url-pattern>/openrosa/formXml</url-pattern>
@@ -2240,6 +2246,10 @@
     <servlet-mapping>
         <servlet-name>PrintoutCertificateServlet</servlet-name>
         <url-pattern>/PrintoutCertificate</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SendTestEmailServlet</servlet-name>
+        <url-pattern>/SendTestEmail</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>

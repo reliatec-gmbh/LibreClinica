@@ -1,6 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
 		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+		xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>LibreClinica-web</artifactId>
 	<packaging>war</packaging>
@@ -8,12 +8,11 @@
 	<parent>
 		<groupId>org.libreclinica</groupId>
 		<artifactId>LibreClinica</artifactId>
-		<version>1.3.1</version>
+		<version>1.3.0</version>
 	</parent>
 
 	<properties>
 		<assembly.name>LibreClinica</assembly.name>
-		<spring.profiles.active>local,no-liquibase</spring.profiles.active>
 	</properties>
 
 	<dependencies>
@@ -32,12 +31,14 @@
 			<groupId>${project.groupId}.odm</groupId>
 			<artifactId>LibreClinica-odm</artifactId>
 		</dependency>
-		<!--dependency>
-			<groupId>com.mockrunner</groupId>
+		<dependency>
+			<groupId>com.mockrunner.jdk15.jee5</groupId>
+			<artifactId>mockrunner</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.mockrunner.jdk15.jee5</groupId>
 			<artifactId>mockrunner-servlet</artifactId>
-			<version>0.4.6</version>
-			<scope>compile</scope>
-		</dependency-->
+		</dependency>
 		<dependency>
 			<groupId>javax.ws.rs</groupId>
 			<artifactId>jsr311-api</artifactId>
@@ -159,11 +160,9 @@
 			<groupId>httpunit</groupId>
 			<artifactId>httpunit</artifactId>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/jdom/jdom -->
 		<dependency>
-			<groupId>jdom</groupId>
+			<groupId>org.jdom</groupId>
 			<artifactId>jdom</artifactId>
-			<version>1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>
@@ -173,7 +172,6 @@
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
         </dependency>
-		<!-- https://mvnrepository.com/artifact/org.apache.tomcat/servlet-api -->
 		<dependency>
  			<groupId>javax.servlet.jsp</groupId>
  			<artifactId>jsp-api</artifactId>
@@ -311,28 +309,7 @@
          <groupId>com.fasterxml.jackson.core</groupId>
          <artifactId>jackson-annotations</artifactId>
       </dependency>
-		<!-- https://mvnrepository.com/artifact/org.apache.tomcat/annotations-api -->
-		<dependency>
-			<groupId>org.apache.tomcat</groupId>
-			<artifactId>annotations-api</artifactId>
-			<version>6.0.37</version>
-			<scope>provided</scope>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.apache.tomcat/jsp-api -->
-		<dependency>
-			<groupId>org.apache.tomcat</groupId>
-			<artifactId>jsp-api</artifactId>
-			<version>6.0.37</version>
-			<scope>runtime</scope>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/jboss/jboss-j2ee -->
-		<dependency>
-			<groupId>jboss</groupId>
-			<artifactId>jboss-j2ee</artifactId>
-			<version>4.2.2.GA</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
+      <dependency>
          <groupId>xerces</groupId>
          <artifactId>xmlParserAPIs</artifactId>
       </dependency>
@@ -344,7 +321,7 @@
          <groupId>org.hibernate</groupId>
          <artifactId>hibernate-core</artifactId>
       </dependency>
-    </dependencies>
+	</dependencies>
 	<build>
 		<plugins>
 			<plugin>
@@ -379,7 +356,7 @@
 						<ignoredUnusedDeclaredDependency> org.libreclinica:LibreClinica-docs</ignoredUnusedDeclaredDependency>
 					</ignoredUnusedDeclaredDependencies>
 		        </configuration>
-		    </plugin>
+		      </plugin>
 			<plugin>
 				<groupId>org.apache.tomcat.maven</groupId>
 				<artifactId>tomcat7-maven-plugin</artifactId>
@@ -407,17 +384,6 @@
 						</overlay>
 					</overlays>
 				</configuration>
-			</plugin>
-			<plugin>
-				<configuration>
-					<propertyFile>../core/src/main/resources/org/akaza/openclinica/datainfo.properties</propertyFile>
-					<username>clinica</username>
-					<password>clinica</password>
-					<!--url>jdbc:postgresql://localhost:5432/libreclinica</url-->
-				</configuration>
-				<groupId>org.liquibase</groupId>
-				<artifactId>liquibase-maven-plugin</artifactId>
-				<version>4.26.0</version>
 			</plugin>
 		</plugins>
 		<pluginManagement>

@@ -33,7 +33,8 @@
 <div class="homebox_bullets"><a href="CreateUserAccount"><fmt:message key="create_a_new_user" bundle="${resword}"/></a></div><br/>
 <div class="homebox_bullets"><a href="AuditUserActivity?restore=true"><fmt:message key="audit_user_activity" bundle="${resword}"/></a></div><br/>
 <div class="homebox_bullets"><a href="Configure"><fmt:message key="lock_out_configuration" bundle="${resword}"/></a></div><br/>
-<div class="homebox_bullets"><a href="ConfigurePasswordRequirements"><fmt:message key="configure_password_requirements" bundle="${resword}"/></a></div>
+<div class="homebox_bullets"><a href="ConfigurePasswordRequirements"><fmt:message key="configure_password_requirements" bundle="${resword}"/></a></div><br/>
+<div class="homebox_bullets"><a href="#" id="send_test_email"><fmt:message key="send_test_email" bundle="${resword}"/></a></div>
 <p></p>
 
 <c:import url="../include/showTable.jsp">
@@ -41,3 +42,28 @@
 </c:import>
 
 <jsp:include page="../include/footer.jsp"/>
+
+<script type="text/javascript" src="includes/jmesa/jquery.min.js"></script>
+<script type="text/javascript">
+	jQuery.noConflict();
+	jQuery(function() {
+		jQuery('#send_test_email').click(function(e) {
+			e.preventDefault();
+
+			jQuery.ajax({
+				'url' : 'SendTestEmail',
+			})
+			.done(function(data) {
+				alert(
+					data.type === "success"	?
+						'<fmt:message key="send_test_email_success" bundle="${resword}"><fmt:param value="' + data.recipient + '"/></fmt:message>'
+					:
+					data.type === "error"	?
+						'<fmt:message key="send_test_email_error" bundle="${resword}"><fmt:param value="' + data.recipient + '"/><fmt:param value="' + data.message + '"/></fmt:message>'
+					:
+					'Unexpected result type "' + data.type + '"'
+				);
+			});
+		});
+	});
+</script>
