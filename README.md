@@ -37,3 +37,4 @@ LibreClinica is open source project that values input from contributors:
 * Ralph Heerlein, ReliaTec GmbH
 * Christian Hänsel, ReliaTec GmbH
 * Otmar Bayer, ReliaTec GmbH 
+* LibreClinica was forked in 2019 from [OpenClinica](https://github.com/OpenClinica/OpenClinica/commit/425de43caf8e7afcbf66713ad2fb6b83062d66ef) 3.14
