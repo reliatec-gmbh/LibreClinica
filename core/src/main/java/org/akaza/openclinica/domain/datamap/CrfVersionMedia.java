@@ -3,7 +3,9 @@
  * GNU Lesser General Public License (GNU LGPL).
 
  * For details see: https://libreclinica.org/license
- * LibreClinica, copyright (C) 2020
+ * copyright (C) 2003 - 2011 Akaza Research
+ * copyright (C) 2003 - 2019 OpenClinica
+ * copyright (C) 2020 - 2024 LibreClinica
  */
 // Generated Aug 3, 2015 9:49:28 AM by Hibernate Tools 3.4.0.CR1
 package org.akaza.openclinica.domain.datamap;
