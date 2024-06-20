@@ -7,13 +7,6 @@
  * copyright (C) 2003 - 2019 OpenClinica
  * copyright (C) 2020 - 2024 LibreClinica
  */
-/* 
- * LibreClinica is distributed under the
- * GNU Lesser General Public License (GNU LGPL).
- * For details see: https://libreclinica.org/license
- *
- * Copyright 2003-2008 Akaza Research 
- */
 package org.akaza.openclinica.bean.oid;
 
 import org.slf4j.Logger;
@@ -25,16 +18,14 @@ import java.util.regex.Pattern;
 /**
  * OID Generator solves the problems described below. We have Domain Objects
  * that need to be assigned a specific OID. - The OID is generated differently
- * for every Domain Object - The OID keys depend on the Domain object ,So some
+ * for every Domain Object - The OID keys depend on the Domain object, So some
  * domain objects need two keys to make up an OID some need three ... - The
  * number of Domain object needing an OID is small with respect to the total
  * amount of domain objects.
  * 
- * 
  * @author Krikor Krumlian
  * @see Strategy Pattern, Template Pattern
  */
-
 public abstract class OidGenerator {
 
     @Override
