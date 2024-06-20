@@ -7,15 +7,6 @@
  * copyright (C) 2003 - 2019 OpenClinica
  * copyright (C) 2020 - 2024 LibreClinica
  */
-/*
- * LibreClinica is distributed under the GNU Lesser General Public License (GNU
- * LGPL).
- *
- * For details see: https://libreclinica.org/license copyright 2003-2005 Akaza
- * Research
- *
- */
-
 package org.akaza.openclinica.bean.odmbeans;
 
 import org.akaza.openclinica.bean.managestudy.StudyBean;
