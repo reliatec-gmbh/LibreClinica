@@ -7,7 +7,6 @@
  * copyright (C) 2003 - 2019 OpenClinica
  * copyright (C) 2020 - 2024 LibreClinica
  */
-
 package org.akaza.openclinica.dao.rule.action;
 
 import java.util.ArrayList;
