@@ -7,9 +7,6 @@
  * copyright (C) 2003 - 2019 OpenClinica
  * copyright (C) 2020 - 2024 LibreClinica
  */
-/**
- * 
- */
 package org.akaza.openclinica.dao.hibernate;
 
 import java.sql.Timestamp;
@@ -28,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author pgawade
- *
  */
 public class UsageStatsServiceDAO extends AbstractDomainDao<LogUsageStatsBean> {
     private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(this.getClass().getName());
