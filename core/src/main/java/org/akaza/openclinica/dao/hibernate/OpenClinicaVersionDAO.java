@@ -7,9 +7,6 @@
  * copyright (C) 2003 - 2019 OpenClinica
  * copyright (C) 2020 - 2024 LibreClinica
  */
-/**
- * 
- */
 package org.akaza.openclinica.dao.hibernate;
 
 import java.sql.Timestamp;
@@ -20,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author pgawade
- *
  */
 public class OpenClinicaVersionDAO extends AbstractDomainDao<OpenClinicaVersionBean> {
 
