@@ -18,9 +18,6 @@ import org.akaza.openclinica.bean.core.Term;
 
 /**
  * @author jxu, modified by ywang
- *
- * TODO To change the template for this generated type comment go to Window -
- * Preferences - Java - Code Style - Code Templates
  */
 
 // Internationalized name and description in Term.getName and
