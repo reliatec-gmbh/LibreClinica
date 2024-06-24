@@ -8,6 +8,7 @@
  * copyright (C) 2020 - 2024 LibreClinica
  */
 package org.akaza.openclinica.domain.datamap;
+
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
