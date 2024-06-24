@@ -7,13 +7,6 @@
  * copyright (C) 2003 - 2019 OpenClinica
  * copyright (C) 2020 - 2024 LibreClinica
  */
-/*
- * LibreClinica is distributed under the
- * GNU Lesser General Public License (GNU LGPL).
-
- * For details see: https://libreclinica.org/license
- * copyright 2003-2011 Akaza Research
- */
 package org.akaza.openclinica.service.crfdata.front;
 
 import java.io.Serializable;
@@ -21,8 +14,8 @@ import java.io.Serializable;
 /**
  * <p>Group Destinations of an origin into different InstantOnChangeFrontStr for func:onChange().
  * </p>
+ * ywang (Aug., 2011)
  */
-//ywang (Aug., 2011)
 public class InstantOnChangeFrontStrGroup implements Serializable {
     private static final long serialVersionUID = 2200616942101253858L;
 
