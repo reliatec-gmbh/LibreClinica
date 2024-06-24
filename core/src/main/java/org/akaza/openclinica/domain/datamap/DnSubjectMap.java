@@ -8,6 +8,7 @@
  * copyright (C) 2020 - 2024 LibreClinica
  */
 package org.akaza.openclinica.domain.datamap;
+
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;

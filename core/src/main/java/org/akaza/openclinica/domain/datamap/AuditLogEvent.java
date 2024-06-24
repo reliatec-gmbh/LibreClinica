@@ -7,8 +7,8 @@
  * copyright (C) 2003 - 2019 OpenClinica
  * copyright (C) 2020 - 2024 LibreClinica
  */
-// default package
 package org.akaza.openclinica.domain.datamap;
+
 import java.io.Serializable;
 import java.util.Date;
 

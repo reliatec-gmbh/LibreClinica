@@ -7,7 +7,6 @@
  * copyright (C) 2003 - 2019 OpenClinica
  * copyright (C) 2020 - 2024 LibreClinica
  */
-
 package org.akaza.openclinica.domain.admin;
 
 import org.akaza.openclinica.domain.AbstractMutableDomainObject;
@@ -18,9 +17,7 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 /**
- * 
  * @author ywang (May, 2009)
- * 
  */
 @Entity
 @Table(name = "measurement_unit")
