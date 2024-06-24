@@ -8,6 +8,7 @@
  * copyright (C) 2020 - 2024 LibreClinica
  */
 package org.akaza.openclinica.domain.datamap;
+
 import java.util.Date;
 import java.util.List;
 
