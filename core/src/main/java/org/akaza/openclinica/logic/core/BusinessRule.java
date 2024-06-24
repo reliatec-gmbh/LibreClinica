@@ -7,19 +7,13 @@
  * copyright (C) 2003 - 2019 OpenClinica
  * copyright (C) 2020 - 2024 LibreClinica
  */
-/*
- * Created on Sep 1, 2005
- *
- *
- */
 package org.akaza.openclinica.logic.core;
 
 import org.akaza.openclinica.bean.core.EntityBean;
 
 /**
  * @author thickerson
- *
- *
+ * Created on Sep 1, 2005
  */
 public interface BusinessRule {
     public abstract boolean isPropertyTrue(String s);
