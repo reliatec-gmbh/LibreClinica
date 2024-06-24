@@ -7,11 +7,6 @@
  * copyright (C) 2003 - 2019 OpenClinica
  * copyright (C) 2020 - 2024 LibreClinica
  */
-/*
- * Created on Sep 1, 2005
- *
- *
- */
 package org.akaza.openclinica.logic.masking;
 
 import org.akaza.openclinica.bean.masking.MaskingBean;
@@ -22,8 +17,7 @@ import org.akaza.openclinica.logic.masking.rules.MaskSubjectDOBRule;
 
 /**
  * @author thickerson
- *
- *
+ * Created on Sep 1, 2005
  */
 public class SubjectMaskingEvaluator extends BusinessEvaluator {
     protected MaskingBean mBean;
