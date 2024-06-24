@@ -7,14 +7,10 @@
  * copyright (C) 2003 - 2019 OpenClinica
  * copyright (C) 2020 - 2024 LibreClinica
  */
-/**
- * 
- */
 package org.akaza.openclinica.log;
 
 /**
  * @author pgawade
- *
  */
 public class LoggingConstants {
 

@@ -7,9 +7,6 @@
  * copyright (C) 2003 - 2019 OpenClinica
  * copyright (C) 2020 - 2024 LibreClinica
  */
-/**
- * 
- */
 package org.akaza.openclinica.log;
 
 import ch.qos.logback.classic.spi.LoggingEvent;
@@ -17,7 +14,6 @@ import ch.qos.logback.core.filter.Filter;
 
 /**
  * @author pgawade
- *
  */
 public abstract class LogFilterBase extends Filter<LoggingEvent> {
 
