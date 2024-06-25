@@ -7,12 +7,6 @@
  * copyright (C) 2003 - 2019 OpenClinica
  * copyright (C) 2020 - 2024 LibreClinica
  */
-/*
- * Created on Sep 21, 2005
- *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
- */
 package org.akaza.openclinica.control.admin;
 
 import java.util.ArrayList;
@@ -40,8 +34,7 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
 
 /**
  * @author thickerson
- * 
- * 
+ * Created on Sep 21, 2005
  */
 public class AuditLogStudyServlet extends SecureController {
 

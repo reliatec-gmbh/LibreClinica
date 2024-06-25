@@ -7,12 +7,6 @@
  * copyright (C) 2003 - 2019 OpenClinica
  * copyright (C) 2020 - 2024 LibreClinica
  */
-/*
- * GNU Lesser General Public License (GNU LGPL).
-
- * For details see: https://libreclinica.org/license
- * copyright 2003-2011 Akaza Research
- */
 package org.akaza.openclinica.control.admin;
 
 import java.util.ArrayList;
@@ -33,9 +27,6 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
 
 /**
  * @author jxu
- *
- * TODO To change the template for this generated type comment go to Window -
- * Preferences - Java - Code Style - Code Templates
  */
 @SuppressWarnings("serial")
 public class BatchCRFMigrationServlet extends SecureController {

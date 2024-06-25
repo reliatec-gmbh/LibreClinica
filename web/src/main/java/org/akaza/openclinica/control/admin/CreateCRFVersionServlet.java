@@ -7,13 +7,6 @@
  * copyright (C) 2003 - 2019 OpenClinica
  * copyright (C) 2020 - 2024 LibreClinica
  */
-/*
- * LibreClinica is distributed under the
- * GNU Lesser General Public License (GNU LGPL).
-
- * For details see: https://libreclinica.org/license
- * copyright 2003-2011 Akaza Research
- */
 package org.akaza.openclinica.control.admin;
 
 import static org.akaza.openclinica.core.util.ClassCastHelper.asArrayList;
@@ -63,7 +56,7 @@ import org.akaza.openclinica.web.SQLInitServlet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 
 /**
- * Create a new CRF verison by uploading excel file
+ * Create a new CRF version by uploading Excel file
  * 
  * @author jxu
  */

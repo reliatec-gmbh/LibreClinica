@@ -7,14 +7,6 @@
  * copyright (C) 2003 - 2019 OpenClinica
  * copyright (C) 2020 - 2024 LibreClinica
  */
-/*
- * LibreClinica is distributed under the
- * GNU Lesser General Public License (GNU LGPL).
-
- * For details see: https://libreclinica.org/license
- * copyright 2003-2011 Akaza Research
- */
-
 package org.akaza.openclinica.control.admin;
 
 import java.text.SimpleDateFormat;
@@ -32,10 +24,6 @@ import org.akaza.openclinica.core.util.ItemGroupCrvVersionUtil;
 import org.akaza.openclinica.dao.submit.ItemDAO;
 
 public class SpreadSheetItemUtil {
-	
-	
-	
-	
 	
 	private String itemName;//1
 	private String descriptionLabel;//2
@@ -65,7 +53,6 @@ public class SpreadSheetItemUtil {
 //	private String required;//25
 //	private String item_display_status;//26
 //	private String simple_conditional_display;//27
-	
 	
 	public SpreadSheetItemUtil(){}
 	
