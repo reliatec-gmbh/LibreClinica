@@ -7,9 +7,6 @@
  * copyright (C) 2003 - 2019 OpenClinica
  * copyright (C) 2020 - 2024 LibreClinica
  */
-/*
- *
- */
 package org.akaza.openclinica.control.techadmin;
 
 import java.util.ArrayList;
@@ -32,8 +29,6 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
 
 /**
  * @author thickerson
- *
- *
  */
 public class TechAdminServlet extends SecureController {
 

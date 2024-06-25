@@ -7,12 +7,6 @@
  * copyright (C) 2003 - 2019 OpenClinica
  * copyright (C) 2020 - 2024 LibreClinica
  */
-/*
- * Created on Sep 23, 2005
- *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
- */
 package org.akaza.openclinica.control.techadmin;
 
 import org.akaza.openclinica.control.core.SecureController;
@@ -24,9 +18,7 @@ import java.util.Locale;
 
 /**
  * @author thickerson
- *
- * TODO To change the template for this generated type comment go to Window -
- * Preferences - Java - Code Style - Code Templates
+ * Created on Sep 23, 2005
  */
 public class ViewSchedulerServlet extends SecureController {
 
