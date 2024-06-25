@@ -7,20 +7,12 @@
  * copyright (C) 2003 - 2019 OpenClinica
  * copyright (C) 2020 - 2024 LibreClinica
  */
-/*
- * LibreClinica is distributed under the
- * GNU Lesser General Public License (GNU LGPL).
-
- * For details see: https://libreclinica.org/license
- * copyright 2003-2011 Akaza Research
- */
-
 package org.akaza.openclinica.control.form.spreadsheet;
 
 /**
  * Instant-calculation func:onchange validation type for loading CRF spreadsheet
+ * ywang (Aug., 2011)
  */
-//ywang (Aug., 2011)
 public enum OnChangeSheetValidationType {
     NONE(0, "none"), ALL(1, "all"), SHOULD_BE_FUNC_ONCHANGE(2, "response_value_is_func_onchange"),
     SHOULD_BE_FUNC_ONCHANGE_TYPE(3, "value_should_be_func_onchange_type"),

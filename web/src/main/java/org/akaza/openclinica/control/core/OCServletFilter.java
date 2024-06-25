@@ -7,9 +7,6 @@
  * copyright (C) 2003 - 2019 OpenClinica
  * copyright (C) 2020 - 2024 LibreClinica
  */
-/**
- * 
- */
 package org.akaza.openclinica.control.core;
 
 import java.io.IOException;
@@ -28,7 +25,6 @@ import org.slf4j.MDC;
 
 /**
  * @author pgawade
- *
  */
 public class OCServletFilter implements javax.servlet.Filter {
 

@@ -7,11 +7,6 @@
  * copyright (C) 2003 - 2019 OpenClinica
  * copyright (C) 2020 - 2024 LibreClinica
  */
-/*
- * Created on Jun 9, 2005
- *
- *
- */
 package org.akaza.openclinica.control.extract;
 
 import org.akaza.openclinica.bean.core.Role;
@@ -37,7 +32,7 @@ import java.util.Locale;
  * outlasted the 'please wait' message.
  *
  * @author thickerson
- *
+ * Created on Jun 9, 2005
  */
 public class ShowFileServlet extends SecureController {
 

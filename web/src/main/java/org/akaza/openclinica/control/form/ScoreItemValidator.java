@@ -6,8 +6,6 @@
  * copyright (C) 2003 - 2011 Akaza Research
  * copyright (C) 2003 - 2019 OpenClinica
  * copyright (C) 2020 - 2024 LibreClinica
- *
- * Created on Sep 21, 2005
  */
 package org.akaza.openclinica.control.form;
 
@@ -18,7 +16,7 @@ import javax.servlet.http.HttpServletRequest;
  * fieldNames are always from request attribute.
  *
  * @author ywang (Feb. 2008)
- *
+ * Created on Sep 21, 2005
  */
 public class ScoreItemValidator extends DiscrepancyValidator {
 	
