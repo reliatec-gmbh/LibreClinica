@@ -6,8 +6,6 @@
  * copyright (C) 2003 - 2011 Akaza Research
  * copyright (C) 2003 - 2019 OpenClinica
  * copyright (C) 2020 - 2024 LibreClinica
- *
- * Created on Sep 23, 2005
  */
 package org.akaza.openclinica.web.bean;
 
@@ -19,9 +17,7 @@ import org.akaza.openclinica.bean.managestudy.DiscrepancyNoteBean;
 
 /**
  * @author ssachs
- *
- * TODO To change the template for this generated type comment go to Window -
- * Preferences - Java - Code Style - Code Templates
+ * Created on Sep 23, 2005
  */
 public class DiscrepancyNoteRow extends EntityBeanRow<DiscrepancyNoteBean, DiscrepancyNoteRow> {
     private DiscrepancyNoteType type;

@@ -7,7 +7,6 @@
  * copyright (C) 2003 - 2019 OpenClinica
  * copyright (C) 2020 - 2024 LibreClinica
  */
-
 package org.akaza.openclinica.web.bean;
 
 import org.akaza.openclinica.bean.admin.CRFBean;
@@ -19,7 +18,6 @@ import java.util.ArrayList;
  *
  * @author ywang
  * @author jxu
- *
  */
 public class ListCRFRow extends EntityBeanRow<CRFBean, ListCRFRow> {
     // columns:

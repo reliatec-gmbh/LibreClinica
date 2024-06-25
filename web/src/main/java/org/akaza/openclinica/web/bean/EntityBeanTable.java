@@ -7,9 +7,6 @@
  * copyright (C) 2003 - 2019 OpenClinica
  * copyright (C) 2020 - 2024 LibreClinica
  */
-/*
- * Created on Dec 31, 2004
- */
 package org.akaza.openclinica.web.bean;
 
 import java.io.UnsupportedEncodingException;
@@ -87,6 +84,7 @@ import org.akaza.openclinica.view.Link;
  * @see org.akaza.openclinica.control.admin.ListUserAccountsServlet <p>Method
  *      'computeDisplay()' modified by ywang to remove duplicated items when
  *      search by keywords.
+ * Created on Dec 31, 2004
  */
 public class EntityBeanTable {
     /**
