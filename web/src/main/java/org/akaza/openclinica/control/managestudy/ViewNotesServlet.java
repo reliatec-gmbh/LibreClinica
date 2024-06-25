@@ -6,8 +6,6 @@
  * copyright (C) 2003 - 2011 Akaza Research
  * copyright (C) 2003 - 2019 OpenClinica
  * copyright (C) 2020 - 2024 LibreClinica
- *
- * Created on Sep 23, 2005
  */
 package org.akaza.openclinica.control.managestudy;
 
@@ -48,11 +46,11 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.jmesa.facade.TableFacade;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 /**
- *
  * View a list of all discrepancy notes in current study
  *
  * @author ssachs
  * @author jxu
+ * Created on Sep 23, 2005
  */
 public class ViewNotesServlet extends SecureController {
     /**
