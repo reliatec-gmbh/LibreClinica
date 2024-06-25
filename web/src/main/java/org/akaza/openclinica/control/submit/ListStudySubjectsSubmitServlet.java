@@ -7,9 +7,6 @@
  * copyright (C) 2003 - 2019 OpenClinica
  * copyright (C) 2020 - 2024 LibreClinica
  */
-/*
- * Created on Jan 21, 2005
- */
 package org.akaza.openclinica.control.submit;
 
 import org.akaza.openclinica.control.managestudy.ListStudySubjectServlet;
@@ -21,6 +18,7 @@ import java.util.Locale;
 
 /**
  * @author ssachs
+ * Created on Jan 21, 2005
  */
 public class ListStudySubjectsSubmitServlet extends ListStudySubjectServlet {
 

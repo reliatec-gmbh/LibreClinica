@@ -9,7 +9,6 @@
  */
 package org.akaza.openclinica.control.submit;
 
-// import org.akaza.openclinica.bean.core.Role;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -55,8 +54,6 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-// import javax.servlet.http.*;
 
 /**
  * Enroll a new subject into system
