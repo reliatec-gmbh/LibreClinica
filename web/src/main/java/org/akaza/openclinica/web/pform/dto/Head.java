@@ -10,7 +10,6 @@
 package org.akaza.openclinica.web.pform.dto;
 
 public class Head {
-	
 	private String title;
 	private Model model;
 

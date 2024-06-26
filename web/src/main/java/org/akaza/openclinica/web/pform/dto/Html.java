@@ -10,7 +10,6 @@
 package org.akaza.openclinica.web.pform.dto;
 
 public class Html {
-	
 	private Head head;
 	private Body body;
 	
@@ -19,7 +18,8 @@ public class Html {
 	public Html(Html html) {
 		setHead(html.getHead());
 		setBody(html.getBody());
-	}	
+	}
+	
 	public Head getHead() {
 		return head;
 	}	

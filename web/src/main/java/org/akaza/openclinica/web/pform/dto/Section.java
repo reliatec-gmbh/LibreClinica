@@ -17,7 +17,6 @@ public class Section {
 	private String appearance;
 	private List<UserControl> usercontrol;
 	
-	
 	public List<Group> getGroup() {
 		return group;
 	}

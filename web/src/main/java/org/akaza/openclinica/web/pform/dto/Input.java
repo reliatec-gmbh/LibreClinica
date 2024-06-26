@@ -39,5 +39,4 @@ public class Input implements UserControl {
 	public void setHint(Hint hint) {
 		this.hint = hint;
 	}
-
 }

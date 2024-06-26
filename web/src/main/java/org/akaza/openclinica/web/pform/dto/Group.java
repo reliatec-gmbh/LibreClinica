@@ -19,8 +19,6 @@ public class Group {
 	private List<UserControl> usercontrol;
     private String ref;	
 	
-    
-
 	public Repeat getRepeat() {
 		return repeat;
 	}
@@ -57,5 +55,4 @@ public class Group {
 	public void setRef(String ref) {
 		this.ref = ref;
 	}
-	
 }

@@ -9,7 +9,6 @@
  */
 package org.akaza.openclinica.web.pform.dto;
 
-
 public class Hint {
 	private String ref;
 	private String hint;

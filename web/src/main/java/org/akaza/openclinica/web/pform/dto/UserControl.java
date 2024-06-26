@@ -10,7 +10,6 @@
 package org.akaza.openclinica.web.pform.dto;
 
 public interface UserControl {
-
 	public String getRef();
 	public void setRef(String ref);
 	public String getAppearance();
@@ -19,5 +18,4 @@ public interface UserControl {
 	public void setLabel(Label label);
 	public Hint getHint();
 	public void setHint(Hint hint);
-
 }

@@ -25,7 +25,6 @@ public class Manifest {
     public ArrayList<MediaFile> getMediaFile() {
         return mediaFile;
     }
-
     public void setMediaFiles(ArrayList<MediaFile> mediaFile) {
         this.mediaFile = mediaFile;
     }

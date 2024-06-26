@@ -15,8 +15,6 @@ public class Body {
 	private String cssClass = null;
 	private String appearance = null;
 	private List<Group> group;
-
-	
 	
 	public List<Group> getGroup() {
 		return group;
