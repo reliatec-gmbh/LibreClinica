@@ -3,14 +3,9 @@
  * GNU Lesser General Public License (GNU LGPL).
 
  * For details see: https://libreclinica.org/license
- * LibreClinica, copyright (C) 2020
- */
-/*
- * GNU Lesser General Public License (GNU LGPL).
- * For details see: https://libreclinica.org/license
- *
- * LibreClinica is distributed under the
- * Copyright 2003-2008 Akaza Research
+ * copyright (C) 2003 - 2011 Akaza Research
+ * copyright (C) 2003 - 2019 OpenClinica
+ * copyright (C) 2020 - 2024 LibreClinica
  */
 package org.akaza.openclinica.service.rule;
 
@@ -91,7 +86,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author krikor
- *
  */
 public class RuleSetService implements RuleSetServiceInterface {
 

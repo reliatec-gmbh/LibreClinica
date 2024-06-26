@@ -3,16 +3,10 @@
  * GNU Lesser General Public License (GNU LGPL).
 
  * For details see: https://libreclinica.org/license
- * LibreClinica, copyright (C) 2020
+ * copyright (C) 2003 - 2011 Akaza Research
+ * copyright (C) 2003 - 2019 OpenClinica
+ * copyright (C) 2020 - 2024 LibreClinica
  */
-/*
- * LibreClinica is distributed under the
- * GNU Lesser General Public License (GNU LGPL).
-
- * For details see: https://libreclinica.org/license
- * copyright 2003-2007 Akaza Research
- */
-
 package org.akaza.openclinica.control.managestudy;
 
 import java.util.ArrayList;
@@ -48,9 +42,7 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
 
 /**
  * @author jsampson
- * 
  */
-
 public class ViewStudySubjectAuditLogServlet extends SecureController {
 
     /**

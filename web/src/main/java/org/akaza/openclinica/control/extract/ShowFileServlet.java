@@ -3,12 +3,9 @@
  * GNU Lesser General Public License (GNU LGPL).
 
  * For details see: https://libreclinica.org/license
- * LibreClinica, copyright (C) 2020
- */
-/*
- * Created on Jun 9, 2005
- *
- *
+ * copyright (C) 2003 - 2011 Akaza Research
+ * copyright (C) 2003 - 2019 OpenClinica
+ * copyright (C) 2020 - 2024 LibreClinica
  */
 package org.akaza.openclinica.control.extract;
 
@@ -35,7 +32,7 @@ import java.util.Locale;
  * outlasted the 'please wait' message.
  *
  * @author thickerson
- *
+ * Created on Jun 9, 2005
  */
 public class ShowFileServlet extends SecureController {
 

@@ -3,9 +3,9 @@
  * GNU Lesser General Public License (GNU LGPL).
 
  * For details see: https://libreclinica.org/license
- * LibreClinica, copyright (C) 2020
- *
- * Created on Sep 21, 2005
+ * copyright (C) 2003 - 2011 Akaza Research
+ * copyright (C) 2003 - 2019 OpenClinica
+ * copyright (C) 2020 - 2024 LibreClinica
  */
 package org.akaza.openclinica.control.form;
 
@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletRequest;
  * fieldNames are always from request attribute.
  *
  * @author ywang (Feb. 2008)
- *
+ * Created on Sep 21, 2005
  */
 public class ScoreItemValidator extends DiscrepancyValidator {
 	
