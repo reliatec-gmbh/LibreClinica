@@ -16,8 +16,6 @@ import java.util.HashMap;
 
 /**
  * @author jxu
- *
- * 
  */
 // TODO duplicate of the version in the web module?
 public class FormDiscrepancyNotes {

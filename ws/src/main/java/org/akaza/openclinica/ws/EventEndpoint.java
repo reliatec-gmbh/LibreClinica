@@ -7,13 +7,6 @@
  * copyright (C) 2003 - 2019 OpenClinica
  * copyright (C) 2020 - 2024 LibreClinica
  */
-/*
- * LibreClinica is distributed under the
- * GNU Lesser General Public License (GNU LGPL).
- * For details see: https://libreclinica.org/license
- *
- * Copyright 2003-2009 Akaza Research
- */
 package org.akaza.openclinica.ws;
 
 import java.text.ParseException;
@@ -57,7 +50,6 @@ import org.w3c.dom.NodeList;
 
 /**
  * @author Krikor Krumlian
- * 
  */
 @Endpoint
 public class EventEndpoint {

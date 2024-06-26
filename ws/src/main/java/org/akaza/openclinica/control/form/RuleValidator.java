@@ -6,8 +6,6 @@
  * copyright (C) 2003 - 2011 Akaza Research
  * copyright (C) 2003 - 2019 OpenClinica
  * copyright (C) 2020 - 2024 LibreClinica
- *
- * Created on Sep 21, 2005
  */
 package org.akaza.openclinica.control.form;
 
@@ -17,7 +15,6 @@ import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * 
  * A class for validating a form which may have discrepancy notes attached
  * 
  * This class executes the rule that if a form field has a discrepancy note
@@ -32,6 +29,7 @@ import javax.servlet.http.HttpServletRequest;
  * provide the appropriate FormDiscrepancyNotes object in the constructor.
  * 
  * @author ssachs
+ * Created on Sep 21, 2005
  */
 // TODO duplicate of the version in the web module?
 public class RuleValidator extends Validator {

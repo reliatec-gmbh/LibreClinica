@@ -7,13 +7,6 @@
  * copyright (C) 2003 - 2019 OpenClinica
  * copyright (C) 2020 - 2024 LibreClinica
  */
-/*
-- * LibreClinica is distributed under the
- * GNU Lesser General Public License (GNU LGPL).
- * For details see: https://libreclinica.org/license
- *
- * Copyright 20032009 Akaza Research
- */
 package org.akaza.openclinica.ws;
 
 import java.io.FileOutputStream;
@@ -32,7 +25,6 @@ import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
 
 /**
  * @author Krikor Krumlian
- * 
  */
 @Endpoint
 public class CrfEndpoint {
