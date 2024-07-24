@@ -16,6 +16,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -497,7 +498,7 @@ public class CoreResources implements ResourceLoaderAware {
         File dest = new File(getField("filePath") + "rules");
         if (!dest.exists()) {
             if (!dest.mkdirs()) {
-                throw new OpenClinicaSystemException("Copying files, Could not create direcotry: " + dest.getAbsolutePath() + ".");
+                throw new OpenClinicaSystemException("Copying files, Could not create directory: " + dest.getAbsolutePath() + ".");
             }
         }
         for (Resource r : resources) {
@@ -798,7 +799,7 @@ public class CoreResources implements ResourceLoaderAware {
 
         File file = new File(basePath, normalisedFilePath);
         try {
-            if (file.getCanonicalPath().startsWith(basePath)) {
+            if (file.getCanonicalPath().startsWith(new File(basePath).getCanonicalPath())) {
                 return file;
             } else {
                 return null;

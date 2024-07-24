@@ -216,7 +216,7 @@ public class OpenRosaSubmissionController {
 
         File dir = new File(basePath, normalisedFilePath);
         try {
-            if (dir.getCanonicalPath().startsWith(basePath)) {
+            if (dir.getCanonicalPath().startsWith(new File(basePath).getCanonicalPath())) {
                 if (!dir.exists()) {
                     dir.mkdirs();
                 }
@@ -243,7 +243,7 @@ public class OpenRosaSubmissionController {
         File uploadedFile = new File(basePath, normalisedUploadedFilePath);
 
         try {
-            if (uploadedFile.getCanonicalPath().startsWith(basePath)) {
+            if (uploadedFile.getCanonicalPath().startsWith(new File(basePath).getCanonicalPath())) {
                 uploadedFile = new UploadFileServlet().new OCFileRename().rename(uploadedFile, item.getInputStream());
             } else {
                 uploadedFile = null;

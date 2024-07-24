@@ -1,0 +1,38 @@
+services:
+  libreclinica:
+    build: .
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      - db
+    develop:
+      watch:
+        # restart on config file changes
+        - action: sync+restart
+          path: ./docker/config
+          target: /usr/local/tomcat/libreclinica.config
+
+        # rebuild on source file changes
+        - action: rebuild
+          path: ./core
+
+        - action: rebuild
+          path: ./odm
+
+        - action: rebuild
+          path: ./web
+
+        - action: rebuild
+          path: ./ws
+
+  db:
+    image: docker.io/library/postgres:14-alpine
+    environment:
+      POSTGRES_PASSWORD: clinica
+      POSTGRES_USER: clinica
+      POSTGRES_DB: libreclinica
+
+  smtp:
+    image: docker.io/marlonb/mailcrab:v1.1.0
+    ports:
+      - "127.0.0.1:1080:1080"

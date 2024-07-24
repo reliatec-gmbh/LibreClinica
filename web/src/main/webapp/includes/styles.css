@@ -1374,6 +1374,11 @@ div.login_BG {
    text-align: center;
 }
 
+.groupclass_name{
+	/* used in addNewSubjectExpressNew.jsp */
+	font-weight: bold;
+}
+
 .add_new_subject_div{
 	text-align: left;
 	width: 500px; 
@@ -2098,4 +2103,3 @@ input.no-border {
 frm_msg{
     color:#ff0000;
 }
-

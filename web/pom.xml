@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>org.libreclinica</groupId>
 		<artifactId>LibreClinica</artifactId>
-		<version>1.2.0</version>
+		<version>1.3.0</version>
 	</parent>
 
 	<properties>
@@ -177,8 +177,8 @@
  			<artifactId>jsp-api</artifactId>
  		</dependency>
 		<dependency>
-			<groupId>javax.mail</groupId>
-			<artifactId>mail</artifactId>
+			<groupId>com.sun.mail</groupId>
+			<artifactId>javax.mail</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>javax.xml.bind</groupId>
