@@ -3,10 +3,9 @@
  * GNU Lesser General Public License (GNU LGPL).
 
  * For details see: https://libreclinica.org/license
- * LibreClinica, copyright (C) 2020
- */
-/*
- * Created on Dec 31, 2004
+ * copyright (C) 2003 - 2011 Akaza Research
+ * copyright (C) 2003 - 2019 OpenClinica
+ * copyright (C) 2020 - 2024 LibreClinica
  */
 package org.akaza.openclinica.web.bean;
 
@@ -85,6 +84,7 @@ import org.akaza.openclinica.view.Link;
  * @see org.akaza.openclinica.control.admin.ListUserAccountsServlet <p>Method
  *      'computeDisplay()' modified by ywang to remove duplicated items when
  *      search by keywords.
+ * Created on Dec 31, 2004
  */
 public class EntityBeanTable {
     /**

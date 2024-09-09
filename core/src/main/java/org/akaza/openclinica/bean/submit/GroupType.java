@@ -3,7 +3,9 @@
  * GNU Lesser General Public License (GNU LGPL).
 
  * For details see: https://libreclinica.org/license
- * LibreClinica, copyright (C) 2020
+ * copyright (C) 2003 - 2011 Akaza Research
+ * copyright (C) 2003 - 2019 OpenClinica
+ * copyright (C) 2020 - 2024 LibreClinica
  */
 package org.akaza.openclinica.bean.submit;
 
@@ -16,9 +18,6 @@ import org.akaza.openclinica.bean.core.Term;
 
 /**
  * @author jxu, modified by ywang
- *
- * TODO To change the template for this generated type comment go to Window -
- * Preferences - Java - Code Style - Code Templates
  */
 
 // Internationalized name and description in Term.getName and

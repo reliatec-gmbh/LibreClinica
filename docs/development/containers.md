@@ -7,6 +7,10 @@ It is possible to locally run a LibreClinica instance for development using [Doc
 - [Docker] or [Podman]
 - [Docker Compose]
 
+## Preparation
+For the docker setup to work the name of the WAR file needs to be stable. To achieve this, add 
+`<finalName>${project.artifactId}</finalName>` to web/pom.xml (see pull request #394, commit 99ea319).
+
 ## Starting LibreClinica
 
 Running the following command will start a LibreClinica instance:

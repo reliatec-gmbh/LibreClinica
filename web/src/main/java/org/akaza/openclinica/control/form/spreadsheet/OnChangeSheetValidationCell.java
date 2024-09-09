@@ -3,28 +3,20 @@
  * GNU Lesser General Public License (GNU LGPL).
 
  * For details see: https://libreclinica.org/license
- * LibreClinica, copyright (C) 2020
- */
-/*
- * LibreClinica is distributed under the
- * GNU Lesser General Public License (GNU LGPL).
-
- * For details see: https://libreclinica.org/license
- * copyright 2003-2011 Akaza Research
+ * copyright (C) 2003 - 2011 Akaza Research
+ * copyright (C) 2003 - 2019 OpenClinica
+ * copyright (C) 2020 - 2024 LibreClinica
  */
 package org.akaza.openclinica.control.form.spreadsheet;
 
 import java.util.Arrays;
 
-
-
 /**
  * <p>One spreadsheet cell to be validated for instant-calculation func: onChange.<br/>
  * For func: onChange(oriName, optionValue), arguments[0] is origin item name;
  * arguments[1] is optionValue.</p>
- *
+ * ywang (Aug., 2011)
  */
-//ywang (Aug., 2011)
 public class OnChangeSheetValidationCell {
 
     private final OnChangeSheetValidationType type;

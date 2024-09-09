@@ -3,9 +3,10 @@
  * GNU Lesser General Public License (GNU LGPL).
 
  * For details see: https://libreclinica.org/license
- * LibreClinica, copyright (C) 2020
+ * copyright (C) 2003 - 2011 Akaza Research
+ * copyright (C) 2003 - 2019 OpenClinica
+ * copyright (C) 2020 - 2024 LibreClinica
  */
-
 package org.akaza.openclinica.control.core;
 
 import static org.akaza.openclinica.core.util.ClassCastHelper.asArrayList;
@@ -112,7 +113,7 @@ import org.springframework.security.core.userdetails.UserDetails;
  * <ol>
  * <li>The method mayProceed, for which the class is named, is declared abstract and is called before processRequest. This
  * method indicates whether the user may proceed with the action he wishes to perform (as indicated by various attributes or
- * parameters in request or session). Note, howeveer, that the method has a void return, and throws
+ * parameters in request or session). Note, however, that the method has a void return, and throws
  * InsufficientPermissionException. The intention is that if the user may not proceed with his desired action, the method
  * should throw an exception. InsufficientPermissionException will accept a Page object which indicates where the user should
  * be redirected in order to be informed that he has insufficient permission, and the process method enforces this redirection
@@ -139,7 +140,7 @@ import org.springframework.security.core.userdetails.UserDetails;
  *
  * <li>The addEntityList method makes it easy to add a Collection of EntityBeans to the request. Note that this method should
  * only be used for Collections from which one EntityBean must be selected by the user. If the Collection is empty, this
- * method will throw an InconsistentStateException, taking the user to an error page and settting a page message indicating
+ * method will throw an InconsistentStateException, taking the user to an error page and setting a page message indicating
  * that the user may not proceed because no entities are present. Note that the error page and the error message must be
  * specified.
  * </ol>

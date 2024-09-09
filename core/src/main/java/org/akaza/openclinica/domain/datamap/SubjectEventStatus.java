@@ -3,11 +3,12 @@
  * GNU Lesser General Public License (GNU LGPL).
 
  * For details see: https://libreclinica.org/license
- * LibreClinica, copyright (C) 2020
+ * copyright (C) 2003 - 2011 Akaza Research
+ * copyright (C) 2003 - 2019 OpenClinica
+ * copyright (C) 2020 - 2024 LibreClinica
  */
-// default package
-// Generated Jul 31, 2013 2:03:33 PM by Hibernate Tools 3.4.0.CR1
 package org.akaza.openclinica.domain.datamap;
+
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -17,7 +18,7 @@ import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
 
 /**
  * @author jnyayapathi
- *
+ * Generated Jul 31, 2013 2:03:33 PM by Hibernate Tools 3.4.0.CR1
  */
 
 public enum SubjectEventStatus  implements CodedEnum {

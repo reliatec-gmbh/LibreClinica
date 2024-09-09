@@ -1,11 +1,11 @@
-LibreClinica 1.2 for Administrators
+LibreClinica 1.3 for Administrators
 ===================================
 
-[https://libreclinica.org](https://libreclinica.org) © 2022
+[https://libreclinica.org](https://libreclinica.org) © 2024
 
 Preface
 
-This manual describes the main activities of the Administrator-role in LibreClinica 1.2.0: System Configuration, 2-Factor Authentication, automatic E-Mail notification, etc.
+This manual describes the main activities of the Administrator-role in LibreClinica 1.3: System Configuration, 2-Factor Authentication, automatic E-Mail notification, etc.
 
 To use this manual an account with the role of Administrator is the only requirement.
 

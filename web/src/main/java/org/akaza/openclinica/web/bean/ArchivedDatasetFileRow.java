@@ -3,13 +3,9 @@
  * GNU Lesser General Public License (GNU LGPL).
 
  * For details see: https://libreclinica.org/license
- * LibreClinica, copyright (C) 2020
- */
-/*
- * Created on Apr 18, 2005
- *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * copyright (C) 2003 - 2011 Akaza Research
+ * copyright (C) 2003 - 2019 OpenClinica
+ * copyright (C) 2020 - 2024 LibreClinica
  */
 package org.akaza.openclinica.web.bean;
 
@@ -19,9 +15,7 @@ import java.util.ArrayList;
 
 /**
  * @author thickerson
- *
- * TODO To change the template for this generated type comment go to Window -
- * Preferences - Java - Code Style - Code Templates
+ * Created on Apr 18, 2005
  */
 public class ArchivedDatasetFileRow extends EntityBeanRow<ArchivedDatasetFileBean, ArchivedDatasetFileRow> {
     // declare columns first
