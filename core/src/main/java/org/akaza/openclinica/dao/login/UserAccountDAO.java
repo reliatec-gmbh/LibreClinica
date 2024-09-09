@@ -585,6 +585,16 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
 
     /**
      * Finds all the studies with roles for a user
+     * pseudocode:
+     * for each parent study P in the system
+     * if the user has a role in that study, add it to the answer
+     * otherwise, let parentAdded = false
+     * for each study, C, which is a child of P
+     * if the user has a role in C,
+     * if parentAdded = false
+     * add a StudyUserRole with study = P, role = invalid to the answer
+     * let parentAdded = true
+     * add the user's role in C to the answer
      *
      * @param userName user name
      * @param allStudies all studies
@@ -596,11 +606,13 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
         this.setTypeExpected(1, TypeNames.STRING);
         this.setTypeExpected(2, TypeNames.INT);
         this.setTypeExpected(3, TypeNames.STRING);
-        HashMap<Integer, StudyUserRoleBean> allStudyUserRoleBeans = new HashMap<>();
 
+        // Query user studies
         HashMap<Integer, Object> variables = variables(userName);
         ArrayList<HashMap<String, Object>> alist = this.select(digester.getQuery("findStudyByUser"), variables);
 
+        // Populate the study user role beans
+        HashMap<Integer, StudyUserRoleBean> allStudyUserRoleBeans = new HashMap<>();
         for(HashMap<String, Object> hm : alist) {
             String roleName = (String) hm.get("role_name");
             String studyName = (String) hm.get("name");
@@ -612,25 +624,17 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
             allStudyUserRoleBeans.put(studyId, sur);
         }
 
-        // pseudocode:
-        // for each parent study P in the system
-        // if the user has a role in that study, add it to the answer
-        // otherwise, let parentAdded = false
-        //
-        // for each study, C, which is a child of P
-        // if the user has a role in C,
-        // if parentAdded = false
-        // add a StudyUserRole with study = P, role = invalid to the answer
-        // let parentAdded = true
-        // add the user's role in C to the answer
-
+        // Initialize the resulting bean
         ArrayList<StudyUserRoleBean> answer = new ArrayList<>();
 
+        // Get all children studies
         StudyDAO sdao = new StudyDAO(ds);
-
         HashMap<Integer, ArrayList<StudyBean>> childrenByParentId = sdao.getChildrenByParentIds(allStudies);
 
+        // Go through all studies in the system
         for (StudyBean parent : allStudies) {
+
+            // Ignore child studies
             if (parent == null || parent.getParentStudyId() > 0) {
                 continue;
             }
@@ -641,25 +645,31 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
 
             ArrayList<StudyUserRoleBean> subTreeRoles = new ArrayList<>();
 
+            // Check if user has role in parent study
             if (allStudyUserRoleBeans.containsKey(studyId)) {
+                // If so add parent study into the bean
                 roleInStudy = allStudyUserRoleBeans.get(studyId);
-
                 subTreeRoles.add(roleInStudy);
                 parentAdded = true;
-            } else { // we do this so that we can compute Role.max below
-                // without
-                // throwing a NullPointerException
+            } else {
+                // Otherwise instantiate so that we can define it later as invalid
+                // to compute Role.max below without throwing a NullPointerException
                 roleInStudy = new StudyUserRoleBean();
             }
 
+            // Load the children of current parent study
             ArrayList<StudyBean> children = childrenByParentId.get(studyId);
             if (children == null) {
                 children = new ArrayList<>();
             }
 
+            // Go through children studies
             for (StudyBean child : children) {
 
+                // Check if user has role with access to child
                 if (allStudyUserRoleBeans.containsKey(child.getId())) {
+
+                    // No access to parent, define the parent as role as invalid
                     if (!parentAdded) {
                         roleInStudy.setStudyId(studyId);
                         roleInStudy.setRole(Role.INVALID);
@@ -668,12 +678,13 @@ public class UserAccountDAO extends AuditableEntityDAO<UserAccountBean> {
                         parentAdded = true;
                     }
 
+                    // Add role for child study
                     StudyUserRoleBean roleInChild = allStudyUserRoleBeans.get(child.getId());
                     Role max = Role.max(roleInChild.getRole(), roleInStudy.getRole());
                     roleInChild.setRole(max);
                     roleInChild.setParentStudyId(studyId);
                     subTreeRoles.add(roleInChild);
-                } else {
+                } else { // No role in child, will have role as in parent (including invalid)
                     StudyUserRoleBean roleInChild = new StudyUserRoleBean();
                     roleInChild.setStudyId(child.getId());
                     roleInChild.setStudyName(child.getName());
