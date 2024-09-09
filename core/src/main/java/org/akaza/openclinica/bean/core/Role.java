@@ -11,24 +11,20 @@ package org.akaza.openclinica.bean.core;
 
 import java.util.*;
 
-// Internationalized name and description in Term.getName and
-// Term.getDescription()
+// Internationalized name and description in Term.getName and Term.getDescription()
 // Description identifiers are taken from facilityinfo.properties
 public class Role extends Term {
-    /**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 8374394924123285829L;
-	public static final Role INVALID = new Role(0, "invalid", "invalid", null);
-    public static final Role ADMIN = new Role(1, "admin", "System_Administrator", null);
-    public static final Role COORDINATOR = new Role(2, "coordinator", "Study_Coordinator", null);
-    public static final Role STUDYDIRECTOR = new Role(3, "director", "Study_Director", null);
-    public static final Role INVESTIGATOR = new Role(4, "Investigator", "Investigator", null);
-    public static final Role RESEARCHASSISTANT = new Role(5, "ra", "Data_Entry_Person", null);
-    public static final Role MONITOR = new Role(6, "monitor", "Monitor", null);
-    public static final Role RESEARCHASSISTANT2 = new Role(7, "ra2", "site_Data_Entry_Person2", null);
-   
-    
+	public static final Role INVALID = new Role(0, "invalid", "invalid");
+    public static final Role ADMIN = new Role(1, "admin", "System_Administrator");
+    public static final Role COORDINATOR = new Role(2, "coordinator", "Study_Coordinator");
+    public static final Role STUDYDIRECTOR = new Role(3, "director", "Study_Director");
+    public static final Role INVESTIGATOR = new Role(4, "Investigator", "Investigator");
+    public static final Role RESEARCHASSISTANT = new Role(5, "ra", "Data_Entry_Person");
+    public static final Role MONITOR = new Role(6, "monitor", "Monitor");
+    public static final Role RESEARCHASSISTANT2 = new Role(7, "ra2", "site_Data_Entry_Person2");
+
     private static final Role[] members = { ADMIN, COORDINATOR, STUDYDIRECTOR, INVESTIGATOR, MONITOR, RESEARCHASSISTANT,RESEARCHASSISTANT2};
     public static final List<Role> list = Arrays.asList(members);
     
@@ -51,14 +47,12 @@ public class Role extends Term {
         siteRoleMap.put(7, "site_Data_Entry_Person2");
     }
 
-    private List<Privilege> privileges;
-
-    private Role(int id, String name, String description, Privilege[] myPrivs) {
-        super(id, name, description);
-        // privileges = Arrays.asList(myPrivs);
+    private Role() {
+        // NOOP
     }
 
-    private Role() {
+    private Role(int id, String name, String description) {
+        super(id, name, description);
     }
 
     public static boolean contains(int id) {
@@ -71,12 +65,12 @@ public class Role extends Term {
     }
 
     public static Role getByName(String name) {
-        for (int i = 0; i < list.size(); i++) {
-            Role temp = (Role) list.get(i);
+        for (Role temp : list) {
             if (temp.getName().equals(name) || temp.name.equals(name)) {
                 return temp;
             }
         }
+
         return INVALID;
     }
 
@@ -84,26 +78,16 @@ public class Role extends Term {
         return new ArrayList<Role>(list);
     }
 
-    public boolean hasPrivilege(Privilege p) {
-        for(Privilege myPriv : privileges) {
-            if (myPriv.equals(p)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     /**
      * Implicitly orders the Role set in the following way:
      * <ul>
      * <li> null is the lowest possible Role
      * <li> INVALID is the next lowest possible Role
-     * <li> The max of two non-null, non-INVALID roles r1 and r2 is the role
-     * with the lowest id.
+     * <li> The max of two non-null, non-INVALID roles r1 and r2 is the role with the lowest id.
      * </ul>
      *
-     * @param r1
-     * @param r2
+     * @param r1 first role
+     * @param r2 second role
      * @return The maximum of (r1, r2).
      */
     public static Role max(Role r1, Role r2) {
@@ -125,4 +109,5 @@ public class Role extends Term {
         }
         return r2;
     }
+
 }

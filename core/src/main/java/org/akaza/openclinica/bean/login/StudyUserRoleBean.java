@@ -16,60 +16,44 @@ import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
 
 import java.util.ResourceBundle;
 
-/**
+/*
+ * StudyUserRoleBean class will hold the following fields: username, rolename, studyid, updateid,
+ * datecreated, dateupdated, ownerid, statusid in the context of entitybean, name->username
+ *
+ * The superclass id field is the role id. The superclass name field is the role name.
+ *
  * @author thickerson
- */
-
-/**
  * @author ssachs
- * 
- *         The superclass id field is the role id. The superclass name field is
- *         the role name.
  */
-
 public class StudyUserRoleBean extends AuditableEntityBean {
-    /*
-     * this class will hold the following fields: username, rolename, studyid,
-     * updateid, datecreated, dateupdated, ownerid, statusid in the context of
-     * entitybean, name->username
-     */
 
-    /**
-	 * 
-	 */
 	private static final long serialVersionUID = -6618017307375291254L;
 
 	private Role role;
 
+    // not in the database, and not guaranteed to correspond to studyId; studyId is authoritative
+    // this is only provided as a convenience
     private int studyId;
 
-    // not in the database, and not guaranteed to correspond to studyId; studyId
-    // is authoritative
+    // not in the database, and not guaranteed to correspond to studyName
     // this is only provided as a convenience
     private String studyName = "";
 
-    // not in the database, and not guaranteed to correspond to studyId; studyId
-    // is authoritative
+    // not in the database, and not guaranteed to correspond to parentStudyId
     // this is only provided as a convenience
     private int parentStudyId = 0;
 
-    private String lastName = ""; // not in the DB,not guaranteed to have a
-    // value
-
-    private String firstName = "";// not in the DB,not guaranteed to have a
-    // value
-
-    private String userName = ""; // name here is role.name, this is different
-    // from name,not guaranteed to have a value
+    private String lastName = ""; // not in the DB, not guaranteed to have a value
+    private String firstName = ""; // not in the DB, not guaranteed to have a value
+    private String userName = ""; // name here is role.name, this is different from name, not guaranteed to have a value
 
     // User role capabilities, use this instead the role name.
     private boolean canSubmitData;
     private boolean canExtractData;
     private boolean canManageStudy;
+    private boolean canMonitor;
 
     private int userAccountId = 0;
-
-    private boolean canMonitor;
 
     public StudyUserRoleBean() {
         role = Role.INVALID;
@@ -86,15 +70,14 @@ public class StudyUserRoleBean extends AuditableEntityBean {
     }
 
     /**
-     * @param role
-     *            The role to set.
+     * @param role The role to set.
      */
     public void setRole(Role role) {
         this.role = role;
+
         super.setId(role.getId());
         super.setName(role.getName());
-        // roleName=='coordinator' || roleName=='director' || roleName=='ra' ||
-        // roleName=='investigator'}
+
         this.canSubmitData =
             this.role == Role.COORDINATOR || this.role == Role.STUDYDIRECTOR || this.role == Role.RESEARCHASSISTANT || this.role == Role.RESEARCHASSISTANT2 || this.role == Role.INVESTIGATOR;
         this.canExtractData = this.role == Role.COORDINATOR || this.role == Role.STUDYDIRECTOR || this.role == Role.INVESTIGATOR;
@@ -118,12 +101,11 @@ public class StudyUserRoleBean extends AuditableEntityBean {
     }
 
     /**
-     * @param roleName
-     *            The roleName to set.
+     * @param roleName The roleName to set.
      */
     public void setRoleName(String roleName) {
         Role role = Role.getByName(roleName);
-        if(role == null || role.getId()==0) {
+        if (role == null || role.getId() == 0) {
             ResourceBundle resterm = ResourceBundleProvider.getTermsBundle();
             if(resterm.getString("site_investigator").equals(roleName)) {
                 role = Role.INVESTIGATOR;
@@ -142,8 +124,7 @@ public class StudyUserRoleBean extends AuditableEntityBean {
     }
 
     /**
-     * @param studyId
-     *            The studyId to set.
+     * @param studyId The studyId to set.
      */
     public void setStudyId(int studyId) {
         this.studyId = studyId;
@@ -166,8 +147,7 @@ public class StudyUserRoleBean extends AuditableEntityBean {
     }
 
     /**
-     * @param studyName
-     *            The studyName to set.
+     * @param studyName The studyName to set.
      */
     public void setStudyName(String studyName) {
         this.studyName = studyName;
@@ -181,8 +161,7 @@ public class StudyUserRoleBean extends AuditableEntityBean {
     }
 
     /**
-     * @param parentStudyId
-     *            The parentStudyId to set.
+     * @param parentStudyId The parentStudyId to set.
      */
     public void setParentStudyId(int parentStudyId) {
         this.parentStudyId = parentStudyId;
@@ -269,4 +248,5 @@ public class StudyUserRoleBean extends AuditableEntityBean {
     public boolean isDirector() {
         return this.role == Role.STUDYDIRECTOR;
     }
+
 }
