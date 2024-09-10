@@ -810,11 +810,8 @@ public class ViewRuleAssignmentTableFactory extends AbstractTableFactory {
             String runTime = (String) ((HashMap<Object, Object>) item).get("ruleSetRunTime");
             List<RuleActionBean> actions = (List<RuleActionBean>) ((HashMap<Object, Object>) item).get("theActions");
             String message = actions.get(0).getSummary();
-        //    if (isDesignerRequest)
-          //  {
-                value += testEditByDesignerBuilder(target, ruleOid, runTime, message);
-            //} else
-                if (ruleSetRule.getStatus() != Status.DELETED) {
+            
+            if (ruleSetRule.getStatus() != Status.DELETED) {
                 value +=
                     viewLinkBuilder(ruleSetId) + executeLinkBuilder(ruleSetId, ruleId , target) + removeLinkBuilder(ruleSetRuleId, ruleSetId)
                         + extractXmlLinkBuilder(ruleSetRuleId) + testLinkBuilder(ruleSetRuleId);
@@ -927,20 +924,6 @@ public class ViewRuleAssignmentTableFactory extends AbstractTableFactory {
         actionLink.append("onMouseDown=\"javascript:setImage('bt_test','images/bt_EnterData_d.gif');\"");
         actionLink.append("onMouseUp=\"javascript:setImage('bt_test','images/bt_Reassign_d.gif');\"").close();
         actionLink.img().name("bt_test").src("images/bt_Reassign_d.gif").border("0").alt("Test").title("Test").append("hspace=\"2\"").end().aEnd();
-        actionLink.append("&nbsp;&nbsp;&nbsp;");
-        return actionLink.toString();
-
-    }
-
-    private String testEditByDesignerBuilder(String target, String ruleOid, String runTime, String message) {
-        HtmlBuilder actionLink = new HtmlBuilder();
-        // String designerURL = "http://localhost:8080/Designer-0.1.0.BUILD-SNAPSHOT/";
-        setDesignerLink(designerURL  + "&target=" + target + "&ruleOid=" + ruleOid +"&study_oid=" +currentStudy.getOid()+"&provider_user="+getCurrentUser().getName());
-        actionLink.a().href(designerURL  + "&target=" + target + "&ruleOid=" + ruleOid +"&study_oid=" +currentStudy.getOid()+"&provider_user="+getCurrentUser().getName()+"&path=ViewRuleAssignment&runTime="+ runTime +"&msg="+ convertMessage(message));
-        actionLink.append("target=\"_parent\"");
-        actionLink.append("onMouseDown=\"javascript:setImage('bt_test','images/bt_EnterData_d.gif');\"");
-        actionLink.append("onMouseUp=\"javascript:setImage('bt_test','images/bt_EnterData.gif');\"").close();
-        actionLink.img().name("bt_test").src("images/bt_EnterData.gif").border("0").alt("Rule Designer").title("Rule Designer").append("hspace=\"2\"").end().aEnd();
         actionLink.append("&nbsp;&nbsp;&nbsp;");
         return actionLink.toString();
 
