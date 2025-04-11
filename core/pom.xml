@@ -103,6 +103,10 @@
 			<artifactId>commons-validator</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>javax.annotation</groupId>
+			<artifactId>javax.annotation-api</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>
 		</dependency>
@@ -137,8 +141,8 @@
 			<artifactId>quartz</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>log4jdbc</groupId>
-			<artifactId>log4jdbc4</artifactId>
+			<groupId>com.googlecode.log4jdbc</groupId>
+			<artifactId>log4jdbc</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.saxon</groupId>

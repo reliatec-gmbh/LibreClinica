@@ -16,7 +16,7 @@ RUN \
 
     set -eux; \
     mvn package; \
-    mv web/target/LibreClinica-web.war /;
+    mv web/target/LibreClinica-web-1.3.0.war /LibreClinica-web.war;
 
 ############################################################
 FROM tomcat:9-jdk11
