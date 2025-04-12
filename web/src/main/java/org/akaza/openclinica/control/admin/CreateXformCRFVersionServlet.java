@@ -41,9 +41,9 @@ import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
 import org.akaza.openclinica.service.crfdata.XformMetaDataService;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.fileupload2.core.FileItem;
+import org.apache.commons.fileupload2.core.DiskFileItemFactory;
+import org.apache.commons.fileupload2.jakarta.JakartaServletFileUpload;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.springframework.validation.DataBinder;
 import org.springframework.validation.Errors;
@@ -71,8 +71,8 @@ public class CreateXformCRFVersionServlet extends SecureController {
 
         
         // Retrieve submission data from multipart request
-        DiskFileItemFactory factory = new DiskFileItemFactory();
-        ServletFileUpload upload = new ServletFileUpload(factory);
+        DiskFileItemFactory factory = DiskFileItemFactory.builder().get();
+        JakartaServletFileUpload upload = new JakartaServletFileUpload(factory);
         List<FileItem> items = upload.parseRequest(request);
         String submittedCrfName = retrieveFormFieldValue(items, "crfName");
         String submittedCrfVersionName = retrieveFormFieldValue(items, "versionName");
@@ -240,7 +240,7 @@ public class CreateXformCRFVersionServlet extends SecureController {
     private String retrieveFormFieldValue(List<FileItem> items, String fieldName) throws Exception {
         for (FileItem item : items) {
             if (fieldName.equals(item.getFieldName()))
-                return item.getString("UTF-8");
+                return item.getString(StandardCharsets.UTF_8);
         }
         logger.warn("Form field '" + fieldName + "' missing from xform submission.");
         return "";
@@ -273,7 +273,7 @@ public class CreateXformCRFVersionServlet extends SecureController {
 
                     File uploadedFile = new File(dir + File.separator + fileName);
                     try {
-                        item.write(uploadedFile);
+                        item.write(uploadedFile.toPath());
                     } catch (Exception e) {
                         throw new OpenClinicaSystemException(e.getMessage());
                     }

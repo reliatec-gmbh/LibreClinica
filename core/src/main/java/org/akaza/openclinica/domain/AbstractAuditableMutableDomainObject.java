@@ -12,9 +12,9 @@ package org.akaza.openclinica.domain;
 import java.io.Serializable;
 import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.Transient;
+import jakarta.persistence.Column;
+import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.Transient;
 
 import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.hibernate.annotations.Type;

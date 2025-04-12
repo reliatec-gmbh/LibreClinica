@@ -37,7 +37,7 @@ import org.akaza.openclinica.dao.login.UserAccountDAO;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.ehcache.EhCacheManagerFactoryBean;
+import org.springframework.cache.jcache.JCacheManagerFactoryBean;
 
 /**
  * <p/>
@@ -74,7 +74,7 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
     /* Here is the cache reference */
     protected EhCacheWrapper<String, ArrayList<HashMap<String, Object>>> cache;
     // protected EhCacheWrapper cache = new EhCacheWrapper();
-    protected EhCacheManagerFactoryBean cacheManager;
+    protected JCacheManagerFactoryBean cacheManager;
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
 

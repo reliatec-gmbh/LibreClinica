@@ -17,47 +17,48 @@ import org.jmesa.view.View;
 import org.jmesa.view.csv.CsvViewExporter;
 import org.jmesa.view.excel.ExcelViewExporter;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
-public class OCTableFacadeImpl extends TableFacadeImpl {
+public class OCTableFacadeImpl { //extends TableFacadeImpl {
 
     private final HttpServletResponse response;
     private final HttpServletRequest request;
     private final String fileName;
 
     public OCTableFacadeImpl(String id, HttpServletRequest request, HttpServletResponse response, String fileName) {
-        super(id, request);
+        //super(id, request);
         this.response = response;
         this.fileName = fileName + System.currentTimeMillis();
         this.request = request;
     }
 
-    @Override
+    //@Override
     protected View getExportView(ExportType exportType) {
 
         if (exportType == ExportType.PDF) {
-            return new XmlView(getTable(), getCoreContext());
+            //return new XmlView(getTable(), getCoreContext());
         } else {
-            return super.getExportView(exportType);
+            //return super.getExportView(exportType);
         }
+        return null;
     }
 
-    @Override
+    //@Override
     protected void renderExport(ExportType exportType, View view) {
 
         try {
-            CoreContext cc = getCoreContext();
+            //CoreContext cc = getCoreContext();
 
             if (exportType == ExportType.CSV) {
-//                new OCCsvViewExporter(view, cc, response, fileName).export();
-                 new CsvViewExporter(view, cc, response, fileName + ".txt").export();
+                //new OCCsvViewExporter(view, cc, response, fileName).export();
+                //new CsvViewExporter(view, cc, response, fileName + ".txt").export();
             } else if (exportType == ExportType.EXCEL) {
-                new ExcelViewExporter(view, cc, response, fileName + ".xls").export();
+                //new ExcelViewExporter(view, cc, response, fileName + ".xls").export();
             } else if (exportType == ExportType.PDF) {
-                new XmlViewExporter(view, cc, request, response).export();
+                //new XmlViewExporter(view, cc, request, response).export();
             } else {
-                super.renderExport(exportType, view);
+                //super.renderExport(exportType, view);
             }
         } catch (Exception e) {
             throw new OpenClinicaSystemException(e);

@@ -12,7 +12,7 @@ package org.akaza.openclinica.service.pmanage;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSession;
 
 import org.akaza.openclinica.bean.login.ParticipantDTO;
 import org.akaza.openclinica.dao.core.CoreResources;

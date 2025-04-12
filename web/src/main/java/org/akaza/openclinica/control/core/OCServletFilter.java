@@ -12,12 +12,12 @@ package org.akaza.openclinica.control.core;
 import java.io.IOException;
 import java.security.Principal;
 
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.log.LoggingConstants;
@@ -26,7 +26,7 @@ import org.slf4j.MDC;
 /**
  * @author pgawade
  */
-public class OCServletFilter implements javax.servlet.Filter {
+public class OCServletFilter implements jakarta.servlet.Filter {
 
     public static final String USER_BEAN_NAME = "userBean";
 

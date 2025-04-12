@@ -9,8 +9,8 @@
  */
 package org.akaza.openclinica.domain.datamap;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 
 import org.akaza.openclinica.domain.DataMapDomainObject;
 

@@ -10,11 +10,8 @@
 package org.akaza.openclinica.bean.rule;
 
 import org.akaza.openclinica.exception.OpenClinicaSystemException;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileUploadBase.FileSizeLimitExceededException;
-import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.fileupload2.core.*;
+import org.apache.commons.fileupload2.jakarta.JakartaServletFileUpload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,8 +21,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
 
 public class FileUploadHelper {
 
@@ -46,7 +43,7 @@ public class FileUploadHelper {
     public List<File> returnFiles(HttpServletRequest request, ServletContext context) {
 
         // Check that we have a file upload request
-        boolean isMultipart = ServletFileUpload.isMultipartContent(request);
+        boolean isMultipart = JakartaServletFileUpload.isMultipartContent(request);
         return isMultipart ? getFiles(request, context, null) : new ArrayList<File>();
     }
 
@@ -54,7 +51,7 @@ public class FileUploadHelper {
 
         // Check that we have a file upload request
         this.fileRenamePolicy = fileRenamePolicy;
-        boolean isMultipart = ServletFileUpload.isMultipartContent(request);
+        boolean isMultipart = JakartaServletFileUpload.isMultipartContent(request);
         return isMultipart ? getFiles(request, context, null) : new ArrayList<File>();
     }
 
@@ -62,14 +59,14 @@ public class FileUploadHelper {
 
         // Check that we have a file upload request
         this.fileRenamePolicy = fileRenamePolicy;
-        boolean isMultipart = ServletFileUpload.isMultipartContent(request);
+        boolean isMultipart = JakartaServletFileUpload.isMultipartContent(request);
         return isMultipart ? getFiles(request, context, createDirectoryIfDoesntExist(dirToSaveUploadedFileIn)) : new ArrayList<File>();
     }
 
     public List<File> returnFiles(HttpServletRequest request, ServletContext context, String dirToSaveUploadedFileIn) {
 
         // Check that we have a file upload request
-        boolean isMultipart = ServletFileUpload.isMultipartContent(request);
+        boolean isMultipart = JakartaServletFileUpload.isMultipartContent(request);
         return isMultipart ? getFiles(request, context, createDirectoryIfDoesntExist(dirToSaveUploadedFileIn)) : new ArrayList<File>();
     }
 
@@ -80,16 +77,15 @@ public class FileUploadHelper {
         // FileCleanerCleanup.getFileCleaningTracker(context);
 
         // Create a factory for disk-based file items
-        DiskFileItemFactory factory = new DiskFileItemFactory();
+        DiskFileItemFactory factory = DiskFileItemFactory.builder().get();
 
         // Create a new file upload handler
-        ServletFileUpload upload = new ServletFileUpload(factory);
+        JakartaServletFileUpload upload = new JakartaServletFileUpload(factory);
         upload.setFileSizeMax(getFileProperties().getFileSizeMax());
         try {
             // Parse the request
             List<FileItem> items = upload.parseRequest(request);
             // Process the uploaded items
-
             Iterator<FileItem> iter = items.iterator();
             while (iter.hasNext()) {
                 FileItem item = iter.next();
@@ -104,7 +100,7 @@ public class FileUploadHelper {
                 }
             }
             return files;
-        }catch (FileSizeLimitExceededException slee) {
+        }catch (FileUploadSizeException slee) {
             throw new OpenClinicaSystemException("exceeds_permitted_file_size", new Object[] { String.valueOf(getFileProperties().getFileSizeMaxInMb()) },
                     slee.getMessage());
 		}catch (FileUploadException fue) {
@@ -118,7 +114,7 @@ public class FileUploadHelper {
         // Some browsers IE 6,7 getName returns the whole path
         int startIndex = fileName.lastIndexOf('\\');
         if (startIndex != -1) {
-            fileName = fileName.substring(startIndex + 1, fileName.length());
+            fileName = fileName.substring(startIndex + 1);
         }
 
         File uploadedFile = new File(dirToSaveUploadedFileIn + File.separator + fileName);
@@ -130,7 +126,7 @@ public class FileUploadHelper {
         	}
         }
         try {
-			item.write(uploadedFile);
+			item.write(uploadedFile.toPath());
 		} catch (Exception e) {
 			throw new OpenClinicaSystemException(e.getMessage());
 		}

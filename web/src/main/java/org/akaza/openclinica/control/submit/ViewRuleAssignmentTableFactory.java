@@ -18,8 +18,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.login.UserAccountBean;
@@ -94,7 +94,8 @@ public class ViewRuleAssignmentTableFactory extends AbstractTableFactory {
 
     @Override
     public TableFacade getTableFacadeImpl(HttpServletRequest request, HttpServletResponse response) {
-        return new OCTableFacadeImpl(getTableName(), request, response, "rules" + currentStudy.getOid() + "-");
+        //return new OCTableFacadeImpl(getTableName(), request, response, "rules" + currentStudy.getOid() + "-");
+        return null;
     }
 
     @Override

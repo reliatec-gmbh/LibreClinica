@@ -16,9 +16,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.jmesa.facade.TableFacade;
@@ -57,7 +57,8 @@ public abstract class AbstractTableFactory {
     }
 
     public TableFacade getTableFacadeImpl(HttpServletRequest request, HttpServletResponse response) {
-        return new TableFacadeImpl(getTableName(), request);
+//        return new TableFacadeImpl(getTableName(), request);
+        return null;
     }
 
     public abstract void setDataAndLimitVariables(TableFacade tableFacade);
@@ -65,20 +66,21 @@ public abstract class AbstractTableFactory {
     public TableFacade createTable(HttpServletRequest request, HttpServletResponse response) {
         locale = LocaleResolver.getLocale(request);
         session = request.getSession();
-        TableFacade tableFacade = getTableFacadeImpl(request, response);
-        setStateAttr(tableFacade);
-        setDataAndLimitVariables(tableFacade);
-        configureTableFacade(response, tableFacade);
-        if (!tableFacade.getLimit().isExported()) {
-            configureColumns(tableFacade, locale);
-            tableFacade.setMaxRowsIncrements(getMaxRowIncrements());
-            configureTableFacadePostColumnConfiguration(tableFacade);
-            configureTableFacadeCustomView(tableFacade);
-            configureUnexportedTable(tableFacade, locale);
-        } else {
-            configureExportColumns(tableFacade, locale);
-        }
-        return tableFacade;
+//        TableFacade tableFacade = getTableFacadeImpl(request, response);
+//        setStateAttr(tableFacade);
+//        setDataAndLimitVariables(tableFacade);
+//        configureTableFacade(response, tableFacade);
+//        if (!tableFacade.getLimit().isExported()) {
+//            configureColumns(tableFacade, locale);
+//            tableFacade.setMaxRowsIncrements(getMaxRowIncrements());
+//            configureTableFacadePostColumnConfiguration(tableFacade);
+//            configureTableFacadeCustomView(tableFacade);
+//            configureUnexportedTable(tableFacade, locale);
+//        } else {
+//            configureExportColumns(tableFacade, locale);
+//        }
+//        return tableFacade;
+        return null;
     }
 
     /**
@@ -87,8 +89,6 @@ public abstract class AbstractTableFactory {
      * 
      * @param request
      * @param response
-     * @see getSize(Limit limit), createLimits()
-     * @see filter & sort methods in implementations
      */
     public void exportCSVTable(HttpServletRequest request, HttpServletResponse response, String path) {
         locale = LocaleResolver.getLocale(request);
@@ -96,16 +96,16 @@ public abstract class AbstractTableFactory {
         SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
         String fileName = getTableName() + "_" + sdf.format(new Date());
 
-        for (Limit limit : createLimits()) {
-            TableFacade tableFacade = new OCTableFacadeImpl(getTableName(), request, response, path + File.separator + fileName);
-            tableFacade.setStateAttr("restore");
-            tableFacade.setLimit(limit);
-            tableFacade.autoFilterAndSort(false);
-            setDataAndLimitVariables(tableFacade);
-            configureTableFacade(response, tableFacade);
-            configureExportColumns(tableFacade, locale);
-            tableFacade.render();
-        }
+//        for (Limit limit : createLimits()) {
+//            TableFacade tableFacade = new OCTableFacadeImpl(getTableName(), request, response, path + File.separator + fileName);
+//            tableFacade.setStateAttr("restore");
+//            tableFacade.setLimit(limit);
+//            tableFacade.autoFilterAndSort(false);
+//            setDataAndLimitVariables(tableFacade);
+//            configureTableFacade(response, tableFacade);
+//            configureExportColumns(tableFacade, locale);
+//            tableFacade.render();
+//        }
     }
 
     private ArrayList<Limit> createLimits() {
@@ -140,7 +140,7 @@ public abstract class AbstractTableFactory {
     }
 
     public void configureTableFacade(HttpServletResponse response, TableFacade tableFacade) {
-        tableFacade.setExportTypes(response, getExportTypes());
+        //tableFacade.setExportTypes(response, getExportTypes());
     }
 
     public int[] getMaxRowIncrements() {
@@ -161,7 +161,6 @@ public abstract class AbstractTableFactory {
      * By Default we configure a default view. Overwrite this method if you need to provide a custom view.
      * 
      * @param tableFacade
-     * @see http://code.google.com/p/jmesa/wiki/CustomViewTotalsTutorial
      */
     public void configureTableFacadeCustomView(TableFacade tableFacade) {
         tableFacade.setView(new DefaultView(locale));

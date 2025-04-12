@@ -12,7 +12,7 @@ package org.akaza.openclinica.controller;
 
 import java.util.Locale;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
 import org.akaza.openclinica.web.restful.ODMClinicaDataResource;

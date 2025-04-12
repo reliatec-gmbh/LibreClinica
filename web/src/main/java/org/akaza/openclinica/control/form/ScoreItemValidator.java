@@ -9,7 +9,7 @@
  */
 package org.akaza.openclinica.control.form;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * A Validator for 'calculation' and 'group-calculation' type Items whose

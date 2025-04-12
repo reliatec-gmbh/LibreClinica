@@ -16,7 +16,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.dao.hibernate.EventCrfFlagDao;

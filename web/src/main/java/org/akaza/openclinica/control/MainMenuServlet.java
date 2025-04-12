@@ -99,12 +99,12 @@ public class MainMenuServlet extends SecureController {
         StudyDAO sdao = new StudyDAO(sm.getDataSource());
         ArrayList<StudyBean> studies = null;
 
-        long pwdExpireDay = new Long(SQLInitServlet.getField("passwd_expiration_time")).longValue();
+        long pwdExpireDay = Long.parseLong(SQLInitServlet.getField("passwd_expiration_time"));
         Date lastPwdChangeDate = ub.getPasswdTimestamp();
 
         // a flag tells whether users are required to change pwd upon the first
         // time log in or pwd expired
-        int pwdChangeRequired = new Integer(SQLInitServlet.getField("change_passwd_required")).intValue();
+        int pwdChangeRequired = Integer.parseInt(SQLInitServlet.getField("change_passwd_required"));
         // update last visit date to current date
         UserAccountDAO udao = new UserAccountDAO(sm.getDataSource());
         UserAccountBean ub1 = (UserAccountBean) udao.findByPK(ub.getId());

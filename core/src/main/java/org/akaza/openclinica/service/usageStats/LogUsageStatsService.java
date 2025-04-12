@@ -12,7 +12,7 @@ package org.akaza.openclinica.service.usageStats;
 import java.util.Iterator;
 import java.util.Map;
 
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 import javax.sql.DataSource;
 
 import org.akaza.openclinica.dao.hibernate.UsageStatsServiceDAO;

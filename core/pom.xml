@@ -91,8 +91,12 @@
 		</dependency>
       -->
 		<dependency>
-			<groupId>commons-fileupload</groupId>
-			<artifactId>commons-fileupload</artifactId>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-fileupload2-jakarta</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-fileupload2-core</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
@@ -103,16 +107,20 @@
 			<artifactId>commons-validator</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
+			<groupId>jakarta.servlet</groupId>
+			<artifactId>jakarta.servlet-api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.sun.mail</groupId>
-			<artifactId>javax.mail</artifactId>
+			<groupId>jakarta.annotation</groupId>
+			<artifactId>jakarta.annotation-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>jakarta.mail</groupId>
+			<artifactId>jakarta.mail-api</artifactId>
 		</dependency>
         <dependency>
-        	<groupId>javax.activation</groupId>
-			<artifactId>activation</artifactId>
+        	<groupId>jakarta.activation</groupId>
+			<artifactId>jakarta.activation-api</artifactId>
         </dependency>
 		<!-- Postgres JDBC driver -->
 		<dependency>
@@ -123,7 +131,6 @@
 			<groupId>org.codehaus.castor</groupId>
 			<artifactId>castor-xml</artifactId>
 		</dependency>
-		<!-- @pgawade 16-NOV-2010 jmesa library for unit tests -->
 		<dependency>
 			<groupId>org.jmesa</groupId>
 			<artifactId>jmesa</artifactId>
@@ -153,6 +160,10 @@
 			<artifactId>spring-security-ldap</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-crypto</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework.ldap</groupId>
 			<artifactId>spring-ldap-core</artifactId>
 		</dependency>
@@ -173,8 +184,8 @@
 			<artifactId>spring-beans</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>javax.persistence</groupId>
-			<artifactId>javax.persistence-api</artifactId>
+			<groupId>jakarta.persistence</groupId>
+			<artifactId>jakarta.persistence-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>xml-apis</groupId>
@@ -182,7 +193,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-core</artifactId>
+			<artifactId>hibernate-core-jakarta</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.hibernate</groupId>

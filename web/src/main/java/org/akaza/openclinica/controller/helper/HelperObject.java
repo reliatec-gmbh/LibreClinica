@@ -12,7 +12,7 @@ package org.akaza.openclinica.controller.helper;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
 
 import org.akaza.openclinica.bean.admin.CRFBean;

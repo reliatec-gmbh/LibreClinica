@@ -22,7 +22,7 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import static org.akaza.openclinica.core.util.ClassCastHelper.*;
 /**
  * Maintain the breadcrumbs on the page, remain seamless, for example, it gets

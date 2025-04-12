@@ -29,9 +29,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
 import javax.sql.DataSource;
 
 import static org.akaza.openclinica.core.util.ClassCastHelper.*;

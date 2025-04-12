@@ -53,7 +53,7 @@ import org.akaza.openclinica.domain.xform.dto.Group;
 import org.akaza.openclinica.domain.xform.dto.Html;
 import org.akaza.openclinica.domain.xform.dto.UserControl;
 import org.akaza.openclinica.validator.xform.ItemValidator;
-import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload2.core.FileItem;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

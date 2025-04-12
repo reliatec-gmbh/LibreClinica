@@ -14,7 +14,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
 
-import javax.servlet.ServletOutputStream;
+import jakarta.servlet.ServletOutputStream;
 
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.control.SpringServletAccess;

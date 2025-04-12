@@ -11,7 +11,7 @@ package org.akaza.openclinica.web.pform;
 
 import java.util.HashMap;
 
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 
 import org.springframework.security.crypto.password.MessageDigestPasswordEncoder;
 

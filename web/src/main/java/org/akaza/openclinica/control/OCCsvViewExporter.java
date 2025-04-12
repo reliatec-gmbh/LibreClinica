@@ -17,14 +17,14 @@ import org.jmesa.view.View;
 import java.io.File;
 import java.io.FileOutputStream;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
-public class OCCsvViewExporter extends AbstractViewExporter {
+public class OCCsvViewExporter { //extends AbstractViewExporter {
 
     String fileName;
 
     public OCCsvViewExporter(View view, CoreContext coreContext, HttpServletResponse response) {
-        super(view, coreContext, response, null);
+        //super(view, coreContext, response, null);
         if (fileName == null) {
             fileName = ExportUtils.exportFileName(view, getExtensionName());
         }
@@ -32,28 +32,28 @@ public class OCCsvViewExporter extends AbstractViewExporter {
     }
 
     public OCCsvViewExporter(View view, CoreContext coreContext, HttpServletResponse response, String fileName) {
-        super(view, coreContext, response, fileName);
+        //super(view, coreContext, response, fileName);
         this.fileName = fileName + "." + getExtensionName();
     }
 
     public void export() throws Exception {
-        //responseHeaders(getResponse());
-        String viewData = (String) getView().render();
-        byte[] contents = (viewData).getBytes();
-        //ServletOutputStream outputStream = getResponse().getOutputStream();
-        File f = new File(fileName);
-        try (FileOutputStream fos = new FileOutputStream(f, true)) {
-        	fos.write(contents);
-        	fos.flush();
-        }
+//        //responseHeaders(getResponse());
+//        String viewData = (String) getView().render();
+//        byte[] contents = (viewData).getBytes();
+//        //ServletOutputStream outputStream = getResponse().getOutputStream();
+//        File f = new File(fileName);
+//        try (FileOutputStream fos = new FileOutputStream(f, true)) {
+//        	fos.write(contents);
+//        	fos.flush();
+//        }
     }
 
-    @Override
+    //@Override
     public String getContextType() {
         return "text/csv";
     }
 
-    @Override
+    //@Override
     public String getExtensionName() {
         return "txt";
     }

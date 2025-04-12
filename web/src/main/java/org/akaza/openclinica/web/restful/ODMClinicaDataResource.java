@@ -9,8 +9,8 @@
  */
 package org.akaza.openclinica.web.restful;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;

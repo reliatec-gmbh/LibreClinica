@@ -11,7 +11,7 @@ package org.akaza.openclinica.domain.rule.action;
 
 import java.util.ArrayList;
 
-import javax.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMessage;
 import javax.sql.DataSource;
 
 import org.akaza.openclinica.bean.login.ParticipantDTO;

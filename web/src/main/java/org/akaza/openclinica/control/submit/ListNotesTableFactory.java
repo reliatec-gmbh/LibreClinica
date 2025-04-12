@@ -20,8 +20,8 @@ import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.akaza.openclinica.bean.core.DiscrepancyNoteType;
 import org.akaza.openclinica.bean.core.ResolutionStatus;
@@ -250,9 +250,10 @@ public class ListNotesTableFactory extends AbstractTableFactory {
 
     @Override
     public TableFacade getTableFacadeImpl(HttpServletRequest request, HttpServletResponse response) {
-        TableFacade facade = super.getTableFacadeImpl(request, response);
-        facade.autoFilterAndSort(false); // Filtering and sorting performed on the DB layer
-        return facade;
+//        TableFacade facade = super.getTableFacadeImpl(request, response);
+//        facade.autoFilterAndSort(false); // Filtering and sorting performed on the DB layer
+//        return facade;
+        return null;
     }
 
     /**

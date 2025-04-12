@@ -11,7 +11,7 @@ package org.akaza.openclinica.controller.helper;
 
 import java.util.ArrayList;
 
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSession;
 import javax.sql.DataSource;
 
 import org.akaza.openclinica.bean.core.Role;

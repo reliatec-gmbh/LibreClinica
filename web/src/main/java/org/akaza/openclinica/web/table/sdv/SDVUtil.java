@@ -25,9 +25,9 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
 import org.akaza.openclinica.bean.admin.CRFBean;
@@ -584,162 +584,165 @@ public class SDVUtil {
         // boolean showMoreLink = Boolean.parseBoolean(request.getAttribute("showMoreLink").toString());//commented by
         // Jamuna, throwing null pointer exception
         boolean showMoreLink = Boolean.parseBoolean(request.getAttribute("showMoreLink") == null ? "false" : request.getAttribute("showMoreLink").toString());
-        TableFacade tableFacade = createTableFacade("sdv", request);
-        tableFacade.setStateAttr("sdv_restore");
-        this.pathPrefix = pathPrefix;
 
-        String[] allColumns = new String[] { "sdvStatus", "studySubjectId", "studyIdentifier", "personId", "secondaryId", "eventName", "eventDate",
-                "enrollmentDate", "studySubjectStatus", "crfNameVersion", "sdvRequirementDefinition", "crfStatus", "lastUpdatedDate", "lastUpdatedBy",
-                "studyEventStatus", "sdvStatusActions" };
-
-        tableFacade.setColumnProperties("sdvStatus", "studySubjectId", "studyIdentifier", "personId", "secondaryId", "eventName", "eventDate", "enrollmentDate",
-                "studySubjectStatus", "crfNameVersion", "sdvRequirementDefinition", "crfStatus", "lastUpdatedDate", "lastUpdatedBy", "studyEventStatus",
-                "sdvStatusActions");
-
-        tableFacade.addFilterMatcher(new MatcherKey(String.class, "studySubjectStatus"), new SubjectStatusMatcher());
-
-        tableFacade.addFilterMatcher(new MatcherKey(String.class, "crfStatus"), new CrfStatusMatcher());
-
-        tableFacade.addFilterMatcher(new MatcherKey(String.class, "sdvStatus"), new SdvStatusMatcher());
-
-        tableFacade.addFilterMatcher(new MatcherKey(String.class, "sdvRequirementDefinition"), new SDVRequirementMatcher());
-
-        this.setDataAndLimitVariables(tableFacade, studyId, request);
-
-        // tableFacade.setItems(items);
-
-        HtmlRow row = (HtmlRow) tableFacade.getTable().getRow();
-        HtmlColumn studySubjectStatus = row.getColumn("studySubjectStatus");
-        studySubjectStatus.getFilterRenderer().setFilterEditor(new SubjectStatusFilter());
-
-        HtmlColumn crfStatus = row.getColumn("crfStatus");
-        crfStatus.getFilterRenderer().setFilterEditor(new CrfStatusFilter());
-
-        HtmlColumn actions = row.getColumn("sdvStatusActions");
-        actions.getFilterRenderer().setFilterEditor(new DefaultActionsEditor(LocaleResolver.getLocale(request)));
-
-        HtmlColumn sdvStatus = row.getColumn("sdvStatus");
-        sdvStatus.getFilterRenderer().setFilterEditor(new SdvStatusFilter());
-
-        HtmlColumn sdvRequirementDefinition = row.getColumn("sdvRequirementDefinition");
-        sdvRequirementDefinition.getFilterRenderer().setFilterEditor(new SDVRequirementFilter());
-
-        // fix HTML in columns
-        setHtmlCellEditors(tableFacade, allColumns, true);
-
-        // temporarily disable some of the filters for now
-        turnOffFilters(tableFacade, new String[] { "personId", "secondaryId", "enrollmentDate", "studySubjectStatus", "crfNameVersion", "lastUpdatedDate",
-                "lastUpdatedBy", "eventDate", "studyEventStatus" });
-
-        turnOffSorts(tableFacade,
-                new String[] { "sdvStatus", "studySubjectId", "studyIdentifier", "personId", "secondaryId", "eventName", "eventDate", "enrollmentDate",
-                        "studySubjectStatus", "crfNameVersion", "sdvRequirementDefinition", "crfStatus", "lastUpdatedDate", "lastUpdatedBy", "studyEventStatus",
-                        "sdvStatusActions" });
-
-        // Create the custom toolbar
-        SDVToolbar sDVToolbar = new SDVToolbar(showMoreLink);
-
-        // if(totalRowCount > 0){
-        sDVToolbar.setMaxRowsIncrements(new int[] { 15, 25, 50 });
-        tableFacade.setToolbar(sDVToolbar);
-        tableFacade.setView(new SDVView(LocaleResolver.getLocale(request), request));
-
-        // Fix column titles
-        HtmlTable table = (HtmlTable) tableFacade.getTable();
-        // i18n caption; TODO: convert to Spring messages
-        ResourceBundle resword = ResourceBundle.getBundle("org.akaza.openclinica.i18n.words", LocaleResolver.getLocale(request));
-
-        String[] allTitles = { resword.getString("SDV_status"), resword.getString("study_subject_ID"), resword.getString("site_id"),
-                resword.getString("person_ID"), resword.getString("secondary_ID"), resword.getString("event_name"), resword.getString("event_date"),
-                resword.getString("enrollment_date"), resword.getString("subject_status"), resword.getString("CRF_name") + " / " + resword.getString("version"),
-                resword.getString("SDV_requirement"), resword.getString("CRF_status"), resword.getString("last_updated_date"),
-                resword.getString("last_updated_by"), resword.getString("study_event_status"), resword.getString("actions") };
-
-        setTitles(allTitles, table);
-
-        // format column dates
-        formatColumns(table, new String[] { "eventDate", "enrollmentDate", "lastUpdatedDate" }, request);
-
-        table.getTableRenderer().setWidth("800");
-        return tableFacade.render();
+//        TableFacade tableFacade = createTableFacade("sdv", request);
+//        tableFacade.setStateAttr("sdv_restore");
+//        this.pathPrefix = pathPrefix;
+//
+//        String[] allColumns = new String[] { "sdvStatus", "studySubjectId", "studyIdentifier", "personId", "secondaryId", "eventName", "eventDate",
+//                "enrollmentDate", "studySubjectStatus", "crfNameVersion", "sdvRequirementDefinition", "crfStatus", "lastUpdatedDate", "lastUpdatedBy",
+//                "studyEventStatus", "sdvStatusActions" };
+//
+//        tableFacade.setColumnProperties("sdvStatus", "studySubjectId", "studyIdentifier", "personId", "secondaryId", "eventName", "eventDate", "enrollmentDate",
+//                "studySubjectStatus", "crfNameVersion", "sdvRequirementDefinition", "crfStatus", "lastUpdatedDate", "lastUpdatedBy", "studyEventStatus",
+//                "sdvStatusActions");
+//
+//        tableFacade.addFilterMatcher(new MatcherKey(String.class, "studySubjectStatus"), new SubjectStatusMatcher());
+//
+//        tableFacade.addFilterMatcher(new MatcherKey(String.class, "crfStatus"), new CrfStatusMatcher());
+//
+//        tableFacade.addFilterMatcher(new MatcherKey(String.class, "sdvStatus"), new SdvStatusMatcher());
+//
+//        tableFacade.addFilterMatcher(new MatcherKey(String.class, "sdvRequirementDefinition"), new SDVRequirementMatcher());
+//
+//        this.setDataAndLimitVariables(tableFacade, studyId, request);
+//
+//         tableFacade.setItems(items);
+//
+//        HtmlRow row = (HtmlRow) tableFacade.getTable().getRow();
+//        HtmlColumn studySubjectStatus = row.getColumn("studySubjectStatus");
+//        studySubjectStatus.getFilterRenderer().setFilterEditor(new SubjectStatusFilter());
+//
+//        HtmlColumn crfStatus = row.getColumn("crfStatus");
+//        crfStatus.getFilterRenderer().setFilterEditor(new CrfStatusFilter());
+//
+//        HtmlColumn actions = row.getColumn("sdvStatusActions");
+//        actions.getFilterRenderer().setFilterEditor(new DefaultActionsEditor(LocaleResolver.getLocale(request)));
+//
+//        HtmlColumn sdvStatus = row.getColumn("sdvStatus");
+//        sdvStatus.getFilterRenderer().setFilterEditor(new SdvStatusFilter());
+//
+//        HtmlColumn sdvRequirementDefinition = row.getColumn("sdvRequirementDefinition");
+//        sdvRequirementDefinition.getFilterRenderer().setFilterEditor(new SDVRequirementFilter());
+//
+//        // fix HTML in columns
+//        setHtmlCellEditors(tableFacade, allColumns, true);
+//
+//        // temporarily disable some of the filters for now
+//        turnOffFilters(tableFacade, new String[] { "personId", "secondaryId", "enrollmentDate", "studySubjectStatus", "crfNameVersion", "lastUpdatedDate",
+//                "lastUpdatedBy", "eventDate", "studyEventStatus" });
+//
+//        turnOffSorts(tableFacade,
+//                new String[] { "sdvStatus", "studySubjectId", "studyIdentifier", "personId", "secondaryId", "eventName", "eventDate", "enrollmentDate",
+//                        "studySubjectStatus", "crfNameVersion", "sdvRequirementDefinition", "crfStatus", "lastUpdatedDate", "lastUpdatedBy", "studyEventStatus",
+//                        "sdvStatusActions" });
+//
+//        // Create the custom toolbar
+//        SDVToolbar sDVToolbar = new SDVToolbar(showMoreLink);
+//
+//        // if(totalRowCount > 0){
+//        sDVToolbar.setMaxRowsIncrements(new int[] { 15, 25, 50 });
+//        tableFacade.setToolbar(sDVToolbar);
+//        tableFacade.setView(new SDVView(LocaleResolver.getLocale(request), request));
+//
+//        // Fix column titles
+//        HtmlTable table = (HtmlTable) tableFacade.getTable();
+//        // i18n caption; TODO: convert to Spring messages
+//        ResourceBundle resword = ResourceBundle.getBundle("org.akaza.openclinica.i18n.words", LocaleResolver.getLocale(request));
+//
+//        String[] allTitles = { resword.getString("SDV_status"), resword.getString("study_subject_ID"), resword.getString("site_id"),
+//                resword.getString("person_ID"), resword.getString("secondary_ID"), resword.getString("event_name"), resword.getString("event_date"),
+//                resword.getString("enrollment_date"), resword.getString("subject_status"), resword.getString("CRF_name") + " / " + resword.getString("version"),
+//                resword.getString("SDV_requirement"), resword.getString("CRF_status"), resword.getString("last_updated_date"),
+//                resword.getString("last_updated_by"), resword.getString("study_event_status"), resword.getString("actions") };
+//
+//        setTitles(allTitles, table);
+//
+//        // format column dates
+//        formatColumns(table, new String[] { "eventDate", "enrollmentDate", "lastUpdatedDate" }, request);
+//
+//        table.getTableRenderer().setWidth("800");
+//        return tableFacade.render();
+        return "";
     }
 
     public String renderSubjectsTableWithLimit(HttpServletRequest request, int studyId, int studySubjectId) {
 
-        TableFacade tableFacade = createTableFacade("sdv", request);
-        tableFacade.setStateAttr("restore");
-
-        /*
-         * StudySubjectDAO studySubjectDAO = new StudySubjectDAO(dataSource);
-         * StudySubjectBean subjectBean = (StudySubjectBean) studySubjectDAO.findByPK(studySubjectId);
-         */
-
-        String[] allColumns = new String[] { "studySubjectId", "studyIdentifier", "personId", "secondaryId", "eventName", "eventDate", "enrollmentDate",
-                "studySubjectStatus", "crfNameVersion", "sdvRequirementDefinition", "crfStatus", "lastUpdatedDate", "lastUpdatedBy", "studyEventStatus",
-                "sdvStatusActions" };
-
-        tableFacade.setColumnProperties("studySubjectId", "studyIdentifier", "personId", "secondaryId", "eventName", "eventDate", "enrollmentDate",
-                "studySubjectStatus", "crfNameVersion", "sdvRequirementDefinition", "crfStatus", "lastUpdatedDate", "lastUpdatedBy", "studyEventStatus",
-                "sdvStatusActions");
-
-        tableFacade.addFilterMatcher(new MatcherKey(String.class, "studySubjectStatus"), new SubjectStatusMatcher());
-
-        tableFacade.addFilterMatcher(new MatcherKey(String.class, "crfStatus"), new CrfStatusMatcher());
-
-        tableFacade.addFilterMatcher(new MatcherKey(String.class, "sdvStatusActions"), new SdvStatusMatcher());
-
-        tableFacade.addFilterMatcher(new MatcherKey(String.class, "sdvRequirementDefinition"), new SDVRequirementMatcher());
-
-        int totalRowCount = 0;
-        totalRowCount = setDataAndLimitVariablesSubjects(tableFacade, studyId, studySubjectId, request);
-
-        // tableFacade.setItems(items);
-
-        HtmlRow row = (HtmlRow) tableFacade.getTable().getRow();
-        HtmlColumn studySubjectStatus = row.getColumn("studySubjectStatus");
-        studySubjectStatus.getFilterRenderer().setFilterEditor(new SubjectStatusFilter());
-
-        HtmlColumn crfStatus = row.getColumn("crfStatus");
-        crfStatus.getFilterRenderer().setFilterEditor(new CrfStatusFilter());
-
-        HtmlColumn sdvStatus = row.getColumn("sdvStatusActions");
-        sdvStatus.getFilterRenderer().setFilterEditor(new SdvStatusFilter());
-
-        HtmlColumn sdvRequirementDefinition = row.getColumn("sdvRequirementDefinition");
-        sdvRequirementDefinition.getFilterRenderer().setFilterEditor(new SDVRequirementFilter());
-
-        // fix HTML in columns
-        setHtmlCellEditors(tableFacade, allColumns, true);
-
-        // temporarily disable some of the filters for now
-        turnOffFilters(tableFacade,
-                new String[] { "personId", "secondaryId", "enrollmentDate", "studySubjectStatus", "crfNameVersion", "lastUpdatedDate", "lastUpdatedBy" });
-
-        // Create the custom toolbar
-        SDVToolbar sDVToolbar = new SDVToolbar(true);
-
-        // if(totalRowCount > 0){
-        sDVToolbar.setMaxRowsIncrements(new int[] { 15, 50, totalRowCount });
-        tableFacade.setToolbar(sDVToolbar);
-
-        // Fix column titles
-        HtmlTable table = (HtmlTable) tableFacade.getTable();
-        // i18n caption; TODO: convert to Spring messages
-        ResourceBundle resword = ResourceBundle.getBundle("org.akaza.openclinica.i18n.words", LocaleResolver.getLocale(request));
-
-        String[] allTitles = { resword.getString("study_subject_ID"), resword.getString("site_id"), resword.getString("person_ID"),
-                resword.getString("secondary_ID"), resword.getString("event_name"), resword.getString("event_date"), resword.getString("enrollment_date"),
-                resword.getString("subject_status"), resword.getString("CRF_name") + " / " + resword.getString("version"), resword.getString("SDV_requirement"),
-                resword.getString("CRF_status"), resword.getString("last_updated_date"), resword.getString("last_updated_by"),
-                resword.getString("study_event_status"), resword.getString("SDV_status") + " / " + resword.getString("actions") };
-
-        setTitles(allTitles, table);
-
-        // format column dates
-        formatColumns(table, new String[] { "eventDate", "enrollmentDate", "lastUpdatedDate" }, request);
-
-        table.getTableRenderer().setWidth("800");
-        return tableFacade.render();
+//        TableFacade tableFacade = createTableFacade("sdv", request);
+//        tableFacade.setStateAttr("restore");
+//
+//        /*
+//         * StudySubjectDAO studySubjectDAO = new StudySubjectDAO(dataSource);
+//         * StudySubjectBean subjectBean = (StudySubjectBean) studySubjectDAO.findByPK(studySubjectId);
+//         */
+//
+//        String[] allColumns = new String[] { "studySubjectId", "studyIdentifier", "personId", "secondaryId", "eventName", "eventDate", "enrollmentDate",
+//                "studySubjectStatus", "crfNameVersion", "sdvRequirementDefinition", "crfStatus", "lastUpdatedDate", "lastUpdatedBy", "studyEventStatus",
+//                "sdvStatusActions" };
+//
+//        tableFacade.setColumnProperties("studySubjectId", "studyIdentifier", "personId", "secondaryId", "eventName", "eventDate", "enrollmentDate",
+//                "studySubjectStatus", "crfNameVersion", "sdvRequirementDefinition", "crfStatus", "lastUpdatedDate", "lastUpdatedBy", "studyEventStatus",
+//                "sdvStatusActions");
+//
+//        tableFacade.addFilterMatcher(new MatcherKey(String.class, "studySubjectStatus"), new SubjectStatusMatcher());
+//
+//        tableFacade.addFilterMatcher(new MatcherKey(String.class, "crfStatus"), new CrfStatusMatcher());
+//
+//        tableFacade.addFilterMatcher(new MatcherKey(String.class, "sdvStatusActions"), new SdvStatusMatcher());
+//
+//        tableFacade.addFilterMatcher(new MatcherKey(String.class, "sdvRequirementDefinition"), new SDVRequirementMatcher());
+//
+//        int totalRowCount = 0;
+//        totalRowCount = setDataAndLimitVariablesSubjects(tableFacade, studyId, studySubjectId, request);
+//
+//        // tableFacade.setItems(items);
+//
+//        HtmlRow row = (HtmlRow) tableFacade.getTable().getRow();
+//        HtmlColumn studySubjectStatus = row.getColumn("studySubjectStatus");
+//        studySubjectStatus.getFilterRenderer().setFilterEditor(new SubjectStatusFilter());
+//
+//        HtmlColumn crfStatus = row.getColumn("crfStatus");
+//        crfStatus.getFilterRenderer().setFilterEditor(new CrfStatusFilter());
+//
+//        HtmlColumn sdvStatus = row.getColumn("sdvStatusActions");
+//        sdvStatus.getFilterRenderer().setFilterEditor(new SdvStatusFilter());
+//
+//        HtmlColumn sdvRequirementDefinition = row.getColumn("sdvRequirementDefinition");
+//        sdvRequirementDefinition.getFilterRenderer().setFilterEditor(new SDVRequirementFilter());
+//
+//        // fix HTML in columns
+//        setHtmlCellEditors(tableFacade, allColumns, true);
+//
+//        // temporarily disable some of the filters for now
+//        turnOffFilters(tableFacade,
+//                new String[] { "personId", "secondaryId", "enrollmentDate", "studySubjectStatus", "crfNameVersion", "lastUpdatedDate", "lastUpdatedBy" });
+//
+//        // Create the custom toolbar
+//        SDVToolbar sDVToolbar = new SDVToolbar(true);
+//
+//        // if(totalRowCount > 0){
+//        sDVToolbar.setMaxRowsIncrements(new int[] { 15, 50, totalRowCount });
+//        tableFacade.setToolbar(sDVToolbar);
+//
+//        // Fix column titles
+//        HtmlTable table = (HtmlTable) tableFacade.getTable();
+//        // i18n caption; TODO: convert to Spring messages
+//        ResourceBundle resword = ResourceBundle.getBundle("org.akaza.openclinica.i18n.words", LocaleResolver.getLocale(request));
+//
+//        String[] allTitles = { resword.getString("study_subject_ID"), resword.getString("site_id"), resword.getString("person_ID"),
+//                resword.getString("secondary_ID"), resword.getString("event_name"), resword.getString("event_date"), resword.getString("enrollment_date"),
+//                resword.getString("subject_status"), resword.getString("CRF_name") + " / " + resword.getString("version"), resword.getString("SDV_requirement"),
+//                resword.getString("CRF_status"), resword.getString("last_updated_date"), resword.getString("last_updated_by"),
+//                resword.getString("study_event_status"), resword.getString("SDV_status") + " / " + resword.getString("actions") };
+//
+//        setTitles(allTitles, table);
+//
+//        // format column dates
+//        formatColumns(table, new String[] { "eventDate", "enrollmentDate", "lastUpdatedDate" }, request);
+//
+//        table.getTableRenderer().setWidth("800");
+//        return tableFacade.render();
+        return "";
     }
 
     public void turnOffFilters(TableFacade tableFacade, String[] colNames) {
@@ -1181,29 +1184,29 @@ public class SDVUtil {
             totalRowCount = items.size();
         }
 
-        TableFacade tableFacade = createTableFacade("sdv", request);
-        // The default display for the JMesa Limit select widget is 1,50,100 rows
-        // We'll change this if the subject has more than one row, and have the last choice
-        // set to the total row count
-        if (totalRowCount > 1) {
-            tableFacade.setMaxRowsIncrements(15, 50, totalRowCount);
-        }
-        tableFacade.setColumnProperties("studySubjectId", "studySubjectStatus", "numberOfCRFsSDV", "percentageOfCRFsSDV", "group", "sdvStatusActions");
-
-        tableFacade.setItems(items);
-        // Fix column titles
-        HtmlTable table = (HtmlTable) tableFacade.getTable();
-        // i18n caption; TODO: convert to Spring messages
-        ResourceBundle resword = ResourceBundle.getBundle("org.akaza.openclinica.i18n.words", LocaleResolver.getLocale(request));
-
-        String[] allTitles = { resword.getString("study_subject_ID"), resword.getString("study_subject_status"), resword.getString("num_CRFs_SDV"),
-                resword.getString("porc_CRFs_SDV"), resword.getString("group") };
-
-        setTitles(allTitles, table);
-
-        table.getTableRenderer().setWidth("800");
-        return tableFacade.render();
-
+//        TableFacade tableFacade = createTableFacade("sdv", request);
+//        // The default display for the JMesa Limit select widget is 1,50,100 rows
+//        // We'll change this if the subject has more than one row, and have the last choice
+//        // set to the total row count
+//        if (totalRowCount > 1) {
+//            tableFacade.setMaxRowsIncrements(15, 50, totalRowCount);
+//        }
+//        tableFacade.setColumnProperties("studySubjectId", "studySubjectStatus", "numberOfCRFsSDV", "percentageOfCRFsSDV", "group", "sdvStatusActions");
+//
+//        tableFacade.setItems(items);
+//        // Fix column titles
+//        HtmlTable table = (HtmlTable) tableFacade.getTable();
+//        // i18n caption; TODO: convert to Spring messages
+//        ResourceBundle resword = ResourceBundle.getBundle("org.akaza.openclinica.i18n.words", LocaleResolver.getLocale(request));
+//
+//        String[] allTitles = { resword.getString("study_subject_ID"), resword.getString("study_subject_status"), resword.getString("num_CRFs_SDV"),
+//                resword.getString("porc_CRFs_SDV"), resword.getString("group") };
+//
+//        setTitles(allTitles, table);
+//
+//        table.getTableRenderer().setWidth("800");
+//        return tableFacade.render();
+        return "";
     }
 
     public boolean setSDVStatusForStudySubjects(List<Integer> studySubjectIds, int userId, boolean setVerification) {

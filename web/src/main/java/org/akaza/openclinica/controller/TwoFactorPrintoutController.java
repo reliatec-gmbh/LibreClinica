@@ -9,7 +9,7 @@ package org.akaza.openclinica.controller;
 
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.dao.login.UserAccountDAO;

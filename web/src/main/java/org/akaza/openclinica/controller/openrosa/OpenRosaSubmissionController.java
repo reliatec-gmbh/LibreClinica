@@ -11,15 +11,16 @@ package org.akaza.openclinica.controller.openrosa;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.managestudy.StudySubjectBean;
@@ -34,9 +35,9 @@ import org.akaza.openclinica.exception.OpenClinicaSystemException;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.service.pmanage.ParticipantPortalRegistrar;
 import org.akaza.openclinica.web.pform.PFormCache;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.fileupload2.core.FileItem;
+import org.apache.commons.fileupload2.core.DiskFileItemFactory;
+import org.apache.commons.fileupload2.jakarta.JakartaServletFileUpload;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
@@ -106,10 +107,10 @@ public class OpenRosaSubmissionController {
                 logger.info("Submissions to the study not allowed.  Aborting submission.");
                 return new ResponseEntity<String>(org.springframework.http.HttpStatus.NOT_ACCEPTABLE);
             }
-            if (ServletFileUpload.isMultipartContent(request)) {
+            if (JakartaServletFileUpload.isMultipartContent(request)) {
                 FileProperties fileProperties= new FileProperties();
-                DiskFileItemFactory factory = new DiskFileItemFactory();
-                ServletFileUpload upload = new ServletFileUpload(factory);
+                DiskFileItemFactory factory = DiskFileItemFactory.builder().get();
+                JakartaServletFileUpload upload = new JakartaServletFileUpload(factory);
                 upload.setFileSizeMax(fileProperties.getFileSizeMax());
                 List<FileItem> items = upload.parseRequest(request);              
                 for (FileItem item : items) {
@@ -119,7 +120,7 @@ public class OpenRosaSubmissionController {
                             map.put(item.getFieldName(), file.getPath());
                         }
                     } else if (item.getFieldName().equals("xml_submission_file")) {
-                        requestBody = item.getString("UTF-8");
+                        requestBody = item.getString(StandardCharsets.UTF_8);
                     }
                 }
                 listOfUploadFilePaths.add(map);
@@ -256,7 +257,7 @@ public class OpenRosaSubmissionController {
 
         try {
             if (uploadedFile != null) {
-                item.write(uploadedFile);
+                item.write(uploadedFile.toPath());
             }
         } catch (Exception e) {
             throw new OpenClinicaSystemException(e.getMessage());

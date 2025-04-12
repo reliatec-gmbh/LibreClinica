@@ -12,7 +12,7 @@ package org.akaza.openclinica.controller.openrosa;
 import java.util.Collections;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import org.akaza.openclinica.controller.openrosa.processor.Processor;
 import org.springframework.beans.factory.annotation.Autowired;

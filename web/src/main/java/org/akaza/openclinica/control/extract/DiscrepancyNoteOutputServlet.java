@@ -17,7 +17,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.core.AuditableEntityBean;
@@ -138,7 +138,7 @@ public class DiscrepancyNoteOutputServlet extends SecureController {
                 ViewNotesSortCriteria.buildFilterCriteria(getSortOrder(request)));
         ArrayList<DiscrepancyNoteBean> allDiscNotes = notes instanceof ArrayList
         		? (ArrayList<DiscrepancyNoteBean>) notes
-        		: new ArrayList<DiscrepancyNoteBean>(notes);
+        		: new ArrayList<>(notes);
         
         allDiscNotes = populateRowsWithAttachedData(allDiscNotes);
 
@@ -169,7 +169,7 @@ public class DiscrepancyNoteOutputServlet extends SecureController {
     }
 
     private Map<String,String> makeDiscrepancyNoteTypesDecoder() {
-    	Map<String,String> decoder = new HashMap<String,String>();
+    	Map<String,String> decoder = new HashMap<>();
     	
         ResourceBundle reterm = ResourceBundleProvider.getTermsBundle();
         for (DiscrepancyNoteType type : DiscrepancyNoteType.list) {
@@ -183,7 +183,7 @@ public class DiscrepancyNoteOutputServlet extends SecureController {
     private Map<String,String> discrepancyNoteTypesDecoder = makeDiscrepancyNoteTypesDecoder();
 
     private Map<String,String> makeResolutionStatusDecoder() {
-    	Map<String,String> decoder = new HashMap<String,String>();
+    	Map<String,String> decoder = new HashMap<>();
     	
         ResourceBundle reterm = ResourceBundleProvider.getTermsBundle();
         for (ResolutionStatus status : ResolutionStatus.list) {
@@ -202,7 +202,7 @@ public class DiscrepancyNoteOutputServlet extends SecureController {
     }
 
     private Map<String,String> getFilters(HttpServletRequest request) {
-    	Map<String,String> filters = new HashMap<String,String>();
+    	Map<String,String> filters = new HashMap<>();
     	String ids[] = {
                 "studySubject.label",
                 "siteId",
@@ -250,7 +250,7 @@ public class DiscrepancyNoteOutputServlet extends SecureController {
     		if (orders != null) {
 	    		for (String order: orders) {
 	    			if ("ASC".equals(order) || "DESC".equals(order)) {
-	    				sortOrders.add(new Pair<String,String>(s, order));
+	    				sortOrders.add(new Pair<>(s, order));
 	    				break;
 	    			}
 	    		}

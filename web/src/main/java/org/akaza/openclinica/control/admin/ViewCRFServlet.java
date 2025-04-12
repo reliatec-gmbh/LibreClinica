@@ -173,37 +173,38 @@ public class ViewCRFServlet extends SecureController {
     private String renderStudiesTable(List<StudyBean> studyBeans) {
 
         Collection<StudyRowContainer> items = getStudyRows(studyBeans);
-        TableFacade tableFacade = createTableFacade("studies", request);
-        tableFacade.setColumnProperties("name", "uniqueProtocolid", "actions");
-
-        tableFacade.setItems(items);
-        //Fix column titles
-        HtmlTable table = (HtmlTable) tableFacade.getTable();
-        //i18n caption; TODO: convert to Spring messages
-        /*
-        ResourceBundle resourceBundle = ResourceBundle.getBundle("org.akaza.openclinica.i18n.words", LocaleResolver.getLocale(request));
-        String captionText = resourceBundle.getString("studies_using_crf");
-        if (captionText == null || "".equalsIgnoreCase(captionText)) {
-            captionText = "Studies Using this CRF for Data Entry";
-        }
-        table.setCaption(captionText);
-        */
-        HtmlRow row = table.getRow();
-        SDVUtil sDVUtil = new SDVUtil();
-
-        String[] colNames = new String[] { "name", "uniqueProtocolid", "actions" };
-        sDVUtil.setHtmlCellEditors(tableFacade, colNames, true);
-
-        HtmlColumn firstName = row.getColumn("name");
-        firstName.setTitle("Study Name");
-
-        HtmlColumn protocol = row.getColumn("uniqueProtocolid");
-        protocol.setTitle("Unique Protocol Id");
-
-        HtmlColumn actions = row.getColumn("actions");
-        actions.setTitle("Actions");
-
-        return tableFacade.render();
+//        TableFacade tableFacade = createTableFacade("studies", request);
+//        tableFacade.setColumnProperties("name", "uniqueProtocolid", "actions");
+//
+//        tableFacade.setItems(items);
+//        //Fix column titles
+//        HtmlTable table = (HtmlTable) tableFacade.getTable();
+//        //i18n caption; TODO: convert to Spring messages
+//        /*
+//        ResourceBundle resourceBundle = ResourceBundle.getBundle("org.akaza.openclinica.i18n.words", LocaleResolver.getLocale(request));
+//        String captionText = resourceBundle.getString("studies_using_crf");
+//        if (captionText == null || "".equalsIgnoreCase(captionText)) {
+//            captionText = "Studies Using this CRF for Data Entry";
+//        }
+//        table.setCaption(captionText);
+//        */
+//        HtmlRow row = table.getRow();
+//        SDVUtil sDVUtil = new SDVUtil();
+//
+//        String[] colNames = new String[] { "name", "uniqueProtocolid", "actions" };
+//        sDVUtil.setHtmlCellEditors(tableFacade, colNames, true);
+//
+//        HtmlColumn firstName = row.getColumn("name");
+//        firstName.setTitle("Study Name");
+//
+//        HtmlColumn protocol = row.getColumn("uniqueProtocolid");
+//        protocol.setTitle("Unique Protocol Id");
+//
+//        HtmlColumn actions = row.getColumn("actions");
+//        actions.setTitle("Actions");
+//
+//        return tableFacade.render();
+        return "";
     }
 
     /*

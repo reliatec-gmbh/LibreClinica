@@ -68,46 +68,47 @@ public class AuditDatabaseServlet extends SecureController {
 
     private String renderAuditDatabaseTable(List<DatabaseChangeLogBean> databaseChangeLogs) {
 
-        // Collection<StudyRowContainer> items = getStudyRows(studyBeans);
-        TableFacade tableFacade = createTableFacade("databaseChangeLogs", request);
-        tableFacade.setColumnProperties("id", "author", "fileName", "dataExecuted", "md5Sum", "description", "comments", "tag", "liquibase");
-
-        tableFacade.setItems(databaseChangeLogs);
-        // Fix column titles
-        HtmlTable table = (HtmlTable) tableFacade.getTable();
-
-        table.setCaption("");
-        HtmlRow row = table.getRow();
-
-        HtmlColumn id = row.getColumn("id");
-        id.setTitle("Id");
-
-        HtmlColumn author = row.getColumn("author");
-        author.setTitle("Author");
-
-        HtmlColumn fileName = row.getColumn("fileName");
-        fileName.setTitle("File Name");
-
-        HtmlColumn dataExecuted = row.getColumn("dataExecuted");
-        dataExecuted.setTitle("Date Executed");
-        dataExecuted.getCellRenderer().setCellEditor(new DateCellEditor("yyyy-MM-dd hh:mm:ss"));
-
-        HtmlColumn md5Sum = row.getColumn("md5Sum");
-        md5Sum.setTitle("md5 sum");
-
-        HtmlColumn description = row.getColumn("description");
-        description.setTitle("Description");
-
-        HtmlColumn comments = row.getColumn("comments");
-        comments.setTitle("Comments");
-
-        HtmlColumn tag = row.getColumn("tag");
-        tag.setTitle("Tag");
-
-        HtmlColumn liquibase = row.getColumn("liquibase");
-        liquibase.setTitle("Liquibase");
-
-        return tableFacade.render();
+//        // Collection<StudyRowContainer> items = getStudyRows(studyBeans);
+//        TableFacade tableFacade = createTableFacade("databaseChangeLogs", request);
+//        tableFacade.setColumnProperties("id", "author", "fileName", "dataExecuted", "md5Sum", "description", "comments", "tag", "liquibase");
+//
+//        tableFacade.setItems(databaseChangeLogs);
+//        // Fix column titles
+//        HtmlTable table = (HtmlTable) tableFacade.getTable();
+//
+//        table.setCaption("");
+//        HtmlRow row = table.getRow();
+//
+//        HtmlColumn id = row.getColumn("id");
+//        id.setTitle("Id");
+//
+//        HtmlColumn author = row.getColumn("author");
+//        author.setTitle("Author");
+//
+//        HtmlColumn fileName = row.getColumn("fileName");
+//        fileName.setTitle("File Name");
+//
+//        HtmlColumn dataExecuted = row.getColumn("dataExecuted");
+//        dataExecuted.setTitle("Date Executed");
+//        dataExecuted.getCellRenderer().setCellEditor(new DateCellEditor("yyyy-MM-dd hh:mm:ss"));
+//
+//        HtmlColumn md5Sum = row.getColumn("md5Sum");
+//        md5Sum.setTitle("md5 sum");
+//
+//        HtmlColumn description = row.getColumn("description");
+//        description.setTitle("Description");
+//
+//        HtmlColumn comments = row.getColumn("comments");
+//        comments.setTitle("Comments");
+//
+//        HtmlColumn tag = row.getColumn("tag");
+//        tag.setTitle("Tag");
+//
+//        HtmlColumn liquibase = row.getColumn("liquibase");
+//        liquibase.setTitle("Liquibase");
+//
+//        return tableFacade.render();
+        return "";
     }
 
     @Override

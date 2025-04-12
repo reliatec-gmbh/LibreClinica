@@ -16,7 +16,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.ServletContextResource;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 
 // TODO duplicate of the version in the web module?
 public class SpringServletAccess {

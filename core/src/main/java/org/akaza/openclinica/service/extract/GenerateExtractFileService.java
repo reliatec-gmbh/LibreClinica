@@ -25,7 +25,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.zip.ZipOutputStream;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
 
 import org.akaza.openclinica.bean.extract.ArchivedDatasetFileBean;

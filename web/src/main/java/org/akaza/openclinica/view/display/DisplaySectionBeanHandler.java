@@ -12,7 +12,7 @@ package org.akaza.openclinica.view.display;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 import javax.sql.DataSource;
 
 import org.akaza.openclinica.bean.managestudy.EventDefinitionCRFBean;
