@@ -5,7 +5,7 @@
  * For details see: https://libreclinica.org/license
  * copyright (C) 2003 - 2011 Akaza Research
  * copyright (C) 2003 - 2019 OpenClinica
- * copyright (C) 2020 - 2024 LibreClinica
+ * copyright (C) 2020 - 2025 LibreClinica
  */
 package org.akaza.openclinica.control.admin;
 
@@ -24,9 +24,7 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
 import java.util.ArrayList;
 
 public class ViewUserAccountServlet extends SecureController {
-    /**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 2096237550544873731L;
 	public static final String PATH = "ViewUserAccount";
     public static final String ARG_USER_ID = "userId";
@@ -46,86 +44,55 @@ public class ViewUserAccountServlet extends SecureController {
             addPageMessage(respage.getString("no_have_correct_privilege_current_study") + respage.getString("change_study_contact_sysadmin"));
             throw new InsufficientPermissionException(Page.MENU_SERVLET, resexception.getString("you_may_not_perform_administrative_functions"), "1");
         }
-
-        return;
     }
 
     @Override
     protected void processRequest() throws Exception {
         FormProcessor fp = new FormProcessor(request);
         int userId = fp.getInt(ARG_USER_ID, true);
-        UserAccountDAO udao = new UserAccountDAO(sm.getDataSource());
+        UserAccountDAO userDao = new UserAccountDAO(sm.getDataSource());
 
-        UserAccountBean user = getBean(udao, userId);
+        UserAccountBean user = getBean(userDao, userId);
 
         if (user.isActive()) {
             request.setAttribute("user", user);
         } else {
             throw new InconsistentStateException(Page.ADMIN_SYSTEM, resexception.getString("the_user_attemping_to_view_not_exists"));
         }
-        // BWP>>To provide the view with the correct date format pattern, locale
-        // sensitive
+        // BWP>>To provide the view with the correct date format pattern, locale sensitive
         String pattn = "";
         pattn = ResourceBundleProvider.getFormatBundle().getString("date_format_string");
         request.setAttribute("dateFormatPattern", pattn);
         forwardPage(Page.VIEW_USER_ACCOUNT);
     }
 
-    // public void processRequest(HttpServletRequest request,
-    // HttpServletResponse response)
-    // throws OpenClinicaException {
-    // session = request.getSession();
-    // session.setMaxInactiveInterval(60 * 60 * 3);
-    // logger.setLevel(Level.ALL);
-    // UserAccountBean ub = (UserAccountBean) session.getAttribute("userBean");
-    // try {
-    // String userName = request.getRemoteUser();
-    //
-    // sm = new SessionManager(ub, userName);
-    // ub = sm.getUserBean();
-    // if (logger.isLoggable(Level.INFO)) {
-    // logger.info("user bean from DB" + ub.getName());
-    // }
-    //
-    // FormProcessor fp = new FormProcessor(request);
-    // int userId = fp.getInt(ARG_USER_ID);
-    //
-    // SQLFactory factory = SQLFactory.getInstance();
-    // UserAccountDAO udao = new UserAccountDAO(sm.getDataSource());
-    //
-    // UserAccountBean user = getBean(udao, userId);
-    //
-    // if ((user.getFirstName() != null) && (!user.getFirstName().equals(""))) {
-    // request.setAttribute("user", user);
-    // request.setAttribute("message", "");
-    // }
-    // else {
-    // request.setAttribute("user", new UserAccountBean());
-    // request.setAttribute("message", "The specified user does not exist!");
-    // }
-    //
-    // forwardPage(Page.VIEW_USER_ACCOUNT, request, response);
-    // } catch (Exception e) {
-    // e.printStackTrace();
-    // logger.warn("OpenClinicaException::
-    // OpenClinica.control.viewUserAccount: " + e.getMessage());
-    //
-    // forwardPage(Page.ERROR, request, response);
-    // }
-    // }
-
-    private UserAccountBean getBean(UserAccountDAO udao, int id) {
-        UserAccountBean answer = (UserAccountBean) udao.findByPK(id);
-        StudyDAO sdao = new StudyDAO(sm.getDataSource());
+    private UserAccountBean getBean(UserAccountDAO userDao, int id) {
+        UserAccountBean answer = userDao.findByPK(id);
+        StudyDAO studyDao = new StudyDAO(sm.getDataSource());
 
         ArrayList<StudyUserRoleBean> roles = answer.getRoles();
 
         for (int i = 0; i < roles.size(); i++) {
-            StudyUserRoleBean sur = (StudyUserRoleBean) roles.get(i);
-            StudyBean sb = (StudyBean) sdao.findByPK(sur.getStudyId());
-            sur.setStudyName(sb.getName());
-            roles.set(i, sur);
+            StudyUserRoleBean studyUserRoleBean = roles.get(i);
+            StudyBean studyBean = studyDao.findByPK(studyUserRoleBean.getStudyId());
+
+            if (studyBean != null) {
+
+                // Study Name will depend on whether it is study site or parent study role
+                if (studyBean.isSite(studyBean.getParentStudyId())) {
+
+                    // Include parent study name
+                    StudyBean parentStudyBean =studyDao.findByPK(studyBean.getParentStudyId());
+                    studyUserRoleBean.setStudyName(parentStudyBean.getName() + " : " + studyBean.getName());
+
+                } else { // When parent study role study name is sufficient
+                    studyUserRoleBean.setStudyName(studyBean.getName());
+                }
+            }
+
+            roles.set(i, studyUserRoleBean);
         }
+
         answer.setRoles(roles);
 
         return answer;

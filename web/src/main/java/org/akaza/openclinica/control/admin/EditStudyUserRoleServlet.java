@@ -5,7 +5,7 @@
  * For details see: https://libreclinica.org/license
  * copyright (C) 2003 - 2011 Akaza Research
  * copyright (C) 2003 - 2019 OpenClinica
- * copyright (C) 2020 - 2024 LibreClinica
+ * copyright (C) 2020 - 2025 LibreClinica
  */
 package org.akaza.openclinica.control.admin;
 
@@ -27,16 +27,13 @@ import java.util.*;
 /**
  * @author ssachs
  *
- * Servlet for creating a user account.
+ * Servlet for modification of study user role for specific user account.
  */
 public class EditStudyUserRoleServlet extends SecureController {
-    /**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 2676005249787903342L;
 
 	public static final String INPUT_ROLE = "role";
-
     public static final String PATH = "EditStudyUserRole";
     public static final String ARG_STUDY_ID = "studyId";
     public static final String ARG_USER_NAME = "userName";
@@ -52,24 +49,33 @@ public class EditStudyUserRoleServlet extends SecureController {
             addPageMessage(respage.getString("no_have_correct_privilege_current_study") + respage.getString("change_study_contact_sysadmin"));
             throw new InsufficientPermissionException(Page.MENU_SERVLET, resexception.getString("you_may_not_perform_administrative_functions"), "1");
         }
-
-        return;
     }
 
     @Override
     protected void processRequest() throws Exception {
-        UserAccountDAO udao = new UserAccountDAO(sm.getDataSource());
+        UserAccountDAO userDao = new UserAccountDAO(sm.getDataSource());
+        StudyDAO studyDao = new StudyDAO(sm.getDataSource());
 
         FormProcessor fp = new FormProcessor(request);
 
         int studyId = fp.getInt(ARG_STUDY_ID);
         String uName = fp.getString(ARG_USER_NAME);
-        StudyUserRoleBean studyUserRole = udao.findRoleByUserNameAndStudyId(uName, studyId);
 
-        StudyDAO sdao = new StudyDAO(sm.getDataSource());
-        StudyBean sb = (StudyBean) sdao.findByPK(studyUserRole.getStudyId());
-        if (sb != null) {
-            studyUserRole.setStudyName(sb.getName());
+        StudyUserRoleBean studyUserRole = userDao.findRoleByUserNameAndStudyId(uName, studyId);
+        StudyBean study = studyDao.findByPK(studyUserRole.getStudyId());
+        
+        if (study != null) {
+
+            // Study Name will depend on whether it is study site or parent study role
+            if (study.isSite(study.getParentStudyId())) {
+
+                // Include parent study name
+                StudyBean parentStudy = studyDao.findByPK(study.getParentStudyId());
+                studyUserRole.setStudyName(parentStudy.getName() + " : " + study.getName());
+
+            } else { // When parent study role study name is sufficient
+                studyUserRole.setStudyName(study.getName());
+            }
         }
 
         if (!studyUserRole.isActive()) {
@@ -79,9 +85,9 @@ public class EditStudyUserRoleServlet extends SecureController {
         } else {
             Map<Integer, String> roleMap = new LinkedHashMap<>();
             ResourceBundle resterm = org.akaza.openclinica.i18n.util.ResourceBundleProvider.getTermsBundle();
-            StudyBean study = (StudyBean) sdao.findByPK(studyUserRole.getStudyId());
+
             if (study.getParentStudyId() == 0) {
-                for(Role role : getRoles()) {
+                for (Role role : getRoles()) {
                     switch (role.getId()) {
                         case 2: roleMap.put(role.getId(), resterm.getString("Study_Coordinator").trim());
                             break;
@@ -98,7 +104,7 @@ public class EditStudyUserRoleServlet extends SecureController {
                     }
                 }
             } else {
-                for(Role role : getRoles()) {
+                for (Role role : getRoles()) {
                     switch (role.getId()) {
 //                        case 2: roleMap.put(role.getId(), resterm.getString("site_Study_Coordinator").trim());
 //                            break;
@@ -123,7 +129,7 @@ public class EditStudyUserRoleServlet extends SecureController {
                 roleMap.remove(Role.STUDYDIRECTOR.getId());
             }
 
-            // send the user to the right place..
+            // send the user to the right place
             if (!fp.isSubmitted()) {
                 request.setAttribute("userName", uName);
                 request.setAttribute("studyUserRole", studyUserRole);
@@ -143,7 +149,7 @@ public class EditStudyUserRoleServlet extends SecureController {
                     Role r = Role.get(roleId);
                     studyUserRole.setRoleName(r.getName());
                     studyUserRole.setUpdater(ub);
-                    udao.updateStudyUserRole(studyUserRole, uName);
+                    userDao.updateStudyUserRole(studyUserRole, uName);
 
                     String message = respage.getString("the_user_in_study_has_been_updated");
                     addPageMessage(message);
@@ -162,93 +168,6 @@ public class EditStudyUserRoleServlet extends SecureController {
             }
         }
     }
-
-    // public void processRequest(HttpServletRequest request,
-    // HttpServletResponse response)
-    // throws OpenClinicaException {
-    // session = request.getSession();
-    // session.setMaxInactiveInterval(60 * 60 * 3);
-    // logger.setLevel(Level.ALL);
-    // UserAccountBean ub = (UserAccountBean) session.getAttribute("userBean");
-    // try {
-    // String userName = request.getRemoteUser();
-    //
-    // sm = new SessionManager(ub, userName);
-    // ub = sm.getUserBean();
-    // if (logger.isLoggable(Level.INFO)) {
-    // logger.info("user bean from DB" + ub.getName());
-    // }
-    //
-    // SQLFactory factory = SQLFactory.getInstance();
-    // UserAccountDAO udao = new UserAccountDAO(sm.getDataSource());
-    //
-    // FormProcessor fp = new FormProcessor(request);
-    //
-    // int studyId = fp.getInt(ARG_STUDY_ID);
-    // String uName = fp.getString(ARG_USER_NAME);
-    // StudyUserRoleBean studyUserRole =
-    // udao.findRoleByUserNameAndStudyId(uName, studyId);
-    //
-    // StudyDAO sdao = new StudyDAO(sm.getDataSource());
-    // StudyBean sb = (StudyBean) sdao.findByPK(studyUserRole.getStudyId());
-    // if (sb != null) {
-    // studyUserRole.setStudyName(sb.getName());
-    // }
-    //
-    // if (!studyUserRole.isActive()) {
-    // String message = "The user has no role in the specified study. You may
-    // not use this feature to add the user to a new study.";
-    // request.setAttribute("message", message);
-    // forwardPage(Page.LIST_USER_ACCOUNTS_SERVLET, request, response);
-    // }
-    // else {
-    // // send the user to the right place..
-    // if (!fp.isSubmitted()) {
-    // request.setAttribute("userName", uName);
-    // request.setAttribute("studyUserRole", studyUserRole);
-    // request.setAttribute("roles", getRoles());
-    // request.setAttribute("chosenRoleId", new
-    // Integer(studyUserRole.getRole().getId()));
-    // forwardPage(Page.EDIT_STUDY_USER_ROLE, request, response);
-    // }
-    //
-    // // process the form
-    // else {
-    // Validator v = new Validator(request);
-    // v.addValidation(INPUT_ROLE, Validator.IS_VALID_TERM, TermType.ROLE);
-    // HashMap errors = v.validate();
-    //
-    // if (errors.isEmpty()) {
-    // int roleId = fp.getInt(INPUT_ROLE);
-    // Role r = Role.get(roleId);
-    // studyUserRole.setRoleName(r.getName());
-    // udao.updateStudyUserRole(studyUserRole, uName);
-    //
-    // String message = "The user's role in the study has been updated.";
-    // request.setAttribute("message", message);
-    // forwardPage(Page.LIST_USER_ACCOUNTS_SERVLET, request, response);
-    // }
-    // else {
-    // String message = "The role chosen was invalid. Please choose another
-    // one.";
-    // request.setAttribute("message", message);
-    //
-    // request.setAttribute("userName", uName);
-    // request.setAttribute("studyUserRole", studyUserRole);
-    // request.setAttribute("chosenRoleId", new Integer(fp.getInt(INPUT_ROLE)));
-    // request.setAttribute("roles", getRoles());
-    // forwardPage(Page.EDIT_STUDY_USER_ROLE, request, response);
-    // }
-    // }
-    // }
-    // } catch (Exception e) {
-    // e.printStackTrace();
-    // logger.warn("OpenClinicaException::
-    // OpenClinica.control.createUserAccount: " + e.getMessage());
-    //
-    // forwardPage(Page.ERROR, request, response);
-    // }
-    // }
 
     private ArrayList<Role> getRoles() {
         ArrayList<Role> roles = Role.toArrayList();

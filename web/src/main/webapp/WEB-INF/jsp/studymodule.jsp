@@ -402,22 +402,18 @@
             <td>
                 <c:url var="createRule" value="/ImportRule"/>
                 <c:url var="viewRule" value="/ViewRuleAssignment"/>
-				<c:url var="ruleDesignerURL" value="${ruleDesignerURL}"/>
 
                 <c:choose>
                     <c:when test="${studyModuleStatus.rule == 1}">
                         <a href="${createRule}"><img src="../images/create_new.gif" border="0" alt="<fmt:message key="add2" bundle="${resword}"/>" title="<fmt:message key="add2" bundle="${resword}"/>"/></a>
-						<a href="${ruleDesignerURL}access?host=${hostPath}&app=${contextPath}&study_oid=${study.oid}&provider_user=${userBean.name}&path=${path}"><img src="../images/bt_EnterData.gif" border="0" alt="<fmt:message key="rule_designer" bundle="${resword}"/>" title="<fmt:message key="rule_designer" bundle="${resword}"/>"/></a>
                     </c:when>
                     <c:when test="${studyModuleStatus.rule == 2}">
                         <a href="${viewRule}"><img src="../images/bt_Details.gif" border="0" alt="<fmt:message key="view" bundle="${resword}"/>" title="<fmt:message key="view" bundle="${resword}"/>"/></a>
                         <a href="${createRule}"><img src="../images/create_new.gif" border="0" alt="<fmt:message key="add2" bundle="${resword}"/>" title="<fmt:message key="add2" bundle="${resword}"/>"/></a>
-						<a href="${ruleDesignerURL}access?host=${hostPath}&app=${contextPath}&study_oid=${study.oid}&provider_user=${userBean.name}&path=${path}"><img src="../images/bt_EnterData.gif" border="0" alt="<fmt:message key="rule_designer" bundle="${resword}"/>" title="<fmt:message key="rule_designer" bundle="${resword}"/>"/></a>
                     </c:when>
                     <c:otherwise>
                         <a href="${viewRule}"><img src="../images/bt_Details.gif" border="0" alt="<fmt:message key="view" bundle="${resword}"/>" title="<fmt:message key="view" bundle="${resword}"/>"/></a>
                         <a href="${createRule}"><img src="../images/create_new.gif" border="0" alt="<fmt:message key="add2" bundle="${resword}"/>" title="<fmt:message key="add2" bundle="${resword}"/>"/></a>
-						<a href="${ruleDesignerURL}access?host=${hostPath}&app=${contextPath}&study_oid=${study.oid}&provider_user=${userBean.name}&path=${path}"><img src="../images/bt_EnterData.gif" border="0" alt="<fmt:message key="rule_designer" bundle="${resword}"/>" title="<fmt:message key="rule_designer" bundle="${resword}"/>"/></a>
                     </c:otherwise>
                 </c:choose>
             </td>

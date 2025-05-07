@@ -5,7 +5,7 @@
  * For details see: https://libreclinica.org/license
  * copyright (C) 2003 - 2011 Akaza Research
  * copyright (C) 2003 - 2019 OpenClinica
- * copyright (C) 2020 - 2024 LibreClinica
+ * copyright (C) 2020 - 2025 LibreClinica
  */
 package org.akaza.openclinica.control.admin;
 
@@ -30,9 +30,7 @@ import org.akaza.openclinica.web.bean.EntityBeanTable;
 import org.akaza.openclinica.web.bean.UserAccountRow;
 
 public class ListUserAccountsServlet extends SecureController {
-    /**
-	 * 
-	 */
+
 	private static final long serialVersionUID = -7298014383987992477L;
 	public static final String PATH = "ListUserAccounts";
     public static final String ARG_MESSAGE = "message";
@@ -43,25 +41,29 @@ public class ListUserAccountsServlet extends SecureController {
             addPageMessage(respage.getString("you_may_not_perform_administrative_functions"));
             throw new InsufficientPermissionException(Page.ADMIN_SYSTEM_SERVLET, respage.getString("you_may_not_perform_administrative_functions"), "1");
         }
-
-        return;
     }
 
     @Override
     protected void processRequest() throws Exception {
         FormProcessor fp = new FormProcessor(request);
 
-        UserAccountDAO udao = new UserAccountDAO(sm.getDataSource());
+        UserAccountDAO userAccountDao = new UserAccountDAO(sm.getDataSource());
         EntityBeanTable table = fp.getEntityBeanTable();
         // table.setSortingIfNotExplicitlySet(1, false);
 
-        ArrayList<UserAccountBean> allUsers = getAllUsers(udao);
-        setStudyNamesInStudyUserRoles(allUsers);
+        ArrayList<UserAccountBean> allUsers = this.getAllUsers(userAccountDao);
+        this.setStudyNamesInStudyUserRoles(allUsers);
         ArrayList<UserAccountRow> allUserRows = UserAccountRow.generateRowsFromBeans(allUsers);
 
-        String[] columns =
-            { resword.getString("user_name"), resword.getString("first_name"), resword.getString("last_name"), resword.getString("status"),
-                        resword.getString("auth_type"), resword.getString("actions")};
+        String[] columns = {
+            resword.getString("user_name"),
+            resword.getString("first_name"),
+            resword.getString("last_name"),
+            resword.getString("status"),
+            resword.getString("auth_type"),
+            resword.getString("actions")
+        };
+
         table.setColumns(new ArrayList<>(Arrays.asList(columns)));
         table.hideColumnLink(5);
         table.setQuery("ListUserAccounts", new HashMap<>());
@@ -80,44 +82,48 @@ public class ListUserAccountsServlet extends SecureController {
         resetPanel();
         panel.setStudyInfoShown(false);
         panel.setOrderedData(true);
-        if (allUsers.size() > 0) {
-            setToPanel(resword.getString("users"), new Integer(allUsers.size()).toString());
+        if (!allUsers.isEmpty()) {
+            setToPanel(resword.getString("users"), Integer.toString(allUsers.size()));
         }
 
         forwardPage(Page.LIST_USER_ACCOUNTS);
     }
 
-    private ArrayList<UserAccountBean> getAllUsers(UserAccountDAO udao) {
-        ArrayList<UserAccountBean> result = udao.findAll();
-        return result;
+    private ArrayList<UserAccountBean> getAllUsers(UserAccountDAO userAccountDao) {
+        return userAccountDao.findAll();
     }
 
     /**
-     * For each user, for each study user role, set the study user role's
-     * studyName property.
-     *
-     * @param users
-     *            The users to display in the table of users. Each element is a
-     *            UserAccountBean.
+     * For each user, for each study user role, set the study user role studyName property.
+     * @param users The users to display in the table of users. Each element is a UserAccountBean.
      */
     private void setStudyNamesInStudyUserRoles(ArrayList<UserAccountBean> users) {
-        StudyDAO sdao = new StudyDAO(sm.getDataSource());
-        ArrayList<StudyBean> allStudies = sdao.findAll();
+        StudyDAO studyDao = new StudyDAO(sm.getDataSource());
+        ArrayList<StudyBean> allStudies = studyDao.findAll();
         Map<Integer, StudyBean> studiesById = allStudies.stream().collect(Collectors.toMap(EntityBean::getId, sb -> sb));
 
-        for(UserAccountBean u : users) {
-            ArrayList<StudyUserRoleBean> roles = u.getRoles();
+        for (UserAccountBean user : users) {
+            ArrayList<StudyUserRoleBean> roles = user.getRoles();
 
-            for(StudyUserRoleBean surb : roles) {
-                StudyBean sb = studiesById.get(new Integer(surb.getStudyId()));
-                if (sb != null) {
-                    surb.setStudyName(sb.getName());
-                    surb.setParentStudyId(sb.getParentStudyId());
+            for (StudyUserRoleBean studyUserRoleBean : roles) {
+                StudyBean studyBean = studiesById.get(studyUserRoleBean.getStudyId());
+                if (studyBean != null) {
+
+                    studyUserRoleBean.setParentStudyId(studyBean.getParentStudyId());
+
+                    // Study Name will depend on whether it is study site or parent study role
+                    if (studyBean.isSite(studyBean.getParentStudyId())) {
+
+                        // Include parent study name
+                        StudyBean parentStudyBean = studiesById.get(studyUserRoleBean.getParentStudyId());
+                        studyUserRoleBean.setStudyName(parentStudyBean.getName() + " : " + studyBean.getName());
+
+                    } else { // When parent study role study name is sufficient
+                        studyUserRoleBean.setStudyName(studyBean.getName());
+                    }
                 }
             }
         }
-
-        return;
     }
 
     @Override

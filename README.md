@@ -15,6 +15,7 @@ Recommended system software packages considering Ubuntu/Debian Linux based envir
 
 | LibreClinica | Application Server  | Java       | Database                     | Schema Changeset | 
 |--------------|---------------------|------------|------------------------------|------------------|
+| v1.4.0       | Tomcat 9            | OpenJDK 11 | PostgreSQL 13, PostgreSQL 14 | lc-1.4.0         |
 | v1.3.0       | Tomcat 9            | OpenJDK 11 | PostgreSQL 13, PostgreSQL 14 | --               |
 | v1.2.1       | Tomcat 9            | OpenJDK 11 | PostgreSQL 12, PostgreSQL 13 | --               |
 | v1.2.0       | Tomcat 9            | OpenJDK 11 | PostgreSQL 12, PostgreSQL 13 | lc-1.2.0         |

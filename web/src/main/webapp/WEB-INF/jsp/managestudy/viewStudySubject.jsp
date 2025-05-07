@@ -181,7 +181,23 @@
 					            <c:choose>
 					                <c:when test="${hasUniqueIDNote eq 'yes'}">
 					                    <a href="#" onClick="openDNoteWindow('ViewDiscrepancyNote?writeToDB=1&subjectId=${studySub.id}&id=${subject.id}&name=subject&field=uniqueIdentifier&column=unique_identifier','spanAlert-uniqueIdentifier'); return false;">
-					                        <img id="flag_uniqueIdentifier" name="flag_uniqueIdentifier" src="images/icon_Note.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>" >
+											<c:choose>
+												<c:when test="${statusDnUniquId eq 2}"> <!-- Update -->
+													<img id="flag_uniqueIdentifier" name="flag_uniqueIdentifier" src="images/icon_flagYellow.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>">
+												</c:when>
+												<c:when test="${statusDnUniquId eq 3}"> <!-- Resolution Proposed -->
+													<img id="flag_uniqueIdentifier" name="flag_uniqueIdentifier" src="images/icon_flagGreen.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>">
+												</c:when>
+												<c:when test="${statusDnUniquId eq 4}"> <!-- Closed -->
+													<img id="flag_uniqueIdentifier" name="flag_uniqueIdentifier" src="images/icon_flagBlack.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>">
+												</c:when>
+												<c:when test="${statusDnUniquId eq 5}"> <!-- Not Applicable -->
+													<img id="flag_uniqueIdentifier" name="flag_uniqueIdentifier" src="images/icon_flagWhite.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>">
+												</c:when>
+												<c:otherwise> <!-- New -->
+													<img id="flag_uniqueIdentifier" name="flag_uniqueIdentifier" src="images/icon_Note.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>" >
+												</c:otherwise>
+											</c:choose> 	
 					                    </a>
 
 					                </c:when>
@@ -213,7 +229,23 @@
 						                    <c:choose>
 						                        <c:when test="${hasDOBNote eq 'yes'}">
 						                            <a href="#" onClick="openDNoteWindow('ViewDiscrepancyNote?writeToDB=1&subjectId=${studySub.id}&id=${subject.id}&name=subject&field=dob&column=date_of_birth','spanAlert-dob'); return false;">
-						                                <img id="flag_dob" name="flag_dob" src="images/icon_Note.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>" >
+														<c:choose>
+															<c:when test="${statusDnDob eq 2}"> <!-- Update -->
+																<img id="flag_dob" name="flag_dob" src="images/icon_flagYellow.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>">
+															</c:when>
+															<c:when test="${statusDnDob eq 3}"> <!-- Resolution Proposed -->
+																<img id="flag_dob" name="flag_dob" src="images/icon_flagGreen.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>">
+															</c:when>
+															<c:when test="${statusDnDob eq 4}"> <!-- Closed -->
+																<img id="flag_dob" name="flag_dob" src="images/icon_flagBlack.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>">
+															</c:when>
+															<c:when test="${statusDnDob eq 5}"> <!-- Not Applicable -->
+																<img id="flag_dob" name="flag_dob" src="images/icon_flagWhite.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>">
+															</c:when>
+															<c:otherwise> <!-- New -->
+																<img id="flag_dob" name="flag_dob" src="images/icon_Note.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>" >
+															</c:otherwise>
+														</c:choose> 	
 						                            </a>
 
 						                        </c:when>
@@ -241,7 +273,23 @@
 						                    <c:choose>
 						                        <c:when test="${hasDOBNote eq 'yes'}">
 						                            <a href="#" onClick="openDNoteWindow('ViewDiscrepancyNote?writeToDB=1&subjectId=${studySub.id}&id=${subject.id}&name=subject&field=dob&column=date_of_birth','spanAlert-dob'); return false;">
-						                                <img id="flag_dob" name="flag_dob" src="images/icon_Note.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>" >
+														<c:choose>
+															<c:when test="${statusDnDob eq 2}"> <!-- Update -->
+																<img id="flag_dob" name="flag_dob" src="images/icon_flagYellow.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>">
+															</c:when>
+															<c:when test="${statusDnDob eq 3}"> <!-- Resolution Proposed -->
+																<img id="flag_dob" name="flag_dob" src="images/icon_flagGreen.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>">
+															</c:when>
+															<c:when test="${statusDnDob eq 4}"> <!-- Closed -->
+																<img id="flag_dob" name="flag_dob" src="images/icon_flagBlack.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>">
+															</c:when>
+															<c:when test="${statusDnDob eq 5}"> <!-- Not Applicable -->
+																<img id="flag_dob" name="flag_dob" src="images/icon_flagWhite.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>">
+															</c:when>
+															<c:otherwise> <!-- New -->
+																<img id="flag_dob" name="flag_dob" src="images/icon_Note.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>" >
+															</c:otherwise>
+														</c:choose> 	
 						                            </a>
 
 						                        </c:when>
@@ -269,7 +317,23 @@
 						                    <c:choose>
 						                        <c:when test="${hasDOBNote eq 'yes'}">
 						                            <a href="#" onClick="openDNoteWindow('ViewDiscrepancyNote?writeToDB=1&subjectId=${studySub.id}&id=${subject.id}&name=subject&field=dob&column=date_of_birth','spanAlert-dob'); return false;">
-						                                <img id="flag_dob" name="flag_dob" src="images/icon_Note.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>" >
+														<c:choose>
+															<c:when test="${statusDnDob eq 2}"> <!-- Update -->
+																<img id="flag_dob" name="flag_dob" src="images/icon_flagYellow.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>">
+															</c:when>
+															<c:when test="${statusDnDob eq 3}"> <!-- Resolution Proposed -->
+																<img id="flag_dob" name="flag_dob" src="images/icon_flagGreen.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>">
+															</c:when>
+															<c:when test="${statusDnDob eq 4}"> <!-- Closed -->
+																<img id="flag_dob" name="flag_dob" src="images/icon_flagBlack.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>">
+															</c:when>
+															<c:when test="${statusDnDob eq 5}"> <!-- Not Applicable -->
+																<img id="flag_dob" name="flag_dob" src="images/icon_flagWhite.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>">
+															</c:when>
+															<c:otherwise> <!-- New -->
+																<img id="flag_dob" name="flag_dob" src="images/icon_Note.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>" >
+															</c:otherwise>
+														</c:choose> 	
 						                            </a>
 
 						                        </c:when>
@@ -302,7 +366,23 @@
 					            <c:choose>
 					                <c:when test="${hasGenderNote eq 'yes'}">
 					                    <a href="#" onClick="openDNoteWindow('ViewDiscrepancyNote?writeToDB=1&subjectId=${studySub.id}&id=${subject.id}&name=subject&field=gender&column=gender','spanAlert-gender'); return false;">
-					                        <img id="flag_gender" name="flag_gender" src="images/icon_Note.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>" >
+											<c:choose>
+												<c:when test="${statusDnGender eq 2}"> <!-- Update -->
+													<img id="flag_gender" name="flag_gender" src="images/icon_flagYellow.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>">
+												</c:when>
+												<c:when test="${statusDnGender eq 3}"> <!-- Resolution Proposed -->
+													<img id="flag_gender" name="flag_gender" src="images/icon_flagGreen.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>">
+												</c:when>
+												<c:when test="${statusDnGender eq 4}"> <!-- Closed -->
+													<img id="flag_gender" name="flag_gender" src="images/icon_flagBlack.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>">
+												</c:when>
+												<c:when test="${statusDnGender eq 5}"> <!-- Not Applicable -->
+													<img id="flag_gender" name="flag_gender" src="images/icon_flagWhite.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>">
+												</c:when>
+												<c:otherwise> <!-- New -->
+													<img id="flag_gender" name="flag_gender" src="images/icon_Note.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>" >
+												</c:otherwise>
+											</c:choose> 	
 					                    </a>
 					                </c:when>
 					                <c:otherwise>
@@ -340,7 +420,23 @@
 							        <c:choose>
 							            <c:when test="${hasEnrollmentNote eq 'yes'}">
 							                <a href="#" onClick="openDNoteWindow('ViewDiscrepancyNote?writeToDB=1&subjectId=${studySub.id}&id=${studySub.id}&name=studySub&field=enrollmentDate&column=enrollment_date','spanAlert-enrollmentDate'); return false;">
-							                    <img id="flag_enrollmentDate" name="flag_enrollmentDate" src="images/icon_Note.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>" >
+												<c:choose>
+													<c:when test="${statusDnEnrollment eq 2}"> <!-- Update -->
+														<img id="flag_enrollmentDate" name="flag_enrollmentDate" src="images/icon_flagYellow.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>">
+													</c:when>
+													<c:when test="${statusDnEnrollment eq 3}"> <!-- Resolution Proposed -->
+														<img id="flag_enrollmentDate" name="flag_enrollmentDate" src="images/icon_flagGreen.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>">
+													</c:when>
+													<c:when test="${statusDnEnrollment eq 4}"> <!-- Closed -->
+														<img id="flag_enrollmentDate" name="flag_enrollmentDate" src="images/icon_flagBlack.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>">
+													</c:when>
+													<c:when test="${statusDnEnrollment eq 5}"> <!-- Not Applicable -->
+														<img id="flag_enrollmentDate" name="flag_enrollmentDate" src="images/icon_flagWhite.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>">
+													</c:when>
+													<c:otherwise> <!-- New -->
+														<img id="flag_enrollmentDate" name="flag_enrollmentDate" src="images/icon_Note.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>" >
+													</c:otherwise>
+												</c:choose> 	
 							                </a>
 							            </c:when>
 							            <c:otherwise>
