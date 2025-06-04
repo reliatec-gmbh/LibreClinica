@@ -5,7 +5,7 @@
  * For details see: https://libreclinica.org/license
  * copyright (C) 2003 - 2011 Akaza Research
  * copyright (C) 2003 - 2019 OpenClinica
- * copyright (C) 2020 - 2024 LibreClinica
+ * copyright (C) 2020 - 2025 LibreClinica
  */
 package org.akaza.openclinica.dao.core;
 
@@ -1803,7 +1803,7 @@ public abstract class EntityDAO<B> implements DAOInterface<B> {
                 + "                   SELECT DISTINCT study_subject.study_subject_id " + "                    FROM   study_subject   "
                 + "                    JOIN   study           ON ( "
                 + "                                       study.study_id::numeric = study_subject.study_id  " + "                                      AND "
-                + "                                       (study.study_id= " + studyid + "OR study.parent_study_id= " + studyparentid + ") "
+                + "                                       (study.study_id= " + studyid + " OR study.parent_study_id= " + studyparentid + ") "
                 + "                                      ) "
                 + "                    JOIN   subject         ON study_subject.subject_id = subject.subject_id::numeric "
                 + "                    JOIN   study_event_definition  ON ( "
