@@ -3,7 +3,9 @@
  * GNU Lesser General Public License (GNU LGPL).
 
  * For details see: https://libreclinica.org/license
- * LibreClinica, copyright (C) 2020
+ * copyright (C) 2003 - 2011 Akaza Research
+ * copyright (C) 2003 - 2019 OpenClinica
+ * copyright (C) 2020 - 2024 LibreClinica
  */
 package org.akaza.openclinica.web.table.scheduledjobs;
 

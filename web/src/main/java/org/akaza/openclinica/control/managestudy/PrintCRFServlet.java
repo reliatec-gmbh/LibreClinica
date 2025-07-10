@@ -3,14 +3,9 @@
  * GNU Lesser General Public License (GNU LGPL).
 
  * For details see: https://libreclinica.org/license
- * LibreClinica, copyright (C) 2020
- */
-/*
- * LibreClinica is distributed under the
- * GNU Lesser General Public License (GNU LGPL).
-
- * For details see: https://libreclinica.org/license
- * copyright 2003-2006 Akaza Research
+ * copyright (C) 2003 - 2011 Akaza Research
+ * copyright (C) 2003 - 2019 OpenClinica
+ * copyright (C) 2020 - 2024 LibreClinica
  */
 package org.akaza.openclinica.control.managestudy;
 
@@ -47,10 +42,9 @@ import org.akaza.openclinica.view.display.DisplaySectionBeanHandler;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 
 /**
+ * View a CRF version section data entry
+ * 
  * @author Krikor Krumlian 10/26/2006
- *
- *
- *         View a CRF version section data entry
  */
 public class PrintCRFServlet extends DataEntryServlet {
 

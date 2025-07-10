@@ -22,7 +22,6 @@
 	</c:when>
 	<c:otherwise>
 		<jsp:include page="login-include/login-header.jsp"/>
-		<jsp:include page="include/userbox-inactive.jsp"/>
 		<table>
 			<tr><td class="sidebar" valign="top">
 				<br /><b><a href="${pageContext.request.contextPath}/j_spring_security_logout"><fmt:message key="logout" bundle="${restext}"/></a></b>

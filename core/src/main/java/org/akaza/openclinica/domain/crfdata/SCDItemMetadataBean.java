@@ -3,16 +3,10 @@
  * GNU Lesser General Public License (GNU LGPL).
 
  * For details see: https://libreclinica.org/license
- * LibreClinica, copyright (C) 2020
+ * copyright (C) 2003 - 2011 Akaza Research
+ * copyright (C) 2003 - 2019 OpenClinica
+ * copyright (C) 2020 - 2024 LibreClinica
  */
-/*
- * LibreClinica is distributed under the
- * GNU Lesser General Public License (GNU LGPL).
-
- * For details see: https://libreclinica.org/license
- * copyright 2003-2010 Akaza Research
- */
-
 package org.akaza.openclinica.domain.crfdata;
 
 import org.akaza.openclinica.domain.AbstractMutableDomainObject;
@@ -26,7 +20,6 @@ import javax.persistence.Transient;
 /**
  * Mapping to scd_item_metadata table
  * @author ywang
- *
  */
 @Entity
 @Table(name="scd_item_metadata")

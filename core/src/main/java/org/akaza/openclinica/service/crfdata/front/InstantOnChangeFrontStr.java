@@ -3,14 +3,9 @@
  * GNU Lesser General Public License (GNU LGPL).
 
  * For details see: https://libreclinica.org/license
- * LibreClinica, copyright (C) 2020
- */
-/*
- * LibreClinica is distributed under the
- * GNU Lesser General Public License (GNU LGPL).
-
- * For details see: https://libreclinica.org/license
- * copyright 2003-2011 Akaza Research
+ * copyright (C) 2003 - 2011 Akaza Research
+ * copyright (C) 2003 - 2019 OpenClinica
+ * copyright (C) 2020 - 2024 LibreClinica
  */
 package org.akaza.openclinica.service.crfdata.front;
 
@@ -21,9 +16,8 @@ import java.io.Serializable;
 /**
  * <P>Composited by sets of 3-element set in order : item group oid, item id and one string option.
  * Three elements are chained up by INNER FrontStrDelimiter, so do sets.
- *
+ * ywang (Aug., 2011)
  */
-//ywang (Aug., 2011)
 public class InstantOnChangeFrontStr extends AbstractFrontStr implements Serializable{
 
     private static final long serialVersionUID = -1799222257393501943L;

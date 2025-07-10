@@ -1,5 +1,5 @@
 
-manuals for LibreClinica 1.3.0
+manuals for LibreClinica 1.4.0
 
 # LibreClinica manuals {docsify-ignore}
 

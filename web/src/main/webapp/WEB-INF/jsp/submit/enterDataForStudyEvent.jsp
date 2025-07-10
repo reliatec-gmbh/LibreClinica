@@ -9,6 +9,9 @@
 <fmt:setBundle basename="org.akaza.openclinica.i18n.format" var="resformat"/>
 <c:set var="dteFormat"><fmt:message key="date_format_string" bundle="${resformat}"/></c:set>
 
+<c:set var="statusDnLocation" value="${statusDnLocation}"/>
+<c:set var="statusDnStartDate" value="${statusDnStartDate}"/>
+<c:set var="statusDnEndDate" value="${statusDnEndDate}"/>
 <jsp:include page="../include/submit-header.jsp"/>
 
 <script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jquery.min.js"></script>
@@ -140,7 +143,23 @@
                                 <c:choose>
                                     <c:when test="${hasLocationNote eq 'yes'}">
                                      <span style="float:right"><a href="#" onClick="openDNoteWindow('ViewDiscrepancyNote?writeToDB=1&id=${studyEvent.id}&subjectId=${studySubject.id}&name=studyEvent&field=location&column=location&strErrMsg','spanAlert-location'); return false;">
-                                     <img id="flag_location" name="flag_location" src="images/icon_Note.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>" >
+										<c:choose>
+											<c:when test="${statusDnLocation eq 2}"> <!-- Update -->
+												<img id="flag_location" name="flag_location" src="images/icon_flagYellow.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>">
+											</c:when>
+											<c:when test="${statusDnLocation eq 3}"> <!-- Resolution Proposed -->
+												<img id="flag_location" name="flag_location" src="images/icon_flagGreen.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>">
+											</c:when>
+											<c:when test="${statusDnLocation eq 4}"> <!-- Closed -->
+												<img id="flag_location" name="flag_location" src="images/icon_flagBlack.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>">
+											</c:when>
+											<c:when test="${statusDnLocation eq 5}"> <!-- Not Applicable -->
+												<img id="flag_location" name="flag_location" src="images/icon_flagWhite.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>">
+											</c:when>
+											<c:otherwise> <!-- New -->
+												<img id="flag_location" name="flag_location" src="images/icon_Note.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>" >
+											</c:otherwise>
+										</c:choose> 
                                      </a>
                                      </span>
                                     </c:when>
@@ -170,8 +189,24 @@
                                 <c:choose>
                                     <c:when test="${hasStartDateNote eq 'yes'}">
                                      <span style="float:right"><a href="#" onClick="openDNoteWindow('ViewDiscrepancyNote?writeToDB=1&id=${studyEvent.id}&subjectId=${studySubject.id}&name=studyEvent&field=start_date&column=start_date&strErrMsg','spanAlert-start_date'); return false;">
-                                     <img id="flag_start_date" name="flag_start_date" src="images/icon_Note.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>" >
-                                     </a>
+										<c:choose>
+											<c:when test="${statusDnStartDate eq 2}"> <!-- Update -->
+												<img id="flag_start_date" name="flag_start_date" src="images/icon_flagYellow.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>" >
+											</c:when>
+											<c:when test="${statusDnStartDate eq 3}"> <!-- Resolution Proposed -->
+												<img id="flag_start_date" name="flag_start_date" src="images/icon_flagGreen.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>" >
+											</c:when>
+											<c:when test="${statusDnStartDate eq 4}"> <!-- Closed -->
+												<img id="flag_start_date" name="flag_start_date" src="images/icon_flagBlack.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>" >
+											</c:when>
+											<c:when test="${statusDnStartDate eq 5}"> <!-- Not Applicable -->
+												<img id="flag_start_date" name="flag_start_date" src="images/icon_flagWhite.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>" >
+											</c:when>
+										 <c:otherwise> <!-- all -->
+											<img id="flag_start_date" name="flag_start_date" src="images/icon_Note.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>" >
+										</c:otherwise>	
+										</c:choose>
+									</a>
                                      </span>
                                     </c:when>
                                     <c:otherwise>
@@ -195,7 +230,24 @@
                                 <c:choose>
                                     <c:when test="${hasEndDateNote eq 'yes'}">
                                      <span style="float:right"><a href="#" onClick="openDNoteWindow('ViewDiscrepancyNote?writeToDB=1&id=${studyEvent.id}&subjectId=${studySubject.id}&name=studyEvent&field=end_date&column=end_date&strErrMsg','spanAlert-end_date'); return false;">
-                                     <img id="flag_end_date" name="flag_end_date" src="images/icon_Note.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>" >
+										<c:choose>
+											<c:when test="${statusDnEndDate eq 2}"> <!-- Update -->
+												<img id="flag_end_date" name="flag_end_date"	src="images/icon_flagYellow.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>" >
+											</c:when>
+											<c:when test="${statusDnEndDate eq 3}"> <!-- Resolution Proposed -->
+												<img id="flag_end_date" name="flag_end_date"	src="images/icon_flagGreen.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>" >
+											</c:when>
+											<c:when test="${statusDnEndDate eq 4}"> <!-- Closed -->
+												<img id="flag_end_date" name="flag_end_date"	src="images/icon_flagBlack.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>" >
+											</c:when>
+											<c:when test="${statusDnEndDate eq 5}"> <!-- Not Applicable -->
+												<img id="flag_end_date" name="flag_end_date"	src="images/icon_flagWhite.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>" >
+											</c:when>
+											<c:otherwise>
+												<img id="flag_end_date" name="flag_end_date" src="images/icon_Note.gif" border="0" alt="<fmt:message key="discrepancy_note" bundle="${resword}"/>" title="<fmt:message key="discrepancy_note" bundle="${resword}"/>" >
+									
+											</c:otherwise>
+										</c:choose> 
                                      </a>
                                      </span>
                                     </c:when>

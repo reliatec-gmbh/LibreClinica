@@ -3,10 +3,9 @@
  * GNU Lesser General Public License (GNU LGPL).
 
  * For details see: https://libreclinica.org/license
- * LibreClinica, copyright (C) 2020
- */
-/*
- * Created on Jan 21, 2005
+ * copyright (C) 2003 - 2011 Akaza Research
+ * copyright (C) 2003 - 2019 OpenClinica
+ * copyright (C) 2020 - 2024 LibreClinica
  */
 package org.akaza.openclinica.control.submit;
 
@@ -19,6 +18,7 @@ import java.util.Locale;
 
 /**
  * @author ssachs
+ * Created on Jan 21, 2005
  */
 public class ListStudySubjectsSubmitServlet extends ListStudySubjectServlet {
 

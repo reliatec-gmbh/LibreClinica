@@ -3,16 +3,10 @@
  * GNU Lesser General Public License (GNU LGPL).
 
  * For details see: https://libreclinica.org/license
- * LibreClinica, copyright (C) 2020
+ * copyright (C) 2003 - 2011 Akaza Research
+ * copyright (C) 2003 - 2019 OpenClinica
+ * copyright (C) 2020 - 2024 LibreClinica
  */
-/*
- * LibreClinica is distributed under the
- * GNU Lesser General Public License (GNU LGPL).
-
- * For details see: https://libreclinica.org/license
- * copyright 2003-2011 Akaza Research
- */
-
 package org.akaza.openclinica.control.form.spreadsheet;
 
 import org.akaza.openclinica.domain.crfdata.InstantOnChangeType;
@@ -22,12 +16,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-
 /**
  * SpreadSheet loading validate for instant_calculation func:onChange
- *
+ * ywang (Aug., 2011)
  */
-//ywang (Aug., 2011)
 public class OnChangeSheetValidator implements SpreadSheetValidator{
 
     private final SheetValidationContainer sheetValidationContainer;

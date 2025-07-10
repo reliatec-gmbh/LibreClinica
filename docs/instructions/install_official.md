@@ -1,8 +1,8 @@
-# installation instructions for LibreClinica-1.0 - 1.3 on Debian 10 (Buster)
+# installation instructions for LibreClinica-1.0 - 1.4 on Debian-based systems
 
 **prerequisite**  
 It is expected that you have experience on how to install software and how to edit text files on Debian. 
-Furthermore it is expected that you have a running Debian 10 (buster) installation with shell access and 
+Furthermore it is expected that you have a running Debian (or Ubuntu or other Debian-based OS) installation with shell access and 
 that the user you use for the installation is a member of the sudo group. For running LibreClinica you need a working 
 mail transfer agent (MTA) to allow LibreClinica to send emails. How to install, configure and run a MTA is not explained
 in this instruction.  
