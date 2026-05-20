@@ -323,6 +323,8 @@
       </dependency>
 	</dependencies>
 	<build>
+		<!-- Stable WAR name (no version suffix) required by the Dockerfile. -->
+		<finalName>${project.artifactId}</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.codehaus.cargo</groupId>
