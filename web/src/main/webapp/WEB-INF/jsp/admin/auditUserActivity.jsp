@@ -18,8 +18,8 @@
      to non-existent table structures, which triggers
      "element.dispatchEvent is not a function" errors (especially after
      session-expiry redirects via the login page). --%>
+<link rel="stylesheet" href="includes/jmesa/jmesa.css" type="text/css">
 <c:if test="${tableRenderingMode == 'jmesa'}">
-    <link rel="stylesheet" href="includes/jmesa/jmesa.css" type="text/css">
     <script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jquery.min.js"></script>
     <script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jquery.jmesa.js"></script>
     <script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jmesa.js"></script>
