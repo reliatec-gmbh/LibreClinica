@@ -63,6 +63,7 @@ public class AuditUserActivityServlet extends SecureController {
             factory.setAuditUserLoginDao(getAuditUserLoginDao());
             String auditUserLoginHtml = factory.createTable(request, response).render();
             request.setAttribute("auditUserLoginHtml", auditUserLoginHtml);
+            request.setAttribute("tableRenderingMode", "jmesa");
         } else {
             // HtmlFlow rendering path (default)
             int    page     = intParam(request, PARAM_PAGE,     1);
@@ -73,6 +74,7 @@ public class AuditUserActivityServlet extends SecureController {
             String auditUserLoginHtml = renderAuditUserLoginTableHtml(
                     page, maxRows, sortProp, sortDir, filters);
             request.setAttribute("auditUserLoginHtml", auditUserLoginHtml);
+            request.setAttribute("tableRenderingMode", "htmlflow");
         }
         forwardPage(Page.AUDIT_USER_ACTIVITY);
     }
