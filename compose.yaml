@@ -5,6 +5,10 @@ services:
       - "127.0.0.1:8080:8080"
     depends_on:
       - db
+    environment:
+      # Set to "jmesa" to force the legacy JMesa rendering path for any table
+      # that has been migrated to HtmlFlow. Unset (or any other value) uses HtmlFlow.
+      LC_TABLE_RENDERING: ${LC_TABLE_RENDERING:-htmlflow}
     develop:
       watch:
         # restart on config file changes
