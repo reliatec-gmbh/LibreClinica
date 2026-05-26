@@ -13,15 +13,16 @@ import htmlflow.HtmlFlow;
 import org.akaza.openclinica.control.SpringServletAccess;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.dao.hibernate.AuditUserLoginDao;
-import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
-import java.util.Locale;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Servlet for creating a table.
@@ -40,11 +41,9 @@ public class AuditUserActivityServlet extends SecureController {
     static final String PARAM_FILTER_PREFIX = "filter.";
 
     private AuditUserLoginDao auditUserLoginDao;
-    Locale locale;
 
     @Override
     protected void mayProceed() throws InsufficientPermissionException {
-        locale = LocaleResolver.getLocale(request);
         if (!ub.isSysAdmin()) {
             addPageMessage(respage.getString("no_have_correct_privilege_current_study")
                     + respage.getString("change_study_contact_sysadmin"));
@@ -80,6 +79,42 @@ public class AuditUserActivityServlet extends SecureController {
     }
 
     /**
+     * Renders a generic two-dimensional table using HtmlFlow.
+     *
+     * @param columnNames header labels
+     * @param rows        each inner list is one row; values must match column order
+     * @return rendered HTML string
+     */
+    private static String renderTableHtml(List<String> columnNames, List<List<String>> rows) {
+        StringWriter sw = new StringWriter();
+        HtmlFlow.doc(sw)
+            .div().attrClass("jmesa")
+                .table().attrClass("table").attrId("debugParams")
+                    .attrStyle("border-collapse:collapse")
+                    .thead()
+                        .tr().attrClass("header")
+                        .of(tr -> columnNames.forEach(col -> tr.td().text(col).__()))
+                        .__() // tr
+                    .__() // thead
+                    .tbody().attrClass("tbody")
+                    .of(tbody -> {
+                        final int[] i = {0};
+                        for (List<String> row : rows) {
+                            i[0]++;
+                            final int rowIndex = i[0];
+                            tbody
+                                .tr().attrClass(rowIndex % 2 == 1 ? "odd" : "even")
+                                .of(tr -> row.forEach(cell -> tr.td().text(cell).__()))
+                                .__(); // tr
+                        }
+                    })
+                    .__() // tbody
+                .__() // table
+            .__(); // div
+        return sw.toString();
+    }
+
+    /**
      * Renders the AuditUserLogin table using HtmlFlow.
      * <p>
      * Currently produces a debug table showing the parsed URL parameters.
@@ -100,33 +135,11 @@ public class AuditUserActivityServlet extends SecureController {
             allParams.put(PARAM_FILTER_PREFIX + e.getKey(), e.getValue());
         }
 
-        StringWriter sw = new StringWriter();
-        HtmlFlow.doc(sw)
-            .div().attrClass("jmesa")
-                .table().attrClass("table").attrId("debugParams")
-                    .attrStyle("border-collapse:collapse")
-                    .thead()
-                        .tr().attrClass("header")
-                            .td().text("Parameter").__()
-                            .td().text("Value").__()
-                        .__() // tr
-                    .__() // thead
-                    .tbody().attrClass("tbody")
-                    .of(tbody -> {
-                        final int[] i = {0};
-                        for (Map.Entry<String, String> entry : allParams.entrySet()) {
-                            i[0]++;
-                            tbody
-                                .tr().attrClass(i[0] % 2 == 1 ? "odd" : "even")
-                                    .td().text(entry.getKey()).__()
-                                    .td().text(entry.getValue()).__()
-                                .__(); // tr
-                        }
-                    })
-                    .__() // tbody
-                .__() // table
-            .__(); // div
-        return sw.toString();
+        List<List<String>> rows = allParams.entrySet().stream()
+                .map(e -> Arrays.asList(e.getKey(), e.getValue()))
+                .collect(Collectors.toList());
+
+        return renderTableHtml(Arrays.asList("Parameter", "Value"), rows);   // TODO: localization
     }
 
     // ── Request-parameter helpers ─────────────────────────────────────────────
