@@ -13,16 +13,22 @@ import htmlflow.HtmlFlow;
 import org.akaza.openclinica.control.SpringServletAccess;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.dao.hibernate.AuditUserLoginDao;
+import org.akaza.openclinica.dao.hibernate.AuditUserLoginFilter;
+import org.akaza.openclinica.dao.hibernate.AuditUserLoginSort;
+import org.akaza.openclinica.domain.technicaladmin.AuditUserLoginBean;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
+import org.xmlet.htmlapifaster.Tr;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.StringWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.function.BiConsumer;
 
 /**
  * Servlet for creating a table.
@@ -79,33 +85,34 @@ public class AuditUserActivityServlet extends SecureController {
     }
 
     /**
-     * Renders a generic two-dimensional table using HtmlFlow.
+     * Generic typed table renderer. Each column declares its header label and
+     * a cell-renderer closure that writes directly into the HtmlFlow row element.
      *
-     * @param columnNames header labels
-     * @param rows        each inner list is one row; values must match column order
+     * @param columns column definitions (header + cell renderer)
+     * @param data    rows to render
+     * @param <T>     row bean type
      * @return rendered HTML string
      */
-    private static String renderTableHtml(List<String> columnNames, List<List<String>> rows) {
+    private static <T> String renderTableHtml(List<ColumnDef<T>> columns, List<T> data) {
         StringWriter sw = new StringWriter();
         HtmlFlow.doc(sw)
             .div().attrClass("jmesa")
-                .table().attrClass("table").attrId("debugParams")
+                .table().attrClass("table")
                     .attrStyle("border-collapse:collapse")
                     .thead()
                         .tr().attrClass("header")
-                        .of(tr -> columnNames.forEach(col -> tr.td().text(col).__()))
+                        .of(tr -> columns.forEach(col -> tr.td().text(col.getHeader()).__()))
                         .__() // tr
                     .__() // thead
                     .tbody().attrClass("tbody")
                     .of(tbody -> {
-                        final int[] i = {0};
-                        for (List<String> row : rows) {
-                            i[0]++;
-                            final int rowIndex = i[0];
-                            tbody
-                                .tr().attrClass(rowIndex % 2 == 1 ? "odd" : "even")
-                                .of(tr -> row.forEach(cell -> tr.td().text(cell).__()))
+                        int rowIndex = 1;
+                        for (T item : data) {
+                            String rowClass = (rowIndex % 2 == 1) ? "odd" : "even";
+                            tbody.tr().attrClass(rowClass)
+                                .of(tr -> columns.forEach(col -> col.getCellRenderer().accept(tr, item)))
                                 .__(); // tr
+                            rowIndex++;
                         }
                     })
                     .__() // tbody
@@ -116,30 +123,61 @@ public class AuditUserActivityServlet extends SecureController {
 
     /**
      * Renders the AuditUserLogin table using HtmlFlow.
-     * <p>
-     * Currently produces a debug table showing the parsed URL parameters.
-     * Real data rendering will replace this in a subsequent step.
+     * Fetches a page of {@link AuditUserLoginBean} records from the DAO and
+     * renders them with the generic typed table renderer.
      */
     private String renderAuditUserLoginTableHtml(
             final int page, final int maxRows,
             final String sortProp, final String sortDir,
             final Map<String, String> filters) {
 
-        // Collect all parameters for display
-        final Map<String, String> allParams = new LinkedHashMap<String, String>();
-        allParams.put(PARAM_PAGE,      String.valueOf(page));
-        allParams.put(PARAM_MAX_ROWS,  String.valueOf(maxRows));
-        allParams.put(PARAM_SORT_PROP, sortProp);
-        allParams.put(PARAM_SORT_DIR,  sortDir);
+        // Build filter
+        AuditUserLoginFilter filter = new AuditUserLoginFilter();
         for (Map.Entry<String, String> e : filters.entrySet()) {
-            allParams.put(PARAM_FILTER_PREFIX + e.getKey(), e.getValue());
+            filter.addFilter(e.getKey(), e.getValue());
         }
 
-        List<List<String>> rows = allParams.entrySet().stream()
-                .map(e -> Arrays.asList(e.getKey(), e.getValue()))
-                .collect(Collectors.toList());
+        // Build sort
+        AuditUserLoginSort sort = new AuditUserLoginSort();
+        sort.addSort(sortProp, sortDir);
 
-        return renderTableHtml(Arrays.asList("Parameter", "Value"), rows);   // TODO: localization
+        // Fetch page
+        int rowStart = (page - 1) * maxRows;
+        List<AuditUserLoginBean> data =
+                getAuditUserLoginDao().getWithFilterAndSort(filter, sort, rowStart, rowStart + maxRows);
+
+        // Column definitions
+        DateFormat dateFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        List<ColumnDef<AuditUserLoginBean>> columns = Arrays.asList(
+            new ColumnDef<>("User Name",
+                (tr, b) -> tr.td().text(nullSafe(b.getUserName())).__()),
+            new ColumnDef<>("Attempt Date",
+                (tr, b) -> tr.td().text(b.getLoginAttemptDate() != null
+                        ? dateFmt.format(b.getLoginAttemptDate()) : "").__()),
+            new ColumnDef<>("Status",
+                (tr, b) -> tr.td().text(b.getLoginStatus() != null
+                        ? b.getLoginStatus().toString() : "").__()),
+            new ColumnDef<>("Details",
+                (tr, b) -> tr.td().text(nullSafe(b.getDetails())).__()),
+            new ColumnDef<>("Actions",
+                (tr, b) -> {
+                    if (b.getUserAccountId() != null) {
+                        tr.td()
+                          .a().attrHref("ViewUserAccount?userId=" + b.getUserAccountId() + "&viewFull=yes")
+                              .img().attrSrc("images/bt_View.gif").attrAlt("View").attrTitle("View").__()
+                          .__()  // a
+                        .__();   // td
+                    } else {
+                        tr.td().__();
+                    }
+                })
+        );
+
+        return renderTableHtml(columns, data);
+    }
+
+    private static String nullSafe(String s) {
+        return s != null ? s : "";
     }
 
     // ── Request-parameter helpers ─────────────────────────────────────────────
@@ -192,5 +230,27 @@ public class AuditUserActivityServlet extends SecureController {
             : (AuditUserLoginDao) SpringServletAccess.getApplicationContext(context)
                     .getBean("auditUserLoginDao");
         return auditUserLoginDao;
+    }
+
+    // ── Generic table-rendering support ──────────────────────────────────────
+    // TODO: extract to a shared utility class once more tables are migrated.
+
+    /**
+     * Describes one column of a typed table: a header label and a closure that
+     * writes the cell content for a given row bean into the HtmlFlow row element.
+     *
+     * @param <T> row bean type
+     */
+    private static class ColumnDef<T> {
+        private final String header;
+        private final BiConsumer<Tr<?>, T> cellRenderer;
+
+        ColumnDef(String header, BiConsumer<Tr<?>, T> cellRenderer) {
+            this.header = header;
+            this.cellRenderer = cellRenderer;
+        }
+
+        String getHeader() { return header; }
+        BiConsumer<Tr<?>, T> getCellRenderer() { return cellRenderer; }
     }
 }
