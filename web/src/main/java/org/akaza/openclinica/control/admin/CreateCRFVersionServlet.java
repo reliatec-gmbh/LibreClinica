@@ -5,18 +5,22 @@
  * For details see: https://libreclinica.org/license
  * copyright (C) 2003 - 2011 Akaza Research
  * copyright (C) 2003 - 2019 OpenClinica
- * copyright (C) 2020 - 2024 LibreClinica
+ * copyright (C) 2020 - 2026 LibreClinica
  */
 package org.akaza.openclinica.control.admin;
 
 import static org.akaza.openclinica.core.util.ClassCastHelper.asArrayList;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -53,7 +57,8 @@ import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.akaza.openclinica.web.SQLInitServlet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 /**
  * Create a new CRF version by uploading Excel file
@@ -423,14 +428,19 @@ public class CreateCRFVersionServlet extends SecureController {
                 // create newCRFBean here
                 NewCRFBean nib = null;
                 try {
+                	Path path = Paths.get(theDir, tempFile);
+                	logger.info("the file is at: {}", path);
+                	
                     inStream = new FileInputStream(theDir + tempFile);
 
                     // *** now change the code here to generate sstable, tbh
                     // 06/07
-                    htab = new SpreadSheetTableRepeating(inStream, ub,
-                    // SpreadSheetTable htab = new SpreadSheetTable(new
-                    // FileInputStream(theDir + tempFile), ub,
-                            version.getName(), locale, currentStudy.getId());
+                    try {
+						htab = new SpreadSheetTableRepeating(inStream, ub, version.getName(), locale, currentStudy.getId(), path);
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 
                     htab.setMeasurementUnitDao((MeasurementUnitDao) SpringServletAccess.getApplicationContext(context).getBean("measurementUnitDao"));
 
@@ -460,11 +470,11 @@ public class CreateCRFVersionServlet extends SecureController {
                     // This object is created to pull preview information out of
                     // the
                     // spreadsheet
-                    HSSFWorkbook workbook = null;
-                    FileInputStream inputStream = null;
-                    try {
-                        inputStream = new FileInputStream(theDir + tempFile);
-                        workbook = new HSSFWorkbook(inputStream);
+//                    Workbook workbook = null;
+//                    FileInputStream inputStream = null;
+                    try (BufferedInputStream bis = new BufferedInputStream(Files.newInputStream(Paths.get(theDir, tempFile))); Workbook wb = WorkbookFactory.create(bis)) {
+//                        inputStream = new FileInputStream(theDir + tempFile);
+//                        workbook = WorkbookFactory.create(bis);//new HSSFWorkbook(inputStream);
                         // Store the Sections, Items, Groups, and CRF name and
                         // version information
                         // so they can be displayed in a preview. The Map
@@ -485,21 +495,22 @@ public class CreateCRFVersionServlet extends SecureController {
                             preview = new SpreadsheetPreview();
 
                         }
-                        session.setAttribute("preview_crf", preview.createCrfMetaObject(workbook));
+                        session.setAttribute("preview_crf", preview.createCrfMetaObject(wb));
                     } catch (Exception exc) { // opening the stream could
                         // throw FileNotFoundException
                         String message = resword.getString("the_application_encountered_a_problem_uploading_CRF");
                         logger.debug("{} : {}", message , exc.getMessage(), exc);
                         this.addPageMessage(message);
-                    } finally {
-                        if (inputStream != null) {
-                            try {
-                                inputStream.close();
-                            } catch (IOException io) {
-                                // ignore this close()-related exception
-                            }
-                        }
-                    }
+                    } 
+//                    finally {
+//                        if (inputStream != null) {
+//                            try {
+//                                inputStream.close();
+//                            } catch (IOException io) {
+//                                // ignore this close()-related exception
+//                            }
+//                        }                       
+//                    }
                     ArrayList<ItemBean> ibs = isItemSame(nib.getItems(), version);
 
                     if (!ibs.isEmpty()) {

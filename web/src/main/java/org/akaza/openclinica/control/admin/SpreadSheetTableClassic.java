@@ -11,6 +11,7 @@ package org.akaza.openclinica.control.admin;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -45,10 +46,11 @@ import org.akaza.openclinica.dao.submit.ItemGroupDAO;
 import org.akaza.openclinica.exception.CRFReadingException;
 import org.akaza.openclinica.logic.score.ScoreValidator;
 import org.akaza.openclinica.web.SQLInitServlet;
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,7 +73,7 @@ public class SpreadSheetTableClassic implements SpreadSheetTable {// extends
     // SpreadSheetTable
     // {
 
-    private POIFSFileSystem fs = null;
+    private InputStream fs = null;
 
     private UserAccountBean ub = null;
 
@@ -96,7 +98,7 @@ public class SpreadSheetTableClassic implements SpreadSheetTable {// extends
 
     public SpreadSheetTableClassic(FileInputStream parseStream, UserAccountBean ub, String versionName, Locale locale, int studyId) throws IOException {
         // super();
-        this.fs = new POIFSFileSystem(parseStream);
+        this.fs = parseStream;
         this.ub = ub;
         this.locale = locale;
         this.studyId = studyId;
@@ -119,7 +121,7 @@ public class SpreadSheetTableClassic implements SpreadSheetTable {// extends
         ncrf.setCrfId(crfId);// set crf id
 
         StringBuffer buf = new StringBuffer();
-        HSSFWorkbook wb = new HSSFWorkbook(fs);
+        Workbook wb = WorkbookFactory.create(fs); //new HSSFWorkbook(fs);
         int numSheets = wb.getNumberOfSheets();
         ArrayList<String> queries = new ArrayList<>();
         ArrayList<String> errors = new ArrayList<>();
@@ -162,7 +164,7 @@ public class SpreadSheetTableClassic implements SpreadSheetTable {// extends
         // check to see if questions are referencing a valid section name, tbh
         // 7/30
         for (int j = 0; j < numSheets; j++) {
-            HSSFSheet sheet = wb.getSheetAt(j);// sheetIndex);
+            Sheet sheet = wb.getSheetAt(j);// sheetIndex);
             String sheetName = wb.getSheetName(j);
             if (sheetName.equalsIgnoreCase("Instructions")) {
                 // totally ignore instructions
@@ -218,7 +220,7 @@ public class SpreadSheetTableClassic implements SpreadSheetTable {// extends
                     //Adding itemnames for further use
                     HashMap<Integer, String> itemNames = new HashMap<>();
                     for (int k = 1; k < numRows; k++) {
-                        HSSFCell cell = sheet.getRow(k).getCell((short) 0);
+                        Cell cell = sheet.getRow(k).getCell((short) 0);
                         String itemName = getValue(cell);
                         itemName = itemName.replaceAll("<[^>]*>", "");
                         itemNames.put(k, itemName);
@@ -233,7 +235,7 @@ public class SpreadSheetTableClassic implements SpreadSheetTable {// extends
                             blankRowCount++;
                             continue;
                         }
-                        HSSFCell cell = sheet.getRow(k).getCell((short) 0);
+                        Cell cell = sheet.getRow(k).getCell((short) 0);
                         String itemName = getValue(cell);
                         
                         itemName = itemName.replaceAll("<[^>]*>", "");
@@ -707,7 +709,7 @@ public class SpreadSheetTableClassic implements SpreadSheetTable {// extends
                         cell = sheet.getRow(k).getCell((short) 19);
                         // String phi = getValue(cell);
                         String phi = "";
-                        if (cell.getCellType() == HSSFCell.CELL_TYPE_NUMERIC) {
+                        if (cell.getCellType() == CellType.NUMERIC) {
                             double dphi = cell.getNumericCellValue();
                             if ((dphi - (int) dphi) * 1000 == 0) {
                                 phi = (int) dphi + "";
@@ -730,7 +732,7 @@ public class SpreadSheetTableClassic implements SpreadSheetTable {// extends
                         // String required = "";
                         if (required == null || required.trim().isEmpty()) {
                             required = "0";
-                        } else if (cell.getCellType() == HSSFCell.CELL_TYPE_NUMERIC) {
+                        } else if (cell.getCellType() == CellType.NUMERIC) {
                             double dr = cell.getNumericCellValue();
                             if ((dr - (int) dr) * 1000 == 0) {
                                 required = (int) dr + "";
@@ -948,7 +950,7 @@ public class SpreadSheetTableClassic implements SpreadSheetTable {// extends
                             blankRowCount++;
                             continue;
                         }
-                        HSSFCell cell = sheet.getRow(k).getCell((short) 0);
+                        Cell cell = sheet.getRow(k).getCell((short) 0);
                         String secLabel = getValue(cell);
                         secLabel = secLabel.replaceAll("<[^>]*>", "");
                         if (secLabel == null || secLabel.trim().isEmpty()) {
@@ -1023,7 +1025,7 @@ public class SpreadSheetTableClassic implements SpreadSheetTable {// extends
                         throw new CRFReadingException("Blank row found in sheet CRF.");
                     }
 
-                    HSSFCell cell = sheet.getRow(1).getCell((short) 0);
+                    Cell cell = sheet.getRow(1).getCell((short) 0);
                     crfName = getValue(cell);
                     crfName = crfName.replaceAll("<[^>]*>", "");
                     if (crfName == null || crfName.trim().isEmpty()) {
@@ -1221,30 +1223,30 @@ public class SpreadSheetTableClassic implements SpreadSheetTable {// extends
                     int numCells = sheet.getRow(i).getLastCellNum();
 
                     for (int y = 0; y < numCells; y++) {
-                        HSSFCell cell = sheet.getRow(i).getCell((short) y);
-                        int cellType = 0;
+                        Cell cell = sheet.getRow(i).getCell(y);
                         String error = "&nbsp;";
                         String errorKey = j + "," + i + "," + y;
                         if (htmlErrors.containsKey(errorKey)) {
                             error = "<span class=\"alert\">" + htmlErrors.get(errorKey) + "</span>";
                         }
+                        CellType cellType;
                         if (cell == null) {
-                            cellType = HSSFCell.CELL_TYPE_BLANK;
+                            cellType = CellType.BLANK;
                         } else {
                             cellType = cell.getCellType();
                         }
                         switch (cellType) {
-                        case HSSFCell.CELL_TYPE_BLANK:
-                            buf.append("<td class=\"table_cell\">" + error + "</td>");
-                            break;
-                        case HSSFCell.CELL_TYPE_NUMERIC:
-                            buf.append("<td class=\"table_cell\">" + cell.getNumericCellValue() + " " + error + "</td>");
-                            break;
-                        case HSSFCell.CELL_TYPE_STRING:
-                            buf.append("<td class=\"table_cell\">" + cell.getStringCellValue() + " " + error + "</td>");
-                            break;
-                        default:
-                            buf.append("<td class=\"table_cell\">" + error + "</td>");
+                            case BLANK:
+                                buf.append("<td class=\"table_cell\">" + error + "</td>");
+                                break;
+                            case NUMERIC:
+                                buf.append("<td class=\"table_cell\">" + cell.getNumericCellValue() + " " + error + "</td>");
+                                break;
+                            case STRING:
+                                buf.append("<td class=\"table_cell\">" + cell.getStringCellValue() + " " + error + "</td>");
+                                break;
+                            default:
+                                buf.append("<td class=\"table_cell\">" + error + "</td>");
                         }
                     }
                     buf.append("</tr>");
@@ -1294,66 +1296,57 @@ public class SpreadSheetTableClassic implements SpreadSheetTable {// extends
         return returnme;
     }
 
-    @SuppressWarnings("deprecation")
-	public String getValue(HSSFCell cell) {
-        String val = null;
-        int cellType = 0;
+    public String getValue(Cell cell) {
+        CellType cellType;
         if (cell == null) {
-            cellType = HSSFCell.CELL_TYPE_BLANK;
+            cellType = CellType.BLANK;
         } else {
             cellType = cell.getCellType();
         }
 
+        String val = null;
+
         switch (cellType) {
-        case HSSFCell.CELL_TYPE_BLANK:
-            val = "";
-            break;
-        case HSSFCell.CELL_TYPE_NUMERIC:
-            // YW << Modify code so that floating number alone can be used for
-            // CRF version. Before it must use, e.g. v1.1
-            // Meanwhile modification has been done for read PHI cell and
-            // Required cell
-            val = cell.getNumericCellValue() + "";
-            logger.info("found a numeric cell: " + val);
-            // what if the version is a whole number? added other code below
-            // from PHI, tbh 6/5/07
-            // So now we also treat 3, 3.0, 3.00 as same as 3. If users want 3.0
-            // or 3.10 the best way is use String type. -YW
-            // >> YW
-            double dphi = cell.getNumericCellValue();
-            if ((dphi - (int) dphi) * 1000 == 0) {
-                val = (int) dphi + "";
-            }
-            logger.info("found a numeric cell after transfer: " + val);
-            // buf.append("<td><font class=\"bodytext\">" +
-            // cell.getNumericCellValue()
-            // + "</font></td>");
-            break;
-        case HSSFCell.CELL_TYPE_STRING:
-            val = cell.getStringCellValue();
-            if (val.matches("'")) {
-                // logger.info("Found single quote! "+val);
-                val.replaceAll("'", "''");
-            }
-            // buf.append("<td><font class=\"bodytext\">" +
-            // cell.getStringCellValue()
-            // + "</font></td>");
-            break;
-        default:
-            val = "";
-            // buf.append("<td></td>");
+            case BLANK:
+                val = "";
+                break;
+            case NUMERIC:
+                // YW << Modify code so that floating number alone can be used for
+                // CRF version. Before it must use, e.g. v1.1
+                // Meanwhile modification has been done for read PHI cell and
+                // Required cell
+                val = cell.getNumericCellValue() + "";
+                logger.info("found a numeric cell: " + val);
+                // what if the version is a whole number? added other code below
+                // from PHI, tbh 6/5/07
+                // So now we also treat 3, 3.0, 3.00 as same as 3. If users want 3.0
+                // or 3.10 the best way is use String type. -YW
+                // >> YW
+                double dphi = cell.getNumericCellValue();
+                if ((dphi - (int) dphi) * 1000 == 0) {
+                    val = (int) dphi + "";
+                }
+                logger.info("found a numeric cell after transfer: " + val);
+                break;
+            case STRING:
+                val = cell.getStringCellValue();
+                if (val.matches("'")) {
+                    val.replaceAll("'", "''");
+                }
+                break;
+            default:
+                val = "";
         }
-        // logger.info("final val returned: "+val);
+
         return val.trim();
     }
 
-    @SuppressWarnings("deprecation")
-	public String toHTML(int sheetIndex) throws IOException {
+    public String toHTML(int sheetIndex) throws IOException {
         StringBuffer buf = new StringBuffer();
-        HSSFWorkbook wb = new HSSFWorkbook(fs);
+        Workbook wb = WorkbookFactory.create(fs);
         int numSheets = wb.getNumberOfSheets();
         for (int j = 0; j < numSheets; j++) {
-            HSSFSheet sheet = wb.getSheetAt(j);// sheetIndex);
+            Sheet sheet = wb.getSheetAt(j);
             String sheetName = wb.getSheetName(j);
             buf.append(sheetName + "<br>");
             buf.append("<table border=\"2\"");
@@ -1370,34 +1363,33 @@ public class SpreadSheetTableClassic implements SpreadSheetTable {// extends
                 int numCells = sheet.getRow(i).getLastCellNum();
 
                 for (int y = 0; y < numCells; y++) {
-
-                    HSSFCell cell = sheet.getRow(i).getCell((short) y);
-                    int cellType = 0;
+                    Cell cell = sheet.getRow(i).getCell(y);
+                    CellType cellType;
                     if (cell == null) {
-                        cellType = HSSFCell.CELL_TYPE_BLANK;
+                        cellType = CellType.BLANK;
                     } else {
                         cellType = cell.getCellType();
                     }
 
                     switch (cellType) {
-                    case HSSFCell.CELL_TYPE_BLANK:
-                        buf.append("<td> </td>");
-                        break;
-                    case HSSFCell.CELL_TYPE_NUMERIC:
-                        buf.append("<td>" + cell.getNumericCellValue() + "</td>");
-                        break;
-                    case HSSFCell.CELL_TYPE_STRING:
-                        buf.append("<td>" + cell.getStringCellValue() + "</td>");
-                        break;
-                    default:
-                        buf.append("<td></td>");
+                        case BLANK:
+                            buf.append("<td> </td>");
+                            break;
+                        case NUMERIC:
+                            buf.append("<td>" + cell.getNumericCellValue() + "</td>");
+                            break;
+                        case STRING:
+                            buf.append("<td>" + cell.getStringCellValue() + "</td>");
+                            break;
+                        default:
+                            buf.append("<td></td>");
                     }
                 }
                 buf.append("</tr>");
             }
 
             buf.append("</table>");
-        }// end of sheet count, added by tbh 5-31
+        }
         return buf.toString();
     }
 

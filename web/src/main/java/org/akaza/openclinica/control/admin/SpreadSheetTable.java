@@ -9,10 +9,11 @@
  */
 package org.akaza.openclinica.control.admin;
 
-import org.akaza.openclinica.bean.admin.NewCRFBean;
-import org.akaza.openclinica.exception.CRFReadingException;
 import java.io.IOException;
 import java.util.ResourceBundle;
+
+import org.akaza.openclinica.bean.admin.NewCRFBean;
+import org.akaza.openclinica.exception.CRFReadingException;
 
 /**
  * SpreadSheetTable, an abstract superclass of spreadsheet classes used in

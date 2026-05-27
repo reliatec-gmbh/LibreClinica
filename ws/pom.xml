@@ -161,10 +161,10 @@
 			<groupId>commons-lang</groupId>
 			<artifactId>commons-lang</artifactId>
 		</dependency>
-		<dependency>
+		<!--<dependency>
 			<groupId>httpunit</groupId>
 			<artifactId>httpunit</artifactId>
-		</dependency>
+		</dependency>-->
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>jstl</artifactId>

@@ -1,17 +1,17 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <artifactId>LibreClinica-core</artifactId>
-    <packaging>jar</packaging>
-    <name>LibreClinica Core</name>
-    <parent>
-        <groupId>org.libreclinica</groupId>
-        <artifactId>LibreClinica</artifactId>
-  		<version>1.4.0rc1</version>
-    </parent>
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>LibreClinica-core</artifactId>
+	<packaging>jar</packaging>
+	<name>LibreClinica Core</name>
+	<parent>
+		<groupId>org.libreclinica</groupId>
+		<artifactId>LibreClinica</artifactId>
+		<version>1.4.0rc1</version>
+	</parent>
 
-    <dependencies>
+	<dependencies>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-webmvc</artifactId>
@@ -39,12 +39,27 @@
 		<dependency>
 			<groupId>org.apache.xmlgraphics</groupId>
 			<artifactId>fop</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>xml-apis</groupId>
-                    <artifactId>xml-apis-ext</artifactId>
-                </exclusion>
-            </exclusions>
+			<exclusions>
+				<exclusion>
+					<groupId>xml-apis</groupId>
+					<artifactId>xml-apis-ext</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<scope>runtime</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>xerces</groupId>
+					<artifactId>xercesImpl</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>xerces</groupId>
+					<artifactId>xmlParserAPIs</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>commons-lang</groupId>
@@ -63,8 +78,10 @@
 			<groupId>commons-dbcp</groupId>
 			<artifactId>commons-dbcp</artifactId>
 		</dependency>
-		<!-- dbcp2 2.8 contains performance regression that have negative impact on big LC installation -->
-		<!-- only move to new version if performance testing provides better results -->
+		<!-- dbcp2 2.8 contains performance regression that have negative impact
+		on big LC installation -->
+		<!-- only move to new version if performance testing provides better
+		results -->
 		<!--
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -89,7 +106,7 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-      <!--
+		<!--
 		<dependency>
 			<groupId>com.ecyrd.speed4j</groupId>
 			<artifactId>speed4j</artifactId>
@@ -116,10 +133,10 @@
 			<groupId>com.sun.mail</groupId>
 			<artifactId>javax.mail</artifactId>
 		</dependency>
-        <dependency>
-        	<groupId>javax.activation</groupId>
+		<dependency>
+			<groupId>javax.activation</groupId>
 			<artifactId>activation</artifactId>
-        </dependency>
+		</dependency>
 		<!-- Postgres JDBC driver -->
 		<dependency>
 			<groupId>org.postgresql</groupId>
@@ -202,7 +219,8 @@
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
 		</dependency>
-		<!-- LOGBACK needs Janino when conditional statements are used (e.g. in logback.xml) -->
+		<!-- LOGBACK needs Janino when conditional statements are used (e.g. in
+		logback.xml) -->
 		<dependency>
 			<groupId>org.codehaus.janino</groupId>
 			<artifactId>janino</artifactId>
@@ -240,7 +258,7 @@
 			<version>1.9.5</version>
 			<scope>test</scope>
 		</dependency>
-		 <dependency>
+		<dependency>
 			<groupId>org.hamcrest</groupId>
 			<artifactId>hamcrest</artifactId>
 			<version>2.2</version>
@@ -251,16 +269,16 @@
 			<artifactId>liquibase-core</artifactId>
 			<scope>runtime</scope>
 		</dependency>
-        <dependency>
-            <groupId>javax.annotation</groupId>
-            <artifactId>javax.annotation-api</artifactId>
-            <version>1.3.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.pdfbox</groupId>
-            <artifactId>pdfbox</artifactId>
-            <version>2.0.31</version> <!-- Use the latest stable 2.0.x -->
-        </dependency>
+		<dependency>
+			<groupId>javax.annotation</groupId>
+			<artifactId>javax.annotation-api</artifactId>
+			<version>1.3.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.pdfbox</groupId>
+			<artifactId>pdfbox</artifactId>
+			<version>2.0.31</version> <!-- Use the latest stable 2.0.x -->
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
@@ -284,50 +302,54 @@
 					<usedDependencies>
 						<usedDependency>org.libreclinica.odm:LibreClinica-odm</usedDependency>
 					</usedDependencies>
-               		<ignoredUsedUndeclaredDependencies>
-                  		<ignoredUsedUndeclaredDependency>org.apache.pdfbox:pdfbox</ignoredUsedUndeclaredDependency>
-               		</ignoredUsedUndeclaredDependencies>
+					<ignoredUsedUndeclaredDependencies>
+						<ignoredUsedUndeclaredDependency>
+							org.apache.pdfbox:pdfbox</ignoredUsedUndeclaredDependency>
+					</ignoredUsedUndeclaredDependencies>
 					<ignoredUnusedDeclaredDependencies>
-						<!-- Needed by LibreClinica-web when HttpComponentsClientHttpRequestFactory is used-->
-						<ignoredUnusedDeclaredDependency>org.apache.httpcomponents:httpclient</ignoredUnusedDeclaredDependency>
-						<!-- Needed by LOGBACK when conditional statements are used (e.g. in logback.xml) -->
+						<!-- Needed by LibreClinica-web when
+						HttpComponentsClientHttpRequestFactory is used-->
+						<ignoredUnusedDeclaredDependency>
+							org.apache.httpcomponents:httpclient</ignoredUnusedDeclaredDependency>
+						<!-- Needed by LOGBACK when conditional statements are
+						used (e.g. in logback.xml) -->
 						<ignoredUnusedDeclaredDependency>org.codehaus.janino</ignoredUnusedDeclaredDependency>
 					</ignoredUnusedDeclaredDependencies>
 				</configuration>
 			</plugin>
-         <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
-         <plugin>
-            <groupId>org.eclipse.m2e</groupId>
-            <artifactId>lifecycle-mapping</artifactId>
-            <version>1.0.0</version>
-            <configuration>
-               <lifecycleMappingMetadata>
-                  <pluginExecutions>
-                     <pluginExecution>
-                        <pluginExecutionFilter>
-                           <groupId>
-                              org.codehaus.mojo
-                           </groupId>
-                           <artifactId>
-                              buildnumber-maven-plugin
-                           </artifactId>
-                           <versionRange>
-                              [1.3,)
-                           </versionRange>
-                           <goals>
-                              <goal>
-                                 create-timestamp
-                              </goal>
-                           </goals>
-                        </pluginExecutionFilter>
-                        <action>
-							<ignore/>
-                        </action>
-                     </pluginExecution>
-                  </pluginExecutions>
-               </lifecycleMappingMetadata>
-            </configuration>
-         </plugin>
+			<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+			<plugin>
+				<groupId>org.eclipse.m2e</groupId>
+				<artifactId>lifecycle-mapping</artifactId>
+				<version>1.0.0</version>
+				<configuration>
+					<lifecycleMappingMetadata>
+						<pluginExecutions>
+							<pluginExecution>
+								<pluginExecutionFilter>
+									<groupId>
+										org.codehaus.mojo
+									</groupId>
+									<artifactId>
+										buildnumber-maven-plugin
+									</artifactId>
+									<versionRange>
+										[1.3,)
+									</versionRange>
+									<goals>
+										<goal>
+											create-timestamp
+										</goal>
+									</goals>
+								</pluginExecutionFilter>
+								<action>
+									<ignore />
+								</action>
+							</pluginExecution>
+						</pluginExecutions>
+					</lifecycleMappingMetadata>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 	<repositories>

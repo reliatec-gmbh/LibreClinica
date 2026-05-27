@@ -48,7 +48,8 @@
 			</properties>
 		</profile>
 		<profile>
-			<!-- This profile is not compatible with Maven v2. Use it with Maven v3 only. -->
+			<!-- This profile is not compatible with Maven v2. Use it with Maven
+			v3 only. -->
 			<id>m2eclipse-config</id>
 			<activation>
 				<property>
@@ -79,10 +80,14 @@
 												<ignore />
 											</action>
 										</pluginExecution>
-										<!-- <pluginExecution> <pluginExecutionFilter> <groupId>org.codehaus.mojo</groupId>
-											<artifactId>buildnumber-maven-plugin</artifactId> <versionRange>[1.0.0,)</versionRange>
+										<!-- <pluginExecution>
+										<pluginExecutionFilter>
+										<groupId>org.codehaus.mojo</groupId>
+											<artifactId>buildnumber-maven-plugin</artifactId>
+										<versionRange>[1.0.0,)</versionRange>
 											<goals> <goal>create</goal> </goals> <configuration> <doUpdate>false</doUpdate>
-											<getRevisionOnlyOnce>true</getRevisionOnlyOnce> </configuration> </pluginExecutionFilter>
+											<getRevisionOnlyOnce>true</getRevisionOnlyOnce> </configuration>
+										</pluginExecutionFilter>
 											<action> <ignore /> </action> </pluginExecution> -->
 									</pluginExecutions>
 								</lifecycleMappingMetadata>
@@ -116,31 +121,27 @@
 				<artifactId>log4jdbc4</artifactId>
 				<version>1.2</version>
 			</dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-core</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-annotations</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-fileupload</groupId>
-                <artifactId>commons-fileupload</artifactId>
-                <version>1.3.3</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-io</groupId>
-                <artifactId>commons-io</artifactId>
-                <version>2.5</version>
-            </dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-core</artifactId>
+				<version>${jackson.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-databind</artifactId>
+				<version>${jackson.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-annotations</artifactId>
+				<version>${jackson.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>commons-fileupload</groupId>
+				<artifactId>commons-fileupload</artifactId>
+				<version>1.3.3</version>
+			</dependency>
+
 			<dependency>
 				<groupId>commons-beanutils</groupId>
 				<artifactId>commons-beanutils</artifactId>
@@ -151,8 +152,10 @@
 				<artifactId>commons-dbcp</artifactId>
 				<version>1.4</version>
 			</dependency>
-			<!-- dbcp2 2.8 contains performance regression that have negative impact on big LC installation -->
-			<!-- only move to new version if performance testing provides better results -->
+			<!-- dbcp2 2.8 contains performance regression that have negative
+			impact on big LC installation -->
+			<!-- only move to new version if performance testing provides better
+			results -->
 			<!--
 			<dependency>
 				<groupId>org.apache.commons</groupId>
@@ -242,16 +245,16 @@
 				<version>${spring.version}</version>
 			</dependency>
 			<dependency>
-	            <groupId>org.springframework</groupId>
-	            <artifactId>spring-webmvc</artifactId>
-	            <version>${spring.version}</version>
-	        </dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-webmvc</artifactId>
+				<version>${spring.version}</version>
+			</dependency>
 			<dependency>
-	            <groupId>org.springframework</groupId>
-	            <artifactId>spring-jcl</artifactId>
-	            <version>${spring.version}</version>
-	            <scope>runtime</scope>
-	        </dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-jcl</artifactId>
+				<version>${spring.version}</version>
+				<scope>runtime</scope>
+			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-test</artifactId>
@@ -273,10 +276,10 @@
 				<version>${spring.version}</version>
 			</dependency>
 			<dependency>
-			    <groupId>org.springframework.security</groupId>
-			    <artifactId>spring-security-config</artifactId>
-			    <version>${spring.version}</version>
-			    <scope>runtime</scope>
+				<groupId>org.springframework.security</groupId>
+				<artifactId>spring-security-config</artifactId>
+				<version>${spring.version}</version>
+				<scope>runtime</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
@@ -295,11 +298,11 @@
 				<version>2.3.5.RELEASE</version>
 				<scope>runtime</scope>
 			</dependency>
-	       <dependency>
-	           <groupId>org.springframework.security</groupId>
-	           <artifactId>spring-security-web</artifactId>
-	           <version>${spring.version}</version>
-	       </dependency>
+			<dependency>
+				<groupId>org.springframework.security</groupId>
+				<artifactId>spring-security-web</artifactId>
+				<version>${spring.version}</version>
+			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-context</artifactId>
@@ -316,14 +319,15 @@
 				<version>${spring.version}</version>
 			</dependency>
 			<dependency>
-	    		<groupId>org.springframework</groupId>
-	    		<artifactId>spring-context-support</artifactId>
-	    		<version>${spring.version}</version>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-context-support</artifactId>
+				<version>${spring.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.ldap</groupId>
 				<artifactId>spring-ldap-core</artifactId>
-				<!-- make sure the version matches the one used by org.springframework.security:spring-security-ldap -->
+				<!-- make sure the version matches the one used by
+				org.springframework.security:spring-security-ldap -->
 				<version>2.3.2.RELEASE</version>
 			</dependency>
 			<dependency>
@@ -342,46 +346,50 @@
 				<version>${spring.ws.version}</version>
 			</dependency>
 			<dependency>
-    			<groupId>net.sf.ehcache</groupId>
+				<groupId>net.sf.ehcache</groupId>
 				<artifactId>ehcache</artifactId>
-    			<!--  make sure the version matches the one used by org.hibernate:hibernate-ehcache -->
-    			<version>2.10.6</version>
+				<!--  make sure the version matches the one used by
+				org.hibernate:hibernate-ehcache -->
+				<version>2.10.6</version>
 			</dependency>
-	        <dependency>
-	        	<!--  ehcache-web is used for the compress filter defined in web.xml -->
-	            <groupId>net.sf.ehcache</groupId>
-	            <artifactId>ehcache-web</artifactId>
-	            <version>2.0.4</version>
-	            <scope>runtime</scope>
-	            <exclusions>
-	            	<exclusion>
-	            		<groupId>net.sf.ehcache</groupId>
-	            		<artifactId>ehcache-core</artifactId>
-	            	</exclusion>
-	            </exclusions>
-	        </dependency>
-	        <dependency>
-	        	<groupId>javax.activation</groupId>
+			<dependency>
+				<!--  ehcache-web is used for the compress filter defined in
+				web.xml -->
+				<groupId>net.sf.ehcache</groupId>
+				<artifactId>ehcache-web</artifactId>
+				<version>2.0.4</version>
+				<scope>runtime</scope>
+				<exclusions>
+					<exclusion>
+						<groupId>net.sf.ehcache</groupId>
+						<artifactId>ehcache-core</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>javax.activation</groupId>
 				<artifactId>activation</artifactId>
 				<version>1.1.1</version>
 				<scope>runtime</scope>
-	        </dependency>
-	        <dependency>
-	        	<groupId>javax.activation</groupId>
+			</dependency>
+			<dependency>
+				<groupId>javax.activation</groupId>
 				<artifactId>javax.activation-api</artifactId>
 				<version>1.2.0</version>
 				<scope>runtime</scope>
-	        </dependency>
+			</dependency>
 			<dependency>
-			   <groupId>javax.persistence</groupId>
-			   <artifactId>javax.persistence-api</artifactId>
-			   <!-- make sure the version matches the one used by org.hibernate:hibernate-core -->
-			   <version>2.2</version>
+				<groupId>javax.persistence</groupId>
+				<artifactId>javax.persistence-api</artifactId>
+				<!-- make sure the version matches the one used by
+				org.hibernate:hibernate-core -->
+				<version>2.2</version>
 			</dependency>
 			<dependency>
 				<groupId>javax.ws.rs</groupId>
 				<artifactId>jsr311-api</artifactId>
-				<!-- make sure the version matches the one used by com.sun.jersey:jersey-server -->
+				<!-- make sure the version matches the one used by
+				com.sun.jersey:jersey-server -->
 				<version>1.1.1</version>
 			</dependency>
 			<dependency>
@@ -395,12 +403,12 @@
 				<artifactId>jstl</artifactId>
 				<version>1.1.2</version>
 			</dependency>
-	        <dependency>
-	            <groupId>javax.servlet</groupId>
-	            <artifactId>javax.servlet-api</artifactId>
-	            <version>3.1.0</version>
-	            <scope>provided</scope>
-	        </dependency>
+			<dependency>
+				<groupId>javax.servlet</groupId>
+				<artifactId>javax.servlet-api</artifactId>
+				<version>3.1.0</version>
+				<scope>provided</scope>
+			</dependency>
 			<dependency>
 				<groupId>com.sun.mail</groupId>
 				<artifactId>javax.mail</artifactId>
@@ -420,7 +428,8 @@
 			<dependency>
 				<groupId>xml-apis</groupId>
 				<artifactId>xml-apis</artifactId>
-				<!-- make sure the version matches the one used by the batik libs (e.g. org.apache.xmlgraphics:batik-dom) -->
+				<!-- make sure the version matches the one used by the batik
+				libs (e.g. org.apache.xmlgraphics:batik-dom) -->
 				<version>1.3.04</version>
 			</dependency>
 			<!-- HIBERNATE -->
@@ -429,7 +438,7 @@
 				<artifactId>hibernate-core</artifactId>
 				<version>${hibernate.version}</version>
 			</dependency>
-         <!--
+			<!--
 			<dependency>
 				<groupId>org.hibernate</groupId>
 				<artifactId>hibernate-validator</artifactId>
@@ -443,10 +452,10 @@
 				<scope>runtime</scope>
 			</dependency>
 			<dependency>
-	    		<groupId>com.mattbertolini</groupId>
-	    		<artifactId>liquibase-slf4j</artifactId>
-	    		<version>3.0.0</version>
-	    		<scope>runtime</scope>
+				<groupId>com.mattbertolini</groupId>
+				<artifactId>liquibase-slf4j</artifactId>
+				<version>3.0.0</version>
+				<scope>runtime</scope>
 			</dependency>
 			<!-- LIQUIBASE -->
 			<dependency>
@@ -454,13 +463,13 @@
 				<artifactId>liquibase-core</artifactId>
 				<version>3.6.3</version>
 			</dependency>
-		    <dependency>
+			<dependency>
 				<groupId>org.codehaus.castor</groupId>
 				<artifactId>castor</artifactId>
 				<type>pom</type>
 				<version>${castor.version}</version>
 			</dependency>
-         <!--
+			<!--
 			<dependency>
 				<groupId>org.codehaus.castor</groupId>
 				<artifactId>castor-core</artifactId>
@@ -485,7 +494,8 @@
 				<artifactId>logback-classic</artifactId>
 				<version>${logback.version}</version>
 			</dependency>
-			<!-- LOGBACK needs Janino when conditional statements are used (e.g. in logback.xml) -->
+			<!-- LOGBACK needs Janino when conditional statements are used (e.g.
+			in logback.xml) -->
 			<dependency>
 				<groupId>org.codehaus.janino</groupId>
 				<artifactId>janino</artifactId>
@@ -516,14 +526,12 @@
 			<dependency>
 				<groupId>jtidy</groupId>
 				<artifactId>jtidy</artifactId>
-				<!-- make sure the version matches the one used by the httpunit -->
 				<version>4aug2000r7-dev</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>javax.servlet</groupId>
 				<artifactId>servlet-api</artifactId>
-				<!-- make sure the version matches the one used by the httpunit -->
 				<version>2.3</version>
 				<scope>provided</scope>
 			</dependency>
@@ -546,54 +554,56 @@
 				<version>2.7.6</version>
 				<scope>runtime</scope>
 			</dependency>
-	       <dependency>
-	           <groupId>com.sun.jersey.contribs</groupId>
-	           <artifactId>jersey-spring</artifactId>
-	           <version>1.19.3</version>
-	           <scope>runtime</scope>
-	           <exclusions>
-	               <exclusion>
-	                   <groupId>org.springframework</groupId>
-	                   <artifactId>spring</artifactId>
-	               </exclusion>
-	               <exclusion>
-	                   <groupId>org.springframework</groupId>
-	                   <artifactId>spring-core</artifactId>
-	               </exclusion>
-	               <exclusion>
-	                   <groupId>org.springframework</groupId>
-	                   <artifactId>spring-web</artifactId>
-	               </exclusion>
-	               <exclusion>
-	                   <groupId>org.springframework</groupId>
-	                   <artifactId>spring-beans</artifactId>
-	               </exclusion>
-	               <exclusion>
-	                   <groupId>org.springframework</groupId>
-	                   <artifactId>spring-context</artifactId>
-	               </exclusion>
-	               <exclusion>
-	                   <groupId>org.springframework</groupId>
-	                   <artifactId>spring-aop</artifactId>
-	               </exclusion>
-	               <exclusion>
-	                   <groupId>org.springframework</groupId>
-	                   <artifactId>spring-asm</artifactId>
-	               </exclusion>
-	           </exclusions>
-	       </dependency>
-	       <dependency>
+			<dependency>
+				<groupId>com.sun.jersey.contribs</groupId>
+				<artifactId>jersey-spring</artifactId>
+				<version>1.19.3</version>
+				<scope>runtime</scope>
+				<exclusions>
+					<exclusion>
+						<groupId>org.springframework</groupId>
+						<artifactId>spring</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>org.springframework</groupId>
+						<artifactId>spring-core</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>org.springframework</groupId>
+						<artifactId>spring-web</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>org.springframework</groupId>
+						<artifactId>spring-beans</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>org.springframework</groupId>
+						<artifactId>spring-context</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>org.springframework</groupId>
+						<artifactId>spring-aop</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>org.springframework</groupId>
+						<artifactId>spring-asm</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			<dependency>
 				<groupId>javax.xml.stream</groupId>
 				<artifactId>stax-api</artifactId>
-				<!-- make sure the version matches the one used by the spring-ws libs (e.g. spring-ws-core) -->
+				<!-- make sure the version matches the one used by the spring-ws
+				libs (e.g. spring-ws-core) -->
 				<version>1.0-2</version>
-	       </dependency>
-          <dependency>
-             <groupId>com.sun.xml.wss</groupId>
-             <artifactId>xws-security</artifactId>
-             <!-- make sure the version matches the one used by the spring-ws-security -->
-             <version>3.0</version>
-          </dependency>
+			</dependency>
+			<dependency>
+				<groupId>com.sun.xml.wss</groupId>
+				<artifactId>xws-security</artifactId>
+				<!-- make sure the version matches the one used by the
+				spring-ws-security -->
+				<version>3.0</version>
+			</dependency>
 			<dependency>
 				<groupId>joda-time</groupId>
 				<artifactId>joda-time</artifactId>
@@ -616,12 +626,22 @@
 				<version>0.4.2</version>
 				<scope>test</scope>
 			</dependency>
-			<dependency>
+			<!--<dependency>
 				<groupId>httpunit</groupId>
 				<artifactId>httpunit</artifactId>
 				<version>1.6.1</version>
 				<scope>test</scope>
-			</dependency>
+				<exclusions>
+					<exclusion>
+						<groupId>xerces</groupId>
+						<artifactId>xercesImpl</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>xerces</groupId>
+						<artifactId>xmlParserAPIs</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>-->
 			<dependency>
 				<groupId>org.jdom</groupId>
 				<artifactId>jdom</artifactId>
@@ -636,7 +656,7 @@
 			<dependency>
 				<groupId>org.apache.poi</groupId>
 				<artifactId>poi</artifactId>
-				<version>3.0.1-FINAL</version>
+				<version>5.5.1</version>
 				<scope>compile</scope>
 				<exclusions>
 					<exclusion>
@@ -644,6 +664,23 @@
 						<groupId>log4j</groupId>
 					</exclusion>
 				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.poi</groupId>
+				<artifactId>poi-ooxml</artifactId>
+				<version>5.5.1</version>
+				<scope>compile</scope>
+				<exclusions>
+					<exclusion>
+						<artifactId>log4j</artifactId>
+						<groupId>log4j</groupId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>commons-io</groupId>
+				<artifactId>commons-io</artifactId>
+				<version>2.21.0</version>
 			</dependency>
 			<dependency>
 				<groupId>net.sourceforge.jexcelapi</groupId>
@@ -663,7 +700,8 @@
 				<artifactId>struts</artifactId>
 				<version>1.2.4</version>
 				<scope>test</scope>
-				<!-- @pgawade 16-NOV-2010 Excluded the antlr library from struts as we need to use that from hibernate -->
+				<!-- @pgawade 16-NOV-2010 Excluded the antlr library from struts
+				as we need to use that from hibernate -->
 				<exclusions>
 					<exclusion>
 						<artifactId>antlr</artifactId>
@@ -672,29 +710,29 @@
 				</exclusions>
 			</dependency>
 			<!-- XML serializer-->
-	    	<dependency>
-	            <groupId>net.sf.json-lib</groupId>
-	            <artifactId>json-lib</artifactId>
-	            <version>2.4</version>
-	            <classifier>jdk15</classifier>
-	        </dependency>
-	        <dependency>
-	            <groupId>com.sun.jersey</groupId>
-	            <artifactId>jersey-server</artifactId>
-	            <version>1.19.3</version>
-	        </dependency>
-	        <dependency>
-	            <groupId>org.mockito</groupId>
-	            <artifactId>mockito-core</artifactId>
-	            <version>1.9.5</version>
-	            <scope>test</scope>
-	        </dependency>
+			<dependency>
+				<groupId>net.sf.json-lib</groupId>
+				<artifactId>json-lib</artifactId>
+				<version>2.4</version>
+				<classifier>jdk15</classifier>
+			</dependency>
+			<dependency>
+				<groupId>com.sun.jersey</groupId>
+				<artifactId>jersey-server</artifactId>
+				<version>1.19.3</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-core</artifactId>
+				<version>1.9.5</version>
+				<scope>test</scope>
+			</dependency>
 			<!-- Needed by commons-validator -->
-	        <dependency>
-	        	<groupId>oro</groupId>
-	        	<artifactId>oro</artifactId>
-	        	<version>2.0.8</version>
-	        </dependency>
+			<dependency>
+				<groupId>oro</groupId>
+				<artifactId>oro</artifactId>
+				<version>2.0.8</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -723,7 +761,7 @@
 			</exclusions>
 		</dependency>
 		<!-- LOGGING -->
-      <!--
+		<!--
 		<dependency>
 			<groupId>org.liquibase</groupId>
 			<artifactId>liquibase-core</artifactId>
@@ -774,8 +812,8 @@
 			<artifactId>spring-security-core</artifactId>
 		</dependency>
 		<dependency>
-    		<groupId>org.springframework</groupId>
-    		<artifactId>spring-context-support</artifactId>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context-support</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -788,20 +826,20 @@
 			<version>2.3.5.RELEASE</version>
 			<exclusions>
 				<exclusion>
-  					<groupId>org.codehaus.jackson</groupId>
-  					<artifactId>jackson-mapper-asl</artifactId>
+					<groupId>org.codehaus.jackson</groupId>
+					<artifactId>jackson-mapper-asl</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
 		<!-- HIBERNATE -->
-      <!--
+		<!--
 		<dependency>
 			<groupId>javax.validation</groupId>
 			<artifactId>validation-api</artifactId>
 			<version>2.0.1.Final</version>
 		</dependency>
       -->
-      <!--
+		<!--
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-validator</artifactId>
@@ -819,7 +857,7 @@
 			<version>5.4.2.Final</version>
 		</dependency>
 		<!-- LIQUIBASE -->
-      <!--
+		<!--
 		<dependency>
 			<groupId>org.liquibase</groupId>
 			<artifactId>liquibase-core</artifactId>
@@ -832,21 +870,21 @@
 			<artifactId>antlr</artifactId>
 			<version>2.7.6</version>
 		</dependency>
-      <!--
+		<!--
 		<dependency>
 			<groupId>org.codehaus.castor</groupId>
 			<artifactId>castor-core</artifactId>
 			<version>1.3.3</version>
 		</dependency>
       -->
-      <!--
+		<!--
 		<dependency>
 			<groupId>commons-beanutils</groupId>
 			<artifactId>commons-beanutils-core</artifactId>
 			<version>1.8.3</version>
 		</dependency>
       -->
-      <!--
+		<!--
 		<dependency>
 			<groupId>io.dropwizard.metrics</groupId>
 			<artifactId>metrics-core</artifactId>
@@ -912,7 +950,8 @@
 					<configuration>
 						<outputDirectory>${openclinica.distros.dir}</outputDirectory>
 						<descriptors>
-							<descriptor>${project.basedir}/src/assemble/openclinica-assemble.xml</descriptor>
+							<descriptor>
+								${project.basedir}/src/assemble/openclinica-assemble.xml</descriptor>
 						</descriptors>
 						<appendAssemblyId>false</appendAssemblyId>
 						<finalName>${assembly.name}-${project.version}</finalName>
@@ -1013,21 +1052,21 @@
 					</configuration>
 				</plugin>
 				<plugin>
-			        <groupId>org.apache.maven.plugins</groupId>
-			        <artifactId>maven-dependency-plugin</artifactId>
-			        <version>3.1.2</version>
-			        <executions>
-			        	<execution>
-			        		<id>analyze</id>
-			        		<phase>package</phase>
-			        		<goals>
-			        			<goal>analyze-only</goal>
-			        		</goals>
-			        	</execution>
-			        </executions>
-			        <configuration>
-			        	<failOnWarning>true</failOnWarning>
-			        	<ignoreNonCompile>true</ignoreNonCompile>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-dependency-plugin</artifactId>
+					<version>3.1.2</version>
+					<executions>
+						<execution>
+							<id>analyze</id>
+							<phase>package</phase>
+							<goals>
+								<goal>analyze-only</goal>
+							</goals>
+						</execution>
+					</executions>
+					<configuration>
+						<failOnWarning>true</failOnWarning>
+						<ignoreNonCompile>true</ignoreNonCompile>
 						<ignoredUsedUndeclaredDependencies>
 							<ignoredUsedUndeclaredDependency>stax:stax-api</ignoredUsedUndeclaredDependency>
 						</ignoredUsedUndeclaredDependencies>
@@ -1035,42 +1074,42 @@
 							<!-- Needed by commons-validator -->
 							<ignoredUnusedDeclaredDependency>oro:oro</ignoredUnusedDeclaredDependency>
 						</ignoredUnusedDeclaredDependencies>
-			        </configuration>
-			      </plugin>
-               <plugin>
-                  <groupId>org.apache.maven.plugins</groupId>
-                  <artifactId>maven-enforcer-plugin</artifactId>
-                  <version>3.0.0</version>
-                  <executions>
-                     <execution>
-                        <id>enforce-ban-duplicate-classes</id>
-                        <goals>
-                           <goal>enforce</goal>
-                        </goals>
-                        <configuration>
-                           <rules>
-                              <banDuplicateClasses>
-								  <ignoreClasses/>
-                                 <scopes>
-                                    <scope>compile</scope>
-                                    <scope>provided</scope>
-                                 </scopes>
-                                 <findAllDuplicates>false</findAllDuplicates>
-                                 <ignoreWhenIdentical>false</ignoreWhenIdentical>
-                              </banDuplicateClasses>
-                           </rules>
-                           <fail>true</fail>
-                        </configuration>
-                     </execution>
-                  </executions>
-                  <dependencies>
-                     <dependency>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>extra-enforcer-rules</artifactId>
-                        <version>1.3</version>
-                     </dependency>
-                  </dependencies>
-               </plugin>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-enforcer-plugin</artifactId>
+					<version>3.0.0</version>
+					<executions>
+						<execution>
+							<id>enforce-ban-duplicate-classes</id>
+							<goals>
+								<goal>enforce</goal>
+							</goals>
+							<configuration>
+								<rules>
+									<banDuplicateClasses>
+										<ignoreClasses />
+										<scopes>
+											<scope>compile</scope>
+											<scope>provided</scope>
+										</scopes>
+										<findAllDuplicates>false</findAllDuplicates>
+										<ignoreWhenIdentical>false</ignoreWhenIdentical>
+									</banDuplicateClasses>
+								</rules>
+								<fail>true</fail>
+							</configuration>
+						</execution>
+					</executions>
+					<dependencies>
+						<dependency>
+							<groupId>org.codehaus.mojo</groupId>
+							<artifactId>extra-enforcer-rules</artifactId>
+							<version>1.3</version>
+						</dependency>
+					</dependencies>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 
