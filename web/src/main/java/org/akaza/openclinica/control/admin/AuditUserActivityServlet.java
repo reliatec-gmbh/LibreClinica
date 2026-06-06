@@ -71,13 +71,7 @@ public class AuditUserActivityServlet extends SecureController {
             request.setAttribute("tableRenderingMode", "jmesa");
         } else {
             // HtmlFlow rendering path (default)
-            int    page     = intParam(request, PARAM_PAGE,     1);
-            int    maxRows  = intParam(request, PARAM_MAX_ROWS, 10);
-            String sortProp = strParam(request, PARAM_SORT_PROP, "loginAttemptDate");
-            String sortDir  = strParam(request, PARAM_SORT_DIR,  "desc");
-            Map<String, String> filters = readFilters(request);
-            String auditUserLoginHtml = renderAuditUserLoginTableHtml(
-                    page, maxRows, sortProp, sortDir, filters);
+            String auditUserLoginHtml = renderAuditUserLoginTableHtml(request);
             request.setAttribute("auditUserLoginHtml", auditUserLoginHtml);
             request.setAttribute("tableRenderingMode", "htmlflow");
         }
@@ -126,10 +120,12 @@ public class AuditUserActivityServlet extends SecureController {
      * Fetches a page of {@link AuditUserLoginBean} records from the DAO and
      * renders them with the generic typed table renderer.
      */
-    private String renderAuditUserLoginTableHtml(
-            final int page, final int maxRows,
-            final String sortProp, final String sortDir,
-            final Map<String, String> filters) {
+    private String renderAuditUserLoginTableHtml(HttpServletRequest request) {
+        final int    page     = intParam(request, PARAM_PAGE,     1);
+        final int    maxRows  = intParam(request, PARAM_MAX_ROWS, 10);
+        final String sortProp = strParam(request, PARAM_SORT_PROP, "loginAttemptDate");
+        final String sortDir  = strParam(request, PARAM_SORT_DIR,  "desc");
+        final Map<String, String> filters = readFilters(request);
 
         // Build filter
         AuditUserLoginFilter filter = new AuditUserLoginFilter();
