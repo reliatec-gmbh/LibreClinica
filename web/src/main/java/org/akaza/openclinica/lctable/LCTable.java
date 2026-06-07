@@ -1,12 +1,16 @@
 package org.akaza.openclinica.lctable;
 
 import htmlflow.HtmlFlow;
+import org.xmlet.htmlapifaster.Tbody;
+import org.xmlet.htmlapifaster.Thead;
+import org.xmlet.htmlapifaster.Tr;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.StringWriter;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 public class LCTable {
 
@@ -44,9 +48,9 @@ public class LCTable {
     /** Reads all request parameters whose name starts with {@value #PARAM_FILTER_PREFIX}. */
     @SuppressWarnings("unchecked")
     public static Map<String, String> readFilters(HttpServletRequest req) {
-        final Map<String, String> filters = new LinkedHashMap<String, String>();
+        final Map<String, String> filters = new LinkedHashMap<>();
         // getParameterMap() returns raw Map in older servlet APIs — cast is safe
-        final Map<String, String[]> params = (Map<String, String[]>) req.getParameterMap();
+        final Map<String, String[]> params = req.getParameterMap();
         for (Map.Entry<String, String[]> e : params.entrySet()) {
             if (e.getKey().startsWith(PARAM_FILTER_PREFIX)
                     && e.getValue().length > 0
@@ -60,6 +64,29 @@ public class LCTable {
     }
 
     // -- Generic typed table renderer -----------------------------------------
+
+    private static <T> void renderColumnNames(Tr<?> tr, List<LCTableColumnDef<T>> columns) {
+        columns.forEach(col -> tr.td().text(col.getHeader()).__());
+        // should actually use th instead of td in the table header:
+        // however, use td like jmesa for the moment (otherwise styling with jmesa CSS does not work)
+    }
+
+    private static <T> void renderTableHeader(Thead<?> thead, List<LCTableColumnDef<T>> columns) {
+        Tr<?> tr = thead.tr().attrClass("header");
+        renderColumnNames(tr, columns);
+        tr.__();
+    }
+
+    private static <T> void renderTableBody(Tbody<?> tbody, List<LCTableColumnDef<T>> columns, List<T> data) {
+        tbody.attrClass("tbody");
+        IntStream.range(0, data.size()).forEach(i -> {
+            T item = data.get(i);
+            String rowClass = ((i+1) % 2 == 0) ? "even" : "odd";    // use (i+1) to start from 1 for class assignment
+            Tr<?> tr = tbody.tr().attrClass(rowClass);
+            columns.forEach(col -> col.getCellRenderer().accept(tr, item));
+            tr.__();
+        });
+    }
 
     /**
      * Generic typed table renderer. Each column declares its header label and
@@ -77,26 +104,14 @@ public class LCTable {
             .table().attrClass("table")
             .attrStyle("border-collapse:collapse")
             .thead()
-            .tr().attrClass("header")
-            .of(tr -> columns.forEach(col -> tr.td().text(col.getHeader()).__()))
-            .__() // tr
+                .of(thead -> renderTableHeader(thead, columns))
             .__() // thead
-            .tbody().attrClass("tbody")
-            .of(tbody -> {
-                int rowIndex = 1;
-                for (T item : data) {
-                    String rowClass = (rowIndex % 2 == 1) ? "odd" : "even";
-                    tbody.tr().attrClass(rowClass)
-                        .of(tr -> columns.forEach(col -> col.getCellRenderer().accept(tr, item)))
-                        .__(); // tr
-                    rowIndex++;
-                }
-            })
+            .tbody()
+                .of(tbody -> renderTableBody(tbody, columns, data))
             .__() // tbody
             .__() // table
             .__(); // div
         return sw.toString();
     }
-
 
 }
