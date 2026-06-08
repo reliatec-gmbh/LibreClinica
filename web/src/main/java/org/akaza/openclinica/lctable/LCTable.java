@@ -5,64 +5,11 @@ import org.xmlet.htmlapifaster.Tbody;
 import org.xmlet.htmlapifaster.Thead;
 import org.xmlet.htmlapifaster.Tr;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.StringWriter;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.IntStream;
 
 public class LCTable {
-
-    // -- URL parameter names --------------------------------------------------
-
-    public static final String PARAM_PAGE          = "page";
-    public static final String PARAM_MAX_ROWS      = "maxRows";
-    public static final String PARAM_SORT_PROP     = "sortProp";
-    public static final String PARAM_SORT_DIR      = "sortDir";
-    public static final String PARAM_FILTER_PREFIX = "filter.";
-
-    // -- Generic request-parameter helpers ------------------------------------
-
-    public static String nullSafe(String s) {
-        return s != null ? s : "";
-    }
-
-    public static int intParam(HttpServletRequest req, String name, int defaultValue) {
-        String v = req.getParameter(name);
-        if (v == null || v.trim().isEmpty()) {
-            return defaultValue;
-        }
-        try {
-            return Integer.parseInt(v.trim());
-        } catch (NumberFormatException e) {
-            return defaultValue;
-        }
-    }
-
-    public static String strParam(HttpServletRequest req, String name, String defaultValue) {
-        String v = req.getParameter(name);
-        return (v == null || v.trim().isEmpty()) ? defaultValue : v.trim();
-    }
-
-    /** Reads all request parameters whose name starts with {@value #PARAM_FILTER_PREFIX}. */
-    @SuppressWarnings("unchecked")
-    public static Map<String, String> readFilters(HttpServletRequest req) {
-        final Map<String, String> filters = new LinkedHashMap<>();
-        // getParameterMap() returns raw Map in older servlet APIs — cast is safe
-        final Map<String, String[]> params = req.getParameterMap();
-        for (Map.Entry<String, String[]> e : params.entrySet()) {
-            if (e.getKey().startsWith(PARAM_FILTER_PREFIX)
-                    && e.getValue().length > 0
-                    && !e.getValue()[0].trim().isEmpty()) {
-                filters.put(
-                    e.getKey().substring(PARAM_FILTER_PREFIX.length()),
-                    e.getValue()[0].trim());
-            }
-        }
-        return filters;
-    }
-
     // -- Generic typed table renderer -----------------------------------------
 
     private static <T> void renderColumnNames(Tr<?> tr, List<LCTableColumnDef<T>> columns) {
@@ -104,10 +51,10 @@ public class LCTable {
             .table().attrClass("table")
             .attrStyle("border-collapse:collapse")
             .thead()
-                .of(thead -> renderTableHeader(thead, columns))
+            .of(thead -> renderTableHeader(thead, columns))
             .__() // thead
             .tbody()
-                .of(tbody -> renderTableBody(tbody, columns, data))
+            .of(tbody -> renderTableBody(tbody, columns, data))
             .__() // tbody
             .__() // table
             .__(); // div

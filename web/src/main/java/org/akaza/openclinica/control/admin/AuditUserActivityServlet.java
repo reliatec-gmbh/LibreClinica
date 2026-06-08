@@ -51,17 +51,17 @@ public class AuditUserActivityServlet extends SecureController {
         String lcTableRendering = System.getenv("LC_TABLE_RENDERING");
         // Use JMesa rendering only when LC_TABLE_RENDERING is explicitly set to "jmesa"
         if (lcTableRendering != null && lcTableRendering.equalsIgnoreCase("jmesa")) {
+            request.setAttribute("tableRenderingMode", "jmesa");
             AuditUserLoginTableFactory factory = new AuditUserLoginTableFactory();
             factory.setAuditUserLoginDao(getAuditUserLoginDao());
             String auditUserLoginHtml = factory.createTable(request, response).render();
             request.setAttribute("auditUserLoginHtml", auditUserLoginHtml);
-            request.setAttribute("tableRenderingMode", "jmesa");
         } else {
+            request.setAttribute("tableRenderingMode", "htmlflow");
             AuditUserLoginTable table = new AuditUserLoginTable();
             table.setAuditUserLoginDao(getAuditUserLoginDao());
             String auditUserLoginHtml = table.render(request);
             request.setAttribute("auditUserLoginHtml", auditUserLoginHtml);
-            request.setAttribute("tableRenderingMode", "htmlflow");
         }
         forwardPage(Page.AUDIT_USER_ACTIVITY);
 

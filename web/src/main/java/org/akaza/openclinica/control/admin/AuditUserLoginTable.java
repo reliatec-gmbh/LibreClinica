@@ -5,6 +5,8 @@ import org.akaza.openclinica.dao.hibernate.AuditUserLoginFilter;
 import org.akaza.openclinica.dao.hibernate.AuditUserLoginSort;
 import org.akaza.openclinica.domain.technicaladmin.AuditUserLoginBean;
 import org.akaza.openclinica.lctable.LCTableColumnDef;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import java.text.DateFormat;
@@ -13,15 +15,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static org.akaza.openclinica.lctable.LCTable.PARAM_MAX_ROWS;
-import static org.akaza.openclinica.lctable.LCTable.PARAM_PAGE;
-import static org.akaza.openclinica.lctable.LCTable.PARAM_SORT_DIR;
-import static org.akaza.openclinica.lctable.LCTable.PARAM_SORT_PROP;
-import static org.akaza.openclinica.lctable.LCTable.intParam;
-import static org.akaza.openclinica.lctable.LCTable.nullSafe;
-import static org.akaza.openclinica.lctable.LCTable.readFilters;
+import static org.akaza.openclinica.lctable.LCTableUtil.*;
 import static org.akaza.openclinica.lctable.LCTable.renderTableHtml;
-import static org.akaza.openclinica.lctable.LCTable.strParam;
+
 
 public class AuditUserLoginTable {
 
@@ -32,16 +28,20 @@ public class AuditUserLoginTable {
     }
 
     /**
-     * Renders the AuditUserLogin table using HtmlFlow.
+     * Renders the AuditUserLogin table using LCTable.
      * Fetches a page of {@link AuditUserLoginBean} records from the DAO and
      * renders them with the generic typed table renderer.
      */
     public String render(HttpServletRequest request) {
-        final int    page     = intParam(request, PARAM_PAGE,     1);
-        final int    maxRows  = intParam(request, PARAM_MAX_ROWS, 10);
-        final String sortProp = strParam(request, PARAM_SORT_PROP, "loginAttemptDate");
-        final String sortDir  = strParam(request, PARAM_SORT_DIR,  "desc");
-        final Map<String, String> filters = readFilters(request);
+        MultiValueMap<String, String> params =
+            UriComponentsBuilder.fromUriString("?" + request.getQueryString())
+                .build().getQueryParams();
+
+        final int    page     = intParam(params, PARAM_PAGE,     1);
+        final int    maxRows  = intParam(params, PARAM_MAX_ROWS, 10);
+        final String sortProp = strParam(params, PARAM_SORT_PROP, "loginAttemptDate");
+        final String sortDir  = strParam(params, PARAM_SORT_DIR,  "desc");
+        final Map<String, String> filters = readFilters(params);
 
         // Build filter
         AuditUserLoginFilter filter = new AuditUserLoginFilter();
@@ -61,24 +61,30 @@ public class AuditUserLoginTable {
         // Column definitions
         DateFormat dateFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         List<LCTableColumnDef<AuditUserLoginBean>> columns = Arrays.asList(
-            new LCTableColumnDef<>("User Name",
-                (tr, b) -> tr.td().text(nullSafe(b.getUserName())).__()),
-            new LCTableColumnDef<>("Attempt Date",
-                (tr, b) -> tr.td().text(b.getLoginAttemptDate() != null
-                        ? dateFmt.format(b.getLoginAttemptDate()) : "").__()),
-            new LCTableColumnDef<>("Status",
-                (tr, b) -> tr.td().text(b.getLoginStatus() != null
-                        ? b.getLoginStatus().toString() : "").__()),
-            new LCTableColumnDef<>("Details",
-                (tr, b) -> tr.td().text(nullSafe(b.getDetails())).__()),
+            LCTableColumnDef.textCol(
+                "User Name",
+                b -> nullSafe(b.getUserName())
+            ),
+            LCTableColumnDef.textCol(
+                "Attempt Date",
+                b -> b.getLoginAttemptDate() != null ? dateFmt.format(b.getLoginAttemptDate()) : ""
+            ),
+            LCTableColumnDef.textCol(
+                "Status",
+                b -> b.getLoginStatus() != null ? b.getLoginStatus().toString() : ""
+            ),
+            LCTableColumnDef.textCol(
+                "Details",
+                b -> nullSafe(b.getDetails())
+            ),
             new LCTableColumnDef<>("Actions",
                 (tr, b) -> {
                     if (b.getUserAccountId() != null) {
                         tr.td()
-                          .a().attrHref("ViewUserAccount?userId=" + b.getUserAccountId() + "&viewFull=yes")
-                              .img().attrSrc("images/bt_View.gif").attrAlt("View").attrTitle("View").__()
-                          .__()  // a
-                        .__();   // td
+                            .a().attrHref("ViewUserAccount?userId=" + b.getUserAccountId() + "&viewFull=yes")
+                            .img().attrSrc("images/bt_View.gif").attrAlt("View").attrTitle("View").__()
+                            .__()  // a
+                            .__();   // td
                     } else {
                         tr.td().__();
                     }
