@@ -37,7 +37,6 @@
 
 <!-- End -->
 
-<script type="text/JavaScript" language="JavaScript" src="../../includes/prototype.js"></script>
 
 <body style="width:1024px;" class="main_BG"
 

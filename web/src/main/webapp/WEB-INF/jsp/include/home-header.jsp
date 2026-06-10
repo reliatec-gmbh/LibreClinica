@@ -26,10 +26,7 @@
     <script type="text/JavaScript" src="${pageContext.request.contextPath}/includes/Tabs.js"></script>
     <script type="text/JavaScript" src="${pageContext.request.contextPath}/includes/CalendarPopup.js"></script>
     <script type="text/JavaScript" src="${pageContext.request.contextPath}/includes/repetition-model/repetition-model.js"></script>
-    <script type="text/JavaScript" src="${pageContext.request.contextPath}/includes/prototype.js"></script>
     <script type="text/JavaScript" src="${pageContext.request.contextPath}/includes/jmesa/jquery.min.js"></script><script language="JavaScript">jQuery.noConflict();</script>
-    <script type="text/JavaScript" src="${pageContext.request.contextPath}/includes/scriptaculous.js?load=effects"></script>
-    <script type="text/JavaScript" src="${pageContext.request.contextPath}/includes/effects.js"></script>
 
     <link rel="stylesheet" type="text/css" media="all" href="${pageContext.request.contextPath}/includes/new_cal/skins/aqua/theme.css" title="Aqua" />
     <script type="text/javascript" src="${pageContext.request.contextPath}/includes/new_cal/calendar.js"></script>

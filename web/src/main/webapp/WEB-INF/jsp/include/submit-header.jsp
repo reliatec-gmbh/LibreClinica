@@ -35,9 +35,6 @@
     <script type="text/javascript" src="includes/new_cal/calendar-setup.js"></script>
     <!-- End -->
 
-    <script type="text/JavaScript" language="JavaScript" src="includes/prototype.js"></script>
-    <script type="text/JavaScript" language="JavaScript" src="includes/scriptaculous.js?load=effects"></script>
-    <script type="text/JavaScript" language="JavaScript" src="includes/effects.js"></script>
 </head>
  <%-- I removed this include because you cannot have both
  	"onLoad" tests: <jsp:include page="../include/showPopUp.jsp"/> --%>

@@ -21,6 +21,10 @@
  *     handler argument.
  *   - Removed document.all branches; document.getElementById() is used.
  *   - Simplified getRef() / getObject() to use document.getElementById() only.
+ *   - 2026-06-10: Prototype.js removal (upstream issue #445): replaced $$()
+ *     with document.querySelectorAll(); switched changeBtnDisabledState()
+ *     from Prototype addClassName/removeClassName to classList; removed
+ *     dead numberGroupRows() and unused detectFirefoxWindows().
  *
  * License selection:
  *   The OpenClinica original was licensed under LGPL v2.1 or later.
@@ -255,7 +259,7 @@ function selectTabs(tabNumber,totalNumberOfTabs,tabClassName) {
     //the last three tabs should be selected
     var lastTabSelected = (tabNumber == (totalNumberOfTabs - 1));
     //fetches all TD elements with a class name of tabClassName
-    var allTabs = $$(param);
+    var allTabs = Array.from(document.querySelectorAll(param));
     var tdCount = allTabs.length;
     //If there are not more than two tabs, just one or two, then all we have to do is
     //select one or two TD elements, and not worry about deselecting others
@@ -407,10 +411,6 @@ function detectIEWindows(userAgentString) {
             (userAgentString.indexOf("Windows") != -1) &&
             (userAgentString.indexOf("compatible") != -1));
 }
-/* Return true, if the browser used is Firefox on Windows. */
-function detectFirefoxWindows(userAgentString) {
-    return /Firefox[\/\s](\d+\.\d+)/.test(userAgentString);
-}
 /*change a button to a new CSS class if the button is in a disabled state.
  THIS METHOD IS USED BY LINES 306 AND 1221 in the file repetition-model.js*/
 function changeBtnDisabledState(buttonObj,cssOnStateClass,
@@ -419,14 +419,13 @@ function changeBtnDisabledState(buttonObj,cssOnStateClass,
     if(cssOnStateClass == null || cssOnStateClass == undefined) return;
     if(cssDisabledClass == null || cssDisabledClass == undefined) return;
 
-    if(buttonObj && buttonObj.removeClassName && buttonObj.addClassName &&
-       buttonObj.disabled && ! onState)  {
-        buttonObj.removeClassName(cssOnStateClass);
-        buttonObj.addClassName(cssDisabledClass);
+    if(buttonObj.classList && buttonObj.disabled && ! onState)  {
+        buttonObj.classList.remove(cssOnStateClass);
+        buttonObj.classList.add(cssDisabledClass);
     }
-    if(buttonObj && buttonObj.removeClassName && buttonObj.addClassName && (! buttonObj.disabled) && onState)  {
-        buttonObj.removeClassName(cssDisabledClass);
-        buttonObj.addClassName(cssOnStateClass);
+    if(buttonObj.classList && (! buttonObj.disabled) && onState)  {
+        buttonObj.classList.remove(cssDisabledClass);
+        buttonObj.classList.add(cssOnStateClass);
     }
 }
 
@@ -1648,34 +1647,6 @@ function requestSignatureFromCheckbox(password, checkbox){
 	}
 	if(checkbox != null && checkbox.checked){
 		sendRequest("GET", "MatchPassword?password=" + password);
-	}
-}
-
-function numberGroupRows(){
-	alert("test");
-	var allGroupDivs = $$("div.tableDiv");
-	var allTrTags;
-	var rowCounter;
-
-	for(var i = 0; i < allGroupDivs.length; i++){
-
-		allTrTags =  allGroupDivs[i].getElementsByTagName("tr");
-
-		for(var j=0; j < allTrTags.length;j++) {
-
-			if(allTrTags[j]) {
-				rowCounter=allTrTags[j].getAttribute("repeat");
-
-				if(rowCounter && rowCounter.indexOf("template") == -1)  {
-					rowCounter++;
-					allTrTags[j].innerHTML=rowCounter+
-					allTrTags[j].innerHTML;
-					rowCounter=0;//reset
-				}
-			}
-		}
-
-
 	}
 }
 
