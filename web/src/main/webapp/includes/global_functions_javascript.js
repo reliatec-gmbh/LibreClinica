@@ -1,3 +1,34 @@
+/* =============================================================================
+ * LibreClinica is distributed under the
+ * GNU Lesser General Public License (GNU LGPL).
+ * For details see: https://www.libreclinica.org/download.html#headLicense
+ *
+ * copyright (C) 2003 - 2011 Akaza Research
+ * copyright (C) 2003 - 2019 OpenClinica
+ * copyright (C) 2020 - 2024 LibreClinica
+ * copyright (C) 2026 UMIN (University Hospital Medical Information Network)
+ *
+ * Author:  Yoshiteru Chiba
+ * Notice:  Developed under a service-agreement contract with UMIN;
+ *          copyright in this modification has been assigned to UMIN.
+ *          The author retains moral rights inalienable under Article
+ *          59 of the Japanese Copyright Act. See README for full
+ *          attribution.
+ *
+ * Modifications:
+ *   - Modification date: 2026-04-15 to 2026-04-27.
+ *   - Removed window.event fallback paths; event objects are taken from the
+ *     handler argument.
+ *   - Removed document.all branches; document.getElementById() is used.
+ *   - Simplified getRef() / getObject() to use document.getElementById() only.
+ *
+ * License selection:
+ *   The OpenClinica original was licensed under LGPL v2.1 or later.
+ *   Per LGPL v2.1 section 13, this work selects version 3.0 of the GNU
+ *   Lesser General Public License, matching the upstream LibreClinica
+ *   distribution license.
+ * ============================================================================= */
+
 function selectAllChecks(formObj,value){
     if(formObj) {
         var allChecks = formObj.getElementsByTagName("input");
@@ -937,7 +968,7 @@ function confirmSaveAndContinue () {
 
 function disableAllButtons (theform) {
 
-    if (document.all || document.getElementById) {
+    if (document.getElementById) {
         for (i = 0; i < theform.length; i++) {
             var tempobj = theform.elements[i];
             if (tempobj.type.toLowerCase() == "submit" || tempobj.type.toLowerCase() == "reset") {
@@ -1434,16 +1465,14 @@ function MM_swapImgRestore() { //v3.0
     var i,x,a=document.MM_sr; for(i=0;a&&i<a.length&&(x=a[i])&&x.oSrc;i++) x.src=x.oSrc;
 }
 
-var isDOM = (document.getElementById ? true : false);
-var isIE4 = ((document.all && !isDOM) ? true : false);
-var isNS4 = (document.layers ? true : false);
+var isDOM = true;
+var isIE4 = false;
+var isNS4 = false;
 function getRef(id) {
-    if (isDOM) return document.getElementById(id);
-    if (isIE4) return document.all[id];
-    if (isNS4) return document.layers[id];
+    return document.getElementById(id);
 }
 function getSty(id) {
-    return (isNS4 ? getRef(id) : getRef(id).style);
+    return getRef(id).style;
 }
 
 
@@ -1469,22 +1498,7 @@ function gotopage(){
 
 
 function getObject( obj ) {
-
-    // step 1
-    if ( document.getElementById ) {
-        obj = document.getElementById( obj );
-
-        // step 2
-    } else if ( document.all ) {
-        obj = document.all.item( obj );
-
-        //step 3
-    } else {
-        obj = null;
-    }
-
-    //step 4
-    return obj;
+    return document.getElementById( obj );
 }
 
 function LockObject( obj, e ) {
@@ -1501,7 +1515,7 @@ function LockObject( obj, e ) {
     if (obj==null) return;
 
     // step 3
-    if (!e) var e = window.event;
+    // window.event fallback removed
     if (e.pageX || e.pageY) 	{
         tempX = e.pageX;
         tempY = e.pageY;
@@ -1541,7 +1555,7 @@ function moveObject( obj, e ) {
     if (obj==null) return;
 
     // step 3
-    if (!e) var e = window.event;
+    // window.event fallback removed
     if (e.pageX || e.pageY) 	{
         tempX = e.pageX;
         tempY = e.pageY;
@@ -1859,4 +1873,4 @@ function onMailNotificationClick() {
 	if (contactEmail.disabled) {
 		contactEmail.value = "";
 	}
-}
+}

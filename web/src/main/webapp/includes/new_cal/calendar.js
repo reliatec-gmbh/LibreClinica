@@ -12,6 +12,28 @@
  * Read the entire license text here: http://www.gnu.org/licenses/lgpl.html
  */
 
+/* =============================================================================
+ * Modified for LibreClinica v1.4.0rc1 current-browser compatibility patch.
+ *   Modification date: 2026-04-15 to 2026-04-27
+ *   Author:            Yoshiteru Chiba
+ *   Copyright holder:  UMIN (University Hospital Medical Information Network)
+ *   Notice:            Developed under a service-agreement contract with UMIN;
+ *                      copyright in this modification has been assigned to UMIN.
+ *                      The author retains moral rights inalienable under
+ *                      Article 59 of the Japanese Copyright Act.
+ *                      See README for full attribution.
+ *   Changes:
+ *     - Removed attachEvent branches in addEvent(); W3C addEventListener
+ *       path is used unconditionally.
+ *     - Removed Calendar.is_ie branches; event objects are taken from the
+ *       handler argument (ev) consistently.
+ *   The original notice above (LGPL by Mihai Bazon) is preserved verbatim.
+ *   The modified version is distributed under version 3.0 of the GNU Lesser
+ *   General Public License, matching the upstream LibreClinica distribution
+ *   license (https://www.libreclinica.org/download.html#headLicense).
+ *   This modification record satisfies LGPL §2(a) "date of any change".
+ * ============================================================================= */
+
 // $Id: calendar.js,v 1.51 2005/03/07 16:44:31 mishoo Exp $
 
 /** The Calendar object constructor. */
@@ -158,21 +180,20 @@ Calendar.addClass = function(el, className) {
 
 // FIXME: the following 2 functions totally suck, are useless and should be replaced immediately.
 Calendar.getElement = function(ev) {
-	var f = Calendar.is_ie ? window.event.srcElement : ev.currentTarget;
+	var f = ev.currentTarget;
 	while (f.nodeType != 1 || /^div$/i.test(f.tagName))
 		f = f.parentNode;
 	return f;
 };
 
 Calendar.getTargetElement = function(ev) {
-	var f = Calendar.is_ie ? window.event.srcElement : ev.target;
+	var f = ev.target;
 	while (f.nodeType != 1)
 		f = f.parentNode;
 	return f;
 };
 
 Calendar.stopEvent = function(ev) {
-	ev || (ev = window.event);
 	if (Calendar.is_ie) {
 		ev.cancelBubble = true;
 		ev.returnValue = false;
@@ -184,9 +205,7 @@ Calendar.stopEvent = function(ev) {
 };
 
 Calendar.addEvent = function(el, evname, func) {
-	if (el.attachEvent) { // IE
-		el.attachEvent("on" + evname, func);
-	} else if (el.addEventListener) { // Gecko / W3C
+	if (el.addEventListener) {
 		el.addEventListener(evname, func, true);
 	} else {
 		el["on" + evname] = func;
@@ -345,7 +364,6 @@ Calendar.tableMouseUp = function(ev) {
 		return false;
 	}
 	var target = Calendar.getTargetElement(ev);
-	ev || (ev = window.event);
 	Calendar.removeClass(el, "active");
 	if (target == el || target.parentNode == el) {
 		Calendar.cellClick(el, ev);
@@ -398,7 +416,6 @@ Calendar.tableMouseOver = function (ev) {
 		Calendar.removeClass(el, "hilite");
 		Calendar.removeClass(el.parentNode, "rowhilite");
 	}
-	ev || (ev = window.event);
 	if (el.navtype == 50 && target != el) {
 		var pos = Calendar.getAbsolutePos(el);
 		var w = el.offsetWidth;
@@ -476,8 +493,8 @@ Calendar.calDragIt = function (ev) {
 	var posX;
 	var posY;
 	if (Calendar.is_ie) {
-		posY = window.event.clientY + document.body.scrollTop;
-		posX = window.event.clientX + document.body.scrollLeft;
+		posY = ev.clientY + document.body.scrollTop;
+		posX = ev.clientX + document.body.scrollLeft;
 	} else {
 		posX = ev.pageX;
 		posY = ev.pageY;
@@ -535,7 +552,7 @@ Calendar.dayMouseDown = function(ev) {
 };
 
 Calendar.dayMouseDblClick = function(ev) {
-	Calendar.cellClick(Calendar.getElement(ev), ev || window.event);
+	Calendar.cellClick(Calendar.getElement(ev), ev);
 	if (Calendar.is_ie) {
 		document.selection.empty();
 	}
@@ -972,7 +989,6 @@ Calendar._keyEvent = function(ev) {
 	var cal = window._dynarch_popupCalendar;
 	if (!cal || cal.multiple)
 		return false;
-	(Calendar.is_ie) && (ev = window.event);
 	var act = (Calendar.is_ie || ev.type == "keypress"),
 		K = ev.keyCode;
 	if (ev.ctrlKey) {
@@ -1566,8 +1582,8 @@ Calendar.prototype._dragStart = function (ev) {
 	var posX;
 	var posY;
 	if (Calendar.is_ie) {
-		posY = window.event.clientY + document.body.scrollTop;
-		posX = window.event.clientX + document.body.scrollLeft;
+		posY = ev.clientY + document.body.scrollTop;
+		posX = ev.clientX + document.body.scrollLeft;
 	} else {
 		posY = ev.clientY + window.scrollY;
 		posX = ev.clientX + window.scrollX;

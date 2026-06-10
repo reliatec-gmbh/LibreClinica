@@ -693,14 +693,7 @@ include the default value first in the select list --%>
 
 			<%-- above for test, adding javascript below to support FF3 tbh 03/2007 --%>
 			<script>
-				if (window.attachEvent)
-				{
-					window.attachEvent("onmessage", receiver<c:out value="${parsedInputName}"/>); // for IE
-				}
-				else
-				{
-					window.addEventListener("message", receiver<c:out value="${parsedInputName}"/>, false); // for FF
-				}
+				window.addEventListener("message", receiver<c:out value="${parsedInputName}"/>, false);
 				function receiver<c:out value="${parsedInputName}"/>(e) {
 					// alert(e.origin + ": " + e.source + " said " + e.data);
 					if (e.data.substring(0,e.data.indexOf(":")) != 'mainForm.<c:out value="${inputName}"/>')

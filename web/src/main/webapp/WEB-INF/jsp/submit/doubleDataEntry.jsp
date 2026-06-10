@@ -24,7 +24,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title><fmt:message key="openclinica" bundle="${resword}"/> <fmt:message key="double_data_entry" bundle="${resword}"/></title>
-    <meta http-equiv="X-UA-Compatible" content="IE=8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
     <link rel="shortcut icon" type="image/x-icon" href="<c:url value='/images/favicon.ico'/>">
     <link rel="stylesheet" href="includes/styles.css" type="text/css" media="screen">
