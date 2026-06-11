@@ -7,15 +7,14 @@ import java.util.Map;
 import org.springframework.util.MultiValueMap;
 
 
-
 public final class LCTableParams {
 
     // -- URL parameters -------------------------------------------------------
-    private final int page;
-    private final int maxRows;
-    private final String sortProp;
-    private final String sortDir;
-    private final Map<String, String> filters;
+    public final int page;
+    public final int maxRows;
+    public final String sortProp;
+    public final String sortDir;
+    public final Map<String, String> filters;
 
     /** Canonical constructor – normalises nullable / out-of-range values. */
     public LCTableParams(int page, int maxRows, String sortProp, String sortDir, Map<String, String> filters) {
@@ -36,7 +35,9 @@ public final class LCTableParams {
      */
     public LCTableParams(MultiValueMap<String, String> params) {
         this(
-            intParam(params, LCTableUtil.PARAM_PAGE, 0),
+            // URL page is 1-based (page=1 → first page); convert to 0-based for internal use.
+            // page=0 in URL is treated as page=1 (first page) for robustness.
+            Math.max(intParam(params, LCTableUtil.PARAM_PAGE, 1) - 1, 0),
             intParam(params, LCTableUtil.PARAM_MAX_ROWS, 15),
             strParam(params, LCTableUtil.PARAM_SORT_PROP, ""),
             strParam(params, LCTableUtil.PARAM_SORT_DIR, "asc"),
@@ -45,37 +46,9 @@ public final class LCTableParams {
     }
 
     // -------------------------------------------------------------------------
-    // Accessors
-    // -------------------------------------------------------------------------
-
-    public int page()                        { return page; }
-    public int maxRows()                     { return maxRows; }
-    public String sortProp()                 { return sortProp; }
-    public String sortDir()                  { return sortDir; }
-    public Map<String, String> filters()     { return filters; }
-
-    // -------------------------------------------------------------------------
     // equals / hashCode / toString  (mirrors record semantics)
     // -------------------------------------------------------------------------
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof LCTableParams)) return false;
-        LCTableParams that = (LCTableParams) o;
-        return page == that.page
-            && maxRows == that.maxRows
-            && sortProp.equals(that.sortProp)
-            && sortDir.equals(that.sortDir)
-            && filters.equals(that.filters);
-    }
-
-    @Override
-    public int hashCode() {
-        return java.util.Objects.hash(page, maxRows, sortProp, sortDir, filters);
-    }
-
-    @Override
     public String toString() {
         return "LcTableParams[page=" + page
             + ", maxRows=" + maxRows
@@ -90,7 +63,7 @@ public final class LCTableParams {
      * constructed via the explicit public constructors above.
      */
     private LCTableParams() {
-        // Hide implicit public no-arg constructor — delegate to canonical ctor
+        // Hide implicit public no-arg constructor - delegate to canonical constructor
         this(1, 15, "", "asc", java.util.Collections.emptyMap());
     }
 }

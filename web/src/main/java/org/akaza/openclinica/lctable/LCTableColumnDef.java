@@ -13,12 +13,13 @@ import java.util.function.Function;
  * @param <T> row bean type
  */
 public class LCTableColumnDef<T> {
-    private final String header;
-    private final BiConsumer<Tr<?>, T> cellRenderer;
+
+    public final String columnName;
+    public final BiConsumer<Tr<?>, T> cellRenderer;
 
     // General constructor for full control of generated cell (custom HTML, links, etc.)
-    public LCTableColumnDef(String header, BiConsumer<Tr<?>, T> cellRenderer) {
-        this.header = header;
+    public LCTableColumnDef(String columnName, BiConsumer<Tr<?>, T> cellRenderer) {
+        this.columnName = columnName;
         this.cellRenderer = cellRenderer;
     }
 
@@ -34,11 +35,4 @@ public class LCTableColumnDef<T> {
         );
     }
 
-    String getHeader() {
-        return header;
-    }
-
-    BiConsumer<Tr<?>, T> getCellRenderer() {
-        return cellRenderer;
-    }
 }

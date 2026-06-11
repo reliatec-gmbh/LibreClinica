@@ -1,7 +1,5 @@
 package org.akaza.openclinica.lctable;
 
-import java.util.Objects;
-
 /**
  * One slot in the pagination window used by the lctable renderer.
  *
@@ -39,19 +37,6 @@ public final class LCTablePageSlot {
 
 	public boolean current() {
 		return current;
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		LCTablePageSlot that = (LCTablePageSlot) o;
-		return page == that.page && ellipsis == that.ellipsis && current == that.current;
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(page, ellipsis, current);
 	}
 
 	@Override

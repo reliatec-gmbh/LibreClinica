@@ -2,6 +2,7 @@ package org.akaza.openclinica.lctable;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Collectors;
 import java.util.Arrays;
@@ -13,62 +14,41 @@ import java.util.Collections;
  * <p>Holds all pagination / filter state that the shared fragments
  * (controls-bar, sort-th, table-footer) and the entity-specific builders need.
  *
- * <p>Equivalent to a record; written as a plain class for Java 11 compatibility.
- *
- * <p>Note: this class makes use of Java convenience APIs such as {@code List.of(...)},
- * which require Java 9 or newer. The implementation avoids newer stream APIs to
- * remain compatible with Java 11.
- *
  * @since 9
  */
-public final class LCTableContext {
+public final class LCTableContext<T> {
 
-    private final LCTableParams params;
+    // parameters (from the request URL)
+    public final int page;
+    public final int maxRows;
+    public final String sortProp;
+    public final String sortDir;
+    public final Map<String, String> filters;
 
-    private final int recordsFiltered;
-    private final int recordsTotal;
-    private final List<LCTablePageSlot> slots;
-    private final int totalPages;
-    private final int rowsInPage;
+    // fetched data for the current page (page, sorting and filtering according to the parameters)
+    public final LCTableData<T> data;       // data items (rows) in current page
 
-    public LCTableContext(LCTableParams params, int recordsFiltered, int recordsTotal) {
-        final int pageSize = params.maxRows();
-        this.params = params;
-        this.recordsFiltered = recordsFiltered;
-        this.recordsTotal = recordsTotal;
-        // Guard against pageSize == 0 and avoid integer-division truncation.
-        // Using integer division (recordsFiltered / pageSize) would truncate down
-        // (e.g. 10 / 3 == 3) which undercounts pages. The common integer-safe
-        // rounding-up formula is (recordsFiltered + pageSize - 1) / pageSize. We also
-        // handle the zero-records case so rowsInPage is 0 instead of pageSize.
-        if (pageSize > 0) {
-            // Overflow-safe integer rounding-up: when recordsFiltered > 0, (recordsFiltered - 1) / pageSize + 1 computes the same as
-            // (recordsFiltered + pageSize - 1) / pageSize but avoids a potential overflow on the addition.
-            this.totalPages = recordsFiltered == 0 ? 0 : (int) ((recordsFiltered - 1L) / pageSize + 1L);
-            this.rowsInPage = (recordsFiltered == 0L) ? 0 : (recordsFiltered % pageSize == 0 ? pageSize : (int) (recordsFiltered % pageSize));
-        } else {
-            // Defensive: if pageSize is zero, fall back to a sensible default.
-            this.totalPages = 1;
-            this.rowsInPage = 0;
-        }
-        this.slots = buildSlots(params.page() - 1, this.totalPages);
+    // derived pagination state (computed from the parameters and the fetched data)
+    public final int totalPages;
+    public final int rowsCountInPage;
+    public final List<LCTablePageSlot> slots;
+
+    // -- Constructor -----------------------------------------------------------
+
+    public LCTableContext(LCTableParams params, Function<LCTableParams, LCTableData<T>> fetchData) {
+        this.page = params.page; // 0-based, converted from 1-based URL in LCTableParams
+        this.maxRows = params.maxRows;
+        this.sortProp = params.sortProp;
+        this.sortDir = params.sortDir;
+        this.filters = params.filters;
+        this.data = fetchData.apply(params);
+
+        final int pageSize = this.maxRows;
+        final int totalCountWithFilter = data.totalCountWithFilter;
+        this.rowsCountInPage = data.pageItems.size();
+        this.totalPages = pageSize <= 0 ? 1 : (totalCountWithFilter == 0 ? 0 : ((totalCountWithFilter - 1) / pageSize + 1));
+        this.slots = buildSlots(this.page, this.totalPages);
     }
-
-    // -------------------------------------------------------------------------
-    // Accessors
-    // -------------------------------------------------------------------------
-
-    public int page()                        { return params.page(); }
-    public int maxRows()                     { return params.maxRows(); }
-    public String sortProp()                 { return params.sortProp(); }
-    public String sortDir()                  { return params.sortDir(); }
-    public Map<String, String> filters()     { return params.filters(); }
-
-    public int recordsFiltered()             { return recordsFiltered; }
-    public int recordsTotal()                { return recordsTotal; }
-    public List<LCTablePageSlot> slots()     { return slots; }
-    public int totalPages()                  { return totalPages; }
-    public int rowsInPage()                  { return rowsInPage; }
 
     /**
      * Build the pagination slots.
