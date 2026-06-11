@@ -84,4 +84,9 @@
 <br>
 <input type="button" onclick="confirmExit('ListUserAccounts');"  name="exit" value="<fmt:message key="exit" bundle="${resword}"/>   " class="button_medium"/>
 
+<!-- Load HTMX only on this page (user preference). HTMX is provided by the webjar
+     declared in web/pom.xml. This ensures HTMX is available for the LCTable
+     pagination links on Audit User Activity without adding the script globally. -->
+<script src="${pageContext.request.contextPath}/webjars/htmx.org/2.0.9/dist/htmx.min.js"></script>
+
 <jsp:include page="../include/footer.jsp"/>
