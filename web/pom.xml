@@ -88,6 +88,21 @@
             <groupId>org.jmesa</groupId>
             <artifactId>jmesa</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.github.xmlet</groupId>
+            <artifactId>htmlflow</artifactId>
+            <version>4.7</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.xmlet</groupId>
+            <artifactId>xsd2poet</artifactId>
+            <version>1.0.5</version>
+        </dependency>
+		<dependency>
+			<groupId>org.webjars.npm</groupId>
+			<artifactId>htmx.org</artifactId>
+			<version>2.0.9</version>
+		</dependency>
 		<dependency>
 			<groupId>commons-beanutils</groupId>
 			<artifactId>commons-beanutils</artifactId>
@@ -356,6 +371,9 @@
 						<ignoredUnusedDeclaredDependency>org.apache.httpcomponents:httpclient</ignoredUnusedDeclaredDependency>
 						<!-- Needed by LibreClinica-web when docs module resources are used to pack the pdf manuals -->
 						<ignoredUnusedDeclaredDependency> org.libreclinica:LibreClinica-docs</ignoredUnusedDeclaredDependency>
+
+						<!-- HTMX webjar provides runtime JS resources referenced from templates/static files; mark as intentionally unused by Java code -->
+						<ignoredUnusedDeclaredDependency>org.webjars.npm:htmx.org</ignoredUnusedDeclaredDependency>
 					</ignoredUnusedDeclaredDependencies>
                     <ignoredUsedUndeclaredDependencies>
                         <ignoredUsedUndeclaredDependency>javax.annotation:javax.annotation-api</ignoredUsedUndeclaredDependency>

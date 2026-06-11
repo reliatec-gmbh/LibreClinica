@@ -48,12 +48,35 @@ public class AuditUserActivityServlet extends SecureController {
 
     @Override
     protected void processRequest() throws Exception {
-        AuditUserLoginTableFactory factory = new AuditUserLoginTableFactory();
-        factory.setAuditUserLoginDao(getAuditUserLoginDao());
-        String auditUserLoginHtml = factory.createTable(request, response).render();
-        request.setAttribute("auditUserLoginHtml", auditUserLoginHtml);
-        forwardPage(Page.AUDIT_USER_ACTIVITY);
-
+        String lcTableRendering = System.getenv("LC_TABLE_RENDERING");
+        // Use JMesa rendering only when LC_TABLE_RENDERING is explicitly set to "jmesa"
+        if (lcTableRendering != null && lcTableRendering.equalsIgnoreCase("jmesa")) {
+            // Legacy JMesa rendering path: unchanged behaviour (render and forward)
+            request.setAttribute("tableRenderingMode", "jmesa");
+            AuditUserLoginTableFactory factory = new AuditUserLoginTableFactory();
+            factory.setAuditUserLoginDao(getAuditUserLoginDao());
+            String auditUserLoginHtml = factory.createTable(request, response).render();
+            request.setAttribute("auditUserLoginHtml", auditUserLoginHtml);
+            forwardPage(Page.AUDIT_USER_ACTIVITY);
+        } else {
+            // HtmlFlow rendering path: supports HTMX partials (panel vs full page)
+            request.setAttribute("tableRenderingMode", "htmlflow");
+            AuditUserLoginTable table = new AuditUserLoginTable();
+            table.setAuditUserLoginDao(getAuditUserLoginDao());
+            String auditUserLoginHtml = table.render(request);
+            // HTMX partial handling
+            String hxReq = request.getHeader("HX-Request");
+            if (hxReq != null) {
+                // HTMX request: only return the table HTML fragment
+                response.setContentType("text/html;charset=UTF-8");
+                response.getWriter().write(auditUserLoginHtml);
+                response.getWriter().flush();
+            } else {
+                // Non-HTMX request: embed into JSP and forward
+                request.setAttribute("auditUserLoginHtml", auditUserLoginHtml);
+                forwardPage(Page.AUDIT_USER_ACTIVITY);
+            }
+        }
     }
 
     @Override

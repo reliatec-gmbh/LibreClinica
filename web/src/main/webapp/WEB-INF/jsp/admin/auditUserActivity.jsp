@@ -13,24 +13,31 @@
 <jsp:include page="../include/sideAlert.jsp"/>
 
 
+<%-- JMesa scripts are only needed when the JMesa rendering path is active.
+     Loading them unconditionally causes prototype.js to wire event observers
+     to non-existent table structures, which triggers
+     "element.dispatchEvent is not a function" errors (especially after
+     session-expiry redirects via the login page). --%>
 <link rel="stylesheet" href="includes/jmesa/jmesa.css" type="text/css">
-<script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jquery.min.js"></script>
-<script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jquery.jmesa.js"></script>
-<script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jmesa.js"></script>
-<script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jquery-migrate-1.1.1.js"></script> 
+<c:if test="${tableRenderingMode == 'jmesa'}">
+    <script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jquery.min.js"></script>
+    <script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jquery.jmesa.js"></script>
+    <script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jmesa.js"></script>
+    <script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jquery-migrate-1.1.1.js"></script>
 
-<script type="text/javascript">
-    function onInvokeAction(id,action) {
-        if(id.indexOf('userLogins') == -1)  {
-        setExportToLimit(id, '');
+    <script type="text/javascript">
+        function onInvokeAction(id, action) {
+            if (id.indexOf('userLogins') == -1) {
+                setExportToLimit(id, '');
+            }
+            createHiddenInputFieldsForLimitAndSubmit(id);
         }
-        createHiddenInputFieldsForLimitAndSubmit(id);
-    }
-    function onInvokeExportAction(id) {
-        var parameterString = createParameterStringForLimit(id);
-        location.href = '${pageContext.request.contextPath}/AuditUserActivity?'+ parameterString;
-    }
-</script>
+        function onInvokeExportAction(id) {
+            var parameterString = createParameterStringForLimit(id);
+            location.href = '${pageContext.request.contextPath}/AuditUserActivity?' + parameterString;
+        }
+    </script>
+</c:if>
 
 <!-- then instructions-->
 <tr id="sidebar_Instructions_open" style="display: none">
@@ -76,5 +83,10 @@
 
 <br>
 <input type="button" onclick="confirmExit('ListUserAccounts');"  name="exit" value="<fmt:message key="exit" bundle="${resword}"/>   " class="button_medium"/>
+
+<!-- Load HTMX only on this page (user preference). HTMX is provided by the webjar
+     declared in web/pom.xml. This ensures HTMX is available for the LCTable
+     pagination links on Audit User Activity without adding the script globally. -->
+<script src="${pageContext.request.contextPath}/webjars/htmx.org/2.0.9/dist/htmx.min.js"></script>
 
 <jsp:include page="../include/footer.jsp"/>
