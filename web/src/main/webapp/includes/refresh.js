@@ -5,7 +5,7 @@
  *
  * copyright (C) 2003 - 2011 Akaza Research
  * copyright (C) 2003 - 2019 OpenClinica
- * copyright (C) 2020 - 2024 LibreClinica
+ * copyright (C) 2020 - 2026 LibreClinica
  * copyright (C) 2026 UMIN (University Hospital Medical Information Network)
  *
  * Author:  Yoshiteru Chiba
