@@ -16,7 +16,7 @@
     <title><fmt:message key="openclinica" bundle="${resword}"/></title>
 
     <meta http-equiv="Content-type" content="text/html; charset=UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
     <link rel="shortcut icon" type="image/x-icon" href="<c:url value='/images/favicon.ico'/>">
     <link rel="stylesheet" href="includes/styles.css" type="text/css">
@@ -35,9 +35,6 @@
     <script type="text/javascript" src="includes/new_cal/calendar-setup.js"></script>
     <!-- End -->
 
-    <script type="text/JavaScript" language="JavaScript" src="includes/prototype.js"></script>
-    <script type="text/JavaScript" language="JavaScript" src="includes/scriptaculous.js?load=effects"></script>
-    <script type="text/JavaScript" language="JavaScript" src="includes/effects.js"></script>
 </head>
  <%-- I removed this include because you cannot have both
  	"onLoad" tests: <jsp:include page="../include/showPopUp.jsp"/> --%>

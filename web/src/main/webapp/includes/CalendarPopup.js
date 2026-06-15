@@ -18,6 +18,35 @@
 // the files to your server and use them there. Thank you.
 // ===================================================================
 
+// =============================================================================
+// Modified for LibreClinica v1.4.0rc1 current-browser compatibility patch.
+//   Modification date: 2026-04-15 to 2026-04-27
+//   Author:            Yoshiteru Chiba
+//   Copyright holder:  UMIN (University Hospital Medical Information Network)
+//   Notice:            Developed under a service-agreement contract with UMIN;
+//                      copyright in this modification has been assigned to UMIN.
+//                      The author retains moral rights inalienable under
+//                      Article 59 of the Japanese Copyright Act.
+//                      See README for full attribution.
+//   Changes:
+//     - Replaced document.all[name] with document.getElementById(name).
+//     - Disabled document.layers branches (Netscape 4 only).
+//     - Replaced eval("disabled=("+expr+")") with new Function() for scoped
+//       evaluation of disabled-date expressions.
+//     - Replaced window.event/document.all branches with e.target+parentNode
+//       in event handlers.
+//     - Simplified the use_gebi initialization around line 785 to a
+//       clean two-branch if/else (current browsers always have
+//       document.getElementById).
+//   Distribution note: This file is redistributed only as part of the
+//   LibreClinica patched product (i.e. "include it in your product" usage),
+//   in accordance with Matt Kruse's redistribution clause above. It is NOT
+//   distributed as a standalone JS library.
+// The original Matt Kruse notice above remains in effect; this attribution
+// block is added as a modification notice. LibreClinica itself is distributed
+// under GNU LGPL version 3.0 (https://www.libreclinica.org/download.html#headLicense).
+// =============================================================================
+
 
 /* SOURCE FILE: AnchorPosition.js */
 
@@ -66,12 +95,12 @@ function getAnchorPosition(anchorname) {
 	// Browser capability sniffing
 	var use_gebi=false, use_css=false, use_layers=false;
 	if (document.getElementById) { use_gebi=true; }
-	else if (document.all) { use_css=true; }
-	else if (document.layers) { use_layers=true; }
+	// document.all check removed
+	// document.layers check removed
 	// Logic to find position
- 	if (use_gebi && document.all) {
-		x=AnchorPosition_getPageOffsetLeft(document.all[anchorname]);
-		y=AnchorPosition_getPageOffsetTop(document.all[anchorname]);
+ 	if (use_gebi) {
+		x=AnchorPosition_getPageOffsetLeft(document.getElementById(anchorname));
+		y=AnchorPosition_getPageOffsetTop(document.getElementById(anchorname));
 		}
 	else if (use_gebi) {
 		var o=document.getElementById(anchorname);
@@ -79,19 +108,8 @@ function getAnchorPosition(anchorname) {
 		y=AnchorPosition_getPageOffsetTop(o);
 		}
  	else if (use_css) {
-		x=AnchorPosition_getPageOffsetLeft(document.all[anchorname]);
-		y=AnchorPosition_getPageOffsetTop(document.all[anchorname]);
-		}
-	else if (use_layers) {
-		var found=0;
-		for (var i=0; i<document.anchors.length; i++) {
-			if (document.anchors[i].name==anchorname) { found=1; break; }
-			}
-		if (found==0) {
-			coordinates.x=0; coordinates.y=0; return coordinates;
-			}
-		x=document.anchors[i].x;
-		y=document.anchors[i].y;
+		x=AnchorPosition_getPageOffsetLeft(document.getElementById(anchorname));
+		y=AnchorPosition_getPageOffsetTop(document.getElementById(anchorname));
 		}
 	else {
 		coordinates.x=0; coordinates.y=0; return coordinates;
@@ -117,14 +135,6 @@ function getAnchorWindowPosition(anchorname) {
 			x=coordinates.x+window.screenX+(window.outerWidth-window.innerWidth)-window.pageXOffset;
 			y=coordinates.y+window.screenY+(window.outerHeight-24-window.innerHeight)-window.pageYOffset;
 			}
-		}
-	else if (document.all) {
-		x=coordinates.x-document.body.scrollLeft+window.screenLeft;
-		y=coordinates.y-document.body.scrollTop+window.screenTop;
-		}
-	else if (document.layers) {
-		x=coordinates.x+window.screenX+(window.outerWidth-window.innerWidth)-window.pageXOffset;
-		y=coordinates.y+window.screenY+(window.outerHeight-24-window.innerHeight)-window.pageYOffset;
 		}
 	coordinates.x=x;
 	coordinates.y=y;
@@ -573,14 +583,8 @@ function PopupWindow_refresh() {
 		if (this.use_gebi) {
 			document.getElementById(this.divName).innerHTML = this.contents;
 			}
-		else if (this.use_css) { 
-			document.all[this.divName].innerHTML = this.contents;
-			}
-		else if (this.use_layers) { 
-			var d = document.layers[this.divName]; 
-			d.document.open();
-			d.document.writeln(this.contents);
-			d.document.close();
+		else if (this.use_css) {
+			document.getElementById(this.divName).innerHTML = this.contents;
 			}
 		}
 	else {
@@ -614,14 +618,9 @@ function PopupWindow_showPopup(anchorname) {
 			document.getElementById(this.divName).style.visibility = "visible";
 			}
 		else if (this.use_css) {
-			document.all[this.divName].style.left = this.x;
-			document.all[this.divName].style.top = this.y;
-			document.all[this.divName].style.visibility = "visible";
-			}
-		else if (this.use_layers) {
-			document.layers[this.divName].left = this.x;
-			document.layers[this.divName].top = this.y;
-			document.layers[this.divName].visibility = "visible";
+			document.getElementById(this.divName).style.left = this.x;
+			document.getElementById(this.divName).style.top = this.y;
+			document.getElementById(this.divName).style.visibility = "visible";
 			}
 		}
 	else {
@@ -639,7 +638,7 @@ function PopupWindow_showPopup(anchorname) {
 					this.x = screen.availWidth - this.width;
 					}
 				}
-			var avoidAboutBlank = window.opera || ( document.layers && !navigator.mimeTypes['*'] ) || navigator.vendor == 'KDE' || ( document.childNodes && !document.all && !navigator.taintEnabled );
+			var avoidAboutBlank = window.opera || navigator.vendor == 'KDE';
 			this.popupWindow = window.open(avoidAboutBlank?"":"about:blank","window_"+anchorname,this.windowProperties+",width="+this.width+",height="+this.height+",screenX="+this.x+",left="+this.x+",screenY="+this.y+",top="+this.y+"");
 			}
 		this.refresh();
@@ -652,10 +651,7 @@ function PopupWindow_hidePopup() {
 			document.getElementById(this.divName).style.visibility = "hidden";
 			}
 		else if (this.use_css) {
-			document.all[this.divName].style.visibility = "hidden";
-			}
-		else if (this.use_layers) {
-			document.layers[this.divName].visibility = "hidden";
+			document.getElementById(this.divName).style.visibility = "hidden";
 			}
 		}
 	else {
@@ -668,27 +664,8 @@ function PopupWindow_hidePopup() {
 // Pass an event and return whether or not it was the popup DIV that was clicked
 function PopupWindow_isClicked(e) {
 	if (this.divName != null) {
-		if (this.use_layers) {
-			var clickX = e.pageX;
-			var clickY = e.pageY;
-			var t = document.layers[this.divName];
-			if ((clickX > t.left) && (clickX < t.left+t.clip.width) && (clickY > t.top) && (clickY < t.top+t.clip.height)) {
-				return true;
-				}
-			else { return false; }
-			}
-		else if (document.all) { // Need to hard-code this to trap IE for error-handling
-			var t = window.event.srcElement;
-			while (t.parentElement != null) {
-				if (t.id==this.divName) {
-					return true;
-					}
-				t = t.parentElement;
-				}
-			return false;
-			}
-		else if (this.use_gebi && e) {
-			var t = e.originalTarget;
+		if (e) {
+			var t = e.target;
 			while (t.parentNode != null) {
 				if (t.id==this.divName) {
 					return true;
@@ -723,9 +700,6 @@ function PopupWindow_hidePopupWindows(e) {
 	}
 // Run this immediately to attach the event listener
 function PopupWindow_attachListener() {
-	if (document.layers) {
-		document.captureEvents(Event.MOUSEUP);
-		}
 	window.popupWindowOldEventListener = document.onmouseup;
 	if (window.popupWindowOldEventListener != null) {
 		document.onmouseup = new Function("window.popupWindowOldEventListener(); PopupWindow_hidePopupWindows();");
@@ -766,10 +740,15 @@ function PopupWindow() {
 	this.use_gebi = false;
 	this.use_css = false;
 	this.use_layers = false;
-	if (document.getElementById) { this.use_gebi = true; }
-	else if (document.all) { this.use_css = true; }
-	else if (document.layers) { this.use_layers = true; }
-	else { this.type = "WINDOW"; }
+	// Two-branch initialization — current browsers always have
+	// document.getElementById. The original document.all / document.layers
+	// fallbacks have been removed; the WINDOW fallback is preserved for
+	// safety in environments where getElementById is missing.
+	if (document.getElementById) {
+		this.use_gebi = true;
+	} else {
+		this.type = "WINDOW";
+	}
 	this.offsetX = 0;
 	this.offsetY = 0;
 	// Method mappings
@@ -1327,7 +1306,8 @@ function CP_getCalendar() {
 				var disabled=false;
 				if (this.disabledDatesExpression!="") {
 					var ds=""+display_year+LZ(display_month)+LZ(display_date);
-					eval("disabled=("+this.disabledDatesExpression+")");
+					var year=display_year, month=display_month, day=display_date;
+					disabled = (new Function("year","month","day","ds", "return " + this.disabledDatesExpression))(year,month,day,ds);
 					}
 				var dateClass = "";
 				if ((display_month == this.currentDate.getMonth()+1) && (display_date==this.currentDate.getDate()) && (display_year==this.currentDate.getFullYear())) {
@@ -1376,7 +1356,8 @@ function CP_getCalendar() {
 		result += '	<TD COLSPAN=7 ALIGN=CENTER CLASS="'+this.cssPrefix+'cpTodayText">\n';
 		if (this.disabledDatesExpression!="") {
 			var ds=""+now.getFullYear()+LZ(now.getMonth()+1)+LZ(now.getDate());
-			eval("disabled=("+this.disabledDatesExpression+")");
+			var year=now.getFullYear(), month=now.getMonth()+1, day=now.getDate();
+			disabled = (new Function("year","month","day","ds", "return " + this.disabledDatesExpression))(year,month,day,ds);
 			}
 		if (disabled || this.disabledWeekDays[current_weekday+1]) {
 			result += '		<SPAN CLASS="'+this.cssPrefix+'cpTodayTextDisabled">'+this.todayText+'</SPAN>\n';

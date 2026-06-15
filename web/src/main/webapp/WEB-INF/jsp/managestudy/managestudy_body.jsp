@@ -38,7 +38,6 @@
     <script type="text/javascript" src="includes/new_cal/lang/<fmt:message key="jscalendar_language_file" bundle="${resformat}"/>"></script>
     <script type="text/javascript" src="includes/new_cal/calendar-setup.js"></script>
     <!-- End new Calender -->
-    <script type="text/JavaScript" language="JavaScript" src="includes/prototype.js"></script>
 </head>
 <body>
 <h1><span class="title_manage"><fmt:message key="manage_study" bundle="${resworkflow}"/></span></h1>

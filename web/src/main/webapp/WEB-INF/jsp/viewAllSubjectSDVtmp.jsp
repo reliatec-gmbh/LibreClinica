@@ -36,7 +36,7 @@
 <script type="text/JavaScript" src="${pageContext.request.contextPath}/includes/jmesa/jquery.min.js"></script>
 <script type="text/JavaScript" src="${pageContext.request.contextPath}/includes/jmesa/jmesa.js"></script>
 <script type="text/JavaScript" src="${pageContext.request.contextPath}/includes/jmesa/jquery.jmesa.js"></script>
-<script type="text/javascript" src="${pageContext.request.contextPath}/includes/jmesa/jquery-migrate-1.1.1.js"></script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/includes/jmesa/jquery-migrate-3.4.1.min.js"></script>
 
 <%-- view all subjects starts here --%>
 <script type="text/javascript">
