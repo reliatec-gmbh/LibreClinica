@@ -111,17 +111,6 @@ function getAnchorPosition(anchorname) {
 		x=AnchorPosition_getPageOffsetLeft(document.getElementById(anchorname));
 		y=AnchorPosition_getPageOffsetTop(document.getElementById(anchorname));
 		}
-	else if (false) { // layers removed
-		var found=0;
-		for (var i=0; i<document.anchors.length; i++) {
-			if (document.anchors[i].name==anchorname) { found=1; break; }
-			}
-		if (found==0) {
-			coordinates.x=0; coordinates.y=0; return coordinates;
-			}
-		x=document.anchors[i].x;
-		y=document.anchors[i].y;
-		}
 	else {
 		coordinates.x=0; coordinates.y=0; return coordinates;
 		}
@@ -146,14 +135,6 @@ function getAnchorWindowPosition(anchorname) {
 			x=coordinates.x+window.screenX+(window.outerWidth-window.innerWidth)-window.pageXOffset;
 			y=coordinates.y+window.screenY+(window.outerHeight-24-window.innerHeight)-window.pageYOffset;
 			}
-		}
-	else if (false) { // document.all removed
-		x=coordinates.x-document.body.scrollLeft+window.screenLeft;
-		y=coordinates.y-document.body.scrollTop+window.screenTop;
-		}
-	else if (false) { // layers removed
-		x=coordinates.x+window.screenX+(window.outerWidth-window.innerWidth)-window.pageXOffset;
-		y=coordinates.y+window.screenY+(window.outerHeight-24-window.innerHeight)-window.pageYOffset;
 		}
 	coordinates.x=x;
 	coordinates.y=y;
@@ -602,14 +583,8 @@ function PopupWindow_refresh() {
 		if (this.use_gebi) {
 			document.getElementById(this.divName).innerHTML = this.contents;
 			}
-		else if (this.use_css) { 
+		else if (this.use_css) {
 			document.getElementById(this.divName).innerHTML = this.contents;
-			}
-		else if (false) { // layers removed 
-			var d = document.getElementById(this.divName); 
-			d.document.open();
-			d.document.writeln(this.contents);
-			d.document.close();
 			}
 		}
 	else {
@@ -647,11 +622,6 @@ function PopupWindow_showPopup(anchorname) {
 			document.getElementById(this.divName).style.top = this.y;
 			document.getElementById(this.divName).style.visibility = "visible";
 			}
-		else if (false) { // layers removed
-			document.getElementById(this.divName).left = this.x;
-			document.getElementById(this.divName).top = this.y;
-			document.getElementById(this.divName).visibility = "visible";
-			}
 		}
 	else {
 		if (this.popupWindow == null || this.popupWindow.closed) {
@@ -683,9 +653,6 @@ function PopupWindow_hidePopup() {
 		else if (this.use_css) {
 			document.getElementById(this.divName).style.visibility = "hidden";
 			}
-		else if (false) { // layers removed
-			document.getElementById(this.divName).visibility = "hidden";
-			}
 		}
 	else {
 		if (this.popupWindow && !this.popupWindow.closed) {
@@ -697,16 +664,7 @@ function PopupWindow_hidePopup() {
 // Pass an event and return whether or not it was the popup DIV that was clicked
 function PopupWindow_isClicked(e) {
 	if (this.divName != null) {
-		if (false) { // layers removed
-			var clickX = e.pageX;
-			var clickY = e.pageY;
-			var t = document.getElementById(this.divName);
-			if ((clickX > t.left) && (clickX < t.left+t.clip.width) && (clickY > t.top) && (clickY < t.top+t.clip.height)) {
-				return true;
-				}
-			else { return false; }
-			}
-		else if (e) {
+		if (e) {
 			var t = e.target;
 			while (t.parentNode != null) {
 				if (t.id==this.divName) {
@@ -742,9 +700,6 @@ function PopupWindow_hidePopupWindows(e) {
 	}
 // Run this immediately to attach the event listener
 function PopupWindow_attachListener() {
-	if (false) { // layers removed
-		document.captureEvents(Event.MOUSEUP);
-		}
 	window.popupWindowOldEventListener = document.onmouseup;
 	if (window.popupWindowOldEventListener != null) {
 		document.onmouseup = new Function("window.popupWindowOldEventListener(); PopupWindow_hidePopupWindows();");
