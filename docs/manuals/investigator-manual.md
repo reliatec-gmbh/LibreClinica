@@ -1,11 +1,11 @@
-LibreClinica 1.3 for Investigators
+LibreClinica 1.4 for Investigators
 ==================================
 
-[https://libreclinica.org](https://libreclinica.org) © 2024
+[https://libreclinica.org](https://libreclinica.org) © 2025
 
 Preface
 
-This manual describes the main activities of the Investigator-role in LibreClinica 1.3: Entering data, Handling Discrepancies and Signing Subjects.
+This manual describes the main activities of the Investigator-role in LibreClinica 1.4: Entering data, Handling Discrepancies and Signing Subjects.
 
 To use this manual an account with the role of Investigator is the only requirement.
 

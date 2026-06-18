@@ -1,19 +1,24 @@
-## 1.3.0 (May 15, 2024)
+## 1.4.0 (June 13, 2025)
 
 **bugfix:**
 
-* check for data type INT (#360)
-* fixed CRF definition spreadsheet download (#364)
-* re-added jdbc logging dependency, re-enabling LC to start in log levels TRACE and DEUG (#365)
-* resume from hourglass to normal mouse cursor after adding a subject (#374)
-* unhidden fields (simple conditional display) visible after save, not only after (de)selecting checkboxes (#381)
-* fixed webservices broken in LC 1.2.x (#384)
+* fixed textareas dropping entries > 2000 characters (#391)
+* AuditLogEvent value length harmonisation (#431)
+* Username DB column length hramonisation (#429)
+* fixed data extraction SQL failing on PostgreSQL >= 15
+* make SOAP study listAllRequest showing also child studies/sites for monitor users (#406)
+* allow discrepancy notes to be added to empty fields (#404)
+* fixed inconsistent preselection of discrepancy note type in repeating groups (#343) by setting it to Annotation for data entry (#414)
+* make flags for discrepancy notes change to correct color (#417)
+* not offer datamanagers with disabled accounts for configuration of new studies (#422)
 
 **maintenance:**
 
+* link for unsupported rule designer removed (#128)
+* removed unused logos (#403, #410)
+
 **enhancement:**
-* renewed layout of express add subject (#375)
-* added docker compose setup for local development (#394)
-* added send test email feature (#396)
+
+* ListUserAccountsView: provide information on parent study (#419)
 
 **tests:**

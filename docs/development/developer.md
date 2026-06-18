@@ -164,3 +164,21 @@ somebody else from the team of contributors. For new features the
 appropriate test specification need to be submitted fitting the numeric
 scheme used for test documentation (this should be ideally clarified
 with the main contributor team before).
+
+### Submitting a contribution
+
+For straightforward fixes where you are working alone, branch from `lc-develop` and submit a pull request directly against it:
+```powershell
+git checkout lc-develop
+git pull upstream lc-develop
+git checkout -b fix/your-issue-123
+```
+
+Commit and push to your fork:
+```powershell
+git add .
+git commit -m "fix: description of what was fixed (#123)"
+git push origin fix/your-issue-123
+```
+
+Then open a pull request from your fork's branch targeting `lc-develop`.
