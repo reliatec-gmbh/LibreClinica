@@ -93,7 +93,6 @@
         <input type="hidden" name="crfId" value="0">
         <%-- the destination JSP page after removal or adding SDV for an eventCRF --%>
         <input type="hidden" name="redirection" value="viewAllSubjectSDVtmp">
-        <%--<input type="hidden" name="decorator" value="mydecorator">--%>
         ${sdvTableAttribute}
         <br />
             <c:if test="${!(study.status.locked)}">

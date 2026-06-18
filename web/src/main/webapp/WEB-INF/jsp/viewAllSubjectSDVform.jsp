@@ -60,15 +60,13 @@
 <div id="searchFilterSDV">
     <table border="0" cellpadding="0" cellspacing="0">
         <tr>
-            <td valign="bottom" id="Tab1'">
-               <%-- <div id="Tab1Selected"><div class="tab_BG"><div class="tab_L"><div class="tab_R">
-                    <a class="tabtext" title="<fmt:message key="view_by_studysubjectID" bundle="${resword}"/>" href='viewSubjectSDV?studyId=${studyId}&studySubjectId=${studySubjectId}&decorator=mydecorator' onclick="javascript:HighlightTab(1);"><fmt:message key="view_by_studysubjectID" bundle="${resword}"/></a></div></div></div></div>
-                <div id="Tab1NotSelected" style="display:none"><div class="tab_BG_h"><div class="tab_L_h"><div class="tab_R_h"><span class="tabtext"><fmt:message key="view_by_studysubjectID" bundle="${resword}"/></span></div></div></div></div>--%></td>
-
+            <%--TODO: After removal of decorator Tab1 seems to be not necessary, but kept just in case to not break UI --%>
+            <td valign="bottom" id="Tab1'" />
             <td valign="bottom" id="Tab2'">
                 <div id="Tab2NotSelected"><div class="tab_BG"><div class="tab_L"><div class="tab_R">
                     <a class="tabtext" title="<fmt:message key="view_by_event_CRF" bundle="${resword}"/>" href='viewAllSubjectSDVtmp?studyId=${studyId}' onclick="javascript:HighlightTab(2);"><fmt:message key="view_by_event_CRF" bundle="${resword}"/></a></div></div></div></div>
-                <div id="Tab2Selected" style="display:none"><div class="tab_BG_h"><div class="tab_L_h"><div class="tab_R_h"><span class="tabtext"><fmt:message key="view_by_event_CRF" bundle="${resword}"/></span></div></div></div></div></td>
+                <div id="Tab2Selected" style="display:none"><div class="tab_BG_h"><div class="tab_L_h"><div class="tab_R_h"><span class="tabtext"><fmt:message key="view_by_event_CRF" bundle="${resword}"/></span></div></div></div></div>
+            </td>
         </tr>
     </table>
     <script language="JavaScript">
@@ -233,7 +231,6 @@
         <input type="hidden" name="crfId" value="0">
         <%-- the destination JSP page after removal or adding SDV for an eventCRF --%>
         <input type="hidden" name="redirection" value="viewAllSubjectSDVform">
-        <%--<input type="hidden" name="decorator" value="mydecorator">--%>
         ${sdvTableAttribute}
         <br />
         <input type="submit" name="sdvAllFormSubmit" class="button_medium" value="<fmt:message key="submit" bundle="${resword}"/>" onclick="this.form.method='POST';this.form.action='${pageContext.request.contextPath}/pages/handleSDVPost';this.form.submit();"/>

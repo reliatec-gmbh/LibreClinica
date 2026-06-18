@@ -224,7 +224,6 @@
         <input type="hidden" name="crfId" value="0">
         <%-- the destination JSP page after removal or adding SDV for an eventCRF --%>
         <input type="hidden" name="redirection" value="viewAllSubjectSDV">
-        <%--<input type="hidden" name="decorator" value="mydecorator">--%>
         ${sdvTableAttribute}
         <br />
         <input type="submit" name="sdvAllFormSubmit" class="button_medium" value="<fmt:message key="submit" bundle="${resword}"/>" onclick="this.form.method='POST';this.form.action='${pageContext.request.contextPath}/pages/handleSDVPost';this.form.submit();"/>

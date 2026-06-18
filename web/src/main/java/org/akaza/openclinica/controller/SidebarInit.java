@@ -5,12 +5,12 @@
  * For details see: https://libreclinica.org/license
  * copyright (C) 2003 - 2011 Akaza Research
  * copyright (C) 2003 - 2019 OpenClinica
- * copyright (C) 2020 - 2024 LibreClinica
+ * copyright (C) 2020 - 2026 LibreClinica
  */
 package org.akaza.openclinica.controller;
 
 /**
-*  This class represents the state of a sidebar in decorator.jsp. For example,
+*  This class represents the state of a sidebar. For example,
  * if the Alerts/Messages should be initially displayed as open, then the alertsBoxSetup
  * property would be set to SidebarEnumConstants.OPENALERTS; if the Icon
  * Keys box is disabled for a certain display, then the iconsBoxSetup should be
