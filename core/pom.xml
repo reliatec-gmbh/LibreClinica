@@ -154,6 +154,23 @@
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-annotations</artifactId>
 		</dependency>
+		<!-- Required by the randomization feature (RandomizeService uses
+		     JsonNode/ObjectMapper to parse the external service's REST
+		     responses). -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
+		<!-- Required by the randomization feature: RandomizeService uses
+		     org.apache.http.ssl.SSLContextBuilder (httpcore) to build an
+		     SSL-skipping request factory for the external randomization
+		     endpoint. httpcore is
+		     otherwise only present transitively via httpclient. -->
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpcore</artifactId>
+			<version>4.4.11</version>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-ldap</artifactId>
