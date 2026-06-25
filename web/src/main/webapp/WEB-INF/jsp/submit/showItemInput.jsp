@@ -500,14 +500,7 @@ include the default value first in the select list --%>
                         <%--<c:out value="${inputTxtValue}"/>--%>
                         <%-- above for test, adding javascript below to support FF3 tbh 03/2007 --%>
                         <script>
-                                if (window.attachEvent)
-                                {
-                                        window.attachEvent("onmessage", receiver<c:out value="${itemId}"/>); // for IE
-                                }
-                                else
-                                {
-                                        window.addEventListener("message", receiver<c:out value="${itemId}"/>, false); // for FF
-                                }
+                                window.addEventListener("message", receiver<c:out value="${itemId}"/>, false);
                                 function receiver<c:out value="${itemId}"/>(e) {
                                         if (e.data.substring(0,e.data.indexOf(":")) != 'mainForm.input<c:out value="${itemId}"/>')
                                         {

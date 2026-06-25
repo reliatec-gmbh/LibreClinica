@@ -5,7 +5,7 @@
  * For details see: https://libreclinica.org/license
  * copyright (C) 2003 - 2011 Akaza Research
  * copyright (C) 2003 - 2019 OpenClinica
- * copyright (C) 2020 - 2024 LibreClinica
+ * copyright (C) 2020 - 2026 LibreClinica
  */
 package org.akaza.openclinica.controller;
 
@@ -242,19 +242,6 @@ public class SDVController {
         gridMap.addAttribute(SUBJECT_SDV_TABLE_ATTRIBUTE, sdvMatrix);
         return gridMap;
     }
-
-    /*  @RequestMapping("/viewSubjectAggregateSDV")
-    public ModelMap viewSubjectAggregateHandler(HttpServletRequest request,
-                                                @RequestParam("studyId") int studyId) {
-
-        ModelMap gridMap = new ModelMap();
-
-        //set up request attributes for sidebar
-        setUpSidebar(request);
-        String sdvMatrix = sdvUtil.renderSubjectsAggregateTable(studyId,request);
-        gridMap.addAttribute(SUBJECT_SDV_TABLE_ATTRIBUTE,sdvMatrix);
-        return gridMap;
-    }*/
 
     //method = RequestMethod.POST
     @RequestMapping("/handleSDVPost")

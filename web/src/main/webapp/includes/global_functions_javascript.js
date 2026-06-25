@@ -1,3 +1,38 @@
+/* =============================================================================
+ * LibreClinica is distributed under the
+ * GNU Lesser General Public License (GNU LGPL).
+ * For details see: https://www.libreclinica.org/download.html#headLicense
+ *
+ * copyright (C) 2003 - 2011 Akaza Research
+ * copyright (C) 2003 - 2019 OpenClinica
+ * copyright (C) 2020 - 2026 LibreClinica
+ * copyright (C) 2026 UMIN (University Hospital Medical Information Network)
+ *
+ * Author:  Yoshiteru Chiba
+ * Notice:  Developed under a service-agreement contract with UMIN;
+ *          copyright in this modification has been assigned to UMIN.
+ *          The author retains moral rights inalienable under Article
+ *          59 of the Japanese Copyright Act. See README for full
+ *          attribution.
+ *
+ * Modifications:
+ *   - Modification date: 2026-04-15 to 2026-04-27.
+ *   - Removed window.event fallback paths; event objects are taken from the
+ *     handler argument.
+ *   - Removed document.all branches; document.getElementById() is used.
+ *   - Simplified getRef() / getObject() to use document.getElementById() only.
+ *   - 2026-06-10: Prototype.js removal (upstream issue #445): replaced $$()
+ *     with document.querySelectorAll(); switched changeBtnDisabledState()
+ *     from Prototype addClassName/removeClassName to classList; removed
+ *     dead numberGroupRows() and unused detectFirefoxWindows().
+ *
+ * License selection:
+ *   The OpenClinica original was licensed under LGPL v2.1 or later.
+ *   Per LGPL v2.1 section 13, this work selects version 3.0 of the GNU
+ *   Lesser General Public License, matching the upstream LibreClinica
+ *   distribution license.
+ * ============================================================================= */
+
 function selectAllChecks(formObj,value){
     if(formObj) {
         var allChecks = formObj.getElementsByTagName("input");
@@ -224,7 +259,7 @@ function selectTabs(tabNumber,totalNumberOfTabs,tabClassName) {
     //the last three tabs should be selected
     var lastTabSelected = (tabNumber == (totalNumberOfTabs - 1));
     //fetches all TD elements with a class name of tabClassName
-    var allTabs = $$(param);
+    var allTabs = Array.from(document.querySelectorAll(param));
     var tdCount = allTabs.length;
     //If there are not more than two tabs, just one or two, then all we have to do is
     //select one or two TD elements, and not worry about deselecting others
@@ -376,10 +411,6 @@ function detectIEWindows(userAgentString) {
             (userAgentString.indexOf("Windows") != -1) &&
             (userAgentString.indexOf("compatible") != -1));
 }
-/* Return true, if the browser used is Firefox on Windows. */
-function detectFirefoxWindows(userAgentString) {
-    return /Firefox[\/\s](\d+\.\d+)/.test(userAgentString);
-}
 /*change a button to a new CSS class if the button is in a disabled state.
  THIS METHOD IS USED BY LINES 306 AND 1221 in the file repetition-model.js*/
 function changeBtnDisabledState(buttonObj,cssOnStateClass,
@@ -388,14 +419,13 @@ function changeBtnDisabledState(buttonObj,cssOnStateClass,
     if(cssOnStateClass == null || cssOnStateClass == undefined) return;
     if(cssDisabledClass == null || cssDisabledClass == undefined) return;
 
-    if(buttonObj && buttonObj.removeClassName && buttonObj.addClassName &&
-       buttonObj.disabled && ! onState)  {
-        buttonObj.removeClassName(cssOnStateClass);
-        buttonObj.addClassName(cssDisabledClass);
+    if(buttonObj.classList && buttonObj.disabled && ! onState)  {
+        buttonObj.classList.remove(cssOnStateClass);
+        buttonObj.classList.add(cssDisabledClass);
     }
-    if(buttonObj && buttonObj.removeClassName && buttonObj.addClassName && (! buttonObj.disabled) && onState)  {
-        buttonObj.removeClassName(cssDisabledClass);
-        buttonObj.addClassName(cssOnStateClass);
+    if(buttonObj.classList && (! buttonObj.disabled) && onState)  {
+        buttonObj.classList.remove(cssDisabledClass);
+        buttonObj.classList.add(cssOnStateClass);
     }
 }
 
@@ -937,7 +967,7 @@ function confirmSaveAndContinue () {
 
 function disableAllButtons (theform) {
 
-    if (document.all || document.getElementById) {
+    if (document.getElementById) {
         for (i = 0; i < theform.length; i++) {
             var tempobj = theform.elements[i];
             if (tempobj.type.toLowerCase() == "submit" || tempobj.type.toLowerCase() == "reset") {
@@ -1434,16 +1464,11 @@ function MM_swapImgRestore() { //v3.0
     var i,x,a=document.MM_sr; for(i=0;a&&i<a.length&&(x=a[i])&&x.oSrc;i++) x.src=x.oSrc;
 }
 
-var isDOM = (document.getElementById ? true : false);
-var isIE4 = ((document.all && !isDOM) ? true : false);
-var isNS4 = (document.layers ? true : false);
 function getRef(id) {
-    if (isDOM) return document.getElementById(id);
-    if (isIE4) return document.all[id];
-    if (isNS4) return document.layers[id];
+    return document.getElementById(id);
 }
 function getSty(id) {
-    return (isNS4 ? getRef(id) : getRef(id).style);
+    return getRef(id).style;
 }
 
 
@@ -1469,22 +1494,7 @@ function gotopage(){
 
 
 function getObject( obj ) {
-
-    // step 1
-    if ( document.getElementById ) {
-        obj = document.getElementById( obj );
-
-        // step 2
-    } else if ( document.all ) {
-        obj = document.all.item( obj );
-
-        //step 3
-    } else {
-        obj = null;
-    }
-
-    //step 4
-    return obj;
+    return document.getElementById( obj );
 }
 
 function LockObject( obj, e ) {
@@ -1501,7 +1511,7 @@ function LockObject( obj, e ) {
     if (obj==null) return;
 
     // step 3
-    if (!e) var e = window.event;
+    // window.event fallback removed
     if (e.pageX || e.pageY) 	{
         tempX = e.pageX;
         tempY = e.pageY;
@@ -1541,7 +1551,7 @@ function moveObject( obj, e ) {
     if (obj==null) return;
 
     // step 3
-    if (!e) var e = window.event;
+    // window.event fallback removed
     if (e.pageX || e.pageY) 	{
         tempX = e.pageX;
         tempY = e.pageY;
@@ -1634,34 +1644,6 @@ function requestSignatureFromCheckbox(password, checkbox){
 	}
 	if(checkbox != null && checkbox.checked){
 		sendRequest("GET", "MatchPassword?password=" + password);
-	}
-}
-
-function numberGroupRows(){
-	alert("test");
-	var allGroupDivs = $$("div.tableDiv");
-	var allTrTags;
-	var rowCounter;
-
-	for(var i = 0; i < allGroupDivs.length; i++){
-
-		allTrTags =  allGroupDivs[i].getElementsByTagName("tr");
-
-		for(var j=0; j < allTrTags.length;j++) {
-
-			if(allTrTags[j]) {
-				rowCounter=allTrTags[j].getAttribute("repeat");
-
-				if(rowCounter && rowCounter.indexOf("template") == -1)  {
-					rowCounter++;
-					allTrTags[j].innerHTML=rowCounter+
-					allTrTags[j].innerHTML;
-					rowCounter=0;//reset
-				}
-			}
-		}
-
-
 	}
 }
 
@@ -1859,4 +1841,4 @@ function onMailNotificationClick() {
 	if (contactEmail.disabled) {
 		contactEmail.value = "";
 	}
-}
+}

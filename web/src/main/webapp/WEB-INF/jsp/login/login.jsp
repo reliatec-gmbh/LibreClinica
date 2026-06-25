@@ -22,13 +22,13 @@
 <head>
 	<title><fmt:message key="openclinica" bundle="${resword}"/></title>	
 	<meta http-equiv="Content-type" content="text/html; charset=UTF-8"/>
-	<meta http-equiv="X-UA-Compatible" content="IE=8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
     
     <link rel="shortcut icon" type="image/x-icon" href="<c:url value='/images/favicon.ico'/>">
 	<link rel="stylesheet" href="<c:url value='/includes/styles.css'/>" type="text/css"/>
 	
 	<script type="text/JavaScript" language="JavaScript" src="<c:url value='/includes/jmesa/jquery.min.js'/>"></script>
-	<script type="text/JavaScript" language="JavaScript" src="<c:url value='/includes/jmesa/jquery-migrate-1.1.1.js'/>"></script>
+	<script type="text/JavaScript" language="JavaScript" src="<c:url value='/includes/jmesa/jquery-migrate-3.4.1.min.js'/>"></script>
 	<script type="text/javascript" language="JavaScript" src="<c:url value='/includes/jmesa/jquery.blockUI.js'/>"></script>
 	<script type="text/JavaScript" language="JavaScript" src="<c:url value='/includes/global_functions_javascript.js'/>"></script>
 	<script type="text/JavaScript" language="JavaScript" src="<c:url value='/includes/ua-parser.min.js'/>"></script>

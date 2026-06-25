@@ -17,7 +17,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
-  <meta http-equiv="X-UA-Compatible" content="IE=8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 
 	<title><fmt:message key="openclinica" bundle="${resword}"/></title>
@@ -40,9 +40,6 @@
 	<!-- End -->
 
 	<%--<script type="text/javascript"  language="JavaScript" src="includes/repetition-model/repetition-model.js"></script>--%>
-	<script type="text/JavaScript" language="JavaScript" src="includes/prototype.js"></script>
-	<%--<script type="text/JavaScript" language="JavaScript" src="includes/scriptaculous.js"></script>
-	<script type="text/JavaScript" language="JavaScript" src="includes/effects.js"></script>--%>
 </head>
 
 
