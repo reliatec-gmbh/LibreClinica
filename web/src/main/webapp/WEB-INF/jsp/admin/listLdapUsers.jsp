@@ -46,7 +46,7 @@
 
     <script type="text/javascript" src="../../includes/jmesa/jquery.min.js"></script>
     <script type="text/javascript" src="../../includes/jmesa/jquery.blockUI.js"></script>
-    <script type="text/javascript" src="../../includes/jmesa/jquery-migrate-1.1.1.js"></script>
+    <script type="text/javascript" src="../../includes/jmesa/jquery-migrate-3.4.1.min.js"></script>
 
     <table style="border-collapse: separate; border-spacing: 10px;">
         <tr>
