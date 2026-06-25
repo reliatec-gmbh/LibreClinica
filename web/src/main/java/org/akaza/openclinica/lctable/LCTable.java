@@ -67,7 +67,7 @@ public class LCTable<T>  {
     private String renderTableHtml(LCTableContext<T> ctx) {
         StringWriter sw = new StringWriter();
         HtmlFlow.doc(sw)
-            .div().attrId(panelId).attrClass("jmesa")
+            .div().attrId(panelId).attrClass("lctable")
             .table().attrClass("table").attrStyle("border-collapse:collapse")
             .thead().of(thead -> renderTableHeader(thead, ctx)).__() // thead
             .tbody().attrClass("tbody").of(tbody -> renderTableBody(tbody, ctx.data.pageItems)).__() // tbody

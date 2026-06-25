@@ -10,6 +10,13 @@ services:
       # that has been migrated to HtmlFlow. Unset (or any other value) uses HtmlFlow.
       LC_TABLE_RENDERING: ${LC_TABLE_RENDERING:-htmlflow}
 
+    # ---------------------------------------------------------
+    # THE FIX: Delete the baked-in WAR file before Tomcat boots.
+    # This forces Tomcat to only look at your synced folders.
+    # ---------------------------------------------------------
+    command: >
+      sh -c "rm -f /usr/local/tomcat/webapps/LibreClinica.war && catalina.sh run"
+
     develop:
       watch:
         # 1. restart on config file changes
@@ -19,13 +26,13 @@ services:
 
         # 2. If CSS/JS and other web resources change, sync them instantly (No restart needed!)
         - action: sync
-          path: ./src/main/webapp
-          target: /usr/local/tomcat/webapps/libreclinica
+          path: ./web/src/main/webapp
+          target: /usr/local/tomcat/webapps/LibreClinica
 
-        # 3. When the .war file is updated (rebuilt) in the dev env, sync it and restart Tomcat
+        # 3. Watch the compiled Java classes and dependencies and sync them to the running container (No restart needed!)
         - action: sync+restart
-          path: ./web/target/LibreClinica-web.war
-          target: /usr/local/tomcat/webapps/LibreClinica.war
+          path: ./web/target/LibreClinica-web/WEB-INF
+          target: /usr/local/tomcat/webapps/LibreClinica/WEB-INF
 
 #        # # comment out the following lines if you don't want to rebuild the .war file whenever source files change
 #        # rebuild on source file changes
