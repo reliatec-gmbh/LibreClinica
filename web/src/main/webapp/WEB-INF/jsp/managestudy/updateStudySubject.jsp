@@ -51,7 +51,7 @@
 <jsp:useBean scope="session" id="enrollDateStr" class="java.lang.String"/>
 
 <body class="aka_bodywidth" onload=
-  "if(! detectFirefoxWindows(navigator.userAgent)){document.getElementById('centralContainer').style.display='none';new Effect.Appear('centralContainer', {duration:1});};
+  "
         <c:if test='${popUpURL != ""}'>
 		openDNoteWindow('<c:out value="${popUpURL}" />');</c:if>">
 

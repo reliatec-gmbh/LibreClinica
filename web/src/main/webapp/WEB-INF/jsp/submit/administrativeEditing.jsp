@@ -23,7 +23,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title><fmt:message key="openclinica" bundle="${resword}"/> <fmt:message key="administrative_editing" bundle="${resword}"/></title>
-    <meta http-equiv="X-UA-Compatible" content="IE=8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
     <link rel="shortcut icon" type="image/x-icon" href="<c:url value='/images/favicon.ico'/>">
     <link rel="stylesheet" href="includes/styles.css" type="text/css">
@@ -32,9 +32,6 @@
     <script type="text/JavaScript" language="JavaScript" src="includes/Tabs.js"></script>
     <script type="text/JavaScript" language="JavaScript" src="includes/CalendarPopup.js"></script>
     <script type="text/javascript" language="JavaScript" src="includes/repetition-model/repetition-model.js"></script>
-    <script type="text/JavaScript" language="JavaScript" src="includes/prototype.js"></script>
-    <script type="text/JavaScript" language="JavaScript" src="includes/scriptaculous.js?load=effects"></script>
-    <script type="text/JavaScript" language="JavaScript" src="includes/effects.js"></script>
     <!-- Added for the new Calendar -->
 
     <link rel="stylesheet" type="text/css" media="all" href="includes/new_cal/skins/aqua/theme.css" title="Aqua" />

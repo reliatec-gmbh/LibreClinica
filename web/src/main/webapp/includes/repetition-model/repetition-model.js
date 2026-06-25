@@ -9,6 +9,31 @@
  *
  *  Usage: <script type="text/javascript" src="repetition-model.js"></script>
  */
+
+/* =============================================================================
+ * Modified for LibreClinica v1.4.0rc1 current-browser compatibility patch.
+ *   Modification date: 2026-04-15 to 2026-04-27
+ *   Author:            Yoshiteru Chiba
+ *   Copyright holder:  UMIN (University Hospital Medical Information Network)
+ *   Notice:            Developed under a service-agreement contract with UMIN;
+ *                      copyright in this modification has been assigned to UMIN.
+ *                      The author retains moral rights inalienable under
+ *                      Article 59 of the Japanese Copyright Act.
+ *                      See README for full attribution.
+ *   Changes:
+ *     - Removed attachEvent/detachEvent branches; the W3C
+ *       addEventListener/removeEventListener path is used unconditionally.
+ *     - Removed window.event fallbacks; event objects are taken from the
+ *       handler argument (e.target etc.).
+ *     - Removed legacy IE-only DOMContentLoaded fallback.
+ *   The original notice above (LGPL v2.1 by Weston Ruter) is preserved
+ *   verbatim. Per LGPL v2.1 section 13, the modified version is distributed
+ *   under version 3.0 of the GNU Lesser General Public License, matching
+ *   the upstream LibreClinica distribution license
+ *   (https://www.libreclinica.org/download.html#headLicense).
+ *   This modification record satisfies LGPL §2(a) "date of any change".
+ * ============================================================================= */
+
 //issue 1868: global variable added to deal with clearing input values from added rows.
 //SEE LINE 942
 var firstRepeatingNumber=2;
@@ -245,9 +270,6 @@ if(!window.RepetitionElement || (
 
       if(this.addEventListener)
         this.addEventListener('click', RepetitionElement._addButton_click, false);
-      else if(this.attachEvent)
-        this.attachEvent('onclick', RepetitionElement._addButton_click);
-      else this.onclick = RepetitionElement._addButton_click;
 
       this._initialized = true;
     },
@@ -267,8 +289,6 @@ if(!window.RepetitionElement || (
       var btn;
       if(e && e.target)
         btn = e.target;
-      else if(window.event)
-        btn = window.event.srcElement;
       else if(String(this.nodeName).toLowerCase() == 'button')
         btn = this;
 
@@ -337,9 +357,6 @@ if(!window.RepetitionElement || (
 
       if(this.addEventListener)
         this.addEventListener('click', RepetitionElement._removeButton_click, false);
-      else if(this.attachEvent)
-        this.attachEvent('onclick', RepetitionElement._removeButton_click);
-      else this.onclick = RepetitionElement._removeButton_click;
 
       this._initialized = true;
     },
@@ -363,8 +380,6 @@ if(!window.RepetitionElement || (
       var btn;
       if(e && e.target)
         btn = e.target;
-      else if(window.event)
-        btn = window.event.srcElement;
       else if(String(this.nodeName).toLowerCase() == 'button')
         btn = this;
 
@@ -410,9 +425,6 @@ if(!window.RepetitionElement || (
 
       if(this.addEventListener)
         this.addEventListener('click', RepetitionElement._moveUpButton_click, false);
-      else if(this.attachEvent)
-        this.attachEvent('onclick', RepetitionElement._moveUpButton_click);
-      else this.onclick = RepetitionElement._moveUpButton_click;
 
       this._initialized = true;
     },
@@ -432,8 +444,6 @@ if(!window.RepetitionElement || (
       var btn;
       if(e && e.target)
         btn = e.target;
-      else if(window.event)
-        btn = window.event.srcElement;
       else if(String(this.nodeName).toLowerCase() == 'button')
         btn = this;
 
@@ -482,9 +492,6 @@ if(!window.RepetitionElement || (
 
       if(this.addEventListener)
         this.addEventListener('click', RepetitionElement._moveDownButton_click, false);
-      else if(this.attachEvent)
-        this.attachEvent('onclick', RepetitionElement._moveDownButton_click);
-      else this.onclick = RepetitionElement._moveDownButton_click;
 
       this._initialized = true;
     },
@@ -504,8 +511,6 @@ if(!window.RepetitionElement || (
       var btn;
       if(e && e.target)
         btn = e.target;
-      else if(window.event)
-        btn = window.event.srcElement;
       else if(String(this.nodeName).toLowerCase() == 'button')
         btn = this;
 
@@ -1539,47 +1544,7 @@ if(!window.RepetitionElement || (
       }
     }, 10);
   }
-  //onDOMload for Internet Explorer (formerly using conditional comments)
-  else if(/MSIE/i.test(navigator.userAgent) && !document.addEventListener && window.attachEvent){
-    //This following attached onload handler will attempt to be the first onload handler to be called and thus
-    //  initiate the repetition model as early as possible if the DOMContentLoaded substitute fails.
-    window.attachEvent("onload", function(){
-      RepetitionElement._init_document();
-       // alert("rep model onload ie")
-        giveFirstElementFocus();
-
-    });
-
-    //Dean Edward's first solution: http://dean.edwards.name/weblog/2005/09/busted/
-    var match, dirname = ''; //get path to source directory
-    var scripts = document.getElementsByTagName('head')[0].getElementsByTagName('script');
-    for(var i = 0; i < scripts.length; i++){
-      if(match = scripts[i].src.match(/^(.*)repetition-model[^\/]+$/))
-        dirname = match[1];
-    }
-    //document.getElementsByTagName('*')[0].addBehavior(dirname + 'repetition-model.htc'); //use this if Behaviors are employed in 0.9
-    document.write("<script defer src='" + dirname + "repetition-model-msie_init.js'><"+"/script>");
-
-    //Dean Edward's revisited solution <http://dean.edwards.name/weblog/2005/09/busted/> (via Matthias Miller with insights from jQuery)
-    //Note that this solution will not result in its code firing before onload if there are no external images in the page; in this case, first solution above is used.
-    document.write("<script id=__ie_onload defer src='//:'><\/script>"); //src value from jQuery
-    var script = document.getElementById("__ie_onload");
-    //var script = document.createElement('script');
-    //script.setAttribute('defer', 'defer');
-    //document.getElementsByTagName('head')[0].appendChild(script);
-    script.onreadystatechange = function(){
-      if(this.readyState == "complete"){
-        RepetitionElement._init_document(); // call the onload handler
-        this.parentNode.removeChild(this);
-
-        //See issue #3 <http://code.google.com/p/repetitionmodel/issues/detail?id=3>
-        //Sometimes cssQuery doesn't find all repetition templates from here within this DOMContentLoaded substitute
-        if(RepetitionElement._repetitionTemplates.length == 0)
-          RepetitionElement._initialized = false;
-      }
-    };
-    script = null;
-  }
+  // IE-specific DOMContentLoaded fallback removed (IE no longer supported)
 
 } //End If(!window.RepetitionElement...
 
@@ -1669,4 +1634,4 @@ if (!Array.prototype.some)
     }
     return false;
   };
-}
+}
