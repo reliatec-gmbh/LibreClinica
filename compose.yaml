@@ -9,44 +9,25 @@ services:
       # Set to "jmesa" to force the legacy JMesa rendering path for any table
       # that has been migrated to HtmlFlow. Unset (or any other value) uses HtmlFlow.
       LC_TABLE_RENDERING: ${LC_TABLE_RENDERING:-htmlflow}
-
-    # ---------------------------------------------------------
-    # THE FIX: Delete the baked-in WAR file before Tomcat boots.
-    # This forces Tomcat to only look at your synced folders.
-    # ---------------------------------------------------------
-    command: >
-      sh -c "rm -f /usr/local/tomcat/webapps/LibreClinica.war && catalina.sh run"
-
     develop:
       watch:
-        # 1. restart on config file changes
+        # restart on config file changes
         - action: sync+restart
           path: ./docker/config
           target: /usr/local/tomcat/libreclinica.config
 
-        # 2. If CSS/JS and other web resources change, sync them instantly (No restart needed!)
-        - action: sync
-          path: ./web/src/main/webapp
-          target: /usr/local/tomcat/webapps/LibreClinica
+        # rebuild on source file changes
+        - action: rebuild
+          path: ./core
 
-        # 3. Watch the compiled Java classes and dependencies and sync them to the running container (No restart needed!)
-        - action: sync+restart
-          path: ./web/target/LibreClinica-web/WEB-INF
-          target: /usr/local/tomcat/webapps/LibreClinica/WEB-INF
+        - action: rebuild
+          path: ./odm
 
-#        # # comment out the following lines if you don't want to rebuild the .war file whenever source files change
-#        # rebuild on source file changes
-#        - action: rebuild
-#          path: ./core
-#
-#        - action: rebuild
-#          path: ./odm
-#
-#        - action: rebuild
-#          path: ./web
-#
-#        - action: rebuild
-#          path: ./ws
+        - action: rebuild
+          path: ./web
+
+        - action: rebuild
+          path: ./ws
 
   db:
     image: docker.io/library/postgres:16-alpine
