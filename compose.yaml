@@ -9,37 +9,25 @@ services:
       # Set to "jmesa" to force the legacy JMesa rendering path for any table
       # that has been migrated to HtmlFlow. Unset (or any other value) uses HtmlFlow.
       LC_TABLE_RENDERING: ${LC_TABLE_RENDERING:-htmlflow}
-
     develop:
       watch:
-        # 1. restart on config file changes
+        # restart on config file changes
         - action: sync+restart
           path: ./docker/config
           target: /usr/local/tomcat/libreclinica.config
 
-        # 2. If CSS/JS and other web resources change, sync them instantly (No restart needed!)
-        - action: sync
-          path: ./src/main/webapp
-          target: /usr/local/tomcat/webapps/libreclinica
+        # rebuild on source file changes
+        - action: rebuild
+          path: ./core
 
-        # 3. When the .war file is updated (rebuilt) in the dev env, sync it and restart Tomcat
-        - action: sync+restart
-          path: ./web/target/LibreClinica-web.war
-          target: /usr/local/tomcat/webapps/LibreClinica.war
+        - action: rebuild
+          path: ./odm
 
-#        # # comment out the following lines if you don't want to rebuild the .war file whenever source files change
-#        # rebuild on source file changes
-#        - action: rebuild
-#          path: ./core
-#
-#        - action: rebuild
-#          path: ./odm
-#
-#        - action: rebuild
-#          path: ./web
-#
-#        - action: rebuild
-#          path: ./ws
+        - action: rebuild
+          path: ./web
+
+        - action: rebuild
+          path: ./ws
 
   db:
     image: docker.io/library/postgres:16-alpine
