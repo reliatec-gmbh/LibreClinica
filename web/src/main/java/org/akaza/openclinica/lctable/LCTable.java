@@ -1,14 +1,16 @@
 package org.akaza.openclinica.lctable;
 
 import static org.akaza.openclinica.lctable.LCTableUtil.*;
-import static org.akaza.openclinica.lctable.LCTableUtil.HX_PUSH_URL;
 
 import htmlflow.HtmlFlow;
+import org.springframework.web.util.UriComponentsBuilder;
 import org.xmlet.htmlapifaster.*;
 
 import java.io.StringWriter;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static java.lang.Math.max;
@@ -28,22 +30,51 @@ public class LCTable<T>  {
         this.fetchData  = fetchData;
     }
 
+    // -- Get list of column names ---------------------------------------------
+
+    public List<String> getColumnNames() {
+        return columns.stream().map(col -> col.columnName).collect(Collectors.toList());
+    }
+
     // -- Generic typed table renderer -----------------------------------------
 
     private void renderColumnNames(Tr<?> tr) {
-        columns.forEach(col -> tr.th().text(col.columnName).__());
-        // should actually use th instead of td in the table header:
-        // however, use td like jmesa for the moment (otherwise styling with jmesa CSS does not work)
+        // Use the human-facing display name for the header
+        columns.forEach(col -> tr.th().text(col.columnDisplayName).__());
+    }
+
+    private void renderPageNavigation(Tr<?> tr, LCTableContext<T> ctx) {
+        tr.td().attrClass("toolbar").attrColspan(columns.size())
+            .nav().of(nav -> buildPageNavigation(nav, ctx)).__();
+    }
+
+    private void renderFilters(Tr<?> tr, LCTableContext<T> ctx) {
+        // Render a filter input for each column
+        columns.forEach(col -> {
+            String filterName = PARAM_FILTER_PREFIX + col.columnName;
+            String filterValue = ctx.filters.getOrDefault(col.columnName, "");
+
+            tr.td().input()
+                .attrType(EnumTypeInputType.TEXT)
+                .attrName(filterName)
+                .attrValue(filterValue)
+                .attrClass("filter-input")
+                .attrPlaceholder("Filter…")
+                .attrId(panelId + "-filter-" + col.columnName)
+                .addAttr(HX_GET, entityPath)
+                .addAttr(HX_TARGET, "#" + panelId)
+                .addAttr(HX_SWAP, "outerHTML")
+                .addAttr(HX_PUSH_URL, "true")
+                .addAttr(HX_TRIGGER, "input delay:400ms")
+                .addAttr(HX_INCLUDE, "closest form")
+                .__().__();
+        });
     }
 
     private void renderTableHeader(Thead<?> thead, LCTableContext<T> ctx) {
-        Tr<?> tr1 = thead.tr().attrClass("header");
-        tr1.td().attrClass("toolbar").attrColspan(columns.size())
-            .nav().of(nav -> buildPagination(nav, ctx)).__()
-            .__();
-        Tr<?> tr2 = thead.tr().attrClass("header");
-        renderColumnNames(tr2);
-        tr2.__();
+        thead.tr().attrClass("header").of(tr -> renderPageNavigation(tr, ctx)).__();
+        thead.tr().attrClass("header").of(this::renderColumnNames).__();
+        thead.tr().attrClass("filter").of(tr -> renderFilters(tr, ctx)).__();
     }
 
     private void renderTableBody(Tbody<?> tbody, List<T> data) {
@@ -68,11 +99,21 @@ public class LCTable<T>  {
         StringWriter sw = new StringWriter();
         HtmlFlow.doc(sw)
             .div().attrId(panelId).attrClass("lctable")
+            .form()
+            // Hidden inputs for filter submission. Page is reset to 1 when filtering (like search box).
+            // Pagination buttons use their own URLs with all parameters, so this page value
+            // doesn't affect them.
+            .input().attrType(EnumTypeInputType.HIDDEN).attrName("page").attrValue("1").__()
+            .input().attrType(EnumTypeInputType.HIDDEN).attrName("maxRows").attrValue(String.valueOf(ctx.maxRows)).__()
+            .input().attrType(EnumTypeInputType.HIDDEN).attrName("sortProp").attrValue(ctx.sortProp).__()
+            .input().attrType(EnumTypeInputType.HIDDEN).attrName("sortDir").attrValue(ctx.sortDir).__()
+
             .table().attrClass("table").attrStyle("border-collapse:collapse")
             .thead().of(thead -> renderTableHeader(thead, ctx)).__() // thead
             .tbody().attrClass("tbody").of(tbody -> renderTableBody(tbody, ctx.data.pageItems)).__() // tbody
             .tfoot().of(tfoot -> renderTableFooter(tfoot, ctx)).__()
             .__() // table
+            .__() // form
             .__(); // div
         return sw.toString();
     }
@@ -101,11 +142,11 @@ public class LCTable<T>  {
         footer.__(); // div.table-footer
     }
 
-    private void buildPagination(Nav<?> nav, LCTableContext<T> ctx) {
+    private void buildPageNavigation(Nav<?> nav, LCTableContext<T> ctx) {
         if (ctx.totalPages <= 1) return;
 
         final int page = ctx.page;
-        final long total = ctx.totalPages;
+        final int total = ctx.totalPages;
         final int size = ctx.maxRows;
         final String sort = ctx.sortProp;
         final String dir = ctx.sortDir;
@@ -113,17 +154,17 @@ public class LCTable<T>  {
         nav.attrClass("toolbar");
 
         // « first
-        pageBtn(nav, "«", url(entityPath, 0, size, sort, dir), panelId, page == 0);
+        pageBtn(nav, "«", url(entityPath, 0, size, sort, dir, ctx.filters), panelId, page == 0);
 
         // ‹ previous
-        pageBtn(nav, "‹", url(entityPath, max(0, page - 1), size, sort, dir), panelId, page == 0);
+        pageBtn(nav, "‹", url(entityPath, max(0, page - 1), size, sort, dir, ctx.filters), panelId, page == 0);
 
         // numbered slots / ellipsis
         for (LCTablePageSlot slot : ctx.slots) {
             if (slot.ellipsis()) {
                 nav.span().attrClass("page-ellipsis").text("…").__();
             } else {
-                String slotHref = url(entityPath, slot.page(), size, sort, dir);
+                String slotHref = url(entityPath, slot.page(), size, sort, dir, ctx.filters);
                 nav.a().attrClass("page-btn" + (slot.current() ? " current" : ""))
                     .attrHref(slotHref)
                     .addAttr(HX_GET, slotHref)
@@ -136,10 +177,10 @@ public class LCTable<T>  {
         }
 
         // › next
-        pageBtn(nav, "›", url(entityPath, min(total - 1, page + 1), size, sort, dir), panelId, page >= total - 1);
+        pageBtn(nav, "›", url(entityPath, min(total - 1, page + 1), size, sort, dir, ctx.filters), panelId, page >= total - 1);
 
         // » last
-        pageBtn(nav, "»", url(entityPath, total - 1, size, sort, dir), panelId, page >= total - 1);
+        pageBtn(nav, "»", url(entityPath, total - 1, size, sort, dir, ctx.filters), panelId, page >= total - 1);
 
         nav.__(); // nav.pagination
     }
@@ -160,16 +201,20 @@ public class LCTable<T>  {
 
     /**
      * Build an application URL with all table-state parameters.
-     * Only {@code q} is URL-encoded; the other params are always safe.
+     * Filter parameters are URL-encoded and appended as <PARAM_FILTER_PREFIX>.<columnName>=value.
      */
-    private String url(String path, long page, int maxRows, String sortProp, String sortDir) {
-        // TODO: is it safe to just use string concatenation like this?
-        long pageParam = page + 1; // external URLs are 1-based
-        return path
-            + "?page=" + pageParam
-            + "&maxRows=" + maxRows
-            + "&sortProp=" + (sortProp == null ? "" : sortProp)
-            + "&sortDir="  + (sortDir  == null ? "asc" : sortDir);
+    private String url(String path, int page, int maxRows, String sortProp, String sortDir, Map<String, String> filters) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromPath(path)
+            .queryParam("page", page + 1)
+            .queryParam("maxRows", maxRows)
+            .queryParam("sortProp", sortProp == null ? "" : sortProp)
+            .queryParam("sortDir", sortDir == null ? "asc" : sortDir);
+        if (filters != null) {
+            filters.forEach((key, val) -> {
+                if (val != null && !val.isEmpty()) builder.queryParam(PARAM_FILTER_PREFIX + key, val);
+            });
+        }
+        return builder.encode().toUriString();
     }
 
 }

@@ -7,30 +7,37 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 /**
- * Describes one column of a typed table: a header label and a closure that
- * writes the cell content for a given row bean into the HtmlFlow row element.
+ * Describes one column of a typed table: an internal name (used in URLs/filters),
+ * a display name (rendered in the header) and a closure that writes the cell
+ * content for a given row bean into the HtmlFlow row element.
  *
  * @param <T> row bean type
  */
 public class LCTableColumnDef<T> {
 
+    /** Internal column name used by controllers / query params. */
     public final String columnName;
+
+    /** Human-facing header text shown in the table. */
+    public final String columnDisplayName;
+
     public final BiConsumer<Tr<?>, T> cellRenderer;
 
     // General constructor for full control of generated cell (custom HTML, links, etc.)
-    public LCTableColumnDef(String columnName, BiConsumer<Tr<?>, T> cellRenderer) {
+    public LCTableColumnDef(String columnName, String columnDisplayName, BiConsumer<Tr<?>, T> cellRenderer) {
         this.columnName = columnName;
+        this.columnDisplayName = columnDisplayName;
         this.cellRenderer = cellRenderer;
     }
 
     // Convenience factory method for simple text columns
-    public static <T> LCTableColumnDef<T> textCol(String header, Function<T, String> dataToString) {
-        return new LCTableColumnDef<>(header, (tr, row) -> tr.td().text(dataToString.apply(row)).__());
+    public static <T> LCTableColumnDef<T> textCol(String columnName, String displayName, Function<T, String> dataToString) {
+        return new LCTableColumnDef<>(columnName, displayName, (tr, row) -> tr.td().text(dataToString.apply(row)).__());
     }
 
     // Convenience factory method for generic custom cell rendering with access to the Td element for attributes, etc.
-    public static <T> LCTableColumnDef<T> customTdCol(String header, BiConsumer<Td<?>, T> renderer) {
-        return new LCTableColumnDef<>(header, (tr, row) ->
+    public static <T> LCTableColumnDef<T> customTdCol(String columnName, String displayName, BiConsumer<Td<?>, T> renderer) {
+        return new LCTableColumnDef<>(columnName, displayName, (tr, row) ->
             tr.td().of(td -> renderer.accept(td, row)).__()
         );
     }

@@ -17,7 +17,7 @@ public class LCTableUtil {
     public static final String PARAM_MAX_ROWS = "maxRows";
     public static final String PARAM_SORT_PROP = "sortProp";
     public static final String PARAM_SORT_DIR = "sortDir";
-    public static final String PARAM_FILTER_PREFIX = "filter.";
+    public static final String PARAM_FILTER_PREFIX = "q.";
 
     // -- HTMX attribute names (use constants to avoid repeating string literals)
     public static final String HX_GET = "hx-get";
@@ -47,29 +47,23 @@ public class LCTableUtil {
 
     public static String strParam(MultiValueMap<String, String> params, String name, String defaultValue) {
         String v = params == null ? null : params.getFirst(name);
-        return (v == null || v.trim().isEmpty()) ? defaultValue : v.trim();
+        return v == null ? defaultValue : v;
     }
 
     /**
      * Reads all request parameters whose name starts with {@value #PARAM_FILTER_PREFIX}.
      */
-    public static Map<String, String> readFilters(MultiValueMap<String, String> params) {
-        final Map<String, String> filters = new LinkedHashMap<>();
-        if (params == null) {
-            return filters;
-        }
-        for (Map.Entry<String, List<String>> e : params.entrySet()) {
-            String key = e.getKey();
-            List<String> vals = e.getValue();
-            if (key.startsWith(PARAM_FILTER_PREFIX)
-                && vals != null
-                && !vals.isEmpty()
-                && vals.get(0) != null
-                && !vals.get(0).trim().isEmpty()) {
-                filters.put(
-                    key.substring(PARAM_FILTER_PREFIX.length()),
-                    vals.get(0).trim());
-            }
+    public static Map<String, String> readFilters(MultiValueMap<String, String> params, List<String> allowedKeys) {
+        Map<String, String> filters = new LinkedHashMap<>();
+        if (params != null) {
+            params.forEach((key, vals) -> {
+                if (key.startsWith(PARAM_FILTER_PREFIX) && vals != null && !vals.isEmpty() && allowedKeys.contains(key.substring(PARAM_FILTER_PREFIX.length()))) {
+                    String firstVal = vals.get(0);
+                    if (firstVal != null && !firstVal.isEmpty()) {
+                        filters.put(key.substring(PARAM_FILTER_PREFIX.length()), firstVal);
+                    }
+                }
+            });
         }
         return filters;
     }

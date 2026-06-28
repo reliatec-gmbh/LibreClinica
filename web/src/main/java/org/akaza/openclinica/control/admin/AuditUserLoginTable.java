@@ -40,29 +40,27 @@ public class AuditUserLoginTable {
             UriComponentsBuilder.fromUriString("?" + (request.getQueryString() == null ? "" : request.getQueryString()))
                 .build().getQueryParams();
 
-        // Build LCTableParams which normalises values (converts page to 0-based internally)
-        LCTableParams tableParams = new LCTableParams(params);
-
         // Column definitions (same rendering as before)
         DateFormat dateFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         List<LCTableColumnDef<AuditUserLoginBean>> columns = Arrays.asList(
-            LCTableColumnDef.textCol(
+            LCTableColumnDef.textCol("userName",
                 "User Name",
                 b -> nullSafe(b.getUserName())
             ),
-            LCTableColumnDef.textCol(
+            LCTableColumnDef.textCol("loginAttemptDate",
                 "Attempt Date",
                 b -> b.getLoginAttemptDate() != null ? dateFmt.format(b.getLoginAttemptDate()) : ""
             ),
-            LCTableColumnDef.textCol(
+            LCTableColumnDef.textCol("loginStatus",
                 "Status",
                 b -> b.getLoginStatus() != null ? b.getLoginStatus().toString() : ""
             ),
-            LCTableColumnDef.textCol(
+            LCTableColumnDef.textCol("details",
                 "Details",
                 b -> nullSafe(b.getDetails())
             ),
-            new LCTableColumnDef<>("Actions",
+            new LCTableColumnDef<>("actions",
+                "Actions",
                 (tr, b) -> {
                     if (b.getUserAccountId() != null) {
                         tr.td()
@@ -103,6 +101,8 @@ public class AuditUserLoginTable {
         String entityPath = request.getRequestURI();
         String panelId = "userLogins-panel";
         LCTable<AuditUserLoginBean> table = new LCTable<>(entityPath, panelId, columns, fetchData);
+
+        LCTableParams tableParams = new LCTableParams(params, table.getColumnNames());
 
         return table.render(tableParams);
     }
