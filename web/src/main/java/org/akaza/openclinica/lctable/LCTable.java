@@ -1,5 +1,6 @@
 package org.akaza.openclinica.lctable;
 
+import static org.akaza.openclinica.lctable.LCTableParams.*;
 import static org.akaza.openclinica.lctable.LCTableUtil.*;
 
 import htmlflow.HtmlFlow;
@@ -19,18 +20,22 @@ import static java.lang.String.format;
 
 public class LCTable<T>  {
     private final String entityPath;    // base path for pagination/sorting URLs (e.g. "/books")
+    private final String tableName;     // name of the table (used for generating unique IDs and classes)
     private final String panelId;       // ID of the panel element to target with htmx requests (e.g. "books-panel")
     private final List<LCTableColumnDef<T>> columns;
     private final Function<LCTableParams, LCTableData<T>> fetchData;
 
-    public LCTable(String entityPath, String panelId, List<LCTableColumnDef<T>> columns, Function<LCTableParams, LCTableData<T>> fetchData) {
+    public LCTable(String entityPath, String tableName, List<LCTableColumnDef<T>> columns, Function<LCTableParams, LCTableData<T>> fetchData) {
         this.entityPath = entityPath;
-        this.panelId    = panelId;
+        this.tableName  = tableName;
+        this.panelId    = tableName + "-panel";   // Generate panel ID based on table name
         this.columns    = columns;
         this.fetchData  = fetchData;
     }
 
-    // -- Get list of column names ---------------------------------------------
+    public String getTableName() {
+        return tableName;
+    }
 
     public List<String> getColumnNames() {
         return columns.stream().map(col -> col.columnName).collect(Collectors.toList());
