@@ -1,8 +1,8 @@
 /*
  * LibreClinica is distributed under the
  * GNU Lesser General Public License (GNU LGPL).
- * For details see: https://www.libreclinica.org/download.html#headLicense
- *
+
+ * For details see: https://libreclinica.org/license
  * copyright (C) 2003 - 2011 Akaza Research
  * copyright (C) 2003 - 2019 OpenClinica
  * copyright (C) 2020 - 2026 LibreClinica
@@ -35,6 +35,7 @@ package org.akaza.openclinica.service;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.sql.DataSource;
 
@@ -85,11 +86,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-// Modified: SSL certificate verification skip (self-signed cert support)
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.ssl.SSLContextBuilder;
 
 public class RandomizeService extends RandomizationRegistrar {
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
@@ -107,24 +103,9 @@ public class RandomizeService extends RandomizationRegistrar {
     private StudyEventDAO studyEventDAO;
     private EventDefinitionCRFDAO eventDefinitionCRFDAO;
     private ExpressionService expressionService;
-    // Modified: SSL verification skip for self-signed certificate environments
-    HttpComponentsClientHttpRequestFactory requestFactory = createSslSkipRequestFactory();
+    HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
     public static final int RANDOMIZATION_READ_TIMEOUT = 10000;
     StudyDAO sdao = null;
-
-    private static HttpComponentsClientHttpRequestFactory createSslSkipRequestFactory() {
-        try {
-            SSLContextBuilder builder = new SSLContextBuilder();
-            builder.loadTrustMaterial(null, (chain, authType) -> true);
-            CloseableHttpClient httpClient = HttpClients.custom()
-                .setSSLContext(builder.build())
-                .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
-                .build();
-            return new HttpComponentsClientHttpRequestFactory(httpClient);
-        } catch (Exception e) {
-            return new HttpComponentsClientHttpRequestFactory();
-        }
-    }
 
     public RandomizeService(DataSource ds) {
         this.ds = ds;
@@ -162,7 +143,9 @@ public class RandomizeService extends RandomizationRegistrar {
         String randomiseUrl = randomization.getUrl();
         String username = randomization.getUsername();
         String password = randomization.getPassword();
-        String timezone = "America/New_York";
+        // Site registration requires a timezone; use the server default. The
+        // external service only stores it per site and it does not affect allocation.
+        String timezone = TimeZone.getDefault().getID();
 
         HttpHeaders headers = createHeaders(username, password);
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
