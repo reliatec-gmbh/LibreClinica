@@ -4,11 +4,11 @@ import org.akaza.openclinica.dao.hibernate.AuditUserLoginDao;
 import org.akaza.openclinica.dao.hibernate.AuditUserLoginFilter;
 import org.akaza.openclinica.dao.hibernate.AuditUserLoginSort;
 import org.akaza.openclinica.domain.technicaladmin.AuditUserLoginBean;
-import org.akaza.openclinica.lctable.LCTable;
-import org.akaza.openclinica.lctable.LCTableColumnDef;
-import org.akaza.openclinica.lctable.LCTableData;
-import org.akaza.openclinica.lctable.LCTableParams;
+import org.akaza.openclinica.domain.technicaladmin.LoginStatus;
+import org.akaza.openclinica.lctable.*;
+
 import static org.akaza.openclinica.lctable.LCTableUtil.*;
+import static org.akaza.openclinica.lctable.LCTableColumnDef.*;
 
 import java.util.function.Function;
 import javax.servlet.http.HttpServletRequest;
@@ -17,6 +17,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 public class AuditUserLoginTable {
@@ -34,33 +35,31 @@ public class AuditUserLoginTable {
      * Each column is defined with a name, display name, and a function to extract the value from an AuditUserLoginBean.
      */
     final List<LCTableColumnDef<AuditUserLoginBean>> columns = Arrays.asList(
-        LCTableColumnDef.textCol("userName",
-            "User Name",
+        textCol("userName","User Name",
             b -> nullSafe(b.getUserName())
         ),
-        LCTableColumnDef.textCol("loginAttemptDate",
-            "Attempt Date",
+        textCol("loginAttemptDate","Attempt Date",
             b -> b.getLoginAttemptDate() != null ? dateFmt.format(b.getLoginAttemptDate()) : ""
         ),
-        LCTableColumnDef.textCol("loginStatus",
-            "Status",
-            b -> b.getLoginStatus() != null ? b.getLoginStatus().toString() : ""
+        customTdCol("loginStatus","Status",
+            new LCTableFilterDef.Select<String>(
+                Arrays.stream(LoginStatus.values()).map(LoginStatus::name).collect(Collectors.toList()),
+                status -> status,
+                ""
+            ),
+            (td, b) -> td.text(b.getLoginStatus() != null ? b.getLoginStatus().toString() : "")
         ),
-        LCTableColumnDef.textCol("details",
-            "Details",
+        textCol("details","Details",
             b -> nullSafe(b.getDetails())
         ),
-        new LCTableColumnDef<>("actions",
-            "Actions",
-            (tr, b) -> {
+        customTdCol("actions","Actions",null,
+            (td, b) -> {
                 if (b.getUserAccountId() != null) {
-                    tr.td()
-                        .a().attrHref("ViewUserAccount?userId=" + b.getUserAccountId() + "&viewFull=yes")
+                    td.a().attrHref("ViewUserAccount?userId=" + b.getUserAccountId() + "&viewFull=yes")
                         .img().attrSrc("images/bt_View.gif").attrAlt("View").attrTitle("View").__()
-                        .__()  // a
-                        .__();   // td
+                    .__();  // a
                 } else {
-                    tr.td().__();
+                    td.text("—");
                 }
             })
     );
