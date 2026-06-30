@@ -1,7 +1,6 @@
 package org.akaza.openclinica.lctable;
 
 import static org.akaza.openclinica.lctable.LCTableParams.*;
-import static org.akaza.openclinica.lctable.LCTableUtil.*;
 
 import htmlflow.HtmlFlow;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -10,7 +9,6 @@ import org.xmlet.htmlapifaster.*;
 import java.io.StringWriter;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -41,6 +39,14 @@ public class LCTable<T1>  {
     public List<String> getColumnNames() {
         return columns.stream().map(col -> col.columnName).collect(Collectors.toList());
     }
+
+    // -- HTMX attribute names (use constants to avoid repeating string literals)
+    public static final String HX_GET = "hx-get";
+    public static final String HX_TARGET = "hx-target";
+    public static final String HX_SWAP = "hx-swap";
+    public static final String HX_PUSH_URL = "hx-push-url";
+    public static final String HX_TRIGGER = "hx-trigger";
+    public static final String HX_INCLUDE = "hx-include";
 
     // -- Generic typed table renderer -----------------------------------------
 
@@ -84,17 +90,18 @@ public class LCTable<T1>  {
 
     // 2. The helper method enforces strict type discipline using <S>
     private <T2, R extends Element<?, ?>> void renderSelectFilterHelper(Tr<R> tr, LCTableContext<T1> ctx, LCTableColumnDef<T1> col, LCTableFilterDef.Select<T2> selectFilter) {
-        String filterName = PARAM_FILTER_PREFIX + col.columnName;
-        String rawSelected = ctx.filters.getOrDefault(col.columnName, "");
+        final String filterName = PARAM_FILTER_PREFIX + col.columnName;
+        final String rawSelected = ctx.filters.getOrDefault(col.columnName, "");
 
-        // ... (your validation logic stays exactly the same) ...
-        boolean isValidOption = rawSelected.isEmpty() || selectFilter.values.stream()
-            .map(option -> selectFilter.label(Optional.ofNullable(option)))
+        // UI Safety Check: Verify if the URL parameter actually matches a real option
+        final boolean isValidOption = rawSelected.isEmpty() || selectFilter.values.stream()
+            .map(selectFilter::label)
             .anyMatch(label -> label.equals(rawSelected));
 
-        String currentSelected = isValidOption ? rawSelected : "";
+        // If it's invalid (e.g., "broken"), treat it as empty ("All") so the UI snaps back to a valid state
+        final String currentSelected = isValidOption ? rawSelected : "";
 
-        Select<Td<Tr<R>>> select = tr.td().select()
+        Select<Td<Tr<R>>> select = tr.td().select()         // in Java 17, this could be replaced by 'var select = ...'
             .attrName(filterName)
             .attrId(panelId + "-filter-" + col.columnName)
             .attrClass("filter-select")
@@ -105,30 +112,18 @@ public class LCTable<T1>  {
             .addAttr(HX_TRIGGER, "change")
             .addAttr(HX_INCLUDE, "closest form");
 
-        select.option()
-            .attrValue("")
-            .attrSelected(currentSelected.isEmpty())
-            .text(selectFilter.emptyLabel)
-            .__();
-
-        // Now 'option' is strictly of type 'T2', and selectFilter expects 'Optional<T2>'
-        // Perfect type discipline is maintained!
+        select.option().attrValue("").attrSelected(currentSelected.isEmpty()).text("").__();
         selectFilter.values.forEach(option -> {
-            String labelText = selectFilter.label(Optional.ofNullable(option));
+            final String labelText = selectFilter.label(option);
             boolean isSelected = labelText.equals(currentSelected);
-            select.option()
-                .attrValue(labelText)
-                .attrSelected(isSelected)
-                .text(labelText)
-                .__();
+            select.option().attrValue(labelText).attrSelected(isSelected).text(labelText).__();
         });
-
         select.__().__();
     }
 
     private void renderTextFilter(Tr<?> tr, LCTableContext<T1> ctx, LCTableColumnDef<T1> col) {
-        String filterName = PARAM_FILTER_PREFIX + col.columnName;
-        String filterValue = ctx.filters.getOrDefault(col.columnName, "");
+        final String filterName = PARAM_FILTER_PREFIX + col.columnName;
+        final String filterValue = ctx.filters.getOrDefault(col.columnName, "");
 
         tr.td().input()
             .attrType(EnumTypeInputType.TEXT)
@@ -170,7 +165,7 @@ public class LCTable<T1>  {
      * @return rendered HTML string
      */
     private String renderTableHtml(LCTableContext<T1> ctx) {
-        StringWriter sw = new StringWriter();
+        final StringWriter sw = new StringWriter();
         HtmlFlow.doc(sw)
             .div().attrId(panelId).attrClass("lctable")
             .form()
@@ -200,7 +195,7 @@ public class LCTable<T1>  {
      * @return the rendered HTML string for the table
      */
     public String render(LCTableParams params) {
-        LCTableContext<T1> ctx = new LCTableContext<>(params, fetchData);
+        final LCTableContext<T1> ctx = new LCTableContext<>(params, fetchData);
         return renderTableHtml(ctx);
     }
 

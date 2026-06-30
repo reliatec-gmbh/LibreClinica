@@ -7,7 +7,6 @@ import org.akaza.openclinica.domain.technicaladmin.AuditUserLoginBean;
 import org.akaza.openclinica.domain.technicaladmin.LoginStatus;
 import org.akaza.openclinica.lctable.*;
 
-import static org.akaza.openclinica.lctable.LCTableUtil.*;
 import static org.akaza.openclinica.lctable.LCTableColumnDef.*;
 
 import java.util.function.Function;
@@ -16,7 +15,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -32,36 +30,21 @@ public class AuditUserLoginTable {
 
     /**
      * Defines the columns for the AuditUserLogin table.
-     * Each column is defined with a name, display name, and a function to extract the value from an AuditUserLoginBean.
      */
     final List<LCTableColumnDef<AuditUserLoginBean>> columns = Arrays.asList(
-        textCol("userName","User Name",
-            b -> nullSafe(b.getUserName())
+        textCol("userName", "User Name", AuditUserLoginBean::getUserName),
+        textCol("loginAttemptDate", "Attempt Date", AuditUserLoginBean::getLoginAttemptDate, dateFmt::format),
+        enumCol("loginStatus", "Status",
+            Arrays.stream(LoginStatus.values()).map(LoginStatus::name).collect(Collectors.toList()), Function.identity(),
+            AuditUserLoginBean::getLoginStatus, LoginStatus::toString
         ),
-        textCol("loginAttemptDate","Attempt Date",
-            b -> b.getLoginAttemptDate() != null ? dateFmt.format(b.getLoginAttemptDate()) : ""
-        ),
-        customTdCol("loginStatus","Status",
-            new LCTableFilterDef.Select<String>(
-                Arrays.stream(LoginStatus.values()).map(LoginStatus::name).collect(Collectors.toList()),
-                status -> status,
-                ""
-            ),
-            (td, b) -> td.text(b.getLoginStatus() != null ? b.getLoginStatus().toString() : "")
-        ),
-        textCol("details","Details",
-            b -> nullSafe(b.getDetails())
-        ),
-        customTdCol("actions","Actions",null,
-            (td, b) -> {
-                if (b.getUserAccountId() != null) {
-                    td.a().attrHref("ViewUserAccount?userId=" + b.getUserAccountId() + "&viewFull=yes")
-                        .img().attrSrc("images/bt_View.gif").attrAlt("View").attrTitle("View").__()
-                    .__();  // a
-                } else {
-                    td.text("—");
-                }
-            })
+        textCol("details","Details", AuditUserLoginBean::getDetails),
+        customTdCol("actions","Actions",null, AuditUserLoginBean::getUserAccountId,
+            (td, userAccountId) ->
+                td.a().attrHref("ViewUserAccount?userId=" + userAccountId + "&viewFull=yes")
+                    .img().attrSrc("images/bt_View.gif").attrAlt("View").attrTitle("View").__()
+                .__()
+        )
     );
 
     /**
@@ -71,20 +54,19 @@ public class AuditUserLoginTable {
     final Function<LCTableParams, LCTableData<AuditUserLoginBean>> fetchData = p -> {
         // Build filter
         AuditUserLoginFilter filter = new AuditUserLoginFilter();
-        for (Map.Entry<String, String> e : p.filters.entrySet()) {
-            filter.addFilter(e.getKey(), e.getValue());
-        }
+        p.filters.forEach(filter::addFilter);
 
         // Build sort: default to loginAttemptDate desc if no sort provided
-        String sortProp = (p.sortProp == null || p.sortProp.isEmpty()) ? "loginAttemptDate" : p.sortProp;
-        String sortDir  = (p.sortProp == null || p.sortProp.isEmpty()) ? "desc" : p.sortDir;
+        boolean noSort = p.sortProp == null || p.sortProp.isEmpty();
+        final var sortProp = noSort ? "loginAttemptDate" : p.sortProp;
+        final var sortDir  = noSort ? "desc" : p.sortDir;
         AuditUserLoginSort sort = new AuditUserLoginSort();
         sort.addSort(sortProp, sortDir);
 
         // Fetch the page of data from the DAO
         int rowStart = p.page * p.maxRows;
         int rowEnd = rowStart + p.maxRows;
-        List<AuditUserLoginBean> pageItems = auditUserLoginDao.getWithFilterAndSort(filter, sort, rowStart, rowEnd);
+        final var pageItems = auditUserLoginDao.getWithFilterAndSort(filter, sort, rowStart, rowEnd);
         int total = auditUserLoginDao.getCountWithFilter(filter);
 
         return new LCTableData<>(pageItems, total);

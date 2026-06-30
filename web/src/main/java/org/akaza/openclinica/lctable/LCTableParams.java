@@ -1,7 +1,5 @@
 package org.akaza.openclinica.lctable;
 
-import static org.akaza.openclinica.lctable.LCTableUtil.nullSafe;
-
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -21,12 +19,21 @@ public final class LCTableParams {
     public static final String PARAM_SORT_DIR = "sortDir";
     public static final String PARAM_FILTER_PREFIX = "q.";
 
-    // -- URL parameters -------------------------------------------------------
+    // --- URL parameters -------------------------------------------------------
     public final int page;
     public final int maxRows;
     public final String sortProp;
     public final String sortDir;
     public final Map<String, String> filters;
+
+    // --- it needs to be package-private for unit-testing, should not be called by regular users of the library ---
+    LCTableParams(int page, int maxRows, String sortProp, String sortDir, Map<String, String> filters) {
+        this.page = page;
+        this.maxRows = maxRows;
+        this.sortProp = sortProp;
+        this.sortDir = sortDir;
+        this.filters = filters;
+    }
 
     /**
      * Construct a LcTableParams object by reading request parameters from a Spring MultiValueMap
@@ -51,7 +58,7 @@ public final class LCTableParams {
      * @param table the LCTable instance to get the allowed filter keys
      */
     public LCTableParams(String queryString, LCTable<?> table) {
-        this(UriComponentsBuilder.fromUriString("?" + nullSafe(queryString)).build().getQueryParams(), table);
+        this(UriComponentsBuilder.fromUriString("?" + (queryString == null ? "" : queryString)).build().getQueryParams(), table);
     }
 
     /**

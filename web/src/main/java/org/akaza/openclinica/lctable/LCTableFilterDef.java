@@ -9,43 +9,34 @@ public class LCTableFilterDef {
     private LCTableFilterDef() {}
 
     public static final class Text extends LCTableFilterDef {
-//        public final String placeholder;
-//
-//        public Text(String placeholder) {
-//            this.placeholder = placeholder;
-//        }
     }
 
     public static final class Select<T> extends LCTableFilterDef {
         public final List<T> values;
         public final Function<T, String> valueToString;
-        public final String emptyLabel;
 
-        public Select(List<T> values, Function<T, String> valueToString, String emptyLabel) {
+        public Select(List<T> values, Function<T, String> valueToString) {
             this.values = values;
             this.valueToString = valueToString;
-            this.emptyLabel = emptyLabel;
         }
 
         /**
          * Returns the display label for a given optional value.
          */
-        public String label(Optional<T> optValue) {
-            return optValue.map(this.valueToString).orElse(this.emptyLabel);
+        public String label(T value) {
+            return Optional.ofNullable(value).map(this.valueToString).orElse("");
         }
 
         /**
          * Reconstructs the strongly-typed domain object from an HTTP query parameter string.
          */
         public Optional<T> parseParam(String paramValue) {
-            if (paramValue == null || paramValue.trim().isEmpty() || paramValue.equals(emptyLabel)) {
+            if (paramValue == null || paramValue.isEmpty()) {
                 return Optional.empty(); // No filtering requested
+            } else {
+                // Find the domain object whose string representation matches the submitted text
+                return values.stream().filter(val -> label(val).equals(paramValue)).findFirst();       // empty if nothing found
             }
-
-            // Find the domain object whose string representation matches the submitted text
-            return values.stream()
-                .filter(val -> label(Optional.ofNullable(val)).equals(paramValue))
-                .findFirst();       // empty if nothing found
         }
 
     }
