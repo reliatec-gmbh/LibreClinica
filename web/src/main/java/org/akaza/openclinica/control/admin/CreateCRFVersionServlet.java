@@ -12,12 +12,14 @@ package org.akaza.openclinica.control.admin;
 import static org.akaza.openclinica.core.util.ClassCastHelper.asArrayList;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -27,7 +29,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
+import org.aakaza.openclinica.likepoi.ss.usermodel.Workbook;
+import org.aakaza.openclinica.likepoi.ss.usermodel.WorkbookFactory;
 import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.admin.NewCRFBean;
 import org.akaza.openclinica.bean.core.Role;
@@ -57,8 +63,6 @@ import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.akaza.openclinica.web.SQLInitServlet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 /**
  * Create a new CRF version by uploading Excel file
@@ -395,8 +399,8 @@ public class CreateCRFVersionServlet extends SecureController {
      * 
      * @param version
      * @throws Exception
-     */
-    public String uploadFile(String theDir, CRFVersionBean version) throws Exception {
+     */    
+    public String uploadFileOld(String theDir, CRFVersionBean version) throws Exception {
         List<File> theFiles = uploadHelper.returnFiles(request, context, theDir);
         // Enumeration files = multi.getFileNames();
         errors.remove("excel_file");
@@ -410,18 +414,18 @@ public class CreateCRFVersionServlet extends SecureController {
                 Validator.addError(errors, "excel_file", resword.getString("you_have_to_provide_spreadsheet"));
                 session.setAttribute("version", version);
                 return tempFile;
-            } else if (f.getName().indexOf(".xls") < 0 && f.getName().indexOf(".XLS") < 0) {
+            } else if ((f.getName().indexOf(".xlsx") < 0 & f.getName().indexOf(".XLSX") < 0 &
+            		f.getName().indexOf(".ods") < 0 & f.getName().indexOf(".ODS") < 0)) {
                 logger.debug("file name:" + f.getName());
                 Validator.addError(errors, "excel_file", respage.getString("file_you_uploaded_not_seem_excel_spreadsheet"));
                 session.setAttribute("version", version);
                 return tempFile;
-
             } else {
                 logger.debug("file name:" + f.getName());
                 tempFile = f.getName();
                 // create the inputstream here, so that it can be enclosed in a
                 // try/finally block and closed :: BWP, 06/08/2007
-                FileInputStream inStream = null;
+//                FileInputStream inStream = null;
                 FileInputStream inStreamClassic = null;
                 SpreadSheetTableRepeating htab = null;
                 SpreadSheetTableClassic sstc = null;
@@ -431,12 +435,12 @@ public class CreateCRFVersionServlet extends SecureController {
                 	Path path = Paths.get(theDir, tempFile);
                 	logger.info("the file is at: {}", path);
                 	
-                    inStream = new FileInputStream(theDir + tempFile);
+//                    inStream = new FileInputStream(theDir + tempFile);
 
                     // *** now change the code here to generate sstable, tbh
                     // 06/07
                     try {
-						htab = new SpreadSheetTableRepeating(inStream, ub, version.getName(), locale, currentStudy.getId(), path);
+						htab = new SpreadSheetTableRepeating(/*inStream,*/ ub, version.getName(), locale, currentStudy.getId(), path);
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -499,7 +503,7 @@ public class CreateCRFVersionServlet extends SecureController {
                     } catch (Exception exc) { // opening the stream could
                         // throw FileNotFoundException
                         String message = resword.getString("the_application_encountered_a_problem_uploading_CRF");
-                        logger.debug("{} : {}", message , exc.getMessage(), exc);
+                        logger.error("{} : {}", message , exc.getMessage(), exc);
                         this.addPageMessage(message);
                     } 
 //                    finally {
@@ -545,12 +549,12 @@ public class CreateCRFVersionServlet extends SecureController {
                     logger.warn("Opening up the Excel file caused an error. the error message is: " + io.getMessage());
 
                 } finally {
-                    if (inStream != null) {
-                        try {
-                            inStream.close();
-                        } catch (IOException ioe) {
-                        }
-                    }
+//                    if (inStream != null) {
+//                        try {
+//                            inStream.close();
+//                        } catch (IOException ioe) {
+//                        }
+//                    }
                     if (inStreamClassic != null) {
                         try {
                             inStreamClassic.close();
@@ -780,4 +784,373 @@ public class CreateCRFVersionServlet extends SecureController {
         }
         return returnme;
     }
+
+    /**
+     * Uploads the excel version file
+     * 
+     * @param version
+     * @throws Exception
+     */
+    public String uploadFile(String theDir, CRFVersionBean version) throws Exception {
+        List<File> theFiles = uploadHelper.returnFiles(request, context, theDir);
+        // Enumeration files = multi.getFileNames();
+        errors.remove("excel_file");
+        String tempFile = null;
+        for (File f : theFiles) {
+            // while (files.hasMoreElements()) {
+            // String name = (String) files.nextElement();
+            // File f = multi.getFile(name);
+            if (f == null || f.getName() == null) {
+                logger.debug("file is empty.");
+                Validator.addError(errors, "excel_file", resword.getString("you_have_to_provide_spreadsheet"));
+                session.setAttribute("version", version);
+                return tempFile;
+            } else {
+                String validationError = validateSpreadsheetFile(f);
+                if (validationError != null) {
+                    logger.debug("file name:" + f.getName());
+                    Validator.addError(errors, "excel_file", validationError);
+                    session.setAttribute("version", version);
+                    return tempFile;
+                }
+                logger.debug("file name:" + f.getName());
+                tempFile = f.getName();
+                // create the inputstream here, so that it can be enclosed in a
+                // try/finally block and closed :: BWP, 06/08/2007
+//                    FileInputStream inStream = null;
+                FileInputStream inStreamClassic = null;
+                SpreadSheetTableRepeating htab = null;
+                SpreadSheetTableClassic sstc = null;
+                // create newCRFBean here
+                NewCRFBean nib = null;
+                try {
+                    Path path = Paths.get(theDir, tempFile);
+                    logger.info("the file is at: {}", path);
+                    
+//                        inStream = new FileInputStream(theDir + tempFile);
+
+                    // *** now change the code here to generate sstable, tbh
+                    // 06/07
+                    try {
+    					htab = new SpreadSheetTableRepeating(/*inStream,*/ ub, version.getName(), locale, currentStudy.getId(), path);
+    				} catch (Exception e) {
+    					// TODO Auto-generated catch block
+    					e.printStackTrace();
+    				}
+
+                    htab.setMeasurementUnitDao((MeasurementUnitDao) SpringServletAccess.getApplicationContext(context).getBean("measurementUnitDao"));
+
+                    if (!htab.isRepeating()) {
+                        inStreamClassic = new FileInputStream(theDir + tempFile);
+                        sstc = new SpreadSheetTableClassic(inStreamClassic, ub, version.getName(), locale, currentStudy.getId());
+                        sstc.setMeasurementUnitDao((MeasurementUnitDao) SpringServletAccess.getApplicationContext(context).getBean("measurementUnitDao"));
+                    }
+                    // logger.debug("finishing with feedin file-input-stream, did
+                    // we error out here?");
+
+                    if (htab.isRepeating()) {
+                        htab.setCrfId(version.getCrfId());
+                        // not the best place for this but for now...
+                        session.setAttribute("new_table", "y");
+                    } else {
+                        sstc.setCrfId(version.getCrfId());
+                    }
+
+                    if (htab.isRepeating()) {
+                        nib = htab.toNewCRF(sm.getDataSource(), respage);
+                    } else {
+                        nib = sstc.toNewCRF(sm.getDataSource(), respage);
+                    }
+
+                    // bwp; 2/28/07; updated 6/11/07;
+                    // This object is created to pull preview information out of
+                    // the
+                    // spreadsheet
+//                        Workbook workbook = null;
+//                        FileInputStream inputStream = null;
+                    try (BufferedInputStream bis = new BufferedInputStream(Files.newInputStream(Paths.get(theDir, tempFile))); Workbook wb = WorkbookFactory.create(bis)) {
+//                            inputStream = new FileInputStream(theDir + tempFile);
+//                            workbook = WorkbookFactory.create(bis);//new HSSFWorkbook(inputStream);
+                        // Store the Sections, Items, Groups, and CRF name and
+                        // version information
+                        // so they can be displayed in a preview. The Map
+                        // consists of the
+                        // names "sections," "items," "groups," and "crf_info"
+                        // as keys, each of which point
+                        // to a Map containing data on those CRF sections.
+
+                        // Check if it's the old template
+                        Preview preview;
+                        if (htab.isRepeating()) {
+
+                            // the preview uses date formatting with default
+                            // values in date fields: yyyy-MM-dd
+                            preview = new SpreadsheetPreviewNw();
+
+                        } else {
+                            preview = new SpreadsheetPreview();
+
+                        }
+                        session.setAttribute("preview_crf", preview.createCrfMetaObject(wb));
+                    } catch (Exception exc) { // opening the stream could
+                        // throw FileNotFoundException
+                        String message = resword.getString("the_application_encountered_a_problem_uploading_CRF");
+                        logger.error("{} : {}", message , exc.getMessage(), exc);
+                        this.addPageMessage(message);
+                    } 
+//                        finally {
+//                            if (inputStream != null) {
+//                                try {
+//                                    inputStream.close();
+//                                } catch (IOException io) {
+//                                    // ignore this close()-related exception
+//                                }
+//                            }                       
+//                        }
+                    ArrayList<ItemBean> ibs = isItemSame(nib.getItems(), version);
+
+                    if (!ibs.isEmpty()) {
+                        ArrayList<String> warnings = new ArrayList<>();
+                        warnings.add(resexception.getString("you_may_not_modify_items"));
+                        for (int i = 0; i < ibs.size(); i++) {
+                            ItemBean ib = (ItemBean) ibs.get(i);
+                            if (ib.getOwner().getId() == ub.getId()) {
+                                warnings.add(resword.getString("the_item") + " '" + ib.getName() + "' "
+                                        + resexception.getString("in_your_spreadsheet_already_exists") + ib.getDescription() + "), DATA_TYPE("
+                                        + ib.getDataType().getName() + "), UNITS(" + ib.getUnits() + "), " + resword.getString("and_or") + " PHI_STATUS("
+                                        + ib.isPhiStatus() + "). UNITS " + resword.getString("and") + " DATA_TYPE(PDATE to DATE) "
+                                        + resexception.getString("will_not_be_changed_if") + " PHI, DESCRIPTION, DATA_TYPE from PDATE to DATE "
+                                        + resexception.getString("will_be_changed_if_you_continue"));
+                            } else {
+                                warnings.add(resword.getString("the_item") + " '" + ib.getName() + "' "
+                                        + resexception.getString("in_your_spreadsheet_already_exists") + ib.getDescription() + "), DATA_TYPE("
+                                        + ib.getDataType().getName() + "), UNITS(" + ib.getUnits() + "), " + resword.getString("and_or") + " PHI_STATUS("
+                                        + ib.isPhiStatus() + "). " + resexception.getString("these_field_cannot_be_modified_because_not_owner"));
+                            }
+
+                            request.setAttribute("warnings", warnings);
+                        }
+                    }
+                    ItemBean ib = isResponseValid(nib.getItems(), version);
+                    if (ib != null) {
+
+                        nib.getErrors().add(
+                                resword.getString("the_item") + ": " + ib.getName() + " " + resexception.getString("in_your_spreadsheet_already_exits_in_DB"));
+                    }
+                } catch (IOException io) {
+                    logger.warn("Opening up the Excel file caused an error. the error message is: " + io.getMessage());
+
+                } finally {
+//                        if (inStream != null) {
+//                            try {
+//                                inStream.close();
+//                            } catch (IOException ioe) {
+//                            }
+//                        }
+                    if (inStreamClassic != null) {
+                        try {
+                            inStreamClassic.close();
+                        } catch (IOException ioe) {
+                        }
+                    }
+                }
+                // request.setAttribute("excelErrors", .getErrors());
+                session.setAttribute("excelErrors", nib.getErrors());
+                session.setAttribute("htmlTable", nib.getHtmlTable());
+                session.setAttribute("nib", nib);
+            }
+        }
+        return tempFile;
+    }
+
+    /**
+     * Detects the spreadsheet type by inspecting the file's magic bytes.
+     * xlsx and ods are both ZIP containers (signature 50 4B 03 04) and are
+     * distinguished by inspecting the zip content. xls (BIFF) has the OLE2
+     * signature D0 CF 11 E0 A1 B1 1A E1.
+     *
+     * @param f the file to inspect
+     * @return "xlsx", "ods", "xls", or null if no known format was detected
+     */
+    private String detectSpreadsheetTypeByMagicBytes(File f) {
+        byte[] header = new byte[8];
+        int read;
+        try (InputStream is = new FileInputStream(f)) {
+            read = is.read(header);
+            if (read < 4) {
+                return null;
+            }
+        } catch (IOException e) {
+            logger.warn("Could not read file header for {}: {}", f.getName(), e.getMessage());
+            return null;
+        }
+
+        boolean isZip = (header[0] == 0x50 && header[1] == 0x4B &&
+                          header[2] == 0x03 && header[3] == 0x04);
+        if (isZip) {
+            try (ZipInputStream zis = new ZipInputStream(new FileInputStream(f))) {
+                ZipEntry entry;
+                while ((entry = zis.getNextEntry()) != null) {
+                    String name = entry.getName();
+                    if ("mimetype".equals(name)) {
+                        String mimeType = readZipEntryAsString(zis).trim();
+                        if (mimeType.contains("opendocument.spreadsheet")) {
+                            return "ods";
+                        }
+                    } else if ("[Content_Types].xml".equals(name) || name.startsWith("xl/")) {
+                        return "xlsx";
+                    }
+                }
+            } catch (IOException e) {
+                logger.warn("Could not inspect zip content for {}: {}", f.getName(), e.getMessage());
+            }
+            return null;
+        }
+
+        boolean isOle2 = (read >= 8 &&
+                (header[0] & 0xFF) == 0xD0 && (header[1] & 0xFF) == 0xCF &&
+                (header[2] & 0xFF) == 0x11 && (header[3] & 0xFF) == 0xE0 &&
+                (header[4] & 0xFF) == 0xA1 && (header[5] & 0xFF) == 0xB1 &&
+                (header[6] & 0xFF) == 0x1A && (header[7] & 0xFF) == 0xE1);
+        if (isOle2) {
+            return "xls";
+        }
+
+        return null;
+    }
+
+    /**
+     * Reads the remaining bytes of the current zip entry from the given stream
+     * and returns them as a UTF-8 string. Java-8-compatible replacement for
+     * InputStream#readAllBytes(), which is only available since Java 9.
+     *
+     * @param zis the zip input stream positioned at the entry to read
+     * @return the entry's content as a UTF-8 string
+     * @throws IOException if reading fails
+     */
+    private String readZipEntryAsString(ZipInputStream zis) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1024];
+        int len;
+        while ((len = zis.read(buffer)) > 0) {
+            baos.write(buffer, 0, len);
+        }
+        return new String(baos.toByteArray(), StandardCharsets.UTF_8);
+    }
+
+    /**
+     * Validates that the uploaded file's extension matches its actual content,
+     * based on magic-byte detection. Accepts xlsx and ods files only; legacy
+     * xls files (and any other unsupported format) result in a specific
+     * error message.
+     *
+     * @param f the file to validate
+     * @return a localized error message if validation fails, or null if the file is valid
+     */
+    private String validateSpreadsheetFile(File f) {
+        String name = f.getName();
+        boolean hasXlsxExt = name.toLowerCase().endsWith(".xlsx");
+        boolean hasOdsExt = name.toLowerCase().endsWith(".ods");
+
+        String detectedType = detectSpreadsheetTypeByMagicBytes(f);
+
+        if (hasXlsxExt || hasOdsExt) {
+            if (detectedType == null) {
+                return resword.getString("file_extension_does_not_match_file_content");
+            }
+            if (hasXlsxExt && !"xlsx".equals(detectedType)) {
+                return resword.getString("file_extension_does_not_match_file_content");
+            }
+            if (hasOdsExt && !"ods".equals(detectedType)) {
+                return resword.getString("file_extension_does_not_match_file_content");
+            }
+            return null; // valid
+        }
+
+        // Extension is not xlsx/ods -> check whether it's a legacy xls file
+        if ("xls".equals(detectedType)) {
+            logger.debug("file appears to be a legacy .xls file (BIFF format), name: {}", name);
+            return resword.getString("xls_format_not_supported_please_use_xlsx_or_ods");
+        }
+
+        return respage.getString("file_you_uploaded_not_seem_excel_spreadsheet");
+    }
+    
+    
+    
+    
+//    /**
+//     * Detects the spreadsheet type by inspecting the file's magic bytes.
+//     * xlsx and ods are both ZIP containers (signature 50 4B 03 04) and are
+//     * distinguished by inspecting the zip content. xls (BIFF) has the OLE2
+//     * signature D0 CF 11 E0 A1 B1 1A E1.
+//     *
+//     * @param f the file to inspect
+//     * @return "xlsx", "ods", "xls", or null if no known format was detected
+//     */
+//    private String detectSpreadsheetTypeByMagicBytes(File f) {
+//        byte[] header = new byte[8];
+//        int read;
+//        try (InputStream is = new FileInputStream(f)) {
+//            read = is.read(header);
+//            if (read < 4) {
+//                return null;
+//            }
+//        } catch (IOException e) {
+//            logger.warn("Could not read file header for {}: {}", f.getName(), e.getMessage());
+//            return null;
+//        }
+//
+//        boolean isZip = (header[0] == 0x50 && header[1] == 0x4B &&
+//                          header[2] == 0x03 && header[3] == 0x04);
+//        if (isZip) {
+//            try (ZipInputStream zis = new ZipInputStream(new FileInputStream(f))) {
+//                ZipEntry entry;
+//                while ((entry = zis.getNextEntry()) != null) {
+//                    String name = entry.getName();
+//                    if ("mimetype".equals(name)) {
+//                        String mimeType = readZipEntryAsString(zis).trim();
+//                        if (mimeType.contains("opendocument.spreadsheet")) {
+//                            return "ods";
+//                        }
+//                    } else if ("[Content_Types].xml".equals(name) || name.startsWith("xl/")) {
+//                        return "xlsx";
+//                    }
+//                }
+//            } catch (IOException e) {
+//                logger.warn("Could not inspect zip content for {}: {}", f.getName(), e.getMessage());
+//            }
+//            return null;
+//        }
+//
+//        boolean isOle2 = (read >= 8 &&
+//                (header[0] & 0xFF) == 0xD0 && (header[1] & 0xFF) == 0xCF &&
+//                (header[2] & 0xFF) == 0x11 && (header[3] & 0xFF) == 0xE0 &&
+//                (header[4] & 0xFF) == 0xA1 && (header[5] & 0xFF) == 0xB1 &&
+//                (header[6] & 0xFF) == 0x1A && (header[7] & 0xFF) == 0xE1);
+//        if (isOle2) {
+//            return "xls";
+//        }
+//
+//        return null;
+//    }
+//    
+//    /**
+//     * Reads the remaining bytes of the current zip entry from the given stream
+//     * and returns them as a UTF-8 string. Java-8-compatible replacement for
+//     * InputStream#readAllBytes(), which is only available since Java 9.
+//     *
+//     * @param zis the zip input stream positioned at the entry to read
+//     * @return the entry's content as a UTF-8 string
+//     * @throws IOException if reading fails
+//     */
+//    private String readZipEntryAsString(ZipInputStream zis) throws IOException {
+//        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//        byte[] buffer = new byte[1024];
+//        int len;
+//        while ((len = zis.read(buffer)) > 0) {
+//            baos.write(buffer, 0, len);
+//        }
+//        return new String(baos.toByteArray(), StandardCharsets.UTF_8);
+//    }
 }

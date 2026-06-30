@@ -119,7 +119,7 @@ public class ViewSectionDataEntryPreview extends DataEntryServlet {
             // addPageMessage
             String msg = respage.getString("preview_data_has_timed_out");
             this.addPageMessage(msg, request);
-            LOGGER.debug("The session attribute \"preview_crf\" has expired or gone out of scope in: " + this.getClass().getName());
+            LOGGER.warn("The session attribute \"preview_crf\" has expired or gone out of scope in: " + this.getClass().getName());
             this.forwardPage(Page.CRF_LIST_SERVLET, request, response);
         }
 

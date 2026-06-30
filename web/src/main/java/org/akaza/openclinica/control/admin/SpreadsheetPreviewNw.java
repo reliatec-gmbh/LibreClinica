@@ -15,12 +15,12 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.aakaza.openclinica.likepoi.ss.usermodel.Cell;
+import org.aakaza.openclinica.likepoi.ss.usermodel.Row;
+import org.aakaza.openclinica.likepoi.ss.usermodel.Sheet;
+import org.aakaza.openclinica.likepoi.ss.usermodel.Workbook;
 import org.akaza.openclinica.bean.core.ApplicationConstants;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -190,6 +190,65 @@ public final class SpreadsheetPreviewNw implements Preview {
         return false;
     }
 
+//    public Map<Integer, Map<String, String>> createGroupsMapOld(Workbook workbook) {
+//        if (workbook == null || workbook.getNumberOfSheets() == 0) {
+//            return new HashMap<Integer, Map<String, String>>();
+//        }
+//        Sheet sheet;
+//        Row row;
+//        Cell cell;
+//        sheet = workbook.getSheetAt(4);
+//        cell = sheet.getRow(1).getCell((short) 0);
+//        @SuppressWarnings("deprecation")
+//		String version = cell.getStringCellValue();
+//        // static group headers for a CRF; TODO: change these so they are not
+//        // static and hard-coded
+//        // BWP>>remove "group_borders" column
+//        String[] groupHeaders = { "group_label", "repeating_group", "group_header", "group_repeat_number", "group_repeat_max" };
+//        if(version.equalsIgnoreCase("Version: 2.2")
+//                || version.equalsIgnoreCase("Version: 2.5")
+//                || version.equalsIgnoreCase("Version: 3.0")){
+//            groupHeaders = new String[]{ "group_label", "group_header", "group_repeat_number", "group_repeat_max" };
+//        }
+//
+//        Map<String, String> rowCells = new HashMap<String, String>();
+//        SortedMap<Integer, Map<String, String>> allRows = new TreeMap<Integer, Map<String, String>>();
+//        String str;
+//        for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
+//            sheet = workbook.getSheetAt(i);
+//            str = workbook.getSheetName(i);
+//            if (str.equalsIgnoreCase("Groups")) {
+//            	int physicalNumberOfRows = sheet.getPhysicalNumberOfRows();
+//                for (int j = 1; j < physicalNumberOfRows; j++) {
+//                    // create a new Map to add to the allRows Map
+//                    // rowCells has already been initialized in a higher code
+//                    // block
+//                    // so if j == 1 we don't have to init the new Map the first
+//                    // time again.
+//                    if (j > 1)
+//                        rowCells = new HashMap<String, String>();
+//                    row = sheet.getRow(j);
+//                    for (int k = 0; k < groupHeaders.length; k++) {
+//                        try {
+//							cell = row.getCell((short) k);
+//						} catch (Exception e) {
+//							logger.error("k = {}, j = {}, ex = {}", k, j, e);
+//							throw e;
+//							}
+//                        if (groupHeaders[k].equalsIgnoreCase("group_header")) {
+//                            rowCells.put(groupHeaders[k], getCellValue(cell));
+//                        } else {
+//                            rowCells.put(groupHeaders[k], getCellValue(cell).replaceAll("<[^>]*>", ""));
+//                        }
+//                    }
+//
+//                    allRows.put(j, rowCells);
+//                }// end inner for loop
+//            }// end if
+//        }// end outer for
+//        return allRows;
+//    }
+    
     public Map<Integer, Map<String, String>> createGroupsMap(Workbook workbook) {
         if (workbook == null || workbook.getNumberOfSheets() == 0) {
             return new HashMap<Integer, Map<String, String>>();
@@ -200,14 +259,11 @@ public final class SpreadsheetPreviewNw implements Preview {
         sheet = workbook.getSheetAt(4);
         cell = sheet.getRow(1).getCell((short) 0);
         @SuppressWarnings("deprecation")
-		String version = cell.getStringCellValue();
-        // static group headers for a CRF; TODO: change these so they are not
-        // static and hard-coded
-        // BWP>>remove "group_borders" column
+        String version = cell.getStringCellValue();
         String[] groupHeaders = { "group_label", "repeating_group", "group_header", "group_repeat_number", "group_repeat_max" };
-        if(version.equalsIgnoreCase("Version: 2.2")
+        if (version.equalsIgnoreCase("Version: 2.2")
                 || version.equalsIgnoreCase("Version: 2.5")
-                || version.equalsIgnoreCase("Version: 3.0")){
+                || version.equalsIgnoreCase("Version: 3.0")) {
             groupHeaders = new String[]{ "group_label", "group_header", "group_repeat_number", "group_repeat_max" };
         }
 
@@ -218,24 +274,28 @@ public final class SpreadsheetPreviewNw implements Preview {
             sheet = workbook.getSheetAt(i);
             str = workbook.getSheetName(i);
             if (str.equalsIgnoreCase("Groups")) {
-                for (int j = 1; j < sheet.getPhysicalNumberOfRows(); j++) {
-                    // create a new Map to add to the allRows Map
-                    // rowCells has already been initialized in a higher code
-                    // block
-                    // so if j == 1 we don't have to init the new Map the first
-                    // time again.
+                int lastRowNum = sheet.getLastRowNum() + 1;
+                for (int j = 1; j < lastRowNum; j++) {
+                    row = sheet.getRow(j);
+                    if (row == null) {
+                        logger.info("createGroupsMap: skipping empty row j={}", j);
+                        continue;
+                    }
                     if (j > 1)
                         rowCells = new HashMap<String, String>();
-                    row = sheet.getRow(j);
                     for (int k = 0; k < groupHeaders.length; k++) {
-                        cell = row.getCell((short) k);
+                        try {
+                            cell = row.getCell((short) k);
+                        } catch (Exception e) {
+                            logger.error("k = {}, j = {}, ex = {}", k, j, e);
+                            throw e;
+                        }
                         if (groupHeaders[k].equalsIgnoreCase("group_header")) {
                             rowCells.put(groupHeaders[k], getCellValue(cell));
                         } else {
                             rowCells.put(groupHeaders[k], getCellValue(cell).replaceAll("<[^>]*>", ""));
                         }
                     }
-
                     allRows.put(j, rowCells);
                 }// end inner for loop
             }// end if

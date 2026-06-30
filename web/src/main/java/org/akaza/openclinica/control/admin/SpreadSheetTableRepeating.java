@@ -10,10 +10,7 @@
 package org.akaza.openclinica.control.admin;
 
 import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
@@ -30,6 +27,11 @@ import java.util.TreeSet;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import org.aakaza.openclinica.likepoi.ss.usermodel.Cell;
+import org.aakaza.openclinica.likepoi.ss.usermodel.CellType;
+import org.aakaza.openclinica.likepoi.ss.usermodel.Sheet;
+import org.aakaza.openclinica.likepoi.ss.usermodel.Workbook;
+import org.aakaza.openclinica.likepoi.ss.usermodel.WorkbookFactory;
 import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.admin.NewCRFBean;
 import org.akaza.openclinica.bean.core.ItemDataType;
@@ -62,12 +64,6 @@ import org.akaza.openclinica.logic.score.ScoreValidator;
 import org.akaza.openclinica.web.SQLInitServlet;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -121,7 +117,7 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
 
 	private final Path path;
 
-	public SpreadSheetTableRepeating(FileInputStream parseStream, UserAccountBean ub, String versionName, Locale locale, int studyId, Path path)
+	public SpreadSheetTableRepeating(/*FileInputStream parseStream,*/ UserAccountBean ub, String versionName, Locale locale, int studyId, Path path)
 			throws IOException {
 		String crfFileSpreadsheetParseStopString = CoreResources.getField("crfFileSpreadsheetParseStopString");
 
@@ -137,12 +133,12 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
 
 //        this.fs = new POIFSFileSystem(parseStream);
 		// this.fs = parseStream;
-		try {
-			parseStream.available();
-			parseStream.close();
-		} catch (IOException e) {
-			logger.error("" + e);
-		}
+//		try {
+//			parseStream.available();
+//			parseStream.close();
+//		} catch (Exception e) {
+//			logger.error("" + e);
+//		}
 		this.path = path;
 		this.ub = ub;
 		this.locale = locale;
@@ -168,74 +164,74 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
 		logger.info("SpreadSheetTableRepeating#constructor end.");
 	}
 
-	public Workbook removeRowsFromStopString(Workbook sourceWorkbook, String crfFileSpreadsheetParseStopString) throws IOException {
-		logger.info("removeRowsFromStopString()");
-
-		Workbook targetWorkbook = WorkbookFactory.create(true);// new HSSFWorkbook();
-		for (int sheetIndex = 0; sheetIndex < sourceWorkbook.getNumberOfSheets(); sheetIndex++) {
-			Sheet sourceSheet = sourceWorkbook.getSheetAt(sheetIndex);
-			Sheet targetSheet = targetWorkbook.createSheet(sourceWorkbook.getSheetName(sheetIndex));
-
-			// Spaltenanzahl als Maximum über alle Zeilen bestimmen
-			int columnCount = 0;
-			for (int rowIndex = sourceSheet.getFirstRowNum(); rowIndex <= sourceSheet.getLastRowNum(); rowIndex++) {
-				Row row = sourceSheet.getRow(rowIndex);
-				if (row != null && row.getLastCellNum() > columnCount) {
-					columnCount = row.getLastCellNum();
-				}
-			}
-
-			int copiedRowCount = 0;
-
-			for (int rowIndex = sourceSheet.getFirstRowNum(); rowIndex <= sourceSheet.getLastRowNum(); rowIndex++) {
-				Row sourceRow = sourceSheet.getRow(rowIndex);
-				if (sourceRow == null)
-					continue;
-
-				Cell firstCell = sourceRow.getCell(0);
-				if (firstCell != null && firstCell.getCellType() == CellType.STRING
-						&& crfFileSpreadsheetParseStopString.equals(firstCell.getStringCellValue())) {
-
-					int skippedRowCount = sourceSheet.getLastRowNum() - rowIndex + 1;
-					logger.info("Sheet '{}': Stop-String in Zeile {} gefunden, {} Zeile(n) werden nicht kopiert.", sourceWorkbook.getSheetName(sheetIndex),
-							rowIndex, skippedRowCount);
-					break;
-				}
-
-				Row targetRow = targetSheet.createRow(copiedRowCount++);
-				for (int cellIndex = 0; cellIndex < columnCount; cellIndex++) {
-					Cell sourceCell = sourceRow.getCell(cellIndex);
-					if (sourceCell == null)
-						continue;
-
-					Cell targetCell = targetRow.createCell(cellIndex);
-					switch (sourceCell.getCellType()) {
-					case STRING:
-						targetCell.setCellValue(sourceCell.getStringCellValue());
-						break;
-					case NUMERIC:
-						targetCell.setCellValue(sourceCell.getNumericCellValue());
-						break;
-					case BOOLEAN:
-						targetCell.setCellValue(sourceCell.getBooleanCellValue());
-						break;
-					case FORMULA:
-						targetCell.setCellFormula(sourceCell.getCellFormula());
-						break;
-					case BLANK:
-						targetCell.setBlank();
-						break;
-					default:
-						break;
-					}
-				}
-			}
-
-			logger.info("Sheet '{}': {} Zeile(n) in neues Workbook kopiert.", sourceWorkbook.getSheetName(sheetIndex), copiedRowCount);
-		}
-
-		return targetWorkbook;
-	}
+//	public Workbook removeRowsFromStopString(Workbook sourceWorkbook, String crfFileSpreadsheetParseStopString) throws IOException {
+//		logger.info("removeRowsFromStopString()");
+//
+//		Workbook targetWorkbook = WorkbookFactory.create(true);// new HSSFWorkbook();
+//		for (int sheetIndex = 0; sheetIndex < sourceWorkbook.getNumberOfSheets(); sheetIndex++) {
+//			Sheet sourceSheet = sourceWorkbook.getSheetAt(sheetIndex);
+//			Sheet targetSheet = targetWorkbook.createSheet(sourceWorkbook.getSheetName(sheetIndex));
+//
+//			// Spaltenanzahl als Maximum über alle Zeilen bestimmen
+//			int columnCount = 0;
+//			for (int rowIndex = sourceSheet.getFirstRowNum(); rowIndex <= sourceSheet.getLastRowNum(); rowIndex++) {
+//				Row row = sourceSheet.getRow(rowIndex);
+//				if (row != null && row.getLastCellNum() > columnCount) {
+//					columnCount = row.getLastCellNum();
+//				}
+//			}
+//
+//			int copiedRowCount = 0;
+//
+//			for (int rowIndex = sourceSheet.getFirstRowNum(); rowIndex <= sourceSheet.getLastRowNum(); rowIndex++) {
+//				Row sourceRow = sourceSheet.getRow(rowIndex);
+//				if (sourceRow == null)
+//					continue;
+//
+//				Cell firstCell = sourceRow.getCell(0);
+//				if (firstCell != null && firstCell.getCellType() == CellType.STRING
+//						&& crfFileSpreadsheetParseStopString.equals(firstCell.getStringCellValue())) {
+//
+//					int skippedRowCount = sourceSheet.getLastRowNum() - rowIndex + 1;
+//					logger.info("Sheet '{}': Stop-String in Zeile {} gefunden, {} Zeile(n) werden nicht kopiert.", sourceWorkbook.getSheetName(sheetIndex),
+//							rowIndex, skippedRowCount);
+//					break;
+//				}
+//
+//				Row targetRow = targetSheet.createRow(copiedRowCount++);
+//				for (int cellIndex = 0; cellIndex < columnCount; cellIndex++) {
+//					Cell sourceCell = sourceRow.getCell(cellIndex);
+//					if (sourceCell == null)
+//						continue;
+//
+//					Cell targetCell = targetRow.createCell(cellIndex);
+//					switch (sourceCell.getCellType()) {
+//					case STRING:
+//						targetCell.setCellValue(sourceCell.getStringCellValue());
+//						break;
+//					case NUMERIC:
+//						targetCell.setCellValue(sourceCell.getNumericCellValue());
+//						break;
+//					case BOOLEAN:
+//						targetCell.setCellValue(sourceCell.getBooleanCellValue());
+//						break;
+//					case FORMULA:
+//						targetCell.setCellFormula(sourceCell.getCellFormula());
+//						break;
+//					case BLANK:
+//						targetCell.setBlank();
+//						break;
+//					default:
+//						break;
+//					}
+//				}
+//			}
+//
+//			logger.info("Sheet '{}': {} Zeile(n) in neues Workbook kopiert.", sourceWorkbook.getSheetName(sheetIndex), copiedRowCount);
+//		}
+//
+//		return targetWorkbook;
+//	}
 
 	public void setCrfId(int id) {
 		this.crfId = id;
@@ -1902,7 +1898,7 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
 						throw new CRFReadingException("Blank row found in sheet CRF.");
 					}
 					Cell cell = sheet.getRow(1).getCell((short) 0);
-					crfName = getValue(cell);
+					crfName = getValue(cell); //ok
 					crfName = crfName.replaceAll("<[^>]*>", "");
 
 					if (crfName == null || crfName.trim().isEmpty()) {

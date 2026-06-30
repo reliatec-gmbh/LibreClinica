@@ -24,6 +24,11 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.aakaza.openclinica.likepoi.ss.usermodel.Cell;
+import org.aakaza.openclinica.likepoi.ss.usermodel.CellType;
+import org.aakaza.openclinica.likepoi.ss.usermodel.Sheet;
+import org.aakaza.openclinica.likepoi.ss.usermodel.Workbook;
+import org.aakaza.openclinica.likepoi.ss.usermodel.WorkbookFactory;
 import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.admin.NewCRFBean;
 import org.akaza.openclinica.bean.core.ItemDataType;
@@ -46,11 +51,6 @@ import org.akaza.openclinica.dao.submit.ItemGroupDAO;
 import org.akaza.openclinica.exception.CRFReadingException;
 import org.akaza.openclinica.logic.score.ScoreValidator;
 import org.akaza.openclinica.web.SQLInitServlet;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

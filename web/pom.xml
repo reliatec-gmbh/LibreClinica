@@ -190,9 +190,26 @@
 			<groupId>taglibs</groupId>
 			<artifactId>standard</artifactId>
 		</dependency>
-		<dependency>
+		<!--<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi</artifactId>
+			<scope>compile</scope>
+		</dependency> -->
+		<!--<dependency>
+			<groupId>org.dhatim</groupId>
+			<artifactId>fastexcel-reader</artifactId>
+			<version>0.20.1</version>
+			<scope>compile</scope>
+		</dependency> -->
+		<dependency>
+			<groupId>org.dhatim</groupId>
+			<artifactId>fastexcel-reader</artifactId>
+			<version>0.15.3</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.miachm.sods</groupId>
+			<artifactId>SODS</artifactId>
+			<version>1.8.3</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>

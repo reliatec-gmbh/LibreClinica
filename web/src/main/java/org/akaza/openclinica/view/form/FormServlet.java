@@ -9,14 +9,9 @@
  */
 package org.akaza.openclinica.view.form;
 
-import org.akaza.openclinica.bean.submit.DisplayItemGroupBean;
-import org.akaza.openclinica.control.admin.SpreadsheetPreviewNw;
-import org.akaza.openclinica.control.managestudy.BeanFactory;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import static org.akaza.openclinica.core.util.ClassCastHelper.getAsType;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -28,7 +23,12 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import static org.akaza.openclinica.core.util.ClassCastHelper.*;
+
+import org.aakaza.openclinica.likepoi.ss.usermodel.Workbook;
+import org.aakaza.openclinica.likepoi.ss.usermodel.WorkbookFactory;
+import org.akaza.openclinica.bean.submit.DisplayItemGroupBean;
+import org.akaza.openclinica.control.admin.SpreadsheetPreviewNw;
+import org.akaza.openclinica.control.managestudy.BeanFactory;
 /**
  * Created by IntelliJ IDEA. User: bruceperry Date: May 19, 2007
  */
@@ -47,8 +47,8 @@ public class FormServlet extends HttpServlet {
         BeanFactory beanFactory = new BeanFactory();
         ServletContext context = this.getServletContext();
         String path = context.getRealPath("/");
-        POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(new File(path + "group_demo_nw.xls")));
-        HSSFWorkbook wb = new HSSFWorkbook(fs);
+//        POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(new File(path + "group_demo_nw.xls")));
+        Workbook wb = WorkbookFactory.create(new File(path + "group_demo_nw.xls"));//new HSSFWorkbook(fs);
         @SuppressWarnings("rawtypes")
         Map<String, Map>  allMap = (Map<String, Map>) spnw.createCrfMetaObject(wb);
         /*
