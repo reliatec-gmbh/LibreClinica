@@ -3,8 +3,8 @@ package org.akaza.openclinica.lctable;
 import static org.akaza.openclinica.lctable.LCTableParams.*;
 
 import htmlflow.HtmlFlow;
-import org.springframework.web.util.UriComponentsBuilder;
 import org.xmlet.htmlapifaster.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.StringWriter;
 import java.util.List;
@@ -18,11 +18,11 @@ import static java.lang.Math.min;
 import static java.lang.String.format;
 
 public class LCTable<T1>  {
-    private final String entityPath;    // base path for pagination/sorting URLs (e.g. "/books")
-    private final String tableName;     // name of the table (used for generating unique IDs and classes)
-    private final String panelId;       // ID of the panel element to target with htmx requests (e.g. "books-panel")
-    private final List<LCTableColumnDef<T1>> columns;
-    private final Function<LCTableParams, LCTableData<T1>> fetchData;
+    final String entityPath;    // base path for pagination/sorting URLs (e.g. "/books")
+    final String tableName;     // name of the table (used for generating unique IDs and classes)
+    final String panelId;       // ID of the panel element to target with htmx requests (e.g. "books-panel")
+    final List<LCTableColumnDef<T1>> columns;
+    final Function<LCTableParams, LCTableData<T1>> fetchData;
 
     public LCTable(String entityPath, String tableName, List<LCTableColumnDef<T1>> columns, Function<LCTableParams, LCTableData<T1>> fetchData) {
         this.entityPath = entityPath;
@@ -64,80 +64,11 @@ public class LCTable<T1>  {
         // Render a filter input for each column
         columns.forEach(col -> {
             if (col.filterDef != null) {
-                if (col.filterDef instanceof LCTableFilterDef.Text) {
-                    renderTextFilter(tr, ctx, col);
-                } else if (col.filterDef instanceof LCTableFilterDef.Select) {
-                    //TODO: when moving to Java 17, we can use pattern matching for instanceof to avoid the cast below
-                    // 1. Cast safely using the wildcard <?> to eliminate raw type warnings
-                    LCTableFilterDef.Select<?> selectFilter = (LCTableFilterDef.Select<?>) col.filterDef;
-                    // 2. Pass the safely typed list down to your render method
-                    renderSelectFilter(tr, ctx, col, selectFilter);
-                }
+                col.filterDef.renderFilter(tr, ctx, col, this);
             } else {
-                // insert empty <td> to preserve column cell even when there is no filter
-                tr.td().__();
+                tr.td().__();   // insert empty <td> to fill column cell when there is no filter
             }
         });
-    }
-
-    // 1. This method accepts the wildcard <?> from renderFilters without warnings
-    //TODO: when moving to Java 17, we can use pattern matching for instanceof to avoid the need for the helper method below
-    private <R extends Element<?, ?>> void renderSelectFilter(Tr<R> tr, LCTableContext<T1> ctx, LCTableColumnDef<T1> col, LCTableFilterDef.Select<?> selectFilter) {
-        // Forward to the private helper method.
-        // Java automatically captures the '?' and assigns it to 'S' safely.
-        renderSelectFilterHelper(tr, ctx, col, selectFilter);
-    }
-
-    // 2. The helper method enforces strict type discipline using <S>
-    private <T2, R extends Element<?, ?>> void renderSelectFilterHelper(Tr<R> tr, LCTableContext<T1> ctx, LCTableColumnDef<T1> col, LCTableFilterDef.Select<T2> selectFilter) {
-        final String filterName = PARAM_FILTER_PREFIX + col.columnName;
-        final String rawSelected = ctx.filters.getOrDefault(col.columnName, "");
-
-        // UI Safety Check: Verify if the URL parameter actually matches a real option
-        final boolean isValidOption = rawSelected.isEmpty() || selectFilter.values.stream()
-            .map(selectFilter::label)
-            .anyMatch(label -> label.equals(rawSelected));
-
-        // If it's invalid (e.g., "broken"), treat it as empty ("All") so the UI snaps back to a valid state
-        final String currentSelected = isValidOption ? rawSelected : "";
-
-        Select<Td<Tr<R>>> select = tr.td().select()         // in Java 17, this could be replaced by 'var select = ...'
-            .attrName(filterName)
-            .attrId(panelId + "-filter-" + col.columnName)
-            .attrClass("filter-select")
-            .addAttr(HX_GET, entityPath)
-            .addAttr(HX_TARGET, "#" + panelId)
-            .addAttr(HX_SWAP, "outerHTML")
-            .addAttr(HX_PUSH_URL, "true")
-            .addAttr(HX_TRIGGER, "change")
-            .addAttr(HX_INCLUDE, "closest form");
-
-        select.option().attrValue("").attrSelected(currentSelected.isEmpty()).text("").__();
-        selectFilter.values.forEach(option -> {
-            final String labelText = selectFilter.label(option);
-            boolean isSelected = labelText.equals(currentSelected);
-            select.option().attrValue(labelText).attrSelected(isSelected).text(labelText).__();
-        });
-        select.__().__();
-    }
-
-    private void renderTextFilter(Tr<?> tr, LCTableContext<T1> ctx, LCTableColumnDef<T1> col) {
-        final String filterName = PARAM_FILTER_PREFIX + col.columnName;
-        final String filterValue = ctx.filters.getOrDefault(col.columnName, "");
-
-        tr.td().input()
-            .attrType(EnumTypeInputType.TEXT)
-            .attrName(filterName)
-            .attrValue(filterValue)
-            .attrClass("filter-input")
-            .attrId(panelId + "-filter-" + col.columnName)
-            .addAttr(HX_GET, entityPath)
-            .addAttr(HX_TARGET, "#" + panelId)
-            .addAttr(HX_SWAP, "outerHTML")
-            .addAttr(HX_PUSH_URL, "true")
-            .addAttr(HX_TRIGGER, "input delay:400ms")
-            .addAttr(HX_INCLUDE, "closest form")
-            .__().__();
     }
 
     private void renderTableHeader(Thead<?> thead, LCTableContext<T1> ctx) {

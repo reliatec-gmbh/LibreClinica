@@ -8,6 +8,8 @@ import org.akaza.openclinica.domain.technicaladmin.LoginStatus;
 import org.akaza.openclinica.lctable.*;
 
 import static org.akaza.openclinica.lctable.LCTableColumnDef.*;
+import static org.akaza.openclinica.lctable.LCTableFilterDef.*;
+import static org.akaza.openclinica.lctable.LCTableUtil.*;
 
 import java.util.function.Function;
 import javax.servlet.http.HttpServletRequest;
@@ -33,7 +35,10 @@ public class AuditUserLoginTable {
      */
     final List<LCTableColumnDef<AuditUserLoginBean>> columns = Arrays.asList(
         textCol("userName", "User Name", AuditUserLoginBean::getUserName),
-        textCol("loginAttemptDate", "Attempt Date", AuditUserLoginBean::getLoginAttemptDate, dateFmt::format),
+        textCol("loginAttemptDate", "Attempt Date",
+            textFilter(timestampFilterforHtmlValidation, timestampFilterMessage),
+            AuditUserLoginBean::getLoginAttemptDate, dateFmt::format
+        ),
         enumCol("loginStatus", "Status",
             Arrays.stream(LoginStatus.values()).map(LoginStatus::name).collect(Collectors.toList()), Function.identity(),
             AuditUserLoginBean::getLoginStatus, LoginStatus::toString

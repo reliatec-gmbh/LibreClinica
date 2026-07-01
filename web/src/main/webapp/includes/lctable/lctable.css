@@ -64,6 +64,17 @@
     padding: 2px 2px 3px 2px;
 }
 
+.lctable .filter .filter-input:not(:placeholder-shown):invalid {
+    border-color: red;
+    background-color: #fff0f0;
+    color: red;
+}
+/* Optional: slightly soften the transition */
+.lctable .filter .filter-input {
+    transition: border-color 0.3s, background-color 0.3s;
+}
+
+
 .lctable .tbody input {
     padding: 0;
     margin: 0;

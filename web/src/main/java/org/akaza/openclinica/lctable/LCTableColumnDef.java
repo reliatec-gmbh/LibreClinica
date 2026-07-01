@@ -1,9 +1,6 @@
 package org.akaza.openclinica.lctable;
 
 import org.xmlet.htmlapifaster.Td;
-import org.xmlet.htmlapifaster.Tr;
-
-import org.xmlet.htmlapifaster.Td;
 import org.xmlet.htmlapifaster.TextGroup;
 import org.xmlet.htmlapifaster.Tr;
 
@@ -81,8 +78,16 @@ public class LCTableColumnDef<R> {
         return new LCTableColumnDef<>(columnName, displayName, new LCTableFilterDef.Text(), nullSafeColText(renderer));
     }
 
+    public static <R> LCTableColumnDef<R> textCol(String columnName, String displayName, LCTableFilterDef filterDef, Function<R, String> renderer) {
+        return new LCTableColumnDef<>(columnName, displayName, filterDef, nullSafeColText(renderer));
+    }
+
     public static <R, F> LCTableColumnDef<R> textCol(String columnName, String displayName, Function<R, F> extractor, Function<F, String> renderer) {
         return new LCTableColumnDef<>(columnName, displayName, new LCTableFilterDef.Text(), nullSafeColText(extractor, renderer));
+    }
+
+    public static <R, F> LCTableColumnDef<R> textCol(String columnName, String displayName, LCTableFilterDef filterDef, Function<R, F> extractor, Function<F, String> renderer) {
+        return new LCTableColumnDef<>(columnName, displayName, filterDef, nullSafeColText(extractor, renderer));
     }
 
     // --- 4. Column factory methods for enum-like types (similar to textCol, but with list of allowed value and 'select' filter ---
