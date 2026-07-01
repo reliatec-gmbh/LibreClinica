@@ -1,4 +1,4 @@
-package org.aakaza.openclinica.likepoi.ss.usermodel;
+package org.akaza.openclinica.likepoi.ss.usermodel;  //derived from de.reliatec.likepoi.ss.usermodel
 
 public interface Sheet extends Iterable<Row> {
     String getSheetName();

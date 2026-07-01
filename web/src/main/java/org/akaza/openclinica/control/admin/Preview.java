@@ -13,7 +13,7 @@ package org.akaza.openclinica.control.admin;
 
 import java.util.Map;
 
-import org.aakaza.openclinica.likepoi.ss.usermodel.Workbook;
+import org.akaza.openclinica.likepoi.ss.usermodel.Workbook;
 
 /**
  * Created by IntelliJ IDEA. User: bruceperry Date: Jun 15, 2007

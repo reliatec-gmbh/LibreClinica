@@ -1,4 +1,4 @@
-package org.aakaza.openclinica.likepoi.ss.usermodel;
+package org.akaza.openclinica.likepoi.ss.usermodel;  //derived from de.reliatec.likepoi.ss.usermodel
 
 import java.io.FileWriter;
 import java.io.IOException;
