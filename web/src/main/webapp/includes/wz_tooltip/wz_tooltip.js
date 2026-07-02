@@ -944,7 +944,9 @@ function tt_UnEl2Tip()
 }
 function tt_OverInit()
 {
-	if(e)
+	if(window.event)
+		tt_over = window.event.target || window.event.srcElement;
+	else if(e)
 		tt_over = e.target;
 	else
 		tt_over = tt_ovr_;
