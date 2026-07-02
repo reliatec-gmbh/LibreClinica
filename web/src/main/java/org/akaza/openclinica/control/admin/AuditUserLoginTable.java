@@ -44,7 +44,8 @@ public class AuditUserLoginTable {
             AuditUserLoginBean::getLoginStatus, LoginStatus::toString
         ),
         textCol("details","Details", AuditUserLoginBean::getDetails),
-        customTdCol("actions","Actions",null, AuditUserLoginBean::getUserAccountId,
+        customTdCol("actions","Actions", NOT_SORTABLE, NO_FILTER,
+            AuditUserLoginBean::getUserAccountId,
             (td, userAccountId) ->
                 td.a().attrHref("ViewUserAccount?userId=" + userAccountId + "&viewFull=yes")
                     .img().attrSrc("images/bt_View.gif").attrAlt("View").attrTitle("View").__()

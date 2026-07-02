@@ -13,8 +13,6 @@ import java.util.function.Function;
 public abstract class LCTableFilterDef {
     protected LCTableFilterDef() {}
 
-    public static final LCTableFilterDef noFilter = null;
-
     /*** Factory methods for creating a text filter definition. */
     public static Text textFilter() { return new Text(); }
     public static Text textFilter(String pattern) { return new Text(pattern, null); }

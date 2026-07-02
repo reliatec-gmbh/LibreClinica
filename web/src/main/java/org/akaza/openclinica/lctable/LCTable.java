@@ -71,21 +71,26 @@ public class LCTable<T1>  {
         // Build the URL for this sort state
         String href = urlForSort(entityPath, ctx, col.columnName, nextDir);
 
-        tr.th()
-            .a().attrClass("sort-header-link")
-            .attrHref(href)
-            .addAttr(HX_GET, href)
-            .addAttr(HX_TARGET, "#" + panelId)
-            .addAttr(HX_SWAP, "outerHTML")
-            .addAttr(HX_PUSH_URL, "true")
-            .of(a -> {
-                a.span().attrClass("sort-header-text").text(col.columnDisplayName).__();
-                // Show sort indicator if sorted
-                if (isSorted && currentDir != null) {
-                    String imgSrc = resourcePath + (currentDir.equals("asc") ? "/images/table/sortAsc.gif" : "/images/table/sortDesc.gif");
-                    a.img().attrClass("sort-indicator").addAttr("src", imgSrc).attrAlt(currentDir).__();
-                }
-            }).__();
+        if (!col.sortable) {
+            // Non-sortable column: just render the header text without a link
+            tr.th().text(col.columnDisplayName).__();
+        } else {
+            tr.th()
+                .a().attrClass("sort-header-link")
+                .attrHref(href)
+                .addAttr(HX_GET, href)
+                .addAttr(HX_TARGET, "#" + panelId)
+                .addAttr(HX_SWAP, "outerHTML")
+                .addAttr(HX_PUSH_URL, "true")
+                .of(a -> {
+                    a.span().attrClass("sort-header-text").text(col.columnDisplayName).__();
+                    // Show sort indicator if sorted
+                    if (isSorted && currentDir != null) {
+                        String imgSrc = resourcePath + (currentDir.equals("asc") ? "/images/table/sortAsc.gif" : "/images/table/sortDesc.gif");
+                        a.img().attrClass("sort-indicator").addAttr("src", imgSrc).attrAlt(currentDir).__();
+                    }
+                }).__();
+        }
     }
 
     private void renderToolbar(Tr<?> tr, LCTableContext<T1> ctx) {
