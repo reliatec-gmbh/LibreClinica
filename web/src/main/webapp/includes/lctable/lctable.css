@@ -354,3 +354,25 @@
 .page-btn.current            { background: #2563eb; color: #fff; border-color: #2563eb; }
 .page-btn.disabled           { color: #bbb; pointer-events: none; cursor: default; }
 .page-ellipsis               { padding: 4px 6px; color: #888; font-size: 0.85rem; }
+
+/* Sort header styling */
+.sort-header-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+}
+
+.sort-header-text {
+    flex: 1;
+}
+
+.sort-indicator {
+    display: block;
+    width: auto;
+    height: auto;
+    flex-shrink: 0;
+}

@@ -18,18 +18,20 @@ import static java.lang.Math.min;
 import static java.lang.String.format;
 
 public class LCTable<T1>  {
-    final String entityPath;    // base path for pagination/sorting URLs (e.g. "/books")
+    final String entityPath;    // base path for pagination/sorting URLs
+    final String resourcePath;
     final String tableName;     // name of the table (used for generating unique IDs and classes)
     final String panelId;       // ID of the panel element to target with htmx requests (e.g. "books-panel")
     final List<LCTableColumnDef<T1>> columns;
     final Function<LCTableParams, LCTableData<T1>> fetchData;
 
-    public LCTable(String entityPath, String tableName, List<LCTableColumnDef<T1>> columns, Function<LCTableParams, LCTableData<T1>> fetchData) {
-        this.entityPath = entityPath;
-        this.tableName  = tableName;
-        this.panelId    = tableName + "-panel";   // Generate panel ID based on table name
-        this.columns    = columns;
-        this.fetchData  = fetchData;
+    public LCTable(String entityPath, String resourcePath, String tableName, List<LCTableColumnDef<T1>> columns, Function<LCTableParams, LCTableData<T1>> fetchData) {
+        this.entityPath   = entityPath;
+        this.resourcePath = resourcePath;
+        this.tableName    = tableName;
+        this.panelId      = tableName + "-panel";   // Generate panel ID based on table name
+        this.columns      = columns;
+        this.fetchData    = fetchData;
     }
 
     public String getTableName() {
@@ -50,14 +52,51 @@ public class LCTable<T1>  {
 
     // -- Generic typed table renderer -----------------------------------------
 
-    private void renderColumnNames(Tr<?> tr) {
-        // Use the human-facing display name for the header
-        columns.forEach(col -> tr.th().text(col.columnDisplayName).__());
+    private void renderColumnNames(Tr<?> tr, LCTableContext<T1> ctx) {
+        columns.forEach(col -> renderSortableHeader(tr, col, ctx));
     }
 
-    private void renderPageNavigation(Tr<?> tr, LCTableContext<T1> ctx) {
+    /**
+     * Render a clickable header cell that toggles sorting state for the column.
+     * Clicking cycles through: no sort → ascending → descending → no sort.
+     */
+    private void renderSortableHeader(Tr<?> tr, LCTableColumnDef<T1> col, LCTableContext<T1> ctx) {
+        // Determine if this column is currently sorted
+        boolean isSorted = col.columnName.equals(ctx.sortProp);
+        String currentDir = isSorted ? ctx.sortDir : null;
+
+        // Determine next sort direction when clicked: none → asc → desc → none
+        String nextDir = currentDir == null ? "asc" : currentDir.equals("asc") ? "desc" : null;
+
+        // Build the URL for this sort state
+        String href = urlForSort(entityPath, ctx, col.columnName, nextDir);
+
+        tr.th()
+            .a().attrClass("sort-header-link")
+            .attrHref(href)
+            .addAttr(HX_GET, href)
+            .addAttr(HX_TARGET, "#" + panelId)
+            .addAttr(HX_SWAP, "outerHTML")
+            .addAttr(HX_PUSH_URL, "true")
+            .of(a -> {
+                a.span().attrClass("sort-header-text").text(col.columnDisplayName).__();
+                // Show sort indicator if sorted
+                if (isSorted && currentDir != null) {
+                    String imgSrc = resourcePath + (currentDir.equals("asc") ? "/images/table/sortAsc.gif" : "/images/table/sortDesc.gif");
+                    a.img().attrClass("sort-indicator").addAttr("src", imgSrc).attrAlt(currentDir).__();
+                }
+            }).__();
+    }
+
+    private void renderToolbar(Tr<?> tr, LCTableContext<T1> ctx) {
         tr.td().attrClass("toolbar").attrColspan(columns.size())
-            .nav().of(nav -> buildPageNavigation(nav, ctx)).__();
+            .div().attrStyle("display:flex;justify-content:space-between;align-items:center")
+            .of(container -> {
+                // Left: page navigation
+                container.nav().of(nav -> buildPageNavigation(nav, ctx)).__();
+                // Right: page-size selector
+                container.div().of(div -> buildMaxRowsSelector(div, ctx)).__();
+            }).__();
     }
 
     private void renderFilters(Tr<?> tr, LCTableContext<T1> ctx) {
@@ -72,8 +111,8 @@ public class LCTable<T1>  {
     }
 
     private void renderTableHeader(Thead<?> thead, LCTableContext<T1> ctx) {
-        thead.tr().attrClass("header").of(tr -> renderPageNavigation(tr, ctx)).__();
-        thead.tr().attrClass("header").of(this::renderColumnNames).__();
+        thead.tr().attrClass("header").of(tr -> renderToolbar(tr, ctx)).__();
+        thead.tr().attrClass("header").of(tr -> renderColumnNames(tr, ctx)).__();
         thead.tr().attrClass("filter").of(tr -> renderFilters(tr, ctx)).__();
     }
 
@@ -198,7 +237,51 @@ public class LCTable<T1>  {
             .__(); // a
     }
 
-    // -- URL builder -----------------------------------------------------------
+    /** Builds the page-size selector (maxRows) and appends it into the provided div. */
+    private void buildMaxRowsSelector(Div<?> div, LCTableContext<T1> ctx) {
+        div.attrClass("page-size");
+        div.label().text("Rows: ").__();
+        div.select()
+            .attrName("maxRows")
+            .addAttr(HX_GET, entityPath)
+            .addAttr(HX_INCLUDE, "#" + panelId + " input, #" + panelId + " select")
+            .addAttr(HX_TRIGGER, "change")
+            .addAttr(HX_TARGET, "#" + panelId)
+            .addAttr(HX_SWAP, "outerHTML")
+            .addAttr(HX_PUSH_URL, "true")
+            .of(select -> {
+                for (int s : new int[]{15, 25, 50}) {
+                    if (s == ctx.maxRows) {
+                        select.option().attrValue(String.valueOf(s)).addAttr("selected", "selected").text(String.valueOf(s)).__();
+                    } else {
+                        select.option().attrValue(String.valueOf(s)).text(String.valueOf(s)).__();
+                    }
+                }
+            }).__();
+    }
+
+    /**
+     * Build a URL with sort parameters. If sortDir is null, omit sortProp and sortDir from the URL
+     * (effectively removing the sort). Otherwise, include both sortProp and sortDir.
+     */
+    private String urlForSort(String path, LCTableContext<T1> ctx, String columnName, String sortDir) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromPath(path)
+            .queryParam("page", 1)  // reset to page 1 when sorting changes
+            .queryParam("maxRows", ctx.maxRows);
+
+        if (sortDir != null) {
+            builder.queryParam("sortProp", columnName);
+            builder.queryParam("sortDir", sortDir);
+        }
+
+        if (ctx.filters != null) {
+            ctx.filters.forEach((key, val) -> {
+                if (val != null && !val.isEmpty()) builder.queryParam(PARAM_FILTER_PREFIX + key, val);
+            });
+        }
+
+        return builder.encode().toUriString();
+    }
 
     /**
      * Build an application URL with all table-state parameters.

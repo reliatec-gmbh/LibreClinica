@@ -36,7 +36,7 @@ public class AuditUserLoginTable {
     final List<LCTableColumnDef<AuditUserLoginBean>> columns = Arrays.asList(
         textCol("userName", "User Name", AuditUserLoginBean::getUserName),
         textCol("loginAttemptDate", "Attempt Date",
-            textFilter(timestampFilterforHtmlValidation, timestampFilterMessage),
+            textFilter(TIMESTAMP_FILTER_FOR_HTML_VALIDATION, TIMESTAMP_FILTER_MESSAGE),
             AuditUserLoginBean::getLoginAttemptDate, dateFmt::format
         ),
         enumCol("loginStatus", "Status",
@@ -84,10 +84,10 @@ public class AuditUserLoginTable {
      */
     public String render(HttpServletRequest request) {
         String entityPath = request.getRequestURI();
-        LCTable<AuditUserLoginBean> table = new LCTable<>(entityPath, "userLogins", columns, fetchData);
+        String resourcePath = request.getContextPath();
+        LCTable<AuditUserLoginBean> table = new LCTable<>(entityPath, resourcePath, "userLogins", columns, fetchData);
         LCTableParams tableParams = new LCTableParams(request.getQueryString(), table);
         return table.render(tableParams);
     }
 
 }
-
