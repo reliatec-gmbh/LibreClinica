@@ -25,6 +25,10 @@ public class LCTable<T1>  {
     final List<LCTableColumnDef<T1>> columns;
     final Function<LCTableParams, LCTableData<T1>> fetchData;
 
+    // constants to control table behaviour
+    static final boolean HIDE_PAGINATION_TOOLS_FOR_SINGLE_PAGE_TABLE = false;
+
+
     public LCTable(String entityPath, String resourcePath, String tableName, List<LCTableColumnDef<T1>> columns, Function<LCTableParams, LCTableData<T1>> fetchData) {
         this.entityPath   = entityPath;
         this.resourcePath = resourcePath;
@@ -188,7 +192,7 @@ public class LCTable<T1>  {
     }
 
     private void buildPageNavigation(Nav<?> nav, LCTableContext<T1> ctx) {
-        if (ctx.totalPages <= 1) return;
+        if (HIDE_PAGINATION_TOOLS_FOR_SINGLE_PAGE_TABLE && ctx.totalPages <= 1) return;
 
         final int page = ctx.page;
         final int total = ctx.totalPages;
@@ -244,6 +248,8 @@ public class LCTable<T1>  {
 
     /** Builds the page-size selector (maxRows) and appends it into the provided div. */
     private void buildMaxRowsSelector(Div<?> div, LCTableContext<T1> ctx) {
+        if (HIDE_PAGINATION_TOOLS_FOR_SINGLE_PAGE_TABLE && ctx.totalPages <= 1) return;
+
         div.attrClass("page-size");
         div.label().text("Rows: ").__();
         div.select()
