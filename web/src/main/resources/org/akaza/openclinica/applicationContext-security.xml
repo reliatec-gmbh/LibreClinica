@@ -17,6 +17,7 @@
 
   <security:http entry-point-ref="authenticationProcessingFilterEntryPoint" use-expressions="true">
     
+    <security:request-cache ref="htmxAwareRequestCache"/>
     <security:anonymous />
     <security:intercept-url pattern="/pages/login/login" access="permitAll"/>
     <security:intercept-url pattern="/SystemStatus" access="permitAll"/>
@@ -136,6 +137,8 @@
         <property name="auditUserLoginDao" ref="auditUserLoginDao"/>
         <property name="dataSource" ref="dataSource"/>
     </bean>
+
+    <bean id="htmxAwareRequestCache" class="org.akaza.openclinica.web.filter.HtmxAwareHttpSessionRequestCache"/>
     
     <bean id="inMemoryTokenStore" class="org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore">
         <property name="flushInterval" value="30"/>
