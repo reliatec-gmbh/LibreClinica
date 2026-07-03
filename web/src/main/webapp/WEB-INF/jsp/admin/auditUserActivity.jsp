@@ -96,4 +96,7 @@
      pagination links on Audit User Activity without adding the script globally. -->
 <script src="${pageContext.request.contextPath}/webjars/htmx.org/2.0.9/dist/htmx.min.js"></script>
 
+<!-- Session-expiry redirect guard for HTMX-based LCTable requests. -->
+<script src="${pageContext.request.contextPath}/js/htmx-session-expiry-guard.js"></script>
+
 <jsp:include page="../include/footer.jsp"/>
