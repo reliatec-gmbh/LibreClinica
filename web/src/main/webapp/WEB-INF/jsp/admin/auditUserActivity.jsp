@@ -96,31 +96,7 @@
      pagination links on Audit User Activity without adding the script globally. -->
 <script src="${pageContext.request.contextPath}/webjars/htmx.org/2.0.9/dist/htmx.min.js"></script>
 
-<%--
-  Session-expiry redirect guard.
-
-  When the HTTP session expires, the next HTMX pagination/sort request is
-  intercepted by Spring Security, which responds with a 302 to the login page.
-  Browsers transparently follow 302 redirects inside XHR, so HTMX receives
-  a 200 OK containing the full login-page HTML and would normally inject it
-  into the table's swap target.
-
-  The listener below detects that the XHR was redirected to the login page
-  (xhr.responseURL contains the known login path) and, instead of letting
-  HTMX swap the login HTML into the panel div, cancels the swap and performs
-  a full-page navigation to the login URL.  The user sees a proper login
-  screen and, after re-login, Spring Security redirects to /MainMenu
-  (the HtmxAwareHttpSessionRequestCache ensures the HTMX partial request
-  is never saved, so no broken-page replay can occur on the way back).
---%>
-<script>
-    document.body.addEventListener('htmx:beforeSwap', function (evt) {
-        var responseUrl = evt.detail.xhr && evt.detail.xhr.responseURL;
-        if (responseUrl && responseUrl.indexOf('/pages/login/login') !== -1) {
-            evt.detail.shouldSwap = false;
-            window.location.href = responseUrl;
-        }
-    });
-</script>
+<!-- Session-expiry redirect guard for HTMX-based LCTable requests. -->
+<script src="${pageContext.request.contextPath}/js/htmx-session-expiry-guard.js"></script>
 
 <jsp:include page="../include/footer.jsp"/>
