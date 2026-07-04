@@ -5,7 +5,28 @@
  * For details see: https://libreclinica.org/license
  * copyright (C) 2003 - 2011 Akaza Research
  * copyright (C) 2003 - 2019 OpenClinica
- * copyright (C) 2020 - 2024 LibreClinica
+ * copyright (C) 2020 - 2026 LibreClinica
+ * copyright (C) 2026 UMIN (University Hospital Medical Information Network)
+ *
+ * Author:  Yoshiteru Chiba
+ * Notice:  Developed under a service-agreement contract with UMIN;
+ *          copyright in this modification has been assigned to UMIN. The
+ *          author retains moral rights inalienable under Article 59
+ *          of the Japanese Copyright Act. See README for full
+ *          attribution.
+ *
+ * Modifications:
+ *   - Restored the external-randomization hook: getValue() now returns the
+ *     allocation code from RandomizeService when stratification factors are
+ *     present (the LibreClinica fork kept the stratificationFactorBeans seam
+ *     but removed the body). Added randomizeService field + accessors;
+ *     date: 2026-03-11 - 2026-03-12.
+ *
+ * License selection:
+ *   The OpenClinica original was licensed under LGPL v2.1 or later.
+ *   Per LGPL v2.1 section 13, this work selects version 3.0 of the GNU
+ *   Lesser General Public License, matching the upstream LibreClinica
+ *   distribution license.
  */
 package org.akaza.openclinica.service.crfdata;
 
@@ -49,6 +70,7 @@ import org.akaza.openclinica.domain.rule.RuleSetBean;
 import org.akaza.openclinica.domain.rule.action.PropertyBean;
 import org.akaza.openclinica.domain.rule.action.StratificationFactorBean;
 import org.akaza.openclinica.exception.OpenClinicaException;
+import org.akaza.openclinica.service.RandomizeService;
 import org.akaza.openclinica.service.rule.expression.ExpressionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,10 +86,21 @@ public class DynamicsMetadataService implements MetadataServiceInterface {
     private EventDefinitionCRFDAO eventDefinitionCRFDAO;
     private ExpressionService expressionService;
     private UserAccountDAO uadao;
-    
+    // External randomization service integration. Injected by name via
+    // Spring (applicationContext-core-service.xml). May be null if not wired.
+    private RandomizeService randomizeService;
+
     public DynamicsMetadataService(DataSource ds) {
         this.ds = ds;
         this.uadao = new UserAccountDAO(this.ds);
+    }
+
+    public RandomizeService getRandomizeService() {
+        return randomizeService;
+    }
+
+    public void setRandomizeService(RandomizeService randomizeService) {
+        this.randomizeService = randomizeService;
     }
 
     public boolean hide(Object metadataBean, EventCRFBean eventCrfBean) {
@@ -422,6 +455,14 @@ public class DynamicsMetadataService implements MetadataServiceInterface {
 
     private String getValue(PropertyBean property, RuleSetBean ruleSet, EventCRFBean eventCrfBean,List<StratificationFactorBean> stratificationFactorBeans) {
         String value = null;
+        // Randomization hook: when stratification factors are present the value to be
+        // written is the allocation code obtained from the external randomization
+        // service via a live HTTP call. Null-guarded so that an unwired
+        // randomizeService bean degrades gracefully instead of throwing.
+        if (stratificationFactorBeans != null && !stratificationFactorBeans.isEmpty()
+                && getRandomizeService() != null) {
+            return getRandomizeService().getRandomizationCode(eventCrfBean, stratificationFactorBeans, ruleSet);
+        }
         if (property.getValue() != null && property.getValue().length() > 0) {
             value = property.getValue();
             logger.info("Value from property value is : {}", value);

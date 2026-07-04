@@ -2,3 +2,4 @@
 * [Set Up a Development Machine (Windows)](development/dev-machine-windows.md "setting up a development environment on Windows")
 * [Using Containers for Development](development/containers.md "using containers for development")
 * [Development Workflows](development/developer.md "development and contribution workflows")
+* [External Randomization Module API](development/randomization-module-api.md "REST endpoints a randomization module must implement")

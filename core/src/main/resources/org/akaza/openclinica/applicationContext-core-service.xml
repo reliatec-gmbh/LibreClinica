@@ -24,7 +24,13 @@
     <bean id="dynamicsMetadataService" class="org.akaza.openclinica.service.crfdata.DynamicsMetadataService" autowire="byName">
         <constructor-arg ref="dataSource"/>
     </bean>
-    
+
+    <!-- External randomization service integration. Injected by name
+         into dynamicsMetadataService (autowire="byName" -> setRandomizeService). -->
+    <bean id="randomizeService" class="org.akaza.openclinica.service.RandomizeService">
+        <constructor-arg ref="dataSource"/>
+    </bean>
+
     <bean id="ruleSetService" class="org.akaza.openclinica.service.rule.RuleSetService" autowire="byName">
         <property name="dataSource" ref="dataSource"/>
         <property name="beanPropertyService" ref="beanPropertyService"/>

@@ -10,3 +10,4 @@ community.
 | [Set Up a Development Machine (Windows)](development/dev-machine-windows.md) | Description of steps necessary for setting up a development environment for LibreClinica on Windows. |
 | [Using Containers for Development](development/containers.md)        | Description how to use containers for development |
 | [Development Workflows](development/developer.md)                    | Information about LibreClinica development and contribution workflows |
+| [External Randomization Module API](development/randomization-module-api.md) | REST endpoints an external randomization module must implement for the opt-in randomization delegation. |

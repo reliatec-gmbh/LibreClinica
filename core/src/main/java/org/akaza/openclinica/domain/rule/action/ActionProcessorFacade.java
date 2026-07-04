@@ -5,7 +5,26 @@
  * For details see: https://libreclinica.org/license
  * copyright (C) 2003 - 2011 Akaza Research
  * copyright (C) 2003 - 2019 OpenClinica
- * copyright (C) 2020 - 2024 LibreClinica
+ * copyright (C) 2020 - 2026 LibreClinica
+ * copyright (C) 2026 UMIN (University Hospital Medical Information Network)
+ *
+ * Author:  Yoshiteru Chiba
+ * Notice:  Developed under a service-agreement contract with UMIN;
+ *          copyright in this modification has been assigned to UMIN. The
+ *          author retains moral rights inalienable under Article 59
+ *          of the Japanese Copyright Act. See README for full
+ *          attribution.
+ *
+ * Modifications:
+ *   - RANDOMIZE case: restored dispatch to RandomizeActionProcessor
+ *     (the LibreClinica fork had stubbed this case to throw
+ *     "not supported"); date: 2026-03-11 - 2026-03-12.
+ *
+ * License selection:
+ *   The OpenClinica original was licensed under LGPL v2.1 or later.
+ *   Per LGPL v2.1 section 13, this work selects version 3.0 of the GNU
+ *   Lesser General Public License, matching the upstream LibreClinica
+ *   distribution license.
  */
 package org.akaza.openclinica.domain.rule.action;
 
@@ -37,8 +56,7 @@ public class ActionProcessorFacade {
         case INSERT:
             return new InsertActionProcessor(ds, itemMetadataService, ruleActionRunLogDao, ruleSet, ruleSetRule);
         case RANDOMIZE:
-            // Randomization is removed from LibreClinica
-            throw new OpenClinicaSystemException("actionType", "action type 'RANDOMIZE' is not supported in LibreClinica!");
+            return new RandomizeActionProcessor(ds, itemMetadataService, ruleActionRunLogDao, ruleSet, ruleSetRule);
         default:
             throw new OpenClinicaSystemException("actionType", "Unrecognized action type!");
         }
