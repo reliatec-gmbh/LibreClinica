@@ -47,10 +47,8 @@ public class AuditUserLoginTable {
         customTdCol("actions","Actions", NOT_SORTABLE, NO_FILTER,
             AuditUserLoginBean::getUserAccountId,
             (td, userAccountId) ->
-                td.a().attrHref("ViewUserAccount?userId=" + userAccountId + "&viewFull=yes")
-                    .img().attrSrc("images/bt_View.gif").attrAlt("View").attrTitle("View").__()
-                .__()
-        )
+                td.of(linkIcon("View", "ViewUserAccount?userId=" + userAccountId + "&viewFull=yes", "images/bt_View.gif", "View"))
+            )
     );
 
     /**

@@ -1,5 +1,9 @@
 package org.akaza.openclinica.lctable;
 
+import org.xmlet.htmlapifaster.Element;
+import org.xmlet.htmlapifaster.Td;
+
+import java.util.function.Consumer;
 
 public class LCTableUtil {
     public static final String TIMESTAMP_FILTER_FOR_HTML_VALIDATION =
@@ -10,6 +14,22 @@ public class LCTableUtil {
 
     private LCTableUtil() {
         // Private constructor to prevent instantiation of this utility class
+    }
+
+    /**
+     * Convenience helper to construct an icon with a link.
+     * Use like: td.of(LCTableUtil.iconLink("View", href, "images/bt_View.gif", "View"));
+     *
+     * @param altTitle  title/alt text to put on the anchor (and used as title on the anchor)
+     * @param href      href for the anchor
+     * @param imgSrc    src for the inner img
+     * @param imgAlt    alt text for the inner img
+     */
+    public static <T extends Element<?, ?>> Consumer<Td<T>> linkIcon(String altTitle, String href, String imgSrc, String imgAlt) {
+        return td -> td
+            .a().attrHref(href).attrTitle(altTitle)
+                .img().attrSrc(imgSrc).attrAlt(imgAlt).__()
+            .__();  // close a()
     }
 
 }
