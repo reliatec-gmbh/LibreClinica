@@ -18,7 +18,7 @@
 
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
     <title><fmt:message key="openclinica" bundle="${resword}"/></title>
 
@@ -37,7 +37,6 @@
 
 <!-- End -->
 
-<script type="text/JavaScript" language="JavaScript" src="../../includes/prototype.js"></script>
 
 <body style="width:1024px;" class="main_BG"
 

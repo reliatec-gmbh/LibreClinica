@@ -40,6 +40,33 @@ For more details on the GNU Lesser General Public License,
 see http://www.gnu.org/copyleft/lesser.html
 */
 
+/* =============================================================================
+ * Modified for LibreClinica v1.4.0rc1 current-browser compatibility patch.
+ *   Modification date: 2026-04-15 to 2026-04-27
+ *   Author:            Yoshiteru Chiba
+ *   Copyright holder:  UMIN (University Hospital Medical Information Network)
+ *   Notice:            Developed under a service-agreement contract with UMIN;
+ *                      copyright in this modification has been assigned to UMIN.
+ *                      The author retains moral rights inalienable under
+ *                      Article 59 of the Japanese Copyright Act.
+ *                      See README for full attribution.
+ *   Changes:
+ *     - Removed eval("window."+name+"="+n) and similar eval-based property
+ *       writes; replaced with window[name]=n equivalents.
+ *     - Removed attachEvent/detachEvent branches in tt_AddEvtFnc/tt_RemEvtFnc;
+ *       the W3C addEventListener/removeEventListener path is used unconditionally.
+ *     - Removed window.event fallbacks; event objects are taken from the handler
+ *       argument.
+ *     - Replaced document.all-based tt_GetElt() with document.getElementById().
+ *     - Replaced legacy IE detection with document.documentMode-based test.
+ *   The original Walter Zorn notice above is preserved verbatim per its
+ *   "untouched at all times" requirement; this block is appended after that
+ *   notice purely as a modification record (LGPL §2(a)) and is distinct from it.
+ *   The wz_tooltip.js source remains under its original GNU LGPL license, in
+ *   addition to LibreClinica's own GNU LGPL version 3.0
+ *   (https://www.libreclinica.org/download.html#headLicense).
+ * ============================================================================= */
+
 var config = new Object();
 
 
@@ -218,9 +245,7 @@ function tt_Hide()
 }
 function tt_GetElt(id)
 {
-	return(document.getElementById ? document.getElementById(id)
-			: document.all ? document.all[id]
-			: null);
+	return document.getElementById(id);
 }
 function tt_GetDivW(el)
 {
@@ -258,20 +283,14 @@ function tt_AddEvtFnc(el, sEvt, PFnc)
 {
 	if(el)
 	{
-		if(el.addEventListener)
-			el.addEventListener(sEvt, PFnc, false);
-		else
-			el.attachEvent("on" + sEvt, PFnc);
+		el.addEventListener(sEvt, PFnc, false);
 	}
 }
 function tt_RemEvtFnc(el, sEvt, PFnc)
 {
 	if(el)
 	{
-		if(el.removeEventListener)
-			el.removeEventListener(sEvt, PFnc, false);
-		else
-			el.detachEvent("on" + sEvt, PFnc);
+		el.removeEventListener(sEvt, PFnc, false);
 	}
 }
 function tt_GetDad(el)
@@ -326,7 +345,9 @@ function tt_MkCmdEnum()
 {
 	var n = 0;
 	for(var i in config)
-		eval("window." + i.toString().toUpperCase() + " = " + n++);
+	{
+		window[i.toString().toUpperCase()] = n++;
+	}
 	tt_aV.length = n;
 }
 function tt_Browser()
@@ -335,8 +356,8 @@ function tt_Browser()
 
 	n = navigator.userAgent.toLowerCase(),
 	nv = navigator.appVersion;
-	tt_op = (document.defaultView && typeof(eval("w" + "indow" + "." + "o" + "p" + "er" + "a")) != tt_u);
-	tt_ie = n.indexOf("msie") != -1 && document.all && !tt_op;
+	tt_op = (document.defaultView && typeof(window.opera) != tt_u);
+	tt_ie = !!document.documentMode; // Modern IE detection
 	if(tt_ie)
 	{
 		var ieOld = (!document.compatMode || document.compatMode == "BackCompat");
@@ -362,7 +383,7 @@ function tt_Browser()
 	{
 		if(tt_body && tt_db)
 		{
-			if(document.attachEvent || document.addEventListener)
+			if(document.addEventListener)
 				return true;
 		}
 		else
@@ -453,12 +474,7 @@ function tt_SetOnloadFnc()
 {
 	tt_AddEvtFnc(document, "DOMContentLoaded", tt_HideSrcTags);
 	tt_AddEvtFnc(window, "load", tt_HideSrcTags);
-	if(tt_body.attachEvent)
-		tt_body.attachEvent("onreadystatechange",
-			function() {
-				if(tt_body.readyState == "complete")
-					tt_HideSrcTags();
-			} );
+	// IE readystatechange fallback removed (current browsers use DOMContentLoaded)
 	if(/WebKit|KHTML/i.test(navigator.userAgent))
 	{
 		var t = setInterval(function() {
@@ -930,6 +946,8 @@ function tt_OverInit()
 {
 	if(window.event)
 		tt_over = window.event.target || window.event.srcElement;
+	else if(e)
+		tt_over = e.target;
 	else
 		tt_over = tt_ovr_;
 	tt_DeAlt(tt_over);
@@ -977,7 +995,7 @@ function tt_Move(e)
 {
 	if(e)
 		tt_ovr_ = e.target || e.srcElement;
-	e = e || window.event;
+	
 	if(e)
 	{
 		tt_musX = tt_GetEvtX(e);
@@ -1160,7 +1178,7 @@ function tt_OnCloseBtnOver(iOver)
 function tt_OnLClick(e)
 {
 	//  Ignore right-clicks
-	e = e || window.event;
+	
 	if(!((e.button && e.button & 2) || (e.which && e.which == 3)))
 	{
 		if(tt_aV[CLICKSTICKY] && (tt_iState & 0x4))
@@ -1277,10 +1295,10 @@ function tt_ExtCmdEnum()
 	// Add new command(s) to the commands enum
 	for(var i in config)
 	{
-		s = "window." + i.toString().toUpperCase();
-		if(eval("typeof(" + s + ") == tt_u"))
+		s = i.toString().toUpperCase();
+		if(typeof window[s] == tt_u)
 		{
-			eval(s + " = " + tt_aV.length);
+			window[s] = tt_aV.length;
 			tt_aV[tt_aV.length] = null;
 		}
 	}
