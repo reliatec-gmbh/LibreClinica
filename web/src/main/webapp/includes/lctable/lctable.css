@@ -35,6 +35,10 @@
     margin-left: 0px;
 }
 
+.lctable .toolbar {
+    user-select: none;
+}
+
 .lctable .toolbar td {
     padding: 0px 1px 0px 1px;
 }
@@ -64,12 +68,43 @@
     padding: 2px 2px 3px 2px;
 }
 
+/* Filter inputs and selects: no width constraints, let them adapt to content naturally */
+.lctable .filter .filter-input,
+.lctable .filter .filter-select,
+.lctable .filter .select-input {
+    font-family: verdana, arial, helvetica, sans-serif;
+    font-size: 11px;
+    padding: 2px 3px;
+    margin: 0;
+    border: 1px solid #c0c0c0;
+    background-color: var(--gray-l30);
+    height: 17px;
+    box-sizing: border-box;
+    line-height: 1;
+    border-radius: 0;
+}
+
+/* Reset browser defaults for select to match input appearance */
+.lctable .filter .filter-select,
+.lctable .filter .select-input {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 3px center;
+    background-size: 12px;
+    padding-right: 18px;
+}
+
+/* Text input: show validation error with red border and background */
 .lctable .filter .filter-input:not(:placeholder-shown):invalid {
     border-color: red;
     background-color: #fff0f0;
     color: red;
 }
-/* Optional: slightly soften the transition */
+
+/* Soften validation transitions */
 .lctable .filter .filter-input {
     transition: border-color 0.3s, background-color 0.3s;
 }
@@ -328,21 +363,31 @@
 
 .lctable .page-btn {
     display: inline-block;
-    padding: 4px 9px;
+    padding: 2px 6px;
     border: 1px solid #ddd;
-    border-radius: 2px;
+    border-radius: 0;
     text-decoration: none;
     color: #333;
     background: #fff;
     cursor: pointer;
-    font-size: 0.85rem;
+    font-size: 0.75rem;
+    min-width: 1.5em;
+    text-align: center;
 }
 
 .page-btn {
     display: inline-block;
-    padding: 4px 9px;
+    padding: 2px 6px;
     border: 1px solid #ddd;
-    border-radius: 2px;
+    border-radius: 0;
+    text-decoration: none;
+    color: #333;
+    background: #fff;
+    cursor: pointer;
+    font-size: 0.75rem;
+    min-width: 1.5em;
+    text-align: center;
+}
     text-decoration: none;
     color: #333;
     background: #fff;
@@ -353,7 +398,8 @@
 .page-btn:hover              { background: #eee; }
 .page-btn.current            { background: #2563eb; color: #fff; border-color: #2563eb; }
 .page-btn.disabled           { color: #bbb; pointer-events: none; cursor: default; }
-.page-ellipsis               { padding: 4px 6px; color: #888; font-size: 0.85rem; }
+.page-btn, .page-ellipsis    { user-select: none; }
+.page-ellipsis               { display: inline-block; min-width: 1.5em; padding: 2px 6px; color: #888; font-size: 0.75rem; text-align: center; }
 
 /* Sort header styling */
 .sort-header-link {
@@ -375,4 +421,17 @@
     width: auto;
     height: auto;
     flex-shrink: 0;
+}
+
+/* Hover highlight for rows: match jmesa .highlight appearance exactly */
+.lctable .tbody tr:hover td {
+    font-family: verdana, arial, helvetica, sans-serif;
+    font-size: 11px;
+    vertical-align: top;
+    line-height: 15px;
+    padding: 2px 3px 2px 3px;
+    background-color: var(--gray-l30);
+}
+.lctable .tbody tr:hover a {
+    color: black;
 }
