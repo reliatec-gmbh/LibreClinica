@@ -15,7 +15,7 @@
 <head>
     <c:set var="contextPath" value="${fn:replace(pageContext.request.requestURL, fn:substringAfter(pageContext.request.requestURL, pageContext.request.contextPath), '')}" />
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
     <title><fmt:message key="openclinica" bundle="${resword}"/></title>
 
@@ -26,10 +26,7 @@
     <script type="text/JavaScript" src="${pageContext.request.contextPath}/includes/Tabs.js"></script>
     <script type="text/JavaScript" src="${pageContext.request.contextPath}/includes/CalendarPopup.js"></script>
     <script type="text/JavaScript" src="${pageContext.request.contextPath}/includes/repetition-model/repetition-model.js"></script>
-    <script type="text/JavaScript" src="${pageContext.request.contextPath}/includes/prototype.js"></script>
     <script type="text/JavaScript" src="${pageContext.request.contextPath}/includes/jmesa/jquery.min.js"></script><script language="JavaScript">jQuery.noConflict();</script>
-    <script type="text/JavaScript" src="${pageContext.request.contextPath}/includes/scriptaculous.js?load=effects"></script>
-    <script type="text/JavaScript" src="${pageContext.request.contextPath}/includes/effects.js"></script>
 
     <link rel="stylesheet" type="text/css" media="all" href="${pageContext.request.contextPath}/includes/new_cal/skins/aqua/theme.css" title="Aqua" />
     <script type="text/javascript" src="${pageContext.request.contextPath}/includes/new_cal/calendar.js"></script>
