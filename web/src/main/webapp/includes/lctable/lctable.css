@@ -65,10 +65,18 @@
 }
 
 .lctable .filter td {
-    padding: 2px 2px 3px 2px;
+    padding: 2px;
 }
 
-/* Filter inputs and selects: no width constraints, let them adapt to content naturally */
+.lctable .filter .filter-wrapper {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+}
+
+/* Filter inputs and selects: fill the wrapper div (not the td directly) */
 .lctable .filter .filter-input,
 .lctable .filter .filter-select,
 .lctable .filter .select-input {
@@ -82,6 +90,9 @@
     box-sizing: border-box;
     line-height: 1;
     border-radius: 0;
+    width: 100%;
+    flex: 1;
+    min-width: 0;
 }
 
 /* Reset browser defaults for select to match input appearance */
@@ -370,8 +381,8 @@
     color: #333;
     background: #fff;
     cursor: pointer;
-    font-size: 0.75rem;
-    min-width: 1.5em;
+    font-size: 0.65rem;
+    min-width: 1.2em;
     text-align: center;
 }
 
@@ -388,18 +399,20 @@
     min-width: 1.5em;
     text-align: center;
 }
+/*
     text-decoration: none;
     color: #333;
     background: #fff;
     cursor: pointer;
     font-size: 0.85rem;
 }
+*/
 
 .page-btn:hover              { background: #eee; }
 .page-btn.current            { background: #2563eb; color: #fff; border-color: #2563eb; }
 .page-btn.disabled           { color: #bbb; pointer-events: none; cursor: default; }
 .page-btn, .page-ellipsis    { user-select: none; }
-.page-ellipsis               { display: inline-block; min-width: 1.5em; padding: 2px 6px; color: #888; font-size: 0.75rem; text-align: center; }
+.page-ellipsis               { display: inline-block; min-width: 1.2em; padding: 2px 6px; color: #888; font-size: 0.65rem; text-align: center; }
 
 /* Sort header styling */
 .sort-header-link {
