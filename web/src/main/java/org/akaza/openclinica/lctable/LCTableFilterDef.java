@@ -22,9 +22,12 @@ public abstract class LCTableFilterDef {
         return new Select<>(values, valueToString);
     }
 
+    public static ClearFilter clearFilter() { return new ClearFilter(); }
+
     /*** Signature of rendering function (to be implemented by specific filter def types) */
     public abstract <T1, R extends Element<?, ?>> void renderFilter(Tr<R> tr, LCTableContext<T1> ctx, LCTableColumnDef<T1> col, LCTable<T1> table);
 
+    /*----------------------------------------------------------------------------------------------------------------*/
     /**
      * Text filter specialization: renders an <input type="text"> with optional pattern/title
      */
@@ -78,6 +81,7 @@ public abstract class LCTableFilterDef {
         }
     }
 
+    /*----------------------------------------------------------------------------------------------------------------*/
     /**
      * Select filter specialization: renders a <select> with provided values
      */
@@ -161,6 +165,37 @@ public abstract class LCTableFilterDef {
                 });
                 select.__().__();
             }).__();
+        }
+    }
+
+    /*----------------------------------------------------------------------------------------------------------------*/
+    /**
+     * Clear filter specialization: renders a button that clears all filters when clicked.
+     *
+     * <p>Uses a precise {@code hx-include} CSS selector that names only the non-filter parameters
+     * (page, maxRows, sortProp, sortDir) by their exact {@code name} attribute. Filter inputs are
+     * never selected, so they are never included in the HTMX request — no JavaScript required.
+     */
+    public static final class ClearFilter extends LCTableFilterDef {
+        // CSS selector that picks up only the pagination/sort form fields, excluding all filter inputs.
+        private static final String NON_FILTER_PARAMS_SELECTOR =
+            "[name=" + LCTableParams.PARAM_PAGE + "]" +
+            ",[name=" + LCTableParams.PARAM_MAX_ROWS + "]" +
+            ",[name=" + LCTableParams.PARAM_SORT_PROP + "]" +
+            ",[name=" + LCTableParams.PARAM_SORT_DIR + "]";
+
+        @Override
+        public <T1, R extends Element<?, ?>> void renderFilter(Tr<R> tr, LCTableContext<T1> ctx, LCTableColumnDef<T1> col, LCTable<T1> table) {
+            tr.td().a()
+                .attrClass("page-btn")
+                .addAttr(LCTable.HX_GET, table.entityPath)
+                .addAttr(LCTable.HX_TARGET, "#" + table.panelId)
+                .addAttr(LCTable.HX_SWAP, "outerHTML")
+                .addAttr(LCTable.HX_PUSH_URL, "true")
+                .addAttr(LCTable.HX_TRIGGER, "click")
+                .addAttr(LCTable.HX_INCLUDE, NON_FILTER_PARAMS_SELECTOR)
+                .text("Clear Filter")
+                .__().__();
         }
     }
 
