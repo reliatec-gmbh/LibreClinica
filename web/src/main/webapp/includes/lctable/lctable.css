@@ -217,6 +217,12 @@
     color: black;
 }
 
+/* Prevent inline-baseline gap below images in table cells */
+.lctable .odd td img, .lctable .even td img,
+.lctable .highlight td img {
+    vertical-align: middle;
+}
+
 .lctable .odd td, .lctable .even td {
     font-family: verdana, arial, helvetica, sans-serif;
     font-size: 11px;

@@ -2,7 +2,6 @@ package org.akaza.openclinica.lctable;
 
 import org.xmlet.htmlapifaster.Element;
 import org.xmlet.htmlapifaster.EnumTypeInputType;
-import org.xmlet.htmlapifaster.Td;
 import org.xmlet.htmlapifaster.Tr;
 
 import java.util.List;
@@ -128,6 +127,7 @@ public abstract class LCTableFilterDef {
                     .attrName(filterName)
                     .attrId(table.panelId + "-filter-" + col.columnName)
                     .attrClass("filter-select")
+                    .attrStyle("width:1px;flex:1")
                     .addAttr(LCTable.HX_GET, table.entityPath)
                     .addAttr(LCTable.HX_TARGET, "#" + table.panelId)
                     .addAttr(LCTable.HX_SWAP, "outerHTML")
