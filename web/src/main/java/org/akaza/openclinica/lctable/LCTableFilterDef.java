@@ -83,11 +83,20 @@ public abstract class LCTableFilterDef {
      */
     public static final class Select<T> extends LCTableFilterDef {
         public final List<T> values;
-        public final Function<T, String> valueToString;
+        public final Function<T, String> valueToString;     // convert to string for display in the dropdown list
+        public final Function<T, String> valueToUrlParam;   // convert to string for use in the URL query parameter
 
-        public Select(List<T> values, Function<T, String> valueToString) {
+        public Select(List<T> values, Function<T, String> valueToString, Function<T, String> valueToUrlParam) {
             this.values = values;
             this.valueToString = valueToString;
+            this.valueToUrlParam = valueToUrlParam;
+        }
+
+        /**
+         * Convenience constructor: uses the same conversion-to-string function for both display and URL parameter conversion
+         */
+        public Select(List<T> values, Function<T, String> valueToString) {
+            this(values, valueToString, valueToString);
         }
 
         /**
@@ -96,6 +105,14 @@ public abstract class LCTableFilterDef {
         public String label(T value) {
             return Optional.ofNullable(value).map(this.valueToString).orElse("");
         }
+
+        /**
+         * Returns the URL parameter value for a given optional value.
+         */
+        public String urlParam(T value) {
+            return Optional.ofNullable(value).map(this.valueToUrlParam).orElse("");
+        }
+
 
         /**
          * Reconstructs the strongly-typed domain object from an HTTP query parameter string.
@@ -116,8 +133,8 @@ public abstract class LCTableFilterDef {
 
             // UI Safety Check: Verify if the URL parameter actually matches a real option
             final boolean isValidOption = rawSelected.isEmpty() || this.values.stream()
-                .map(this::label)
-                .anyMatch(label -> label.equals(rawSelected));
+                .map(this::urlParam)
+                .anyMatch(val -> val.equals(rawSelected));
 
             // If it's invalid (e.g., "broken"), treat it as empty ("All") so the UI snaps back to a valid state
             final String currentSelected = isValidOption ? rawSelected : "";
@@ -138,8 +155,9 @@ public abstract class LCTableFilterDef {
                 select.option().attrValue("").attrSelected(currentSelected.isEmpty()).text("").__();
                 this.values.forEach(option -> {
                     final String labelText = this.label(option);
-                    boolean isSelected = labelText.equals(currentSelected);
-                    select.option().attrValue(labelText).attrSelected(isSelected).text(labelText).__();
+                    final String urlParamText = this.urlParam(option);
+                    boolean isSelected = urlParamText.equals(currentSelected);
+                    select.option().attrValue(urlParamText).attrSelected(isSelected).text(labelText).__();
                 });
                 select.__().__();
             }).__();

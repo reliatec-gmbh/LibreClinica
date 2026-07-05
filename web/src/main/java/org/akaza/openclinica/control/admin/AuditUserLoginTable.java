@@ -40,8 +40,8 @@ public class AuditUserLoginTable {
             AuditUserLoginBean::getLoginAttemptDate, dateFmt::format
         ),
         enumCol("loginStatus", "Status",
-            Arrays.stream(LoginStatus.values()).map(LoginStatus::name).collect(Collectors.toList()), Function.identity(),
-            AuditUserLoginBean::getLoginStatus, LoginStatus::toString
+            Arrays.asList(LoginStatus.values()), LoginStatus::toString, LoginStatus::name,    // filter definition
+            AuditUserLoginBean::getLoginStatus, LoginStatus::toString                         // column data definition
         ),
         textCol("details","Details", AuditUserLoginBean::getDetails),
         customTdCol("actions","Actions", NOT_SORTABLE, NO_FILTER,

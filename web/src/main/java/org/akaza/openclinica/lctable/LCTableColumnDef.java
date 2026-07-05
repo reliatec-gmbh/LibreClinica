@@ -103,20 +103,20 @@ public class LCTableColumnDef<R> {
 
     // --- 4. Column factory methods for enum-like types (similar to textCol, but with list of allowed value and 'select' filter ---
 
-    public static <R, V> LCTableColumnDef<R> enumCol(String columnName, String displayName, List<V> filterValues, Function<V, String> filterRenderer, Function<R, String> colRenderer) {
-        return new LCTableColumnDef<>(columnName, displayName, true, new LCTableFilterDef.Select<>(filterValues, filterRenderer), nullSafeColText(colRenderer));
+    public static <R, V> LCTableColumnDef<R> enumCol(String columnName, String displayName, List<V> filterValues, Function<V, String> filterRenderer, Function<V, String> urlParamConverter, Function<R, String> colRenderer) {
+        return new LCTableColumnDef<>(columnName, displayName, true, new LCTableFilterDef.Select<>(filterValues, filterRenderer, urlParamConverter), nullSafeColText(colRenderer));
     }
 
-    public static <R, V> LCTableColumnDef<R> enumColNotSortable(String columnName, String displayName, List<V> filterValues, Function<V, String> filterRenderer, Function<R, String> colRenderer) {
-        return new LCTableColumnDef<>(columnName, displayName, false, new LCTableFilterDef.Select<>(filterValues, filterRenderer), nullSafeColText(colRenderer));
+    public static <R, V> LCTableColumnDef<R> enumColNotSortable(String columnName, String displayName, List<V> filterValues, Function<V, String> filterRenderer, Function<V, String> urlParamConverter, Function<R, String> colRenderer) {
+        return new LCTableColumnDef<>(columnName, displayName, false, new LCTableFilterDef.Select<>(filterValues, filterRenderer, urlParamConverter), nullSafeColText(colRenderer));
     }
 
-    public static <R, F, V> LCTableColumnDef<R> enumCol(String columnName, String displayName, List<V> filterValues, Function<V, String> filterRenderer, Function<R, F> extractor, Function<F, String> colRenderer) {
-        return new LCTableColumnDef<>(columnName, displayName, true, new LCTableFilterDef.Select<>(filterValues, filterRenderer), nullSafeColText(extractor, colRenderer));
+    public static <R, F, V> LCTableColumnDef<R> enumCol(String columnName, String displayName, List<V> filterValues, Function<V, String> filterRenderer, Function<V, String> urlParamConverter, Function<R, F> extractor, Function<F, String> colRenderer) {
+        return new LCTableColumnDef<>(columnName, displayName, true, new LCTableFilterDef.Select<>(filterValues, filterRenderer, urlParamConverter), nullSafeColText(extractor, colRenderer));
     }
 
-    public static <R, F, V> LCTableColumnDef<R> enumColNotSortable(String columnName, String displayName, List<V> filterValues, Function<V, String> filterRenderer, Function<R, F> extractor, Function<F, String> colRenderer) {
-        return new LCTableColumnDef<>(columnName, displayName, false, new LCTableFilterDef.Select<>(filterValues, filterRenderer), nullSafeColText(extractor, colRenderer));
+    public static <R, F, V> LCTableColumnDef<R> enumColNotSortable(String columnName, String displayName, List<V> filterValues, Function<V, String> filterRenderer, Function<V, String> urlParamConverter, Function<R, F> extractor, Function<F, String> colRenderer) {
+        return new LCTableColumnDef<>(columnName, displayName, false, new LCTableFilterDef.Select<>(filterValues, filterRenderer, urlParamConverter), nullSafeColText(extractor, colRenderer));
     }
 
     // --- 5. Column factory methods for custom 'td' rendering ---
