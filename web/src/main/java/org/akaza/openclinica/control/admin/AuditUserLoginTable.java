@@ -17,7 +17,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 public class AuditUserLoginTable {
@@ -34,17 +33,17 @@ public class AuditUserLoginTable {
      * Defines the columns for the AuditUserLogin table.
      */
     final List<LCTableColumnDef<AuditUserLoginBean>> columns = Arrays.asList(
-        textCol("userName", "User Name", AuditUserLoginBean::getUserName),
-        textCol("loginAttemptDate", "Attempt Date",
+        textCol("userName", "User Name", 5, AuditUserLoginBean::getUserName),
+        textCol("loginAttemptDate", "Attempt Date", 7,
             textFilter(TIMESTAMP_FILTER_FOR_HTML_VALIDATION, TIMESTAMP_FILTER_MESSAGE),
             AuditUserLoginBean::getLoginAttemptDate, dateFmt::format
         ),
-        enumCol("loginStatus", "Status",
+        enumCol("loginStatus", "Status", 7,
             Arrays.asList(LoginStatus.values()), LoginStatus::toString, LoginStatus::name,    // filter definition
             AuditUserLoginBean::getLoginStatus, LoginStatus::toString                         // column data definition
         ),
-        textCol("details","Details", AuditUserLoginBean::getDetails),
-        customTdCol("actions","Actions", NOT_SORTABLE, NO_FILTER,
+        textCol("details","Details", 3, AuditUserLoginBean::getDetails),
+        customTdCol("actions","Actions", 2, NOT_SORTABLE, NO_FILTER,
             AuditUserLoginBean::getUserAccountId,
             (td, userAccountId) ->
                 td.of(linkIcon("View", "ViewUserAccount?userId=" + userAccountId + "&viewFull=yes", "images/bt_View.gif", "View"))

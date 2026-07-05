@@ -405,14 +405,6 @@
     min-width: 1.5em;
     text-align: center;
 }
-/*
-    text-decoration: none;
-    color: #333;
-    background: #fff;
-    cursor: pointer;
-    font-size: 0.85rem;
-}
-*/
 
 .page-btn:hover              { background: #eee; }
 .page-btn.current            { background: #2563eb; color: #fff; border-color: #2563eb; }

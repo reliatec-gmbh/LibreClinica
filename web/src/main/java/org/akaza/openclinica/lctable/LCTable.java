@@ -75,7 +75,7 @@ public class LCTable<T1>  {
         // Build the URL for this sort state
         String href = urlForSort(entityPath, ctx, col.columnName, nextDir);
 
-        if (!col.sortable) {
+        if (!col.isSortable) {
             // Non-sortable column: just render the header text without a link
             tr.th().text(col.columnDisplayName).__();
         } else {
@@ -151,10 +151,10 @@ public class LCTable<T1>  {
             // Hidden inputs for filter submission. Page is reset to 1 when filtering (like search box).
             // Pagination buttons use their own URLs with all parameters, so this page value
             // doesn't affect them.
-            .input().attrType(EnumTypeInputType.HIDDEN).attrName("page").attrValue("1").__()
-            .input().attrType(EnumTypeInputType.HIDDEN).attrName("maxRows").attrValue(String.valueOf(ctx.maxRows)).__()
-            .input().attrType(EnumTypeInputType.HIDDEN).attrName("sortProp").attrValue(ctx.sortProp).__()
-            .input().attrType(EnumTypeInputType.HIDDEN).attrName("sortDir").attrValue(ctx.sortDir).__()
+            .input().attrType(EnumTypeInputType.HIDDEN).attrName(PARAM_PAGE).attrValue("1").__()
+            .input().attrType(EnumTypeInputType.HIDDEN).attrName(PARAM_MAX_ROWS).attrValue(String.valueOf(ctx.maxRows)).__()
+            .input().attrType(EnumTypeInputType.HIDDEN).attrName(PARAM_SORT_PROP).attrValue(ctx.sortProp).__()
+            .input().attrType(EnumTypeInputType.HIDDEN).attrName(PARAM_SORT_DIR).attrValue(ctx.sortDir).__()
 
             .table().attrClass("table").attrStyle("border-collapse:collapse")
             .thead().of(thead -> renderTableHeader(thead, ctx)).__() // thead
@@ -253,7 +253,7 @@ public class LCTable<T1>  {
         div.attrClass("page-size");
         div.label().text("Rows: ").__();
         div.select()
-            .attrName("maxRows")
+            .attrName(PARAM_MAX_ROWS)
             .addAttr(HX_GET, entityPath)
             .addAttr(HX_INCLUDE, "#" + panelId + " input, #" + panelId + " select")
             .addAttr(HX_TRIGGER, "change")
@@ -277,12 +277,12 @@ public class LCTable<T1>  {
      */
     private String urlForSort(String path, LCTableContext<T1> ctx, String columnName, String sortDir) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromPath(path)
-            .queryParam("page", 1)  // reset to page 1 when sorting changes
-            .queryParam("maxRows", ctx.maxRows);
+            .queryParam(PARAM_PAGE, 1)  // reset to page 1 when sorting changes
+            .queryParam(PARAM_MAX_ROWS, ctx.maxRows);
 
         if (sortDir != null) {
-            builder.queryParam("sortProp", columnName);
-            builder.queryParam("sortDir", sortDir);
+            builder.queryParam(PARAM_SORT_PROP, columnName);
+            builder.queryParam(PARAM_SORT_DIR, sortDir);
         }
 
         if (ctx.filters != null) {
@@ -300,10 +300,10 @@ public class LCTable<T1>  {
      */
     private String url(String path, int page, int maxRows, String sortProp, String sortDir, Map<String, String> filters) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromPath(path)
-            .queryParam("page", page + 1)
-            .queryParam("maxRows", maxRows)
-            .queryParam("sortProp", sortProp == null ? "" : sortProp)
-            .queryParam("sortDir", sortDir == null ? "asc" : sortDir);
+            .queryParam(PARAM_PAGE, page + 1)
+            .queryParam(PARAM_MAX_ROWS, maxRows)
+            .queryParam(PARAM_SORT_PROP, sortProp == null ? "" : sortProp)
+            .queryParam(PARAM_SORT_DIR, sortDir == null ? "asc" : sortDir);
         if (filters != null) {
             filters.forEach((key, val) -> {
                 if (val != null && !val.isEmpty()) builder.queryParam(PARAM_FILTER_PREFIX + key, val);
