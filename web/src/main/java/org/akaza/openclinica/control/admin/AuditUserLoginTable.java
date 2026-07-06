@@ -39,8 +39,7 @@ public class AuditUserLoginTable {
             AuditUserLoginBean::getLoginAttemptDate, dateFmt::format
         ),
         enumCol("loginStatus", "Status", 7,
-            Arrays.asList(LoginStatus.values()), LoginStatus::toString, LoginStatus::name,    // filter definition
-            AuditUserLoginBean::getLoginStatus, LoginStatus::toString                         // column data definition
+            AuditUserLoginBean::getLoginStatus, Arrays.asList(LoginStatus.values()), LoginStatus::toString, LoginStatus::name
         ),
         textCol("details","Details", 3, AuditUserLoginBean::getDetails),
         customTdCol("actions", "Actions", 4, NOT_SORTABLE, clearFilter(),
