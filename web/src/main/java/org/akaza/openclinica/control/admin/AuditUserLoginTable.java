@@ -1,3 +1,10 @@
+/*
+ * LibreClinica is distributed under the
+ * GNU Lesser General Public License (GNU LGPL).
+
+ * For details see: https://libreclinica.org/license
+ * copyright (C) 2026 LibreClinica
+ */
 package org.akaza.openclinica.control.admin;
 
 import org.akaza.openclinica.dao.hibernate.AuditUserLoginDao;
