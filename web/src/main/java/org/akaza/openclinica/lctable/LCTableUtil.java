@@ -1,77 +1,64 @@
+/*
+ * LibreClinica is distributed under the
+ * GNU Lesser General Public License (GNU LGPL).
+
+ * For details see: https://libreclinica.org/license
+ * copyright (C) 2026 LibreClinica
+ *
+ * Author: Giuseppe Del Castillo
+ * Development sponsored by ReliaTec GmbH
+ */
 package org.akaza.openclinica.lctable;
 
-import org.springframework.util.MultiValueMap;
+import static org.akaza.openclinica.lctable.LCTable.*;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import org.xmlet.htmlapifaster.CustomAttributeGroup;
+import org.xmlet.htmlapifaster.Element;
+import org.xmlet.htmlapifaster.Td;
+
+import java.util.function.Consumer;
 
 public class LCTableUtil {
+    public static final String TIMESTAMP_FILTER_FOR_HTML_VALIDATION =
+        "(?:(?:(?:00|20)(?:00|0[48]|[2468][048]|[13579][26])|(?:0[1-9]|1\\d)(?:0[48]|[2468][048]|[13579][26]))(?:-(?:(?:0[13578]|1[02])(?:-(?:0[1-9]|[12]\\d|3[01]))?|(?:0[469]|11)(?:-(?:0[1-9]|[12]\\d|30))?|02(?:-(?:0[1-9]|1\\d|2[0-9]))?))?|(?:(?:00|20)(?:0[1-35-79]|[13579][01345789]|[2468][1-35-79])|(?:0[1-9]|1\\d)(?:00|0[1-35-79]|[13579][01345789]|[2468][1-35-79]))(?:-(?:(?:0[13578]|1[02])(?:-(?:0[1-9]|[12]\\d|3[01]))?|(?:0[469]|11)(?:-(?:0[1-9]|[12]\\d|30))?|02(?:-(?:0[1-9]|1\\d|2[0-8]))?))?)(?: (?:[01]\\d|2[0-3])(?::[0-5]\\d)?)?";
+
+    public static final String TIMESTAMP_FILTER_MESSAGE =
+        "Please enter a valid format: yyyy, yyyy-mm, yyyy-mm-dd, yyyy-mm-dd hh, or yyyy-mm-dd hh:mm (years up to 2099)";
 
     private LCTableUtil() {
         // Private constructor to prevent instantiation of this utility class
     }
 
-    // -- URL parameter names --------------------------------------------------
-    public static final String PARAM_PAGE = "page";
-    public static final String PARAM_MAX_ROWS = "maxRows";
-    public static final String PARAM_SORT_PROP = "sortProp";
-    public static final String PARAM_SORT_DIR = "sortDir";
-    public static final String PARAM_FILTER_PREFIX = "filter.";
+    public static final String NO_HX_INCLUDE = null;          // just for better readability in method calls
+    public static final String NO_HX_TRIGGER = null;          // just for better readability in method calls
 
-    // -- HTMX attribute names (use constants to avoid repeating string literals)
-    public static final String HX_GET = "hx-get";
-    public static final String HX_TARGET = "hx-target";
-    public static final String HX_SWAP = "hx-swap";
-    public static final String HX_PUSH_URL = "hx-push-url";
-    public static final String HX_TRIGGER = "hx-trigger";
-    public static final String HX_INCLUDE = "hx-include";
-    // -- Generic static request-parameter helpers -----------------------------
-
-    // Make nullSafe static so it can be statically imported and used from templates/helpers
-    public static String nullSafe(String s) {
-        return s != null ? s : "";
-    }
-
-    public static int intParam(MultiValueMap<String, String> params, String name, int defaultValue) {
-        String v = params == null ? null : params.getFirst(name);
-        if (v == null || v.trim().isEmpty()) {
-            return defaultValue;
-        }
-        try {
-            return Integer.parseInt(v.trim());
-        } catch (NumberFormatException e) {
-            return defaultValue;
-        }
-    }
-
-    public static String strParam(MultiValueMap<String, String> params, String name, String defaultValue) {
-        String v = params == null ? null : params.getFirst(name);
-        return (v == null || v.trim().isEmpty()) ? defaultValue : v.trim();
+    public static <T extends CustomAttributeGroup<T, ?>> Consumer<T> hxGetAttrs(
+        String hxGet, String hxInclude, String hxTarget, String hxTrigger
+    ) {
+        return el -> {
+            el.addAttr(HX_GET, hxGet);
+            if (hxInclude != null) el.addAttr(HX_INCLUDE, hxInclude);
+            el.addAttr(HX_TARGET, hxTarget);
+            el.addAttr(HX_SWAP, "outerHTML");
+            if (hxTrigger != null) el.addAttr(HX_TRIGGER, hxTrigger);
+            el.addAttr(HX_PUSH_URL, "true");
+        };
     }
 
     /**
-     * Reads all request parameters whose name starts with {@value #PARAM_FILTER_PREFIX}.
+     * Convenience helper to construct an icon with a link.
+     * Use like: td.of(LCTableUtil.iconLink("View", href, "images/bt_View.gif", "View"));
+     *
+     * @param altTitle  title/alt text to put on the anchor (and used as title on the anchor)
+     * @param href      href for the anchor
+     * @param imgSrc    src for the inner img
+     * @param imgAlt    alt text for the inner img
      */
-    public static Map<String, String> readFilters(MultiValueMap<String, String> params) {
-        final Map<String, String> filters = new LinkedHashMap<>();
-        if (params == null) {
-            return filters;
-        }
-        for (Map.Entry<String, List<String>> e : params.entrySet()) {
-            String key = e.getKey();
-            List<String> vals = e.getValue();
-            if (key.startsWith(PARAM_FILTER_PREFIX)
-                && vals != null
-                && !vals.isEmpty()
-                && vals.get(0) != null
-                && !vals.get(0).trim().isEmpty()) {
-                filters.put(
-                    key.substring(PARAM_FILTER_PREFIX.length()),
-                    vals.get(0).trim());
-            }
-        }
-        return filters;
+    public static <T extends Element<?, ?>> Consumer<Td<T>> linkIcon(String altTitle, String href, String imgSrc, String imgAlt) {
+        return td -> td
+            .a().attrHref(href).attrTitle(altTitle)
+                .img().attrSrc(imgSrc).attrAlt(imgAlt).__()
+            .__();  // close a()
     }
 
 }

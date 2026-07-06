@@ -18,12 +18,19 @@
      to non-existent table structures, which triggers
      "element.dispatchEvent is not a function" errors (especially after
      session-expiry redirects via the login page). --%>
-<link rel="stylesheet" href="includes/jmesa/jmesa.css" type="text/css">
+<c:choose>
+    <c:when test="${tableRenderingMode == 'jmesa'}">
+        <link rel="stylesheet" href="includes/jmesa/jmesa.css" type="text/css">
+    </c:when>
+    <c:otherwise>
+        <link rel="stylesheet" href="includes/lctable/lctable.css" type="text/css">
+    </c:otherwise>
+</c:choose>
 <c:if test="${tableRenderingMode == 'jmesa'}">
     <script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jquery.min.js"></script>
     <script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jquery.jmesa.js"></script>
     <script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jmesa.js"></script>
-    <script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jquery-migrate-1.1.1.js"></script>
+    <script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jquery-migrate-3.4.1.min.js"></script>
 
     <script type="text/javascript">
         function onInvokeAction(id, action) {
@@ -88,5 +95,8 @@
      declared in web/pom.xml. This ensures HTMX is available for the LCTable
      pagination links on Audit User Activity without adding the script globally. -->
 <script src="${pageContext.request.contextPath}/webjars/htmx.org/2.0.9/dist/htmx.min.js"></script>
+
+<!-- Session-expiry redirect guard for HTMX-based LCTable requests. -->
+<script src="${pageContext.request.contextPath}/js/htmx-session-expiry-guard.js"></script>
 
 <jsp:include page="../include/footer.jsp"/>

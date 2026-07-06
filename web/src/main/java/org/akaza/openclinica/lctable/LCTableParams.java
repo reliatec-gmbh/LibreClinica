@@ -1,53 +1,120 @@
+/*
+ * LibreClinica is distributed under the
+ * GNU Lesser General Public License (GNU LGPL).
+
+ * For details see: https://libreclinica.org/license
+ * copyright (C) 2026 LibreClinica
+ *
+ * Author: Giuseppe Del Castillo
+ * Development sponsored by ReliaTec GmbH
+ */
 package org.akaza.openclinica.lctable;
 
-import static org.akaza.openclinica.lctable.LCTableUtil.*;
-
+import java.nio.charset.StandardCharsets;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.util.UriUtils;
 
 
 public final class LCTableParams {
 
-    // -- URL parameters -------------------------------------------------------
+    // -- URL parameter names --------------------------------------------------
+    public static final String PARAM_PAGE = "page";
+    public static final String PARAM_MAX_ROWS = "maxRows";
+    public static final String PARAM_SORT_PROP = "sortProp";
+    public static final String PARAM_SORT_DIR = "sortDir";
+    public static final String PARAM_FILTER_PREFIX = "q.";
+
+    // --- URL parameters -------------------------------------------------------
     public final int page;
     public final int maxRows;
     public final String sortProp;
     public final String sortDir;
     public final Map<String, String> filters;
 
-    /** Canonical constructor – normalises nullable / out-of-range values. */
-    public LCTableParams(int page, int maxRows, String sortProp, String sortDir, Map<String, String> filters) {
-        this.page     = Math.max(page, 0);
-        this.maxRows  = maxRows > 0 ? maxRows : 15;
-        this.sortProp = sortProp != null ? sortProp : "";
-        this.sortDir  = sortDir  != null ? sortDir  : "asc";
-        this.filters  = filters  != null ? filters  : java.util.Collections.emptyMap();
+    // --- it needs to be package-private for unit-testing, should not be called by regular users of the library ---
+    LCTableParams(int page, int maxRows, String sortProp, String sortDir, Map<String, String> filters) {
+        this.page = page;
+        this.maxRows = maxRows;
+        this.sortProp = sortProp;
+        this.sortDir = sortDir;
+        this.filters = filters;
     }
 
     /**
-     * Construct a LcTableParams object by reading request parameters from a Spring
-     * MultiValueMap (as provided by a controller with
-     * {@code @RequestParam MultiValueMap<String,String> allParams}).
+     * Construct a LcTableParams object by reading request parameters from a Spring MultiValueMap
+     * (as provided by a controller with {@code @RequestParam MultiValueMap<String,String> allParams}).
      *
-     * <p>The helper methods in {@link LCTableParams} are used to parse and
+     * <p>The helper methods intParam, strParam and readFilters are used to parse and
      * normalise the parameter values.
      */
-    public LCTableParams(MultiValueMap<String, String> params) {
-        this(
-            // URL page is 1-based (page=1 → first page); convert to 0-based for internal use.
-            // page=0 in URL is treated as page=1 (first page) for robustness.
-            Math.max(intParam(params, LCTableUtil.PARAM_PAGE, 1) - 1, 0),
-            intParam(params, LCTableUtil.PARAM_MAX_ROWS, 15),
-            strParam(params, LCTableUtil.PARAM_SORT_PROP, ""),
-            strParam(params, LCTableUtil.PARAM_SORT_DIR, "asc"),
-            readFilters(params)
-        );
+    public LCTableParams(MultiValueMap<String, String> params, LCTable<?> table) {
+        this.page = Math.max(intParam(params, PARAM_PAGE, 1) - 1, 0);
+        final int maxRowsParam = intParam(params, PARAM_MAX_ROWS, 15);
+        this.maxRows  = maxRowsParam > 0 ? maxRowsParam : 15;
+        this.sortProp = strParam(params, PARAM_SORT_PROP, "");
+        this.sortDir  = strParam(params, PARAM_SORT_DIR, "asc");
+        this.filters  = readFilters(params, table.getColumnNames());
     }
 
-    // -------------------------------------------------------------------------
-    // equals / hashCode / toString  (mirrors record semantics)
-    // -------------------------------------------------------------------------
+    /**
+     * Construct a LcTableParams object by reading request parameters from a legacy servlet query string
+     * as returned by {@code HttpServletRequest.getQueryString()}
+     * @param queryString the query string from the request
+     * @param table the LCTable instance to get the allowed filter keys
+     */
+    public LCTableParams(String queryString, LCTable<?> table) {
+        this(UriComponentsBuilder.fromUriString("?" + (queryString == null ? "" : queryString)).build().getQueryParams(), table);
+    }
+
+    /**
+     * Reads all filter request parameters starting with {@value #PARAM_FILTER_PREFIX}.
+     */
+    public static Map<String, String> readFilters(MultiValueMap<String, String> params, List<String> allowedKeys) {
+        Map<String, String> filters = new LinkedHashMap<>();
+        if (params != null) {
+            params.forEach((key, vals) -> {
+                if (key.startsWith(PARAM_FILTER_PREFIX) && vals != null && !vals.isEmpty()) {
+                    String columnName = key.substring(PARAM_FILTER_PREFIX.length());
+                    if (allowedKeys.contains(columnName)) {
+                        final String firstVal = vals.get(0);
+                        if (firstVal != null && !firstVal.isEmpty()) {
+                            filters.put(columnName, UriUtils.decode(firstVal, StandardCharsets.UTF_8));
+                        }
+                    }
+                }
+            });
+        }
+        return filters;
+    }
+
+    /**
+     * Reads an integer request parameter, returning a default value if the parameter is missing or invalid.
+     */
+    public static int intParam(MultiValueMap<String, String> params, String name, int defaultValue) {
+        String v = params == null ? null : params.getFirst(name);
+        if (v == null || v.trim().isEmpty()) {
+            return defaultValue;
+        }
+        try {
+            return Integer.parseInt(v.trim());
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
+    }
+
+    /**
+     * Reads a string request parameter, returning a default value if the parameter is missing.
+     */
+    public static String strParam(MultiValueMap<String, String> params, String name, String defaultValue) {
+        String v = params == null ? null : params.getFirst(name);
+        return v == null ? defaultValue : v;
+    }
+
 
     public String toString() {
         return "LcTableParams[page=" + page
@@ -57,13 +124,4 @@ public final class LCTableParams {
             + ", filters=" + filters + "]";
     }
 
-    /**
-     * Private no-arg constructor to prevent accidental instantiation via a
-     * default public constructor and to signal this class is intentionally
-     * constructed via the explicit public constructors above.
-     */
-    private LCTableParams() {
-        // Hide implicit public no-arg constructor - delegate to canonical constructor
-        this(1, 15, "", "asc", java.util.Collections.emptyMap());
-    }
 }

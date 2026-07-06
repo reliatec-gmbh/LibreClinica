@@ -1,0 +1,448 @@
+/*
+ * derived from jmesa.css, adapted to fit LCTable needs
+ * '.lctable' use to be '.jmesa'
+ */
+
+.lctable {
+    /* wrap tightly around the table: use inline-block so the div's width
+       follows the table width instead of the full page */
+    display: inline-block;
+    margin: 0px;
+    vertical-align: top;
+    border: 1px solid #000; /* solid black border */
+    padding: 1px; /* small padding between border and table */
+}
+
+.lctable caption {
+    caption-side: top;
+    /*color: #444444;*/
+    color: #D4A718;
+    font-weight: bold;
+    font-size: 1em;
+    text-align: left;
+    padding-left: 5px;
+}
+
+.lctable .table {
+    /* remove inner silver border so the outer .lctable black border is visible
+       padding on the wrapper (.lctable) provides the spacing between border and table */
+    border: none;
+    padding: 0;
+}
+
+.toolbar table {
+    margin-right: auto;
+    margin-left: 0px;
+}
+
+.lctable .toolbar {
+    user-select: none;
+}
+
+.lctable .toolbar td {
+    padding: 0px 1px 0px 1px;
+}
+
+.lctable .toolbar select {
+    font-size: 11px;
+    border: solid 1px #c4c3c2;
+}
+
+.lctable .toolbar .pageNumber {
+    font-size: 13px;
+    font-weight: bold;
+    color: #c4634d;
+}
+
+.lctable .toolbar .pageNumber a {
+    font-size: 13px;
+    font-weight: normal;
+    color: black;
+}
+
+.lctable .toolbar img {
+    border:0px;
+}
+
+.lctable .filter td {
+    padding: 2px;
+}
+
+.lctable .filter .filter-wrapper {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+}
+
+/* Filter inputs and selects: fill the wrapper div (not the td directly) */
+.lctable .filter .filter-input,
+.lctable .filter .filter-select,
+.lctable .filter .select-input {
+    font-family: verdana, arial, helvetica, sans-serif;
+    font-size: 11px;
+    padding: 2px 3px;
+    margin: 0;
+    border: 1px solid #c0c0c0;
+    background-color: var(--gray-l30);
+    height: 17px;
+    box-sizing: border-box;
+    line-height: 1;
+    border-radius: 0;
+    width: 100%;
+    flex: 1;
+    min-width: 0;
+}
+
+/* Reset browser defaults for select to match input appearance */
+.lctable .filter .filter-select,
+.lctable .filter .select-input {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 3px center;
+    background-size: 12px;
+    padding-right: 18px;
+}
+
+/* Text input: show validation error with red border and background */
+.lctable .filter .filter-input:not(:placeholder-shown):invalid {
+    border-color: red;
+    background-color: #fff0f0;
+    color: red;
+}
+
+/* Soften validation transitions */
+.lctable .filter .filter-input {
+    transition: border-color 0.3s, background-color 0.3s;
+}
+
+
+.lctable .tbody input {
+    padding: 0;
+    margin: 0;
+}
+
+.lctable .filter .dynFilter {
+    position: relative;
+    font-family: verdana, arial, helvetica, sans-serif;
+    font-size: 11px;
+    padding: 0;
+    margin: 0;
+    border: 1px solid #c0c0c0;
+    background-color: var(--gray-l30);
+    height: 15px;
+    white-space: nowrap;
+    cursor: pointer;
+    z-index: 4;
+}
+
+.lctable .filter #dynFilterDiv {
+    position: absolute;
+    top: -3px;
+    left: -2px;
+    padding: 0;
+    margin: 0;
+    height: 17px;
+    border: 1px solid #c0c0c0;
+    background-color: #e1ebf4;
+}
+
+.lctable .filter #dynFilterInput {
+    font-family: verdana, arial, helvetica, sans-serif;
+    font-size: 12px;
+    padding: 0;
+    margin: 0;
+    border-style: none;
+    background-color: #e1ebf4;
+}
+
+.lctable .filter #dynFilterDroplistDiv {
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    padding: 0;
+    margin: 0;
+    height: 17px;
+    background-color: #e1ebf4;
+    z-index: 4;
+}
+
+.lctable .filter #dynFilterDroplist {
+    font-family: verdana, arial, helvetica, sans-serif;
+    font-size: 12px;
+    padding: 0;
+    margin: 0;
+    border: 1px solid #c0c0c0;
+    background-color: #e1ebf4;
+}
+
+.lctable .header {
+	height: 15px;
+	max-height:30px
+}
+
+.lctable .header th {
+    white-space: nowrap;
+    background-color: var(--lightblue-d20);
+    color: white;
+    font-family: verdana, arial, helvetica, sans-serif;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 4px 3px 4px 3px;
+    border-right-style: solid;
+    border-right-width: 1px;
+    border-color: white;
+    background-image: none;
+    text-align: left;
+}
+
+.lctable .header td {
+    white-space: nowrap;
+    background-color: white;
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 4px 3px 4px 3px;
+    border-right-style: solid;
+    border-right-width: 1px;
+    border-color: white;
+    background-image: none;
+}
+
+.lctable .odd a, .lctable .even a {
+    color: black;
+}
+
+/* Prevent inline-baseline gap below images in table cells */
+.lctable .odd td img, .lctable .even td img,
+.lctable .highlight td img {
+    vertical-align: middle;
+}
+
+.lctable .odd td, .lctable .even td {
+    font-family: verdana, arial, helvetica, sans-serif;
+    font-size: 11px;
+    vertical-align: top;
+    line-height: 15px;
+    padding: 2px 3px 2px 3px;
+}
+
+.lctable .odd {
+    background-color: white;
+}
+
+.lctable .even {
+    background-color: var(--gray-l40);
+}
+
+.lctable .highlight td {
+    font-family: verdana, arial, helvetica, sans-serif;
+    font-size: 11px;
+    vertical-align: top;
+    line-height: 15px;
+    padding: 2px 3px 2px 3px;
+    background-color: var(--gray-l30);
+}
+
+.lctable .highlight a {
+    color: black;
+}
+
+.lctable .statusBar td {
+    font-family: verdana, arial, helvetica, sans-serif;
+    font-size: 11px;
+    border-top: 1px solid silver;
+    background-color: var(--gray-l30);
+    padding: 2px;
+}
+
+.lctable .dropShadow {
+    padding: 10px 14px 14px 10px;
+}
+
+.lctable .wsColumn {
+    position: relative;
+    font-family: verdana, arial, helvetica, sans-serif;
+    font-size: 11px;
+    padding: 0;
+    margin: 0;
+    border-bottom: 1px solid #c0c0c0;
+    height: 15px;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.lctable .wsColumnError {
+    position: relative;
+    font-family: verdana, arial, helvetica, sans-serif;
+    font-size: 11px;
+    font-style: italic;
+    padding: 0;
+    margin: 0;
+    color: #ec4646;
+    border-bottom: 1px dashed #ec4646;
+    height: 15px;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.lctable .wsColumnChange {
+    position: relative;
+    font-family: verdana, arial, helvetica, sans-serif;
+    font-size: 11px;
+    font-style: italic;
+    padding: 0;
+    margin: 0;
+    color: #005e8f;
+    border-bottom: 1px dashed #005e8f;
+    height: 15px;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.lctable #wsColumnDiv {
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    padding: 0;
+    margin: 0;
+    height: 17px;
+    border: 1px solid #c0c0c0;
+    background-color: #ededed;
+}
+
+.lctable #wsColumnInput {
+    font-family: verdana, arial, helvetica, sans-serif;
+    font-size: 12px;
+    padding: 0;
+    margin: 0;
+    border-style: none;
+    background-color: #ededed;
+}
+
+/*
+ * KK - Added new configuration to support popups inside the table rows.
+ */
+
+.lctable .ViewSubjectsPopup td, .lctable .highlight .ViewSubjectsPopup td {
+	background-color: #FFFFE5;
+    border-style: solid;
+    border-width: 0px 0px 0px 0px;
+    border-color: #CCCCCC;
+    padding: 0px;
+    }
+
+.lctable .ViewSubjectsPopup td.table_header_row_left, .lctable .highlight .ViewSubjectsPopup td.table_header_row_left {
+   padding: 3px 1px 3px 6px;
+   border-style: solid;
+   border-width: 0px 0px 1px 0px;
+   border-color: #CCCCCC;
+   font-weight: bold;
+   color: #666666;
+   vertical-align: top;
+}
+
+.lctable .ViewSubjectsPopup td.table_header_row, .lctable .highlight .ViewSubjectsPopup td.table_header_row {
+	padding: 3px 1px 3px 2px;
+    border-style: solid;
+    border-width: 0px 0px 1px 1px;
+    border-color: #CCCCCC;
+    font-weight: bold;
+    color: #666666;
+    vertical-align: top;
+    }
+
+.lctable .ViewSubjectsPopup td.table_cell_left, .lctable .highlight .ViewSubjectsPopup td.table_cell_left, .lctable .ViewSubjectsPopup td.table_cell, .lctable .highlight .ViewSubjectsPopup td.table_cell {
+	padding: 3px 1px 3px 2px;
+    border-style: solid;
+    border-width: 1px 0px 0px 1px;
+    border-top-color: #E6E6E6;
+    border-left-color: #CCCCCC;
+    vertical-align: top;
+    }
+
+.lctable .ViewSubjectsPopup td.statusbox_scroll_R_dis, .lctable .highlight td.ViewSubjectsPopup.statusbox_scroll_R_dis {
+	border-style: solid;
+    border-width: 0px 0px 0px 1px;
+    border-color: #CCCCCC;
+    }
+
+.lctable .ViewSubjectsPopup td a, .lctable .highlight .ViewSubjectsPopup td a {
+	color: #789EC5;
+	}
+
+
+/* ---- additions for LCTable ---- */
+
+.lctable .page-btn {
+    display: inline-block;
+    padding: 2px 6px;
+    border: 1px solid #ddd;
+    border-radius: 0;
+    text-decoration: none;
+    color: #333;
+    background: #fff;
+    cursor: pointer;
+    font-size: 0.65rem;
+    min-width: 1.2em;
+    text-align: center;
+}
+
+.page-btn {
+    display: inline-block;
+    padding: 2px 6px;
+    border: 1px solid #ddd;
+    border-radius: 0;
+    text-decoration: none;
+    color: #333;
+    background: #fff;
+    cursor: pointer;
+    font-size: 0.75rem;
+    min-width: 1.5em;
+    text-align: center;
+}
+
+.page-btn:hover              { background: #eee; }
+.page-btn.current            { background: #2563eb; color: #fff; border-color: #2563eb; }
+.page-btn.disabled           { color: #bbb; pointer-events: none; cursor: default; }
+.page-btn, .page-ellipsis    { user-select: none; }
+.page-ellipsis               { display: inline-block; min-width: 1.2em; padding: 2px 6px; color: #888; font-size: 0.65rem; text-align: center; }
+
+/* Sort header styling */
+.sort-header-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+}
+
+.sort-header-text {
+    flex: 1;
+}
+
+.sort-indicator {
+    display: block;
+    width: auto;
+    height: auto;
+    flex-shrink: 0;
+}
+
+/* Hover highlight for rows: match jmesa .highlight appearance exactly */
+.lctable .tbody tr:hover td {
+    font-family: verdana, arial, helvetica, sans-serif;
+    font-size: 11px;
+    vertical-align: top;
+    line-height: 15px;
+    padding: 2px 3px 2px 3px;
+    background-color: var(--gray-l30);
+}
+.lctable .tbody tr:hover a {
+    color: black;
+}
