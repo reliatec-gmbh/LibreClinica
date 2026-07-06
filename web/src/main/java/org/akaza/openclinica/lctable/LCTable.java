@@ -1,6 +1,7 @@
 package org.akaza.openclinica.lctable;
 
 import static org.akaza.openclinica.lctable.LCTableParams.*;
+import static org.akaza.openclinica.lctable.LCTableUtil.*;
 
 import htmlflow.HtmlFlow;
 import org.xmlet.htmlapifaster.*;
@@ -21,7 +22,7 @@ public class LCTable<T1>  {
     final String entityPath;    // base path for pagination/sorting URLs
     final String resourcePath;
     final String tableName;     // name of the table (used for generating unique IDs and classes)
-    final String panelId;       // ID of the panel element to target with htmx requests (e.g. "books-panel")
+    final String panelId;       // ID of the panel element to target with HTMX requests (e.g. "books-panel")
     final List<LCTableColumnDef<T1>> columns;
     final Function<LCTableParams, LCTableData<T1>> fetchData;
 
@@ -70,28 +71,20 @@ public class LCTable<T1>  {
             // Non-sortable column: just render the header text without a link
             tr.th().attrStyle(widthStyle).text(col.columnDisplayName).__();
         } else {
-            // Determine if this column is currently sorted
             boolean isSorted = col.columnName.equals(ctx.sortProp);
-            // Determine current sort direction
-            final String currentDir = isSorted ? ctx.sortDir : null;
-            // Determine next sort direction when clicked: none → asc → desc → none
-            final String nextDir = currentDir == null ? "asc" : (currentDir.equals("asc") ? "desc" : null);
-            // Build the URL for this sort state
-            final String href = urlForSort(entityPath, ctx, col.columnName, nextDir);
+            final String currentSortDir = isSorted ? ctx.sortDir : null;
+            final String nextSortDir = currentSortDir == null ? "asc" : (currentSortDir.equals("asc") ? "desc" : null);
+            final String href = urlForSort(entityPath, ctx, col.columnName, nextSortDir);
             // Render the header cell with a link that triggers sorting via HTMX
             tr.th().attrStyle(widthStyle)
                 .a().attrClass("sort-header-link")
-                .attrHref(href)
-                .addAttr(HX_GET, href)
-                .addAttr(HX_TARGET, "#" + panelId)
-                .addAttr(HX_SWAP, "outerHTML")
-                .addAttr(HX_PUSH_URL, "true")
+                .attrHref(href).of(hxGetAttrs(href, NO_HX_INCLUDE, "#" + panelId, NO_HX_TRIGGER))
                 .of(a -> {
                     a.span().attrClass("sort-header-text").text(col.columnDisplayName).__();
                     // Show sort indicator if sorted
-                    if (isSorted && currentDir != null) {
-                        String imgSrc = resourcePath + (currentDir.equals("asc") ? "/images/table/sortAsc.gif" : "/images/table/sortDesc.gif");
-                        a.img().attrClass("sort-indicator").addAttr("src", imgSrc).attrAlt(currentDir).__();
+                    if (isSorted && currentSortDir != null) {
+                        String imgSrc = resourcePath + (currentSortDir.equals("asc") ? "/images/table/sortAsc.gif" : "/images/table/sortDesc.gif");
+                        a.img().attrClass("sort-indicator").addAttr("src", imgSrc).attrAlt(currentSortDir).__();
                     }
                 }).__();
         }
@@ -204,10 +197,8 @@ public class LCTable<T1>  {
 
         // « first
         pageBtn(nav, "«", url(entityPath, 0, size, sort, dir, ctx.filters), panelId, page == 0);
-
         // ‹ previous
         pageBtn(nav, "‹", url(entityPath, max(0, page - 1), size, sort, dir, ctx.filters), panelId, page == 0);
-
         // numbered slots / ellipsis
         for (LCTablePageSlot slot : ctx.slots) {
             if (slot.ellipsis()) {
@@ -215,19 +206,13 @@ public class LCTable<T1>  {
             } else {
                 String slotHref = url(entityPath, slot.page(), size, sort, dir, ctx.filters);
                 nav.a().attrClass("page-btn" + (slot.current() ? " current" : ""))
-                    .attrHref(slotHref)
-                    .addAttr(HX_GET, slotHref)
-                    .addAttr(HX_TARGET, "#" + panelId)
-                    .addAttr(HX_SWAP, "outerHTML")
-                    .addAttr(HX_PUSH_URL, "true")
+                    .attrHref(slotHref).of(hxGetAttrs(slotHref, NO_HX_INCLUDE, "#" + panelId, NO_HX_TRIGGER))
                     .text(String.valueOf(slot.page() + 1))
                     .__(); // a
             }
         }
-
         // › next
         pageBtn(nav, "›", url(entityPath, min(total - 1, page + 1), size, sort, dir, ctx.filters), panelId, page >= total - 1);
-
         // » last
         pageBtn(nav, "»", url(entityPath, total - 1, size, sort, dir, ctx.filters), panelId, page >= total - 1);
 
@@ -237,11 +222,7 @@ public class LCTable<T1>  {
     /** Writes a single pagination button into the given {@code nav} element. */
     private void pageBtn(Nav<?> nav, String text, String href, String panelId, boolean disabled) {
         nav.a().attrClass("page-btn" + (disabled ? " disabled" : ""))
-            .attrHref(href)
-            .addAttr(HX_GET,      href)
-            .addAttr(HX_TARGET,   "#" + panelId)
-            .addAttr(HX_SWAP,     "outerHTML")
-            .addAttr(HX_PUSH_URL, "true")
+            .attrHref(href).of(hxGetAttrs(href, NO_HX_INCLUDE, "#" + panelId, NO_HX_TRIGGER))
             .text(text)
             .__(); // a
     }
@@ -249,17 +230,11 @@ public class LCTable<T1>  {
     /** Builds the page-size selector (maxRows) and appends it into the provided div. */
     private void buildMaxRowsSelector(Div<?> div, LCTableContext<T1> ctx) {
         if (HIDE_PAGINATION_TOOLS_FOR_SINGLE_PAGE_TABLE && ctx.totalPages <= 1) return;
-
         div.attrClass("page-size");
         div.label().text("Rows: ").__();
         div.select()
             .attrName(PARAM_MAX_ROWS)
-            .addAttr(HX_GET, entityPath)
-            .addAttr(HX_INCLUDE, "#" + panelId + " input, #" + panelId + " select")
-            .addAttr(HX_TRIGGER, "change")
-            .addAttr(HX_TARGET, "#" + panelId)
-            .addAttr(HX_SWAP, "outerHTML")
-            .addAttr(HX_PUSH_URL, "true")
+            .of(hxGetAttrs(entityPath, "#" + panelId + " input, #" + panelId + " select", "#" + panelId, "change"))
             .of(select -> {
                 for (int s : new int[]{15, 25, 50}) {
                     if (s == ctx.maxRows) {
@@ -279,18 +254,15 @@ public class LCTable<T1>  {
         UriComponentsBuilder builder = UriComponentsBuilder.fromPath(path)
             .queryParam(PARAM_PAGE, 1)  // reset to page 1 when sorting changes
             .queryParam(PARAM_MAX_ROWS, ctx.maxRows);
-
         if (sortDir != null) {
             builder.queryParam(PARAM_SORT_PROP, columnName);
             builder.queryParam(PARAM_SORT_DIR, sortDir);
         }
-
         if (ctx.filters != null) {
             ctx.filters.forEach((key, val) -> {
                 if (val != null && !val.isEmpty()) builder.queryParam(PARAM_FILTER_PREFIX + key, val);
             });
         }
-
         return builder.encode().toUriString();
     }
 

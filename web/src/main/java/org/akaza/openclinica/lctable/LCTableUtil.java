@@ -1,5 +1,8 @@
 package org.akaza.openclinica.lctable;
 
+import static org.akaza.openclinica.lctable.LCTable.*;
+
+import org.xmlet.htmlapifaster.CustomAttributeGroup;
 import org.xmlet.htmlapifaster.Element;
 import org.xmlet.htmlapifaster.Td;
 
@@ -14,6 +17,22 @@ public class LCTableUtil {
 
     private LCTableUtil() {
         // Private constructor to prevent instantiation of this utility class
+    }
+
+    public static final String NO_HX_INCLUDE = null;          // just for better readability in method calls
+    public static final String NO_HX_TRIGGER = null;          // just for better readability in method calls
+
+    public static <T extends CustomAttributeGroup<T, ?>> Consumer<T> hxGetAttrs(
+        String hxGet, String hxInclude, String hxTarget, String hxTrigger
+    ) {
+        return el -> {
+            el.addAttr(HX_GET, hxGet);
+            if (hxInclude != null) el.addAttr(HX_INCLUDE, hxInclude);
+            el.addAttr(HX_TARGET, hxTarget);
+            el.addAttr(HX_SWAP, "outerHTML");
+            if (hxTrigger != null) el.addAttr(HX_TRIGGER, hxTrigger);
+            el.addAttr(HX_PUSH_URL, "true");
+        };
     }
 
     /**

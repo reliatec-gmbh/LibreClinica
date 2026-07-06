@@ -1,5 +1,7 @@
 package org.akaza.openclinica.lctable;
 
+import static org.akaza.openclinica.lctable.LCTableUtil.*;
+
 import org.xmlet.htmlapifaster.Element;
 import org.xmlet.htmlapifaster.EnumTypeInputType;
 import org.xmlet.htmlapifaster.Tr;
@@ -50,8 +52,7 @@ public abstract class LCTableFilterDef {
             final String filterName = LCTableParams.PARAM_FILTER_PREFIX + col.columnName;
             final String filterValue = ctx.filters.getOrDefault(col.columnName, "");
 
-            final String trigger = "input changed delay:400ms";
-            final String triggerWithValidation = "input[this.validity.valid] changed delay:400ms";   // ONLY fire HTMX if the HTML5 validity state is 'valid'
+            final String trigger = this.pattern == null ? "input changed delay:400ms" : "input[this.validity.valid] changed delay:400ms";   // ONLY fire HTMX if the HTML5 validity state is 'valid'
 
             tr.td().div().attrClass("filter-wrapper").of(div -> {
                 var input = div.input()
@@ -70,12 +71,7 @@ public abstract class LCTableFilterDef {
                     }
                 }
 
-                input.addAttr(LCTable.HX_GET, table.entityPath)
-                    .addAttr(LCTable.HX_TARGET, "#" + table.panelId)
-                    .addAttr(LCTable.HX_SWAP, "outerHTML")
-                    .addAttr(LCTable.HX_PUSH_URL, "true")
-                    .addAttr(LCTable.HX_TRIGGER, this.pattern == null ? trigger : triggerWithValidation)
-                    .addAttr(LCTable.HX_INCLUDE, "closest form")
+                input.of(hxGetAttrs(table.entityPath, "closest form", "#" + table.panelId, trigger))
                     .__().__();
             }).__();
         }
@@ -149,12 +145,7 @@ public abstract class LCTableFilterDef {
                     .attrId(table.panelId + "-filter-" + col.columnName)
                     .attrClass("filter-select")
                     .attrStyle("width:1px;flex:1")
-                    .addAttr(LCTable.HX_GET, table.entityPath)
-                    .addAttr(LCTable.HX_TARGET, "#" + table.panelId)
-                    .addAttr(LCTable.HX_SWAP, "outerHTML")
-                    .addAttr(LCTable.HX_PUSH_URL, "true")
-                    .addAttr(LCTable.HX_TRIGGER, "change")
-                    .addAttr(LCTable.HX_INCLUDE, "closest form");
+                    .of(hxGetAttrs(table.entityPath, "closest form", "#" + table.panelId, "change"));
 
                 select.option().attrValue("").attrSelected(currentSelected.isEmpty()).text("").__();
                 this.values.forEach(option -> {
@@ -186,14 +177,8 @@ public abstract class LCTableFilterDef {
 
         @Override
         public <T1, R extends Element<?, ?>> void renderFilter(Tr<R> tr, LCTableContext<T1> ctx, LCTableColumnDef<T1> col, LCTable<T1> table) {
-            tr.td().a()
-                .attrClass("page-btn")
-                .addAttr(LCTable.HX_GET, table.entityPath)
-                .addAttr(LCTable.HX_TARGET, "#" + table.panelId)
-                .addAttr(LCTable.HX_SWAP, "outerHTML")
-                .addAttr(LCTable.HX_PUSH_URL, "true")
-                .addAttr(LCTable.HX_TRIGGER, "click")
-                .addAttr(LCTable.HX_INCLUDE, NON_FILTER_PARAMS_SELECTOR)
+            tr.td().a().attrClass("page-btn")
+                .of(hxGetAttrs(table.entityPath, NON_FILTER_PARAMS_SELECTOR, "#" + table.panelId, "click"))
                 .text("Clear Filter")
                 .__().__();
         }
