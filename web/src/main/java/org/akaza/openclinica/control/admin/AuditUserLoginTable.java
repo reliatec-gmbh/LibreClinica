@@ -43,7 +43,7 @@ public class AuditUserLoginTable {
             AuditUserLoginBean::getLoginStatus, LoginStatus::toString                         // column data definition
         ),
         textCol("details","Details", 3, AuditUserLoginBean::getDetails),
-        customTdCol("actions", "Actions", 3.5, NOT_SORTABLE, clearFilter(),
+        customTdCol("actions", "Actions", 4, NOT_SORTABLE, clearFilter(),
             AuditUserLoginBean::getUserAccountId,
             (td, userAccountId) ->
                 td.of(linkIcon("View", "ViewUserAccount?userId=" + userAccountId + "&viewFull=yes", "images/bt_View.gif", "View"))

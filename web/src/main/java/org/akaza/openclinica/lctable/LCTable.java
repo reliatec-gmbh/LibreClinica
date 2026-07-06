@@ -57,29 +57,29 @@ public class LCTable<T1>  {
     // -- Generic typed table renderer -----------------------------------------
 
     private void renderColumnNames(Tr<?> tr, LCTableContext<T1> ctx) {
-        columns.forEach(col -> renderSortableHeader(tr, col, ctx));
+        columns.forEach(col -> renderColumnName(tr, col, ctx));
     }
 
     /**
      * Render a clickable header cell that toggles sorting state for the column.
      * Clicking cycles through: no sort → ascending → descending → no sort.
      */
-    private void renderSortableHeader(Tr<?> tr, LCTableColumnDef<T1> col, LCTableContext<T1> ctx) {
-        // Determine if this column is currently sorted
-        boolean isSorted = col.columnName.equals(ctx.sortProp);
-        String currentDir = isSorted ? ctx.sortDir : null;
-
-        // Determine next sort direction when clicked: none → asc → desc → none
-        String nextDir = currentDir == null ? "asc" : currentDir.equals("asc") ? "desc" : null;
-
-        // Build the URL for this sort state
-        String href = urlForSort(entityPath, ctx, col.columnName, nextDir);
-
+    private void renderColumnName(Tr<?> tr, LCTableColumnDef<T1> col, LCTableContext<T1> ctx) {
+        final String widthStyle = "width: " + col.columnWidth + "rem";
         if (!col.isSortable) {
             // Non-sortable column: just render the header text without a link
-            tr.th().text(col.columnDisplayName).__();
+            tr.th().attrStyle(widthStyle).text(col.columnDisplayName).__();
         } else {
-            tr.th()
+            // Determine if this column is currently sorted
+            boolean isSorted = col.columnName.equals(ctx.sortProp);
+            // Determine current sort direction
+            final String currentDir = isSorted ? ctx.sortDir : null;
+            // Determine next sort direction when clicked: none → asc → desc → none
+            final String nextDir = currentDir == null ? "asc" : (currentDir.equals("asc") ? "desc" : null);
+            // Build the URL for this sort state
+            final String href = urlForSort(entityPath, ctx, col.columnName, nextDir);
+            // Render the header cell with a link that triggers sorting via HTMX
+            tr.th().attrStyle(widthStyle)
                 .a().attrClass("sort-header-link")
                 .attrHref(href)
                 .addAttr(HX_GET, href)
