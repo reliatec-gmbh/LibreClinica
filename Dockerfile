@@ -1,4 +1,4 @@
-FROM docker.io/library/maven:3-eclipse-temurin-8 AS builder
+FROM docker.io/library/maven:3-eclipse-temurin-11 AS builder
 
 WORKDIR /app
 

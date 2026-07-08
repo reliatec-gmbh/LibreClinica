@@ -44,7 +44,7 @@
   
 <h1><span class="title_manage"><fmt:message key="choose_CRF_version" bundle="${resword}"/></span></h1>
 <script type="text/JavaScript" language="JavaScript" src="../../includes/jmesa/jquery.min.js"></script>
-<script type="text/JavaScript" language="JavaScript" src="../../includes/jmesa/jquery-migrate-1.1.1.js"></script> 
+<script type="text/JavaScript" language="JavaScript" src="../../includes/jmesa/jquery-migrate-3.4.1.min.js"></script> 
 
 <script type="text/javascript" language="javascript">
 $.noConflict();
