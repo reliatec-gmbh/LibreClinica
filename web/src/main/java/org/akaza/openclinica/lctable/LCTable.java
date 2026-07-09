@@ -39,7 +39,7 @@ public class LCTable<T>  {
     static final boolean HIDE_PAGINATION_TOOLS_FOR_SINGLE_PAGE_TABLE = false;
 
 
-    public LCTable(/*String entityPath, String resourcePath,*/ String tableName, List<LCTableColumnDef<T>> columns, Function<LCTableParams, LCTableData<T>> fetchData) {
+    public LCTable(String tableName, List<LCTableColumnDef<T>> columns, Function<LCTableParams, LCTableData<T>> fetchData) {
         this.tableName    = tableName;
         this.panelId      = tableName + "-panel";   // Generate panel ID based on table name
         this.columns      = columns;

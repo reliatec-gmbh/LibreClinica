@@ -15,6 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.UriUtils;
@@ -48,9 +49,14 @@ public final class LCTableParams {
     /**
      * Construct a LcTableParams object by reading request parameters from a Spring MultiValueMap
      * (as provided by a controller with {@code @RequestParam MultiValueMap<String,String> allParams}).
+     * The helper methods intParam, strParam and readFilters are used to parse and normalise the parameter values.
      *
-     * <p>The helper methods intParam, strParam and readFilters are used to parse and
-     * normalise the parameter values.
+     * <p><b>Important:</b> the values in {@code params} are expected to be already URL-decoded, as
+     * they normally are when the map is populated by Spring MVC from an incoming request
+     * (e.g. via {@code @RequestParam MultiValueMap<String, String>}). Neither this constructor nor
+     * {@link #readFilters(MultiValueMap, List)} performs any decoding of parameter values.
+     * Decoding an already-decoded value again would corrupt any value containing a literal {@code %}
+     * would throw an {@code IllegalArgumentException} on a second decode attempt.
      */
     public LCTableParams(MultiValueMap<String, String> params, LCTable<?> table) {
         this.page = Math.max(intParam(params, PARAM_PAGE, 1) - 1, 0);
@@ -64,27 +70,53 @@ public final class LCTableParams {
     /**
      * Construct a LcTableParams object by reading request parameters from a legacy servlet query string
      * as returned by {@code HttpServletRequest.getQueryString()}
+     *
+     * <p><b>Precondition:</b> {@code queryString} must be the raw, still URL-encoded query string exactly
+     * as it appears on the wire, e.g. the value returned by {@link javax.servlet.http.HttpServletRequest#getQueryString()},
+     * which is <b>not</b> decoded by the servlet container. This constructor:<br>
+     * 1. parses the {@code queryString} with {@link UriComponentsBuilder#fromUriString(String)},
+     * which does not decode query parameter values,<br>
+     * 2. then explicitly URL-decodes all parameter values before delegating to {@link #LCTableParams(MultiValueMap, LCTable)},
+     * which in turn expects to receive already-decoded values (see its Javadoc).
+     * <p>Passing an already-decoded string here would cause the decoding step to run against decoded input, which
+     * throws an {@code IllegalArgumentException} for any value containing a literal {@code %}.
+     *
      * @param queryString the query string from the request
-     * @param table the LCTable instance to get the allowed filter keys
+     * @param table the {@link LCTable} instance (used in {@link LCTableParams} to get the list of allowed filter keys)
      */
     public LCTableParams(String queryString, LCTable<?> table) {
-        this(UriComponentsBuilder.fromUriString("?" + (queryString == null ? "" : queryString)).build().getQueryParams(), table);
+        // .build().encode() would double-encode; instead decode explicitly here,
+        // at the one place that's actually receiving a raw/encoded map.
+        this(decodeQueryParams(UriComponentsBuilder.fromUriString("?" + (queryString == null ? "" : queryString))
+            .build().getQueryParams()), table);
+    }
+
+    private static MultiValueMap<String, String> decodeQueryParams(MultiValueMap<String, String> raw) {
+        MultiValueMap<String, String> decoded = new LinkedMultiValueMap<>();
+        raw.forEach((key, vals) -> vals.forEach(v ->
+            decoded.add(key, v == null ? null : UriUtils.decode(v, StandardCharsets.UTF_8))));
+        return decoded;
     }
 
     /**
      * Reads all filter request parameters starting with {@value #PARAM_FILTER_PREFIX}.
+     *
+     * <p><b>Important:</b> values are copied as-is and are <b>not</b> URL-decoded by this method.
+     * Callers must ensure {@code params} already contains decoded values — this is the case for a
+     * {@code MultiValueMap} populated by Spring MVC from an incoming request, but not for one built
+     * directly from a raw query string. Decoding here would risk double-decoding values that were
+     * already decoded upstream, which throws {@code IllegalArgumentException} for any value
+     * containing a literal {@code %} (e.g. {@code "100%"}).
      */
     public static Map<String, String> readFilters(MultiValueMap<String, String> params, List<String> allowedKeys) {
         Map<String, String> filters = new LinkedHashMap<>();
         if (params != null) {
             params.forEach((key, vals) -> {
                 if (key.startsWith(PARAM_FILTER_PREFIX) && vals != null && !vals.isEmpty()) {
-                    String columnName = key.substring(PARAM_FILTER_PREFIX.length());
+                    final String columnName = key.substring(PARAM_FILTER_PREFIX.length());
                     if (allowedKeys.contains(columnName)) {
                         final String firstVal = vals.get(0);
-                        if (firstVal != null && !firstVal.isEmpty()) {
-                            filters.put(columnName, UriUtils.decode(firstVal, StandardCharsets.UTF_8));
-                        }
+                        if (firstVal != null && !firstVal.isEmpty()) filters.put(columnName, firstVal);
                     }
                 }
             });
