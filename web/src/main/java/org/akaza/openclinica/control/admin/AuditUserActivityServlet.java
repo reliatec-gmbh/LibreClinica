@@ -5,7 +5,7 @@
  * For details see: https://libreclinica.org/license
  * copyright (C) 2003 - 2011 Akaza Research
  * copyright (C) 2003 - 2019 OpenClinica
- * copyright (C) 2020 - 2024 LibreClinica
+ * copyright (C) 2020 - 2026 LibreClinica
  */
 package org.akaza.openclinica.control.admin;
 
@@ -18,6 +18,8 @@ import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 
+import javax.servlet.ServletException;
+
 /**
  * Servlet for creating a table.
  *
@@ -28,6 +30,15 @@ public class AuditUserActivityServlet extends SecureController {
     private static final long serialVersionUID = 1L;
     private AuditUserLoginDao auditUserLoginDao;
     Locale locale;
+
+    private AuditUserLoginTable auditUserLoginTable;
+
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        // Initialized once when this specific Servlet instance is added to the pool
+        this.auditUserLoginTable = new AuditUserLoginTable(getAuditUserLoginDao());
+    }
 
     /*
      * (non-Javadoc)
@@ -61,9 +72,7 @@ public class AuditUserActivityServlet extends SecureController {
         } else {
             // HtmlFlow rendering path: supports HTMX partials (panel vs full page)
             request.setAttribute("tableRenderingMode", "htmlflow");
-            AuditUserLoginTable table = new AuditUserLoginTable();
-            table.setAuditUserLoginDao(getAuditUserLoginDao());
-            String auditUserLoginHtml = table.render(request);
+            String auditUserLoginHtml = auditUserLoginTable.render(request);
             // HTMX partial handling
             String hxReq = request.getHeader("HX-Request");
             if (hxReq != null) {

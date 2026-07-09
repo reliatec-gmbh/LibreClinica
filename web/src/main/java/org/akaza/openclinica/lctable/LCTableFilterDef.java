@@ -37,7 +37,7 @@ public abstract class LCTableFilterDef {
     public static ClearFilter clearFilter() { return new ClearFilter(); }
 
     /*** Signature of rendering function (to be implemented by specific filter def types) */
-    public abstract <T1, R extends Element<?, ?>> void renderFilter(Tr<R> tr, LCTableContext<T1> ctx, LCTableColumnDef<T1> col, LCTable<T1> table);
+    public abstract <T, E extends Element<?, ?>> void renderFilter(Tr<E> tr, LCTableContext<T> ctx, LCTableColumnDef<T> col, LCTable<T> table);
 
     /*----------------------------------------------------------------------------------------------------------------*/
     /**
@@ -58,7 +58,7 @@ public abstract class LCTableFilterDef {
         }
 
         @Override
-        public <T1, R extends Element<?, ?>> void renderFilter(Tr<R> tr, LCTableContext<T1> ctx, LCTableColumnDef<T1> col, LCTable<T1> table) {
+        public <T, E extends Element<?, ?>> void renderFilter(Tr<E> tr, LCTableContext<T> ctx, LCTableColumnDef<T> col, LCTable<T> table) {
             final String filterName = LCTableParams.PARAM_FILTER_PREFIX + col.columnName;
             final String filterValue = ctx.filters.getOrDefault(col.columnName, "");
 
@@ -81,7 +81,7 @@ public abstract class LCTableFilterDef {
                     }
                 }
 
-                input.of(hxGetAttrs(table.entityPath, "closest form", "#" + table.panelId, trigger))
+                input.of(hxGetAttrs(ctx.entityPath, "closest form", "#" + table.panelId, trigger))
                     .__().__();
             }).__();
         }
@@ -91,12 +91,12 @@ public abstract class LCTableFilterDef {
     /**
      * Select filter specialization: renders a <select> with provided values
      */
-    public static final class Select<T> extends LCTableFilterDef {
-        public final List<T> values;
-        public final Function<T, String> valueToString;     // convert to string for display in the dropdown list
-        public final Function<T, String> valueToUrlParam;   // convert to string for use in the URL query parameter
+    public static final class Select<F> extends LCTableFilterDef {
+        public final List<F> values;
+        public final Function<F, String> valueToString;     // convert to string for display in the dropdown list
+        public final Function<F, String> valueToUrlParam;   // convert to string for use in the URL query parameter
 
-        public Select(List<T> values, Function<T, String> valueToString, Function<T, String> valueToUrlParam) {
+        public Select(List<F> values, Function<F, String> valueToString, Function<F, String> valueToUrlParam) {
             this.values = values;
             this.valueToString = valueToString;
             this.valueToUrlParam = valueToUrlParam;
@@ -105,21 +105,21 @@ public abstract class LCTableFilterDef {
         /**
          * Convenience constructor: uses the same conversion-to-string function for both display and URL parameter conversion
          */
-        public Select(List<T> values, Function<T, String> valueToString) {
+        public Select(List<F> values, Function<F, String> valueToString) {
             this(values, valueToString, valueToString);
         }
 
         /**
          * Returns the display label for a given optional value.
          */
-        public String label(T value) {
+        public String label(F value) {
             return Optional.ofNullable(value).map(this.valueToString).orElse("");
         }
 
         /**
          * Returns the URL parameter value for a given optional value.
          */
-        public String urlParam(T value) {
+        public String urlParam(F value) {
             return Optional.ofNullable(value).map(this.valueToUrlParam).orElse("");
         }
 
@@ -127,7 +127,7 @@ public abstract class LCTableFilterDef {
         /**
          * Reconstructs the strongly-typed domain object from an HTTP query parameter string.
          */
-        public Optional<T> parseParam(String paramValue) {
+        public Optional<F> parseParam(String paramValue) {
             if (paramValue == null || paramValue.isEmpty()) {
                 return Optional.empty(); // No filtering requested
             } else {
@@ -137,7 +137,7 @@ public abstract class LCTableFilterDef {
         }
 
         @Override
-        public <T1, R extends Element<?, ?>> void renderFilter(Tr<R> tr, LCTableContext<T1> ctx, LCTableColumnDef<T1> col, LCTable<T1> table) {
+        public <T, E extends Element<?, ?>> void renderFilter(Tr<E> tr, LCTableContext<T> ctx, LCTableColumnDef<T> col, LCTable<T> table) {
             final String filterName = LCTableParams.PARAM_FILTER_PREFIX + col.columnName;
             final String rawSelected = ctx.filters.getOrDefault(col.columnName, "");
 
@@ -155,7 +155,7 @@ public abstract class LCTableFilterDef {
                     .attrId(table.panelId + "-filter-" + col.columnName)
                     .attrClass("filter-select")
                     .attrStyle("width:1px;flex:1")
-                    .of(hxGetAttrs(table.entityPath, "closest form", "#" + table.panelId, "change"));
+                    .of(hxGetAttrs(ctx.entityPath, "closest form", "#" + table.panelId, "change"));
 
                 select.option().attrValue("").attrSelected(currentSelected.isEmpty()).text("").__();
                 this.values.forEach(option -> {
@@ -186,9 +186,9 @@ public abstract class LCTableFilterDef {
             ",[name=" + LCTableParams.PARAM_SORT_DIR + "]";
 
         @Override
-        public <T1, R extends Element<?, ?>> void renderFilter(Tr<R> tr, LCTableContext<T1> ctx, LCTableColumnDef<T1> col, LCTable<T1> table) {
+        public <T, E extends Element<?, ?>> void renderFilter(Tr<E> tr, LCTableContext<T> ctx, LCTableColumnDef<T> col, LCTable<T> table) {
             tr.td().a().attrClass("page-btn")
-                .of(hxGetAttrs(table.entityPath, NON_FILTER_PARAMS_SELECTOR, "#" + table.panelId, "click"))
+                .of(hxGetAttrs(ctx.entityPath, NON_FILTER_PARAMS_SELECTOR, "#" + table.panelId, "click"))
                 .text("Clear Filter")
                 .__().__();
         }

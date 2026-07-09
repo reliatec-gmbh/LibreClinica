@@ -35,6 +35,10 @@ public final class LCTableContext<T> {
     public final String sortDir;
     public final Map<String, String> filters;
 
+    // paths (derived from the request URL)
+    public final String entityPath;
+    public final String resourcePath;
+
     // fetched data for the current page (page, sorting and filtering according to the parameters)
     public final LCTableData<T> data;       // data items (rows) in current page
 
@@ -45,13 +49,16 @@ public final class LCTableContext<T> {
 
     // -- Constructor -----------------------------------------------------------
 
-    public LCTableContext(LCTableParams params, Function<LCTableParams, LCTableData<T>> fetchData) {
+    public LCTableContext(String entityPath, LCTableParams params, Function<LCTableParams, LCTableData<T>> fetchData, String resourcePath) {
         this.page = params.page; // 0-based, converted from 1-based URL in LCTableParams
         this.maxRows = params.maxRows;
         this.sortProp = params.sortProp;
         this.sortDir = params.sortDir;
         this.filters = params.filters;
         this.data = fetchData.apply(params);
+
+        this.entityPath = entityPath;
+        this.resourcePath = resourcePath;
 
         final int pageSize = this.maxRows;
         final int totalCountWithFilter = data.totalCountWithFilter;
