@@ -74,6 +74,7 @@ public class AuditUserActivityServlet extends SecureController {
             request.setAttribute("tableRenderingMode", "htmlflow");
             String auditUserLoginHtml = auditUserLoginTable.render(request);
             // HTMX partial handling
+            response.addHeader("Vary", "HX-Request");
             String hxReq = request.getHeader("HX-Request");
             if (hxReq != null) {
                 // HTMX request: only return the table HTML fragment
