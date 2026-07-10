@@ -24,6 +24,7 @@ import static org.akaza.openclinica.lctable.LCTableUtil.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 
 public class AuditUserLoginTable {
@@ -57,9 +58,13 @@ public class AuditUserLoginTable {
 
     // fetches a page of AuditUserLoginBean records from the DAO based on the provided LCTableParams and returns them as LCTableData
     private LCTableData<AuditUserLoginBean> fetchData(LCTableParams p) {
-        // Build filter
         AuditUserLoginFilter filter = new AuditUserLoginFilter();
-        p.filters.forEach(filter::addFilter);
+        // Here we need to escape SQL LIKE wildcards as a workaround for a bug in AuditUserLoginFilter, which does
+        // not do it. Without this workaround, the following would just be: 'p.filters.forEach(filter::addFilter);'
+        final Set<String> freeTextColumns = Set.of("userName", "details");
+        p.filters.forEach((property, value) ->
+            filter.addFilter(property, freeTextColumns.contains(property) ? escapeSqlLikeWildcards(value) : value)
+        );
 
         // Build sort: default to loginAttemptDate desc if no sort provided
         boolean noSort = p.sortProp == null || p.sortProp.isEmpty();

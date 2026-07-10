@@ -52,6 +52,19 @@ public class LCTableUtil {
         };
     }
 
+    /**
+     * Escapes '%' and '_' (SQL LIKE wildcards) so that certain existing filters (such as AuditUserLoginFilter),
+     * which use the "%" + value + "%" pattern, match them literally instead of as wildcards.
+     * Relies on PostgreSQL's LIKE operator treating '\' as the default escape
+     * character even without an explicit ESCAPE clause.
+     */
+    public static String escapeSqlLikeWildcards(String value) {
+        return value
+            .replace("\\", "\\\\")
+            .replace("%", "\\%")
+            .replace("_", "\\_");
+    }
+
     // --- generate HTML for various common elements ---
     /**
      * Convenience helper to construct an icon with a link.
