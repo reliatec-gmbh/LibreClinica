@@ -46,7 +46,8 @@ public class LCTableUtil {
             el.addAttr(HX_GET, hxGet);
             if (hxInclude != null) el.addAttr(HX_INCLUDE, hxInclude);
             el.addAttr(HX_TARGET, hxTarget);
-            el.addAttr(HX_SWAP, "outerHTML");
+            el.addAttr("hx-select", hxTarget);
+            el.addAttr(HX_SWAP, "morph:{morphStyle:'outerHTML',ignoreActiveValue:true}");
             if (hxTrigger != null) el.addAttr(HX_TRIGGER, hxTrigger);
             el.addAttr(HX_PUSH_URL, "true");
         };

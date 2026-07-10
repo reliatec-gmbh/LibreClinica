@@ -95,6 +95,7 @@
      declared in web/pom.xml. This ensures HTMX is available for the LCTable
      pagination links on Audit User Activity without adding the script globally. -->
 <script src="${pageContext.request.contextPath}/webjars/htmx.org/2.0.9/dist/htmx.min.js"></script>
+<script src="${pageContext.request.contextPath}/webjars/idiomorph/0.7.4/dist/idiomorph-ext.js"></script>
 
 <!-- Session-expiry redirect guard for HTMX-based LCTable requests. -->
 <script src="${pageContext.request.contextPath}/js/htmx-session-expiry-guard.js"></script>

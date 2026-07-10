@@ -62,7 +62,11 @@ public abstract class LCTableFilterDef {
             final String filterName = LCTableParams.PARAM_FILTER_PREFIX + col.columnName;
             final String filterValue = ctx.filters.getOrDefault(col.columnName, "");
 
-            final String trigger = this.pattern == null ? "input changed delay:400ms" : "input[this.validity.valid] changed delay:400ms";   // ONLY fire HTMX if the HTML5 validity state is 'valid'
+            // Every change in the input resets the debounce timer (no trigger-filter here).
+            // Validity is instead checked right before the request actually fires, via hx-on below.
+            // Filtering the triggering event itself would let a stale, already-scheduled timer fire later
+            // with a value that in the meantime has changed, leading to a request with an invalid value.
+            final String trigger = "input changed delay:400ms";
 
             tr.td().div().attrClass("filter-wrapper").of(div -> {
                 var input = div.input()
@@ -79,6 +83,8 @@ public abstract class LCTableFilterDef {
                     if (this.message != null) {
                         input.attrTitle(this.message);
                     }
+                    // Cancel the debounced request if the value is no longer valid by the time it actually fires.
+                    input.addAttr("hx-on:htmx:before-request", "if(!this.validity.valid){event.preventDefault();}");
                 }
 
                 input.of(hxGetAttrs(ctx.entityPath, "closest form", "#" + table.panelId, trigger))

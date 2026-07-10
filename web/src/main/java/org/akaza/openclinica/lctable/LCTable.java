@@ -147,7 +147,8 @@ public class LCTable<T>  {
         final StringWriter sw = new StringWriter();
         HtmlFlow.doc(sw)
             .div().attrId(panelId).attrClass("lctable")
-            .form()
+            .addAttr("hx-ext", "morph")         // use 'idiomorph' extension for morphing the table content instead of replacing it
+            .form().attrId(panelId + "-form")
             // Hidden inputs for filter submission. Page is reset to 1 when filtering (like search box).
             // Pagination buttons use their own URLs with all parameters, so this page value
             // doesn't affect them.
@@ -156,10 +157,10 @@ public class LCTable<T>  {
             .input().attrType(EnumTypeInputType.HIDDEN).attrName(PARAM_SORT_PROP).attrValue(ctx.sortProp).__()
             .input().attrType(EnumTypeInputType.HIDDEN).attrName(PARAM_SORT_DIR).attrValue(ctx.sortDir).__()
 
-            .table().attrClass("table").attrStyle("border-collapse:collapse")
-            .thead().of(thead -> renderTableHeader(thead, ctx)).__() // thead
-            .tbody().attrClass("tbody").of(tbody -> renderTableBody(tbody, ctx.data.pageItems)).__() // tbody
-            .tfoot().of(tfoot -> renderTableFooter(tfoot, ctx)).__()
+            .table().attrId(panelId + "-table").attrClass("table").attrStyle("border-collapse:collapse")
+            .thead().attrId(panelId + "-thead").of(thead -> renderTableHeader(thead, ctx)).__() // thead
+            .tbody().attrId(panelId + "-tbody").attrClass("tbody").of(tbody -> renderTableBody(tbody, ctx.data.pageItems)).__() // tbody
+            .tfoot().attrId(panelId + "-tfoot").of(tfoot -> renderTableFooter(tfoot, ctx)).__()
             .__() // table
             .__() // form
             .__(); // div
