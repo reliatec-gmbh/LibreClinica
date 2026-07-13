@@ -16,19 +16,26 @@ import org.xmlet.htmlapifaster.CustomAttributeGroup;
 import org.xmlet.htmlapifaster.Element;
 import org.xmlet.htmlapifaster.Td;
 
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
 
 public class LCTableUtil {
+    private LCTableUtil() {}    // Private constructor to prevent instantiation of this utility class
+
+    // --- Timestamp filter regex for HTML5 validation and thread-safe timestamp-to-string conversion ---
     public static final String TIMESTAMP_FILTER_FOR_HTML_VALIDATION =
         "(?:(?:(?:00|20)(?:00|0[48]|[2468][048]|[13579][26])|(?:0[1-9]|1\\d)(?:0[48]|[2468][048]|[13579][26]))(?:-(?:(?:0[13578]|1[02])(?:-(?:0[1-9]|[12]\\d|3[01]))?|(?:0[469]|11)(?:-(?:0[1-9]|[12]\\d|30))?|02(?:-(?:0[1-9]|1\\d|2[0-9]))?))?|(?:(?:00|20)(?:0[1-35-79]|[13579][01345789]|[2468][1-35-79])|(?:0[1-9]|1\\d)(?:00|0[1-35-79]|[13579][01345789]|[2468][1-35-79]))(?:-(?:(?:0[13578]|1[02])(?:-(?:0[1-9]|[12]\\d|3[01]))?|(?:0[469]|11)(?:-(?:0[1-9]|[12]\\d|30))?|02(?:-(?:0[1-9]|1\\d|2[0-8]))?))?)(?: (?:[01]\\d|2[0-3])(?::[0-5]\\d)?)?";
 
     public static final String TIMESTAMP_FILTER_MESSAGE =
         "Please enter a valid format: yyyy, yyyy-MM, yyyy-MM-dd, yyyy-MM-dd hh, or yyyy-MM-dd hh:mm (years up to 2099)";
 
-    private LCTableUtil() {
-        // Private constructor to prevent instantiation of this utility class
+    public static String utcTimestampToString(java.util.Date date) {
+        // return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date);     // legacy way: create a new SimpleDateFormat for each call to ensure thread safety
+        return date.toInstant().atZone(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));  // use UTC for server logs, not local timezone
     }
 
+    // --- HTMX helpers ---
     public static final String NO_HX_INCLUDE = null;          // just for better readability in method calls
     public static final String NO_HX_TRIGGER = null;          // just for better readability in method calls
 
@@ -39,12 +46,27 @@ public class LCTableUtil {
             el.addAttr(HX_GET, hxGet);
             if (hxInclude != null) el.addAttr(HX_INCLUDE, hxInclude);
             el.addAttr(HX_TARGET, hxTarget);
-            el.addAttr(HX_SWAP, "outerHTML");
+            el.addAttr("hx-select", hxTarget);
+            el.addAttr(HX_SWAP, "morph:{morphStyle:'outerHTML',ignoreActiveValue:true}");
             if (hxTrigger != null) el.addAttr(HX_TRIGGER, hxTrigger);
             el.addAttr(HX_PUSH_URL, "true");
         };
     }
 
+    /**
+     * Escapes '%' and '_' (SQL LIKE wildcards) so that certain existing filters (such as AuditUserLoginFilter),
+     * which use the "%" + value + "%" pattern, match them literally instead of as wildcards.
+     * Relies on PostgreSQL's LIKE operator treating '\' as the default escape
+     * character even without an explicit ESCAPE clause.
+     */
+    public static String escapeSqlLikeWildcards(String value) {
+        return value
+            .replace("\\", "\\\\")
+            .replace("%", "\\%")
+            .replace("_", "\\_");
+    }
+
+    // --- generate HTML for various common elements ---
     /**
      * Convenience helper to construct an icon with a link.
      * Use like: td.of(LCTableUtil.iconLink("View", href, "images/bt_View.gif", "View"));

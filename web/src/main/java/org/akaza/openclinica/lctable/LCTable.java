@@ -28,21 +28,18 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.lang.String.format;
 
-public class LCTable<T1>  {
-    final String entityPath;    // base path for pagination/sorting URLs
-    final String resourcePath;
+public class LCTable<T>  {
+
     final String tableName;     // name of the table (used for generating unique IDs and classes)
     final String panelId;       // ID of the panel element to target with HTMX requests (e.g. "books-panel")
-    final List<LCTableColumnDef<T1>> columns;
-    final Function<LCTableParams, LCTableData<T1>> fetchData;
+    final List<LCTableColumnDef<T>> columns;
+    final Function<LCTableParams, LCTableData<T>> fetchData;
 
     // constants to control table behaviour
     static final boolean HIDE_PAGINATION_TOOLS_FOR_SINGLE_PAGE_TABLE = false;
 
 
-    public LCTable(String entityPath, String resourcePath, String tableName, List<LCTableColumnDef<T1>> columns, Function<LCTableParams, LCTableData<T1>> fetchData) {
-        this.entityPath   = entityPath;
-        this.resourcePath = resourcePath;
+    public LCTable(String tableName, List<LCTableColumnDef<T>> columns, Function<LCTableParams, LCTableData<T>> fetchData) {
         this.tableName    = tableName;
         this.panelId      = tableName + "-panel";   // Generate panel ID based on table name
         this.columns      = columns;
@@ -67,7 +64,7 @@ public class LCTable<T1>  {
 
     // -- Generic typed table renderer -----------------------------------------
 
-    private void renderColumnNames(Tr<?> tr, LCTableContext<T1> ctx) {
+    private void renderColumnNames(Tr<?> tr, LCTableContext<T> ctx) {
         columns.forEach(col -> renderColumnName(tr, col, ctx));
     }
 
@@ -75,7 +72,7 @@ public class LCTable<T1>  {
      * Render a clickable header cell that toggles sorting state for the column.
      * Clicking cycles through: no sort → ascending → descending → no sort.
      */
-    private void renderColumnName(Tr<?> tr, LCTableColumnDef<T1> col, LCTableContext<T1> ctx) {
+    private void renderColumnName(Tr<?> tr, LCTableColumnDef<T> col, LCTableContext<T> ctx) {
         final String widthStyle = "width: " + col.columnWidth + "rem";
         if (!col.isSortable) {
             // Non-sortable column: just render the header text without a link
@@ -84,7 +81,7 @@ public class LCTable<T1>  {
             boolean isSorted = col.columnName.equals(ctx.sortProp);
             final String currentSortDir = isSorted ? ctx.sortDir : null;
             final String nextSortDir = currentSortDir == null ? "asc" : (currentSortDir.equals("asc") ? "desc" : null);
-            final String href = urlForSort(entityPath, ctx, col.columnName, nextSortDir);
+            final String href = urlForSort(ctx.entityPath, ctx, col.columnName, nextSortDir);
             // Render the header cell with a link that triggers sorting via HTMX
             tr.th().attrStyle(widthStyle)
                 .a().attrClass("sort-header-link")
@@ -93,14 +90,14 @@ public class LCTable<T1>  {
                     a.span().attrClass("sort-header-text").text(col.columnDisplayName).__();
                     // Show sort indicator if sorted
                     if (isSorted && currentSortDir != null) {
-                        String imgSrc = resourcePath + (currentSortDir.equals("asc") ? "/images/table/sortAsc.gif" : "/images/table/sortDesc.gif");
+                        String imgSrc = ctx.resourcePath + (currentSortDir.equals("asc") ? "/images/table/sortAsc.gif" : "/images/table/sortDesc.gif");
                         a.img().attrClass("sort-indicator").addAttr("src", imgSrc).attrAlt(currentSortDir).__();
                     }
                 }).__();
         }
     }
 
-    private void renderToolbar(Tr<?> tr, LCTableContext<T1> ctx) {
+    private void renderToolbar(Tr<?> tr, LCTableContext<T> ctx) {
         tr.td().attrClass("toolbar").attrColspan(columns.size())
             .div().attrStyle("display:flex;justify-content:space-between;align-items:center")
             .of(container -> {
@@ -111,7 +108,7 @@ public class LCTable<T1>  {
             }).__();
     }
 
-    private void renderFilters(Tr<?> tr, LCTableContext<T1> ctx) {
+    private void renderFilters(Tr<?> tr, LCTableContext<T> ctx) {
         // Render a filter input for each column
         columns.forEach(col -> {
             if (col.filterDef != null) {
@@ -122,16 +119,16 @@ public class LCTable<T1>  {
         });
     }
 
-    private void renderTableHeader(Thead<?> thead, LCTableContext<T1> ctx) {
+    private void renderTableHeader(Thead<?> thead, LCTableContext<T> ctx) {
         thead.tr().attrClass("header").of(tr -> renderToolbar(tr, ctx)).__();
         thead.tr().attrClass("header").of(tr -> renderColumnNames(tr, ctx)).__();
         thead.tr().attrClass("filter").of(tr -> renderFilters(tr, ctx)).__();
     }
 
-    private void renderTableBody(Tbody<?> tbody, List<T1> data) {
+    private void renderTableBody(Tbody<?> tbody, List<T> data) {
         tbody.attrClass("tbody");
         IntStream.range(0, data.size()).forEach(i -> {
-            T1 item = data.get(i);
+            T item = data.get(i);
             String rowClass = ((i+1) % 2 == 0) ? "even" : "odd";    // use (i+1) to start from 1 for class assignment
             Tr<?> tr = tbody.tr().attrClass(rowClass);
             columns.forEach(col -> col.cellRenderer.accept(tr, item));
@@ -146,11 +143,12 @@ public class LCTable<T1>  {
      * @param ctx the table context containing all pagination/sorting state and the data for the current page
      * @return rendered HTML string
      */
-    private String renderTableHtml(LCTableContext<T1> ctx) {
+    private String renderTableHtml(LCTableContext<T> ctx) {
         final StringWriter sw = new StringWriter();
         HtmlFlow.doc(sw)
             .div().attrId(panelId).attrClass("lctable")
-            .form()
+            .addAttr("hx-ext", "morph")         // use 'idiomorph' extension for morphing the table content instead of replacing it
+            .form().attrId(panelId + "-form")
             // Hidden inputs for filter submission. Page is reset to 1 when filtering (like search box).
             // Pagination buttons use their own URLs with all parameters, so this page value
             // doesn't affect them.
@@ -159,10 +157,10 @@ public class LCTable<T1>  {
             .input().attrType(EnumTypeInputType.HIDDEN).attrName(PARAM_SORT_PROP).attrValue(ctx.sortProp).__()
             .input().attrType(EnumTypeInputType.HIDDEN).attrName(PARAM_SORT_DIR).attrValue(ctx.sortDir).__()
 
-            .table().attrClass("table").attrStyle("border-collapse:collapse")
-            .thead().of(thead -> renderTableHeader(thead, ctx)).__() // thead
-            .tbody().attrClass("tbody").of(tbody -> renderTableBody(tbody, ctx.data.pageItems)).__() // tbody
-            .tfoot().of(tfoot -> renderTableFooter(tfoot, ctx)).__()
+            .table().attrId(panelId + "-table").attrClass("table").attrStyle("border-collapse:collapse")
+            .thead().attrId(panelId + "-thead").of(thead -> renderTableHeader(thead, ctx)).__() // thead
+            .tbody().attrId(panelId + "-tbody").attrClass("tbody").of(tbody -> renderTableBody(tbody, ctx.data.pageItems)).__() // tbody
+            .tfoot().attrId(panelId + "-tfoot").of(tfoot -> renderTableFooter(tfoot, ctx)).__()
             .__() // table
             .__() // form
             .__(); // div
@@ -176,14 +174,14 @@ public class LCTable<T1>  {
      * @param params the parameters for fetching data (page number, page size, sorting, filters, etc.)
      * @return the rendered HTML string for the table
      */
-    public String render(LCTableParams params) {
-        final LCTableContext<T1> ctx = new LCTableContext<>(params, fetchData);
+    public String render(String entityPath, LCTableParams params, String resourcePath) {
+        final LCTableContext<T> ctx = new LCTableContext<>(entityPath, params, fetchData, resourcePath);
         return renderTableHtml(ctx);
     }
 
     // -- Controls (pagination etc.) -------------------------------------------
 
-    public void renderTableFooter(Tfoot<?> tfoot, LCTableContext<T1> ctx) {
+    public void renderTableFooter(Tfoot<?> tfoot, LCTableContext<T> ctx) {
         long    from     = (long) ctx.page * ctx.maxRows + 1;
         long    to       = (long) ctx.page * ctx.maxRows + ctx.data.pageItems.size();
 
@@ -194,7 +192,7 @@ public class LCTable<T1>  {
         footer.__(); // div.table-footer
     }
 
-    private void buildPageNavigation(Nav<?> nav, LCTableContext<T1> ctx) {
+    private void buildPageNavigation(Nav<?> nav, LCTableContext<T> ctx) {
         if (HIDE_PAGINATION_TOOLS_FOR_SINGLE_PAGE_TABLE && ctx.totalPages <= 1) return;
 
         final int page = ctx.page;
@@ -206,15 +204,15 @@ public class LCTable<T1>  {
         nav.attrClass("toolbar");
 
         // « first
-        pageBtn(nav, "«", url(entityPath, 0, size, sort, dir, ctx.filters), panelId, page == 0);
+        pageBtn(nav, "«", url(ctx.entityPath, 0, size, sort, dir, ctx.filters), panelId, page == 0);
         // ‹ previous
-        pageBtn(nav, "‹", url(entityPath, max(0, page - 1), size, sort, dir, ctx.filters), panelId, page == 0);
+        pageBtn(nav, "‹", url(ctx.entityPath, max(0, page - 1), size, sort, dir, ctx.filters), panelId, page == 0);
         // numbered slots / ellipsis
         for (LCTablePageSlot slot : ctx.slots) {
             if (slot.ellipsis()) {
                 nav.span().attrClass("page-ellipsis").text("…").__();
             } else {
-                String slotHref = url(entityPath, slot.page(), size, sort, dir, ctx.filters);
+                String slotHref = url(ctx.entityPath, slot.page(), size, sort, dir, ctx.filters);
                 nav.a().attrClass("page-btn" + (slot.current() ? " current" : ""))
                     .attrHref(slotHref).of(hxGetAttrs(slotHref, NO_HX_INCLUDE, "#" + panelId, NO_HX_TRIGGER))
                     .text(String.valueOf(slot.page() + 1))
@@ -222,9 +220,9 @@ public class LCTable<T1>  {
             }
         }
         // › next
-        pageBtn(nav, "›", url(entityPath, min(total - 1, page + 1), size, sort, dir, ctx.filters), panelId, page >= total - 1);
+        pageBtn(nav, "›", url(ctx.entityPath, min(total - 1, page + 1), size, sort, dir, ctx.filters), panelId, page >= total - 1);
         // » last
-        pageBtn(nav, "»", url(entityPath, total - 1, size, sort, dir, ctx.filters), panelId, page >= total - 1);
+        pageBtn(nav, "»", url(ctx.entityPath, total - 1, size, sort, dir, ctx.filters), panelId, page >= total - 1);
 
         nav.__(); // nav.pagination
     }
@@ -238,13 +236,13 @@ public class LCTable<T1>  {
     }
 
     /** Builds the page-size selector (maxRows) and appends it into the provided div. */
-    private void buildMaxRowsSelector(Div<?> div, LCTableContext<T1> ctx) {
+    private void buildMaxRowsSelector(Div<?> div, LCTableContext<T> ctx) {
         if (HIDE_PAGINATION_TOOLS_FOR_SINGLE_PAGE_TABLE && ctx.totalPages <= 1) return;
         div.attrClass("page-size");
         div.label().text("Rows: ").__();
         div.select()
             .attrName(PARAM_MAX_ROWS)
-            .of(hxGetAttrs(entityPath, "#" + panelId + " input, #" + panelId + " select", "#" + panelId, "change"))
+            .of(hxGetAttrs(ctx.entityPath, "#" + panelId + " input, #" + panelId + " select", "#" + panelId, "change"))
             .of(select -> {
                 for (int s : new int[]{15, 25, 50}) {
                     if (s == ctx.maxRows) {
@@ -260,7 +258,7 @@ public class LCTable<T1>  {
      * Build a URL with sort parameters. If sortDir is null, omit sortProp and sortDir from the URL
      * (effectively removing the sort). Otherwise, include both sortProp and sortDir.
      */
-    private String urlForSort(String path, LCTableContext<T1> ctx, String columnName, String sortDir) {
+    private String urlForSort(String path, LCTableContext<T> ctx, String columnName, String sortDir) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromPath(path)
             .queryParam(PARAM_PAGE, 1)  // reset to page 1 when sorting changes
             .queryParam(PARAM_MAX_ROWS, ctx.maxRows);

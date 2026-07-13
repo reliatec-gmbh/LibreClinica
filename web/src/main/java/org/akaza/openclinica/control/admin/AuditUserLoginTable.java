@@ -4,6 +4,9 @@
 
  * For details see: https://libreclinica.org/license
  * copyright (C) 2026 LibreClinica
+ *
+ * Author: Giuseppe Del Castillo
+ * Development sponsored by ReliaTec GmbH
  */
 package org.akaza.openclinica.control.admin;
 
@@ -18,37 +21,34 @@ import static org.akaza.openclinica.lctable.LCTableColumnDef.*;
 import static org.akaza.openclinica.lctable.LCTableFilterDef.*;
 import static org.akaza.openclinica.lctable.LCTableUtil.*;
 
-import java.util.function.Function;
 import javax.servlet.http.HttpServletRequest;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 
 public class AuditUserLoginTable {
 
-    private AuditUserLoginDao auditUserLoginDao;
+    private final AuditUserLoginDao auditUserLoginDao;
+    private final LCTable<AuditUserLoginBean> table;
 
-    public void setAuditUserLoginDao(AuditUserLoginDao auditUserLoginDao) {
+    // constructor (takes DAO as parameter and initializes the LCTable with column definitions and fetchData method)
+    public AuditUserLoginTable(AuditUserLoginDao auditUserLoginDao) {
         this.auditUserLoginDao = auditUserLoginDao;
+        this.table = new LCTable<>("userLogins", COLUMNS, this::fetchData);
     }
 
-    final DateFormat dateFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-    /**
-     * Defines the columns for the AuditUserLogin table.
-     */
-    final List<LCTableColumnDef<AuditUserLoginBean>> columns = Arrays.asList(
+    // defines the configuration of columns for the AuditUserLogin table
+    private static final List<LCTableColumnDef<AuditUserLoginBean>> COLUMNS = Arrays.asList(
         textCol("userName", "User Name", 5, AuditUserLoginBean::getUserName),
         textCol("loginAttemptDate", "Attempt Date", 7,
             textFilter(TIMESTAMP_FILTER_FOR_HTML_VALIDATION, TIMESTAMP_FILTER_MESSAGE),
-            AuditUserLoginBean::getLoginAttemptDate, dateFmt::format
+            AuditUserLoginBean::getLoginAttemptDate, LCTableUtil::utcTimestampToString
         ),
         enumCol("loginStatus", "Status", 7,
             AuditUserLoginBean::getLoginStatus, Arrays.asList(LoginStatus.values()), LoginStatus::toString, LoginStatus::name
         ),
-        textCol("details","Details", 3, AuditUserLoginBean::getDetails),
+        textCol("details", "Details", 3, AuditUserLoginBean::getDetails),
         customTdCol("actions", "Actions", 4, NOT_SORTABLE, clearFilter(),
             AuditUserLoginBean::getUserAccountId,
             (td, userAccountId) ->
@@ -56,19 +56,20 @@ public class AuditUserLoginTable {
         )
     );
 
-    /**
-     * Fetches a page of {@link AuditUserLoginBean} records from the DAO
-     * based on the provided {@link LCTableParams} and returns them as {@link LCTableData}
-     */
-    final Function<LCTableParams, LCTableData<AuditUserLoginBean>> fetchData = p -> {
-        // Build filter
+    // fetches a page of AuditUserLoginBean records from the DAO based on the provided LCTableParams and returns them as LCTableData
+    private LCTableData<AuditUserLoginBean> fetchData(LCTableParams p) {
         AuditUserLoginFilter filter = new AuditUserLoginFilter();
-        p.filters.forEach(filter::addFilter);
+        // Here we need to escape SQL LIKE wildcards as a workaround for a bug in AuditUserLoginFilter, which does
+        // not do it. Without this workaround, the following would just be: 'p.filters.forEach(filter::addFilter);'
+        final Set<String> freeTextColumns = Set.of("userName", "details");
+        p.filters.forEach((property, value) ->
+            filter.addFilter(property, freeTextColumns.contains(property) ? escapeSqlLikeWildcards(value) : value)
+        );
 
         // Build sort: default to loginAttemptDate desc if no sort provided
         boolean noSort = p.sortProp == null || p.sortProp.isEmpty();
         final var sortProp = noSort ? "loginAttemptDate" : p.sortProp;
-        final var sortDir  = noSort ? "desc" : p.sortDir;
+        final var sortDir = noSort ? "desc" : p.sortDir;
         AuditUserLoginSort sort = new AuditUserLoginSort();
         sort.addSort(sortProp, sortDir);
 
@@ -79,19 +80,12 @@ public class AuditUserLoginTable {
         int total = auditUserLoginDao.getCountWithFilter(filter);
 
         return new LCTableData<>(pageItems, total);
-    };
+    }
 
-    /**
-     * Renders the AuditUserLogin table using LCTable.
-     * Fetches a page of {@link AuditUserLoginBean} records from the DAO and
-     * renders them with the generic typed table renderer.
-     */
+    // rendering method putting all pieces together
     public String render(HttpServletRequest request) {
-        String entityPath = request.getRequestURI();
-        String resourcePath = request.getContextPath();
-        LCTable<AuditUserLoginBean> table = new LCTable<>(entityPath, resourcePath, "userLogins", columns, fetchData);
-        LCTableParams tableParams = new LCTableParams(request.getQueryString(), table);
-        return table.render(tableParams);
+        final LCTableParams params = new LCTableParams(request.getQueryString(), this.table);
+        return this.table.render(request.getRequestURI(), params, request.getContextPath());
     }
 
 }

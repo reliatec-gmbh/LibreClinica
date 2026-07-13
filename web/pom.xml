@@ -105,6 +105,12 @@
 			<version>2.0.9</version>
 		</dependency>
 		<dependency>
+			<!-- idiomorph is an extension of htmx and needed for proper implementation of LCTable filters -->
+			<groupId>org.webjars.npm</groupId>
+			<artifactId>idiomorph</artifactId>
+			<version>0.7.4</version>
+		</dependency>
+		<dependency>
 			<groupId>commons-beanutils</groupId>
 			<artifactId>commons-beanutils</artifactId>
          <!-- <scope>runtime</scope> -->
@@ -375,6 +381,8 @@
 
 						<!-- HTMX webjar provides runtime JS resources referenced from templates/static files; mark as intentionally unused by Java code -->
 						<ignoredUnusedDeclaredDependency>org.webjars.npm:htmx.org</ignoredUnusedDeclaredDependency>
+						<!-- idiomorph webjar is a HTMX extension -->
+						<ignoredUnusedDeclaredDependency>org.webjars.npm:idiomorph</ignoredUnusedDeclaredDependency>
 					</ignoredUnusedDeclaredDependencies>
                     <ignoredUsedUndeclaredDependencies>
                         <ignoredUsedUndeclaredDependency>javax.annotation:javax.annotation-api</ignoredUsedUndeclaredDependency>

@@ -24,9 +24,9 @@ import java.util.function.Function;
  * a display name (rendered in the header) and a closure that writes the cell
  * content for a given row bean into the HtmlFlow row element.
  *
- * @param <R> record (row) type
+ * @param <T> record (row) type
  */
-public class LCTableColumnDef<R> {
+public class LCTableColumnDef<T> {
 
     // synonyms of true, false and null for better readability in column definitions
     // for use in 'sortable' field of column definitions
@@ -51,10 +51,10 @@ public class LCTableColumnDef<R> {
     public final LCTableFilterDef filterDef;                // null if no filter is foreseen for this column
 
     /** Closure that writes the cell content for a given row bean into the HtmlFlow row element. */
-    public final BiConsumer<Tr<?>, R> cellRenderer;
+    public final BiConsumer<Tr<?>, T> cellRenderer;
 
     // General constructor
-    public LCTableColumnDef(String columnName, String columnDisplayName, double columnWidth, boolean isSortable, LCTableFilterDef filterDef, BiConsumer<Tr<?>, R> cellRenderer) {
+    public LCTableColumnDef(String columnName, String columnDisplayName, double columnWidth, boolean isSortable, LCTableFilterDef filterDef, BiConsumer<Tr<?>, T> cellRenderer) {
         this.columnName = columnName;
         this.columnDisplayName = columnDisplayName;
         this.columnWidth = columnWidth;
@@ -64,7 +64,7 @@ public class LCTableColumnDef<R> {
     }
 
     // Basic factory method
-    public static <R> LCTableColumnDef<R> columnDef(String columnName, String displayName, double columnWidth, boolean sortable, LCTableFilterDef filterDef, BiConsumer<Tr<?>, R> cellRenderer) {
+    public static <T> LCTableColumnDef<T> columnDef(String columnName, String displayName, double columnWidth, boolean sortable, LCTableFilterDef filterDef, BiConsumer<Tr<?>, T> cellRenderer) {
         return new LCTableColumnDef<>(columnName, displayName, columnWidth, sortable, filterDef, cellRenderer);
     }
 
@@ -73,8 +73,8 @@ public class LCTableColumnDef<R> {
     /**
      * Core helper: Opens a Td, evaluates the Optional pipeline, renders the value or a fallback, and safely closes the Td.
      */
-    private static <R, V> BiConsumer<Tr<?>, R> nullSafeCell(
-        Function<Optional<R>, Optional<V>> pipeline,
+    private static <T, V> BiConsumer<Tr<?>, T> nullSafeCell(
+        Function<Optional<T>, Optional<V>> pipeline,
         BiConsumer<Td<?>, V> finish
     ) {
         return (tr, row) -> {
@@ -89,57 +89,57 @@ public class LCTableColumnDef<R> {
 
     // --- 2. Null-safe text renderers ---
 
-    public static <R> BiConsumer<Tr<?>, R> nullSafeColText(Function<R, String> renderer) {
+    public static <T> BiConsumer<Tr<?>, T> nullSafeColText(Function<T, String> renderer) {
         return nullSafeCell(row -> row.map(renderer), TextGroup::text);
     }
 
-    public static <R, F> BiConsumer<Tr<?>, R> nullSafeColText(Function<R, F> extractor, Function<F, String> renderer) {
+    public static <T, F> BiConsumer<Tr<?>, T> nullSafeColText(Function<T, F> extractor, Function<F, String> renderer) {
         return nullSafeCell(row -> row.map(extractor).map(renderer), TextGroup::text);
     }
 
     // --- 3. Column factory methods for text columns ---
 
-    public static <R> LCTableColumnDef<R> textCol(String columnName, String displayName, double width,  Function<R, String> renderer) {
+    public static <T> LCTableColumnDef<T> textCol(String columnName, String displayName, double width, Function<T, String> renderer) {
         return new LCTableColumnDef<>(columnName, displayName, width, true, new LCTableFilterDef.Text(), nullSafeColText(renderer));
     }
 
-    public static <R> LCTableColumnDef<R> textCol(String columnName, String displayName, double width, LCTableFilterDef filterDef, Function<R, String> renderer) {
+    public static <T> LCTableColumnDef<T> textCol(String columnName, String displayName, double width, LCTableFilterDef filterDef, Function<T, String> renderer) {
         return new LCTableColumnDef<>(columnName, displayName, width, true, filterDef, nullSafeColText(renderer));
     }
 
-    public static <R, F> LCTableColumnDef<R> textCol(String columnName, String displayName, double width, Function<R, F> extractor, Function<F, String> renderer) {
+    public static <T, F> LCTableColumnDef<T> textCol(String columnName, String displayName, double width, Function<T, F> extractor, Function<F, String> renderer) {
         return new LCTableColumnDef<>(columnName, displayName, width, true, new LCTableFilterDef.Text(), nullSafeColText(extractor, renderer));
     }
 
-    public static <R, F> LCTableColumnDef<R> textCol(String columnName, String displayName, double width, LCTableFilterDef filterDef, Function<R, F> extractor, Function<F, String> renderer) {
+    public static <T, F> LCTableColumnDef<T> textCol(String columnName, String displayName, double width, LCTableFilterDef filterDef, Function<T, F> extractor, Function<F, String> renderer) {
         return new LCTableColumnDef<>(columnName, displayName, width, true, filterDef, nullSafeColText(extractor, renderer));
     }
 
     // --- 4. Column factory methods for enum-like types (similar to textCol, but with list of allowed value and 'select' filter ---
 
-    public static <R, V> LCTableColumnDef<R> enumCol(String columnName, String displayName, double width, List<V> filterValues, Function<V, String> filterRenderer, Function<V, String> urlParamConverter, Function<R, String> colRenderer) {
+    public static <T, V> LCTableColumnDef<T> enumCol(String columnName, String displayName, double width, List<V> filterValues, Function<V, String> filterRenderer, Function<V, String> urlParamConverter, Function<T, String> colRenderer) {
         return new LCTableColumnDef<>(columnName, displayName, width, true, new LCTableFilterDef.Select<>(filterValues, filterRenderer, urlParamConverter), nullSafeColText(colRenderer));
     }
 
-    public static <R, V> LCTableColumnDef<R> enumColNotSortable(String columnName, String displayName, double width, List<V> filterValues, Function<V, String> filterRenderer, Function<V, String> urlParamConverter, Function<R, String> colRenderer) {
+    public static <T, V> LCTableColumnDef<T> enumColNotSortable(String columnName, String displayName, double width, List<V> filterValues, Function<V, String> filterRenderer, Function<V, String> urlParamConverter, Function<T, String> colRenderer) {
         return new LCTableColumnDef<>(columnName, displayName, width, false, new LCTableFilterDef.Select<>(filterValues, filterRenderer, urlParamConverter), nullSafeColText(colRenderer));
     }
 
-    public static <R, V> LCTableColumnDef<R> enumCol(String columnName, String displayName, double width, Function<R, V> extractor, List<V> enumValues, Function<V, String> renderer, Function<V, String> urlParamConverter) {
+    public static <T, V> LCTableColumnDef<T> enumCol(String columnName, String displayName, double width, Function<T, V> extractor, List<V> enumValues, Function<V, String> renderer, Function<V, String> urlParamConverter) {
         return new LCTableColumnDef<>(columnName, displayName, width, true, new LCTableFilterDef.Select<>(enumValues, renderer, urlParamConverter), nullSafeColText(extractor, renderer));
     }
 
-    public static <R, V> LCTableColumnDef<R> enumColNotSortable(String columnName, String displayName, double width, Function<R, V> extractor, List<V> enumValues, Function<V, String> renderer, Function<V, String> urlParamConverter) {
+    public static <T, V> LCTableColumnDef<T> enumColNotSortable(String columnName, String displayName, double width, Function<T, V> extractor, List<V> enumValues, Function<V, String> renderer, Function<V, String> urlParamConverter) {
         return new LCTableColumnDef<>(columnName, displayName, width, false, new LCTableFilterDef.Select<>(enumValues, renderer, urlParamConverter), nullSafeColText(extractor, renderer));
     }
 
     // --- 5. Column factory methods for custom 'td' rendering ---
 
-    public static <R> LCTableColumnDef<R> customTdCol(String columnName, String displayName, double width, boolean sortable, LCTableFilterDef filterDef, BiConsumer<Td<?>, R> renderer) {
+    public static <T> LCTableColumnDef<T> customTdCol(String columnName, String displayName, double width, boolean sortable, LCTableFilterDef filterDef, BiConsumer<Td<?>, T> renderer) {
         return new LCTableColumnDef<>(columnName, displayName, width, sortable, filterDef, nullSafeCell(Function.identity(), renderer));
     }
 
-    public static <R, F> LCTableColumnDef<R> customTdCol(String columnName, String displayName, double width, boolean sortable, LCTableFilterDef filterDef, Function<R, F> extractor, BiConsumer<Td<?>, F> renderer) {
+    public static <T, F> LCTableColumnDef<T> customTdCol(String columnName, String displayName, double width, boolean sortable, LCTableFilterDef filterDef, Function<T, F> extractor, BiConsumer<Td<?>, F> renderer) {
         return new LCTableColumnDef<>(columnName, displayName, width, sortable, filterDef, nullSafeCell(row -> row.map(extractor), renderer));
     }
 
