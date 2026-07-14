@@ -91,18 +91,7 @@
 <br>
 <input type="button" onclick="confirmExit('ListUserAccounts');"  name="exit" value="<fmt:message key="exit" bundle="${resword}"/>   " class="button_medium"/>
 
-<!-- Load HTMX only on this page (user preference). HTMX is provided by the webjar
-     declared in web/pom.xml. This ensures HTMX is available for the LCTable
-     pagination links on Audit User Activity without adding the script globally. -->
-<script src="${pageContext.request.contextPath}/webjars/htmx.org/2.0.9/dist/htmx.min.js"></script>
-<script src="${pageContext.request.contextPath}/webjars/idiomorph/0.7.4/dist/idiomorph-ext.js"></script>
-<!-- The following is needed to avoid problems with browser back/forward navigation buttons. See https://htmx.org/docs/#history -->
-<script>
-if (!document.querySelector('meta[name="htmx-config"]'))
-    document.head.insertAdjacentHTML('beforeend', '<meta name="htmx-config" content=\'{"historyRestoreAsHxRequest": false}\'>');
-</script>
-
-<!-- Session-expiry redirect guard for HTMX-based LCTable requests. -->
-<script src="${pageContext.request.contextPath}/js/htmx-session-expiry-guard.js"></script>
+<!-- Include everything that is needed for proper use of HTMX with LCTable -->
+<jsp:include page="../include/useHtmx.jsp"/>
 
 <jsp:include page="../include/footer.jsp"/>
