@@ -74,7 +74,7 @@ public class LCTable<T>  {
      */
     private void renderColumnName(Tr<?> tr, LCTableColumnDef<T> col, LCTableContext<T> ctx) {
         final String widthStyle = "width: " + col.columnWidth + "rem";
-        if (!col.isSortable) {
+        if (!col.isSortable()) {
             // Non-sortable column: just render the header text without a link
             tr.th().attrStyle(widthStyle).text(col.columnDisplayName).__();
         } else {
