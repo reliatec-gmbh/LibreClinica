@@ -74,7 +74,7 @@ public class LCTable<T>  {
      */
     private void renderColumnName(Tr<?> tr, LCTableColumnDef<T> col, LCTableContext<T> ctx) {
         final String widthStyle = "width: " + col.columnWidth + "rem";
-        if (!col.isSortable) {
+        if (!col.isSortable()) {
             // Non-sortable column: just render the header text without a link
             tr.th().attrStyle(widthStyle).text(col.columnDisplayName).__();
         } else {
@@ -111,7 +111,7 @@ public class LCTable<T>  {
     private void renderFilters(Tr<?> tr, LCTableContext<T> ctx) {
         // Render a filter input for each column
         columns.forEach(col -> {
-            if (col.filterDef != null) {
+            if (col.isFilterable()) {
                 col.filterDef.renderFilter(tr, ctx, col, this);
             } else {
                 tr.td().__();   // insert empty <td> to fill column cell when there is no filter

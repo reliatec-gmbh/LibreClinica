@@ -87,7 +87,8 @@ public abstract class LCTableFilterDef {
                     input.addAttr("hx-on:htmx:before-request", "if(!this.validity.valid){event.preventDefault();}");
                 }
 
-                input.of(hxGetAttrs(ctx.entityPath, "closest form", "#" + table.panelId, trigger))
+                // use hxGetAttrsIgnoreActiveValue to avoid replacing the input value with the value from the response while the user is typing
+                input.of(hxGetAttrsIgnoreActiveValue(ctx.entityPath, "closest form", "#" + table.panelId, trigger))
                     .__().__();
             }).__();
         }
@@ -187,9 +188,9 @@ public abstract class LCTableFilterDef {
         // CSS selector that picks up only the pagination/sort form fields, excluding all filter inputs.
         private static final String NON_FILTER_PARAMS_SELECTOR =
             "[name=" + LCTableParams.PARAM_PAGE + "]" +
-            ",[name=" + LCTableParams.PARAM_MAX_ROWS + "]" +
-            ",[name=" + LCTableParams.PARAM_SORT_PROP + "]" +
-            ",[name=" + LCTableParams.PARAM_SORT_DIR + "]";
+                ",[name=" + LCTableParams.PARAM_MAX_ROWS + "]" +
+                ",[name=" + LCTableParams.PARAM_SORT_PROP + "]" +
+                ",[name=" + LCTableParams.PARAM_SORT_DIR + "]";
 
         @Override
         public <T, E extends Element<?, ?>> void renderFilter(Tr<E> tr, LCTableContext<T> ctx, LCTableColumnDef<T> col, LCTable<T> table) {

@@ -16,7 +16,7 @@ import org.xmlet.htmlapifaster.CustomAttributeGroup;
 import org.xmlet.htmlapifaster.Element;
 import org.xmlet.htmlapifaster.Td;
 
-import java.time.ZoneOffset;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
 
@@ -30,9 +30,8 @@ public class LCTableUtil {
     public static final String TIMESTAMP_FILTER_MESSAGE =
         "Please enter a valid format: yyyy, yyyy-MM, yyyy-MM-dd, yyyy-MM-dd hh, or yyyy-MM-dd hh:mm (years up to 2099)";
 
-    public static String utcTimestampToString(java.util.Date date) {
-        // return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date);     // legacy way: create a new SimpleDateFormat for each call to ensure thread safety
-        return date.toInstant().atZone(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));  // use UTC for server logs, not local timezone
+    public static String timestampToString(java.util.Date date) {
+        return date.toInstant().atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 
     // --- HTMX helpers ---
@@ -40,17 +39,36 @@ public class LCTableUtil {
     public static final String NO_HX_TRIGGER = null;          // just for better readability in method calls
 
     public static <T extends CustomAttributeGroup<T, ?>> Consumer<T> hxGetAttrs(
-        String hxGet, String hxInclude, String hxTarget, String hxTrigger
+        String hxGet, String hxInclude, String hxTarget, String hxTrigger, boolean ignoreActiveValue
     ) {
         return el -> {
             el.addAttr(HX_GET, hxGet);
             if (hxInclude != null) el.addAttr(HX_INCLUDE, hxInclude);
             el.addAttr(HX_TARGET, hxTarget);
             el.addAttr("hx-select", hxTarget);
-            el.addAttr(HX_SWAP, "morph:{morphStyle:'outerHTML',ignoreActiveValue:true}");
+            if (ignoreActiveValue) {
+                // for incremental input filters and the like, where the user may continue typing
+                // while the request is in flight: do not replace value with the value from the response
+                el.addAttr(HX_SWAP, "morph:{morphStyle:'outerHTML',ignoreActiveValue:true}");
+            } else {
+                // other cases: replace the entire target element with the response (outerHTML)
+                el.addAttr(HX_SWAP, "outerHTML");
+            }
             if (hxTrigger != null) el.addAttr(HX_TRIGGER, hxTrigger);
             el.addAttr(HX_PUSH_URL, "true");
         };
+    }
+
+    public static <T extends CustomAttributeGroup<T, ?>> Consumer<T> hxGetAttrs(
+        String hxGet, String hxInclude, String hxTarget, String hxTrigger
+    ) {
+        return hxGetAttrs(hxGet, hxInclude, hxTarget, hxTrigger, false);
+    }
+
+    public static <T extends CustomAttributeGroup<T, ?>> Consumer<T> hxGetAttrsIgnoreActiveValue(
+        String hxGet, String hxInclude, String hxTarget, String hxTrigger
+    ) {
+        return hxGetAttrs(hxGet, hxInclude, hxTarget, hxTrigger, true);
     }
 
     /**
@@ -79,7 +97,7 @@ public class LCTableUtil {
     public static <T extends Element<?, ?>> Consumer<Td<T>> linkIcon(String altTitle, String href, String imgSrc, String imgAlt) {
         return td -> td
             .a().attrHref(href).attrTitle(altTitle)
-                .img().attrSrc(imgSrc).attrAlt(imgAlt).__()
+            .img().attrSrc(imgSrc).attrAlt(imgAlt).__()
             .__();  // close a()
     }
 

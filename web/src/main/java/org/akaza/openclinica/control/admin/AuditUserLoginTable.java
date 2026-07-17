@@ -43,7 +43,7 @@ public class AuditUserLoginTable {
         textCol("userName", "User Name", 5, AuditUserLoginBean::getUserName),
         textCol("loginAttemptDate", "Attempt Date", 7,
             textFilter(TIMESTAMP_FILTER_FOR_HTML_VALIDATION, TIMESTAMP_FILTER_MESSAGE),
-            AuditUserLoginBean::getLoginAttemptDate, LCTableUtil::utcTimestampToString
+            AuditUserLoginBean::getLoginAttemptDate, LCTableUtil::timestampToString
         ),
         enumCol("loginStatus", "Status", 7,
             AuditUserLoginBean::getLoginStatus, Arrays.asList(LoginStatus.values()), LoginStatus::toString, LoginStatus::name
