@@ -40,17 +40,36 @@ public class LCTableUtil {
     public static final String NO_HX_TRIGGER = null;          // just for better readability in method calls
 
     public static <T extends CustomAttributeGroup<T, ?>> Consumer<T> hxGetAttrs(
-        String hxGet, String hxInclude, String hxTarget, String hxTrigger
+        String hxGet, String hxInclude, String hxTarget, String hxTrigger, boolean ignoreActiveValue
     ) {
         return el -> {
             el.addAttr(HX_GET, hxGet);
             if (hxInclude != null) el.addAttr(HX_INCLUDE, hxInclude);
             el.addAttr(HX_TARGET, hxTarget);
             el.addAttr("hx-select", hxTarget);
-            el.addAttr(HX_SWAP, "morph:{morphStyle:'outerHTML',ignoreActiveValue:true}");
+            if (ignoreActiveValue) {
+                // for incremental input filters and the like, where the user may continue typing
+                // while the request is in flight: do not replace value with the value from the response
+                el.addAttr(HX_SWAP, "morph:{morphStyle:'outerHTML',ignoreActiveValue:true}");
+            } else {
+                // other cases: replace the entire target element with the response (outerHTML)
+                el.addAttr(HX_SWAP, "outerHTML");
+            }
             if (hxTrigger != null) el.addAttr(HX_TRIGGER, hxTrigger);
             el.addAttr(HX_PUSH_URL, "true");
         };
+    }
+
+    public static <T extends CustomAttributeGroup<T, ?>> Consumer<T> hxGetAttrs(
+        String hxGet, String hxInclude, String hxTarget, String hxTrigger
+    ) {
+        return hxGetAttrs(hxGet, hxInclude, hxTarget, hxTrigger, false);
+    }
+
+    public static <T extends CustomAttributeGroup<T, ?>> Consumer<T> hxGetAttrsIgnoreActiveValue(
+        String hxGet, String hxInclude, String hxTarget, String hxTrigger
+    ) {
+        return hxGetAttrs(hxGet, hxInclude, hxTarget, hxTrigger, true);
     }
 
     /**
@@ -79,7 +98,7 @@ public class LCTableUtil {
     public static <T extends Element<?, ?>> Consumer<Td<T>> linkIcon(String altTitle, String href, String imgSrc, String imgAlt) {
         return td -> td
             .a().attrHref(href).attrTitle(altTitle)
-                .img().attrSrc(imgSrc).attrAlt(imgAlt).__()
+            .img().attrSrc(imgSrc).attrAlt(imgAlt).__()
             .__();  // close a()
     }
 
