@@ -67,7 +67,7 @@
 <jsp:useBean scope='session' id='userBean' class='org.akaza.openclinica.bean.login.UserAccountBean'/>
 <jsp:useBean scope='request' id='crfName' class='java.lang.String'/>
 
-<h1>
+<h1 id="pageTitleCreateCRFVersion">
 <span class="title_manage">
  <c:choose>
      <c:when test="${empty crfName}">
@@ -79,64 +79,6 @@
  </c:choose>
 </span>
 </h1>
-
-<script type="text/JavaScript" language="JavaScript">
-<!--
-function myCancel() {
-    cancelButton=document.getElementById('cancel');
-    if ( cancelButton != null) {
-        if(confirm('<fmt:message key="sure_to_cancel" bundle="${resword}"/>')) {
-            window.location.href="ListCRF?module=" + "<c:out value="${module}"/>";
-            return true;
-        } else {
-            return false;
-        }
-    }
-    return true;
-}
-function submitform(){
-    var crfUpload = document.getElementById('excel_file_path');
-    //Does the user browse or select a file or not
-    if (crfUpload.value =='' ) {
-        alert("Select a file to upload!");
-        return false;
-    }
-}
-
-function submitXform(){
-    var crfName = document.getElementById('crfName');
-    var versionName = document.getElementById('versionName');
-    var versionDescription = document.getElementById('versionDescription');
-    var revisionNotes = document.getElementById('revisionNotes');
-    var xformText = document.getElementById('xformText');
-
-    if (crfName && crfName.value =='' ) {
-        alert('<fmt:message key="xform_upload_crfName" bundle="${resword}"/>');
-        return false;
-    } else if (versionName.value =='' ){
-        alert('<fmt:message key="xform_upload_version" bundle="${resword}"/>');
-        return false;
-	} else if (versionDescription.value =='' ){
-        alert('<fmt:message key="xform_upload_version_description" bundle="${resword}"/>');
-        return false;
-    } else if (revisionNotes.value =='' ){
-        alert('<fmt:message key="xform_upload_version_revision_notes" bundle="${resword}"/>');
-        return false;
-	} else if (xformText.value =='' ){
-	    alert('<fmt:message key="xform_upload_xform_contents" bundle="${resword}"/>');
-	    return false;
-	}
-}
-
-function toggleSectionDisplay(showDivId,hideDivId){
-    document.getElementById(hideDivId).setAttribute("class","crf-upload-div-hidden");
-    document.getElementById(showDivId).setAttribute("class","crf-upload-div");
-}
-
-//-->
-</script>
-
-
 <c:if test="${xformEnabled == 'true'}">
  <table cellpadding="0" cellspacing="0">
    <tr>
@@ -150,7 +92,8 @@ function toggleSectionDisplay(showDivId,hideDivId){
 <div style="width: 800px">
 <div class="box_T"><div class="box_L"><div class="box_R"><div class="box_B"><div class="box_TL"><div class="box_TR"><div class="box_BL"><div class="box_BR">
 
-<div class="crf-upload-padded-div"><fmt:message key="can_download_blank_CRF_excel" bundle="${restext}"/><a href="DownloadVersionSpreadSheet?template=1"><b><fmt:message key="here" bundle="${resword}"/></b></a>.</div>
+<div class="crf-upload-padded-div"><fmt:message key="can_download_blank_CRF_excel" bundle="${restext}"/><a href="DownloadVersionSpreadSheet?template=1&type=xslx" id="downloadBlankCrfXslxLink"><b><fmt:message key="here" bundle="${resword}"/></b></a>.</div>
+<div class="crf-upload-padded-div"><fmt:message key="can_download_blank_CRF_ods" bundle="${restext}"/><a href="DownloadVersionSpreadSheet?template=1&type=ods" id="downloadBlankCrfOdsLink"><b><fmt:message key="here" bundle="${resword}"/></b></a>.</div>
 
 <div class="crf-upload-padded-div">
     <p><fmt:message key="openclinica_excel_support" bundle="${restext}"/></p>
@@ -178,10 +121,10 @@ function toggleSectionDisplay(showDivId,hideDivId){
 <table border="0" cellpadding="0" cellspacing="0">
 <tr>
 <td>
-<input type="submit" onclick="return submitform();" value="<fmt:message key="preview_CRF_version" bundle="${resword}"/>" class="button_long">
+<input id="submitCRFVersionUpload" type="submit" onclick="return submitform();" value="<fmt:message key="preview_CRF_version" bundle="${resword}"/>" class="button_long">
 </td>
 <td>
-<input type="button" onclick="confirmExit('ListCRF?module=<c:out value="${module}"/>')" name="exit" value="<fmt:message key="exit" bundle="${resword}"/>   "class="button_medium"/>
+<input id="confirmExitCRFVersionUpload" type="button" onclick="confirmExit('ListCRF?module=<c:out value="${module}"/>')" name="exit" value="<fmt:message key="exit" bundle="${resword}"/>   "class="button_medium"/>
 </tr></table>
 </form>
 

@@ -113,8 +113,6 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
 	// the default; all crf ids should be > 0, tbh 8-29 :-)
 	protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
 
-	private String magic;
-
 	private final Path path;
 
 	public SpreadSheetTableRepeating(/*FileInputStream parseStream,*/ UserAccountBean ub, String versionName, Locale locale, int studyId, Path path)
@@ -122,7 +120,7 @@ public class SpreadSheetTableRepeating implements SpreadSheetTable {
 		String crfFileSpreadsheetParseStopString = CoreResources.getField("crfFileSpreadsheetParseStopString");
 
 		logger.info("SpreadSheetTableRepeating(), crfFileSpreadsheetParseStopString: " + crfFileSpreadsheetParseStopString);
-		this.magic = StringUtils.trim(crfFileSpreadsheetParseStopString);
+//		this.magic = StringUtils.trim(crfFileSpreadsheetParseStopString);
 //		parseStream.getChannel().position(0); 
 //		byte[] header = new byte[8];
 //		parseStream.read(header);

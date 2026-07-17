@@ -35,8 +35,6 @@ import org.akaza.openclinica.service.managestudy.EventDefinitionCrfTagService;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 
-import com.sun.research.ws.wadl.Request;
-
 /**
  * @author jxu
  *

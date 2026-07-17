@@ -34,7 +34,6 @@ import org.akaza.openclinica.bean.submit.EventCRFBean;
 import org.akaza.openclinica.dao.EventCRFSDVFilter;
 import org.akaza.openclinica.dao.EventCRFSDVSort;
 import org.akaza.openclinica.dao.core.AuditableEntityDAO;
-import org.akaza.openclinica.dao.core.CoreResources;
 import org.akaza.openclinica.dao.core.DAODigester;
 import org.akaza.openclinica.dao.core.SQLFactory;
 import org.akaza.openclinica.dao.core.TypeNames;

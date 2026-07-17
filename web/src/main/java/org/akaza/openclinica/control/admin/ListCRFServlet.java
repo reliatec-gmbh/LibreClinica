@@ -28,6 +28,7 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.akaza.openclinica.web.SQLInitServlet;
 import org.akaza.openclinica.web.bean.EntityBeanTable;
 import org.akaza.openclinica.web.bean.ListCRFRow;
+import org.akaza.openclinica.web.util.SpreadsheetTypeDetector;
 
 /**
  * Lists all the CRF and their CRF versions
@@ -118,27 +119,27 @@ public class ListCRFServlet extends SecureController {
             logger.debug("crf id:" + eb.getId());
             ArrayList<CRFVersionBean> versions = vdao.findAllByCRF(eb.getId());
 
-            // check whether the speadsheet is available on the server
-            for (int j = 0; j < versions.size(); j++) {
-                CRFVersionBean cv = (CRFVersionBean) versions.get(j);
-                File file = new File(dir + eb.getId() + cv.getOid() + ".xls");
-                logger.debug("looking in " + dir + eb.getId() + cv.getOid() + ".xls");
-                if (file.exists()) {
-                    cv.setDownloadable(true);
-                } else {
-                    File file2 = new File(dir + eb.getId() + cv.getName() + ".xls");
-                    logger.debug("initial failed, looking in " + dir + eb.getId() + cv.getName() + ".xls");
-                    if (file2.exists()) {
-                        cv.setDownloadable(true);
-                    }
-                }
-            }
-            eb.setVersions(versions);
-            
-
+			// check whether the speadsheet is available on the server
+			for (int j = 0; j < versions.size(); j++) {
+				CRFVersionBean cv = (CRFVersionBean) versions.get(j);
+//                File file = new File(dir + eb.getId() + cv.getOid() + ".xls");
+//                logger.debug("looking in " + dir + eb.getId() + cv.getOid() + ".xls");
+//                if (file.exists()) {
+//                    cv.setDownloadable(true);
+//                } else {
+//                    File file2 = new File(dir + eb.getId() + cv.getName() + ".xls");
+//                    logger.debug("initial failed, looking in " + dir + eb.getId() + cv.getName() + ".xls");
+//                    if (file2.exists()) {
+//                        cv.setDownloadable(true);
+//                    }
+//                }
+				if (spreadsheetExists(dir, eb.getId() + cv.getOid()) || spreadsheetExists(dir, eb.getId() + cv.getName())) {
+					cv.setDownloadable(true);
+				}
+			}
+			eb.setVersions(versions);
         }
-        // request.setAttribute("crfs", crfs);
-
+        
         EntityBeanTable table = fp.getEntityBeanTable();
         ArrayList<ListCRFRow> allRows = ListCRFRow.generateRowsFromBeans(crfs);
 
@@ -191,6 +192,17 @@ public class ListCRFServlet extends SecureController {
         } else {
             return "";
         }
+    }
+    
+    private boolean spreadsheetExists(String dir, String baseName) {
+        for (String ext : SpreadsheetTypeDetector.SUPPORTED_EXTENSIONS) {
+            File file = new File(dir + baseName + ext);
+            logger.debug("looking in " + file.getAbsolutePath());
+            if (file.exists() && file.length() > 0) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

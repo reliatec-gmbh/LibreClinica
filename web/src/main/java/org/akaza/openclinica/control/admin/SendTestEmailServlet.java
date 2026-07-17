@@ -19,7 +19,10 @@ import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.springframework.mail.MailException;
 
 public class SendTestEmailServlet extends SecureController {
-    @Override
+   
+	private static final long serialVersionUID = 5103770601512614194L;
+
+	@Override
     protected void mayProceed() throws InsufficientPermissionException {
         if (!ub.isSysAdmin()) {
             addPageMessage(respage.getString("you_may_not_perform_administrative_functions"));

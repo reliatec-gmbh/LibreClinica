@@ -63,6 +63,7 @@ import org.akaza.openclinica.likepoi.ss.usermodel.WorkbookFactory;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.akaza.openclinica.web.SQLInitServlet;
+import org.akaza.openclinica.web.util.SpreadsheetTypeDetector;
 
 /**
  * Create a new CRF version by uploading Excel file
@@ -331,37 +332,40 @@ public class CreateCRFVersionServlet extends SecureController {
 
                     // save new version spreadsheet
                     String tempFile = (String) session.getAttribute("tempFileName");
-                    if (tempFile != null) {
-                        logger.debug("*** ^^^ *** saving new version spreadsheet" + tempFile);
-                        try {
-                            String dir = SQLInitServlet.getField("filePath");
-                            File f = new File(dir + "crf" + File.separator + "original" + File.separator + tempFile);
-                            // check to see whether crf/new/ folder exists
-                            // inside, if not,
-                            // creates
-                            // the crf/new/ folder
-                            String finalDir = dir + "crf" + File.separator + "new" + File.separator;
+					if (tempFile != null) {
+						logger.debug("*** ^^^ *** saving new version spreadsheet" + tempFile);
+						try {
+							String dir = SQLInitServlet.getField("filePath");
+							File f = new File(dir + "crf" + File.separator + "original" + File.separator + tempFile);
+							// check to see whether crf/new/ folder exists
+							// inside, if not,
+							// creates
+							// the crf/new/ folder
+							String finalDir = dir + "crf" + File.separator + "new" + File.separator;
 
-                            if (!new File(finalDir).isDirectory()) {
-                                logger.debug("need to create folder for excel files" + finalDir);
-                                new File(finalDir).mkdirs();
-                            }
+							if (!new File(finalDir).isDirectory()) {
+								logger.debug("need to create folder for excel files" + finalDir);
+								new File(finalDir).mkdirs();
+							}
 
-                            // String newFile = version.getCrfId() +
-                            // version.getName() + ".xls";
+							// Determine the real file extension from content (magic bytes),
+							// not from the original upload's file name, which may not be
+							// reliable and previously was hard-coded to ".xls" regardless
+							// of the actual format (xls/xlsx/ods).
+							String extension = SpreadsheetTypeDetector.detectExtension(f.toPath());
+							String newFile = version.getCrfId() + version.getOid() + extension;
 
-                            String newFile = version.getCrfId() + version.getOid() + ".xls";
-                            logger.debug("*** ^^^ *** new file: " + newFile);
-                            File nf = new File(finalDir + newFile);
-                            logger.debug("copying old file " + f.getName() + " to new file " + nf.getName());
-                            copy(f, nf);
-                            // ?
-                        } catch (IOException ie) {
-                            logger.debug("==============");
-                            addPageMessage(respage.getString("CRF_version_spreadsheet_could_not_saved_contact"));
-                        }
+							logger.debug("*** ^^^ *** new file: " + newFile);
+							File nf = new File(finalDir + newFile);
+							logger.debug("copying old file " + f.getName() + " to new file " + nf.getName());
+							copy(f, nf);
+							// ?
+						} catch (IOException ie) {
+							logger.debug("==============");
+							addPageMessage(respage.getString("CRF_version_spreadsheet_could_not_saved_contact"));
+						}
 
-                    }
+					}
                     session.removeAttribute("tempFileName");
                     session.removeAttribute(MODULE);
                     session.removeAttribute("excelErrors");

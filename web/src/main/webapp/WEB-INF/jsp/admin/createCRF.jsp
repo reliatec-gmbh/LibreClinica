@@ -53,6 +53,7 @@
  </span>
 </h1>
 <p class="aka_para"><fmt:message key="can_download_blank_CRF_excel" bundle="${restext}"/><a href="DownloadVersionSpreadSheet?template=1"><b><fmt:message key="here" bundle="${resword}"/></b></a>.</p>
+<p class="aka_para"><fmt:message key="can_download_blank_CRF_ods" bundle="${restext}"/><a href="DownloadVersionSpreadSheet?template=1"><b><fmt:message key="here" bundle="${resword}"/></b></a>.</p>
  <p class="aka_para"><strong><fmt:message key="CRF_name_case_sensitive" bundle="${restext}"/></strong></p>
 
 <div style="font-family: Tahoma, Arial, Helvetica, Sans-Serif;font-size:12px;">

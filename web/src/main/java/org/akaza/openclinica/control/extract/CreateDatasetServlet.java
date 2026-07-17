@@ -47,7 +47,6 @@ import org.akaza.openclinica.dao.submit.ItemDAO;
 import org.akaza.openclinica.service.crfdata.HideCRFManager;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
-import org.akaza.openclinica.web.SQLInitServlet;
 import org.akaza.openclinica.web.bean.EntityBeanTable;
 import org.akaza.openclinica.web.bean.FilterRow;
 /**

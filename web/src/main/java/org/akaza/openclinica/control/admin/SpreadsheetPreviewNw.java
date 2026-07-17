@@ -258,7 +258,7 @@ public final class SpreadsheetPreviewNw implements Preview {
         Cell cell;
         sheet = workbook.getSheetAt(4);
         cell = sheet.getRow(1).getCell((short) 0);
-        @SuppressWarnings("deprecation")
+ 
         String version = cell.getStringCellValue();
         String[] groupHeaders = { "group_label", "repeating_group", "group_header", "group_repeat_number", "group_repeat_max" };
         if (version.equalsIgnoreCase("Version: 2.2")

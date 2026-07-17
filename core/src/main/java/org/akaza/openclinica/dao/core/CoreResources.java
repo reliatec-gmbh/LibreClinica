@@ -762,6 +762,7 @@ public class CoreResources implements ResourceLoaderAware {
     }
 
     public InputStream getInputStream(String fileName) throws IOException {
+    	logger.info("brah_filename: " + fileName);
         return resourceLoader.getResource("classpath:properties/" + fileName).getInputStream();
     }
 
