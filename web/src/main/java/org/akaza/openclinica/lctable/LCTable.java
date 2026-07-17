@@ -111,7 +111,7 @@ public class LCTable<T>  {
     private void renderFilters(Tr<?> tr, LCTableContext<T> ctx) {
         // Render a filter input for each column
         columns.forEach(col -> {
-            if (col.filterDef != null) {
+            if (col.isFilterable()) {
                 col.filterDef.renderFilter(tr, ctx, col, this);
             } else {
                 tr.td().__();   // insert empty <td> to fill column cell when there is no filter

@@ -68,9 +68,8 @@ public class LCTableColumnDef<T> {
     }
 
 
-    public boolean isSortable() {
-        return this.sortability.isSortable();
-    }
+    public boolean isSortable() { return this.sortability.isSortable();  }
+    public boolean isFilterable() { return this.filterDef != null; }
 
     // Basic factory method
     public static <T> LCTableColumnDef<T> columnDef(String columnName, String displayName, double columnWidth, Sortability sortability, LCTableFilterDef filterDef, BiConsumer<Tr<?>, T> cellRenderer) {
