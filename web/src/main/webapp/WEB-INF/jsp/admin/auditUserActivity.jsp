@@ -78,7 +78,7 @@
 <h1><span class="title_Manage"><fmt:message key="audit_user_activity" bundle="${resword}"/></span></h1>
 
 <jsp:useBean id="now" class="java.util.Date" />
-<P><I><fmt:message key="server_time_info" bundle="${resword}"/> <fmt:formatDate value="${now}" pattern="yyyy-MM-dd hh:mm"/>.</I></P>
+<P><I><fmt:message key="server_time_info" bundle="${resword}"/> <fmt:formatDate value="${now}" pattern="yyyy-MM-dd HH:mm"/>.</I></P>
 <div id="auditUserLoginDiv">
     <form  action="${pageContext.request.contextPath}/AuditUserActivity">
         <input type="hidden" name="module" value="admin">

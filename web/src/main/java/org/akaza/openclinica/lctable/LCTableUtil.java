@@ -16,7 +16,7 @@ import org.xmlet.htmlapifaster.CustomAttributeGroup;
 import org.xmlet.htmlapifaster.Element;
 import org.xmlet.htmlapifaster.Td;
 
-import java.time.ZoneOffset;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
 
@@ -30,9 +30,8 @@ public class LCTableUtil {
     public static final String TIMESTAMP_FILTER_MESSAGE =
         "Please enter a valid format: yyyy, yyyy-MM, yyyy-MM-dd, yyyy-MM-dd hh, or yyyy-MM-dd hh:mm (years up to 2099)";
 
-    public static String utcTimestampToString(java.util.Date date) {
-        // return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date);     // legacy way: create a new SimpleDateFormat for each call to ensure thread safety
-        return date.toInstant().atZone(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));  // use UTC for server logs, not local timezone
+    public static String timestampToString(java.util.Date date) {
+        return date.toInstant().atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 
     // --- HTMX helpers ---
