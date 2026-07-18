@@ -8,7 +8,9 @@ services:
     environment:
       # Set to "jmesa" to force the legacy JMesa rendering path for any table
       # that has been migrated to HtmlFlow. Unset (or any other value) uses HtmlFlow.
+      TZ: ${TZ:-UTC}
       LC_TABLE_RENDERING: ${LC_TABLE_RENDERING:-htmlflow}
+
     develop:
       watch:
         # restart on config file changes
@@ -32,11 +34,14 @@ services:
   db:
     image: docker.io/library/postgres:16-alpine
     environment:
+      TZ: ${TZ:-UTC}
       POSTGRES_PASSWORD: clinica
       POSTGRES_USER: clinica
       POSTGRES_DB: libreclinica
 
   smtp:
     image: docker.io/marlonb/mailcrab:v1.1.0
+    environment:
+      TZ: ${TZ:-UTC}
     ports:
       - "127.0.0.1:1080:1080"

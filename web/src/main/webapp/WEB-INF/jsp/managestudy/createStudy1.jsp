@@ -150,9 +150,7 @@
   </div></div></div></div></div></div></div></div>
    </div>
   <script type="text/javascript">
-		window.body.onload = new function() {
-			onMailNotificationClick();
-		}
+    window.addEventListener('load', onMailNotificationClick);
   </script>
 
   <div style="width: 600px">
