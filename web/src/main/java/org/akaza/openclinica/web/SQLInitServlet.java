@@ -5,7 +5,7 @@
  * For details see: https://libreclinica.org/license
  * copyright (C) 2003 - 2011 Akaza Research
  * copyright (C) 2003 - 2019 OpenClinica
- * copyright (C) 2020 - 2024 LibreClinica
+ * copyright (C) 2020 - 2026 LibreClinica
  */
 package org.akaza.openclinica.web;
 
@@ -56,9 +56,6 @@ public class SQLInitServlet extends HttpServlet {
 		params = cr.getDATAINFO();
 		entParams = cr.getDATAINFO();
 
-//        params = (Properties) SpringServletAccess.getApplicationContext(context).getBean("dataInfo");
-//        entParams = (Properties) SpringServletAccess.getApplicationContext(context).getBean("enterpriseInfo");
-
 		ConfigurationDao configurationDao = SpringServletAccess.getApplicationContext(context).getBean(ConfigurationDao.class);
 
 		Role.COORDINATOR.setDescription(getField("coordinator"));
@@ -81,21 +78,17 @@ public class SQLInitServlet extends HttpServlet {
 			(new File(theDir + dirRules)).mkdirs();
 		}
 
-		if (!(new File(theDir)).isDirectory() || !(new File(dir1)).isDirectory() || !(new File(dir2)).isDirectory()) {
-			(new File(theDir + dir1 + dir2)).mkdirs();
-			copyTemplate(theDir + dir1 + dir2 + DownloadVersionSpreadSheetServlet.CRF_VERSION_TEMPLATE);
+		File crfOriginalDir = new File(theDir + dir1 + dir2);
+		if (!crfOriginalDir.isDirectory()) {
+			crfOriginalDir.mkdirs();
 		}
-		if (!(new File(theDir)).isDirectory() || !(new File(dir1)).isDirectory() || !(new File(dir2)).isDirectory()) {
-			(new File(theDir + dir1 + dir2)).mkdirs();
-			copyTemplate(theDir + dir1 + dir2 + DownloadVersionSpreadSheetServlet.CRF_VERSION_TEMPLATE_ODS);
-		}
+
 		theDir = theDir + dir1 + dir2;
-		File excelFile = new File(theDir + DownloadVersionSpreadSheetServlet.CRF_VERSION_TEMPLATE);
-		if (!excelFile.isFile()) {
-			copyTemplate(theDir);
-		}
-		excelFile = new File(theDir + DownloadVersionSpreadSheetServlet.CRF_VERSION_TEMPLATE_ODS);
-		if (!excelFile.isFile()) {
+		File excelFile = new File(theDir, DownloadVersionSpreadSheetServlet.CRF_VERSION_TEMPLATE);
+		File odsFile = new File(theDir, DownloadVersionSpreadSheetServlet.CRF_VERSION_TEMPLATE_ODS);
+		// FIX: Nur EIN Aufruf statt zwei - copyTemplate() legt beide Dateien
+		// mit ihrem jeweils korrekten Namen/Inhalt an, sobald mindestens eine fehlt.
+		if (!excelFile.isFile() || !odsFile.isFile()) {
 			copyTemplate(theDir);
 		}
 
@@ -156,15 +149,21 @@ public class SQLInitServlet extends HttpServlet {
 		return name == null ? "" : name;
 	}
 
-	private void copyTemplate(String theDir) {
-		OutputStream out = null;
-		InputStream is = null;
+	/**
+	 * Copies the blank CRF templates (XLSX and ODS) from the classpath into the
+	 * given destination DIRECTORY, each under its own correct filename.
+	 *
+	 * @param destDir destination directory (not a file path!)
+	 */
+	private void copyTemplate(String destDir) {
 		CoreResources cr = (CoreResources) SpringServletAccess.getApplicationContext(context).getBean("coreResources");
 		String[] templates = { DownloadVersionSpreadSheetServlet.CRF_VERSION_TEMPLATE, DownloadVersionSpreadSheetServlet.CRF_VERSION_TEMPLATE_ODS };
 		for (String template : templates) {
+			InputStream is = null;
+			OutputStream out = null;
 			try {
-				is = cr.getInputStream(template);
-				File excelOutFile = new File(theDir);
+				is = cr.getInputStream(template);				
+				File excelOutFile = new File(destDir, template);
 				out = new FileOutputStream(excelOutFile);
 				byte[] buf = new byte[1024];
 				int len;
@@ -175,8 +174,12 @@ public class SQLInitServlet extends HttpServlet {
 				ex.printStackTrace();
 			} finally {
 				try {
-					is.close();
-					out.close();
+					if (is != null) {
+						is.close();
+					}
+					if (out != null) {
+						out.close();
+					}
 				} catch (Exception e) {
 				}
 			}
