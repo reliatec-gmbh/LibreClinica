@@ -1,7 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
 
-<!-- This JSP fragment is used to include in a JSP page everything that is needed for HTMX to work properly
-      (especially for the implementation of / in connection with the LCTable library)
+<!-- This JSP fragment is used to include in a JSP page everything that is needed for LCTable to work properly
+      (especially, but not only, in connection with HTMX)
 -->
 
 <!-- Load HTMX, which is provided by the webjar declared in web/pom.xml -->
@@ -18,3 +18,10 @@ if (!document.querySelector('meta[name="htmx-config"]'))
 
 <!-- Session-expiry redirect guard for HTMX-based LCTable requests -->
 <script src="${pageContext.request.contextPath}/js/htmx-session-expiry-guard.js"></script>
+
+<!-- Small LCTable client-side helpers, currently:
+         - viewport-edge-aware popup positioning
+         - custom tooltips for icon-only action links
+         - stripping of empty-value request parameters from LCTable-issued HTMX requests -->
+<script src="${pageContext.request.contextPath}/includes/lctable/lctable.js"></script>
+

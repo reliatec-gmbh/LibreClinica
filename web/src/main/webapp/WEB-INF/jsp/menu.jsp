@@ -17,11 +17,24 @@
 
 <jsp:include page="include/sideAlert.jsp"/>
 
-<script type="text/JavaScript" src="includes/jmesa/jquery.jmesa.js"></script>
-<script type="text/JavaScript" src="includes/jmesa/jmesa.js"></script>
-<script type="text/javascript" src="includes/jmesa/jquery.blockUI.js"></script>
+<%-- The studySiteStatistics/studyStatistics/subjectEventStatusStatistics/studySubjectStatusStatistics
+     tables (coordinator/director) and the sdvMatrix table (monitor) are still rendered with JMesa
+     regardless of LC_TABLE_RENDERING -- only the findSubjects table (investigator/RA/RA2) has been
+     migrated to LCTable/HtmlFlow. So the JMesa assets must load whenever any JMesa-rendered table
+     may appear on this page, not just when findSubjects itself uses the JMesa path. --%>
+<c:set var="needsJmesaAssets" value="${tableRenderingMode == 'jmesa' || userRole.coordinator || userRole.director || userRole.monitor}"/>
+<c:if test="${needsJmesaAssets}">
+    <script type="text/JavaScript" src="includes/jmesa/jquery.jmesa.js"></script>
+    <script type="text/JavaScript" src="includes/jmesa/jmesa.js"></script>
+    <link rel="stylesheet" href="includes/jmesa/jmesa.css" type="text/css">
+</c:if>
+<c:if test="${tableRenderingMode == 'htmlflow'}">
+    <link rel="stylesheet" href="includes/lctable/lctable.css" type="text/css">
+</c:if>
 
-<link rel="stylesheet" href="includes/jmesa/jmesa.css" type="text/css">
+<!-- jquery.blockUI.js is needed unconditionally: jQuery/blockUI power the "Add New Subject" modal
+     overlay, unrelated to jmesa -->
+<script type="text/javascript" src="includes/jmesa/jquery.blockUI.js"></script>
 
 <!-- warning is study is frozen or locked -->
 <div id="box" class="dialog">
@@ -80,17 +93,21 @@
 
 <c:if test="${userRole.investigator || userRole.researchAssistant || userRole.researchAssistant2}"> <!-- if investigator, research assistant or ra2 -->
 	<div id="findSubjectsDiv">
-    <script type="text/javascript">
-    function onInvokeAction(id,action) {
-        if(id.indexOf('findSubjects') == -1)  {
-        setExportToLimit(id, '');
+    <c:if test="${tableRenderingMode == 'jmesa'}">
+        <script type="text/javascript">
+        function onInvokeAction(id,action) {
+            if(id.indexOf('findSubjects') == -1)  {
+            setExportToLimit(id, '');
+            }
+            createHiddenInputFieldsForLimitAndSubmit(id);
         }
-        createHiddenInputFieldsForLimitAndSubmit(id);
-    }
-    function onInvokeExportAction(id) {
-        var parameterString = createParameterStringForLimit(id);
-        location.href = '${pageContext.request.contextPath}/MainMenu?'+ parameterString;
-    }
+        function onInvokeExportAction(id) {
+            var parameterString = createParameterStringForLimit(id);
+            location.href = '${pageContext.request.contextPath}/MainMenu?'+ parameterString;
+        }
+        </script>
+    </c:if>
+    <script type="text/javascript">
     jQuery(document).ready(function() {
         jQuery('#addSubject').click(function() {
             jQuery.blockUI({ message: jQuery('#addSubjectForm'), css:{left: "300px", top:"10px" } });
@@ -102,10 +119,21 @@
         });
     });
     </script>
-    <form  action="${pageContext.request.contextPath}/ListStudySubjects">
-        <input type="hidden" name="module" value="admin">
-        ${findSubjectsHtml}
-    </form>
+    <%-- IMPORTANT: the LCTable (HtmlFlow) rendering path renders its own <form> around the whole
+         table (see LCTable.renderTableHtml()) -- it must NOT also be wrapped in a <form> here, or
+         the nested <form>s would collide (see managestudy/findSubjects.jsp for a full explanation).
+         Only the legacy JMesa rendering path needs a surrounding <form>. --%>
+    <c:choose>
+        <c:when test="${tableRenderingMode == 'jmesa'}">
+            <form  action="${pageContext.request.contextPath}/ListStudySubjects">
+                <input type="hidden" name="module" value="admin">
+                ${findSubjectsHtml}
+            </form>
+        </c:when>
+        <c:otherwise>
+            ${findSubjectsHtml}
+        </c:otherwise>
+    </c:choose>
 </div>
     <div id="addSubjectForm" style="display:none;">
          <c:import url="addSubjectMonitor.jsp"/>
@@ -210,6 +238,9 @@
 		</form>
 	</div>
 </c:if>
+
+<!-- Include everything that is needed for proper use of HTMX with LCTable -->
+<jsp:include page="include/useLCTable.jsp"/>
 
 <!-- end of menu.jsp -->
 <jsp:include page="include/footer.jsp"/>

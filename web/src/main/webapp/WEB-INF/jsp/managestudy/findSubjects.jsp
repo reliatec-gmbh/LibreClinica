@@ -11,25 +11,41 @@
 <!-- move the alert message to the sidebar-->
 <jsp:include page="../include/sideAlert.jsp"/>
 
-<link rel="stylesheet" href="includes/jmesa/jmesa.css" type="text/css">
+<%-- JMesa scripts are only needed when the JMesa rendering path is active. --%>
+<c:choose>
+    <c:when test="${tableRenderingMode == 'jmesa'}">
+        <link rel="stylesheet" href="includes/jmesa/jmesa.css" type="text/css">
+    </c:when>
+    <c:otherwise>
+        <link rel="stylesheet" href="includes/lctable/lctable.css" type="text/css">
+    </c:otherwise>
+</c:choose>
 
+<!-- jquery.min.js and jquery.blockUI.js are needed unconditionally: jQuery/blockUI power the
+     "Add New Subject" modal overlay (see the jQuery(document).ready(...) block below), unrelated to jmesa -->
 <script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jquery.min.js"></script>
-<script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jquery.jmesa.js"></script>
-<script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jmesa.js"></script>
 <script type="text/javascript" language="JavaScript" src="includes/jmesa/jquery.blockUI.js"></script>
-<script type="text/javascript" language="JavaScript" src="includes/jmesa/jquery-migrate-3.4.1.min.js"></script>
+
+<c:if test="${tableRenderingMode == 'jmesa'}">
+    <script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jquery.jmesa.js"></script>
+    <script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jmesa.js"></script>
+    <script type="text/javascript" language="JavaScript" src="includes/jmesa/jquery-migrate-3.4.1.min.js"></script>
+
+    <script type="text/javascript">
+        function onInvokeAction(id,action) {
+            if(id.indexOf('findSubjects') == -1)  {
+            setExportToLimit(id, '');
+            }
+            createHiddenInputFieldsForLimitAndSubmit(id);
+        }
+        function onInvokeExportAction(id) {
+            var parameterString = createParameterStringForLimit(id);
+            location.href = '${pageContext.request.contextPath}/ListStudySubjects?'+ parameterString;
+        }
+    </script>
+</c:if>
 
 <script type="text/javascript">
-    function onInvokeAction(id,action) {
-        if(id.indexOf('findSubjects') == -1)  {
-        setExportToLimit(id, '');
-        }
-        createHiddenInputFieldsForLimitAndSubmit(id);
-    }
-    function onInvokeExportAction(id) {
-        var parameterString = createParameterStringForLimit(id);
-        location.href = '${pageContext.request.contextPath}/ListStudySubjects?'+ parameterString;
-    }
     $.noConflict();			// to avoid conflicts with prototype.js
 	jQuery(document).ready(function() {
 		// add a listener to the add subject link
@@ -74,11 +90,33 @@
 
 <h1><span class="title_manage"><fmt:message key="view_subjects_in" bundle="${restext}"/> <c:out value="${study.name}"/></span></h1>
 
+<%-- The "Select an Event"/"Add New Subject" toolbar controls used to be rendered directly here (for the
+     htmlflow rendering path only -- the legacy jmesa rendering path always rendered its own equivalent
+     controls as part of the jmesa table itself, via ListStudySubjectTableToolbar). They are now rendered
+     as custom toolbar controls of the LCTable itself for the htmlflow path too -- see LCTable's
+     addCustomToolbarControl / ListStudySubjectTable -- so no separate markup is needed here any more. --%>
+
 <div id="findSubjectsDiv">
-	<form  action="${pageContext.request.contextPath}/ListStudySubjects">
-		<input type="hidden" name="module" value="admin">
-		${findSubjectsHtml}
-	</form>
+	<%-- IMPORTANT: the LCTable (HtmlFlow) rendering path renders its own <form> around the whole
+	     table (see LCTable.renderTableHtml()) -- it must NOT also be wrapped in a <form> here, or
+	     the browser will treat the two nested <form>s as a single merged form (nested <form>s are
+	     invalid HTML; the inner start tag is simply dropped by the parser), causing any hidden
+	     input declared in *this* JSP (e.g. a hardcoded "module") to collide with LCTable's own
+	     same-named hidden inputs (e.g. a "module" sticky parameter) once both are serialized
+	     together by HTMX's "closest form" -- see LCTable's class-level javadoc for details.
+	     Only the legacy JMesa rendering path (native form-based pagination/sort/filter resubmission,
+	     via createHiddenInputFieldsForLimitAndSubmit()) actually needs a surrounding <form>. --%>
+	<c:choose>
+		<c:when test="${tableRenderingMode == 'jmesa'}">
+			<form action="${pageContext.request.contextPath}/ListStudySubjects">
+				<input type="hidden" name="module" value="admin">
+				${findSubjectsHtml}
+			</form>
+		</c:when>
+		<c:otherwise>
+			${findSubjectsHtml}
+		</c:otherwise>
+	</c:choose>
 </div>
 
 <!-- compose the overlay to add new subject, but don't show it-->
@@ -87,5 +125,8 @@
 </div>
 
 <br />
+
+<!-- Include everything that is needed for proper use of HTMX with LCTable -->
+<jsp:include page="../include/useLCTable.jsp"/>
 
 <jsp:include page="../include/footer.jsp"/>

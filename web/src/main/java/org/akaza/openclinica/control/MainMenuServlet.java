@@ -23,6 +23,7 @@ import org.akaza.openclinica.control.admin.StudyStatisticsTableFactory;
 import org.akaza.openclinica.control.admin.StudySubjectStatusStatisticsTableFactory;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
+import org.akaza.openclinica.control.submit.ListStudySubjectTable;
 import org.akaza.openclinica.control.submit.ListStudySubjectTableFactory;
 import org.akaza.openclinica.dao.login.UserAccountDAO;
 import org.akaza.openclinica.dao.managestudy.DiscrepancyNoteDAO;
@@ -290,23 +291,37 @@ public class MainMenuServlet extends SecureController {
 
     private void setupListStudySubjectTable() {
 
-        ListStudySubjectTableFactory factory = new ListStudySubjectTableFactory(true);
-        factory.setStudyEventDefinitionDao(getStudyEventDefinitionDao());
-        factory.setSubjectDAO(getSubjectDAO());
-        factory.setStudySubjectDAO(getStudySubjectDAO());
-        factory.setStudyEventDAO(getStudyEventDAO());
-        factory.setStudyBean(currentStudy);
-        factory.setStudyGroupClassDAO(getStudyGroupClassDAO());
-        factory.setSubjectGroupMapDAO(getSubjectGroupMapDAO());
-        factory.setStudyDAO(getStudyDAO());
-        factory.setCurrentRole(currentRole);
-        factory.setCurrentUser(ub);
-        factory.setEventCRFDAO(getEventCRFDAO());
-        factory.setEventDefintionCRFDAO(getEventDefinitionCRFDAO());
-        factory.setStudyGroupDAO(getStudyGroupDAO());
-        factory.setStudyParameterValueDAO(getStudyParameterValueDAO());
-        String findSubjectsHtml = factory.createTable(request, response).render();
-        request.setAttribute("findSubjectsHtml", findSubjectsHtml);
+        String lcTableRendering = System.getenv("LC_TABLE_RENDERING");
+        // Use JMesa rendering only when LC_TABLE_RENDERING is explicitly set to "jmesa"
+        if (lcTableRendering != null && lcTableRendering.equalsIgnoreCase("jmesa")) {
+            // Legacy JMesa rendering path: unchanged behaviour
+            request.setAttribute("tableRenderingMode", "jmesa");
+            ListStudySubjectTableFactory factory = new ListStudySubjectTableFactory(true);
+            factory.setStudyEventDefinitionDao(getStudyEventDefinitionDao());
+            factory.setSubjectDAO(getSubjectDAO());
+            factory.setStudySubjectDAO(getStudySubjectDAO());
+            factory.setStudyEventDAO(getStudyEventDAO());
+            factory.setStudyBean(currentStudy);
+            factory.setStudyGroupClassDAO(getStudyGroupClassDAO());
+            factory.setSubjectGroupMapDAO(getSubjectGroupMapDAO());
+            factory.setStudyDAO(getStudyDAO());
+            factory.setCurrentRole(currentRole);
+            factory.setCurrentUser(ub);
+            factory.setEventCRFDAO(getEventCRFDAO());
+            factory.setEventDefintionCRFDAO(getEventDefinitionCRFDAO());
+            factory.setStudyGroupDAO(getStudyGroupDAO());
+            factory.setStudyParameterValueDAO(getStudyParameterValueDAO());
+            String findSubjectsHtml = factory.createTable(request, response).render();
+            request.setAttribute("findSubjectsHtml", findSubjectsHtml);
+        } else {
+            // HtmlFlow rendering path
+            request.setAttribute("tableRenderingMode", "htmlflow");
+            ListStudySubjectTable table = new ListStudySubjectTable(getStudySubjectDAO(), getSubjectDAO(), getStudyEventDAO(), getStudyEventDefinitionDao(),
+                getStudyGroupClassDAO(), getSubjectGroupMapDAO(), getStudyGroupDAO(), getStudyDAO(), getEventCRFDAO(), getEventDefinitionCRFDAO(),
+                getStudyParameterValueDAO(), currentStudy, currentRole, ub, locale, session);
+            String findSubjectsHtml = table.render(request);
+            request.setAttribute("findSubjectsHtml", findSubjectsHtml);
+        }
     }
 
     

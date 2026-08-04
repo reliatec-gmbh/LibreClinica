@@ -20,6 +20,7 @@ import org.akaza.openclinica.lctable.*;
 import static org.akaza.openclinica.lctable.LCTableColumnDef.*;
 import static org.akaza.openclinica.lctable.LCTableFilterDef.*;
 import static org.akaza.openclinica.lctable.LCTableUtil.*;
+import static org.akaza.openclinica.lctable.SafeUrl.url;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
@@ -38,6 +39,18 @@ public class AuditUserLoginTable {
         this.table = new LCTable<>("userLogins", COLUMNS, this::fetchData);
     }
 
+    /**
+     * Builds the id of an action link for a given row of this table.
+     * {@link AuditUserLoginBean#getId()} (inherited from {@code AbstractMutableDomainObject}) is the audit-log
+     * entry's own database-generated primary key -- distinct from {@link AuditUserLoginBean#getUserAccountId()},
+     * which is a foreign key to the *viewed* user account. It is a stable, unique-per-row identifier, and thus a
+     * much better fit for element ids than a row-number/index (as the legacy JSP-based table used), which shifts
+     * whenever the table is paginated/sorted/filtered.
+     */
+    private static String actionId(String action, AuditUserLoginBean row) {
+        return "userLogins-" + action + "-" + row.getId();
+    }
+
     // defines the configuration of columns for the AuditUserLogin table
     private static final List<LCTableColumnDef<AuditUserLoginBean>> COLUMNS = Arrays.asList(
         textCol("userName", "User Name", 5, AuditUserLoginBean::getUserName),
@@ -50,9 +63,9 @@ public class AuditUserLoginTable {
         ),
         textCol("details", "Details", 3, AuditUserLoginBean::getDetails),
         customTdCol("actions", "Actions", 4, NOT_SORTABLE, clearFilter(),
-            AuditUserLoginBean::getUserAccountId,
-            (td, userAccountId) ->
-                td.of(linkIcon("View", "ViewUserAccount?userId=" + userAccountId + "&viewFull=yes", "images/bt_View.gif", "View"))
+            (td, row) ->
+                td.of(actionLink(actionId("view", row), "View",
+                    url("ViewUserAccount").param("userId", row.getUserAccountId()).param("viewFull", "yes"), "bt_View.gif"))
         )
     );
 

@@ -112,7 +112,7 @@ public class ListStudySubjectsServlet extends SecureController {
         if (fp.getString("navBar").equals("yes") && fp.getString("findSubjects_f_studySubject.label").trim().length() > 0) {
             StudySubjectBean studySubject = getStudySubjectDAO().findByLabelAndStudy(fp.getString("findSubjects_f_studySubject.label"), currentStudy);
             if (studySubject.getId() > 0) {
-                request.setAttribute("id", new Integer(studySubject.getId()).toString());
+                request.setAttribute("id", Integer.toString(studySubject.getId()));
                 forwardPage(Page.VIEW_STUDY_SUBJECT_SERVLET);
             } else {
                 createTable();
@@ -125,32 +125,60 @@ public class ListStudySubjectsServlet extends SecureController {
 
     private void createTable() {
 
-        ListStudySubjectTableFactory factory = new ListStudySubjectTableFactory(showMoreLink);
-        factory.setStudyEventDefinitionDao(getStudyEventDefinitionDao());
-        factory.setSubjectDAO(getSubjectDAO());
-        factory.setStudySubjectDAO(getStudySubjectDAO());
-        factory.setStudyEventDAO(getStudyEventDAO());
-        factory.setStudyBean(currentStudy);
-        factory.setStudyGroupClassDAO(getStudyGroupClassDAO());
-        factory.setSubjectGroupMapDAO(getSubjectGroupMapDAO());
-        factory.setStudyDAO(getStudyDAO());
-        factory.setCurrentRole(currentRole);
-        factory.setCurrentUser(ub);
-        factory.setEventCRFDAO(getEventCRFDAO());
-        factory.setEventDefintionCRFDAO(getEventDefinitionCRFDAO());
-        factory.setStudyGroupDAO(getStudyGroupDAO());
-        factory.setStudyParameterValueDAO(getStudyParameterValueDAO());
-        String findSubjectsHtml = factory.createTable(request, response).render();
-
-        request.setAttribute("findSubjectsHtml", findSubjectsHtml);
-        // A. Hamid.
-        // For event definitions and group class list in the add subject popup
+        // For event definitions and group class list in the add subject popup (imported addNewSubjectExpressNew.jsp).
         request.setAttribute("allDefsArray", super.getEventDefinitionsByCurrentStudy());
         request.setAttribute("studyGroupClasses", super.getStudyGroupClassesByCurrentStudy());
         FormDiscrepancyNotes discNotes = new FormDiscrepancyNotes();
         session.setAttribute(AddNewSubjectServlet.FORM_DISCREPANCY_NOTES_NAME, discNotes);
 
-        forwardPage(Page.LIST_STUDY_SUBJECTS);
+        String lcTableRendering = System.getenv("LC_TABLE_RENDERING");
+        // Use JMesa rendering only when LC_TABLE_RENDERING is explicitly set to "jmesa"
+        if (lcTableRendering != null && lcTableRendering.equalsIgnoreCase("jmesa")) {
+            // Legacy JMesa rendering path: unchanged behaviour (render and forward)
+            request.setAttribute("tableRenderingMode", "jmesa");
+            ListStudySubjectTableFactory factory = new ListStudySubjectTableFactory(showMoreLink);
+            factory.setStudyEventDefinitionDao(getStudyEventDefinitionDao());
+            factory.setSubjectDAO(getSubjectDAO());
+            factory.setStudySubjectDAO(getStudySubjectDAO());
+            factory.setStudyEventDAO(getStudyEventDAO());
+            factory.setStudyBean(currentStudy);
+            factory.setStudyGroupClassDAO(getStudyGroupClassDAO());
+            factory.setSubjectGroupMapDAO(getSubjectGroupMapDAO());
+            factory.setStudyDAO(getStudyDAO());
+            factory.setCurrentRole(currentRole);
+            factory.setCurrentUser(ub);
+            factory.setEventCRFDAO(getEventCRFDAO());
+            factory.setEventDefintionCRFDAO(getEventDefinitionCRFDAO());
+            factory.setStudyGroupDAO(getStudyGroupDAO());
+            factory.setStudyParameterValueDAO(getStudyParameterValueDAO());
+            String findSubjectsHtml = factory.createTable(request, response).render();
+            request.setAttribute("findSubjectsHtml", findSubjectsHtml);
+            forwardPage(Page.LIST_STUDY_SUBJECTS);
+        } else {
+            // HtmlFlow rendering path: supports HTMX partials (panel vs full page)
+            request.setAttribute("tableRenderingMode", "htmlflow");
+            ListStudySubjectTable table = new ListStudySubjectTable(getStudySubjectDAO(), getSubjectDAO(), getStudyEventDAO(), getStudyEventDefinitionDao(),
+                getStudyGroupClassDAO(), getSubjectGroupMapDAO(), getStudyGroupDAO(), getStudyDAO(), getEventCRFDAO(), getEventDefinitionCRFDAO(),
+                getStudyParameterValueDAO(), currentStudy, currentRole, ub, locale, session);
+            String findSubjectsHtml = table.render(request);
+            // HTMX partial handling
+            response.addHeader("Vary", "HX-Request");
+            String hxReq = request.getHeader("HX-Request");
+            if (hxReq != null) {
+                // HTMX request: only return the table HTML fragment
+                try {
+                    response.setContentType("text/html;charset=UTF-8");
+                    response.getWriter().write(findSubjectsHtml);
+                    response.getWriter().flush();
+                } catch (java.io.IOException e) {
+                    logger.error("Error writing findSubjects HTMX partial response: ", e);
+                }
+            } else {
+                // Non-HTMX request: embed into JSP and forward
+                request.setAttribute("findSubjectsHtml", findSubjectsHtml);
+                forwardPage(Page.LIST_STUDY_SUBJECTS);
+            }
+        }
 
     }
 

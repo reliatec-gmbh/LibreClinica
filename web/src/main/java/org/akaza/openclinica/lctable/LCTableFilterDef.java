@@ -41,7 +41,7 @@ public abstract class LCTableFilterDef {
 
     /*----------------------------------------------------------------------------------------------------------------*/
     /**
-     * Text filter specialization: renders an <input type="text"> with optional pattern/title
+     * Text filter specialization: renders an {@code <input type="text">} with optional pattern/title
      */
     public static final class Text extends LCTableFilterDef {
         public final String pattern;   // Regex pattern for HTML5 validation
@@ -62,10 +62,8 @@ public abstract class LCTableFilterDef {
             final String filterName = LCTableParams.PARAM_FILTER_PREFIX + col.columnName;
             final String filterValue = ctx.filters.getOrDefault(col.columnName, "");
 
-            // Every change in the input resets the debounce timer (no trigger-filter here).
-            // Validity is instead checked right before the request actually fires, via hx-on below.
-            // Filtering the triggering event itself would let a stale, already-scheduled timer fire later
-            // with a value that in the meantime has changed, leading to a request with an invalid value.
+            // Every change in the input triggers a request with a delay (resetting the debounce timer).
+            // Validity is checked via 'hx-on' right before sending out the request, to prevent submitting invalid values.
             final String trigger = "input changed delay:400ms";
 
             tr.td().div().attrClass("filter-wrapper").of(div -> {
@@ -75,7 +73,7 @@ public abstract class LCTableFilterDef {
                     .attrValue(filterValue)
                     .attrClass("filter-input")
                     .attrSize(1L)
-                    .attrId(table.panelId + "-filter-" + col.columnName);
+                    .attrId(table.tableName + "-text-filter-" + col.columnName);
 
                 // If a pattern is provided, add HTML5 validation and HTMX event filter
                 if (this.pattern != null) {
@@ -96,7 +94,7 @@ public abstract class LCTableFilterDef {
 
     /*----------------------------------------------------------------------------------------------------------------*/
     /**
-     * Select filter specialization: renders a <select> with provided values
+     * Select filter specialization: renders a {@code <select>} with provided values
      */
     public static final class Select<F> extends LCTableFilterDef {
         public final List<F> values;
@@ -148,18 +146,16 @@ public abstract class LCTableFilterDef {
             final String filterName = LCTableParams.PARAM_FILTER_PREFIX + col.columnName;
             final String rawSelected = ctx.filters.getOrDefault(col.columnName, "");
 
-            // UI Safety Check: Verify if the URL parameter actually matches a real option
+            // UI Safety Check: Verify the URL parameter matches a valid option; otherwise, default to empty.
             final boolean isValidOption = rawSelected.isEmpty() || this.values.stream()
                 .map(this::urlParam)
                 .anyMatch(val -> val.equals(rawSelected));
-
-            // If it's invalid (e.g., "broken"), treat it as empty ("All") so the UI snaps back to a valid state
             final String currentSelected = isValidOption ? rawSelected : "";
 
             tr.td().div().attrClass("filter-wrapper").of(div -> {
                 var select = div.select()
                     .attrName(filterName)
-                    .attrId(table.panelId + "-filter-" + col.columnName)
+                    .attrId(table.tableName + "-select-filter-" + col.columnName)
                     .attrClass("filter-select")
                     .attrStyle("width:1px;flex:1")
                     .of(hxGetAttrs(ctx.entityPath, "closest form", "#" + table.panelId, "change"));
@@ -178,27 +174,34 @@ public abstract class LCTableFilterDef {
 
     /*----------------------------------------------------------------------------------------------------------------*/
     /**
-     * Clear filter specialization: renders a button that clears all filters when clicked.
-     *
-     * <p>Uses a precise {@code hx-include} CSS selector that names only the non-filter parameters
-     * (page, maxRows, sortProp, sortDir) by their exact {@code name} attribute. Filter inputs are
-     * never selected, so they are never included in the HTMX request — no JavaScript required.
+     * Clear filter specialization: renders a button that clears all filters.
+     * Uses a precise CSS selector to include only non-filter parameters in the HTMX request.
      */
     public static final class ClearFilter extends LCTableFilterDef {
-        // CSS selector that picks up only the pagination/sort form fields, excluding all filter inputs.
+        // CSS selector targeting pagination/sort/hidden columns fields, excluding filter inputs.
         private static final String NON_FILTER_PARAMS_SELECTOR =
             "[name=" + LCTableParams.PARAM_PAGE + "]" +
                 ",[name=" + LCTableParams.PARAM_MAX_ROWS + "]" +
                 ",[name=" + LCTableParams.PARAM_SORT_PROP + "]" +
-                ",[name=" + LCTableParams.PARAM_SORT_DIR + "]";
+                ",[name=" + LCTableParams.PARAM_SORT_DIR + "]" +
+                ",[name=" + LCTableParams.PARAM_SHOW_HIDDEN_COLS + "]";
 
         @Override
         public <T, E extends Element<?, ?>> void renderFilter(Tr<E> tr, LCTableContext<T> ctx, LCTableColumnDef<T> col, LCTable<T> table) {
-            tr.td().a().attrClass("page-btn")
-                .of(hxGetAttrs(ctx.entityPath, NON_FILTER_PARAMS_SELECTOR, "#" + table.panelId, "click"))
+            StringBuilder selector = new StringBuilder(NON_FILTER_PARAMS_SELECTOR);
+            // Append the per-table "sticky" parameter names to the selector, to preserve them when clearing filters.
+            for (String stickyParamName : table.getStickyParamNames()) {
+                selector.append(",[name=").append(stickyParamName).append(']');
+            }
+            tr.td().a()
+                .attrId(table.tableName + "-clear-filter-" + col.columnName)
+                .attrClass("text-btn")
+                .of(hxGetAttrs(ctx.entityPath, selector.toString(), "#" + table.panelId, "click"))
                 .text("Clear Filter")
                 .__().__();
         }
     }
 
 }
+
+

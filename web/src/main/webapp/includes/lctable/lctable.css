@@ -1,6 +1,6 @@
 /*
  * derived from jmesa.css, adapted to fit LCTable needs
- * '.lctable' use to be '.jmesa'
+ * (note: '.lctable' used to be '.jmesa')
  */
 
 .lctable {
@@ -30,13 +30,33 @@
     padding: 0;
 }
 
-.toolbar table {
+.lctable .toolbar table {
     margin-right: auto;
     margin-left: 0px;
 }
 
 .lctable .toolbar {
     user-select: none;
+}
+
+.lctable .toolbar-container {
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+
+.lctable .toolbar-separator {
+    border-left: 1px solid #c0c0c0;
+    height: 1.2em;
+    margin: 0 6px;
+}
+
+.lctable .dropdown-list {
+    margin: 0;
+}
+
+.lctable .dropdown-list label {
+    color: black;
 }
 
 .lctable .toolbar td {
@@ -121,72 +141,13 @@
 }
 
 
-.lctable .tbody input {
-    padding: 0;
-    margin: 0;
-}
-
-.lctable .filter .dynFilter {
-    position: relative;
-    font-family: verdana, arial, helvetica, sans-serif;
-    font-size: 11px;
-    padding: 0;
-    margin: 0;
-    border: 1px solid #c0c0c0;
-    background-color: var(--gray-l30);
-    height: 15px;
-    white-space: nowrap;
-    cursor: pointer;
-    z-index: 4;
-}
-
-.lctable .filter #dynFilterDiv {
-    position: absolute;
-    top: -3px;
-    left: -2px;
-    padding: 0;
-    margin: 0;
-    height: 17px;
-    border: 1px solid #c0c0c0;
-    background-color: #e1ebf4;
-}
-
-.lctable .filter #dynFilterInput {
-    font-family: verdana, arial, helvetica, sans-serif;
-    font-size: 12px;
-    padding: 0;
-    margin: 0;
-    border-style: none;
-    background-color: #e1ebf4;
-}
-
-.lctable .filter #dynFilterDroplistDiv {
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    padding: 0;
-    margin: 0;
-    height: 17px;
-    background-color: #e1ebf4;
-    z-index: 4;
-}
-
-.lctable .filter #dynFilterDroplist {
-    font-family: verdana, arial, helvetica, sans-serif;
-    font-size: 12px;
-    padding: 0;
-    margin: 0;
-    border: 1px solid #c0c0c0;
-    background-color: #e1ebf4;
-}
-
 .lctable .header {
 	height: 15px;
 	max-height:30px
 }
 
 .lctable .header th {
-    white-space: nowrap;
+    white-space: normal;
     background-color: var(--lightblue-d20);
     color: white;
     font-family: verdana, arial, helvetica, sans-serif;
@@ -201,7 +162,7 @@
 }
 
 .lctable .header td {
-    white-space: nowrap;
+    white-space: normal;
     background-color: white;
     color: white;
     font-size: 11px;
@@ -215,6 +176,65 @@
 
 .lctable .odd a, .lctable .even a {
     color: black;
+}
+
+/*
+ * Icon action links (View/Remove/Restore/... in the Actions column, and the analogous links inside
+ * the event-detail popup). The global "a:hover, a:active { text-decoration: underline; }" rule
+ * (includes/styles.css) is not appropriate for these icon-only/icon+label links, so it is overridden
+ * here; a small right-margin also gives them a bit more breathing room than plain adjacency (loosely
+ * modelled on the legacy jmesa table's "&nbsp;&nbsp;&nbsp;" spacing between action links).
+ */
+.lctable .action-link {
+    text-decoration: none;
+    margin-right: 2px;
+}
+
+.lctable .action-link:last-child {
+    margin-right: 0;
+}
+
+.lctable .action-link:hover, .lctable .action-link:active {
+    text-decoration: none;
+}
+
+/*
+ * The hover/focus tooltip itself (shown only for icon-only action links, i.e. "data-tooltip" is set --
+ * see LCTableUtil.actionLink()) is implemented in lctable.js as a single reusable ".lc-tooltip" element
+ * appended directly to <body> and positioned with "position: fixed" from the hovered/focused element's
+ * getBoundingClientRect(), rather than as a pure-CSS "::after" bubble anchored to the link itself.
+ * This deliberately avoids two problems a "::after" bubble would have here:
+ *  - it would depend on the native browser per-window hover-timer machinery behaving consistently
+ *    (which -- for the native "title" attribute this replaces -- is known to stop reliably reappearing
+ *    once the browser window has lost and regained focus);
+ *  - being a descendant of the scrollable ".event-popup-body", it would get silently clipped by that
+ *    ancestor's "overflow-y: auto" whenever there wasn't enough room below/above within the *scrollable
+ *    container* (which is exactly what happened for the last occurrence's actions, and the last action
+ *    in the non-repeating vertical layout: the tooltip had no clipped-free space left below them).
+ * A "position: fixed" element appended to <body> is not a descendant of that scrolling container at all,
+ * so it is never clipped by it, regardless of which row/action is hovered.
+ */
+.lc-tooltip {
+    position: fixed;
+    z-index: 10000;
+    background: var(--lightblue-d20);
+    color: #fff;
+    font-family: verdana, arial, helvetica, sans-serif;
+    font-size: 12px;
+    font-weight: normal;
+    padding: 5px 9px;
+    border-radius: 6px;
+    white-space: nowrap;
+    box-shadow: 1px 2px 5px rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.1s ease;
+}
+
+.lc-tooltip.lc-tooltip-visible {
+    opacity: 1;
+    visibility: visible;
 }
 
 /* Prevent inline-baseline gap below images in table cells */
@@ -260,126 +280,12 @@
     padding: 2px;
 }
 
-.lctable .dropShadow {
-    padding: 10px 14px 14px 10px;
-}
-
-.lctable .wsColumn {
-    position: relative;
-    font-family: verdana, arial, helvetica, sans-serif;
-    font-size: 11px;
-    padding: 0;
-    margin: 0;
-    border-bottom: 1px solid #c0c0c0;
-    height: 15px;
-    white-space: nowrap;
-    cursor: pointer;
-}
-
-.lctable .wsColumnError {
-    position: relative;
-    font-family: verdana, arial, helvetica, sans-serif;
-    font-size: 11px;
-    font-style: italic;
-    padding: 0;
-    margin: 0;
-    color: #ec4646;
-    border-bottom: 1px dashed #ec4646;
-    height: 15px;
-    white-space: nowrap;
-    cursor: pointer;
-}
-
-.lctable .wsColumnChange {
-    position: relative;
-    font-family: verdana, arial, helvetica, sans-serif;
-    font-size: 11px;
-    font-style: italic;
-    padding: 0;
-    margin: 0;
-    color: #005e8f;
-    border-bottom: 1px dashed #005e8f;
-    height: 15px;
-    white-space: nowrap;
-    cursor: pointer;
-}
-
-.lctable #wsColumnDiv {
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    padding: 0;
-    margin: 0;
-    height: 17px;
-    border: 1px solid #c0c0c0;
-    background-color: #ededed;
-}
-
-.lctable #wsColumnInput {
-    font-family: verdana, arial, helvetica, sans-serif;
-    font-size: 12px;
-    padding: 0;
-    margin: 0;
-    border-style: none;
-    background-color: #ededed;
-}
-
-/*
- * KK - Added new configuration to support popups inside the table rows.
- */
-
-.lctable .ViewSubjectsPopup td, .lctable .highlight .ViewSubjectsPopup td {
-	background-color: #FFFFE5;
-    border-style: solid;
-    border-width: 0px 0px 0px 0px;
-    border-color: #CCCCCC;
-    padding: 0px;
-    }
-
-.lctable .ViewSubjectsPopup td.table_header_row_left, .lctable .highlight .ViewSubjectsPopup td.table_header_row_left {
-   padding: 3px 1px 3px 6px;
-   border-style: solid;
-   border-width: 0px 0px 1px 0px;
-   border-color: #CCCCCC;
-   font-weight: bold;
-   color: #666666;
-   vertical-align: top;
-}
-
-.lctable .ViewSubjectsPopup td.table_header_row, .lctable .highlight .ViewSubjectsPopup td.table_header_row {
-	padding: 3px 1px 3px 2px;
-    border-style: solid;
-    border-width: 0px 0px 1px 1px;
-    border-color: #CCCCCC;
-    font-weight: bold;
-    color: #666666;
-    vertical-align: top;
-    }
-
-.lctable .ViewSubjectsPopup td.table_cell_left, .lctable .highlight .ViewSubjectsPopup td.table_cell_left, .lctable .ViewSubjectsPopup td.table_cell, .lctable .highlight .ViewSubjectsPopup td.table_cell {
-	padding: 3px 1px 3px 2px;
-    border-style: solid;
-    border-width: 1px 0px 0px 1px;
-    border-top-color: #E6E6E6;
-    border-left-color: #CCCCCC;
-    vertical-align: top;
-    }
-
-.lctable .ViewSubjectsPopup td.statusbox_scroll_R_dis, .lctable .highlight td.ViewSubjectsPopup.statusbox_scroll_R_dis {
-	border-style: solid;
-    border-width: 0px 0px 0px 1px;
-    border-color: #CCCCCC;
-    }
-
-.lctable .ViewSubjectsPopup td a, .lctable .highlight .ViewSubjectsPopup td a {
-	color: #789EC5;
-	}
-
 
 /* ---- additions for LCTable ---- */
 
-.lctable .page-btn {
+.lctable .text-btn {
     display: inline-block;
+    white-space: nowrap;
     padding: 2px 6px;
     border: 1px solid #ddd;
     border-radius: 0;
@@ -392,28 +298,14 @@
     text-align: center;
 }
 
-.page-btn {
-    display: inline-block;
-    padding: 2px 6px;
-    border: 1px solid #ddd;
-    border-radius: 0;
-    text-decoration: none;
-    color: #333;
-    background: #fff;
-    cursor: pointer;
-    font-size: 0.75rem;
-    min-width: 1.5em;
-    text-align: center;
-}
-
-.page-btn:hover              { background: #eee; }
-.page-btn.current            { background: #2563eb; color: #fff; border-color: #2563eb; }
-.page-btn.disabled           { color: #bbb; pointer-events: none; cursor: default; }
-.page-btn, .page-ellipsis    { user-select: none; }
-.page-ellipsis               { display: inline-block; min-width: 1.2em; padding: 2px 6px; color: #888; font-size: 0.65rem; text-align: center; }
+.lctable .text-btn:hover              { background: #eee; }
+.lctable .text-btn.current            { background: #2563eb; color: #fff; border-color: #2563eb; }
+.lctable .text-btn.disabled           { color: #bbb; pointer-events: none; cursor: default; }
+.lctable .text-btn, .lctable .page-ellipsis    { user-select: none; }
+.lctable .page-ellipsis               { display: inline-block; min-width: 1.2em; padding: 2px 6px; color: #888; font-size: 0.65rem; text-align: center; }
 
 /* Sort header styling */
-.sort-header-link {
+.lctable .sort-header-link {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -423,15 +315,172 @@
     cursor: pointer;
 }
 
-.sort-header-text {
+.lctable .sort-header-text {
     flex: 1;
 }
 
-.sort-indicator {
+.lctable .sort-indicator {
     display: block;
     width: auto;
     height: auto;
     flex-shrink: 0;
+}
+
+/*
+ * Event-detail hover/focus popup (findSubjects "Subject Matrix" table).
+ * Simplified, pure-CSS replacement for the legacy absolute-positioned <div> + inline-JS popup:
+ * all occurrences are always rendered, and only the popup *body* scrolls internally (the header,
+ * including the "add another occurrence" button, stays fixed at the top) -- no left/right occurrence
+ * "scroller", no onmouseover/onclick JS. The only JS involved (see lctable.js) flips the popup to
+ * right-align with its trigger when it would otherwise overflow past the right edge of the viewport.
+ */
+.lctable .event-trigger {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.lctable .event-status-badge {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 6px;
+}
+
+.lctable .event-status-badge:last-child {
+    margin-right: 0;
+}
+
+.lctable .event-popup {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 50;
+    flex-direction: column;
+    /*
+     * Explicit "width: max-content" (rather than leaving width as the "auto" default) is essential
+     * here: since this is an absolutely-positioned box whose containing block is the small
+     * ".event-trigger" (sized to fit just the status icon(s)), an "auto" width would be computed via
+     * the CSS2.1 shrink-to-fit algorithm using that tiny containing block as the "available width" --
+     * which clamps the box down near the trigger's own width regardless of max-width, making max-width
+     * changes appear to have no effect. "max-content" instead sizes the box to its own content's
+     * preferred (unwrapped) width, still properly clamped by min-width/max-width below.
+     */
+    width: max-content;
+    min-width: 220px;
+    max-width: 500px;
+    max-height: 260px;
+    overflow: hidden;
+    text-align: left;
+    white-space: normal;
+    box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Added by lctable.js when the popup would otherwise overflow past the right edge of the viewport. */
+.lctable .event-popup.lc-popup-align-right {
+    left: auto;
+    right: 0;
+}
+
+.lctable .event-trigger:hover .event-popup,
+.lctable .event-trigger:focus-within .event-popup {
+    display: flex;
+}
+
+.lctable .event-popup-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    flex: 0 0 auto;
+}
+
+/* Prevent "Subject: ..."/"Event: ..." from wrapping onto a second line: since the popup has no
+   explicit width, letting this text wrap would shrink it below its natural (unwrapped) width. */
+.lctable .event-popup-header-text {
+    white-space: nowrap;
+}
+
+.lctable .event-popup-header .text-btn {
+    flex-shrink: 0;
+}
+
+.lctable .event-popup-body {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+/*
+ * "Hybrid" per-occurrence row layouts (see ListStudySubjectTable#renderPopupBody and friends):
+ *  - non-repeating events (and events with no occurrence yet): "simple" layout, one action per line,
+ *    each with icon + text label -- ".event-occurrence-row" without the "-compact" modifier.
+ *  - repeating events (with at least one occurrence): "compact" layout, two lines per occurrence
+ *    ("Occurrence #i of N · date · status" then "Actions: " + icon-only links) --
+ *    ".event-occurrence-row.event-occurrence-row-compact".
+ * In both cases, ".event-occurrence-row" is the hoverable/highlightable unit (the "row" the user
+ * points at). A subtle border/box gives each occurrence a permanent, "passive" visual grouping (a bit
+ * more pronounced than the thin lines separating the 1-2 lines *within* one occurrence), on top of
+ * which hovering adds a slightly darker shade of the popup's pale-yellow background.
+ */
+.lctable .event-occurrence-row {
+    margin: 3px 4px;
+    padding: 3px 4px;
+    border: 1px solid #E0D9A0;
+    border-radius: 3px;
+}
+
+.lctable .event-occurrence-row:hover {
+    background-color: #F5EEA0;
+    border-color: #C9BC66;
+}
+
+.lctable .event-occurrence-row .table_cell_left,
+.lctable .event-occurrence-row .table_cell {
+    border-left: none;
+}
+
+.lctable .event-occurrence-row > div:first-child {
+    border-top: none;
+}
+
+.lctable .event-status-icon-inline {
+    vertical-align: middle;
+    margin: 0 2px;
+}
+
+/* Simple (non-repeating) layout: one action per line, icon + text label, with a little breathing room
+   between lines (both visually clearer and easier to click precisely). */
+.lctable .occurrence-actions-vertical a {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    white-space: nowrap;
+    margin-bottom: 4px;
+}
+
+.lctable .occurrence-actions-vertical a:last-child {
+    margin-bottom: 0;
+}
+
+/* Compact (repeating) layout: "Actions: " label followed by icon-only links, all on one line. */
+.lctable .occurrence-actions-compact {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.lctable .occurrence-actions-compact a {
+    display: inline-flex;
+    align-items: center;
+}
+
+.lctable .event-occurrence-row .occurrence-actions img,
+.lctable .event-occurrence-row .occurrence-summary-line img {
+    vertical-align: middle;
 }
 
 /* Hover highlight for rows: match jmesa .highlight appearance exactly */

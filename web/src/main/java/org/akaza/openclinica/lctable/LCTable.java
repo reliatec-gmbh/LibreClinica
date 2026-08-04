@@ -18,8 +18,12 @@ import org.xmlet.htmlapifaster.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -28,6 +32,13 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.lang.String.format;
 
+/**
+ * Renders a paginated/sortable/filterable HTML table using HTMX.
+ *
+ * <p><b>Important: do not wrap this table's rendered output in your own {@code <form>}.</b>
+ * The {@link #render} method renders its own {@code <form>}. Nesting forms is invalid HTML and
+ * can lead to duplicate or conflicting query parameters being submitted.
+ */
 public class LCTable<T>  {
 
     final String tableName;     // name of the table (used for generating unique IDs and classes)
@@ -35,23 +46,72 @@ public class LCTable<T>  {
     final List<LCTableColumnDef<T>> columns;
     final Function<LCTableParams, LCTableData<T>> fetchData;
 
+    /**
+     * Explicit whitelist of "sticky" request parameters (e.g. {@code defId}) that are not related
+     * to the table's own state, but must be preserved across all table interactions (pagination, sorting, filtering).
+     * Explicitly declaring these parameters prevents forwarding arbitrary or unvetted query parameters:
+     * any parameters that are neither table-related nor in the whitelist will be dropped.
+     */
+    final List<String> stickyParamNames;
+
+    /**
+     * Optional extra controls (e.g., custom action links or dropdowns) rendered in the toolbar
+     * after the built-in controls. Added via {@link #addCustomToolbarControl} before rendering.
+     */
+    private final List<BiConsumer<Div<?>, LCTableContext<T>>> customToolbarControls = new ArrayList<>();
+
     // constants to control table behaviour
     static final boolean HIDE_PAGINATION_TOOLS_FOR_SINGLE_PAGE_TABLE = false;
 
 
     public LCTable(String tableName, List<LCTableColumnDef<T>> columns, Function<LCTableParams, LCTableData<T>> fetchData) {
+        this(tableName, columns, fetchData, Collections.emptyList());
+    }
+
+    public LCTable(String tableName, List<LCTableColumnDef<T>> columns, Function<LCTableParams, LCTableData<T>> fetchData,
+            List<String> stickyParamNames) {
         this.tableName    = tableName;
         this.panelId      = tableName + "-panel";   // Generate panel ID based on table name
         this.columns      = columns;
         this.fetchData    = fetchData;
+        this.stickyParamNames = stickyParamNames == null ? Collections.emptyList() : List.copyOf(stickyParamNames);
     }
 
     public String getTableName() {
         return tableName;
     }
+    public List<String> getStickyParamNames() { return stickyParamNames; }
 
     public List<String> getColumnNames() {
         return columns.stream().map(col -> col.columnName).collect(Collectors.toList());
+    }
+
+    /**
+     * Appends a custom control to the toolbar, rendered after built-in controls. Must be called before rendering.
+     *
+     * @param control closure that renders the control's markup into the toolbar's container {@code <div>}
+     */
+    public void addCustomToolbarControl(BiConsumer<Div<?>, LCTableContext<T>> control) {
+        customToolbarControls.add(Objects.requireNonNull(control, "control"));
+    }
+
+    /** True if this table declares at least one column with HIDDEN visibility. */
+    private boolean hasHiddenColumns() {
+        return columns.stream().anyMatch(col -> col.visibility == LCTableColumnDef.HIDDEN);
+    }
+
+    /**
+     * A column is rendered (header, filter and value cells) if it is VISIBLE, or if it is
+     * HIDDEN and the current request has opted in to show hidden columns.
+     */
+    private boolean shouldRenderColumn(LCTableColumnDef<T> col, LCTableContext<T> ctx) {
+        return col.visibility == LCTableColumnDef.VISIBLE
+            || (col.visibility == LCTableColumnDef.HIDDEN && ctx.showHiddenCols);
+    }
+
+    /** Number of columns actually rendered for the given context (used for colspan calculations). */
+    private long renderedColumnCount(LCTableContext<T> ctx) {
+        return columns.stream().filter(col -> shouldRenderColumn(col, ctx)).count();
     }
 
     // -- HTMX attribute names (use constants to avoid repeating string literals)
@@ -65,7 +125,9 @@ public class LCTable<T>  {
     // -- Generic typed table renderer -----------------------------------------
 
     private void renderColumnNames(Tr<?> tr, LCTableContext<T> ctx) {
-        columns.forEach(col -> renderColumnName(tr, col, ctx));
+        columns.forEach(col -> {
+            if (shouldRenderColumn(col, ctx)) renderColumnName(tr, col, ctx);
+        });
     }
 
     /**
@@ -84,7 +146,7 @@ public class LCTable<T>  {
             final String href = urlForSort(ctx.entityPath, ctx, col.columnName, nextSortDir);
             // Render the header cell with a link that triggers sorting via HTMX
             tr.th().attrStyle(widthStyle)
-                .a().attrClass("sort-header-link")
+                .a().attrId(tableName + "-sortable-header-" + col.columnName).attrClass("sort-header-link")
                 .attrHref(href).of(hxGetAttrs(href, NO_HX_INCLUDE, "#" + panelId, NO_HX_TRIGGER))
                 .of(a -> {
                     a.span().attrClass("sort-header-text").text(col.columnDisplayName).__();
@@ -98,19 +160,38 @@ public class LCTable<T>  {
     }
 
     private void renderToolbar(Tr<?> tr, LCTableContext<T> ctx) {
-        tr.td().attrClass("toolbar").attrColspan(columns.size())
-            .div().attrStyle("display:flex;justify-content:space-between;align-items:center")
+        tr.td().attrClass("toolbar").attrColspan((int) renderedColumnCount(ctx))
+            .div().attrClass("toolbar-container")
             .of(container -> {
                 // Left: page navigation
                 container.nav().of(nav -> buildPageNavigation(nav, ctx)).__();
-                // Right: page-size selector
-                container.div().of(div -> buildMaxRowsSelector(div, ctx)).__();
+                // Separator (CSS-based vertical line)
+                container.div().attrClass("toolbar-separator").__();
+                // Immediately after navigation: dropdown-list
+                container.div().attrClass("dropdown-list").of(div -> buildSelectMaxRowsSelect(div, ctx)).__();
+                // If the table has hidden columns, show a toggle button to reveal/hide them
+                if (hasHiddenColumns()) {
+                    container.div().attrClass("toolbar-separator").__();
+                    final String toggleHref = urlForShowHiddenColsToggle(ctx);
+                    container.a().attrClass("text-btn")
+                        .attrHref(toggleHref)
+                        .of(hxGetAttrs(toggleHref, NO_HX_INCLUDE, "#" + panelId, NO_HX_TRIGGER))
+                        .text(ctx.showHiddenCols ? "Hide" : "Show More")
+                        .__();
+                }
+                // Custom, non-tabular controls (see addCustomToolbarControl), in the order they were added --
+                // each preceded by the same separator used between the built-in controls above.
+                customToolbarControls.forEach(control -> {
+                    container.div().attrClass("toolbar-separator").__();
+                    control.accept(container, ctx);
+                });
             }).__();
     }
 
     private void renderFilters(Tr<?> tr, LCTableContext<T> ctx) {
-        // Render a filter input for each column
+        // Render a filter input for each rendered column
         columns.forEach(col -> {
+            if (!shouldRenderColumn(col, ctx)) return;
             if (col.isFilterable()) {
                 col.filterDef.renderFilter(tr, ctx, col, this);
             } else {
@@ -125,22 +206,24 @@ public class LCTable<T>  {
         thead.tr().attrClass("filter").of(tr -> renderFilters(tr, ctx)).__();
     }
 
-    private void renderTableBody(Tbody<?> tbody, List<T> data) {
+    private void renderTableBody(Tbody<?> tbody, LCTableContext<T> ctx) {
+        List<T> data = ctx.data.pageItems;
         tbody.attrClass("tbody");
         IntStream.range(0, data.size()).forEach(i -> {
             T item = data.get(i);
             String rowClass = ((i+1) % 2 == 0) ? "even" : "odd";    // use (i+1) to start from 1 for class assignment
             Tr<?> tr = tbody.tr().attrClass(rowClass);
-            columns.forEach(col -> col.cellRenderer.accept(tr, item));
+            columns.forEach(col -> {
+                if (shouldRenderColumn(col, ctx)) col.cellRenderer.accept(tr, item);
+            });
             tr.__();
         });
     }
 
     /**
-     * Generic typed table renderer. Each column declares its header label and
-     * a cell-renderer closure that writes directly into the HtmlFlow row element.
+     * Method that performs the actual generation of the HTML for the table.
      *
-     * @param ctx the table context containing all pagination/sorting state and the data for the current page
+     * @param ctx "context" containing all state (pagination/sorting/filtering) and data for the table
      * @return rendered HTML string
      */
     private String renderTableHtml(LCTableContext<T> ctx) {
@@ -149,17 +232,33 @@ public class LCTable<T>  {
             .div().attrId(panelId).attrClass("lctable")
             .addAttr("hx-ext", "morph")         // use 'idiomorph' extension for morphing the table content instead of replacing it
             .form().attrId(panelId + "-form")
+            // Render sticky parameters first, keeping them at the start of URLs and DOM (form) serialization order.
+            // Omitted when absent/empty.
+            .of(form -> ctx.stickyParams.forEach((name, value) -> {
+                if (value != null && !value.isEmpty()) {
+                    form.input().attrType(EnumTypeInputType.HIDDEN).attrName(name).attrValue(value).__();
+                }
+            }))
             // Hidden inputs for filter submission. Page is reset to 1 when filtering (like search box).
             // Pagination buttons use their own URLs with all parameters, so this page value
             // doesn't affect them.
             .input().attrType(EnumTypeInputType.HIDDEN).attrName(PARAM_PAGE).attrValue("1").__()
-            .input().attrType(EnumTypeInputType.HIDDEN).attrName(PARAM_MAX_ROWS).attrValue(String.valueOf(ctx.maxRows)).__()
-            .input().attrType(EnumTypeInputType.HIDDEN).attrName(PARAM_SORT_PROP).attrValue(ctx.sortProp).__()
-            .input().attrType(EnumTypeInputType.HIDDEN).attrName(PARAM_SORT_DIR).attrValue(ctx.sortDir).__()
-
+            // Hidden inputs for state submission.
+            // Note: `maxRows` is intentionally omitted here to make the `<select>` the single source of truth
+            // and avoid duplicate submissions. `sortProp`/`sortDir` and `showHiddenCols` are only rendered
+            // if they have non-default values to keep HTMX-generated query strings clean.
+            .of(form -> {
+                if (!ctx.sortProp.isEmpty()) {
+                    form.input().attrType(EnumTypeInputType.HIDDEN).attrName(PARAM_SORT_PROP).attrValue(ctx.sortProp).__();
+                    form.input().attrType(EnumTypeInputType.HIDDEN).attrName(PARAM_SORT_DIR).attrValue(ctx.sortDir).__();
+                }
+                if (ctx.showHiddenCols) {
+                    form.input().attrType(EnumTypeInputType.HIDDEN).attrName(PARAM_SHOW_HIDDEN_COLS).attrValue("true").__();
+                }
+            })
             .table().attrId(panelId + "-table").attrClass("table").attrStyle("border-collapse:collapse")
             .thead().attrId(panelId + "-thead").of(thead -> renderTableHeader(thead, ctx)).__() // thead
-            .tbody().attrId(panelId + "-tbody").attrClass("tbody").of(tbody -> renderTableBody(tbody, ctx.data.pageItems)).__() // tbody
+            .tbody().attrId(panelId + "-tbody").attrClass("tbody").of(tbody -> renderTableBody(tbody, ctx)).__() // tbody
             .tfoot().attrId(panelId + "-tfoot").of(tfoot -> renderTableFooter(tfoot, ctx)).__()
             .__() // table
             .__() // form
@@ -171,7 +270,9 @@ public class LCTable<T>  {
      * Main entry point for rendering the table.
      * Fetches the data for the current page using the provided fetchData function and renders the HTML table.
      *
+     * @param entityPath the path to the entity for which the table is being rendered
      * @param params the parameters for fetching data (page number, page size, sorting, filters, etc.)
+     * @param resourcePath the path to the resources needed for rendering the table
      * @return the rendered HTML string for the table
      */
     public String render(String entityPath, LCTableParams params, String resourcePath) {
@@ -186,7 +287,7 @@ public class LCTable<T>  {
         long    to       = (long) ctx.page * ctx.maxRows + ctx.data.pageItems.size();
 
         Tfoot<?> footer = tfoot.attrClass("statusBar");
-        Td<?> td = footer.tr().td().attrColspan(columns.size());
+        Td<?> td = footer.tr().td().attrColspan((int) renderedColumnCount(ctx));
         final int count = ctx.data.totalCountWithFilter;
         td.text(count == 0 ? "No results." : format("Results %d-%d of %d.", from, to, count)).__();
         footer.__(); // div.table-footer
@@ -204,45 +305,47 @@ public class LCTable<T>  {
         nav.attrClass("toolbar");
 
         // « first
-        pageBtn(nav, "«", url(ctx.entityPath, 0, size, sort, dir, ctx.filters), panelId, page == 0);
+        pageBtn(nav, "«", url(ctx.entityPath, 0, size, sort, dir, ctx.filters, ctx.showHiddenCols, ctx.stickyParams), panelId, page == 0, tableName + "-nav-btn-first-page");
         // ‹ previous
-        pageBtn(nav, "‹", url(ctx.entityPath, max(0, page - 1), size, sort, dir, ctx.filters), panelId, page == 0);
+        pageBtn(nav, "‹", url(ctx.entityPath, max(0, page - 1), size, sort, dir, ctx.filters, ctx.showHiddenCols, ctx.stickyParams), panelId, page == 0, tableName + "-nav-btn-prev-page");
         // numbered slots / ellipsis
         for (LCTablePageSlot slot : ctx.slots) {
             if (slot.ellipsis()) {
                 nav.span().attrClass("page-ellipsis").text("…").__();
             } else {
-                String slotHref = url(ctx.entityPath, slot.page(), size, sort, dir, ctx.filters);
-                nav.a().attrClass("page-btn" + (slot.current() ? " current" : ""))
+                String slotHref = url(ctx.entityPath, slot.page(), size, sort, dir, ctx.filters, ctx.showHiddenCols, ctx.stickyParams);
+                nav.a().attrId(tableName + "-nav-btn-page-" + (slot.page() + 1))
+                    .attrClass("text-btn" + (slot.current() ? " current" : ""))
                     .attrHref(slotHref).of(hxGetAttrs(slotHref, NO_HX_INCLUDE, "#" + panelId, NO_HX_TRIGGER))
                     .text(String.valueOf(slot.page() + 1))
                     .__(); // a
             }
         }
         // › next
-        pageBtn(nav, "›", url(ctx.entityPath, min(total - 1, page + 1), size, sort, dir, ctx.filters), panelId, page >= total - 1);
+        pageBtn(nav, "›", url(ctx.entityPath, min(total - 1, page + 1), size, sort, dir, ctx.filters, ctx.showHiddenCols, ctx.stickyParams), panelId, page >= total - 1, tableName + "-nav-btn-next-page");
         // » last
-        pageBtn(nav, "»", url(ctx.entityPath, total - 1, size, sort, dir, ctx.filters), panelId, page >= total - 1);
+        pageBtn(nav, "»", url(ctx.entityPath, total - 1, size, sort, dir, ctx.filters, ctx.showHiddenCols, ctx.stickyParams), panelId, page >= total - 1, tableName + "-nav-btn-last-page");
 
         nav.__(); // nav.pagination
     }
 
     /** Writes a single pagination button into the given {@code nav} element. */
-    private void pageBtn(Nav<?> nav, String text, String href, String panelId, boolean disabled) {
-        nav.a().attrClass("page-btn" + (disabled ? " disabled" : ""))
+    private void pageBtn(Nav<?> nav, String text, String href, String panelId, boolean disabled, String id) {
+        nav.a().attrId(id).attrClass("text-btn" + (disabled ? " disabled" : ""))
             .attrHref(href).of(hxGetAttrs(href, NO_HX_INCLUDE, "#" + panelId, NO_HX_TRIGGER))
             .text(text)
             .__(); // a
     }
 
-    /** Builds the page-size selector (maxRows) and appends it into the provided div. */
-    private void buildMaxRowsSelector(Div<?> div, LCTableContext<T> ctx) {
+    /** Builds the {@code select} element for 'maxRows' and appends it into the provided div. */
+    private void buildSelectMaxRowsSelect(Div<?> div, LCTableContext<T> ctx) {
         if (HIDE_PAGINATION_TOOLS_FOR_SINGLE_PAGE_TABLE && ctx.totalPages <= 1) return;
-        div.attrClass("page-size");
-        div.label().text("Rows: ").__();
+        div.label().text("").__();    // replace "" by "Rows: " if you want to make explicit what the select element is for
         div.select()
+            .attrId(tableName + "-select-max-rows")
             .attrName(PARAM_MAX_ROWS)
-            .of(hxGetAttrs(ctx.entityPath, "#" + panelId + " input, #" + panelId + " select", "#" + panelId, "change"))
+            // Uses "closest form" to submit maxRows along with all other table-state fields.
+            .of(hxGetAttrs(ctx.entityPath, "closest form", "#" + panelId, "change"))
             .of(select -> {
                 for (int s : new int[]{15, 25, 50}) {
                     if (s == ctx.maxRows) {
@@ -259,37 +362,53 @@ public class LCTable<T>  {
      * (effectively removing the sort). Otherwise, include both sortProp and sortDir.
      */
     private String urlForSort(String path, LCTableContext<T> ctx, String columnName, String sortDir) {
-        UriComponentsBuilder builder = UriComponentsBuilder.fromPath(path)
-            .queryParam(PARAM_PAGE, 1)  // reset to page 1 when sorting changes
-            .queryParam(PARAM_MAX_ROWS, ctx.maxRows);
-        if (sortDir != null) {
-            builder.queryParam(PARAM_SORT_PROP, columnName);
+        // The page is reset to 1 (index 0) whenever sorting changes. No need to null out columnName
+        // ourselves when sortDir is null: url() already treats sortProp/sortDir as an atomic pair
+        // and omits both unless both are present.
+        return url(path, 0, ctx.maxRows, columnName, sortDir, ctx.filters, ctx.showHiddenCols, ctx.stickyParams);
+    }
+
+    /**
+     * Build the URL for the "Show More" / "Hide" toggle button that reveals or conceals HIDDEN columns.
+     * Preserves all current table-state parameters (page, maxRows, sort, filters) and simply flips
+     * the {@link LCTableContext#showHiddenCols} flag (omitted from the URL when turned off).
+     */
+    private String urlForShowHiddenColsToggle(LCTableContext<T> ctx) {
+        return url(ctx.entityPath, ctx.page, ctx.maxRows, ctx.sortProp, ctx.sortDir, ctx.filters, !ctx.showHiddenCols, ctx.stickyParams);
+    }
+
+    /**
+     * Builds a complete URL with all table-state parameters.
+     * Omits null/empty parameters to keep URLs clean. Sticky parameters are listed first.
+     * {@code page} is converted from 0-based (internal representation) to 1-based (URL representation).
+     */
+    private String url(String path, int page, int maxRows, String sortProp, String sortDir, Map<String, String> filters, boolean showHiddenCols,
+            Map<String, String> stickyParams) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromPath(path);
+        if (stickyParams != null) {
+            stickyParams.forEach((key, val) -> addParamIfPresent(builder, key, val));
+        }
+        builder.queryParam(PARAM_PAGE, page + 1)
+            .queryParam(PARAM_MAX_ROWS, maxRows);
+        if (sortProp != null && !sortProp.isEmpty() && sortDir != null && !sortDir.isEmpty()) {
+            builder.queryParam(PARAM_SORT_PROP, sortProp);
             builder.queryParam(PARAM_SORT_DIR, sortDir);
         }
-        if (ctx.filters != null) {
-            ctx.filters.forEach((key, val) -> {
-                if (val != null && !val.isEmpty()) builder.queryParam(PARAM_FILTER_PREFIX + key, val);
-            });
+        if (filters != null) {
+            filters.forEach((key, val) -> addParamIfPresent(builder, PARAM_FILTER_PREFIX + key, val));
+        }
+        if (showHiddenCols) {
+            builder.queryParam(PARAM_SHOW_HIDDEN_COLS, "true");
         }
         return builder.encode().toUriString();
     }
 
-    /**
-     * Build an application URL with all table-state parameters.
-     * Filter parameters are URL-encoded and appended as <PARAM_FILTER_PREFIX>.<columnName>=value.
-     */
-    private String url(String path, int page, int maxRows, String sortProp, String sortDir, Map<String, String> filters) {
-        UriComponentsBuilder builder = UriComponentsBuilder.fromPath(path)
-            .queryParam(PARAM_PAGE, page + 1)
-            .queryParam(PARAM_MAX_ROWS, maxRows)
-            .queryParam(PARAM_SORT_PROP, sortProp == null ? "" : sortProp)
-            .queryParam(PARAM_SORT_DIR, sortDir == null ? "asc" : sortDir);
-        if (filters != null) {
-            filters.forEach((key, val) -> {
-                if (val != null && !val.isEmpty()) builder.queryParam(PARAM_FILTER_PREFIX + key, val);
-            });
+
+    /** Adds {@code key=val} to {@code builder} unless {@code val} is null or empty, to avoid emitting ugly/redundant empty query parameters. */
+    private static void addParamIfPresent(UriComponentsBuilder builder, String key, String val) {
+        if (val != null && !val.isEmpty()) {
+            builder.queryParam(key, val);
         }
-        return builder.encode().toUriString();
     }
 
 }
