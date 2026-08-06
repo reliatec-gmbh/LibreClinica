@@ -48,36 +48,6 @@
     }
 </script>
 
- <c:if test="${moduleManager!= '' && moduleManager!= null}">
-
-      <script type="text/javascript">
-        jQuery(document).ready(function() {
-            jQuery('#requestRandomizationAccess').click(function() {
-                jQuery.blockUI({ message: jQuery('#requestRandomizationForm'), css:{left: "300px", top:"10px" } });
-            });
-
-            jQuery('#cancelRandomizationAccessRequest').click(function() {
-                jQuery.unblockUI();
-                $('#randomizationWarnings').empty();
-            });
-            // If there are warnings, we failed in a previous submission and should display the warnings on the popup window.
-            var warnings = "${regMessages}";
-            if (warnings.length > 0) {
-            	jQuery.blockUI({ message: jQuery('#requestRandomizationForm'), css:{left: "300px", top:"10px" } });
-            }
-        });
-
-        // Hide the popup window if the escape key is pressed
-        jQuery(document).keyup(function(keyPressed) {
-            if(keyPressed.keyCode === 27) {
-                $('#randomizationWarnings').empty();
-                jQuery.unblockUI();
-            }
-        });
-    </script>
-</c:if>
-
-
 <c:if test="${portalURL!= '' && portalURL!= null}">
     <script type="text/javascript">
         jQuery(document).ready(function() {
@@ -577,14 +547,17 @@
           </c:if>
 
          <c:if test="${moduleManager!= '' && moduleManager!= null}">
+          <%-- StudyModuleController reports NOTFOUND when the randomization module could not be reached
+               or does not know this study; that must not look like a study that is switched off. --%>
+          <c:set var="randomizationModuleFound" value="${!empty randomizationStatus && randomizationStatus != 'NOTFOUND'}"/>
           <tbody>
               <tr>
                   <td>&nbsp;</td>
                   <td><fmt:message key="randomization" bundle="${resword}"/></td>
                   <td>
                       <c:choose>
+                          <c:when test="${!randomizationModuleFound}"><span id="randomizationStatus"><fmt:message key="randomization_status_notfound" bundle="${resword}"/></span></c:when>
                           <c:when test="${randomizationOCStatus == 'disabled'}"><span id="randomizationStatus" class="randomization-inactive-status"><fmt:message key="randomization_status_deactivated" bundle="${resword}"/></span></c:when>
-                          <c:when test="${empty randomizationStatus}"><span id="randomizationStatus" class="randomization-inactive-status"><fmt:message key="randomization_status_deactivated" bundle="${resword}"/></span></c:when>
                           <c:when test="${randomizationStatus == 'PENDING'}"><span id="randomizationStatus"><fmt:message key="randomization_status_pending" bundle="${resword}"/></span></c:when>
                           <c:when test="${randomizationStatus == 'ACTIVE'}"><span id="randomizationStatus" class="randomization-active-status"><fmt:message key="randomization_status_active" bundle="${resword}"/></span></c:when>
                           <c:when test="${randomizationStatus == 'INACTIVE'}"><span id="randomizationStatus" class="randomization-inactive-status"><fmt:message key="randomization_status_inactive" bundle="${resword}"/></span></c:when>
@@ -592,21 +565,22 @@
                   </td>
                   <td>
                     <span id="randomizeURL">
-                              <a href="<c:url value="${randomizeURL}"/>" target="_blank">${randomizeURL}</a>
+                          <c:choose>
+                              <c:when test="${!empty randomizeURL}"><a href="<c:url value="${randomizeURL}"/>" target="_blank">${randomizeURL}</a></c:when>
+                              <c:otherwise>&nbsp;</c:otherwise>
+                          </c:choose>
                     </span>
                   </td>
                   <td>
                       <c:url var="reactivateRandomization" value="studymodule/${currentStudy.oid}/reactivaterandomization"/>
                       <c:url var="deactivateRandomization" value="studymodule/${currentStudy.oid}/deactivaterandomization"/>
                       <c:choose>
-                          <c:when test="${randomizationOCStatus == 'disabled' && !empty randomizationStatus}">
+                          <c:when test="${randomizationOCStatus == 'disabled' && randomizationModuleFound}">
                               <a href="${reactivateRandomization}" id="reactivateRandomizationAccess"><img src="../images/create_new.gif" border="0" alt="<fmt:message key="enable" bundle="${resword}"/>" title="<fmt:message key="enable" bundle="${resword}"/>"/></a>
                           </c:when>
                           <c:when test="${randomizationOCStatus == 'disabled'}">
-                              <a href="javascript:;" id="requestRandomizationAccess"><img src="../images/create_new.gif" border="0" alt="<fmt:message key="enable" bundle="${resword}"/>" title="<fmt:message key="enable" bundle="${resword}"/>"/></a>
-                          </c:when>
-                          <c:when test="${randomizationOCStatus == 'enabled' && empty randomizationStatus}">
-                              <a href="javascript:;" id="requestRandomizationAccess" ><img src="../images/create_new.gif" border="0" alt="<fmt:message key="enable" bundle="${resword}"/>" title="<fmt:message key="enable" bundle="${resword}"/>"/></a>
+                              <%-- the module does not know this study, so there is nothing to enable --%>
+                              &nbsp;
                           </c:when>
                           <c:otherwise>
                               <a href="${deactivateRandomization}" id="removeRandomizeAccess"><img src="../images/bt_Remove.gif" border="0" alt="<fmt:message key="disable" bundle="${resword}"/>" title="<fmt:message key="disable" bundle="${resword}"/>"/></a>
@@ -669,20 +643,6 @@
             </c:if>
             <input type="submit" id="submitParticipateAccessRequest" class="button_medium" value="Request Access"/>
             <input type="button" id="cancelParticipateAccessRequest" class="button" value="Cancel"/>
-        </form>
-    </div>
-</c:if>
-
- <c:if test="${moduleManager!= '' && moduleManager!= null}">
-    <div id="requestRandomizationForm" class="randomization-registration-div">
-        <form action="studymodule/${currentStudy.oid}/randomize" method="post">
-            <h1>
-                <fmt:message key="randomization_reg_title" bundle="${resword}"/>
-            </h1>
-            <p class="randomization-text"><fmt:message key="randomization_reg_instructions_part1" bundle="${resword}"/></p>
-            <br>
-            <input type="submit" id="submitRandomizationAccessRequest" class="button_medium" value="Request Access"/>
-            <input type="button" id="cancelRandomizationAccessRequest" class="button" value="Cancel"/>
         </form>
     </div>
 </c:if>

@@ -42,6 +42,8 @@ import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
 import org.akaza.openclinica.service.pmanage.Authorization;
 import org.akaza.openclinica.service.pmanage.ParticipantPortalRegistrar;
+import org.akaza.openclinica.service.pmanage.RandomizationRegistrar;
+import org.akaza.openclinica.service.pmanage.SeRandomizationDTO;
 import org.akaza.openclinica.service.rule.RuleSetServiceInterface;
 import org.akaza.openclinica.view.StudyInfoPanel;
 import org.apache.commons.dbcp.BasicDataSource;
@@ -91,6 +93,13 @@ public class StudyModuleController {
     private UserAccountDAO userDao;
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
     public static final String REG_MESSAGE = "regMessages";
+    /**
+     * Randomization status reported to studymodule.jsp when the external module could not be
+     * reached, or does not know this study. It is deliberately different from an empty status,
+     * which the page renders as "Disabled" - a study that is switched off and a module that is
+     * unreachable need to be distinguishable.
+     */
+    public static final String RANDOMIZATION_STATUS_NOT_FOUND = "NOTFOUND";
     public static ResourceBundle respage;
     @Autowired
     CoreResources coreResources;
@@ -382,7 +391,37 @@ public class StudyModuleController {
 
             String randomizationStatus = "";
             URL randomizeUrl = null;
-            
+            // Read the status and the URL the external module reports for this study. The Build
+            // Study page needs them to decide whether randomization can be enabled: without a
+            // status it always renders "Disabled" and the Enable action that writes the
+            // "randomization" study parameter is never offered, so the RANDOMIZE rule action can
+            // never pass its activation gate.
+            // moduleManager is known to be configured here (see the enclosing if), and when it is
+            // not configured this whole block - and the randomization row of the page - is skipped.
+            // A null response, or one without a status, therefore means the module could not be
+            // reached or does not know this study; that is reported as
+            // RANDOMIZATION_STATUS_NOT_FOUND rather than left empty.
+            try {
+                RandomizationRegistrar randomizationRegistrar = new RandomizationRegistrar();
+                SeRandomizationDTO randomization = randomizationRegistrar.getCachedRandomizationDTOObject(currentStudy.getOid(), true);
+                if (randomization != null && randomization.getStatus() != null) {
+                    randomizationStatus = randomization.getStatus();
+                    if (randomization.getUrl() != null) {
+                        randomizeUrl = new URL(randomization.getUrl());
+                    }
+                }
+            } catch (MalformedURLException e) {
+                logger.error("Randomization module reported a malformed URL for study {}: {}", currentStudy.getOid(), e.getMessage());
+                logger.error(ExceptionUtils.getStackTrace(e));
+            } catch (Exception e) {
+                logger.error("Could not read the randomization configuration of study {} from {}: {}", currentStudy.getOid(), moduleManager,
+                        e.getMessage());
+                logger.error(ExceptionUtils.getStackTrace(e));
+            }
+            if (randomizationStatus.equals("")) {
+                randomizationStatus = RANDOMIZATION_STATUS_NOT_FOUND;
+            }
+
             map.addAttribute("randomizeURL", randomizeUrl);
             map.addAttribute("randomizationOCStatus", randomizationOCStatus);
             map.addAttribute("randomizationStatus", randomizationStatus);

@@ -26,14 +26,22 @@ to reverse-engineer them from the code.
 
 There are **two distinct bases** and they are not the same host in general:
 
-1. **`moduleManager`** — used for the per-study *configuration* and *study
-   registration* calls (`/app/rest/oc/se_randomizations`).
+1. **`moduleManager`** — used for the per-study *configuration* call
+   (`/app/rest/oc/se_randomizations`).
 2. **`config.url`** — the value returned in the `url` field of the
    configuration response; used for the per-subject *randomisation* calls
    (`/api/...`). These calls use **HTTP Basic authentication** with the
    `username` / `password` from the configuration response.
 
 ## Endpoints
+
+**Studies are registered in the module, not from LibreClinica.** LibreClinica
+never creates or registers a study in the module and calls no registration
+endpoint: which studies may be randomised, by which method, with which arms,
+whether the trial is blinded, and who is allowed to see an allocation are
+decisions that need authorisation and clinical design, and they are made in the
+module's own administration. LibreClinica only reads the resulting
+configuration (endpoint 1) and asks for allocations (endpoints 2 to 4).
 
 ### 1. Get study configuration — `GET {moduleManager}/app/rest/oc/se_randomizations`
 
@@ -55,14 +63,7 @@ Returns a `SeRandomizationDTO` (JSON). Relevant fields LibreClinica reads:
 
 The configuration is cached per study.
 
-### 2. Register a study — `POST {moduleManager}/app/rest/oc/se_randomizations`
-
-Request body (`SeRandomizationDTO`, JSON): `studyOid`, `instanceUrl`,
-`ocUser_username`, `ocUser_name`, `ocUser_lastname`, `ocUser_emailAddress`,
-`studyName`, `openClinicaVersion`. Response: a `SeRandomizationDTO` whose
-`status` reports the registration result.
-
-### 3. Look up an existing allocation — `GET {config.url}/api/randomisation`
+### 2. Look up an existing allocation — `GET {config.url}/api/randomisation`
 
 Auth: Basic. Query parameter:
 
@@ -75,7 +76,7 @@ If the subject is already randomised, return a JSON object containing a
 `code`-bearing JSON object (e.g. `404`); LibreClinica then proceeds to
 register the site and randomise.
 
-### 4. Register / update a site — `POST {config.url}/api/sites`
+### 3. Register / update a site — `POST {config.url}/api/sites`
 
 Auth: Basic. Content type: `application/x-www-form-urlencoded`.
 
@@ -85,7 +86,7 @@ Auth: Basic. Content type: `application/x-www-form-urlencoded`.
 | `name` | Study name |
 | `timezone` | Server default timezone (IANA id) |
 
-### 5. Randomise a subject — `POST {config.url}/api/randomise`
+### 4. Randomise a subject — `POST {config.url}/api/randomise`
 
 Auth: Basic. Content type: `application/x-www-form-urlencoded`.
 

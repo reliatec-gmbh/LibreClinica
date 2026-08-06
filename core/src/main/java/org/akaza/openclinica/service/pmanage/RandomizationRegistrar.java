@@ -25,6 +25,14 @@
  *     plus a null-guard for moduleManager to prevent NPE.
  *   - getCachedRandomizationDTOObject: added null-guard for
  *     seRandomizationDTO to prevent NPE.
+ *   - sendEmail() and randomizeStudy() were not ported: a study is registered
+ *     in the randomization module's own administration, not from LibreClinica,
+ *     so neither had a caller.
+ *   - added a connect timeout next to the existing read timeout, and turned off
+ *     the automatic retries of the underlying HttpClient, so that the Build
+ *     Study page still renders when the module is unreachable. Without the
+ *     second part the default retry handler repeats the request three times
+ *     and the page waits for four connect timeouts instead of one.
  *
  * License selection:
  *   The OpenClinica original was licensed under LGPL v2.1 or later.
@@ -34,27 +42,18 @@
  */
 package org.akaza.openclinica.service.pmanage;
 
-import java.util.Date;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
-
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
-import org.akaza.openclinica.bean.login.UserAccountBean;
-import org.akaza.openclinica.core.EmailEngine;
 import org.akaza.openclinica.dao.core.CoreResources;
-import org.akaza.openclinica.exception.OpenClinicaSystemException;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 // Modified: CommonsClientHttpRequestFactory (Spring 3 / commons-httpclient 3.x) replaced with
 //           HttpComponentsClientHttpRequestFactory (Spring 5 / httpclient 4.5.7)
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.mail.MailException;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.web.client.RestTemplate;
 
 public class RandomizationRegistrar {
@@ -65,6 +64,7 @@ public class RandomizationRegistrar {
     public static final String INVALID = "invalid";
     public static final String UNKNOWN = "unknown";
     public static final int RANDOMIZATION_READ_TIMEOUT = 5000;
+    public static final int RANDOMIZATION_CONNECT_TIMEOUT = 5000;
     private static final String CACHE_KEY = "randomizeObject";
     private CacheManager cacheManager;
     private net.sf.ehcache.Cache cache;
@@ -95,9 +95,16 @@ public class RandomizationRegistrar {
         }
         String ocUrl = sysUrlBase + "rest2/openrosa/" + studyOid;
         String randomizationUrl = moduleManager + "/app/rest/oc/se_randomizations?studyoid=" + studyOid + "&instanceurl=" + ocUrl;
-        // Modified: use HttpComponentsClientHttpRequestFactory instead of CommonsClientHttpRequestFactory
-        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+        // Modified: use HttpComponentsClientHttpRequestFactory instead of CommonsClientHttpRequestFactory.
+        // The client is built here rather than taken from the factory default because the default one
+        // retries a failed request three times, so an unreachable module would cost four connect
+        // timeouts. useSystemProperties() keeps the rest of the default client's behaviour.
+        CloseableHttpClient httpClient = HttpClients.custom().useSystemProperties().disableAutomaticRetries().build();
+        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
         requestFactory.setReadTimeout(RANDOMIZATION_READ_TIMEOUT);
+        // Modified: without a connect timeout an unreachable module blocks the Build Study page
+        // until the operating system gives up on the TCP connection.
+        requestFactory.setConnectTimeout(RANDOMIZATION_CONNECT_TIMEOUT);
         RestTemplate rest = new RestTemplate(requestFactory);
 
         try {
@@ -139,52 +146,5 @@ public class RandomizationRegistrar {
             cache.put(new Element(mapKey, seRandomizationDTO));
         }
         return seRandomizationDTO;
-    }
-
-    public void sendEmail(JavaMailSenderImpl mailSender, UserAccountBean user, String emailSubject, String message) throws OpenClinicaSystemException {
-        logger.info("Sending email...");
-        try {
-            MimeMessage mimeMessage = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage);
-            helper.setFrom(EmailEngine.getAdminEmail());
-            helper.setTo(user.getEmail());
-            helper.setSubject(emailSubject);
-            helper.setText(message);
-            mailSender.send(mimeMessage);
-            logger.debug("Email sent successfully on {}", new Date());
-        } catch (MailException me) {
-            logger.error("Email could not be sent");
-        } catch (MessagingException me) {
-            logger.error("Email could not be sent");
-        }
-    }
-
-    public String randomizeStudy(String studyOid, String studyName, UserAccountBean userAccount) {
-        String ocUrl = CoreResources.getField("sysURL.base") + "rest2/openrosa/" + studyOid;
-        String randomizationUrl = CoreResources.getField("moduleManager") + "/app/rest/oc/se_randomizations";
-        SeRandomizationDTO seRandomizationDTO = new SeRandomizationDTO();
-        seRandomizationDTO.setStudyOid(studyOid);
-        seRandomizationDTO.setInstanceUrl(ocUrl);
-        seRandomizationDTO.setOcUser_username(userAccount.getName());
-        seRandomizationDTO.setOcUser_name(userAccount.getFirstName());
-        seRandomizationDTO.setOcUser_lastname(userAccount.getLastName());
-        seRandomizationDTO.setOcUser_emailAddress(userAccount.getEmail());
-        seRandomizationDTO.setStudyName(studyName);
-        seRandomizationDTO.setOpenClinicaVersion(CoreResources.getField("OpenClinica.version"));
-
-        // Modified: use HttpComponentsClientHttpRequestFactory
-        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
-        requestFactory.setReadTimeout(RANDOMIZATION_READ_TIMEOUT);
-        RestTemplate rest = new RestTemplate(requestFactory);
-
-        try {
-            SeRandomizationDTO response = rest.postForObject(randomizationUrl, seRandomizationDTO, SeRandomizationDTO.class);
-            if (response != null && response.getStatus() != null)
-                return response.getStatus();
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            logger.error(ExceptionUtils.getStackTrace(e));
-        }
-        return "";
     }
 }

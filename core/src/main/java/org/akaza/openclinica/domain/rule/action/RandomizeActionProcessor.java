@@ -19,6 +19,10 @@
  *   - Ported from OpenClinica v3.x; date: 2026-03-11 - 2026-03-12.
  *   - Source content compatible as-is with LibreClinica
  *     (OpenClinica source does not reference SAVE_AND_GO_NEXT).
+ *   - mayProceed: compare the study and site status with Status.AVAILABLE
+ *     instead of comparing Term.getName() with the English literal
+ *     "available". getName() returns the translated term, so the gate never
+ *     opened on a non-English UI locale and the action did nothing.
  *
  * License selection:
  *   The OpenClinica original was licensed under LGPL v2.1 or later.
@@ -136,12 +140,17 @@ public class RandomizeActionProcessor implements ActionProcessor {
         String randomizationStatusFromOCUI = seRandomizationDTO.getStatus();
 
         String randomizationStatusFromOC = pStatus.getValue().toString();
-        String studyStatus = study.getStatus().getName().toString();
-        String siteStatus = siteStudy.getStatus().getName().toString();
-        logger.info("randomizationStatusFromOCUI: {}  randomizationStatusFromOC: {}  studyStatus: {}  siteStatus: {}",
-                randomizationStatusFromOCUI, randomizationStatusFromOC, studyStatus, siteStatus);
-        if (randomizationStatusFromOC.equalsIgnoreCase("enabled") && studyStatus.equalsIgnoreCase("available")
-                && siteStatus.equalsIgnoreCase("available") && randomizationStatusFromOCUI.equalsIgnoreCase("ACTIVE")) {
+        // Modified: Term.getName() resolves the term through the terms resource bundle, so it
+        // returns the *translated* name. Comparing it with the English literal "available" made
+        // this gate fail for every non-English UI locale, and the action then did nothing without
+        // raising anything. The study parameter and the module status are raw values and stay as
+        // they are; only the two status checks compare the status itself.
+        boolean studyAvailable = Status.AVAILABLE.equals(study.getStatus());
+        boolean siteAvailable = Status.AVAILABLE.equals(siteStudy.getStatus());
+        logger.info("randomizationStatusFromOCUI: {}  randomizationStatusFromOC: {}  studyAvailable: {}  siteAvailable: {}",
+                randomizationStatusFromOCUI, randomizationStatusFromOC, studyAvailable, siteAvailable);
+        if (randomizationStatusFromOC.equalsIgnoreCase("enabled") && studyAvailable && siteAvailable
+                && randomizationStatusFromOCUI.equalsIgnoreCase("ACTIVE")) {
             accessPermission = true;
         }
         return accessPermission;
