@@ -18,14 +18,7 @@ import java.util.stream.Collectors;
 import java.util.Arrays;
 import java.util.Collections;
 
-/**
- * Immutable view-context passed to every lctable entity builder.
- *
- * <p>Holds all pagination / filter state that the shared fragments
- * (controls-bar, sort-th, table-footer) and the entity-specific builders need.
- *
- * @since 9
- */
+/** Immutable view-context holding pagination/sorting/filtering state and current page data. */
 public final class LCTableContext<T> {
 
     // parameters (from the request URL)
@@ -34,6 +27,10 @@ public final class LCTableContext<T> {
     public final String sortProp;
     public final String sortDir;
     public final Map<String, String> filters;
+    public final boolean showHiddenCols;
+
+    /** Current values of this table's "sticky" parameters -- see {@link LCTable#stickyParamNames}. */
+    public final Map<String, String> stickyParams;
 
     // paths (derived from the request URL)
     public final String entityPath;
@@ -55,6 +52,8 @@ public final class LCTableContext<T> {
         this.sortProp = params.sortProp;
         this.sortDir = params.sortDir;
         this.filters = params.filters;
+        this.showHiddenCols = params.showHiddenCols;
+        this.stickyParams = params.stickyParams;
         this.data = fetchData.apply(params);
 
         this.entityPath = entityPath;

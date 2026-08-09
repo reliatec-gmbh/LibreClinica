@@ -11,6 +11,7 @@
 package org.akaza.openclinica.lctable;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +21,10 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.UriUtils;
 
-
+/**
+ * An {@code LCTableParams} object is an immutable object holding the URL parameters of a request
+ * to an {@link LCTable} (pagination, sorting, filtering, etc.).
+ */
 public final class LCTableParams {
 
     // -- URL parameter names --------------------------------------------------
@@ -28,6 +32,7 @@ public final class LCTableParams {
     public static final String PARAM_MAX_ROWS = "maxRows";
     public static final String PARAM_SORT_PROP = "sortProp";
     public static final String PARAM_SORT_DIR = "sortDir";
+    public static final String PARAM_SHOW_HIDDEN_COLS = "showHiddenCols";
     public static final String PARAM_FILTER_PREFIX = "q.";
 
     // --- URL parameters -------------------------------------------------------
@@ -36,27 +41,35 @@ public final class LCTableParams {
     public final String sortProp;
     public final String sortDir;
     public final Map<String, String> filters;
+    public final boolean showHiddenCols;
+
+    /** Explicitly whitelisted "sticky" parameters from incoming request (see {@link LCTable#stickyParamNames}). */
+    public final Map<String, String> stickyParams;
 
     // --- it needs to be package-private for unit-testing, should not be called by regular users of the library ---
     LCTableParams(int page, int maxRows, String sortProp, String sortDir, Map<String, String> filters) {
+        this(page, maxRows, sortProp, sortDir, filters, false, Collections.emptyMap());
+    }
+
+    // --- it needs to be package-private for unit-testing, should not be called by regular users of the library ---
+    LCTableParams(int page, int maxRows, String sortProp, String sortDir, Map<String, String> filters, boolean showHiddenCols) {
+        this(page, maxRows, sortProp, sortDir, filters, showHiddenCols, Collections.emptyMap());
+    }
+
+    // --- it needs to be package-private for unit-testing, should not be called by regular users of the library ---
+    LCTableParams(int page, int maxRows, String sortProp, String sortDir, Map<String, String> filters, boolean showHiddenCols,
+            Map<String, String> stickyParams) {
         this.page = page;
         this.maxRows = maxRows;
         this.sortProp = sortProp;
         this.sortDir = sortDir;
         this.filters = filters;
+        this.showHiddenCols = showHiddenCols;
+        this.stickyParams = stickyParams == null ? Collections.emptyMap() : stickyParams;
     }
 
     /**
-     * Construct a LcTableParams object by reading request parameters from a Spring MultiValueMap
-     * (as provided by a controller with {@code @RequestParam MultiValueMap<String,String> allParams}).
-     * The helper methods intParam, strParam and readFilters are used to parse and normalise the parameter values.
-     *
-     * <p><b>Important:</b> the values in {@code params} are expected to be already URL-decoded, as
-     * they normally are when the map is populated by Spring MVC from an incoming request
-     * (e.g. via {@code @RequestParam MultiValueMap<String, String>}). Neither this constructor nor
-     * {@link #readFilters(MultiValueMap, List)} performs any decoding of parameter values.
-     * Decoding an already-decoded value again would corrupt any value containing a literal {@code %}
-     * would throw an {@code IllegalArgumentException} on a second decode attempt.
+     * Constructs an {@link LCTableParams} object from a Spring {@link org.springframework.util.MultiValueMap}. Expects values to already be URL-decoded.
      */
     public LCTableParams(MultiValueMap<String, String> params, LCTable<?> table) {
         this.page = Math.max(intParam(params, PARAM_PAGE, 1) - 1, 0);
@@ -65,28 +78,20 @@ public final class LCTableParams {
         this.sortProp = strParam(params, PARAM_SORT_PROP, "");
         this.sortDir  = strParam(params, PARAM_SORT_DIR, "asc");
         this.filters  = readFilters(params, table.getColumnNames());
+        this.showHiddenCols = boolParam(params, PARAM_SHOW_HIDDEN_COLS);
+        this.stickyParams = readStickyParams(params, table.getStickyParamNames());
     }
 
     /**
-     * Construct a LcTableParams object by reading request parameters from a legacy servlet query string
-     * as returned by {@code HttpServletRequest.getQueryString()}
+     * Constructs an {@link LCTableParams} object <b>from a raw, URL-encoded query string</b> {@code queryString}, decoding values explicitly before mapping.<br><br>
+     * Typically, {@code queryString} is the value returned by {@link javax.servlet.http.HttpServletRequest#getQueryString()},
+     * which is <b>not</b> decoded by the servlet container.<br><br>Passing an already-decoded string to this constructor could cause
+     * a "double decoding" issue, possibly resulting in an {@code IllegalArgumentException} (e.g. for values containing a literal {@code %}).
      *
-     * <p><b>Precondition:</b> {@code queryString} must be the raw, still URL-encoded query string exactly
-     * as it appears on the wire, e.g. the value returned by {@link javax.servlet.http.HttpServletRequest#getQueryString()},
-     * which is <b>not</b> decoded by the servlet container. This constructor:<br>
-     * 1. parses the {@code queryString} with {@link UriComponentsBuilder#fromUriString(String)},
-     * which does not decode query parameter values,<br>
-     * 2. then explicitly URL-decodes all parameter values before delegating to {@link #LCTableParams(MultiValueMap, LCTable)},
-     * which in turn expects to receive already-decoded values (see its Javadoc).
-     * <p>Passing an already-decoded string here would cause the decoding step to run against decoded input, which
-     * throws an {@code IllegalArgumentException} for any value containing a literal {@code %}.
-     *
-     * @param queryString the query string from the request
-     * @param table the {@link LCTable} instance (used in {@link LCTableParams} to get the list of allowed filter keys)
+     * @param queryString the raw query string from the request
+     * @param table the {@link LCTable} instance
      */
     public LCTableParams(String queryString, LCTable<?> table) {
-        // .build().encode() would double-encode; instead decode explicitly here,
-        // at the one place that's actually receiving a raw/encoded map.
         this(decodeQueryParams(UriComponentsBuilder.fromUriString("?" + (queryString == null ? "" : queryString))
             .build().getQueryParams()), table);
     }
@@ -99,14 +104,9 @@ public final class LCTableParams {
     }
 
     /**
-     * Reads all filter request parameters starting with {@value #PARAM_FILTER_PREFIX}.
-     *
-     * <p><b>Important:</b> values are copied as-is and are <b>not</b> URL-decoded by this method.
-     * Callers must ensure {@code params} already contains decoded values — this is the case for a
-     * {@code MultiValueMap} populated by Spring MVC from an incoming request, but not for one built
-     * directly from a raw query string. Decoding here would risk double-decoding values that were
-     * already decoded upstream, which throws {@code IllegalArgumentException} for any value
-     * containing a literal {@code %} (e.g. {@code "100%"}).
+     * Extracts from {@code params} all filter parameters, i.e. those starting with {@value #PARAM_FILTER_PREFIX}.<br><br>
+     * Values are copied as-is and are <b>not</b> URL-decoded by this method.
+     * Therefore, they must already be URL-decoded by the caller.
      */
     public static Map<String, String> readFilters(MultiValueMap<String, String> params, List<String> allowedKeys) {
         Map<String, String> filters = new LinkedHashMap<>();
@@ -122,6 +122,25 @@ public final class LCTableParams {
             });
         }
         return filters;
+    }
+
+    /**
+     * Extracts from {@code params} the explicitly whitelisted "sticky" parameters (see {@link LCTable#stickyParamNames}),
+     * omitting any such parameters that are absent or blank.<br><br>
+     * Values are copied as-is and are <b>not</b> URL-decoded by this method.
+     * Therefore, they must already be URL-decoded by the caller.
+     */
+    public static Map<String, String> readStickyParams(MultiValueMap<String, String> params, List<String> stickyParamNames) {
+        Map<String, String> stickyParams = new LinkedHashMap<>();
+        if (params != null && stickyParamNames != null) {
+            for (String name : stickyParamNames) {
+                String value = params.getFirst(name);
+                if (value != null && !value.isEmpty()) {
+                    stickyParams.put(name, value);
+                }
+            }
+        }
+        return stickyParams;
     }
 
     /**
@@ -147,13 +166,24 @@ public final class LCTableParams {
         return v == null ? defaultValue : v;
     }
 
+    /**
+     * Reads a boolean request parameter, returning true if the parameter is present and
+     * equals "true" (case-insensitive), or false otherwise.
+     */
+    public static boolean boolParam(MultiValueMap<String, String> params, String name) {
+        String v = params == null ? null : params.getFirst(name);
+        return v != null && v.trim().equalsIgnoreCase("true");
+    }
+
 
     public String toString() {
         return "LcTableParams[page=" + page
             + ", maxRows=" + maxRows
             + ", sortProp=" + sortProp
             + ", sortDir=" + sortDir
-            + ", filters=" + filters + "]";
+            + ", filters=" + filters
+            + ", showHiddenCols=" + showHiddenCols
+            + ", stickyParams=" + stickyParams + "]";
     }
 
 }

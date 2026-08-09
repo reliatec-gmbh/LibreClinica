@@ -10,11 +10,7 @@
  */
 package org.akaza.openclinica.lctable;
 
-/**
- * One slot in the pagination window used by the lctable renderer.
- *
- * <p>Immutable, but implemented as a plain class (not a record) for Java 11 compatibility.
- */
+/** A single pagination slot (page number or ellipsis). */
 public final class LCTablePageSlot {
 
 	private final int page;

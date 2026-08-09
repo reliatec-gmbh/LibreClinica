@@ -14,7 +14,7 @@ import static org.akaza.openclinica.lctable.LCTable.*;
 
 import org.xmlet.htmlapifaster.CustomAttributeGroup;
 import org.xmlet.htmlapifaster.Element;
-import org.xmlet.htmlapifaster.Td;
+import org.xmlet.htmlapifaster.FlowContent;
 
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -47,11 +47,11 @@ public class LCTableUtil {
             el.addAttr(HX_TARGET, hxTarget);
             el.addAttr("hx-select", hxTarget);
             if (ignoreActiveValue) {
-                // for incremental input filters and the like, where the user may continue typing
-                // while the request is in flight: do not replace value with the value from the response
+                // For incremental input filters and the like, where the user may continue typing while the request
+                // is in flight: 'ignoreActiveValue:true' prevents replacing the input with the value from the response
                 el.addAttr(HX_SWAP, "morph:{morphStyle:'outerHTML',ignoreActiveValue:true}");
             } else {
-                // other cases: replace the entire target element with the response (outerHTML)
+                // Other cases: replace the entire target element with the response (outerHTML)
                 el.addAttr(HX_SWAP, "outerHTML");
             }
             if (hxTrigger != null) el.addAttr(HX_TRIGGER, hxTrigger);
@@ -86,19 +86,38 @@ public class LCTableUtil {
 
     // --- generate HTML for various common elements ---
     /**
-     * Convenience helper to construct an icon with a link.
-     * Use like: td.of(LCTableUtil.iconLink("View", href, "images/bt_View.gif", "View"));
+     * Constructs an action link, optionally with a text label if {@code includeText} is true. If {@code includeText} is false, uses
+     * a custom {@code data-tooltip} (implemented in {@code lctable.js} and {@code lctable.css}) instead of the native {@code title} attribute
+     * (which can be flaky) to display the {@code altText}.
      *
-     * @param altTitle  title/alt text to put on the anchor (and used as title on the anchor)
-     * @param href      href for the anchor
-     * @param imgSrc    src for the inner img
-     * @param imgAlt    alt text for the inner img
+     * @param id          unique HTML element id or null if none
+     * @param altText     accessible name / tooltip text
+     * @param href        href for the anchor
+     * @param imgSrc      src (relative to "images/") for the inner img
+     * @param includeText if true, renders {@code altText} as a visible label; if false, icon-only with a tooltip
      */
-    public static <T extends Element<?, ?>> Consumer<Td<T>> linkIcon(String altTitle, String href, String imgSrc, String imgAlt) {
-        return td -> td
-            .a().attrHref(href).attrTitle(altTitle)
-            .img().attrSrc(imgSrc).attrAlt(imgAlt).__()
-            .__();  // close a()
+    public static <T extends Element<T, Z> & FlowContent<T, Z>, Z extends Element> Consumer<T> actionLink(
+            String id, String altText, SafeUrl href, String imgSrc, boolean includeText) {
+        return container -> {
+            var anchor = container.a().attrClass("action-link").attrHref(href.toUriString()).addAttr("aria-label", altText);
+            if (id != null) {
+                anchor = anchor.attrId(id);
+            }
+            if (!includeText) {
+                anchor = anchor.addAttr("data-tooltip", altText);
+            }
+            var a = anchor.img().attrSrc("images/" + imgSrc).attrAlt(altText).__();
+            if (includeText) {
+                a.text(" " + altText);
+            }
+            a.__();  // close a()
+        };
+    }
+
+    /** Icon-only variant of {@link #actionLink(String, String, SafeUrl, String, boolean)} (no visible text label). */
+    public static <T extends Element<T, Z> & FlowContent<T, Z>, Z extends Element> Consumer<T> actionLink(
+            String id, String altText, SafeUrl href, String imgSrc) {
+        return actionLink(id, altText, href, imgSrc, false);
     }
 
 }

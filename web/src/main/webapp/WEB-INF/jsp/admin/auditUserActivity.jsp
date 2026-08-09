@@ -80,11 +80,28 @@
 <jsp:useBean id="now" class="java.util.Date" />
 <P><I><fmt:message key="server_time_info" bundle="${resword}"/> <fmt:formatDate value="${now}" pattern="yyyy-MM-dd HH:mm"/>.</I></P>
 <div id="auditUserLoginDiv">
-    <form  action="${pageContext.request.contextPath}/AuditUserActivity">
-        <input type="hidden" name="module" value="admin">
-        <input type="hidden" name="crfId" value="${crf.id}">
-        ${auditUserLoginHtml}
-    </form>
+    <%-- IMPORTANT: the LCTable (HtmlFlow) rendering path renders its own <form> around the whole
+         table (see LCTable.renderTableHtml()) -- it must NOT also be wrapped in a <form> here, or
+         the browser will treat the two nested <form>s as a single merged form (nested <form>s are
+         invalid HTML; the inner start tag is simply dropped by the parser), causing any hidden
+         input declared in *this* JSP (e.g. hardcoded "module"/"crfId") to collide with LCTable's
+         own same-named hidden inputs (e.g. a sticky parameter of the same name) once both are
+         serialized together by HTMX's "closest form" -- see LCTable's class-level javadoc for
+         details, and see the analogous fix in managestudy/findSubjects.jsp.
+         Only the legacy JMesa rendering path (native form-based pagination/sort/filter resubmission,
+         via createHiddenInputFieldsForLimitAndSubmit()) actually needs a surrounding <form>. --%>
+    <c:choose>
+        <c:when test="${tableRenderingMode == 'jmesa'}">
+            <form  action="${pageContext.request.contextPath}/AuditUserActivity">
+                <input type="hidden" name="module" value="admin">
+                <input type="hidden" name="crfId" value="${crf.id}">
+                ${auditUserLoginHtml}
+            </form>
+        </c:when>
+        <c:otherwise>
+            ${auditUserLoginHtml}
+        </c:otherwise>
+    </c:choose>
 </div>
 
 
@@ -92,6 +109,6 @@
 <input type="button" onclick="confirmExit('ListUserAccounts');"  name="exit" value="<fmt:message key="exit" bundle="${resword}"/>   " class="button_medium"/>
 
 <!-- Include everything that is needed for proper use of HTMX with LCTable -->
-<jsp:include page="../include/useHtmx.jsp"/>
+<jsp:include page="../include/useLCTable.jsp"/>
 
 <jsp:include page="../include/footer.jsp"/>
