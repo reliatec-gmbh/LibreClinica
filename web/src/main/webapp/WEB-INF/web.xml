@@ -2256,10 +2256,21 @@
     <servlet>
         <servlet-name>OpenClinicaJersey2</servlet-name>
         <servlet-class>com.sun.jersey.spi.spring.container.servlet.SpringServlet</servlet-class>
+        <!-- temporary workaround to solve issue of Jersey 1.19.3 not being compatible with Java 11 bytecode: -->
+        <!--   list explicitly the class names of all @Path and @Provider classes instead of using package scanning -->
+        <!--   (see https://github.com/reliatec-gmbh/LibreClinica/issues/74#issuecomment-5231714565 and following comments) -->
+<!--        <init-param>-->
+<!--            <param-name>com.sun.jersey.config.property.packages</param-name>-->
+<!--            <param-value>org.akaza.openclinica.web.pform</param-value>-->
+<!--        </init-param>-->
         <init-param>
-            <param-name>com.sun.jersey.config.property.packages</param-name>
-            <param-value>org.akaza.openclinica.web.pform</param-value>
+            <param-name>com.sun.jersey.config.property.classnames</param-name>
+            <param-value>
+                org.akaza.openclinica.web.pform.OpenRosaServices
+            </param-value>
         </init-param>
+        <!-- temporary workaround end -->
+
         <load-on-startup>1</load-on-startup>
     </servlet>
 
@@ -2271,10 +2282,21 @@
     <servlet>
         <servlet-name>OpenClinicaJersey</servlet-name>
         <servlet-class>com.sun.jersey.spi.spring.container.servlet.SpringServlet</servlet-class>
+        <!-- temporary workaround to solve issue of Jersey 1.19.3 not being compatible with Java 11 bytecode: -->
+        <!--   list explicitly the class names of all @Path and @Provider classes instead of using package scanning -->
+        <!--   (see https://github.com/reliatec-gmbh/LibreClinica/issues/74#issuecomment-5231714565 and following comments) -->
+<!--        <init-param>-->
+<!--            <param-name>com.sun.jersey.config.property.packages</param-name>-->
+<!--            <param-value>org.akaza.openclinica.web.restful</param-value>-->
+<!--        </init-param>-->
         <init-param>
-            <param-name>com.sun.jersey.config.property.packages</param-name>
-            <param-value>org.akaza.openclinica.web.restful</param-value>
+            <param-name>com.sun.jersey.config.property.classnames</param-name>
+            <param-value>
+                org.akaza.openclinica.web.restful.ODMClinicaDataResource
+                org.akaza.openclinica.web.restful.ODMMetadataRestResource
+            </param-value>
         </init-param>
+        <!-- temporary workaround end -->
         <init-param>
             <param-name>com.sun.jersey.spi.container.ContainerRequestFilters</param-name>
             <param-value>org.akaza.openclinica.web.filter.rest.RestODMFilter</param-value>
