@@ -318,9 +318,7 @@
 	</tr>
 	
 	<script type="text/javascript">
-		window.body.onload = new function() {
-			onMailNotificationClick();
-		}
+		window.addEventListener('load', onMailNotificationClick);
 	</script>
 
            <tr valign="top"><td class="formlabel"><a href="http://prsinfo.clinicaltrials.gov/definitions.html#VerificationDate" target="def_win" onClick="openDefWindow('http://prsinfo.clinicaltrials.gov/definitions.html#VerificationDate'); return false;"><fmt:message key="protocol_verification" bundle="${resword}"/>:</a></td><td>
