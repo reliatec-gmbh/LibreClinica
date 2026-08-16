@@ -207,7 +207,7 @@
  *  - it would depend on the native browser per-window hover-timer machinery behaving consistently
  *    (which -- for the native "title" attribute this replaces -- is known to stop reliably reappearing
  *    once the browser window has lost and regained focus);
- *  - being a descendant of the scrollable ".event-popup-body", it would get silently clipped by that
+ *  - being a descendant of the scrollable ".lc-popup-body", it would get silently clipped by that
  *    ancestor's "overflow-y: auto" whenever there wasn't enough room below/above within the *scrollable
  *    container* (which is exactly what happened for the last occurrence's actions, and the last action
  *    in the non-repeating vertical layout: the tooltip had no clipped-free space left below them).
@@ -333,25 +333,73 @@
  * including the "add another occurrence" button, stays fixed at the top) -- no left/right occurrence
  * "scroller", no onmouseover/onclick JS. The only JS involved (see lctable.js) flips the popup to
  * right-align with its trigger when it would otherwise overflow past the right edge of the viewport.
+ *
+ * Trigger area sizing/highlighting is shared, generically, by every current trigger kind
+ * (".event-trigger" here, ".crf-trigger" further below): the clickable/hoverable/focusable area is
+ * always shrink-wrapped tightly around its own icon(s) -- never the whole table cell -- with a tiny bit
+ * of padding as breathing room, and is highlighted (a shade of grey slightly darker than the underlying
+ * hovered/focused row's own highlight, see ".lc-popup-trigger:hover"/"-focus-within" below) on
+ * hover/focus, exactly like the ".lc-popup-actions-vertical a" menu-item highlight further down.
  */
 .lctable .event-trigger {
     position: relative;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     cursor: pointer;
+    padding: 1px 3px;
+    border-radius: 3px;
 }
 
-.lctable .event-status-badge {
+/*
+ * CRF-status trigger (listEventsForSubjects CRF columns): same popup-trigger role as ".event-trigger"
+ * above, but flex block-level by default (rather than inline-flex) since it is only ever used stacked
+ * vertically, one per occurrence -- see the "listEventsForSubjects"-scoped rules further below.
+ * "width: fit-content" keeps the trigger shrink-wrapped around its own icon even though it is
+ * block-level (i.e. one per line): without it, a block box would stretch to fill its containing
+ * <td>, making the *whole cell* clickable/hoverable instead of just the icon -- exactly the
+ * inconsistency with ".event-trigger" (single-occurrence, findSubjects) that this is meant to avoid.
+ * "display: flex" (rather than plain "block") + "align-items/justify-content: center" is what actually
+ * centers the icon within this (already shrink-wrapped) box -- same reasoning/pattern as ".event-trigger".
+ */
+.lctable .crf-trigger {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+    cursor: pointer;
+    padding: 1px 3px;
+    border-radius: 3px;
+}
+
+.lctable .lc-popup-status-badge {
     display: inline-flex;
     align-items: center;
     margin-right: 6px;
 }
 
-.lctable .event-status-badge:last-child {
+.lctable .lc-popup-status-badge:last-child {
     margin-right: 0;
 }
 
-.lctable .event-popup {
+/* Generic show-on-hover/focus rule: matches any popup trigger (".event-trigger" and ".crf-trigger" alike). */
+.lctable .lc-popup-trigger:hover .lc-popup,
+.lctable .lc-popup-trigger:focus-within .lc-popup {
+    display: flex;
+}
+
+/* Visually clarify the trigger's own (icon-sized) hover/focus area -- a shade of grey slightly darker
+   than the underlying hovered/focused row's own highlight (row: var(--gray-l30) / #DCDFE2; trigger:
+   var(--gray-l20) / #C2C5C8) -- same "highlight the thing you're pointing at" pattern as the popup's
+   own SIMPLE-layout action-menu items (see ".lc-popup-actions-vertical a:hover" further down). */
+.lctable .lc-popup-trigger:hover,
+.lctable .lc-popup-trigger:focus-within {
+    background-color: var(--gray-l20);
+}
+
+
+.lctable .lc-popup {
     display: none;
     position: absolute;
     top: 100%;
@@ -378,17 +426,13 @@
 }
 
 /* Added by lctable.js when the popup would otherwise overflow past the right edge of the viewport. */
-.lctable .event-popup.lc-popup-align-right {
+.lctable .lc-popup.lc-popup-align-right {
     left: auto;
     right: 0;
 }
 
-.lctable .event-trigger:hover .event-popup,
-.lctable .event-trigger:focus-within .event-popup {
-    display: flex;
-}
 
-.lctable .event-popup-header {
+.lctable .lc-popup-header {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -398,15 +442,15 @@
 
 /* Prevent "Subject: ..."/"Event: ..." from wrapping onto a second line: since the popup has no
    explicit width, letting this text wrap would shrink it below its natural (unwrapped) width. */
-.lctable .event-popup-header-text {
+.lctable .lc-popup-header-text {
     white-space: nowrap;
 }
 
-.lctable .event-popup-header .text-btn {
+.lctable .lc-popup-header .text-btn {
     flex-shrink: 0;
 }
 
-.lctable .event-popup-body {
+.lctable .lc-popup-body {
     flex: 1 1 auto;
     overflow-y: auto;
     min-height: 0;
@@ -415,57 +459,85 @@
 /*
  * "Hybrid" per-occurrence row layouts (see ListStudySubjectTable#renderPopupBody and friends):
  *  - non-repeating events (and events with no occurrence yet): "simple" layout, one action per line,
- *    each with icon + text label -- ".event-occurrence-row" without the "-compact" modifier.
+ *    each with icon + text label -- ".lc-popup-occurrence-row" without the "-compact" modifier.
  *  - repeating events (with at least one occurrence): "compact" layout, two lines per occurrence
  *    ("Occurrence #i of N · date · status" then "Actions: " + icon-only links) --
- *    ".event-occurrence-row.event-occurrence-row-compact".
- * In both cases, ".event-occurrence-row" is the hoverable/highlightable unit (the "row" the user
+ *    ".lc-popup-occurrence-row.lc-popup-occurrence-row-compact".
+ * In both cases, ".lc-popup-occurrence-row" is the hoverable/highlightable unit (the "row" the user
  * points at). A subtle border/box gives each occurrence a permanent, "passive" visual grouping (a bit
  * more pronounced than the thin lines separating the 1-2 lines *within* one occurrence), on top of
  * which hovering adds a slightly darker shade of the popup's pale-yellow background.
  */
-.lctable .event-occurrence-row {
+.lctable .lc-popup-occurrence-row {
     margin: 3px 4px;
     padding: 3px 4px;
     border: 1px solid #E0D9A0;
     border-radius: 3px;
 }
 
-.lctable .event-occurrence-row:hover {
+.lctable .lc-popup-occurrence-row:hover {
     background-color: #F5EEA0;
     border-color: #C9BC66;
 }
 
-.lctable .event-occurrence-row .table_cell_left,
-.lctable .event-occurrence-row .table_cell {
-    border-left: none;
+/*
+ * Suppress the ".table_cell_left"/".table_cell" classes' own implicit "border-top: 1px solid #E6E6E6"
+ * (see styles.css) entirely within occurrence rows: relying on that border to visually separate two
+ * stacked status lines (e.g. EventStatusPopup's date line above its status line) looked inconsistent
+ * with the explicit ".lc-popup-row-separator" used between the status content and the actions menu
+ * (different colour/spacing), and, worse, produced *two* separator lines stacked on top of each other
+ * wherever both were present (e.g. CrfStatusPopup's "Event date: ..." / "Status: ..." pair). Every
+ * separator between two status-content lines is now rendered explicitly, via the same
+ * ".lc-popup-row-separator" div, in both EventStatusPopup and CrfStatusPopup -- see their
+ * renderSimpleStatus/renderStatus.
+ */
+.lctable .lc-popup-occurrence-row .table_cell_left,
+.lctable .lc-popup-occurrence-row .table_cell {
+    border: none;
 }
 
-.lctable .event-occurrence-row > div:first-child {
-    border-top: none;
-}
-
-.lctable .event-status-icon-inline {
+.lctable .lc-popup-status-icon-inline {
     vertical-align: middle;
     margin: 0 2px;
 }
 
+/* Generic layout chrome (see LCPopup#renderItemRow, EventStatusPopup#renderSimpleStatus,
+   CrfStatusPopup's per-item renderStatus): a thin separator line, always the exact same one, between
+   any two adjacent "sections" of one occurrence row's content (date line / status line / actions menu). */
+.lctable .lc-popup-row-separator {
+    border-top: 1px solid #E0D9A0;
+    margin: 3px 0;
+}
+
 /* Simple (non-repeating) layout: one action per line, icon + text label, with a little breathing room
    between lines (both visually clearer and easier to click precisely). */
-.lctable .occurrence-actions-vertical a {
+.lctable .lc-popup-actions-vertical a {
     display: flex;
     align-items: center;
     gap: 3px;
     white-space: nowrap;
     margin-bottom: 4px;
+    border-radius: 3px;
+    padding: 1px 2px;
 }
 
-.lctable .occurrence-actions-vertical a:last-child {
+.lctable .lc-popup-actions-vertical a:last-child {
     margin-bottom: 0;
 }
 
+/* Highlight the currently selected/hovered-over menu item: a third, still darker shade of the popup's
+   pale-yellow palette (popup background #FFFFE5, occurrence-row hover #F5EEA0, this one darker still) --
+   SIMPLE layout only (one action per line, plenty of room to highlight); COMPACT layout's icon-only
+   actions already have a tooltip and too little area to usefully highlight, so it is deliberately left
+   plain there. */
+.lctable .lc-popup-actions-vertical a:hover,
+.lctable .lc-popup-actions-vertical a:focus {
+    background-color: #E9DC78;
+}
+
+
 /* Compact (repeating) layout: "Actions: " label followed by icon-only links, all on one line. */
-.lctable .occurrence-actions-compact {
+.lctable .lc-popup-actions-compact {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
@@ -473,13 +545,13 @@
     white-space: nowrap;
 }
 
-.lctable .occurrence-actions-compact a {
+.lctable .lc-popup-actions-compact a {
     display: inline-flex;
     align-items: center;
 }
 
-.lctable .event-occurrence-row .occurrence-actions img,
-.lctable .event-occurrence-row .occurrence-summary-line img {
+.lctable .lc-popup-occurrence-row .lc-popup-actions img,
+.lctable .lc-popup-occurrence-row .lc-popup-summary-line img {
     vertical-align: middle;
 }
 
@@ -495,3 +567,61 @@
 .lctable .tbody tr:hover a {
     color: black;
 }
+
+/*
+ * "listEventsForSubjects" table only (event-definition-specific drill-down, one row per subject,
+ * with one icon/popup *per occurrence* of the selected event definition, stacked vertically inside
+ * the Event Status/Event Date/each CRF column -- see ListEventsForSubjectTable). Scoped with the
+ * table's own "#<tableName>-panel" wrapper id (see LCTable#panelId) rather than a shared class, so
+ * that none of this affects the "findSubjects" table (#findSubjects-panel), which reuses the very
+ * same ".event-trigger"/".lc-popup-status-badge" classes for its own -- horizontal, aggregate-per-cell --
+ * layout (multiple status badges side by side *within* a single trigger, one trigger per cell).
+ *
+ * Goal: the occurrences' rows in the Event Status, Event Date and CRF columns are meant to line up
+ * horizontally (same row height, same per-row vertical spacing in every column) -- see the caveats
+ * about this in ListEventsForSubjectTable's class javadoc.
+ */
+
+/* Event Status column: one ".event-trigger" per occurrence -- stack them vertically (block, not
+   inline-flex) instead of "findSubjects"'s single inline-flex trigger per cell. "width: fit-content"
+   keeps the trigger shrink-wrapped around its own icon despite now being block-level -- same reasoning,
+   same pattern, as ".crf-trigger"'s own "width: fit-content" (see further above): without it, the
+   trigger (and hence the hoverable/clickable/highlightable area) would stretch to fill the whole cell. */
+#listEventsForSubject-panel .event-trigger {
+    display: flex;
+    width: fit-content;
+}
+
+/*
+ * Same per-occurrence vertical rhythm in every event-related column: Event Status (".event-trigger"),
+ * Event Date (".event-occurrence-date-line") and every CRF column (".crf-trigger", plus its
+ * "no CRF data yet" placeholder ".crf-trigger-empty"). The *visible gap* between two stacked
+ * occurrences must come out the same in every column, regardless of which of the two box models is
+ * involved: ".event-occurrence-date-line" is a plain, unpadded div (occurrence height = content height
+ * + margin-bottom only), while ".event-trigger"/".crf-trigger" additionally carry their own
+ * "padding: 1px 3px" (added for the trigger-highlight's "tiny bit of margin around the icon", see
+ * above) -- so, at equal margin-bottom, their occurrence height would be 2px taller (1px top + 1px
+ * bottom padding) than the date line's, throwing off the vertical alignment between columns more and
+ * more with each occurrence. Giving the two trigger kinds a 2px-smaller margin-bottom than the
+ * plain/unpadded elements exactly cancels this out (their own padding "eats into" the margin rather
+ * than adding on top of it, per the user's explicit request), so every column's per-occurrence row
+ * ends up the same total height again.
+ */
+#listEventsForSubject-panel .event-trigger,
+#listEventsForSubject-panel .crf-trigger {
+    margin-bottom: 1px;
+}
+
+#listEventsForSubject-panel .crf-trigger-empty,
+#listEventsForSubject-panel .event-occurrence-date-line {
+    margin-bottom: 3px;
+}
+
+#listEventsForSubject-panel .event-trigger:last-child,
+#listEventsForSubject-panel .crf-trigger:last-child,
+#listEventsForSubject-panel .crf-trigger-empty:last-child,
+#listEventsForSubject-panel .event-occurrence-date-line:last-child {
+    margin-bottom: 0;
+}
+
+

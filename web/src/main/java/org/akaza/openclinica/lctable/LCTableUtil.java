@@ -98,8 +98,24 @@ public class LCTableUtil {
      */
     public static <T extends Element<T, Z> & FlowContent<T, Z>, Z extends Element> Consumer<T> actionLink(
             String id, String altText, SafeUrl href, String imgSrc, boolean includeText) {
+        return actionLink(id, altText, href.toUriString(), imgSrc, includeText);
+    }
+
+    /** Icon-only variant of {@link #actionLink(String, String, SafeUrl, String, boolean)} (no visible text label). */
+    public static <T extends Element<T, Z> & FlowContent<T, Z>, Z extends Element> Consumer<T> actionLink(
+            String id, String altText, SafeUrl href, String imgSrc) {
+        return actionLink(id, altText, href, imgSrc, false);
+    }
+
+    /**
+     * Same as {@link #actionLink(String, String, SafeUrl, String, boolean)}, but for the rare cases (e.g. the REST
+     * "print" links) where the href is already a fully-built, pre-encoded string rather than a {@link SafeUrl}
+     * (re-encoding it via {@code SafeUrl} would corrupt already-percent-encoded path segments).
+     */
+    public static <T extends Element<T, Z> & FlowContent<T, Z>, Z extends Element> Consumer<T> actionLink(
+            String id, String altText, String href, String imgSrc, boolean includeText) {
         return container -> {
-            var anchor = container.a().attrClass("action-link").attrHref(href.toUriString()).addAttr("aria-label", altText);
+            var anchor = container.a().attrClass("action-link").attrHref(href).addAttr("aria-label", altText);
             if (id != null) {
                 anchor = anchor.attrId(id);
             }
@@ -114,9 +130,9 @@ public class LCTableUtil {
         };
     }
 
-    /** Icon-only variant of {@link #actionLink(String, String, SafeUrl, String, boolean)} (no visible text label). */
+    /** Icon-only variant of {@link #actionLink(String, String, String, String, boolean)} (no visible text label). */
     public static <T extends Element<T, Z> & FlowContent<T, Z>, Z extends Element> Consumer<T> actionLink(
-            String id, String altText, SafeUrl href, String imgSrc) {
+            String id, String altText, String href, String imgSrc) {
         return actionLink(id, altText, href, imgSrc, false);
     }
 
