@@ -135,26 +135,36 @@ public class LCTable<T>  {
      * Clicking cycles through: no sort → ascending → descending → no sort.
      */
     private void renderColumnName(Tr<?> tr, LCTableColumnDef<T> col, LCTableContext<T> ctx) {
-        final String widthStyle = "width: " + col.columnWidth + "rem";
+        // A columnWidth of 0 means "no explicit width": let the browser's auto table layout size the
+        // column dynamically to fit the widest of its header/data content, rather than forcing it to 0.
+        final String widthStyle = col.columnWidth > 0 ? ("width: " + col.columnWidth + "rem") : null;
         if (!col.isSortable()) {
             // Non-sortable column: just render the header text without a link
-            tr.th().attrStyle(widthStyle).text(col.columnDisplayName).__();
+            Th<?> th = tr.th();
+            if (widthStyle != null) th.attrStyle(widthStyle);
+            th.text(col.columnDisplayName).__();
         } else {
             boolean isSorted = col.columnName.equals(ctx.sortProp);
             final String currentSortDir = isSorted ? ctx.sortDir : null;
             final String nextSortDir = currentSortDir == null ? "asc" : (currentSortDir.equals("asc") ? "desc" : null);
             final String href = urlForSort(ctx.entityPath, ctx, col.columnName, nextSortDir);
             // Render the header cell with a link that triggers sorting via HTMX
-            tr.th().attrStyle(widthStyle)
-                .a().attrId(tableName + "-sortable-header-" + col.columnName).attrClass("sort-header-link")
+            Th<?> th = tr.th();
+            if (widthStyle != null) th.attrStyle(widthStyle);
+            th.a().attrId(tableName + "-sortable-header-" + col.columnName).attrClass("sort-header-link")
                 .attrHref(href).of(hxGetAttrs(href, NO_HX_INCLUDE, "#" + panelId, NO_HX_TRIGGER))
                 .of(a -> {
                     a.span().attrClass("sort-header-text").text(col.columnDisplayName).__();
-                    // Show sort indicator if sorted
-                    if (isSorted && currentSortDir != null) {
-                        String imgSrc = ctx.resourcePath + (currentSortDir.equals("asc") ? "/images/table/sortAsc.gif" : "/images/table/sortDesc.gif");
-                        a.img().attrClass("sort-indicator").addAttr("src", imgSrc).attrAlt(currentSortDir).__();
-                    }
+                    // Always render the sort indicator's <img>, so that the header's width already
+                    // accounts for it whether or not the column is currently sorted (avoids the header --
+                    // and hence the whole column -- growing/shrinking when sorting is toggled on/off).
+                    // When not (yet) sorted on this column/direction, it is only hidden visually (kept in
+                    // the layout, via the "sort-indicator-hidden" CSS class) rather than omitted outright.
+                    boolean showIndicator = isSorted && currentSortDir != null;
+                    String dir = showIndicator ? currentSortDir : "asc";
+                    String imgSrc = ctx.resourcePath + (dir.equals("asc") ? "/images/table/sortAsc.gif" : "/images/table/sortDesc.gif");
+                    a.img().attrClass(showIndicator ? "sort-indicator" : "sort-indicator sort-indicator-hidden")
+                        .addAttr("src", imgSrc).attrAlt(showIndicator ? dir : "").__();
                 }).__();
         }
     }

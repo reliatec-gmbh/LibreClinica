@@ -25,7 +25,13 @@
 
 .lctable .table {
     /* remove inner silver border so the outer .lctable black border is visible
-       padding on the wrapper (.lctable) provides the spacing between border and table */
+       padding on the wrapper (.lctable) provides the spacing between border and table
+       Note: deliberately no "table-layout: fixed" here -- the default "auto" table layout is relied
+       upon (together with the toolbar/header/action-column "no-wrap" rules below) to let the table grow
+       past the sum of its columns' own (explicit or content-based) widths whenever a row's content --
+       most notably the toolbar, see ".toolbar-container nav"'s "white-space: nowrap" above -- needs
+       more room than that, and to distribute any such extra width across columns roughly in
+       proportion to their own width. */
     border: none;
     padding: 0;
 }
@@ -44,6 +50,23 @@
     align-items: center;
     gap: 0;
 }
+
+.lctable .toolbar-container nav {
+    /*
+     * Keep every navigation-bar button ("«" "‹" page numbers/ellipsis "›" "»") together, always on a
+     * single line, WITHOUT changing anything else about how they are laid out: a plain <nav> is a
+     * block box, and its children (the "text-btn" anchors/ellipsis spans, all "display: inline-block")
+     * are separated only by the ordinary single-space-worth of whitespace between them in the
+     * generated HTML -- exactly like the legacy jmesa toolbar's own row of pagination links. That
+     * whitespace is also the browser's only line-break opportunity between the buttons, so a plain
+     * "white-space: nowrap" here (rather than switching to "display: flex", which would collapse that
+     * whitespace and squeeze the buttons together with no gap at all) is enough to suppress it and
+     * keep the whole row on one line, with the exact same spacing as before -- see the ".table" width
+     * note further down for how this in turn grows the whole table when necessary.
+     */
+    white-space: nowrap;
+}
+
 
 .lctable .toolbar-separator {
     border-left: 1px solid #c0c0c0;
@@ -147,7 +170,7 @@
 }
 
 .lctable .header th {
-    white-space: normal;
+    white-space: nowrap;
     background-color: var(--lightblue-d20);
     color: white;
     font-family: verdana, arial, helvetica, sans-serif;
@@ -199,6 +222,18 @@
 }
 
 /*
+ * Every data cell is tagged by LCTableColumnDef with a "lc-col-<columnName>" class (see nullSafeCell()),
+ * so that a specific column's cells can be targeted generically by CSS. The "actions" column (its
+ * action-icon links, see ".action-link" above) is the one concrete case needed so far: keep all of a
+ * row's action icons together on a single line, never wrapped onto a second line, regardless of how
+ * tight the column's width gets.
+ */
+.lctable .lc-col-actions {
+    white-space: nowrap;
+}
+
+
+/*
  * The hover/focus tooltip itself (shown only for icon-only action links, i.e. "data-tooltip" is set --
  * see LCTableUtil.actionLink()) is implemented in lctable.js as a single reusable ".lc-tooltip" element
  * appended directly to <body> and positioned with "position: fixed" from the hovered/focused element's
@@ -244,11 +279,12 @@
 }
 
 .lctable .odd td, .lctable .even td {
-    font-family: verdana, arial, helvetica, sans-serif;
-    font-size: 11px;
-    vertical-align: top;
-    line-height: 15px;
-    padding: 2px 3px 2px 3px;
+	font-family: verdana, arial, helvetica, sans-serif;
+	font-size: 11px;
+	vertical-align: top;
+	line-height: 15px;
+	padding: 2px 3px 2px 3px;
+	white-space: nowrap;
 }
 
 .lctable .odd {
@@ -260,12 +296,13 @@
 }
 
 .lctable .highlight td {
-    font-family: verdana, arial, helvetica, sans-serif;
-    font-size: 11px;
-    vertical-align: top;
-    line-height: 15px;
-    padding: 2px 3px 2px 3px;
-    background-color: var(--gray-l30);
+	font-family: verdana, arial, helvetica, sans-serif;
+	font-size: 11px;
+	vertical-align: top;
+	line-height: 15px;
+	padding: 2px 3px 2px 3px;
+	background-color: var(--gray-l30);
+	white-space: nowrap;
 }
 
 .lctable .highlight a {
@@ -299,8 +336,10 @@
 }
 
 .lctable .text-btn:hover              { background: #eee; }
-.lctable .text-btn.current            { background: #2563eb; color: #fff; border-color: #2563eb; }
-.lctable .text-btn.disabled           { color: #bbb; pointer-events: none; cursor: default; }
+.lctable .text-btn.current            { background: var(--lightblue-d20); color: #fff; border-color: var(--lightblue-d20); }
+/* Grey darkened just enough to stay clearly readable on white (contrast ratio ~4.6:1, meeting WCAG AA)
+   while still being clearly distinguishable from an enabled button's black text. */
+.lctable .text-btn.disabled           { color: #909090; pointer-events: none; cursor: default; }
 .lctable .text-btn, .lctable .page-ellipsis    { user-select: none; }
 .lctable .page-ellipsis               { display: inline-block; min-width: 1.2em; padding: 2px 6px; color: #888; font-size: 0.65rem; text-align: center; }
 
@@ -317,6 +356,7 @@
 
 .lctable .sort-header-text {
     flex: 1;
+    white-space: nowrap;
 }
 
 .lctable .sort-indicator {
@@ -325,6 +365,18 @@
     height: auto;
     flex-shrink: 0;
 }
+
+/*
+ * The sort-indicator <img> is now always rendered (see LCTable#renderColumnName), even for columns
+ * that are not (yet) currently sorted: this reserves its width in the header's flex layout up front,
+ * so that a sortable column's header -- and hence the whole column -- never needs to grow when the
+ * indicator appears (sorting toggled on) nor shrink when it disappears (sorting toggled off/changed
+ * to another column). It is simply hidden, without being removed from the layout, until then.
+ */
+.lctable .sort-indicator-hidden {
+    visibility: hidden;
+}
+
 
 /*
  * Event-detail hover/focus popup (findSubjects "Subject Matrix" table).
@@ -348,7 +400,7 @@
     justify-content: center;
     cursor: pointer;
     padding: 1px 3px;
-    border-radius: 3px;
+    border-radius: 0;
 }
 
 /*
@@ -370,7 +422,7 @@
     width: fit-content;
     cursor: pointer;
     padding: 1px 3px;
-    border-radius: 3px;
+    border-radius: 0;
 }
 
 .lctable .lc-popup-status-badge {
@@ -389,13 +441,10 @@
     display: flex;
 }
 
-/* Visually clarify the trigger's own (icon-sized) hover/focus area -- a shade of grey slightly darker
-   than the underlying hovered/focused row's own highlight (row: var(--gray-l30) / #DCDFE2; trigger:
-   var(--gray-l20) / #C2C5C8) -- same "highlight the thing you're pointing at" pattern as the popup's
-   own SIMPLE-layout action-menu items (see ".lc-popup-actions-vertical a:hover" further down). */
+/* Visually clarify the trigger's own (icon-sized) hover/focus area  */
 .lctable .lc-popup-trigger:hover,
 .lctable .lc-popup-trigger:focus-within {
-    background-color: var(--gray-l20);
+    background-color: var(--pale-yellow);
 }
 
 

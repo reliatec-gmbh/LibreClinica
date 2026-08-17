@@ -172,22 +172,20 @@ public class ListStudySubjectTable {
     private List<LCTableColumnDef<FindSubjectsRow>> buildColumns() {
         List<LCTableColumnDef<FindSubjectsRow>> columns = new ArrayList<>();
 
-        columns.add(textCol("studySubject.label", resword.getString("study_subject_ID"), 6, row -> row.studySubject.getLabel()));
-        columns.add(enumColHidden("studySubject.status", resword.getString("subject_status"), 6,
+        columns.add(textCol("studySubject.label", resword.getString("study_subject_ID"), 0, row -> row.studySubject.getLabel()));
+        columns.add(enumColHidden("studySubject.status", resword.getString("subject_status"), 0,
             row -> row.studySubject.getStatus(), Status.toDropDownArrayList(), Status::getName, Status::getName
         ));
-        columns.add(textColHidden("enrolledAt", resword.getString("site_id"), 5, row -> row.enrolledAt));
-        columns.add(textColHidden("studySubject.oid", resword.getString("rule_oid"), 6, row -> row.studySubject.getOid()));
-        columns.add(new LCTableColumnDef<>("subject.charGender", resword.getString("gender"), 3, HIDDEN, NOT_SORTABLE, textFilter(),
-            LCTableColumnDef.<FindSubjectsRow>nullSafeColText(row -> String.valueOf(row.subject.getGender()))
-        ));
-        columns.add(textColHidden("studySubject.secondaryLabel", resword.getString("secondary_ID"), 5, row -> row.studySubject.getSecondaryLabel()));
-        columns.add(textColHidden("subject.uniqueIdentifier", resword.getString("subject_unique_ID"), 6, row -> row.subject.getUniqueIdentifier()));
+        columns.add(textColHidden("enrolledAt", resword.getString("site_id"), 0, row -> row.enrolledAt));
+        columns.add(textColHidden("studySubject.oid", resword.getString("rule_oid"), 0, row -> row.studySubject.getOid()));
+        columns.add(textColHidden("subject.charGender", resword.getString("gender"), 0, row -> String.valueOf(row.subject.getGender())));
+        columns.add(textColHidden("studySubject.secondaryLabel", resword.getString("secondary_ID"), 0, row -> row.studySubject.getSecondaryLabel()));
+        columns.add(textColHidden("subject.uniqueIdentifier", resword.getString("subject_unique_ID"), 0, row -> row.subject.getUniqueIdentifier()));
 
         // one column per active study-group-class
         for (StudyGroupClassBean sgc : studyGroupClasses) {
             List<StudyGroupBean> groupOptions = studyGroupDAO.findAllByGroupClass(sgc);
-            columns.add(enumColNotSortable("sgc_" + sgc.getId(), sgc.getName(), 6, groupOptions, StudyGroupBean::getName, StudyGroupBean::getName,
+            columns.add(enumColNotSortable("sgc_" + sgc.getId(), sgc.getName(), 0, groupOptions, StudyGroupBean::getName, StudyGroupBean::getName,
                 row -> {
                     GroupAssignment ga = row.groupAssignmentsByClassId.get(sgc.getId());
                     return ga == null ? "" : ga.groupName;
@@ -200,7 +198,7 @@ public class ListStudySubjectTable {
         for (StudyEventDefinitionBean sed : studyEventDefinitions) {
             LCPopup<EventStatusPopup.Context, EventStatusPopup.EventOccurrence> eventPopup =
                 EventStatusPopup.aggregate(sed, studyBean, currentRole, currentUser, resword, resformat);
-            columns.add(customTdCol("sed_" + sed.getId(), sed.getName(), 6, NOT_SORTABLE,
+            columns.add(customTdCol("sed_" + sed.getId(), sed.getName(), 5, NOT_SORTABLE,
                 // SubjectEventStatus.getName() (Term.getName()) already resolves the translated display name via
                 // the terms resource bundle -- do NOT re-translate it here (that would look up the translated text
                 // itself as if it were a resource key, throwing MissingResourceException).
@@ -209,9 +207,7 @@ public class ListStudySubjectTable {
             ));
         }
 
-        columns.add(customTdCol("actions", resword.getString("rule_actions"), 10, NOT_SORTABLE, clearFilter(),
-            this::renderActionsCell
-        ));
+        columns.add(customTdCol("actions", resword.getString("rule_actions"), 0, NOT_SORTABLE, LCTableFilterDef.clearFilter(), this::renderActionsCell));
 
         return columns;
     }

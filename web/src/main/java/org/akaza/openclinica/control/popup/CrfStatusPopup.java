@@ -4,9 +4,6 @@
 
  * For details see: https://libreclinica.org/license
  * copyright (C) 2026 LibreClinica
- *
- * Author: Giuseppe Del Castillo
- * Development sponsored by ReliaTec GmbH
  */
 package org.akaza.openclinica.control.popup;
 
