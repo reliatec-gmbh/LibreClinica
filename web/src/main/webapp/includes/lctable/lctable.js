@@ -46,6 +46,37 @@
 })();
 
 /*
+ * Popup "fixing" fix: an ".lc-popup-trigger" (or one of its own descendants, e.g. an actions-menu link)
+ * is a focusable element (see LCPopup#render's "tabindex=0"), on purpose, so the popup can be reached
+ * by keyboard (Tab) as well as by mouse hover -- the popup is shown on ":hover" OR ":focus-within" (see
+ * lctable.css). The trouble: *clicking* a trigger (or a link inside its popup) with the mouse also
+ * focuses it in every major browser, and that focus -- unlike hover -- does not go away merely by
+ * moving the mouse elsewhere; it only goes away once something *else* receives focus. Net effect: after
+ * one single click, the popup stays "fixed" open (":focus-within" keeps matching) even after the mouse
+ * has moved away, and can end up stacked on top of whichever *other* trigger is now being hovered.
+ *
+ * Fix: when the mouse actually leaves a trigger, if the currently focused element is inside that
+ * trigger, and that focus was *not* reached via the keyboard (i.e. it does not match ":focus-visible" --
+ * the standard, browser-native way to distinguish "focused because Tab was pressed" from "focused
+ * because it was clicked"), blur it. This leaves genuine keyboard (Tab) navigation completely
+ * unaffected -- a Tab-focused trigger's popup still stays open until Tab moves focus elsewhere, exactly
+ * as before -- while a mouse click no longer leaves any lasting, "fixed" popup behind once the mouse
+ * moves away: hovering (or true keyboard focus) becomes the only way to keep a popup visible.
+ */
+(function () {
+    document.addEventListener('mouseout', function (event) {
+        var trigger = event.target.closest && event.target.closest('.lc-popup-trigger');
+        if (!trigger) return;
+        // still moving within the same trigger (e.g. into its own popup) -- nothing to do yet
+        if (event.relatedTarget && trigger.contains(event.relatedTarget)) return;
+        var active = document.activeElement;
+        if (active && trigger.contains(active) && !active.matches(':focus-visible')) {
+            active.blur();
+        }
+    }, true);
+})();
+
+/*
  * Strip empty-valued request parameters from LCTable-issued HTMX requests.
  *
  * LCTable.java's own URL builder (LCTable.url(), used for pagination/sort/"Show More" links) already

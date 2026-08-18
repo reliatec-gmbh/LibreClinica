@@ -48,6 +48,9 @@ public class AuditUserLoginTable {
      * whenever the table is paginated/sorted/filtered.
      */
     private static String actionId(String action, AuditUserLoginBean row) {
+        if (row == null || row.getId() == null) {
+            throw new IllegalArgumentException("row and row.getId() must not be null");
+        }
         return "userLogins-" + action + "-" + row.getId();
     }
 
@@ -62,7 +65,9 @@ public class AuditUserLoginTable {
             AuditUserLoginBean::getLoginStatus, Arrays.asList(LoginStatus.values()), LoginStatus::toString, LoginStatus::name
         ),
         textCol("details", "Details", 3, AuditUserLoginBean::getDetails),
+
         customTdCol("actions", "Actions", 4, NOT_SORTABLE, clearFilter(),
+            AuditUserLoginBean::getUserAccountId,
             (td, row) ->
                 td.of(actionLink(actionId("view", row), "View",
                     url("ViewUserAccount").param("userId", row.getUserAccountId()).param("viewFull", "yes"), "bt_View.gif"))

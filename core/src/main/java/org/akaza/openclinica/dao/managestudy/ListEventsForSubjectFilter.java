@@ -5,7 +5,7 @@
  * For details see: https://libreclinica.org/license
  * copyright (C) 2003 - 2011 Akaza Research
  * copyright (C) 2003 - 2019 OpenClinica
- * copyright (C) 2020 - 2024 LibreClinica
+ * copyright (C) 2020 - 2026 LibreClinica
  */
 package org.akaza.openclinica.dao.managestudy;
 
@@ -125,7 +125,7 @@ public class ListEventsForSubjectFilter implements CriteriaCommand {
                     criteria +=" AND ( ( SELECT count(*) FROM event_crf event_crf, crf_version crf_version WHERE study_event_id in  " +
                     		" (SELECT se.study_event_id FROM study_event study_event, study_event_definition sed " +
                     		"WHERE se.study_subject_id=SS.SUBJECT_ID and se.study_event_definition_id = "+studyEventDefinitionId +
-                    "and se.study_event_definition_id= sed.study_event_definition_id  ) and crf_version.crf_id =" +crfId +" and  " +
+                    " and se.study_event_definition_id= sed.study_event_definition_id  ) and crf_version.crf_id =" +crfId +" and  " +
                     		"        event_crf.crf_version_id = crf_version.crf_version_id ) =0 " +
                     		"and  se.study_EVENT_ID not in (select study_event_id from  event_crf ec,crf_version cv where " +
                     		"ec.crf_version_id = cv.crf_version_id and crf_id= " + crfId +

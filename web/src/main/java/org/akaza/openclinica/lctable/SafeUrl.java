@@ -39,13 +39,43 @@ public final class SafeUrl {
         return this;
     }
 
+    // Boxed Integer overload: needed whenever the value may legitimately be null (e.g. a foreign-key id that no
+    // longer resolves, such as AuditUserLoginBean#getUserAccountId() for a login attempt with an unknown/deleted
+    // user account). Without this overload, callers passing an Integer would silently fall back to the int
+    // overload above via auto-unboxing, throwing a NullPointerException whenever the value is null.
+    public SafeUrl param(String name, Integer value) {
+        if (value != null) {
+            this.builder.queryParam(name, value);
+        }
+        return this;
+    }
+
     public SafeUrl param(String name, long value) {
         this.builder.queryParam(name, value);
         return this;
     }
 
+    // Boxed Long overload: same rationale as the boxed Integer overload above -- protects any current/future
+    // caller passing a nullable Long (e.g. a Hibernate-generated Long id, or a boxed getter) from an
+    // auto-unboxing NullPointerException. No current caller happens to pass a nullable Long, but this closes
+    // the gap for consistency and defense-in-depth, exactly like the Integer overload.
+    public SafeUrl param(String name, Long value) {
+        if (value != null) {
+            this.builder.queryParam(name, value);
+        }
+        return this;
+    }
+
     public SafeUrl param(String name, boolean value) {
         this.builder.queryParam(name, value);
+        return this;
+    }
+
+    // Boxed Boolean overload: same rationale as the boxed Integer/Long overloads above.
+    public SafeUrl param(String name, Boolean value) {
+        if (value != null) {
+            this.builder.queryParam(name, value);
+        }
         return this;
     }
 
