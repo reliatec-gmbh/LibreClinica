@@ -5,7 +5,7 @@
  * For details see: https://libreclinica.org/license
  * copyright (C) 2003 - 2011 Akaza Research
  * copyright (C) 2003 - 2019 OpenClinica
- * copyright (C) 2020 - 2024 LibreClinica
+ * copyright (C) 2020 - 2026 LibreClinica
  */
 package org.akaza.openclinica.service.managestudy;
 
@@ -52,6 +52,22 @@ public class ViewNotesSortCriteria {
         for (Sort sort : sortSet.getSorts()) {
             String sortField = SORT_BY_TABLE_COLUMN.get(sort.getProperty());
             criteria.getSorters().put(sortField, sort.getOrder().name());
+        }
+        return criteria;
+    }
+
+    /**
+     * Builds sort criteria from a single (column, direction) pair, as used by {@code LCTableParams}
+     * (sortProp/sortDir) for the LCTable-based "listNotes" table -- as opposed to the multi-column jmesa
+     * {@code SortSet}/{@code List<Pair<String,String>>} overloads above.
+     */
+    public static ViewNotesSortCriteria buildFilterCriteria(String sortProp, String sortDir) {
+        ViewNotesSortCriteria criteria = new ViewNotesSortCriteria();
+        if (sortProp != null && !sortProp.isEmpty()) {
+            String sortField = SORT_BY_TABLE_COLUMN.get(sortProp);
+            if (sortField != null) {
+                criteria.getSorters().put(sortField, (sortDir == null || sortDir.isEmpty()) ? "asc" : sortDir);
+            }
         }
         return criteria;
     }
