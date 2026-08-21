@@ -58,7 +58,24 @@ public class LCTable<T>  {
      * Optional extra controls (e.g., custom action links or dropdowns) rendered in the toolbar
      * after the built-in controls. Added via {@link #addCustomToolbarControl} before rendering.
      */
-    private final List<BiConsumer<Div<?>, LCTableContext<T>>> customToolbarControls = new ArrayList<>();
+    private final List<CustomToolbarControl<T>> customToolbarControls = new ArrayList<>();
+
+    /**
+     * Pairs a custom toolbar control's renderer with a predicate deciding, from the context alone (i.e.
+     * without actually rendering anything), whether the control has any content to show for the current
+     * request. This lets {@link #renderToolbar} skip the control's leading separator {@code <div>} when the
+     * control would render nothing (e.g. {@code ListNotesTable}'s "download all"/"print" links, hidden when
+     * the current page has no rows) -- instead of always rendering a separator followed by an empty control.
+     */
+    private static final class CustomToolbarControl<T> {
+        final java.util.function.Predicate<LCTableContext<T>> hasContent;
+        final BiConsumer<Div<?>, LCTableContext<T>> render;
+
+        CustomToolbarControl(java.util.function.Predicate<LCTableContext<T>> hasContent, BiConsumer<Div<?>, LCTableContext<T>> render) {
+            this.hasContent = hasContent;
+            this.render = render;
+        }
+    }
 
     // constants to control table behaviour
     static final boolean HIDE_PAGINATION_TOOLS_FOR_SINGLE_PAGE_TABLE = false;
@@ -88,11 +105,26 @@ public class LCTable<T>  {
 
     /**
      * Appends a custom control to the toolbar, rendered after built-in controls. Must be called before rendering.
+     * The control is assumed to always render some content; use {@link #addCustomToolbarControl(java.util.function.Predicate, BiConsumer)}
+     * for a control that may legitimately render nothing for some requests.
      *
      * @param control closure that renders the control's markup into the toolbar's container {@code <div>}
      */
     public void addCustomToolbarControl(BiConsumer<Div<?>, LCTableContext<T>> control) {
-        customToolbarControls.add(Objects.requireNonNull(control, "control"));
+        addCustomToolbarControl(ctx -> true, control);
+    }
+
+    /**
+     * Appends a custom control to the toolbar, rendered after built-in controls, but only when {@code hasContent}
+     * returns true for the current context -- in which case its leading separator is rendered too. Must be
+     * called before rendering.
+     *
+     * @param hasContent decides, from the context alone, whether the control has anything to render this request
+     * @param control    closure that renders the control's markup into the toolbar's container {@code <div>}
+     */
+    public void addCustomToolbarControl(java.util.function.Predicate<LCTableContext<T>> hasContent, BiConsumer<Div<?>, LCTableContext<T>> control) {
+        customToolbarControls.add(new CustomToolbarControl<>(
+            Objects.requireNonNull(hasContent, "hasContent"), Objects.requireNonNull(control, "control")));
     }
 
     /** True if this table declares at least one column with HIDDEN visibility. */
@@ -190,10 +222,13 @@ public class LCTable<T>  {
                         .__();
                 }
                 // Custom, non-tabular controls (see addCustomToolbarControl), in the order they were added --
-                // each preceded by the same separator used between the built-in controls above.
+                // each preceded by the same separator used between the built-in controls above, but only when
+                // the control actually has something to render for this request (see CustomToolbarControl).
                 customToolbarControls.forEach(control -> {
-                    container.div().attrClass("toolbar-separator").__();
-                    control.accept(container, ctx);
+                    if (control.hasContent.test(ctx)) {
+                        container.div().attrClass("toolbar-separator").__();
+                        control.render.accept(container, ctx);
+                    }
                 });
             }).__();
     }

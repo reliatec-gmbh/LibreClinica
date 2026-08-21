@@ -258,6 +258,7 @@
     font-size: 12px;
     font-weight: normal;
     padding: 5px 9px;
+    border: 2px solid #ffffff;
     border-radius: 6px;
     white-space: nowrap;
     box-shadow: 1px 2px 5px rgba(0, 0, 0, 0.4);

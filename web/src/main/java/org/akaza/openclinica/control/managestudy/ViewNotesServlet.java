@@ -5,7 +5,7 @@
  * For details see: https://libreclinica.org/license
  * copyright (C) 2003 - 2011 Akaza Research
  * copyright (C) 2003 - 2019 OpenClinica
- * copyright (C) 2020 - 2024 LibreClinica
+ * copyright (C) 2020 - 2026 LibreClinica
  */
 package org.akaza.openclinica.control.managestudy;
 
@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.akaza.openclinica.bean.core.DiscrepancyNoteType;
@@ -23,6 +24,7 @@ import org.akaza.openclinica.bean.managestudy.DiscrepancyNoteBean;
 import org.akaza.openclinica.bean.managestudy.StudySubjectBean;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
+import org.akaza.openclinica.control.submit.ListNotesTable;
 import org.akaza.openclinica.control.submit.ListNotesTableFactory;
 import org.akaza.openclinica.control.submit.SubmitDataServlet;
 import org.akaza.openclinica.dao.admin.CRFDAO;
@@ -38,6 +40,7 @@ import org.akaza.openclinica.dao.submit.EventCRFDAO;
 import org.akaza.openclinica.dao.submit.ItemDAO;
 import org.akaza.openclinica.dao.submit.ItemDataDAO;
 import org.akaza.openclinica.dao.submit.SubjectDAO;
+import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.service.DiscrepancyNoteUtil;
 import org.akaza.openclinica.service.DiscrepancyNotesSummary;
 import org.akaza.openclinica.service.managestudy.ViewNotesService;
@@ -73,6 +76,7 @@ public class ViewNotesServlet extends SecureController {
      */
     @Override
     protected void processRequest() throws Exception {
+        Locale locale = LocaleResolver.getLocale(request);
         String module = request.getParameter("module");
         String moduleStr = "manage";
         if (module != null && module.trim().length() > 0) {
@@ -172,59 +176,105 @@ public class ViewNotesServlet extends SecureController {
 
 
 
-        ListNotesTableFactory factory = new ListNotesTableFactory(showMoreLink);
-        factory.setSubjectDao(sdao);
-        factory.setStudySubjectDao(subdao);
-        factory.setUserAccountDao(uadao);
-        factory.setStudyDao(studyDao);
-        factory.setCurrentStudy(currentStudy);
-        factory.setDiscrepancyNoteDao(dndao);
-        factory.setCrfDao(crfDao);
-        factory.setCrfVersionDao(crfVersionDao);
-        factory.setStudyEventDao(studyEventDao);
-        factory.setStudyEventDefinitionDao(studyEventDefinitionDao);
-        factory.setEventDefinitionCRFDao(eventDefinitionCRFDao);
-        factory.setItemDao(itemDao);
-        factory.setItemDataDao(itemDataDao);
-        factory.setEventCRFDao(eventCRFDao);
-        factory.setModule(moduleStr);
-        factory.setDiscNoteType(discNoteType);
-        factory.setResolutionStatus(resolutionStatus);
-        factory.setViewNotesService(resolveViewNotesService());
-        //factory.setResolutionStatusIds(resolutionStatusIds);
-        TableFacade tf = factory.createTable(request, response);
-
-        Map<String, Map<String, String>> stats = generateDiscrepancyNotesSummary(factory.getNotesSummary());
-        Map<String,String> totalMap = generateDiscrepancyNotesTotal(stats);
-
-        int grandTotal = 0;
-        for (String typeName: totalMap.keySet()) {
-            String total = totalMap.get(typeName);
-            grandTotal = total.equals("--") ? grandTotal + 0 : grandTotal + Integer.parseInt(total);
-        }
-        request.setAttribute("summaryMap", stats);
-
-        tf.setTotalRows(grandTotal);
-        String viewNotesHtml = tf.render();
-
-        request.setAttribute("viewNotesHtml", viewNotesHtml);
         String viewNotesURL = this.getPageURL();
         session.setAttribute("viewNotesURL", viewNotesURL);
         String viewNotesPageFileName = this.getPageServletFileName();
         session.setAttribute("viewNotesPageFileName", viewNotesPageFileName);
 
-        request.setAttribute("mapKeys", ResolutionStatus.getMembers());
-        request.setAttribute("typeNames", DiscrepancyNoteUtil.getTypeNames());
-        request.setAttribute("typeKeys", totalMap);
-        request.setAttribute("grandTotal", grandTotal);
+        String lcTableRendering = System.getenv("LC_TABLE_RENDERING");
+        // Use JMesa rendering only when LC_TABLE_RENDERING is explicitly set to "jmesa"
+        if (lcTableRendering != null && lcTableRendering.equalsIgnoreCase("jmesa")) {
+            // Legacy JMesa rendering path: unchanged behaviour (render and forward)
+            request.setAttribute("tableRenderingMode", "jmesa");
 
-        if ("yes".equalsIgnoreCase(fp.getString(PRINT))) {
-        	List<DiscrepancyNoteBean> allNotes = factory.findAllNotes(tf);
-            request.setAttribute("allNotes", allNotes);
-            forwardPage(Page.VIEW_DISCREPANCY_NOTES_IN_STUDY_PRINT);
+            ListNotesTableFactory factory = new ListNotesTableFactory(showMoreLink);
+            factory.setSubjectDao(sdao);
+            factory.setStudySubjectDao(subdao);
+            factory.setUserAccountDao(uadao);
+            factory.setStudyDao(studyDao);
+            factory.setCurrentStudy(currentStudy);
+            factory.setDiscrepancyNoteDao(dndao);
+            factory.setCrfDao(crfDao);
+            factory.setCrfVersionDao(crfVersionDao);
+            factory.setStudyEventDao(studyEventDao);
+            factory.setStudyEventDefinitionDao(studyEventDefinitionDao);
+            factory.setEventDefinitionCRFDao(eventDefinitionCRFDao);
+            factory.setItemDao(itemDao);
+            factory.setItemDataDao(itemDataDao);
+            factory.setEventCRFDao(eventCRFDao);
+            factory.setModule(moduleStr);
+            factory.setDiscNoteType(discNoteType);
+            factory.setResolutionStatus(resolutionStatus);
+            factory.setViewNotesService(resolveViewNotesService());
+            TableFacade tf = factory.createTable(request, response);
+
+            Map<String, Map<String, String>> stats = generateDiscrepancyNotesSummary(factory.getNotesSummary());
+            Map<String, String> totalMap = generateDiscrepancyNotesTotal(stats);
+            int grandTotal = computeGrandTotal(totalMap);
+            request.setAttribute("summaryMap", stats);
+
+            tf.setTotalRows(grandTotal);
+            String viewNotesHtml = tf.render();
+            request.setAttribute("viewNotesHtml", viewNotesHtml);
+
+            request.setAttribute("mapKeys", ResolutionStatus.getMembers());
+            request.setAttribute("typeNames", DiscrepancyNoteUtil.getTypeNames());
+            request.setAttribute("typeKeys", totalMap);
+            request.setAttribute("grandTotal", grandTotal);
+
+            if ("yes".equalsIgnoreCase(fp.getString(PRINT))) {
+                List<DiscrepancyNoteBean> allNotes = factory.findAllNotes(tf);
+                request.setAttribute("allNotes", allNotes);
+                forwardPage(Page.VIEW_DISCREPANCY_NOTES_IN_STUDY_PRINT);
+            } else {
+                forwardPage(Page.VIEW_DISCREPANCY_NOTES_IN_STUDY);
+            }
         } else {
-            forwardPage(Page.VIEW_DISCREPANCY_NOTES_IN_STUDY);
+            // HtmlFlow rendering path: supports HTMX partials (panel vs full page)
+            request.setAttribute("tableRenderingMode", "htmlflow");
+
+            ListNotesTable table = new ListNotesTable(resolveViewNotesService(), currentStudy, discNoteType, resolutionStatus, moduleStr, locale);
+            String viewNotesHtml = table.render(request);
+
+            Map<String, Map<String, String>> stats = generateDiscrepancyNotesSummary(table.getNotesSummary());
+            Map<String, String> totalMap = generateDiscrepancyNotesTotal(stats);
+            int grandTotal = computeGrandTotal(totalMap);
+            request.setAttribute("summaryMap", stats);
+
+            request.setAttribute("mapKeys", ResolutionStatus.getMembers());
+            request.setAttribute("typeNames", DiscrepancyNoteUtil.getTypeNames());
+            request.setAttribute("typeKeys", totalMap);
+            request.setAttribute("grandTotal", grandTotal);
+
+            if ("yes".equalsIgnoreCase(fp.getString(PRINT))) {
+                List<DiscrepancyNoteBean> allNotes = table.findAllNotes(request);
+                request.setAttribute("allNotes", allNotes);
+                forwardPage(Page.VIEW_DISCREPANCY_NOTES_IN_STUDY_PRINT);
+            } else {
+                // HTMX partial handling
+                response.addHeader("Vary", "HX-Request");
+                String hxReq = request.getHeader("HX-Request");
+                if (hxReq != null) {
+                    // HTMX request: only return the table HTML fragment
+                    response.setContentType("text/html;charset=UTF-8");
+                    response.getWriter().write(viewNotesHtml);
+                    response.getWriter().flush();
+                } else {
+                    // Non-HTMX request: embed into JSP and forward
+                    request.setAttribute("viewNotesHtml", viewNotesHtml);
+                    forwardPage(Page.VIEW_DISCREPANCY_NOTES_IN_STUDY);
+                }
+            }
         }
+    }
+
+    private int computeGrandTotal(Map<String, String> totalMap) {
+        int grandTotal = 0;
+        for (String typeName : totalMap.keySet()) {
+            String total = totalMap.get(typeName);
+            grandTotal = total.equals("--") ? grandTotal + 0 : grandTotal + Integer.parseInt(total);
+        }
+        return grandTotal;
     }
 
     /**
