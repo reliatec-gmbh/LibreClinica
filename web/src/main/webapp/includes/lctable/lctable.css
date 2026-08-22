@@ -426,13 +426,13 @@
     border-radius: 0;
 }
 
-.lctable .lc-popup-status-badge {
+.lctable .lc-popup-badge {
     display: inline-flex;
     align-items: center;
     margin-right: 6px;
 }
 
-.lctable .lc-popup-status-badge:last-child {
+.lctable .lc-popup-badge:last-child {
     margin-right: 0;
 }
 
@@ -509,23 +509,23 @@
 /*
  * "Hybrid" per-occurrence row layouts (see ListStudySubjectTable#renderPopupBody and friends):
  *  - non-repeating events (and events with no occurrence yet): "simple" layout, one action per line,
- *    each with icon + text label -- ".lc-popup-occurrence-row" without the "-compact" modifier.
+ *    each with icon + text label -- ".lc-popup-item" without the "-compact" modifier.
  *  - repeating events (with at least one occurrence): "compact" layout, two lines per occurrence
  *    ("Occurrence #i of N · date · status" then "Actions: " + icon-only links) --
- *    ".lc-popup-occurrence-row.lc-popup-occurrence-row-compact".
- * In both cases, ".lc-popup-occurrence-row" is the hoverable/highlightable unit (the "row" the user
+ *    ".lc-popup-item.lc-popup-item-compact".
+ * In both cases, ".lc-popup-item" is the hoverable/highlightable unit (the "row" the user
  * points at). A subtle border/box gives each occurrence a permanent, "passive" visual grouping (a bit
  * more pronounced than the thin lines separating the 1-2 lines *within* one occurrence), on top of
  * which hovering adds a slightly darker shade of the popup's pale-yellow background.
  */
-.lctable .lc-popup-occurrence-row {
+.lctable .lc-popup-item {
     margin: 3px 4px;
     padding: 3px 4px;
     border: 1px solid #E0D9A0;
     border-radius: 3px;
 }
 
-.lctable .lc-popup-occurrence-row:hover {
+.lctable .lc-popup-item:hover {
     background-color: #F5EEA0;
     border-color: #C9BC66;
 }
@@ -541,8 +541,8 @@
  * ".lc-popup-row-separator" div, in both EventStatusPopup and CrfStatusPopup -- see their
  * renderSimpleStatus/renderStatus.
  */
-.lctable .lc-popup-occurrence-row .table_cell_left,
-.lctable .lc-popup-occurrence-row .table_cell {
+.lctable .lc-popup-item .table_cell_left,
+.lctable .lc-popup-item .table_cell {
     border: none;
 }
 
@@ -600,8 +600,8 @@
     align-items: center;
 }
 
-.lctable .lc-popup-occurrence-row .lc-popup-actions img,
-.lctable .lc-popup-occurrence-row .lc-popup-summary-line img {
+.lctable .lc-popup-item .lc-popup-actions img,
+.lctable .lc-popup-item .lc-popup-summary-line img {
     vertical-align: middle;
 }
 
@@ -624,7 +624,7 @@
  * the Event Status/Event Date/each CRF column -- see ListEventsForSubjectTable). Scoped with the
  * table's own "#<tableName>-panel" wrapper id (see LCTable#panelId) rather than a shared class, so
  * that none of this affects the "findSubjects" table (#findSubjects-panel), which reuses the very
- * same ".event-trigger"/".lc-popup-status-badge" classes for its own -- horizontal, aggregate-per-cell --
+ * same ".event-trigger"/".lc-popup-badge" classes for its own -- horizontal, aggregate-per-cell --
  * layout (multiple status badges side by side *within* a single trigger, one trigger per cell).
  *
  * Goal: the occurrences' rows in the Event Status, Event Date and CRF columns are meant to line up

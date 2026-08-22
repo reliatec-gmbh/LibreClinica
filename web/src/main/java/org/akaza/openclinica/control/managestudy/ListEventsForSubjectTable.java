@@ -156,7 +156,8 @@ public class ListEventsForSubjectTable {
         this.eventPopup = EventStatusPopup.perOccurrence(selectedStudyEventDefinition, studyBean, currentRole, currentUser, resword, resformat);
         this.crfPopup = CrfStatusPopup.perOccurrence(selectedStudyEventDefinition, studyBean, currentRole, currentUser, crfVersionDAO, resword, resformat, contextPath);
 
-        this.table = new LCTable<>("listEventsForSubject", buildColumns(), this::fetchData, List.of("defId"));
+        this.table = new LCTable<>("listEventsForSubject", buildColumns(), this::fetchData, List.of("defId"))
+            .setRowTestAttributes(row -> Map.of("subject", row.studySubject.getLabel()));
         this.table.addCustomToolbarControl(this::renderSelectEventControl);
         if (isAddSubjectLinkShown()) {
             this.table.addCustomToolbarControl(this::renderAddNewSubjectControl);
@@ -252,10 +253,13 @@ public class ListEventsForSubjectTable {
 
         // one column per active top-level CRF of the selected event definition
         for (CRFBean crf : crfs) {
-            columns.add(customTdCol("crf_" + crf.getId(), crf.getName(), 0, NOT_SORTABLE,
+            LCTableColumnDef<ListEventsForSubjectRow> crfColumn = LCTableColumnDef.<ListEventsForSubjectRow>customTdCol(
+                "crf_" + crf.getId(), crf.getName(), 0, NOT_SORTABLE,
                 new LCTableFilterDef.Select<>(DataEntryStage.toArrayList(), DataEntryStage::getName, DataEntryStage::getName),
                 (td, row) -> renderCrfCell(td, row, crf)
-            ));
+            );
+            crfColumn.setTestAttributes(row -> Map.of("crf", crf.getName()));
+            columns.add(crfColumn);
         }
 
         columns.add(customTdCol("actions", resword.getString("rule_actions"), 0, NOT_SORTABLE, LCTableFilterDef.clearFilter(), this::renderActionsCell));
@@ -313,7 +317,7 @@ public class ListEventsForSubjectTable {
             return;
         }
         td.of(actionLink(actionId("view", studySubject.getId()), resword.getString("view"), url("ViewStudySubject").param("id", studySubject.getId()),
-            "bt_View.gif"));
+            "bt_View.gif", "view"));
 
         if (currentRole.getRole() == Role.MONITOR) {
             return;
@@ -326,19 +330,19 @@ public class ListEventsForSubjectTable {
             td.of(actionLink(actionId("remove", studySubject.getId()), resword.getString("remove"),
                 url("RemoveStudySubject").param("action", "confirm").param("id", studySubject.getId()).param("subjectId", studySubject.getSubjectId())
                     .param("studyId", studySubject.getStudyId()),
-                "bt_Remove.gif"));
+                "bt_Remove.gif", "remove"));
         }
         if (studyAvailable && subjectDeleted) {
             td.of(actionLink(actionId("restore", studySubject.getId()), resword.getString("restore"),
                 url("RestoreStudySubject").param("action", "confirm").param("id", studySubject.getId()).param("subjectId", studySubject.getSubjectId())
                     .param("studyId", studySubject.getStudyId()),
-                "bt_Restore.gif"));
+                "bt_Restore.gif", "restore"));
         }
         if (studyAvailable && studySubject.getStatus() == Status.AVAILABLE
             && currentRole.getRole() != Role.INVESTIGATOR && currentRole.getRole() != Role.RESEARCHASSISTANT
             && currentRole.getRole() != Role.RESEARCHASSISTANT2) {
             td.of(actionLink(actionId("reassign", studySubject.getId()), resword.getString("reassign"), url("ReassignStudySubject").param("id",
-                studySubject.getId()), "bt_Reassign.gif"));
+                studySubject.getId()), "bt_Reassign.gif", "reassign"));
         }
     }
 

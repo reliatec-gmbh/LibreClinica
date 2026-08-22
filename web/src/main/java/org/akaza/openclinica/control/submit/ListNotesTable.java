@@ -89,7 +89,8 @@ public class ListNotesTable {
         this.resolutionStatusDecoder = identityDecoder(resolutionStatusFilterOptions);
 
         // "type", "resolutionStatus", and "module" are top-level sticky parameters used for download/print links.
-        this.table = new LCTable<>("listNotes", buildColumns(), this::fetchData, List.of("module", "type", "resolutionStatus"));
+        this.table = new LCTable<>("listNotes", buildColumns(), this::fetchData, List.of("module", "type", "resolutionStatus"))
+            .setRowTestAttributes(row -> Map.of("note", String.valueOf(row.getId())));
 
         // Only show download/print links (and their separators) if the current page has rows.
         java.util.function.Predicate<LCTableContext<DiscrepancyNoteBean>> hasContent = ctx -> !ctx.data.pageItems.isEmpty();
@@ -187,7 +188,7 @@ public class ListNotesTable {
         }
 
         container.of(LCTableUtil.actionLink(actionId("download"), resword.getString("download_all_discrepancy_notes"),
-            "javascript:openDocWindow('" + downloadHref.toUriString() + "')", "bt_Download.gif"));
+            "javascript:openDocWindow('" + downloadHref.toUriString() + "')", "bt_Download.gif", "download"));
     }
 
     /**
@@ -207,7 +208,7 @@ public class ListNotesTable {
         }
 
         container.of(LCTableUtil.actionLink(actionId("print"), resword.getString("print"),
-            "javascript:openDocWindow('" + printHref.toUriString() + "')", "bt_Print.gif"));
+            "javascript:openDocWindow('" + printHref.toUriString() + "')", "bt_Print.gif", "print"));
     }
 
     // -- Column definitions --------------------------------------------------------------------------
@@ -350,14 +351,14 @@ public class ListNotesTable {
     /** Renders action links (see class javadoc for intentional legacy parity fix/omission). */
     private void renderActionsCell(Td<?> td, DiscrepancyNoteBean row) {
         String createNoteUrl = CreateDiscrepancyNoteServlet.getAddChildURL(row, ResolutionStatus.CLOSED, true) + "&viewAction=1";
-        td.of(LCTableUtil.actionLink(actionId("view", row), resword.getString("view"), "javascript:openDNWindow('" + createNoteUrl + "');", "bt_View.gif"));
+        td.of(LCTableUtil.actionLink(actionId("view", row), resword.getString("view"), "javascript:openDNWindow('" + createNoteUrl + "');", "bt_View.gif", "view"));
 
         if (!currentStudy.getStatus().isLocked()) {
             // Fixed: the legacy renderer compared getEntityType() != "eventCrf" by reference instead of by value.
             boolean isEventCrf = "eventCrf".equals(row.getEntityType());
             if (!isEventCrf || row.getStageId() == 5) {
                 td.of(LCTableUtil.actionLink(actionId("resolve", row), resword.getString("view_within_crf"),
-                    url("ResolveDiscrepancy").param("noteId", row.getId()), "bt_Reassign.gif"));
+                    url("ResolveDiscrepancy").param("noteId", row.getId()), "bt_Reassign.gif", "resolve"));
             }
         }
 

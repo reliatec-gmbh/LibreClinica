@@ -123,7 +123,8 @@ public final class EventStatusPopup {
 
     private static void renderBadge(Div<?> trigger, SubjectEventStatus status, int count, boolean showCount) {
         String iconPath = EVENT_STATUS_ICON_PATHS.get(status.getId());
-        trigger.span().attrClass("lc-popup-status-badge")
+        trigger.span().attrClass("lc-popup-badge")
+            .addAttr("data-testid", "lc-popup-badge")
             .of(badge -> {
                 if (iconPath != null) {
                     badge.img().attrSrc(iconPath).attrAlt(status.getName()).__();
@@ -194,23 +195,23 @@ public final class EventStatusPopup {
         if (eventStatus == SubjectEventStatus.LOCKED) {
             if (studyDirectorOrSysAdmin) {
                 actions.add(of(actionIdPrefix + "view-occurrence-" + studyEvent.getId(), view,
-                    url("EnterDataForStudyEvent").param("eventId", studyEvent.getId()), "bt_View.gif", showLabel));
+                    url("EnterDataForStudyEvent").param("eventId", studyEvent.getId()), "bt_View.gif", showLabel, "view"));
                 if (studyAvailable) {
                     actions.add(of(actionIdPrefix + "remove-occurrence-" + studyEvent.getId(), resword.getString("remove"),
                         url("RemoveStudyEvent").param("action", "confirm").param("id", studyEvent.getId()).param("studySubId", studySubject.getId()),
-                        "bt_Remove.gif", showLabel));
+                        "bt_Remove.gif", showLabel, "remove"));
                 }
             }
             return actions;
         }
         actions.add(of(actionIdPrefix + "view-occurrence-" + studyEvent.getId(), view,
-            url("EnterDataForStudyEvent").param("eventId", studyEvent.getId()), "bt_View.gif", showLabel));
+            url("EnterDataForStudyEvent").param("eventId", studyEvent.getId()), "bt_View.gif", showLabel, "view"));
         if (studyDirectorOrSysAdmin && studyAvailable) {
             actions.add(of(actionIdPrefix + "edit-occurrence-" + studyEvent.getId(), resword.getString("edit"),
-                url("UpdateStudyEvent").param("event_id", studyEvent.getId()).param("ss_id", studySubject.getId()), "bt_Edit.gif", showLabel));
+                url("UpdateStudyEvent").param("event_id", studyEvent.getId()).param("ss_id", studySubject.getId()), "bt_Edit.gif", showLabel, "edit"));
             actions.add(of(actionIdPrefix + "remove-occurrence-" + studyEvent.getId(), resword.getString("remove"),
                 url("RemoveStudyEvent").param("action", "confirm").param("id", studyEvent.getId()).param("studySubId", studySubject.getId()),
-                "bt_Remove.gif", showLabel));
+                "bt_Remove.gif", showLabel, "remove"));
         }
         return actions;
     }
@@ -240,6 +241,8 @@ public final class EventStatusPopup {
                 header.a().attrClass("text-btn")
                     .attrHref("CreateNewStudyEvent?studySubjectId=" + ctx.studySubject.getId() + "&studyEventDefinition=" + sed.getId())
                     .attrId("findSubjects-add-occurrence-event-" + ctx.studySubject.getId() + "-" + sed.getId())
+                    .addAttr("data-testid", "action-link")
+                    .addAttr("data-test-action", "add-occurrence")
                     .text(resword.getString("add_another_occurrence"))
                     .__();
             }
@@ -265,7 +268,7 @@ public final class EventStatusPopup {
                     if (currentRole.getRole() != Role.MONITOR && !studyBean.getStatus().isFrozen()) {
                         actions.add(of("findSubjects-schedule-event-" + studySubject.getId() + "-" + sed.getId(), resword.getString("schedule"),
                             url("CreateNewStudyEvent").param("studySubjectId", studySubject.getId()).param("studyEventDefinition", sed.getId()),
-                            "bt_Schedule.gif", true));
+                            "bt_Schedule.gif", true, "schedule"));
                     }
                     return actions;
                 }
@@ -275,7 +278,7 @@ public final class EventStatusPopup {
                 if (eventSysStatus == Status.DELETED || eventSysStatus == Status.AUTO_DELETED) {
                     List<PopupAction> actions = new ArrayList<>();
                     actions.add(of("findSubjects-view-occurrence-" + studyEvent.getId(), resword.getString("view") + "/" + resword.getString("enter_data"),
-                        url("EnterDataForStudyEvent").param("eventId", studyEvent.getId()), "bt_View.gif", showLabel));
+                        url("EnterDataForStudyEvent").param("eventId", studyEvent.getId()), "bt_View.gif", showLabel, "view"));
                     return actions;
                 }
                 if (eventSysStatus.getId() != Status.AVAILABLE.getId() && eventSysStatus != Status.SIGNED) {
@@ -335,37 +338,37 @@ public final class EventStatusPopup {
                                 resword.getString("schedule"),
                                 url("CreateNewStudyEvent").param("studySubjectId", studySubject.getId())
                                     .param("studyEventDefinition", selectedSed.getId()),
-                                "bt_Schedule.gif", true));
+                                "bt_Schedule.gif", true, "schedule"));
                         }
                     } else if (eventStatus == SubjectEventStatus.LOCKED) {
                         if (studyDirectorOrSysAdmin) {
                             StudyEventBean se = studyEvent.get();
                             actions.add(of("listEventsForSubject-view-occurrence-" + se.getId(), view,
-                                url("EnterDataForStudyEvent").param("eventId", se.getId()), "bt_View.gif", true));
+                                url("EnterDataForStudyEvent").param("eventId", se.getId()), "bt_View.gif", true, "view"));
                             if (studyAvailable) {
                                 actions.add(of("listEventsForSubject-remove-occurrence-" + se.getId(), resword.getString("remove"),
                                     url("RemoveStudyEvent").param("action", "confirm").param("id", se.getId()).param("studySubId", studySubject.getId()),
-                                    "bt_Remove.gif", true));
+                                    "bt_Remove.gif", true, "remove"));
                             }
                         }
                     } else {
                         // COMPLETED and all other actual-occurrence statuses: identical action set in the legacy table
                         StudyEventBean se = studyEvent.get();
                         actions.add(of("listEventsForSubject-view-occurrence-" + se.getId(), view,
-                            url("EnterDataForStudyEvent").param("eventId", se.getId()), "bt_View.gif", true));
+                            url("EnterDataForStudyEvent").param("eventId", se.getId()), "bt_View.gif", true, "view"));
                         if (studyDirectorOrSysAdmin && studyAvailable) {
                             actions.add(of("listEventsForSubject-edit-occurrence-" + se.getId(), resword.getString("edit"),
-                                url("UpdateStudyEvent").param("event_id", se.getId()).param("ss_id", studySubject.getId()), "bt_Edit.gif", true));
+                                url("UpdateStudyEvent").param("event_id", se.getId()).param("ss_id", studySubject.getId()), "bt_Edit.gif", true, "edit"));
                             actions.add(of("listEventsForSubject-remove-occurrence-" + se.getId(), resword.getString("remove"),
                                 url("RemoveStudyEvent").param("action", "confirm").param("id", se.getId()).param("studySubId", studySubject.getId()),
-                                "bt_Remove.gif", true));
+                                "bt_Remove.gif", true, "remove"));
                         }
                     }
                 }
                 if ((eventSysStatus == Status.DELETED || eventSysStatus == Status.AUTO_DELETED) && studyEvent.isPresent()) {
                     StudyEventBean se = studyEvent.get();
                     actions.add(of("listEventsForSubject-view-occurrence-" + se.getId(), view,
-                        url("EnterDataForStudyEvent").param("eventId", se.getId()), "bt_View.gif", true));
+                        url("EnterDataForStudyEvent").param("eventId", se.getId()), "bt_View.gif", true, "view"));
                 }
                 return actions;
             }

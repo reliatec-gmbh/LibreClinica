@@ -85,17 +85,21 @@ public class LCPopup<T, I> {
     public <C extends Element<C, Z> & FlowContent<C, Z>, Z extends Element> void render(C container, T data) {
         List<I> items = itemsExtractor.apply(data);
         container.div().attrClass(triggerClass.isEmpty() ? "lc-popup-trigger" : triggerClass + " lc-popup-trigger").addAttr("tabindex", "0")
+            .addAttr("data-testid", "lc-popup-trigger")
             .of(trigger -> {
                 triggerRenderer.accept(trigger, items);
                 trigger.div().attrClass("lc-popup " + popupModifierClass)
+                    .addAttr("data-testid", "lc-popup")
                     .of(popup -> {
                         popup.div().attrClass("lc-popup-header table_header_row_left")
+                            .addAttr("data-testid", "lc-popup-header")
                             .of(header -> {
                                 headerRenderer.accept(header, data);
                                 extraHeaderControl.ifPresent(control -> control.accept(header, data));
                             })
                             .__();
                         popup.div().attrClass("lc-popup-body")
+                            .addAttr("data-testid", "lc-popup-body")
                             .of(body -> {
                                 int total = items.size();
                                 for (int i = 0; i < total; i++) {
@@ -111,7 +115,9 @@ public class LCPopup<T, I> {
 
     private void renderItemRow(Div<?> body, T context, I item, int index, int total) {
         boolean compact = itemRenderer.layoutFor(context, item) == PopupItemLayout.COMPACT;
-        body.div().attrClass(compact ? "lc-popup-occurrence-row lc-popup-occurrence-row-compact" : "lc-popup-occurrence-row")
+        body.div().attrClass(compact ? "lc-popup-item lc-popup-item-compact" : "lc-popup-item")
+            .addAttr("data-testid", "lc-popup-item")
+            .addAttr("data-test-index", String.valueOf(index + 1))
             .of(row -> {
                 itemRenderer.renderStatus(row, context, item, index, total);
                 // generic layout chrome owned by LCPopup itself: separates the status content above from the
@@ -123,7 +129,7 @@ public class LCPopup<T, I> {
                             actions.text("Actions: ");   // generic layout chrome owned by LCPopup itself; i18n deferred (see LCTable)
                         }
                         for (PopupAction action : itemRenderer.actionsFor(context, item)) {
-                            actions.of(actionLink(action.elementId, action.label, action.href, action.iconImage, action.showLabel));
+                            actions.of(actionLink(action.elementId, action.label, action.href, action.iconImage, action.showLabel, action.actionName));
                         }
                     })
                     .__();
@@ -201,26 +207,29 @@ public class LCPopup<T, I> {
         public final String iconImage;
         /** if true, renders icon + visible text label; if false, icon-only (with a tooltip, see {@code LCTableUtil.actionLink}). */
         public final boolean showLabel;
+        /** Stable, locale-independent action name used by automated tests. */
+        public final String actionName;
 
-        private PopupAction(String elementId, String label, String href, String iconImage, boolean showLabel) {
+        private PopupAction(String elementId, String label, String href, String iconImage, boolean showLabel, String actionName) {
             this.elementId = elementId;
             this.label = label;
             this.href = href;
             this.iconImage = iconImage;
             this.showLabel = showLabel;
+            this.actionName = actionName;
         }
 
         /** Builds a {@code PopupAction} from a {@link SafeUrl} (the common case). */
-        public static PopupAction of(String elementId, String label, SafeUrl href, String iconImage, boolean showLabel) {
-            return new PopupAction(elementId, label, href.toUriString(), iconImage, showLabel);
+        public static PopupAction of(String elementId, String label, SafeUrl href, String iconImage, boolean showLabel, String actionName) {
+            return new PopupAction(elementId, label, href.toUriString(), iconImage, showLabel, actionName);
         }
 
         /**
          * Builds a {@code PopupAction} from an already-built, pre-encoded href string (e.g. the REST "print" links,
          * whose path segments must not be re-encoded by {@link SafeUrl}).
          */
-        public static PopupAction ofRawHref(String elementId, String label, String href, String iconImage, boolean showLabel) {
-            return new PopupAction(elementId, label, href, iconImage, showLabel);
+        public static PopupAction ofRawHref(String elementId, String label, String href, String iconImage, boolean showLabel, String actionName) {
+            return new PopupAction(elementId, label, href, iconImage, showLabel, actionName);
         }
     }
 }

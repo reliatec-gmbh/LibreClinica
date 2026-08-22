@@ -36,7 +36,8 @@ public class AuditUserLoginTable {
     // constructor (takes DAO as parameter and initializes the LCTable with column definitions and fetchData method)
     public AuditUserLoginTable(AuditUserLoginDao auditUserLoginDao) {
         this.auditUserLoginDao = auditUserLoginDao;
-        this.table = new LCTable<>("userLogins", COLUMNS, this::fetchData);
+        this.table = new LCTable<>("userLogins", COLUMNS, this::fetchData)
+            .setRowTestAttributes(row -> java.util.Map.of("login", String.valueOf(row.getId())));
     }
 
     /**
@@ -70,7 +71,7 @@ public class AuditUserLoginTable {
             AuditUserLoginBean::getUserAccountId,
             (td, row) ->
                 td.of(actionLink(actionId("view", row), "View",
-                    url("ViewUserAccount").param("userId", row.getUserAccountId()).param("viewFull", "yes"), "bt_View.gif"))
+                    url("ViewUserAccount").param("userId", row.getUserAccountId()).param("viewFull", "yes"), "bt_View.gif", "view"))
         )
     );
 

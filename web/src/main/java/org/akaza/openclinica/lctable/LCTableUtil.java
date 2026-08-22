@@ -18,6 +18,7 @@ import org.xmlet.htmlapifaster.FlowContent;
 
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public class LCTableUtil {
@@ -84,6 +85,19 @@ public class LCTableUtil {
             .replace("_", "\\_");
     }
 
+    /** Applies non-empty values as {@code data-test-*} attributes to an HtmlFlow element. */
+    public static <T extends CustomAttributeGroup<T, ?>> Consumer<T> testAttrs(Map<String, String> attributes) {
+        return element -> {
+            if (attributes != null && !attributes.isEmpty()) {
+                attributes.forEach((key, value) -> {
+                    if (value != null && !value.isEmpty()) {
+                        element.addAttr("data-test-" + key, value);
+                    }
+                });
+            }
+        };
+    }
+
     // --- generate HTML for various common elements ---
     /**
      * Constructs an action link, optionally with a text label if {@code includeText} is true. If {@code includeText} is false, uses
@@ -95,29 +109,34 @@ public class LCTableUtil {
      * @param href        href for the anchor
      * @param imgSrc      src (relative to "images/") for the inner img
      * @param includeText if true, renders {@code altText} as a visible label; if false, icon-only with a tooltip
+     * @param testAction  stable, locale-independent action name used by automated tests
      */
     public static <T extends Element<T, Z> & FlowContent<T, Z>, Z extends Element> Consumer<T> actionLink(
-            String id, String altText, SafeUrl href, String imgSrc, boolean includeText) {
-        return actionLink(id, altText, href.toUriString(), imgSrc, includeText);
+            String id, String altText, SafeUrl href, String imgSrc, boolean includeText, String testAction) {
+        return actionLink(id, altText, href.toUriString(), imgSrc, includeText, testAction);
     }
 
-    /** Icon-only variant of {@link #actionLink(String, String, SafeUrl, String, boolean)} (no visible text label). */
+    /** Icon-only variant of {@link #actionLink(String, String, SafeUrl, String, boolean, String)} (no visible text label). */
     public static <T extends Element<T, Z> & FlowContent<T, Z>, Z extends Element> Consumer<T> actionLink(
-            String id, String altText, SafeUrl href, String imgSrc) {
-        return actionLink(id, altText, href, imgSrc, false);
+            String id, String altText, SafeUrl href, String imgSrc, String testAction) {
+        return actionLink(id, altText, href, imgSrc, false, testAction);
     }
 
     /**
-     * Same as {@link #actionLink(String, String, SafeUrl, String, boolean)}, but for the rare cases (e.g. the REST
+    * Same as {@link #actionLink(String, String, SafeUrl, String, boolean, String)}, but for the rare cases (e.g. the REST
      * "print" links) where the href is already a fully-built, pre-encoded string rather than a {@link SafeUrl}
      * (re-encoding it via {@code SafeUrl} would corrupt already-percent-encoded path segments).
      */
     public static <T extends Element<T, Z> & FlowContent<T, Z>, Z extends Element> Consumer<T> actionLink(
-            String id, String altText, String href, String imgSrc, boolean includeText) {
+            String id, String altText, String href, String imgSrc, boolean includeText, String testAction) {
         return container -> {
             var anchor = container.a().attrClass("action-link").attrHref(href).addAttr("aria-label", altText);
             if (id != null) {
                 anchor = anchor.attrId(id);
+            }
+            if (testAction != null) {
+                anchor = anchor.addAttr("data-testid", "action-link")
+                    .addAttr("data-test-action", testAction);
             }
             if (!includeText) {
                 anchor = anchor.addAttr("data-tooltip", altText);
@@ -130,10 +149,10 @@ public class LCTableUtil {
         };
     }
 
-    /** Icon-only variant of {@link #actionLink(String, String, String, String, boolean)} (no visible text label). */
+    /** Icon-only variant of {@link #actionLink(String, String, String, String, boolean, String)} (no visible text label). */
     public static <T extends Element<T, Z> & FlowContent<T, Z>, Z extends Element> Consumer<T> actionLink(
-            String id, String altText, String href, String imgSrc) {
-        return actionLink(id, altText, href, imgSrc, false);
+            String id, String altText, String href, String imgSrc, String testAction) {
+        return actionLink(id, altText, href, imgSrc, false, testAction);
     }
 
 }

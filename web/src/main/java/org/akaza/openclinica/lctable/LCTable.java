@@ -45,6 +45,7 @@ public class LCTable<T>  {
     final String panelId;       // ID of the panel element to target with HTMX requests (e.g. "books-panel")
     final List<LCTableColumnDef<T>> columns;
     final Function<LCTableParams, LCTableData<T>> fetchData;
+    private Function<T, Map<String, String>> rowTestAttributes = row -> Collections.emptyMap();
 
     /**
      * Explicit whitelist of "sticky" request parameters (e.g. {@code defId}) that are not related
@@ -98,6 +99,11 @@ public class LCTable<T>  {
         return tableName;
     }
     public List<String> getStickyParamNames() { return stickyParamNames; }
+
+    public LCTable<T> setRowTestAttributes(Function<T, Map<String, String>> rowTestAttributes) {
+        this.rowTestAttributes = Objects.requireNonNull(rowTestAttributes, "rowTestAttributes");
+        return this;
+    }
 
     public List<String> getColumnNames() {
         return columns.stream().map(col -> col.columnName).collect(Collectors.toList());
@@ -257,7 +263,7 @@ public class LCTable<T>  {
         IntStream.range(0, data.size()).forEach(i -> {
             T item = data.get(i);
             String rowClass = ((i+1) % 2 == 0) ? "even" : "odd";    // use (i+1) to start from 1 for class assignment
-            Tr<?> tr = tbody.tr().attrClass(rowClass);
+            Tr<?> tr = tbody.tr().attrClass(rowClass).of(testAttrs(rowTestAttributes.apply(item)));
             columns.forEach(col -> {
                 if (shouldRenderColumn(col, ctx)) col.cellRenderer.accept(tr, item);
             });
