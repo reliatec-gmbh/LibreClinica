@@ -195,6 +195,7 @@ public class ListEventsForSubjectTable {
             .of(div -> {
                 div.label().text(resword.getString("events") + ": ").__();
                 div.select()
+                    .addAttr("data-testid", "select-event-definition")
                     .addAttr("onchange",
                         "var v=this.value; if (v == '0') { window.location='" + ctx.resourcePath + "/ListStudySubjects'; } "
                             + "else if (v) { window.location='" + ctx.resourcePath + "/ListEventsForSubjects?module=submit&defId=' + v; }")
@@ -213,6 +214,7 @@ public class ListEventsForSubjectTable {
     /** Toolbar button opening the "Add New Subject" modal (JSP-side BlockUI overlay; unrelated to LCTable/HTMX). */
     private void renderAddNewSubjectControl(Div<?> container, LCTableContext<ListEventsForSubjectRow> ctx) {
         container.a().attrClass("text-btn").attrHref("javascript:;").attrId("addSubject")
+            .addAttr("data-testid", "add-subject-button")
             .text(resword.getString("add_new_subject"))
             .__();
     }

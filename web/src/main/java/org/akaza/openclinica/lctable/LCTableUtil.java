@@ -12,7 +12,7 @@ package org.akaza.openclinica.lctable;
 
 import static org.akaza.openclinica.lctable.LCTable.*;
 
-import com.google.common.html.HtmlEscapers;
+import org.springframework.web.util.HtmlUtils;
 import org.xmlet.htmlapifaster.CustomAttributeGroup;
 import org.xmlet.htmlapifaster.Element;
 import org.xmlet.htmlapifaster.FlowContent;
@@ -92,7 +92,7 @@ public class LCTableUtil {
             if (attributes != null && !attributes.isEmpty()) {
                 attributes.forEach((key, value) -> {
                     if (value != null && !value.isEmpty()) {
-                        String safeValue = HtmlEscapers.htmlEscaper().escape(value);
+                        String safeValue = HtmlUtils.htmlEscape(value);
                         element.addAttr("data-test-" + key, safeValue);
                     }
                 });

@@ -72,6 +72,8 @@ public abstract class LCTableFilterDef {
                     .attrName(filterName)
                     .attrValue(filterValue)
                     .attrClass("filter-input")
+                    .addAttr("data-testid", "filter-input")
+                    .addAttr("data-test-column", col.columnName)
                     .attrSize(1L)
                     .attrId(table.tableName + "-text-filter-" + col.columnName);
 
@@ -157,6 +159,8 @@ public abstract class LCTableFilterDef {
                     .attrName(filterName)
                     .attrId(table.tableName + "-select-filter-" + col.columnName)
                     .attrClass("filter-select")
+                    .addAttr("data-testid", "filter-select")
+                    .addAttr("data-test-column", col.columnName)
                     .attrStyle("width:1px;flex:1")
                     .of(hxGetAttrs(ctx.entityPath, "closest form", "#" + table.panelId, "change"));
 
@@ -196,6 +200,8 @@ public abstract class LCTableFilterDef {
             tr.td().a()
                 .attrId(table.tableName + "-clear-filter-" + col.columnName)
                 .attrClass("text-btn")
+                .addAttr("data-testid", "clear-filter-button")
+                .addAttr("data-test-column", col.columnName)     // this refers to the column where the button appears, but the button clears all filters, not just that column
                 .of(hxGetAttrs(ctx.entityPath, selector.toString(), "#" + table.panelId, "click"))
                 .text("Clear Filter")
                 .__().__();

@@ -190,6 +190,9 @@ public class LCTable<T>  {
             Th<?> th = tr.th();
             if (widthStyle != null) th.attrStyle(widthStyle);
             th.a().attrId(tableName + "-sortable-header-" + col.columnName).attrClass("sort-header-link")
+                .addAttr("data-testid", "sort-header")
+                .addAttr("data-test-column", col.columnName)
+                .addAttr("data-test-sort", currentSortDir == null ? "none" : currentSortDir)    // <-- exposes current state for testing
                 .attrHref(href).of(hxGetAttrs(href, NO_HX_INCLUDE, "#" + panelId, NO_HX_TRIGGER))
                 .of(a -> {
                     a.span().attrClass("sort-header-text").text(col.columnDisplayName).__();
@@ -208,7 +211,8 @@ public class LCTable<T>  {
     }
 
     private void renderToolbar(Tr<?> tr, LCTableContext<T> ctx) {
-        tr.td().attrClass("toolbar").attrColspan((int) renderedColumnCount(ctx))
+        tr.td().attrClass("toolbar")
+            .attrColspan((int) renderedColumnCount(ctx))
             .div().attrClass("toolbar-container")
             .of(container -> {
                 // Left: page navigation
@@ -223,6 +227,8 @@ public class LCTable<T>  {
                     final String toggleHref = urlForShowHiddenColsToggle(ctx);
                     container.a().attrClass("text-btn")
                         .attrHref(toggleHref)
+                        .addAttr("data-testid", "toggle-hidden-columns-button")
+                        .addAttr("data-test-action", ctx.showHiddenCols ? "hide" : "show-more")
                         .of(hxGetAttrs(toggleHref, NO_HX_INCLUDE, "#" + panelId, NO_HX_TRIGGER))
                         .text(ctx.showHiddenCols ? "Hide" : "Show More")
                         .__();
@@ -252,14 +258,14 @@ public class LCTable<T>  {
     }
 
     private void renderTableHeader(Thead<?> thead, LCTableContext<T> ctx) {
-        thead.tr().attrClass("header").of(tr -> renderToolbar(tr, ctx)).__();
-        thead.tr().attrClass("header").of(tr -> renderColumnNames(tr, ctx)).__();
-        thead.tr().attrClass("filter").of(tr -> renderFilters(tr, ctx)).__();
+        thead.tr().attrClass("header").addAttr("data-testid", "lctable-toolbar").of(tr -> renderToolbar(tr, ctx)).__();
+        thead.tr().attrClass("header").addAttr("data-testid", "lctable-column-header-row").of(tr -> renderColumnNames(tr, ctx)).__();
+        thead.tr().attrClass("filter").addAttr("data-testid", "lctable-column-filter-row").of(tr -> renderFilters(tr, ctx)).__();
     }
 
     private void renderTableBody(Tbody<?> tbody, LCTableContext<T> ctx) {
         List<T> data = ctx.data.pageItems;
-        tbody.attrClass("tbody");
+        tbody.attrClass("tbody").addAttr("data-testid", "lctable-data");
         IntStream.range(0, data.size()).forEach(i -> {
             T item = data.get(i);
             String rowClass = ((i+1) % 2 == 0) ? "even" : "odd";    // use (i+1) to start from 1 for class assignment
@@ -280,7 +286,7 @@ public class LCTable<T>  {
     private String renderTableHtml(LCTableContext<T> ctx) {
         final StringWriter sw = new StringWriter();
         HtmlFlow.doc(sw)
-            .div().attrId(panelId).attrClass("lctable")
+            .div().attrId(panelId).attrClass("lctable").addAttr("data-testid", "lctable-panel")
             .addAttr("hx-ext", "morph")         // use 'idiomorph' extension for morphing the table content instead of replacing it
             .form().attrId(panelId + "-form")
             // Render sticky parameters first, keeping them at the start of URLs and DOM (form) serialization order.
@@ -307,7 +313,7 @@ public class LCTable<T>  {
                     form.input().attrType(EnumTypeInputType.HIDDEN).attrName(PARAM_SHOW_HIDDEN_COLS).attrValue("true").__();
                 }
             })
-            .table().attrId(panelId + "-table").attrClass("table").attrStyle("border-collapse:collapse")
+            .table().attrId(panelId + "-table").attrClass("table").addAttr("data-testid", "lctable-table").attrStyle("border-collapse:collapse")
             .thead().attrId(panelId + "-thead").of(thead -> renderTableHeader(thead, ctx)).__() // thead
             .tbody().attrId(panelId + "-tbody").attrClass("tbody").of(tbody -> renderTableBody(tbody, ctx)).__() // tbody
             .tfoot().attrId(panelId + "-tfoot").of(tfoot -> renderTableFooter(tfoot, ctx)).__()
@@ -337,7 +343,7 @@ public class LCTable<T>  {
         long    from     = (long) ctx.page * ctx.maxRows + 1;
         long    to       = (long) ctx.page * ctx.maxRows + ctx.data.pageItems.size();
 
-        Tfoot<?> footer = tfoot.attrClass("statusBar");
+        Tfoot<?> footer = tfoot.attrClass("statusBar").addAttr("data-testid", "lctable-status-bar");
         Td<?> td = footer.tr().td().attrColspan((int) renderedColumnCount(ctx));
         final int count = ctx.data.totalCountWithFilter;
         td.text(count == 0 ? "No results." : format("Results %d-%d of %d.", from, to, count)).__();
@@ -356,9 +362,9 @@ public class LCTable<T>  {
         nav.attrClass("toolbar");
 
         // « first
-        pageBtn(nav, "«", url(ctx.entityPath, 0, size, sort, dir, ctx.filters, ctx.showHiddenCols, ctx.stickyParams), panelId, page == 0, tableName + "-nav-btn-first-page");
+        pageBtn(nav, "«", url(ctx.entityPath, 0, size, sort, dir, ctx.filters, ctx.showHiddenCols, ctx.stickyParams), panelId, page == 0, tableName + "-nav-btn-first-page", "first-page");
         // ‹ previous
-        pageBtn(nav, "‹", url(ctx.entityPath, max(0, page - 1), size, sort, dir, ctx.filters, ctx.showHiddenCols, ctx.stickyParams), panelId, page == 0, tableName + "-nav-btn-prev-page");
+        pageBtn(nav, "‹", url(ctx.entityPath, max(0, page - 1), size, sort, dir, ctx.filters, ctx.showHiddenCols, ctx.stickyParams), panelId, page == 0, tableName + "-nav-btn-prev-page", "prev-page");
         // numbered slots / ellipsis
         for (LCTablePageSlot slot : ctx.slots) {
             if (slot.ellipsis()) {
@@ -367,22 +373,27 @@ public class LCTable<T>  {
                 String slotHref = url(ctx.entityPath, slot.page(), size, sort, dir, ctx.filters, ctx.showHiddenCols, ctx.stickyParams);
                 nav.a().attrId(tableName + "-nav-btn-page-" + (slot.page() + 1))
                     .attrClass("text-btn" + (slot.current() ? " current" : ""))
+                    .addAttr("data-testid", "page-button")
+                    .addAttr("data-test-action", "page")
+                    .addAttr("data-test-page", String.valueOf(slot.page() + 1))
                     .attrHref(slotHref).of(hxGetAttrs(slotHref, NO_HX_INCLUDE, "#" + panelId, NO_HX_TRIGGER))
                     .text(String.valueOf(slot.page() + 1))
                     .__(); // a
             }
         }
         // › next
-        pageBtn(nav, "›", url(ctx.entityPath, min(total - 1, page + 1), size, sort, dir, ctx.filters, ctx.showHiddenCols, ctx.stickyParams), panelId, page >= total - 1, tableName + "-nav-btn-next-page");
+        pageBtn(nav, "›", url(ctx.entityPath, min(total - 1, page + 1), size, sort, dir, ctx.filters, ctx.showHiddenCols, ctx.stickyParams), panelId, page >= total - 1, tableName + "-nav-btn-next-page", "next-page");
         // » last
-        pageBtn(nav, "»", url(ctx.entityPath, total - 1, size, sort, dir, ctx.filters, ctx.showHiddenCols, ctx.stickyParams), panelId, page >= total - 1, tableName + "-nav-btn-last-page");
+        pageBtn(nav, "»", url(ctx.entityPath, total - 1, size, sort, dir, ctx.filters, ctx.showHiddenCols, ctx.stickyParams), panelId, page >= total - 1, tableName + "-nav-btn-last-page", "last-page");
 
         nav.__(); // nav.pagination
     }
 
     /** Writes a single pagination button into the given {@code nav} element. */
-    private void pageBtn(Nav<?> nav, String text, String href, String panelId, boolean disabled, String id) {
+    private void pageBtn(Nav<?> nav, String text, String href, String panelId, boolean disabled, String id, String testAction) {
         nav.a().attrId(id).attrClass("text-btn" + (disabled ? " disabled" : ""))
+            .addAttr("data-testid", "page-button")
+            .addAttr("data-test-action", testAction)
             .attrHref(href).of(hxGetAttrs(href, NO_HX_INCLUDE, "#" + panelId, NO_HX_TRIGGER))
             .text(text)
             .__(); // a
@@ -395,6 +406,7 @@ public class LCTable<T>  {
         div.select()
             .attrId(tableName + "-select-max-rows")
             .attrName(PARAM_MAX_ROWS)
+            .addAttr("data-testid", "select-max-rows")
             // Uses "closest form" to submit maxRows along with all other table-state fields.
             .of(hxGetAttrs(ctx.entityPath, "closest form", "#" + panelId, "change"))
             .of(select -> {

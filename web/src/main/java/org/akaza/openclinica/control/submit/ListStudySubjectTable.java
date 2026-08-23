@@ -147,6 +147,7 @@ public class ListStudySubjectTable {
             .of(div -> {
                 div.label().text("").__();
                 div.select()
+                    .addAttr("data-testid", "select-event-definition")
                     .addAttr("onchange",
                         "var v=this.value; if (v) { window.location='" + ctx.resourcePath
                             + "/ListEventsForSubjects?module=submit&defId=' + v; }")
@@ -164,6 +165,7 @@ public class ListStudySubjectTable {
     /** Toolbar button opening the "Add New Subject" modal. */
     private void renderAddNewSubjectControl(Div<?> container, LCTableContext<FindSubjectsRow> ctx) {
         container.a().attrClass("text-btn").attrHref("javascript:;").attrId("addSubject")
+            .addAttr("data-testid", "add-subject-button")
             .text(resword.getString("add_new_subject"))
             .__();
     }
