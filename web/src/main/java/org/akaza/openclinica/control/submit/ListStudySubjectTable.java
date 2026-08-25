@@ -122,7 +122,8 @@ public class ListStudySubjectTable {
             this.studyEventDefinitions = studyEventDefinitionDAO.findAllActiveByParentStudyId(studyBean.getId());
         }
 
-        this.table = new LCTable<>("findSubjects", buildColumns(), this::fetchData);
+        this.table = new LCTable<>("findSubjects", buildColumns(), this::fetchData)
+            .setRowTestAttributes(row -> Map.of("subject", row.studySubject.getLabel()));
         this.table.addCustomToolbarControl(this::renderSelectEventControl);
         if (isAddSubjectLinkShown()) {
             this.table.addCustomToolbarControl(this::renderAddNewSubjectControl);
@@ -146,6 +147,7 @@ public class ListStudySubjectTable {
             .of(div -> {
                 div.label().text("").__();
                 div.select()
+                    .addAttr("data-testid", "select-event-definition")
                     .addAttr("onchange",
                         "var v=this.value; if (v) { window.location='" + ctx.resourcePath
                             + "/ListEventsForSubjects?module=submit&defId=' + v; }")
@@ -163,6 +165,7 @@ public class ListStudySubjectTable {
     /** Toolbar button opening the "Add New Subject" modal. */
     private void renderAddNewSubjectControl(Div<?> container, LCTableContext<FindSubjectsRow> ctx) {
         container.a().attrClass("text-btn").attrHref("javascript:;").attrId("addSubject")
+            .addAttr("data-testid", "add-subject-button")
             .text(resword.getString("add_new_subject"))
             .__();
     }
@@ -198,13 +201,16 @@ public class ListStudySubjectTable {
         for (StudyEventDefinitionBean sed : studyEventDefinitions) {
             LCPopup<EventStatusPopup.Context, EventStatusPopup.EventOccurrence> eventPopup =
                 EventStatusPopup.aggregate(sed, studyBean, currentRole, currentUser, resword, resformat);
-            columns.add(customTdCol("sed_" + sed.getId(), sed.getName(), 5, NOT_SORTABLE,
+            LCTableColumnDef<FindSubjectsRow> eventColumn = LCTableColumnDef.<FindSubjectsRow>customTdCol(
+                "sed_" + sed.getId(), sed.getName(), 5, NOT_SORTABLE,
                 // SubjectEventStatus.getName() (Term.getName()) already resolves the translated display name via
                 // the terms resource bundle -- do NOT re-translate it here (that would look up the translated text
                 // itself as if it were a resource key, throwing MissingResourceException).
                 new LCTableFilterDef.Select<>(SubjectEventStatus.toArrayList(), SubjectEventStatus::getName, SubjectEventStatus::getName),
                 LCTablePopupColumn.single(eventPopup, row -> toEventStatusPopupContext(row, sed))
-            ));
+            );
+            eventColumn.setTestAttributes(row -> Map.of("event", sed.getName()));
+            columns.add(eventColumn);
         }
 
         columns.add(customTdCol("actions", resword.getString("rule_actions"), 0, NOT_SORTABLE, LCTableFilterDef.clearFilter(), this::renderActionsCell));
@@ -227,7 +233,7 @@ public class ListStudySubjectTable {
         if (studySubject.getId() == 0) {
             return;
         }
-        td.of(actionLink(actionId("view", studySubject.getId()), resword.getString("view"), url("ViewStudySubject").param("id", studySubject.getId()), "bt_View.gif"));
+        td.of(actionLink(actionId("view", studySubject.getId()), resword.getString("view"), url("ViewStudySubject").param("id", studySubject.getId()), "bt_View.gif", "view"));
 
         if (currentRole.getRole() == Role.MONITOR) {
             return;
@@ -239,25 +245,25 @@ public class ListStudySubjectTable {
         if (studyAvailable && !subjectDeleted && currentRole.getRole() != Role.RESEARCHASSISTANT && currentRole.getRole() != Role.RESEARCHASSISTANT2) {
             td.of(actionLink(actionId("remove", studySubject.getId()), resword.getString("remove"),
                 url("RemoveStudySubject").param("action", "confirm").param("id", studySubject.getId()).param("subjectId", studySubject.getSubjectId()).param("studyId", studySubject.getStudyId()),
-                "bt_Remove.gif"));
+                "bt_Remove.gif", "remove"));
         }
         if (studyAvailable && subjectDeleted) {
             td.of(actionLink(actionId("restore", studySubject.getId()), resword.getString("restore"),
                 url("RestoreStudySubject").param("action", "confirm").param("id", studySubject.getId()).param("subjectId", studySubject.getSubjectId()).param("studyId", studySubject.getStudyId()),
-                "bt_Restore.gif"));
+                "bt_Restore.gif", "restore"));
         }
         if (studyAvailable && currentRole.getRole() != Role.RESEARCHASSISTANT && currentRole.getRole() != Role.RESEARCHASSISTANT2
             && currentRole.getRole() != Role.INVESTIGATOR && studySubject.getStatus() == Status.AVAILABLE) {
-            td.of(actionLink(actionId("reassign", studySubject.getId()), resword.getString("reassign"), url("ReassignStudySubject").param("id", studySubject.getId()), "bt_Reassign.gif"));
+            td.of(actionLink(actionId("reassign", studySubject.getId()), resword.getString("reassign"), url("ReassignStudySubject").param("id", studySubject.getId()), "bt_Reassign.gif", "reassign"));
         }
         if (currentRole.getRole() == Role.INVESTIGATOR && studyAvailable && studySubject.getStatus() != Status.DELETED && row.isSignable) {
-            td.of(actionLink(actionId("sign", studySubject.getId()), resword.getString("sign"), url("SignStudySubject").param("id", studySubject.getId()), "icon_Signed.gif"));
+            td.of(actionLink(actionId("sign", studySubject.getId()), resword.getString("sign"), url("SignStudySubject").param("id", studySubject.getId()), "icon_Signed.gif", "sign"));
         }
         try {
             if (studyAvailable && (currentRole.getRole() == Role.RESEARCHASSISTANT || currentRole.getRole() == Role.RESEARCHASSISTANT2)
                 && studySubject.getStatus() == Status.AVAILABLE && "ACTIVE".equalsIgnoreCase(pManageStatus(studySubject))
                 && "enabled".equalsIgnoreCase(participateStatus(studySubject))) {
-                td.of(actionLink(actionId("connect-participant", studySubject.getId()), resword.getString("connect_participant"), participateUrl(studySubject), "bt_Ocui.gif"));
+                td.of(actionLink(actionId("connect-participant", studySubject.getId()), resword.getString("connect_participant"), participateUrl(studySubject), "bt_Ocui.gif", "connect-participant"));
             }
         } catch (Exception e) {
             // matches legacy behaviour: silently omit the "connect participant" link on any failure

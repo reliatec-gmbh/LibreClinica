@@ -92,7 +92,8 @@ public final class CrfStatusPopup {
     private static void renderTriggerIcon(Div<?> trigger, List<CrfOccurrenceData> items) {
         DataEntryStage stage = items.get(0).stage;
         String iconPath = CRF_STATUS_ICON_PATHS.get(stage.getId());
-        trigger.span().attrClass("lc-popup-status-badge")
+        trigger.span().attrClass("lc-popup-badge")
+            .addAttr("data-testid", "lc-popup-badge")
             .of(badge -> {
                 if (iconPath != null) {
                     badge.img().attrSrc(iconPath).attrAlt(stage.getName()).__();
@@ -189,7 +190,7 @@ public final class CrfStatusPopup {
             if (!currentRole.isMonitor() && studyAvailable) {
                 if (!hidden) {
                     actions.add(of(null, resword.getString("edit"),
-                        url("AdministrativeEditing").param("eventCRFId", eventCrf.getId()).param("exitTo", "ListStudySubjects"), "bt_Edit.gif", true));
+                        url("AdministrativeEditing").param("eventCRFId", eventCrf.getId()).param("exitTo", "ListStudySubjects"), "bt_Edit.gif", true, "edit"));
                 }
                 if (directorOrSysAdmin) {
                     actions.add(removeEventCrfLink(studySubject, crf, eventCrf, occurrenceKey, resword));
@@ -214,17 +215,17 @@ public final class CrfStatusPopup {
                     url("InitialDataEntry").param("eventDefinitionCRFId", edc.getId()).param("studyEventId", studyEvent.getId())
                         .param("subjectId", studySubject.getSubjectId()).param("eventCRFId", eventCrfId).param("crfVersionId", edc.getDefaultVersionId())
                         .param("exitTo", "ListStudySubjects"),
-                    "bt_Edit.gif", true));
+                    "bt_Edit.gif", true, "enter-data"));
             }
             if (!hidden) {
                 actions.add(of(null, resword.getString("view"),
                     url("ViewSectionDataEntry").param("eventDefinitionCRFId", edc.getId()).param("crfVersionId", edc.getDefaultVersionId())
                         .param("tabId", 1).param("exitTo", "ListStudySubjects"),
-                    "bt_View.gif", true));
+                    "bt_View.gif", true, "view"));
                 if (eventCrf == null) {
                     int sampleOrdinal = studyEvent == null ? 1 : studyEvent.getSampleOrdinal();
                     actions.add(ofRawHref(null, resword.getString("print"),
-                        printHref(contextPath, studyBean, studySubject, selectedSed, sampleOrdinal, edc.getDefaultCRF().getOid()), "bt_Print.gif", true));
+                        printHref(contextPath, studyBean, studySubject, selectedSed, sampleOrdinal, edc.getDefaultCRF().getOid()), "bt_Print.gif", true, "print"));
                 } else {
                     actions.add(printExistingCrfLink(studyBean, studySubject, studyEvent, eventCrf, crfVersionDAO, resword, contextPath, selectedSed));
                 }
@@ -238,7 +239,7 @@ public final class CrfStatusPopup {
                 actions.add(of("listEventsForSubject-restore-crf-" + studySubject.getId() + "-" + crf.getId() + "-" + occurrenceKey,
                     resword.getString("restore"),
                     url("RestoreEventCRF").param("action", "confirm").param("id", eventCrf.getId()).param("studySubId", studySubject.getId()),
-                    "bt_Restore.gif", true));
+                    "bt_Restore.gif", true, "restore"));
             }
         } else {
             // INITIAL_DATA_ENTRY / INITIAL_DATA_ENTRY_COMPLETE / DOUBLE_DATA_ENTRY
@@ -246,11 +247,11 @@ public final class CrfStatusPopup {
                 if (stage == DataEntryStage.INITIAL_DATA_ENTRY_COMPLETE || stage == DataEntryStage.DOUBLE_DATA_ENTRY) {
                     actions.add(of("listEventsForSubject-double-data-entry-crf-" + eventCrf.getStudySubjectId() + "-" + crf.getId() + "-" + occurrenceKey,
                         resword.getString("enter_data"),
-                        url("DoubleDataEntry").param("eventCRFId", eventCrf.getId()).param("exitTo", "ListStudySubjects"), "bt_Edit.gif", true));
+                        url("DoubleDataEntry").param("eventCRFId", eventCrf.getId()).param("exitTo", "ListStudySubjects"), "bt_Edit.gif", true, "enter-data"));
                 } else {
                     actions.add(of("listEventsForSubject-enter-data-crf-" + eventCrf.getStudySubjectId() + "-" + crf.getId() + "-" + occurrenceKey,
                         resword.getString("enter_data"),
-                        url("InitialDataEntry").param("eventCRFId", eventCrf.getId()).param("exitTo", "ListStudySubjects"), "bt_Edit.gif", true));
+                        url("InitialDataEntry").param("eventCRFId", eventCrf.getId()).param("exitTo", "ListStudySubjects"), "bt_Edit.gif", true, "enter-data"));
                 }
             }
             if (!hidden) {
@@ -271,21 +272,21 @@ public final class CrfStatusPopup {
         return of(null, resword.getString("view"),
             url("ViewSectionDataEntry").param("eventDefinitionCRFId", edc.getId()).param("ecId", eventCrf.getId())
                 .param("tabId", 1).param("exitTo", "ListStudySubjects"),
-            "bt_View.gif", true);
+            "bt_View.gif", true, "view");
     }
 
     private static PopupAction removeEventCrfLink(StudySubjectBean studySubject, CRFBean crf, EventCRFBean eventCrf, int occurrenceKey,
             ResourceBundle resword) {
         return of("listEventsForSubject-remove-crf-" + studySubject.getId() + "-" + crf.getId() + "-" + occurrenceKey, resword.getString("remove"),
             url("RemoveEventCRF").param("action", "confirm").param("id", eventCrf.getId()).param("studySubId", studySubject.getId()),
-            "bt_Remove.gif", true);
+            "bt_Remove.gif", true, "remove");
     }
 
     private static PopupAction deleteEventCrfLink(StudySubjectBean studySubject, CRFBean crf, EventCRFBean eventCrf, int occurrenceKey,
             ResourceBundle resword) {
         return of("listEventsForSubject-delete-crf-" + studySubject.getId() + "-" + crf.getId() + "-" + occurrenceKey, resword.getString("delete"),
             url("DeleteEventCRF").param("action", "confirm").param("ssId", studySubject.getId()).param("ecId", eventCrf.getId()),
-            "bt_Delete.gif", true);
+            "bt_Delete.gif", true, "delete");
     }
 
     /** REST print link for an existing event CRF (mirrors {@code EventCrfLayerBuilder.printDataEntry(...)}). */
@@ -294,7 +295,7 @@ public final class CrfStatusPopup {
         CRFVersionBean crfVersion = crfVersionDAO.findByPK(eventCrf.getCRFVersionId());
         int sampleOrdinal = studyEvent == null ? 1 : studyEvent.getSampleOrdinal();
         String href = printHref(contextPath, studyBean, studySubject, selectedSed, sampleOrdinal, crfVersion.getOid());
-        return ofRawHref(null, resword.getString("print"), href, "bt_Print.gif", true);
+        return ofRawHref(null, resword.getString("print"), href, "bt_Print.gif", true, "print");
     }
 
     private static String printHref(String contextPath, StudyBean studyBean, StudySubjectBean studySubject, StudyEventDefinitionBean sed,
