@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 /**
  * LCTable-based "listNotes" table ("Notes and Discrepancies" page, reachable via {@code ViewNotes}).
@@ -216,86 +217,39 @@ public class ListNotesTable {
     private List<LCTableColumnDef<DiscrepancyNoteBean>> buildColumns() {
         List<LCTableColumnDef<DiscrepancyNoteBean>> columns = new ArrayList<>();
 
-        columns.add(textCol("studySubject.label", resword.getString("study_subject_ID"), 0, row -> row.getStudySub().getLabel()));
-
-        columns.add(customTdCol("discrepancyNoteBean.disType", resword.getString("type"), 0, NOT_SORTABLE,
+        columns.add(textColWithKey("studySubject.label", "study_subject_ID", 0, VISIBLE, SORTABLE, textFilter(), row -> row.getStudySub().getLabel()));
+        columns.add(customTdColWithKey("discrepancyNoteBean.disType", "type", 0, NOT_SORTABLE,
             new LCTableFilterDef.Select<>(discNoteTypeFilterOptions, NoteFilterOption::getLabel, NoteFilterOption::getUrlParam),
             this::renderNoteTypeCell
         ));
-
-        columns.add(customTdCol("discrepancyNoteBean.resolutionStatus", resword.getString("resolution_status"), 0, NOT_SORTABLE,
+        columns.add(customTdColWithKey("discrepancyNoteBean.resolutionStatus", "resolution_status", 0, NOT_SORTABLE,
             new LCTableFilterDef.Select<>(resolutionStatusFilterOptions, NoteFilterOption::getLabel, NoteFilterOption::getUrlParam),
             this::renderResolutionStatusCell
         ));
-
-        columns.add(customTdCol("siteId", resword.getString("site_id"), 0, NOT_SORTABLE, textFilter(),
-            (td, row) -> td.text(orPlaceholder(row.getSiteId()))
+        columns.add(textColWithKey("siteId",                           "site_id",            0, VISIBLE, NOT_SORTABLE, textFilter(), DiscrepancyNoteBean::getSiteId));
+        columns.add(textColWithKey("discrepancyNoteBean.createdDate",  "date_created",       0, HIDDEN,  SORTABLE,     textFilter(), DiscrepancyNoteBean::getCreatedDate, this::formatDate));
+        columns.add(textColWithKey("discrepancyNoteBean.updatedDate",  "date_updated",       0, HIDDEN,  NOT_SORTABLE, textFilter(), DiscrepancyNoteBean::getUpdatedDate, this::formatDate));
+        columns.add(textColWithKey("age",                              "days_open",          0, VISIBLE, SORTABLE,     textFilter("\\d*", "Please enter digits only"), DiscrepancyNoteBean::getAge,  Object::toString));
+        columns.add(textColWithKey("days",                             "days_since_updated", 0, VISIBLE, SORTABLE,     textFilter("\\d*", "Please enter digits only"), DiscrepancyNoteBean::getDays, Object::toString));
+        columns.add(textColWithKey("eventName",                        "event_name",         0, VISIBLE, NOT_SORTABLE, textFilter(), DiscrepancyNoteBean::getEventName));
+        columns.add(textColWithKey("eventStartDate",                   "event_date",         0, HIDDEN,  NOT_SORTABLE, NO_FILTER,    DiscrepancyNoteBean::getEventStart, this::formatDate));
+        columns.add(textColWithKey("crfName",                          "CRF",                0, VISIBLE, NOT_SORTABLE, textFilter(), DiscrepancyNoteBean::getCrfName));
+        columns.add(textColWithKey("crfStatus",                        "CRF_status",         0, HIDDEN,  NOT_SORTABLE, NO_FILTER,    DiscrepancyNoteBean::getCrfStatus));
+        columns.add(textColWithKey("entityName",                       "entity_name",        0, VISIBLE, NOT_SORTABLE, textFilter(), DiscrepancyNoteBean::getEntityName));
+        columns.add(textColWithKey("entityValue",                      "entity_value",       0, VISIBLE, NOT_SORTABLE, textFilter(), DiscrepancyNoteBean::getEntityValue));
+        columns.add(textColWithKey("discrepancyNoteBean.entityType",   "entity_type",        0, HIDDEN,  NOT_SORTABLE, textFilter(), DiscrepancyNoteBean::getEntityType));
+        columns.add(textColWithKey("discrepancyNoteBean.description",  "description",        0, VISIBLE, NOT_SORTABLE, textFilter(), DiscrepancyNoteBean::getDescription));
+        columns.add(textColWithKey("discrepancyNoteBean.detailedNotes","detailed_notes",     0, HIDDEN,  NOT_SORTABLE, NO_FILTER,    DiscrepancyNoteBean::getDetailedNotes));
+        columns.add(textColWithKey("numberOfNotes",                    "of_notes",           0, HIDDEN,  NOT_SORTABLE, NO_FILTER,    DiscrepancyNoteBean::getNumChildren, x -> Integer.toString(x)));
+        columns.add(customTdColWithKey("discrepancyNoteBean.user",     "assigned_user",      0,          NOT_SORTABLE, textFilter(), this::renderAssignedUserCell));
+        columns.add(textColWithKey("discrepancyNoteBean.owner",        "owner",              0, HIDDEN,  NOT_SORTABLE, NO_FILTER,
+            row -> {
+                UserAccountBean owner = row.getOwner();
+                String ownerName = owner == null ? null : owner.getName();
+                return ownerName == null || ownerName.isEmpty() ? null : ownerName;
+            }
         ));
-
-        columns.add(textColHidden("discrepancyNoteBean.createdDate", resword.getString("date_created"), 0,
-            DiscrepancyNoteBean::getCreatedDate, this::formatDate
-        ));
-
-        columns.add(customTdColHidden("discrepancyNoteBean.updatedDate", resword.getString("date_updated"), 0, NOT_SORTABLE, textFilter(),
-            (td, row) -> td.text(row.getUpdatedDate() == null ? NULL_PLACEHOLDER : formatDate(row.getUpdatedDate()))
-        ));
-
-        columns.add(textCol("age", resword.getString("days_open"), 0, textFilter("\\d*", "Please enter digits only"),
-            DiscrepancyNoteBean::getAge, Object::toString
-        ));
-        columns.add(textCol("days", resword.getString("days_since_updated"), 0, textFilter("\\d*", "Please enter digits only"),
-            DiscrepancyNoteBean::getDays, Object::toString
-        ));
-
-        columns.add(customTdCol("eventName", resword.getString("event_name"), 0, NOT_SORTABLE, textFilter(),
-            (td, row) -> td.text(orPlaceholder(row.getEventName()))
-        ));
-
-        columns.add(customTdColHidden("eventStartDate", resword.getString("event_date"), 0, NOT_SORTABLE, NO_FILTER,
-            (td, row) -> td.text(row.getEventStart() == null ? NULL_PLACEHOLDER : formatDate(row.getEventStart()))
-        ));
-
-        columns.add(customTdCol("crfName", resword.getString("CRF"), 0, NOT_SORTABLE, textFilter(),
-            (td, row) -> td.text(orPlaceholder(row.getCrfName()))
-        ));
-
-        columns.add(customTdColHidden("crfStatus", resword.getString("CRF_status"), 0, NOT_SORTABLE, NO_FILTER,
-            (td, row) -> td.text(orPlaceholder(row.getCrfStatus()))
-        ));
-
-        columns.add(customTdCol("entityName", resword.getString("entity_name"), 0, NOT_SORTABLE, textFilter(),
-            (td, row) -> td.text(entityNameLabel(row))
-        ));
-
-        columns.add(customTdCol("entityValue", resword.getString("entity_value"), 0, NOT_SORTABLE, textFilter(),
-            (td, row) -> td.text(orPlaceholder(row.getEntityValue()))
-        ));
-
-        columns.add(customTdColHidden("discrepancyNoteBean.entityType", resword.getString("entity_type"), 0, NOT_SORTABLE, textFilter(),
-            (td, row) -> td.text(orPlaceholder(row.getEntityType()))
-        ));
-
-        columns.add(customTdCol("discrepancyNoteBean.description", resword.getString("description"), 0, NOT_SORTABLE, textFilter(),
-            (td, row) -> td.text(orPlaceholder(row.getDescription()))
-        ));
-
-        columns.add(customTdColHidden("discrepancyNoteBean.detailedNotes", resword.getString("detailed_notes"), 0, NOT_SORTABLE, NO_FILTER,
-            (td, row) -> td.text(orPlaceholder(row.getDetailedNotes()))
-        ));
-
-        columns.add(customTdColHidden("numberOfNotes", resword.getString("of_notes"), 0, NOT_SORTABLE, NO_FILTER,
-            (td, row) -> td.text(Integer.toString(row.getNumChildren()))
-        ));
-
-        columns.add(customTdCol("discrepancyNoteBean.user", resword.getString("assigned_user"), 0, NOT_SORTABLE, textFilter(),
-            this::renderAssignedUserCell
-        ));
-
-        columns.add(customTdColHidden("discrepancyNoteBean.owner", resword.getString("owner"), 0, NOT_SORTABLE, NO_FILTER,
-            this::renderOwnerCell
-        ));
-
-        columns.add(customTdCol("actions", resword.getString("actions"), 0, NOT_SORTABLE, clearFilter(), this::renderActionsCell));
+        columns.add(customTdColWithKey("actions", "actions", 0, NOT_SORTABLE, clearFilter(), this::renderActionsCell));
 
         return columns;
     }
@@ -343,11 +297,6 @@ public class ListNotesTable {
         }
     }
 
-    private void renderOwnerCell(Td<?> td, DiscrepancyNoteBean row) {
-        UserAccountBean owner = row.getOwner();
-        td.text(owner == null || owner.getName() == null || owner.getName().isEmpty() ? NULL_PLACEHOLDER : owner.getName());
-    }
-
     /** Renders action links (see class javadoc for intentional legacy parity fix/omission). */
     private void renderActionsCell(Td<?> td, DiscrepancyNoteBean row) {
         String createNoteUrl = CreateDiscrepancyNoteServlet.getAddChildURL(row, ResolutionStatus.CLOSED, true) + "&viewAction=1";
@@ -380,21 +329,21 @@ public class ListNotesTable {
         return new SimpleDateFormat(getDateFormat()).format(date);
     }
 
-    // -- HIDDEN column factories --
-    // Provides HIDDEN equivalents for LCTableColumnDef.customTdCol(...) with null-safety.
-    private static LCTableColumnDef<DiscrepancyNoteBean> customTdColHidden(
-        String columnName, String displayName, double width, LCTableColumnDef.Sortability sortability, LCTableFilterDef filterDef,
-        BiConsumer<Td<?>, DiscrepancyNoteBean> renderer
-    ) {
-        return new LCTableColumnDef<>(columnName, displayName, width, HIDDEN, sortability, filterDef, (tr, row) -> {
-            Td<?> td = tr.td().attrClass("lc-col-" + columnName);
-            if (row == null) {
-                td.text(NULL_PLACEHOLDER);
-            } else {
-                renderer.accept(td, row);
-            }
-            td.__();
-        });
+    // -- Column helpers: single method combining display name lookup + test attribute application ---
+
+    private <T> LCTableColumnDef<DiscrepancyNoteBean> textColWithKey(String columnName, String columnKey, double width, Visibility visibility, LCTableColumnDef.Sortability sortability, LCTableFilterDef filterDef, Function<DiscrepancyNoteBean, T> extractor, Function<T, String> renderer) {
+        return textCol(columnName, resword.getString(columnKey), width, visibility, sortability, filterDef, extractor, renderer)
+            .setTestAttributes(row -> Map.of("column", columnKey));
+    }
+
+    private <T> LCTableColumnDef<DiscrepancyNoteBean> textColWithKey(String columnName, String columnKey, double width, Visibility visibility, LCTableColumnDef.Sortability sortability, LCTableFilterDef filterDef, Function<DiscrepancyNoteBean, String> renderer) {
+        return textCol(columnName, resword.getString(columnKey), width, visibility, sortability, filterDef, renderer)
+            .setTestAttributes(row -> Map.of("column", columnKey));
+    }
+
+    private LCTableColumnDef<DiscrepancyNoteBean> customTdColWithKey(String columnName, String columnKey, double width, LCTableColumnDef.Sortability sortability, LCTableFilterDef filterDef, BiConsumer<Td<?>, DiscrepancyNoteBean> renderer) {
+        return customTdCol(columnName, resword.getString(columnKey), width, sortability, filterDef, renderer)
+            .setTestAttributes(row -> Map.of("column", columnKey));
     }
 
     // -- Data fetching -----------------------------------------------------------------------------
