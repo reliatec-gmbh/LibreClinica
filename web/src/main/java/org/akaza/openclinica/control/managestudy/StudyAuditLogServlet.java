@@ -16,6 +16,7 @@ import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.dao.login.UserAccountDAO;
 import org.akaza.openclinica.dao.managestudy.StudySubjectDAO;
 import org.akaza.openclinica.dao.submit.SubjectDAO;
+import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 
@@ -57,16 +58,34 @@ public class StudyAuditLogServlet extends SecureController {
         SubjectDAO sdao = new SubjectDAO(sm.getDataSource());
         UserAccountDAO uadao = new UserAccountDAO(sm.getDataSource());
 
-        StudyAuditLogTableFactory factory = new StudyAuditLogTableFactory();
-        factory.setSubjectDao(sdao);
-        factory.setStudySubjectDao(subdao);
-        factory.setUserAccountDao(uadao);
-        factory.setCurrentStudy(currentStudy);
+        String lcTableRendering = System.getenv("LC_TABLE_RENDERING");
+        if (lcTableRendering != null && lcTableRendering.equalsIgnoreCase("jmesa")) {
+            request.setAttribute("tableRenderingMode", "jmesa");
+            StudyAuditLogTableFactory factory = new StudyAuditLogTableFactory();
+            factory.setSubjectDao(sdao);
+            factory.setStudySubjectDao(subdao);
+            factory.setUserAccountDao(uadao);
+            factory.setCurrentStudy(currentStudy);
 
-        String auditLogsHtml = factory.createTable(request, response).render();
-        request.setAttribute("auditLogsHtml", auditLogsHtml);
+            String auditLogsHtml = factory.createTable(request, response).render();
+            request.setAttribute("auditLogsHtml", auditLogsHtml);
+            forwardPage(Page.AUDIT_LOGS_STUDY);
+        } else {
+            request.setAttribute("tableRenderingMode", "htmlflow");
+            StudyAuditLogTable table = new StudyAuditLogTable(
+                subdao, sdao, uadao, currentStudy, LocaleResolver.getLocale(request));
+            String auditLogsHtml = table.render(request);
 
-        forwardPage(Page.AUDIT_LOGS_STUDY);
+            response.addHeader("Vary", "HX-Request");
+            if (request.getHeader("HX-Request") != null) {
+                response.setContentType("text/html;charset=UTF-8");
+                response.getWriter().write(auditLogsHtml);
+                response.getWriter().flush();
+            } else {
+                request.setAttribute("auditLogsHtml", auditLogsHtml);
+                forwardPage(Page.AUDIT_LOGS_STUDY);
+            }
+        }
 
     }
 
