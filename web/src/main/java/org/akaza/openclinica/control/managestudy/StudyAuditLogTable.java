@@ -19,26 +19,12 @@ import org.akaza.openclinica.dao.managestudy.StudySubjectDAO;
 import org.akaza.openclinica.dao.submit.SubjectDAO;
 import org.akaza.openclinica.i18n.util.I18nFormatUtil;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
-import org.akaza.openclinica.lctable.LCTable;
-import org.akaza.openclinica.lctable.LCTableColumnDef;
-import org.akaza.openclinica.lctable.LCTableData;
-import org.akaza.openclinica.lctable.LCTableFilterDef;
-import org.akaza.openclinica.lctable.LCTableParams;
-import org.akaza.openclinica.lctable.LCTableUtil;
-import org.akaza.openclinica.lctable.SafeUrl;
+import org.akaza.openclinica.i18n.core.LocaleResolver;
+import org.akaza.openclinica.lctable.*;
 import org.xmlet.htmlapifaster.Td;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.ResourceBundle;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
+import java.util.*;
 
 import static org.akaza.openclinica.lctable.LCTableColumnDef.NOT_SORTABLE;
 import static org.akaza.openclinica.lctable.LCTableColumnDef.SORTABLE;
@@ -49,6 +35,7 @@ import static org.akaza.openclinica.lctable.LCTableColumnDef.textCol;
 import static org.akaza.openclinica.lctable.LCTableFilterDef.clearFilter;
 import static org.akaza.openclinica.lctable.LCTableFilterDef.textFilter;
 import static org.akaza.openclinica.lctable.SafeUrl.url;
+import static org.akaza.openclinica.lctable.LCTableText.key;
 
 /**
  * LCTable-based study-subject audit-log index served by {@link StudyAuditLogServlet}.
@@ -89,50 +76,22 @@ public class StudyAuditLogTable {
     }
 
     private List<LCTableColumnDef<StudyAuditLogRow>> buildColumns() {
-        List<LCTableColumnDef<StudyAuditLogRow>> columns = new ArrayList<>();
-
-        columns.add(textColWithKey("studySubject.label", "study_subject_ID", SORTABLE,
-            textFilter(), row -> row.studySubject.getLabel()));
-        columns.add(textColWithKey("studySubject.secondaryLabel", "secondary_subject_ID", SORTABLE,
-            textFilter(), row -> row.studySubject.getSecondaryLabel()));
-        columns.add(textColWithKey("studySubject.oid", "study_subject_oid", SORTABLE,
-            textFilter(), row -> row.studySubject.getOid()));
-        columns.add(textColWithKey("subject.dateOfBirth", "date_of_birth", SORTABLE,
-            textFilter(DOB_FILTER_PATTERN, "Please enter a year (yyyy) or date in " + getDateFormat() + " format"),
-            row -> resolveBirthDay(row.subject.getDateOfBirth(), row.subject.isDobCollected())));
-        columns.add(textColWithKey("subject.uniqueIdentifier", "person_ID", SORTABLE,
-            textFilter(), row -> row.subject.getUniqueIdentifier()));
-        LCTableColumnDef<StudyAuditLogRow> ownerColumn = textCol(
-            "studySubject.owner", resword.getString("created_by"), 0, VISIBLE, NOT_SORTABLE,
-            textFilter(), row -> row.owner, UserAccountBean::getName
+        return Arrays.asList(
+            textCol("studySubject.label",          key("study_subject_ID"),     "study-subject-id",     0, textFilter(), row -> row.studySubject.getLabel()),
+            textCol("studySubject.secondaryLabel", key("secondary_subject_ID"), "secondary-subject-id", 0, textFilter(), row -> row.studySubject.getSecondaryLabel()),
+            textCol("studySubject.oid",            key("study_subject_oid"),    "study-subject-oid",    0, textFilter(), row -> row.studySubject.getOid()),
+            textCol("subject.dateOfBirth",         key("date_of_birth"),        "date-of-birth",        0,
+                textFilter(DOB_FILTER_PATTERN, LCTableText.formattedKey("lctable_year_or_date_filter_message", getDateFormat())),
+                row -> resolveBirthDay(row.subject.getDateOfBirth(), row.subject.isDobCollected())
+            ),
+            textCol("subject.uniqueIdentifier",    key("person_ID"),            "person-id",            0, textFilter(), row -> row.subject.getUniqueIdentifier()),
+            textCol("studySubject.owner",          key("created_by"),           "created-by",           0, textFilter(), row -> row.owner, UserAccountBean::getName),
+            enumCol("studySubject.status",         key("status"),               "status",               0,
+                row -> row.studySubject.getStatus(), Status.toActiveArrayList(), Status::getName,
+                status -> Integer.toString(status.getId())
+            ),
+            customTdCol("actions",                 key("actions"),              "actions",              0, NOT_SORTABLE, clearFilter(), this::renderActionsCell)
         );
-        ownerColumn.setTestAttributes(row -> Map.of("column", "created_by"));
-        columns.add(ownerColumn);
-
-        LCTableColumnDef<StudyAuditLogRow> statusColumn = enumCol(
-            "studySubject.status", resword.getString("status"), 0,
-            row -> row.studySubject.getStatus(), Status.toActiveArrayList(), Status::getName,
-            status -> Integer.toString(status.getId())
-        );
-        statusColumn.setTestAttributes(row -> Map.of("column", "status"));
-        columns.add(statusColumn);
-
-        columns.add(customTdColWithKey("actions", "actions", NOT_SORTABLE, clearFilter(), this::renderActionsCell));
-        return columns;
-    }
-
-    private LCTableColumnDef<StudyAuditLogRow> textColWithKey(String columnName, String resourceKey,
-            LCTableColumnDef.Sortability sortability, LCTableFilterDef filter,
-            Function<StudyAuditLogRow, String> renderer) {
-        return textCol(columnName, resword.getString(resourceKey), 0, VISIBLE, sortability, filter, renderer)
-            .setTestAttributes(row -> Map.of("column", resourceKey));
-    }
-
-    private LCTableColumnDef<StudyAuditLogRow> customTdColWithKey(String columnName, String resourceKey,
-            LCTableColumnDef.Sortability sortability, LCTableFilterDef filter,
-            BiConsumer<Td<?>, StudyAuditLogRow> renderer) {
-        return customTdCol(columnName, resword.getString(resourceKey), 0, sortability, filter, renderer)
-            .setTestAttributes(row -> Map.of("column", resourceKey));
     }
 
     private void renderActionsCell(Td<?> td, StudyAuditLogRow row) {
@@ -183,7 +142,7 @@ public class StudyAuditLogTable {
 
     public String render(HttpServletRequest request) {
         LCTableParams params = new LCTableParams(request.getQueryString(), table);
-        return table.render(request.getRequestURI(), params, request.getContextPath());
+        return table.render(request.getRequestURI(), params, request.getContextPath(), LocaleResolver.getLocale(request));
     }
 
     private static final class StudyAuditLogRow {

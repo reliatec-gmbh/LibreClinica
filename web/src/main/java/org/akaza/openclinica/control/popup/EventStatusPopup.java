@@ -171,7 +171,7 @@ public final class EventStatusPopup {
         row.div().attrClass("lc-popup-summary-line")
             .of(line -> {
                 String date = formatDate(occ.eventDate, resformat);
-                line.text(resword.getString("ocurrence") + " #" + (index + 1) + " of " + total + " \u00B7 ");
+                line.text(resword.getString("ocurrence") + " #" + (index + 1) + " " + resword.getString("of") + " " + total + " \u00B7 ");
                 if (!date.isEmpty()) {
                     line.text(date + " \u00B7 ");
                 }
@@ -294,7 +294,7 @@ public final class EventStatusPopup {
         };
 
         return new LCPopup<>(ctx -> ctx.occurrences, EventStatusPopup::renderTriggerIcons, headerRenderer, extraHeaderControl,
-            itemRenderer, "event-trigger", "ViewSubjectsPopup");
+            itemRenderer, "event-trigger", "ViewSubjectsPopup", resword);
     }
 
     // -- per-occurrence (listEventsForSubjects) -------------------------------------------------------------
@@ -380,7 +380,7 @@ public final class EventStatusPopup {
         };
 
         return new LCPopup<>(ctx -> ctx.occurrences, EventStatusPopup::renderTriggerIcons, headerRenderer, Optional.empty(),
-            itemRenderer, "event-trigger", "ViewSubjectsPopup");
+            itemRenderer, "event-trigger", "ViewSubjectsPopup", resword);
     }
 }
 

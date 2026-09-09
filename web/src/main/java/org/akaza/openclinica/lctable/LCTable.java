@@ -18,9 +18,11 @@ import org.xmlet.htmlapifaster.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.StringWriter;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiConsumer;
@@ -30,7 +32,6 @@ import java.util.stream.IntStream;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
-import static java.lang.String.format;
 
 /**
  * Renders a paginated/sortable/filterable HTML table using HTMX.
@@ -93,6 +94,19 @@ public class LCTable<T>  {
         this.columns      = columns;
         this.fetchData    = fetchData;
         this.stickyParamNames = stickyParamNames == null ? Collections.emptyList() : List.copyOf(stickyParamNames);
+        validateUniqueResourceKeys(columns);
+    }
+
+    private static <T> void validateUniqueResourceKeys(List<LCTableColumnDef<T>> columns) {
+        Map<String, Long> counts = columns.stream()
+            .map(column -> column.columnDisplayName.resourceKey())
+            .flatMap(java.util.Optional::stream)
+            .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        counts.forEach((key, count) -> {
+            if (count > 1) {
+                throw new IllegalArgumentException("Duplicate key-backed column resource key: " + key);
+            }
+        });
     }
 
     public String getTableName() {
@@ -173,6 +187,7 @@ public class LCTable<T>  {
      * Clicking cycles through: no sort → ascending → descending → no sort.
      */
     private void renderColumnName(Tr<?> tr, LCTableColumnDef<T> col, LCTableContext<T> ctx) {
+        final String displayName = col.columnDisplayName.resolve(ctx.words, ctx.locale);
         // A columnWidth of 0 means "no explicit width": let the browser's auto table layout size the
         // column dynamically to fit the widest of its header/data content, rather than forcing it to 0.
         final String widthStyle = col.columnWidth > 0 ? ("width: " + col.columnWidth + "rem") : null;
@@ -180,7 +195,7 @@ public class LCTable<T>  {
             // Non-sortable column: just render the header text without a link
             Th<?> th = tr.th();
             if (widthStyle != null) th.attrStyle(widthStyle);
-            th.text(col.columnDisplayName).__();
+            th.text(displayName).__();
         } else {
             boolean isSorted = col.columnName.equals(ctx.sortProp);
             final String currentSortDir = isSorted ? ctx.sortDir : null;
@@ -195,7 +210,7 @@ public class LCTable<T>  {
                 .addAttr("data-test-sort", currentSortDir == null ? "none" : currentSortDir)    // <-- exposes current state for testing
                 .attrHref(href).of(hxGetAttrs(href, NO_HX_INCLUDE, "#" + panelId, NO_HX_TRIGGER))
                 .of(a -> {
-                    a.span().attrClass("sort-header-text").text(col.columnDisplayName).__();
+                    a.span().attrClass("sort-header-text").text(displayName).__();
                     // Always render the sort indicator's <img>, so that the header's width already
                     // accounts for it whether or not the column is currently sorted (avoids the header --
                     // and hence the whole column -- growing/shrinking when sorting is toggled on/off).
@@ -230,7 +245,7 @@ public class LCTable<T>  {
                         .addAttr("data-testid", "toggle-hidden-columns-button")
                         .addAttr("data-test-action", ctx.showHiddenCols ? "hide" : "show-more")
                         .of(hxGetAttrs(toggleHref, NO_HX_INCLUDE, "#" + panelId, NO_HX_TRIGGER))
-                        .text(ctx.showHiddenCols ? "Hide" : "Show More")
+                        .text(ctx.words.getString(ctx.showHiddenCols ? "hide" : "show_more"))
                         .__();
                 }
                 // Custom, non-tabular controls (see addCustomToolbarControl), in the order they were added --
@@ -271,7 +286,7 @@ public class LCTable<T>  {
             String rowClass = ((i+1) % 2 == 0) ? "even" : "odd";    // use (i+1) to start from 1 for class assignment
             Tr<?> tr = tbody.tr().attrClass(rowClass).of(testAttrs(rowTestAttributes.apply(item)));
             columns.forEach(col -> {
-                if (shouldRenderColumn(col, ctx)) col.cellRenderer.accept(tr, item);
+                if (shouldRenderColumn(col, ctx)) col.cellRenderer.render(tr, item, ctx);
             });
             tr.__();
         });
@@ -330,10 +345,11 @@ public class LCTable<T>  {
      * @param entityPath the path to the entity for which the table is being rendered
      * @param params the parameters for fetching data (page number, page size, sorting, filters, etc.)
      * @param resourcePath the path to the resources needed for rendering the table
+     * @param locale request locale used to resolve all table-owned text
      * @return the rendered HTML string for the table
      */
-    public String render(String entityPath, LCTableParams params, String resourcePath) {
-        final LCTableContext<T> ctx = new LCTableContext<>(entityPath, params, fetchData, resourcePath);
+    public String render(String entityPath, LCTableParams params, String resourcePath, Locale locale) {
+        final LCTableContext<T> ctx = new LCTableContext<>(entityPath, params, fetchData, resourcePath, locale);
         return renderTableHtml(ctx);
     }
 
@@ -346,7 +362,10 @@ public class LCTable<T>  {
         Tfoot<?> footer = tfoot.attrClass("statusBar").addAttr("data-testid", "lctable-status-bar");
         Td<?> td = footer.tr().td().attrColspan((int) renderedColumnCount(ctx));
         final int count = ctx.data.totalCountWithFilter;
-        td.text(count == 0 ? "No results." : format("Results %d-%d of %d.", from, to, count)).__();
+        String status = count == 0
+            ? ctx.words.getString("lctable_no_results")
+            : new MessageFormat(ctx.words.getString("lctable_results"), ctx.locale).format(new java.lang.Object[] {from, to, count});
+        td.text(status).__();
         footer.__(); // div.table-footer
     }
 
@@ -402,7 +421,8 @@ public class LCTable<T>  {
     /** Builds the {@code select} element for 'maxRows' and appends it into the provided div. */
     private void buildSelectMaxRowsSelect(Div<?> div, LCTableContext<T> ctx) {
         if (HIDE_PAGINATION_TOOLS_FOR_SINGLE_PAGE_TABLE && ctx.totalPages <= 1) return;
-        div.label().text("").__();    // replace "" by "Rows: " if you want to make explicit what the select element is for
+        // Deliberately blank. Any future visible label must be a resource key resolved from ctx.words.
+        div.label().text("").__();
         div.select()
             .attrId(tableName + "-select-max-rows")
             .attrName(PARAM_MAX_ROWS)
