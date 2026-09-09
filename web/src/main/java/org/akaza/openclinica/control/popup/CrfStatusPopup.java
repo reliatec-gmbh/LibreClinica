@@ -157,7 +157,7 @@ public final class CrfStatusPopup {
         };
 
         return new LCPopup<>(ctx -> List.of(ctx.data), CrfStatusPopup::renderTriggerIcon, headerRenderer, Optional.empty(),
-            itemRenderer, "crf-trigger", "ViewSubjectsPopup");
+            itemRenderer, "crf-trigger", "ViewSubjectsPopup", resword);
     }
 
     /**

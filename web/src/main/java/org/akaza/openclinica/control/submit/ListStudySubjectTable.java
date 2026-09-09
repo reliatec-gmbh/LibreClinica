@@ -38,15 +38,17 @@ import org.akaza.openclinica.dao.submit.EventCRFDAO;
 import org.akaza.openclinica.dao.submit.SubjectDAO;
 import org.akaza.openclinica.dao.submit.SubjectGroupMapDAO;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
+import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.lctable.*;
 import org.akaza.openclinica.service.pmanage.ParticipantPortalRegistrar;
 import org.xmlet.htmlapifaster.Div;
 import org.xmlet.htmlapifaster.Td;
 
 import static org.akaza.openclinica.lctable.LCTableColumnDef.*;
-import static org.akaza.openclinica.lctable.LCTableFilterDef.*;
 import static org.akaza.openclinica.lctable.LCTableUtil.*;
 import static org.akaza.openclinica.lctable.SafeUrl.url;
+import static org.akaza.openclinica.lctable.LCTableText.key;
+import static org.akaza.openclinica.lctable.LCTableText.literal;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -175,20 +177,21 @@ public class ListStudySubjectTable {
     private List<LCTableColumnDef<FindSubjectsRow>> buildColumns() {
         List<LCTableColumnDef<FindSubjectsRow>> columns = new ArrayList<>();
 
-        columns.add(textCol("studySubject.label", resword.getString("study_subject_ID"), 0, row -> row.studySubject.getLabel()));
-        columns.add(enumColHidden("studySubject.status", resword.getString("subject_status"), 0,
+        columns.add(textCol      ("studySubject.label",          key("study_subject_ID"),  "study-subject-id", 0, row -> row.studySubject.getLabel()));
+        columns.add(enumColHidden("studySubject.status",         key("subject_status"),    "subject-status", 0,
             row -> row.studySubject.getStatus(), Status.toDropDownArrayList(), Status::getName, Status::getName
         ));
-        columns.add(textColHidden("enrolledAt", resword.getString("site_id"), 0, row -> row.enrolledAt));
-        columns.add(textColHidden("studySubject.oid", resword.getString("rule_oid"), 0, row -> row.studySubject.getOid()));
-        columns.add(textColHidden("subject.charGender", resword.getString("gender"), 0, row -> String.valueOf(row.subject.getGender())));
-        columns.add(textColHidden("studySubject.secondaryLabel", resword.getString("secondary_ID"), 0, row -> row.studySubject.getSecondaryLabel()));
-        columns.add(textColHidden("subject.uniqueIdentifier", resword.getString("subject_unique_ID"), 0, row -> row.subject.getUniqueIdentifier()));
+        columns.add(textColHidden("enrolledAt",                  key("site_id"),           "site-id", 0, row -> row.enrolledAt));
+        columns.add(textColHidden("studySubject.oid",            key("rule_oid"),          "oid", 0, row -> row.studySubject.getOid()));
+        columns.add(textColHidden("subject.charGender",          key("gender"),            "sex",0, row -> String.valueOf(row.subject.getGender())));
+        columns.add(textColHidden("studySubject.secondaryLabel", key("secondary_ID"),      "secondary-id", 0, row -> row.studySubject.getSecondaryLabel()));
+        columns.add(textColHidden("subject.uniqueIdentifier",    key("subject_unique_ID"), "person-id", 0, row -> row.subject.getUniqueIdentifier()));
 
         // one column per active study-group-class
         for (StudyGroupClassBean sgc : studyGroupClasses) {
             List<StudyGroupBean> groupOptions = studyGroupDAO.findAllByGroupClass(sgc);
-            columns.add(enumColNotSortable("sgc_" + sgc.getId(), sgc.getName(), 0, groupOptions, StudyGroupBean::getName, StudyGroupBean::getName,
+            columns.add(enumColNotSortable("sgc_" + sgc.getId(), literal(sgc.getName()), null, 0,
+                groupOptions, StudyGroupBean::getName, StudyGroupBean::getName,
                 row -> {
                     GroupAssignment ga = row.groupAssignmentsByClassId.get(sgc.getId());
                     return ga == null ? "" : ga.groupName;
@@ -202,7 +205,7 @@ public class ListStudySubjectTable {
             LCPopup<EventStatusPopup.Context, EventStatusPopup.EventOccurrence> eventPopup =
                 EventStatusPopup.aggregate(sed, studyBean, currentRole, currentUser, resword, resformat);
             LCTableColumnDef<FindSubjectsRow> eventColumn = LCTableColumnDef.<FindSubjectsRow>customTdCol(
-                "sed_" + sed.getId(), sed.getName(), 5, NOT_SORTABLE,
+                "sed_" + sed.getId(), literal(sed.getName()), null, 5, NOT_SORTABLE,
                 // SubjectEventStatus.getName() (Term.getName()) already resolves the translated display name via
                 // the terms resource bundle -- do NOT re-translate it here (that would look up the translated text
                 // itself as if it were a resource key, throwing MissingResourceException).
@@ -213,7 +216,7 @@ public class ListStudySubjectTable {
             columns.add(eventColumn);
         }
 
-        columns.add(customTdCol("actions", resword.getString("rule_actions"), 0, NOT_SORTABLE, LCTableFilterDef.clearFilter(), this::renderActionsCell));
+        columns.add(customTdCol("actions", key("rule_actions"), "actions", 0, NOT_SORTABLE, LCTableFilterDef.clearFilter(), this::renderActionsCell));
 
         return columns;
     }
@@ -407,7 +410,7 @@ public class ListStudySubjectTable {
 
     public String render(HttpServletRequest request) {
         final LCTableParams params = new LCTableParams(request.getQueryString(), this.table);
-        return this.table.render(request.getRequestURI(), params, request.getContextPath());
+        return this.table.render(request.getRequestURI(), params, request.getContextPath(), LocaleResolver.getLocale(request));
     }
 
 }
