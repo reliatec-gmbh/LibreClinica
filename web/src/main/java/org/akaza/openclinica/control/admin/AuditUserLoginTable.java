@@ -15,6 +15,7 @@ import org.akaza.openclinica.dao.hibernate.AuditUserLoginFilter;
 import org.akaza.openclinica.dao.hibernate.AuditUserLoginSort;
 import org.akaza.openclinica.domain.technicaladmin.AuditUserLoginBean;
 import org.akaza.openclinica.domain.technicaladmin.LoginStatus;
+import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.lctable.*;
 
 import static org.akaza.openclinica.lctable.LCTableColumnDef.*;
@@ -26,6 +27,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+
+import static org.akaza.openclinica.lctable.LCTableText.key;
 
 
 public class AuditUserLoginTable {
@@ -57,20 +60,20 @@ public class AuditUserLoginTable {
 
     // defines the configuration of columns for the AuditUserLogin table
     private static final List<LCTableColumnDef<AuditUserLoginBean>> COLUMNS = Arrays.asList(
-        textCol("userName", "User Name", 5, AuditUserLoginBean::getUserName),
-        textCol("loginAttemptDate", "Attempt Date", 7,
+        textCol("userName",         key("username2"),    "user-name", 5, AuditUserLoginBean::getUserName),
+        textCol("loginAttemptDate", key("attempt_date"), "login-attempt-date", 7,
             textFilter(TIMESTAMP_FILTER_FOR_HTML_VALIDATION, TIMESTAMP_FILTER_MESSAGE),
             AuditUserLoginBean::getLoginAttemptDate, LCTableUtil::timestampToString
         ),
-        enumCol("loginStatus", "Status", 7,
+        enumCol("loginStatus",      key("status"),       "login-status", 7,
             AuditUserLoginBean::getLoginStatus, Arrays.asList(LoginStatus.values()), LoginStatus::toString, LoginStatus::name
         ),
-        textCol("details", "Details", 3, AuditUserLoginBean::getDetails),
+        textCol("details",          key("details"),      "details", 3, AuditUserLoginBean::getDetails),
 
-        customTdCol("actions", "Actions", 4, NOT_SORTABLE, clearFilter(),
+        customTdColWithContext("actions", key("actions"), "actions", 4, NOT_SORTABLE, clearFilter(),
             AuditUserLoginBean::getUserAccountId,
-            (td, row) ->
-                td.of(actionLink(actionId("view", row), "View",
+            (td, row, context) ->
+                td.of(actionLink(actionId("view", row), context.words.getString("view"),
                     url("ViewUserAccount").param("userId", row.getUserAccountId()).param("viewFull", "yes"), "bt_View.gif", "view"))
         )
     );
@@ -104,7 +107,7 @@ public class AuditUserLoginTable {
     // rendering method putting all pieces together
     public String render(HttpServletRequest request) {
         final LCTableParams params = new LCTableParams(request.getQueryString(), this.table);
-        return this.table.render(request.getRequestURI(), params, request.getContextPath());
+        return this.table.render(request.getRequestURI(), params, request.getContextPath(), LocaleResolver.getLocale(request));
     }
 
 }

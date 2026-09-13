@@ -27,7 +27,7 @@ public abstract class LCTableFilterDef {
     /*** Factory methods for creating a text filter definition. */
     public static Text textFilter() { return new Text(); }
     public static Text textFilter(String pattern) { return new Text(pattern, null); }
-    public static Text textFilter(String pattern, String message) { return new Text(pattern, message); }
+    public static Text textFilter(String pattern, LCTableText message) { return new Text(pattern, message); }
 
     /*** Factory methods for creating a select filter definition. */
     public static <T> Select<T> selectFilter(List<T> values, Function<T, String> valueToString) {
@@ -45,14 +45,14 @@ public abstract class LCTableFilterDef {
      */
     public static final class Text extends LCTableFilterDef {
         public final String pattern;   // Regex pattern for HTML5 validation
-        public final String message;   // Tooltip message displaying requested format
+        public final LCTableText message;   // Tooltip message displaying requested format
 
         public Text() {
             this.pattern = null;
             this.message = null;
         }
 
-        public Text(String pattern, String message) {
+        public Text(String pattern, LCTableText message) {
             this.pattern = pattern;
             this.message = message;
         }
@@ -81,7 +81,7 @@ public abstract class LCTableFilterDef {
                 if (this.pattern != null) {
                     input.attrPattern(this.pattern);
                     if (this.message != null) {
-                        input.attrTitle(this.message);
+                        input.attrTitle(this.message.resolve(ctx.words, ctx.locale));
                     }
                     // Cancel the debounced request if the value is no longer valid by the time it actually fires.
                     input.addAttr("hx-on:htmx:before-request", "if(!this.validity.valid){event.preventDefault();}");
@@ -139,7 +139,7 @@ public abstract class LCTableFilterDef {
                 return Optional.empty(); // No filtering requested
             } else {
                 // Find the domain object whose string representation matches the submitted text
-                return values.stream().filter(val -> label(val).equals(paramValue)).findFirst();       // empty if nothing found
+                return values.stream().filter(val -> urlParam(val).equals(paramValue)).findFirst();       // empty if nothing found
             }
         }
 
@@ -203,7 +203,7 @@ public abstract class LCTableFilterDef {
                 .addAttr("data-testid", "clear-filter-button")
                 .addAttr("data-test-column", col.columnName)     // this refers to the column where the button appears, but the button clears all filters, not just that column
                 .of(hxGetAttrs(ctx.entityPath, selector.toString(), "#" + table.panelId, "click"))
-                .text("Clear Filter")
+                .text(ctx.words.getString("table_clear_filter"))
                 .__().__();
         }
     }

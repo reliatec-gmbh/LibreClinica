@@ -22,6 +22,7 @@ import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Locale;
 
 import static org.mockito.Matchers.any;
@@ -71,6 +72,7 @@ public class StudyAuditLogTableTest extends TestCase {
         when(request.getQueryString()).thenReturn(null);
         when(request.getRequestURI()).thenReturn("/StudyAuditLog");
         when(request.getContextPath()).thenReturn("");
+        when(request.getLocales()).thenReturn(Collections.enumeration(Collections.singletonList(Locale.ENGLISH)));
 
         String html = new StudyAuditLogTable(
             studySubjectDao, subjectDao, userAccountDao, study, Locale.ENGLISH

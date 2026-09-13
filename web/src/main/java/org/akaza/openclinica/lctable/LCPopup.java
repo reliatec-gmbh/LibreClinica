@@ -17,6 +17,7 @@ import org.xmlet.htmlapifaster.FlowContent;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.ResourceBundle;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -48,6 +49,7 @@ public class LCPopup<T, I> {
     private final PopupItemRenderer<T, I> itemRenderer;
     private final String triggerClass;
     private final String popupModifierClass;
+    private final ResourceBundle resword;
 
     /**
      * @param itemsExtractor      {@code T -> } the (already-fetched/sorted, never empty) items to list in the popup
@@ -64,10 +66,11 @@ public class LCPopup<T, I> {
      *                            these stay table/kind-specific on purpose, since trigger *layout* -- one aggregate
      *                            trigger per cell vs. one per occurrence stacked vertically -- is not unified here)
      * @param popupModifierClass  extra CSS class applied to the popup box itself (e.g. {@code "ViewSubjectsPopup"})
+     * @param resword             the {@code resword} bundle for i18n of generic labels (e.g. "actions" in a {@link PopupItemLayout#COMPACT} row)
      */
     public LCPopup(Function<T, List<I>> itemsExtractor, BiConsumer<Div<?>, List<I>> triggerRenderer,
             BiConsumer<Div<?>, T> headerRenderer, Optional<BiConsumer<Div<?>, T>> extraHeaderControl,
-            PopupItemRenderer<T, I> itemRenderer, String triggerClass, String popupModifierClass) {
+                PopupItemRenderer<T, I> itemRenderer, String triggerClass, String popupModifierClass, ResourceBundle resword) {
         this.itemsExtractor = Objects.requireNonNull(itemsExtractor, "itemsExtractor");
         this.triggerRenderer = Objects.requireNonNull(triggerRenderer, "triggerRenderer");
         this.headerRenderer = Objects.requireNonNull(headerRenderer, "headerRenderer");
@@ -75,6 +78,7 @@ public class LCPopup<T, I> {
         this.itemRenderer = Objects.requireNonNull(itemRenderer, "itemRenderer");
         this.triggerClass = Objects.requireNonNull(triggerClass, "triggerClass");
         this.popupModifierClass = Objects.requireNonNull(popupModifierClass, "popupModifierClass");
+        this.resword = Objects.requireNonNull(resword, "resword");
     }
 
     /**
@@ -126,7 +130,7 @@ public class LCPopup<T, I> {
                 row.div().attrClass(compact ? "lc-popup-actions lc-popup-actions-compact" : "lc-popup-actions lc-popup-actions-vertical")
                     .of(actions -> {
                         if (compact) {
-                            actions.text("Actions: ");   // generic layout chrome owned by LCPopup itself; i18n deferred (see LCTable)
+                            actions.text(resword.getString("actions") + ": ");
                         }
                         for (PopupAction action : itemRenderer.actionsFor(context, item)) {
                             actions.of(actionLink(action.elementId, action.label, action.href, action.iconImage, action.showLabel, action.actionName));

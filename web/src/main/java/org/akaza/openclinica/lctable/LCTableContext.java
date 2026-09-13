@@ -10,8 +10,13 @@
  */
 package org.akaza.openclinica.lctable;
 
+import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
+
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
+import java.util.ResourceBundle;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Collectors;
@@ -35,6 +40,8 @@ public final class LCTableContext<T> {
     // paths (derived from the request URL)
     public final String entityPath;
     public final String resourcePath;
+    public final Locale locale;
+    public final ResourceBundle words;
 
     // fetched data for the current page (page, sorting and filtering according to the parameters)
     public final LCTableData<T> data;       // data items (rows) in current page
@@ -46,7 +53,8 @@ public final class LCTableContext<T> {
 
     // -- Constructor -----------------------------------------------------------
 
-    public LCTableContext(String entityPath, LCTableParams params, Function<LCTableParams, LCTableData<T>> fetchData, String resourcePath) {
+        public LCTableContext(String entityPath, LCTableParams params, Function<LCTableParams, LCTableData<T>> fetchData,
+            String resourcePath, Locale locale) {
         this.page = params.page; // 0-based, converted from 1-based URL in LCTableParams
         this.maxRows = params.maxRows;
         this.sortProp = params.sortProp;
@@ -54,10 +62,12 @@ public final class LCTableContext<T> {
         this.filters = params.filters;
         this.showHiddenCols = params.showHiddenCols;
         this.stickyParams = params.stickyParams;
+        this.locale = Objects.requireNonNull(locale, "locale");
         this.data = fetchData.apply(params);
 
         this.entityPath = entityPath;
         this.resourcePath = resourcePath;
+        this.words = ResourceBundleProvider.getWordsBundle(locale);
 
         final int pageSize = this.maxRows;
         final int totalCountWithFilter = data.totalCountWithFilter;

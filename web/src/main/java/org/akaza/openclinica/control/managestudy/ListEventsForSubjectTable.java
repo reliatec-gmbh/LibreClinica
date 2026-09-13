@@ -45,6 +45,7 @@ import org.akaza.openclinica.dao.submit.EventCRFDAO;
 import org.akaza.openclinica.dao.submit.SubjectDAO;
 import org.akaza.openclinica.dao.submit.SubjectGroupMapDAO;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
+import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.lctable.*;
 import org.xmlet.htmlapifaster.Div;
 import org.xmlet.htmlapifaster.Td;
@@ -52,6 +53,8 @@ import org.xmlet.htmlapifaster.Td;
 import static org.akaza.openclinica.lctable.LCTableColumnDef.*;
 import static org.akaza.openclinica.lctable.LCTableUtil.*;
 import static org.akaza.openclinica.lctable.SafeUrl.url;
+import static org.akaza.openclinica.lctable.LCTableText.key;
+import static org.akaza.openclinica.lctable.LCTableText.literal;
 
 import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
@@ -224,17 +227,17 @@ public class ListEventsForSubjectTable {
     private List<LCTableColumnDef<ListEventsForSubjectRow>> buildColumns() {
         List<LCTableColumnDef<ListEventsForSubjectRow>> columns = new ArrayList<>();
 
-        columns.add(textCol("studySubject.label", resword.getString("study_subject_ID"), 0, row -> row.studySubject.getLabel()));
-        columns.add(enumColHidden("studySubject.status", resword.getString("subject_status"), 0,
+        columns.add(textCol      ("studySubject.label",  key("study_subject_ID"), "study-subject-id", 0, row -> row.studySubject.getLabel()));
+        columns.add(enumColHidden("studySubject.status", key("subject_status"),   "subject-status"  , 0,
             row -> row.studySubject.getStatus(), Status.toDropDownArrayList(), Status::getName, Status::getName
         ));
-        columns.add(textColHidden("enrolledAt", resword.getString("site_id"), 0, row -> row.enrolledAt));
-        columns.add(textColHidden("subject.charGender", resword.getString("gender"), 0,row -> String.valueOf(row.subject.getGender())));
+        columns.add(textColHidden("enrolledAt",          key("site_id"),          "site-id",          0, row -> row.enrolledAt));
+        columns.add(textColHidden("subject.charGender",  key("gender"),           "sex",              0,row -> String.valueOf(row.subject.getGender())));
 
         // one hidden column per active study-group-class (legacy default: hide Subject Status, Site, Gender and all group-class columns)
         for (StudyGroupClassBean sgc : studyGroupClasses) {
             List<StudyGroupBean> groupOptions = studyGroupDAO.findAllByGroupClass(sgc);
-            columns.add(enumColHiddenNotSortable("sgc_" + sgc.getId(), sgc.getName(), 0, groupOptions, StudyGroupBean::getName, StudyGroupBean::getName,
+            columns.add(enumColHiddenNotSortable("sgc_" + sgc.getId(), literal(sgc.getName()), null,0, groupOptions, StudyGroupBean::getName, StudyGroupBean::getName,
                 row -> {
                     GroupAssignment ga = row.groupAssignmentsByClassId.get(sgc.getId());
                     return ga == null ? "" : ga.groupName;
@@ -242,21 +245,21 @@ public class ListEventsForSubjectTable {
             ));
         }
 
-        columns.add(customTdCol("event.status", resword.getString("event_status"), 0, NOT_SORTABLE,
+        columns.add(customTdCol  ("event.status",        key("event_status"),     "event-status", 0, NOT_SORTABLE,
             new LCTableFilterDef.Select<>(SubjectEventStatus.toArrayList(), SubjectEventStatus::getName, SubjectEventStatus::getName),
             LCTablePopupColumn.perOccurrence(eventPopup, this::toEventStatusPopupContexts)
         ));
 
         // "Event Date": NOT_SORTABLE / NO_FILTER on purpose -- the legacy sort/filter for this column were already
         // broken (they act on the subject's creation date, not the displayed event date); see class javadoc.
-        columns.add(customTdCol("studySubject.createdDate", resword.getString("event_date"), 0, NOT_SORTABLE, NO_FILTER,
+        columns.add(customTdCol  ("studySubject.createdDate", key("event_date"),  "event-date", 0, NOT_SORTABLE, NO_FILTER,
             this::renderEventDateCell
         ));
 
         // one column per active top-level CRF of the selected event definition
         for (CRFBean crf : crfs) {
             LCTableColumnDef<ListEventsForSubjectRow> crfColumn = LCTableColumnDef.<ListEventsForSubjectRow>customTdCol(
-                "crf_" + crf.getId(), crf.getName(), 0, NOT_SORTABLE,
+                "crf_" + crf.getId(), literal(crf.getName()), null, 0, NOT_SORTABLE,
                 new LCTableFilterDef.Select<>(DataEntryStage.toArrayList(), DataEntryStage::getName, DataEntryStage::getName),
                 (td, row) -> renderCrfCell(td, row, crf)
             );
@@ -264,7 +267,7 @@ public class ListEventsForSubjectTable {
             columns.add(crfColumn);
         }
 
-        columns.add(customTdCol("actions", resword.getString("rule_actions"), 0, NOT_SORTABLE, LCTableFilterDef.clearFilter(), this::renderActionsCell));
+        columns.add(customTdCol("actions", key("rule_actions"), "actions", 0, NOT_SORTABLE, LCTableFilterDef.clearFilter(), this::renderActionsCell));
 
         return columns;
     }
@@ -463,7 +466,7 @@ public class ListEventsForSubjectTable {
 
     public String render(HttpServletRequest request) {
         final LCTableParams params = new LCTableParams(request.getQueryString(), this.table);
-        return this.table.render(request.getRequestURI(), params, request.getContextPath());
+        return this.table.render(request.getRequestURI(), params, request.getContextPath(), LocaleResolver.getLocale(request));
     }
 
 }
