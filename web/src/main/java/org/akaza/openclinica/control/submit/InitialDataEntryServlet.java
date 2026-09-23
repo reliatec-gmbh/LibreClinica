@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.akaza.openclinica.bean.core.DataEntryStage;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.managestudy.EventDefinitionCRFBean;
 import org.akaza.openclinica.bean.submit.DisplayItemBean;
@@ -72,6 +73,18 @@ public class InitialDataEntryServlet extends DataEntryServlet {
         // locale);
         
         getInputBeans(request);
+
+        // Initial data entry is only valid before the CRF is marked complete. Without this
+        // check InitialDataEntry?eventCRFId=N saved changes to a completed CRF and bypassed
+        // the Reason for Change required by administrative editing.
+        EventCRFBean ecb = (EventCRFBean) request.getAttribute(INPUT_EVENT_CRF);
+        DataEntryStage stage = ecb == null ? DataEntryStage.UNCOMPLETED : ecb.getStage();
+        if (!stage.equals(DataEntryStage.UNCOMPLETED) && !stage.equals(DataEntryStage.INITIAL_DATA_ENTRY)) {
+            session.setAttribute("mayProcessUploading", "false");
+            addPageMessage(respage.getString("you_not_enter_data_initial_DE_completed"), request);
+            throw new InsufficientPermissionException(Page.LIST_STUDY_SUBJECTS_SERVLET,
+                resexception.getString("using_IDE_event_CRF_completed"), "1");
+        }
        
 //        Role r = currentRole.getRole();
 //
