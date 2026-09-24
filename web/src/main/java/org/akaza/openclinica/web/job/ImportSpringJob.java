@@ -473,7 +473,7 @@ public class ImportSpringJob extends QuartzJobBean {
                         msg.append(mf.format(arguments) + "<br/>");
                         auditMsg.append(mf.format(arguments) + "<br/>");
                         out.write(mf.format(arguments) + "<br/>");
-                        out.close();
+                        // keep the log open: permitted event CRFs of the same file are still imported
                         continue;
                     }
                 }
