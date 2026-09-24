@@ -129,6 +129,15 @@ public class DoubleDataEntryServlet extends DataEntryServlet {
         }
 
         DataEntryStage stage = ecb.getStage();
+        // Double data entry is only valid between initial completion and final completion.
+        // Without this check DoubleDataEntry?eventCRFId=N saved changes to a completed CRF
+        // and bypassed the Reason for Change required by administrative editing.
+        if (!stage.equals(DataEntryStage.INITIAL_DATA_ENTRY_COMPLETE) && !stage.equals(DataEntryStage.DOUBLE_DATA_ENTRY)) {
+            session.setAttribute("mayProcessUploading", "false");
+            addPageMessage(respage.getString("not_perform_validation"), request);
+            throw new InsufficientPermissionException(Page.LIST_STUDY_SUBJECTS_SERVLET,
+                resexception.getString("using_double_data_entry_CRF_completed"), "1");
+        }
         if (stage.equals(DataEntryStage.INITIAL_DATA_ENTRY_COMPLETE) && !hasVisitedSection) {
             // if the user has not entered this section yet in Double Data
             // Entry, then
