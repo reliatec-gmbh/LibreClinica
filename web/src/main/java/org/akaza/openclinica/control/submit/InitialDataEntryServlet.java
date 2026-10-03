@@ -5,7 +5,7 @@
  * For details see: https://libreclinica.org/license
  * copyright (C) 2003 - 2011 Akaza Research
  * copyright (C) 2003 - 2019 OpenClinica
- * copyright (C) 2020 - 2024 LibreClinica
+ * copyright (C) 2020 - 2026 LibreClinica
  */
 package org.akaza.openclinica.control.submit;
 
@@ -18,11 +18,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.akaza.openclinica.bean.core.DataEntryStage;
 import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.managestudy.EventDefinitionCRFBean;
 import org.akaza.openclinica.bean.submit.DisplayItemBean;
 import org.akaza.openclinica.bean.submit.DisplayItemGroupBean;
+import org.akaza.openclinica.bean.submit.DisplayTableOfContentsBean;
 import org.akaza.openclinica.bean.submit.EventCRFBean;
 import org.akaza.openclinica.control.form.DiscrepancyValidator;
 import org.akaza.openclinica.control.form.FormProcessor;
@@ -77,9 +77,9 @@ public class InitialDataEntryServlet extends DataEntryServlet {
         // Initial data entry is only valid before the CRF is marked complete. Without this
         // check InitialDataEntry?eventCRFId=N saved changes to a completed CRF and bypassed
         // the Reason for Change required by administrative editing.
-        EventCRFBean ecb = (EventCRFBean) request.getAttribute(INPUT_EVENT_CRF);
-        DataEntryStage stage = ecb == null ? DataEntryStage.UNCOMPLETED : ecb.getStage();
-        if (!stage.equals(DataEntryStage.UNCOMPLETED) && !stage.equals(DataEntryStage.INITIAL_DATA_ENTRY)) {
+        // The table of contents already maps the CRF stage to the servlet that may handle it.
+        DisplayTableOfContentsBean displayBean = (DisplayTableOfContentsBean) request.getAttribute(TOC_DISPLAY);
+        if (!displayBean.getActionServlet().equals("InitialDataEntry")) {
             session.setAttribute("mayProcessUploading", "false");
             addPageMessage(respage.getString("you_not_enter_data_initial_DE_completed"), request);
             throw new InsufficientPermissionException(Page.LIST_STUDY_SUBJECTS_SERVLET,
