@@ -44,6 +44,13 @@ import static java.lang.Math.min;
  */
 public class LCTable<T>  {
 
+    public enum PaginationMode { PAGINATED, UNPAGINATED }
+    public enum FooterMode { SHOW_FOOTER, HIDE_FOOTER }
+
+    private LCTableText title;
+    private PaginationMode paginationMode = PaginationMode.PAGINATED;
+    private FooterMode footerMode = FooterMode.SHOW_FOOTER;
+
     final String tableName;     // name of the table (used for generating unique IDs and classes)
     final String panelId;       // ID of the panel element to target with HTMX requests (e.g. "books-panel")
     final List<LCTableColumnDef<T>> columns;
@@ -81,10 +88,6 @@ public class LCTable<T>  {
         }
     }
 
-    // constants to control table behaviour
-    static final boolean HIDE_PAGINATION_TOOLS_FOR_SINGLE_PAGE_TABLE = false;
-
-
     public LCTable(String tableName, List<LCTableColumnDef<T>> columns, Function<LCTableParams, LCTableData<T>> fetchData) {
         this(tableName, columns, fetchData, Collections.emptyList());
     }
@@ -119,6 +122,31 @@ public class LCTable<T>  {
     public LCTable<T> setRowTestAttributes(Function<T, Map<String, String>> rowTestAttributes) {
         this.rowTestAttributes = Objects.requireNonNull(rowTestAttributes, "rowTestAttributes");
         return this;
+    }
+
+    public LCTable<T> setTitle(LCTableText title) {
+        this.title = Objects.requireNonNull(title, "title");
+        return this;
+    }
+
+    public LCTable<T> setPaginationMode(PaginationMode paginationMode) {
+        this.paginationMode = Objects.requireNonNull(paginationMode, "paginationMode");
+        return this;
+    }
+
+    public LCTable<T> setFooterMode(FooterMode footerMode) {
+        this.footerMode = Objects.requireNonNull(footerMode, "footerMode");
+        return this;
+    }
+
+    public PaginationMode getPaginationMode() { return paginationMode; }
+
+    boolean hasFilterableColumns() {
+        return columns.stream().anyMatch(LCTableColumnDef::isFilterable);
+    }
+
+    boolean isSortableColumn(String name) {
+        return columns.stream().anyMatch(col -> col.columnName.equals(name) && col.isSortable());
     }
 
     public List<String> getColumnNames() {
@@ -232,6 +260,7 @@ public class LCTable<T>  {
             .attrColspan((int) renderedColumnCount(ctx))
             .div().attrClass("toolbar-container")
             .of(container -> {
+                if (paginationMode == PaginationMode.PAGINATED) {
                 // Left: page navigation
                 container.nav().of(nav -> buildPageNavigation(nav, ctx)).__();
                 // Separator (CSS-based vertical line)
@@ -250,12 +279,13 @@ public class LCTable<T>  {
                         .text(ctx.words.getString(ctx.showHiddenCols ? "hide" : "show_more"))
                         .__();
                 }
+                }
                 // Custom, non-tabular controls (see addCustomToolbarControl), in the order they were added --
                 // each preceded by the same separator used between the built-in controls above, but only when
                 // the control actually has something to render for this request (see CustomToolbarControl).
                 customToolbarControls.forEach(control -> {
                     if (control.hasContent.test(ctx)) {
-                        container.div().attrClass("toolbar-separator").__();
+                        if (paginationMode == PaginationMode.PAGINATED) container.div().attrClass("toolbar-separator").__();
                         control.render.accept(container, ctx);
                     }
                 });
@@ -275,9 +305,17 @@ public class LCTable<T>  {
     }
 
     private void renderTableHeader(Thead<?> thead, LCTableContext<T> ctx) {
-        thead.tr().attrClass("header").addAttr("data-testid", "lctable-toolbar").of(tr -> renderToolbar(tr, ctx)).__();
+        if (title != null) {
+            thead.tr().attrClass("lctable-title-row").addAttr("data-testid", "lctable-title-row")
+                .th().attrColspan((int) renderedColumnCount(ctx)).text(title.resolve(ctx.words, ctx.locale)).__().__();
+        }
+        if (paginationMode == PaginationMode.PAGINATED || !customToolbarControls.isEmpty()) {
+            thead.tr().attrClass("header").addAttr("data-testid", "lctable-toolbar").of(tr -> renderToolbar(tr, ctx)).__();
+        }
         thead.tr().attrClass("header").addAttr("data-testid", "lctable-column-header-row").of(tr -> renderColumnNames(tr, ctx)).__();
-        thead.tr().attrClass("filter").addAttr("data-testid", "lctable-column-filter-row").of(tr -> renderFilters(tr, ctx)).__();
+        if (columns.stream().anyMatch(col -> shouldRenderColumn(col, ctx) && col.isFilterable())) {
+            thead.tr().attrClass("filter").addAttr("data-testid", "lctable-column-filter-row").of(tr -> renderFilters(tr, ctx)).__();
+        }
     }
 
     private void renderTableBody(Tbody<?> tbody, LCTableContext<T> ctx) {
@@ -302,42 +340,54 @@ public class LCTable<T>  {
      */
     private String renderTableHtml(LCTableContext<T> ctx) {
         final StringWriter sw = new StringWriter();
-        HtmlFlow.doc(sw)
-            .div().attrId(panelId).attrClass("lctable").addAttr("data-testid", "lctable-panel")
-            .addAttr("hx-ext", "morph")         // use 'idiomorph' extension for morphing the table content instead of replacing it
-            .form().attrId(panelId + "-form")
+        boolean interactive = paginationMode == PaginationMode.PAGINATED || hasFilterableColumns() || !customToolbarControls.isEmpty()
+            || columns.stream().anyMatch(LCTableColumnDef::isSortable);
+        var panel = HtmlFlow.doc(sw).div().attrId(panelId).attrClass("lctable")
+            .addAttr("data-testid", "lctable-panel");
+        if (interactive) panel.addAttr("hx-ext", "morph");
+        if (interactive) {
+            var form = panel.form().attrId(panelId + "-form");
             // Render sticky parameters first, keeping them at the start of URLs and DOM (form) serialization order.
             // Omitted when absent/empty.
-            .of(form -> ctx.stickyParams.forEach((name, value) -> {
+            form.of(fields -> ctx.stickyParams.forEach((name, value) -> {
                 if (value != null && !value.isEmpty()) {
-                    form.input().attrType(EnumTypeInputType.HIDDEN).attrName(name).attrValue(value).__();
+                    fields.input().attrType(EnumTypeInputType.HIDDEN).attrName(name).attrValue(value).__();
                 }
-            }))
+            }));
             // Hidden inputs for filter submission. Page is reset to 1 when filtering (like search box).
             // Pagination buttons use their own URLs with all parameters, so this page value
             // doesn't affect them.
-            .input().attrType(EnumTypeInputType.HIDDEN).attrName(PARAM_PAGE).attrValue("1").__()
+            if (paginationMode == PaginationMode.PAGINATED) form.input().attrType(EnumTypeInputType.HIDDEN).attrName(PARAM_PAGE).attrValue("1").__();
             // Hidden inputs for state submission.
             // Note: `maxRows` is intentionally omitted here to make the `<select>` the single source of truth
             // and avoid duplicate submissions. `sortProp`/`sortDir` and `showHiddenCols` are only rendered
             // if they have non-default values to keep HTMX-generated query strings clean.
-            .of(form -> {
+            form.of(fields -> {
                 if (!ctx.sortProp.isEmpty()) {
-                    form.input().attrType(EnumTypeInputType.HIDDEN).attrName(PARAM_SORT_PROP).attrValue(ctx.sortProp).__();
-                    form.input().attrType(EnumTypeInputType.HIDDEN).attrName(PARAM_SORT_DIR).attrValue(ctx.sortDir).__();
+                    fields.input().attrType(EnumTypeInputType.HIDDEN).attrName(PARAM_SORT_PROP).attrValue(ctx.sortProp).__();
+                    fields.input().attrType(EnumTypeInputType.HIDDEN).attrName(PARAM_SORT_DIR).attrValue(ctx.sortDir).__();
                 }
                 if (ctx.showHiddenCols) {
-                    form.input().attrType(EnumTypeInputType.HIDDEN).attrName(PARAM_SHOW_HIDDEN_COLS).attrValue("true").__();
+                    fields.input().attrType(EnumTypeInputType.HIDDEN).attrName(PARAM_SHOW_HIDDEN_COLS).attrValue("true").__();
                 }
-            })
-            .table().attrId(panelId + "-table").attrClass("table").addAttr("data-testid", "lctable-table").attrStyle("border-collapse:collapse")
-            .thead().attrId(panelId + "-thead").of(thead -> renderTableHeader(thead, ctx)).__() // thead
-            .tbody().attrId(panelId + "-tbody").attrClass("tbody").of(tbody -> renderTableBody(tbody, ctx)).__() // tbody
-            .tfoot().attrId(panelId + "-tfoot").of(tfoot -> renderTableFooter(tfoot, ctx)).__()
-            .__() // table
-            .__() // form
-            .__(); // div
+            });
+            renderTable(form.table().attrId(panelId + "-table").attrClass("table").addAttr("data-testid", "lctable-table").attrStyle("border-collapse:collapse"), ctx);
+            form.__();
+        } else {
+            renderTable(panel.table().attrId(panelId + "-table").attrClass("table").addAttr("data-testid", "lctable-table").attrStyle("border-collapse:collapse"), ctx);
+        }
+        panel.__();
         return sw.toString();
+    }
+
+    private void renderTable(Table<?> table, LCTableContext<T> ctx) {
+        table
+            .thead().attrId(panelId + "-thead").of(thead -> renderTableHeader(thead, ctx)).__() // thead
+            .tbody().attrId(panelId + "-tbody").attrClass("tbody").of(tbody -> renderTableBody(tbody, ctx)).__();
+        if (footerMode == FooterMode.SHOW_FOOTER) {
+            table.tfoot().attrId(panelId + "-tfoot").of(tfoot -> renderTableFooter(tfoot, ctx)).__();
+        }
+        table.__();
     }
 
     /**
@@ -351,7 +401,14 @@ public class LCTable<T>  {
      * @return the rendered HTML string for the table
      */
     public String render(String entityPath, LCTableParams params, String resourcePath, Locale locale) {
+        if (paginationMode == PaginationMode.UNPAGINATED && params.page != 0) {
+            params = new LCTableParams(0, params.maxRows, params.sortProp, params.sortDir, params.filters,
+                params.showHiddenCols, params.stickyParams);
+        }
         final LCTableContext<T> ctx = new LCTableContext<>(entityPath, params, fetchData, resourcePath, locale);
+        if (paginationMode == PaginationMode.UNPAGINATED && ctx.data.pageItems.size() != ctx.data.totalCountWithFilter) {
+            throw new IllegalStateException("Unpaginated table requires a data source returning all rows");
+        }
         return renderTableHtml(ctx);
     }
 
@@ -380,8 +437,6 @@ public class LCTable<T>  {
     }
 
     private void buildPageNavigation(Nav<?> nav, LCTableContext<T> ctx) {
-        if (HIDE_PAGINATION_TOOLS_FOR_SINGLE_PAGE_TABLE && ctx.totalPages <= 1) return;
-
         final int page = ctx.page;
         final int total = ctx.totalPages;
         final int size = ctx.maxRows;
@@ -430,7 +485,6 @@ public class LCTable<T>  {
 
     /** Builds the {@code select} element for 'maxRows' and appends it into the provided div. */
     private void buildSelectMaxRowsSelect(Div<?> div, LCTableContext<T> ctx) {
-        if (HIDE_PAGINATION_TOOLS_FOR_SINGLE_PAGE_TABLE && ctx.totalPages <= 1) return;
         // Deliberately blank. Any future visible label must be a resource key resolved from ctx.words.
         div.label().text("").__();
         div.select()

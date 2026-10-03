@@ -17,18 +17,14 @@
 
 <jsp:include page="include/sideAlert.jsp"/>
 
-<%-- The studySiteStatistics/studyStatistics/subjectEventStatusStatistics/studySubjectStatusStatistics
-     tables (coordinator/director) and the sdvMatrix table (monitor) are still rendered with JMesa
-     regardless of LC_TABLE_RENDERING -- only the findSubjects table (investigator/RA/RA2) has been
-     migrated to LCTable/HtmlFlow. So the JMesa assets must load whenever any JMesa-rendered table
-     may appear on this page, not just when findSubjects itself uses the JMesa path. --%>
-<c:set var="needsJmesaAssets" value="${tableRenderingMode == 'jmesa' || userRole.coordinator || userRole.director || userRole.monitor}"/>
+<%-- Statistics use LCTable; monitor SDV and the optional legacy findSubjects still use JMesa. --%>
+<c:set var="needsJmesaAssets" value="${tableRenderingMode == 'jmesa' || userRole.monitor}"/>
 <c:if test="${needsJmesaAssets}">
     <script type="text/JavaScript" src="includes/jmesa/jquery.jmesa.js"></script>
     <script type="text/JavaScript" src="includes/jmesa/jmesa.js"></script>
     <link rel="stylesheet" href="includes/jmesa/jmesa.css" type="text/css">
 </c:if>
-<c:if test="${tableRenderingMode == 'htmlflow'}">
+<c:if test="${tableRenderingMode == 'htmlflow' || userRole.coordinator || userRole.director}">
     <link rel="stylesheet" href="includes/lctable/lctable.css" type="text/css">
 </c:if>
 
@@ -141,44 +137,21 @@
 </c:if>
 
 <c:if test="${userRole.coordinator || userRole.director}">										<!-- datamanager / study director -->
-    <script type="text/javascript">
-	    function onInvokeAction(id,action) {
-	        if(id.indexOf('studySiteStatistics') == -1)  {
-	            setExportToLimit(id, '');
-	        }
-	        if(id.indexOf('subjectEventStatusStatistics') == -1)  {
-	            setExportToLimit(id, '');
-	        }
-	        if(id.indexOf('studySubjectStatusStatistics') == -1)  {
-	            setExportToLimit(id, '');
-	        }
-	        createHiddenInputFieldsForLimitAndSubmit(id);
-	    }
-    </script>
-
 	<table>
 		<tr>
 		    <td class="statistics_td">
-		    <form  action="${pageContext.request.contextPath}/MainMenu">
 		        ${studySiteStatistics}
-		    </form>
 		    </td>
 		    <td class="statistics_td">
-		    <form  action="${pageContext.request.contextPath}/MainMenu">
 		        ${studyStatistics}
-		    </form>
 		    </td>
 		</tr>
 		<tr>
     		<td class="statistics_td">
-    			<form  action="${pageContext.request.contextPath}/MainMenu">
         			${subjectEventStatusStatistics}
-    			</form>
     		</td>
 			<td class="statistics_td">
-				<form  action="${pageContext.request.contextPath}/MainMenu">
 					${studySubjectStatusStatistics}
-				</form>
 			</td>
 		</tr>
 	</table>

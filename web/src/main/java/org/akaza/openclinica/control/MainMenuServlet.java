@@ -17,10 +17,7 @@ import java.util.Locale;
 import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.service.StudyParameterValueBean;
-import org.akaza.openclinica.control.admin.EventStatusStatisticsTableFactory;
-import org.akaza.openclinica.control.admin.SiteStatisticsTableFactory;
-import org.akaza.openclinica.control.admin.StudyStatisticsTableFactory;
-import org.akaza.openclinica.control.admin.StudySubjectStatusStatisticsTableFactory;
+import org.akaza.openclinica.control.admin.MenuStatisticsTables;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.control.submit.ListStudySubjectTable;
@@ -211,12 +208,7 @@ public class MainMenuServlet extends SecureController {
                         response.sendRedirect(request.getContextPath() + Page.MANAGE_STUDY_MODULE.getFileName());
                         return;
                     }
-                    setupStudySiteStatisticsTable();
-                    setupSubjectEventStatusStatisticsTable();
-                    setupStudySubjectStatusStatisticsTable();
-                    if (currentStudy.getParentStudyId() == 0) {
-                        setupStudyStatisticsTable();
-                    }
+                    new MenuStatisticsTables(currentStudy, getStudyDAO(), getStudySubjectDAO(), getStudyEventDAO()).populate(request);
 
                 }
 
@@ -244,49 +236,6 @@ public class MainMenuServlet extends SecureController {
         request.setAttribute("showMoreLink", "true");
         String sdvMatrix = getSDVUtil().renderEventCRFTableWithLimit(request, currentStudy.getId(), "");
         request.setAttribute("sdvMatrix", sdvMatrix);
-    }
-
-    private void setupStudySubjectStatusStatisticsTable() {
-
-        StudySubjectStatusStatisticsTableFactory factory = new StudySubjectStatusStatisticsTableFactory();
-        factory.setStudySubjectDao(getStudySubjectDAO());
-        factory.setCurrentStudy(currentStudy);
-        factory.setStudyDao(getStudyDAO());
-        String studySubjectStatusStatistics = factory.createTable(request, response).render();
-        request.setAttribute("studySubjectStatusStatistics", studySubjectStatusStatistics);
-    }
-
-    private void setupSubjectEventStatusStatisticsTable() {
-
-        EventStatusStatisticsTableFactory factory = new EventStatusStatisticsTableFactory();
-        factory.setStudySubjectDao(getStudySubjectDAO());
-        factory.setCurrentStudy(currentStudy);
-        factory.setStudyEventDao(getStudyEventDAO());
-        factory.setStudyDao(getStudyDAO());
-        String subjectEventStatusStatistics = factory.createTable(request, response).render();
-        request.setAttribute("subjectEventStatusStatistics", subjectEventStatusStatistics);
-    }
-
-    private void setupStudySiteStatisticsTable() {
-
-        SiteStatisticsTableFactory factory = new SiteStatisticsTableFactory();
-        factory.setStudySubjectDao(getStudySubjectDAO());
-        factory.setCurrentStudy(currentStudy);
-        factory.setStudyDao(getStudyDAO());
-        String studySiteStatistics = factory.createTable(request, response).render();
-        request.setAttribute("studySiteStatistics", studySiteStatistics);
-
-    }
-
-    private void setupStudyStatisticsTable() {
-
-        StudyStatisticsTableFactory factory = new StudyStatisticsTableFactory();
-        factory.setStudySubjectDao(getStudySubjectDAO());
-        factory.setCurrentStudy(currentStudy);
-        factory.setStudyDao(getStudyDAO());
-        String studyStatistics = factory.createTable(request, response).render();
-        request.setAttribute("studyStatistics", studyStatistics);
-
     }
 
     private void setupListStudySubjectTable() {
