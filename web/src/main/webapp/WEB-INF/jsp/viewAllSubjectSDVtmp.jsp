@@ -114,6 +114,7 @@
     <c:if test="${!(study.status.locked)}">
         <label><fmt:message key="select_all_on_page" bundle="${resword}"/>
             <input id="sdvSelectAllOnPage" type="checkbox" onclick="document.querySelectorAll('#sdv-panel input.sdvCheck').forEach(function(box) { box.checked = this.checked; }, this);">
+            <br />
         </label>
     </c:if>
     ${sdvTableAttribute}

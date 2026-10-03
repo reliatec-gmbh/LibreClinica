@@ -25,6 +25,8 @@ import org.akaza.openclinica.control.submit.ListStudySubjectTableFactory;
 import org.akaza.openclinica.dao.login.UserAccountDAO;
 import org.akaza.openclinica.dao.managestudy.DiscrepancyNoteDAO;
 import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;
+import org.akaza.openclinica.dao.admin.CRFDAO;
+import org.akaza.openclinica.dao.submit.CRFVersionDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDefinitionDAO;
@@ -39,6 +41,7 @@ import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.akaza.openclinica.web.SQLInitServlet;
+import org.akaza.openclinica.web.table.sdv.EventCRFSDVTable;
 import org.akaza.openclinica.web.table.sdv.SDVUtil;
 
 /**
@@ -234,7 +237,17 @@ public class MainMenuServlet extends SecureController {
 
         request.setAttribute("studyId", currentStudy.getId());
         request.setAttribute("showMoreLink", "true");
-        String sdvMatrix = getSDVUtil().renderEventCRFTableWithLimit(request, currentStudy.getId(), "");
+        boolean legacy = "jmesa".equalsIgnoreCase(System.getenv("LC_TABLE_RENDERING"));
+        request.setAttribute("tableRenderingMode", legacy ? "jmesa" : "htmlflow");
+        String sdvMatrix;
+        if (legacy) {
+            sdvMatrix = getSDVUtil().renderEventCRFTableWithLimit(request, currentStudy.getId(), "");
+        } else {
+            sdvMatrix = new EventCRFSDVTable(new EventCRFDAO(sm.getDataSource()), new StudySubjectDAO(sm.getDataSource()),
+                new StudyEventDAO(sm.getDataSource()), new StudyEventDefinitionDAO(sm.getDataSource()), new SubjectDAO(sm.getDataSource()),
+                new StudyDAO(sm.getDataSource()), new EventDefinitionCRFDAO(sm.getDataSource()), new CRFVersionDAO(sm.getDataSource()),
+                new CRFDAO(sm.getDataSource()), currentStudy.getId(), locale).render(request);
+        }
         request.setAttribute("sdvMatrix", sdvMatrix);
     }
 
