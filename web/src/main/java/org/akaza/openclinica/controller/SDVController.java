@@ -12,6 +12,9 @@ package org.akaza.openclinica.controller;
 import static org.akaza.openclinica.core.util.ClassCastHelper.asArrayList;
 import static org.akaza.openclinica.core.util.ClassCastHelper.asEnumeration;
 
+import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -20,12 +23,23 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.sql.DataSource;
 
+import org.akaza.openclinica.dao.admin.CRFDAO;
+import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;
+import org.akaza.openclinica.dao.managestudy.StudyDAO;
+import org.akaza.openclinica.dao.managestudy.StudyEventDAO;
+import org.akaza.openclinica.dao.managestudy.StudyEventDefinitionDAO;
+import org.akaza.openclinica.dao.managestudy.StudyGroupDAO;
+import org.akaza.openclinica.dao.managestudy.StudySubjectDAO;
+import org.akaza.openclinica.dao.submit.CRFVersionDAO;
+import org.akaza.openclinica.dao.submit.EventCRFDAO;
+import org.akaza.openclinica.dao.submit.SubjectDAO;
 import org.akaza.openclinica.bean.core.Role;
 import org.akaza.openclinica.bean.login.StudyUserRoleBean;
 import org.akaza.openclinica.bean.login.UserAccountBean;
@@ -33,7 +47,9 @@ import org.akaza.openclinica.controller.helper.SdvFilterDataBean;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
 import org.akaza.openclinica.view.StudyInfoPanel;
+import org.akaza.openclinica.web.table.sdv.EventCRFSDVTable;
 import org.akaza.openclinica.web.table.sdv.SDVUtil;
+import org.akaza.openclinica.web.table.sdv.SubjectAggregateSDVTable;
 import org.akaza.openclinica.web.table.sdv.SubjectIdSDVFactory;
 import org.jmesa.facade.TableFacade;
 import org.slf4j.Logger;
@@ -46,6 +62,8 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.ServletRequestDataBinder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.support.RequestContextUtils;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * Implement the functionality for displaying a table of Event CRFs for Source Data
@@ -53,6 +71,46 @@ import org.springframework.web.bind.annotation.RequestParam;
  */
 @Controller("sdvController")
 public class SDVController {
+    private static final Set<String> TABLE_STATE_KEYS = Set.of("page", "maxRows", "sortProp", "sortDir", "showHiddenCols");
+    private static final Set<String> EVENT_FILTERS = Set.of("studySubjectId", "studyIdentifier", "eventName", "sdvStatus", "crfStatus", "sdvRequirementDefinition");
+    private static final Set<String> SUBJECT_FILTERS = Set.of("studySubjectId", "siteId", "sdvStatus");
+
+    /** Only the HtmlFlow path uses PRG; the jmesa controller forwarding contract is unchanged. */
+    private String migratedSdvRedirect(HttpServletRequest request, String target, int studyId, List<String> messages) {
+        if ("jmesa".equalsIgnoreCase(System.getenv("LC_TABLE_RENDERING"))
+            || !target.equals(request.getParameter("redirection"))) return null;
+        org.springframework.web.servlet.FlashMap flash = RequestContextUtils.getOutputFlashMap(request);
+        if (flash != null) flash.put("pageMessages", new ArrayList<>(messages));
+        UriComponentsBuilder url = UriComponentsBuilder.fromPath("/pages/" + target).queryParam("studyId", studyId);
+        String state = request.getParameter("sdvTableState");
+        Set<String> filters = "viewSubjectAggregate".equals(target) ? SUBJECT_FILTERS : EVENT_FILTERS;
+        if (state != null && state.length() <= 4096) {
+            UriComponentsBuilder.fromUriString("?" + state).build().getQueryParams().forEach((key, values) -> {
+                if (!TABLE_STATE_KEYS.contains(key) && !(key.startsWith("q.") && filters.contains(key.substring(2)))) return;
+                if (values.isEmpty()) return;
+                String value;
+                try {
+                    value = URLDecoder.decode(values.get(0), StandardCharsets.UTF_8);
+                } catch (IllegalArgumentException invalidState) {
+                    return;
+                }
+                if (value.length() > 256 || value.isEmpty()) return;
+                if ("page".equals(key) && !value.matches("[1-9][0-9]{0,5}")) return;
+                if ("maxRows".equals(key) && !Set.of("15", "25", "50").contains(value)) return;
+                if ("showHiddenCols".equals(key) && !"true".equals(value)) return;
+                if ("sortDir".equals(key) && !Set.of("asc", "desc").contains(value)) return;
+                if ("sortProp".equals(key) && !("viewSubjectAggregate".equals(target) && "studySubjectId".equals(value))) return;
+                url.queryParam(key, value);
+            });
+        }
+        return "redirect:" + url.encode().toUriString();
+    }
+
+    private String migratedSdvRedirect(HttpServletRequest request, String target, List<String> messages) {
+        if ("jmesa".equalsIgnoreCase(System.getenv("LC_TABLE_RENDERING"))
+            || !target.equals(request.getParameter("redirection"))) return null;
+        return migratedSdvRedirect(request, target, Integer.parseInt(request.getParameter("studyId")), messages);
+    }
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
 
     public final static String SUBJECT_SDV_TABLE_ATTRIBUTE = "sdvTableAttribute";
@@ -78,7 +136,7 @@ public class SDVController {
     }
 
     @RequestMapping("/viewSubjectAggregate")
-    public ModelMap viewSubjectAggregateHandler(HttpServletRequest request, HttpServletResponse response, @RequestParam("studyId") int studyId) {
+    public ModelMap viewSubjectAggregateHandler(HttpServletRequest request, HttpServletResponse response, @RequestParam("studyId") int studyId) throws IOException {
 		if (!mayProceed(request)) {
             try {
                 response.sendRedirect(request.getContextPath() + "/MainMenu?message=authentication_failed");
@@ -113,14 +171,33 @@ public class SDVController {
         request.setAttribute("imagePathPrefix", "../");
 
         ArrayList<String> pageMessages = asArrayList(request.getAttribute("pageMessages"), String.class);
+        if (!"jmesa".equalsIgnoreCase(System.getenv("LC_TABLE_RENDERING")) && RequestContextUtils.getInputFlashMap(request) != null) {
+            pageMessages = asArrayList(RequestContextUtils.getInputFlashMap(request).get("pageMessages"), String.class);
+        }
         if (pageMessages == null) {
             pageMessages = new ArrayList<String>();
         }
 
         request.setAttribute("pageMessages", pageMessages);
-        sdvFactory.showMoreLink = showMoreLink;
-        TableFacade facade = sdvFactory.createTable(request, response);
-        String sdvMatrix = facade.render();
+        boolean legacy = "jmesa".equalsIgnoreCase(System.getenv("LC_TABLE_RENDERING"));
+        request.setAttribute("tableRenderingMode", legacy ? "jmesa" : "htmlflow");
+        String sdvMatrix;
+        if (legacy) {
+            sdvFactory.showMoreLink = showMoreLink;
+            TableFacade facade = sdvFactory.createTable(request, response);
+            sdvMatrix = facade.render();
+        } else {
+            sdvMatrix = new SubjectAggregateSDVTable(new StudySubjectDAO(dataSource), new EventCRFDAO(dataSource),
+                new StudyDAO(dataSource), new StudyGroupDAO(dataSource), new StudyEventDAO(dataSource),
+                new EventDefinitionCRFDAO(dataSource), new CRFDAO(dataSource), studyId,
+                LocaleResolver.getLocale(request)).render(request);
+            response.addHeader("Vary", "HX-Request");
+            if (request.getHeader("HX-Request") != null) {
+                response.setContentType("text/html;charset=UTF-8");
+                response.getWriter().write(sdvMatrix);
+                return null;
+            }
+        }
         gridMap.addAttribute(SUBJECT_SDV_TABLE_ATTRIBUTE, sdvMatrix);
         return gridMap;
     }
@@ -150,7 +227,7 @@ public class SDVController {
     }
 
     @RequestMapping("/viewAllSubjectSDVtmp")
-    public ModelMap viewAllSubjectHandler(HttpServletRequest request, @RequestParam("studyId") int studyId, HttpServletResponse response) {
+    public ModelMap viewAllSubjectHandler(HttpServletRequest request, @RequestParam("studyId") int studyId, HttpServletResponse response) throws IOException {
 
         if (!mayProceed(request)) {
             try {
@@ -200,13 +277,32 @@ public class SDVController {
         // sdvUtil.prepareSDVSelectElements(request,studyBean);
 
         ArrayList<String> pageMessages = asArrayList(request.getAttribute("pageMessages"), String.class);
+        if (!"jmesa".equalsIgnoreCase(System.getenv("LC_TABLE_RENDERING")) && RequestContextUtils.getInputFlashMap(request) != null) {
+            pageMessages = asArrayList(RequestContextUtils.getInputFlashMap(request).get("pageMessages"), String.class);
+        }
         if (pageMessages == null) {
             pageMessages = new ArrayList<String>();
         }
 
         request.setAttribute("pageMessages", pageMessages);
 
-        String sdvMatrix = sdvUtil.renderEventCRFTableWithLimit(request, studyId, "../");
+        boolean legacy = "jmesa".equalsIgnoreCase(System.getenv("LC_TABLE_RENDERING"));
+        request.setAttribute("tableRenderingMode", legacy ? "jmesa" : "htmlflow");
+        String sdvMatrix;
+        if (legacy) {
+            sdvMatrix = sdvUtil.renderEventCRFTableWithLimit(request, studyId, "../");
+        } else {
+            sdvMatrix = new EventCRFSDVTable(new EventCRFDAO(dataSource), new StudySubjectDAO(dataSource),
+                new StudyEventDAO(dataSource), new StudyEventDefinitionDAO(dataSource), new SubjectDAO(dataSource),
+                new StudyDAO(dataSource), new EventDefinitionCRFDAO(dataSource), new CRFVersionDAO(dataSource),
+                new CRFDAO(dataSource), studyId, LocaleResolver.getLocale(request)).render(request);
+            response.addHeader("Vary", "HX-Request");
+            if (request.getHeader("HX-Request") != null) {
+                response.setContentType("text/html;charset=UTF-8");
+                response.getWriter().write(sdvMatrix);
+                return null;
+            }
+        }
 
         gridMap.addAttribute(SUBJECT_SDV_TABLE_ATTRIBUTE, sdvMatrix);
         return gridMap;
@@ -269,6 +365,8 @@ public class SDVController {
         if (parameterMap.isEmpty()) {
             pageMessages.add("None of the Event CRFs were selected for SDV.");
             request.setAttribute("pageMessages", pageMessages);
+            String redirect = migratedSdvRedirect(request, "viewAllSubjectSDVtmp", studyId, pageMessages);
+            if (redirect != null) return redirect;
             sdvUtil.forwardRequestFromController(request, response, "/pages/" + redirection);
 
         }
@@ -287,6 +385,8 @@ public class SDVController {
 
         //model.addAttribute("allParams",parameterMap);
         //model.addAttribute("verified",updateCRFs);
+        String redirect = migratedSdvRedirect(request, "viewAllSubjectSDVtmp", studyId, pageMessages);
+        if (redirect != null) return redirect;
         sdvUtil.forwardRequestFromController(request, response, "/pages/" + redirection);
 
         //The name of the view, as in allSdvResult.jsp
@@ -327,6 +427,8 @@ public class SDVController {
 
         //model.addAttribute("allParams",parameterMap);
         //model.addAttribute("verified",updateCRFs);
+        String redirect = migratedSdvRedirect(request, "viewAllSubjectSDVtmp", pageMessages);
+        if (redirect != null) return redirect;
         sdvUtil.forwardRequestFromController(request, response, "/pages/" + redirection);
 
         //The name of the view, as in allSdvResult.jsp
@@ -358,6 +460,8 @@ public class SDVController {
 
         //model.addAttribute("allParams",parameterMap);
         //model.addAttribute("verified",updateCRFs);
+        String redirect = migratedSdvRedirect(request, "viewAllSubjectSDVtmp", pageMessages);
+        if (redirect != null) return redirect;
         sdvUtil.forwardRequestFromController(request, response, "/pages/" + redirection);
 
         //The name of the view, as in allSdvResult.jsp
@@ -386,6 +490,8 @@ public class SDVController {
         }
         request.setAttribute("pageMessages", pageMessages);
         request.setAttribute("s_sdv_restore", "true");
+        String redirect = migratedSdvRedirect(request, "viewSubjectAggregate", pageMessages);
+        if (redirect != null) return redirect;
         sdvUtil.forwardRequestFromController(request, response, "/pages/" + redirection);
         return null;
     }
@@ -408,6 +514,8 @@ public class SDVController {
         }
         request.setAttribute("pageMessages", pageMessages);
         request.setAttribute("s_sdv_restore", "true");
+        String redirect = migratedSdvRedirect(request, "viewSubjectAggregate", pageMessages);
+        if (redirect != null) return redirect;
         sdvUtil.forwardRequestFromController(request, response, "/pages/" + redirection);
         return null;
 
@@ -438,6 +546,8 @@ public class SDVController {
         if (parameterMap.isEmpty()) {
             pageMessages.add("None of the Study Subjects were selected for SDV.");
             request.setAttribute("pageMessages", pageMessages);
+            String redirect = migratedSdvRedirect(request, "viewSubjectAggregate", studyId, pageMessages);
+            if (redirect != null) return redirect;
             sdvUtil.forwardRequestFromController(request, response, "/pages/" + redirection);
 
         }
@@ -456,6 +566,8 @@ public class SDVController {
 
         //model.addAttribute("allParams",parameterMap);
         //model.addAttribute("verified",updateCRFs);
+        String redirect = migratedSdvRedirect(request, "viewSubjectAggregate", studyId, pageMessages);
+        if (redirect != null) return redirect;
         sdvUtil.forwardRequestFromController(request, response, "/pages/" + redirection);
 
         //The name of the view, as in allSdvResult.jsp

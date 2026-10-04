@@ -267,6 +267,67 @@ public class LCTableTest extends TestCase {
         assertTrue(html.contains("Clear Filter"));
     }
 
+    public void testUnpaginatedStaticTableRendersLocalizedTitleWithoutControls() {
+        LCTable<Row> table = new LCTable<>("statistics",
+            List.of(textCol("subject", key("subject"), "subject", 0, VISIBLE, NOT_SORTABLE, NO_FILTER, row -> row.subject)),
+            LCTableInMemoryDataSource.allRows(List.of(new Row("S-1", ""), new Row("S-2", "")), List.of()))
+            .setTitle(key("subject_enrollment"))
+            .setPaginationMode(LCTable.PaginationMode.UNPAGINATED)
+            .setFooterMode(LCTable.FooterMode.HIDE_FOOTER);
+        LCTableParams params = new LCTableParams(50, 1, "subject", "desc", Map.of());
+
+        String english = table.render("/MainMenu", params, "", Locale.ENGLISH);
+        String japanese = table.render("/MainMenu", params, "", Locale.JAPANESE);
+
+        assertTrue(english.contains("Subject Enrollment By Site"));
+        assertTrue(japanese.contains("data-testid=\"lctable-title-row\""));
+        assertTrue(english.contains("colspan=\"1\""));
+        assertTrue(english.contains("S-1") && english.contains("S-2"));
+        for (String absent : List.of("<form", "hx-ext", "hx-get", "lctable-toolbar", "lctable-column-filter-row",
+                "<tfoot", "sort-header-link", "name=\"page\"")) {
+            assertFalse(absent, english.contains(absent));
+        }
+    }
+
+    public void testUnpaginatedTableRejectsPagedDataSource() {
+        LCTable<Row> table = new LCTable<>("testTable",
+            List.of(textCol("subject", key("subject"), "subject", 0, VISIBLE, NOT_SORTABLE, NO_FILTER, row -> row.subject)),
+            new LCTableInMemoryDataSource<>(List.of(new Row("A", ""), new Row("B", "")), List.of()))
+            .setPaginationMode(LCTable.PaginationMode.UNPAGINATED);
+        try {
+            table.render("/test", new LCTableParams(0, 1, "", "asc", Map.of()), "", Locale.ENGLISH);
+            fail("Expected unpaginated mode to reject truncated data");
+        } catch (IllegalStateException expected) {
+            assertTrue(expected.getMessage().contains("all rows"));
+        }
+    }
+
+    public void testUnpaginatedToolbarRendersOnlyCustomControls() {
+        LCTable<Row> table = new LCTable<>("testTable",
+            List.of(textCol("subject", key("subject"), "subject", 0, VISIBLE, NOT_SORTABLE, NO_FILTER, row -> row.subject)),
+            LCTableInMemoryDataSource.allRows(List.of(new Row("A", "")), List.of()))
+            .setPaginationMode(LCTable.PaginationMode.UNPAGINATED);
+        table.addCustomToolbarControl((div, ctx) -> div.span().text("Custom action").__());
+        String html = table.render("/test", new LCTableParams(0, 15, "", "asc", Map.of()), "", Locale.ENGLISH);
+        assertTrue(html.contains("Custom action"));
+        assertTrue(html.contains("lctable-toolbar"));
+        assertFalse(html.contains("select-max-rows"));
+        assertFalse(html.contains("page-button"));
+    }
+
+    public void testRequestSortMustNameSortableColumnAndHaveValidDirection() {
+        LCTable<Row> table = new LCTable<>("testTable", List.of(
+            textCol("subject", key("subject"), "subject", 0, row -> row.subject),
+            textCol("event", literal("Event"), "event", 0, VISIBLE, NOT_SORTABLE, NO_FILTER, row -> row.event)),
+            p -> new LCTableData<>(List.of(), 0));
+        assertEquals("", new LCTableParams("sortProp=event&sortDir=asc", table).sortProp);
+        assertEquals("", new LCTableParams("sortProp=bogus&sortDir=desc", table).sortProp);
+        assertEquals("", new LCTableParams("sortProp=subject&sortDir=sideways", table).sortProp);
+        assertEquals("", new LCTableParams("sortProp=subject", table).sortProp);
+        assertEquals("subject", new LCTableParams("sortProp=subject&sortDir=desc", table).sortProp);
+        assertEquals("desc", new LCTableParams("sortProp=subject&sortDir=desc", table).sortDir);
+    }
+
     private static final class Row {
         private final String subject;
         private final String event;

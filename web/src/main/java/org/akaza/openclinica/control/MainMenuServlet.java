@@ -5,7 +5,7 @@
  * For details see: https://libreclinica.org/license
  * copyright (C) 2003 - 2011 Akaza Research
  * copyright (C) 2003 - 2019 OpenClinica
- * copyright (C) 2020 - 2024 LibreClinica
+ * copyright (C) 2020 - 2026 LibreClinica
  */
 package org.akaza.openclinica.control;
 
@@ -17,10 +17,7 @@ import java.util.Locale;
 import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.service.StudyParameterValueBean;
-import org.akaza.openclinica.control.admin.EventStatusStatisticsTableFactory;
-import org.akaza.openclinica.control.admin.SiteStatisticsTableFactory;
-import org.akaza.openclinica.control.admin.StudyStatisticsTableFactory;
-import org.akaza.openclinica.control.admin.StudySubjectStatusStatisticsTableFactory;
+import org.akaza.openclinica.control.admin.MenuStatisticsTables;
 import org.akaza.openclinica.control.core.SecureController;
 import org.akaza.openclinica.control.form.FormProcessor;
 import org.akaza.openclinica.control.submit.ListStudySubjectTable;
@@ -28,6 +25,8 @@ import org.akaza.openclinica.control.submit.ListStudySubjectTableFactory;
 import org.akaza.openclinica.dao.login.UserAccountDAO;
 import org.akaza.openclinica.dao.managestudy.DiscrepancyNoteDAO;
 import org.akaza.openclinica.dao.managestudy.EventDefinitionCRFDAO;
+import org.akaza.openclinica.dao.admin.CRFDAO;
+import org.akaza.openclinica.dao.submit.CRFVersionDAO;
 import org.akaza.openclinica.dao.managestudy.StudyDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDAO;
 import org.akaza.openclinica.dao.managestudy.StudyEventDefinitionDAO;
@@ -42,6 +41,7 @@ import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
 import org.akaza.openclinica.web.SQLInitServlet;
+import org.akaza.openclinica.web.table.sdv.EventCRFSDVTable;
 import org.akaza.openclinica.web.table.sdv.SDVUtil;
 
 /**
@@ -211,12 +211,7 @@ public class MainMenuServlet extends SecureController {
                         response.sendRedirect(request.getContextPath() + Page.MANAGE_STUDY_MODULE.getFileName());
                         return;
                     }
-                    setupStudySiteStatisticsTable();
-                    setupSubjectEventStatusStatisticsTable();
-                    setupStudySubjectStatusStatisticsTable();
-                    if (currentStudy.getParentStudyId() == 0) {
-                        setupStudyStatisticsTable();
-                    }
+                    new MenuStatisticsTables(currentStudy, getStudyDAO(), getStudySubjectDAO(), getStudyEventDAO()).populate(request);
 
                 }
 
@@ -242,51 +237,18 @@ public class MainMenuServlet extends SecureController {
 
         request.setAttribute("studyId", currentStudy.getId());
         request.setAttribute("showMoreLink", "true");
-        String sdvMatrix = getSDVUtil().renderEventCRFTableWithLimit(request, currentStudy.getId(), "");
+        boolean legacy = "jmesa".equalsIgnoreCase(System.getenv("LC_TABLE_RENDERING"));
+        request.setAttribute("tableRenderingMode", legacy ? "jmesa" : "htmlflow");
+        String sdvMatrix;
+        if (legacy) {
+            sdvMatrix = getSDVUtil().renderEventCRFTableWithLimit(request, currentStudy.getId(), "");
+        } else {
+            sdvMatrix = new EventCRFSDVTable(new EventCRFDAO(sm.getDataSource()), new StudySubjectDAO(sm.getDataSource()),
+                new StudyEventDAO(sm.getDataSource()), new StudyEventDefinitionDAO(sm.getDataSource()), new SubjectDAO(sm.getDataSource()),
+                new StudyDAO(sm.getDataSource()), new EventDefinitionCRFDAO(sm.getDataSource()), new CRFVersionDAO(sm.getDataSource()),
+                new CRFDAO(sm.getDataSource()), currentStudy.getId(), locale).render(request);
+        }
         request.setAttribute("sdvMatrix", sdvMatrix);
-    }
-
-    private void setupStudySubjectStatusStatisticsTable() {
-
-        StudySubjectStatusStatisticsTableFactory factory = new StudySubjectStatusStatisticsTableFactory();
-        factory.setStudySubjectDao(getStudySubjectDAO());
-        factory.setCurrentStudy(currentStudy);
-        factory.setStudyDao(getStudyDAO());
-        String studySubjectStatusStatistics = factory.createTable(request, response).render();
-        request.setAttribute("studySubjectStatusStatistics", studySubjectStatusStatistics);
-    }
-
-    private void setupSubjectEventStatusStatisticsTable() {
-
-        EventStatusStatisticsTableFactory factory = new EventStatusStatisticsTableFactory();
-        factory.setStudySubjectDao(getStudySubjectDAO());
-        factory.setCurrentStudy(currentStudy);
-        factory.setStudyEventDao(getStudyEventDAO());
-        factory.setStudyDao(getStudyDAO());
-        String subjectEventStatusStatistics = factory.createTable(request, response).render();
-        request.setAttribute("subjectEventStatusStatistics", subjectEventStatusStatistics);
-    }
-
-    private void setupStudySiteStatisticsTable() {
-
-        SiteStatisticsTableFactory factory = new SiteStatisticsTableFactory();
-        factory.setStudySubjectDao(getStudySubjectDAO());
-        factory.setCurrentStudy(currentStudy);
-        factory.setStudyDao(getStudyDAO());
-        String studySiteStatistics = factory.createTable(request, response).render();
-        request.setAttribute("studySiteStatistics", studySiteStatistics);
-
-    }
-
-    private void setupStudyStatisticsTable() {
-
-        StudyStatisticsTableFactory factory = new StudyStatisticsTableFactory();
-        factory.setStudySubjectDao(getStudySubjectDAO());
-        factory.setCurrentStudy(currentStudy);
-        factory.setStudyDao(getStudyDAO());
-        String studyStatistics = factory.createTable(request, response).render();
-        request.setAttribute("studyStatistics", studyStatistics);
-
     }
 
     private void setupListStudySubjectTable() {

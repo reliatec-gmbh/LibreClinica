@@ -75,8 +75,12 @@ public final class LCTableParams {
         this.page = Math.max(intParam(params, PARAM_PAGE, 1) - 1, 0);
         final int maxRowsParam = intParam(params, PARAM_MAX_ROWS, 15);
         this.maxRows  = maxRowsParam > 0 ? maxRowsParam : 15;
-        this.sortProp = strParam(params, PARAM_SORT_PROP, "");
-        this.sortDir  = strParam(params, PARAM_SORT_DIR, "asc");
+        String requestedSort = strParam(params, PARAM_SORT_PROP, "");
+        String requestedDirection = strParam(params, PARAM_SORT_DIR, "asc");
+        this.sortProp = table.isSortableColumn(requestedSort)
+            && params != null && params.containsKey(PARAM_SORT_DIR)
+            && ("asc".equals(requestedDirection) || "desc".equals(requestedDirection)) ? requestedSort : "";
+        this.sortDir = this.sortProp.isEmpty() ? "asc" : requestedDirection;
         this.filters  = readFilters(params, table.getColumnNames());
         this.showHiddenCols = boolParam(params, PARAM_SHOW_HIDDEN_COLS);
         this.stickyParams = readStickyParams(params, table.getStickyParamNames());

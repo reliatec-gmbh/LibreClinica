@@ -44,6 +44,7 @@ public final class LCTableInMemoryDataSource<T> implements Function<LCTableParam
 
     private final List<T> rows;
     private final Map<String, LCTableInMemoryColumn<T>> columns;
+    private final boolean unpaginated;
 
     /**
      * Creates an in-memory data source and indexes its permitted properties.
@@ -56,7 +57,13 @@ public final class LCTableInMemoryDataSource<T> implements Function<LCTableParam
      * @throws IllegalArgumentException if two descriptors use the same property name
      */
     public LCTableInMemoryDataSource(Collection<T> rows, List<LCTableInMemoryColumn<T>> columns) {
+        this(rows, columns, false);
+    }
+
+    /** Unpaginated is intended only for bounded, application-owned collections. */
+    private LCTableInMemoryDataSource(Collection<T> rows, List<LCTableInMemoryColumn<T>> columns, boolean unpaginated) {
         this.rows = new ArrayList<>(Objects.requireNonNull(rows, "rows"));
+        this.unpaginated = unpaginated;
         Objects.requireNonNull(columns, "columns");
         this.columns = new LinkedHashMap<>();
         for (LCTableInMemoryColumn<T> column : columns) {
@@ -65,6 +72,10 @@ public final class LCTableInMemoryDataSource<T> implements Function<LCTableParam
                 throw new IllegalArgumentException("Duplicate in-memory column property: " + column.getProperty());
             }
         }
+    }
+
+    public static <T> LCTableInMemoryDataSource<T> allRows(Collection<T> rows, List<LCTableInMemoryColumn<T>> columns) {
+        return new LCTableInMemoryDataSource<>(rows, columns, true);
     }
 
     /**
@@ -88,6 +99,7 @@ public final class LCTableInMemoryDataSource<T> implements Function<LCTableParam
             filtered.sort(comparator);
         }
 
+        if (unpaginated) return new LCTableData<>(filtered, filtered.size());
         long requestedStart = (long) params.page * params.maxRows;
         int fromIndex = (int) Math.min(requestedStart, filtered.size());
         int toIndex = Math.min(fromIndex + params.maxRows, filtered.size());
