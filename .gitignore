@@ -17,6 +17,7 @@ core/*.iml
 odm/*.iml
 docs/*.iml
 web/*.iml
+web/*.http
 ws/*.iml
 .DS_Store
 core/.DS_Store
