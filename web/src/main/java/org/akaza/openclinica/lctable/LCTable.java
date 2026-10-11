@@ -19,7 +19,12 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.StringWriter;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,10 +32,17 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.ResourceBundle;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.usermodel.HSSFRichTextString;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -118,6 +130,149 @@ public class LCTable<T>  {
         return tableName;
     }
     public List<String> getStickyParamNames() { return stickyParamNames; }
+
+    /** Empty for ordinary tables; hidden columns are included when explicitly configured. */
+    public java.util.Optional<Export<T>> export() {
+        List<LCTableColumnDef<T>> selected = columns.stream()
+            .filter(col -> col.cellExporter != null).collect(Collectors.toList());
+        return selected.isEmpty() ? java.util.Optional.empty() : java.util.Optional.of(new Export<>(selected));
+    }
+
+    /** Optional tabular projection in screen-column order, independent of HTML and page visibility. */
+    public static final class Export<T> {
+        public static final int BATCH_SIZE = 256;
+        public static final int XLS_MAX_DATA_ROWS = 65535;
+
+        private final List<LCTableColumnDef<T>> columns;
+
+        private Export(List<LCTableColumnDef<T>> columns) {
+            this.columns = List.copyOf(columns);
+        }
+
+        /** The caller supplies authorized, filtered, sorted rows in bounded, zero-based batches. */
+        @FunctionalInterface
+        public interface Rows<T> {
+            List<T> fetch(int offset, int limit);
+        }
+
+        /** Scalar cell: a missing value differs from the literal text "null". */
+        public static final class Value {
+            public enum Kind { TEXT, NUMBER }
+
+            private static final Value MISSING = new Value(null, null);
+            private final String text;
+            private final Number number;
+
+            private Value(String text, Number number) {
+                this.text = text;
+                this.number = number;
+            }
+
+            public static Value missing() { return MISSING; }
+            public static Value text(String text) { return text == null ? MISSING : new Value(text, null); }
+            public static Value number(Number number) { return number == null ? MISSING : new Value(null, number); }
+
+            public boolean isMissing() { return this == MISSING; }
+            public Kind kind() { return number == null ? Kind.TEXT : Kind.NUMBER; }
+            public String asText() { return isMissing() ? "null" : number == null ? text : number.toString(); }
+            public double asDouble() {
+                if (number == null) throw new IllegalStateException("Not a numeric export value");
+                return number.doubleValue();
+            }
+        }
+
+        /** Encodes CSV as UTF-8 without BOM; flushes but does not close the caller-owned stream. */
+        public void toCsv(int total, Rows<T> rows, OutputStream output) throws IOException {
+            Objects.requireNonNull(output, "output");
+            Writer writer = new OutputStreamWriter(output, StandardCharsets.UTF_8);
+            toCsv(total, rows, writer);
+            writer.flush();
+        }
+
+        /** Writes headerless, quoted CSV with CRLF rows; the caller owns the writer. */
+        public void toCsv(int total, Rows<T> rows, Writer writer) throws IOException {
+            Objects.requireNonNull(rows, "rows");
+            Objects.requireNonNull(writer, "writer");
+            forEachBatch(total, rows, (offset, batch) -> {
+                for (T row : batch) {
+                    for (int i = 0; i < columns.size(); i++) {
+                        if (i > 0) writer.write(',');
+                        writer.write('"');
+                        Value cell = Objects.requireNonNull(columns.get(i).cellExporter.apply(row), "export value");
+                        String value = cell.kind() == Value.Kind.NUMBER
+                            ? cell.asText() : safeSpreadsheetText(cell.asText());
+                        writer.write(value.replace("\"", "\"\""));
+                        writer.write('"');
+                    }
+                    writer.write("\r\n");
+                }
+            });
+        }
+
+        /** Writes one BIFF8 sheet, checking format limits before fetching or writing. */
+        public void toXls(int total, Rows<T> rows, ResourceBundle words, Locale locale, OutputStream output) throws IOException {
+            Objects.requireNonNull(rows, "rows");
+            Objects.requireNonNull(words, "words");
+            Objects.requireNonNull(locale, "locale");
+            Objects.requireNonNull(output, "output");
+            if (total > XLS_MAX_DATA_ROWS) {
+                throw new IllegalArgumentException("XLS supports at most " + XLS_MAX_DATA_ROWS + " data rows");
+            }
+            if (columns.size() > 256) {
+                throw new IllegalArgumentException("XLS supports at most 256 columns");
+            }
+            HSSFWorkbook book = new HSSFWorkbook();
+            HSSFSheet sheet = book.createSheet("JMesa Export");
+            HSSFRow header = sheet.createRow(0);
+            for (int i = 0; i < columns.size(); i++) {
+                header.createCell((short) i).setCellValue(new HSSFRichTextString(
+                    columns.get(i).exportHeading.resolve(words, locale)));
+            }
+            forEachBatch(total, rows, (offset, batch) -> {
+                for (int index = 0; index < batch.size(); index++) {
+                    HSSFRow excelRow = sheet.createRow(offset + index + 1);
+                    T row = batch.get(index);
+                    for (int i = 0; i < columns.size(); i++) {
+                        HSSFCell cell = excelRow.createCell((short) i);
+                        Value value = Objects.requireNonNull(columns.get(i).cellExporter.apply(row), "export value");
+                        if (value.kind() == Value.Kind.NUMBER) {
+                            double number = value.asDouble();
+                            if (!Double.isFinite(number)) throw new IllegalArgumentException("Non-finite XLS number");
+                            cell.setCellValue(number);
+                        } else {
+                            cell.setCellValue(new HSSFRichTextString(value.isMissing() ? "" : safeSpreadsheetText(value.asText())));
+                        }
+                    }
+                }
+            });
+            book.write(output);
+        }
+
+        private static String safeSpreadsheetText(String text) {
+            int i = 0;
+            while (i < text.length() && (Character.isWhitespace(text.charAt(i)) || Character.isISOControl(text.charAt(i)))) i++;
+            if (i < text.length() && "=+-@".indexOf(text.charAt(i)) >= 0) return "'" + text;
+            return text;
+        }
+
+        @FunctionalInterface
+        private interface BatchConsumer<T> {
+            void accept(int offset, List<T> batch) throws IOException;
+        }
+
+        private static <T> void forEachBatch(int total, Rows<T> rows, BatchConsumer<T> consumer) throws IOException {
+            if (total < 0) throw new IllegalArgumentException("total must not be negative");
+            for (int offset = 0; offset < total;) {
+                int limit = java.lang.Math.min(BATCH_SIZE, total - offset);
+                List<T> batch = Objects.requireNonNull(rows.fetch(offset, limit), "batch");
+                if (batch.isEmpty() || batch.size() > limit) {
+                    throw new IllegalStateException("Export batch does not match the selected row count");
+                }
+                consumer.accept(offset, batch);
+                offset += batch.size();
+            }
+        }
+    }
 
     public LCTable<T> setRowTestAttributes(Function<T, Map<String, String>> rowTestAttributes) {
         this.rowTestAttributes = Objects.requireNonNull(rowTestAttributes, "rowTestAttributes");

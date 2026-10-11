@@ -77,6 +77,10 @@ public class LCTableColumnDef<T> {
     /** Closure that writes the cell content for a given row bean into the HtmlFlow row element. */
     public CellRenderer<T> cellRenderer;
 
+    /** Optional scalar projection for downloads; null means this column is excluded from exports. */
+    Function<? super T, LCTable.Export.Value> cellExporter;
+    LCTableText exportHeading;
+
     @FunctionalInterface
     public interface CellRenderer<T> {
         void render(Tr<?> rowElement, T row, LCTableContext<T> context);
@@ -107,6 +111,18 @@ public class LCTableColumnDef<T> {
         return this.sortability.isSortable();
     }
     public boolean isFilterable() { return this.filterDef != null; }
+
+    /** Opts this column into exports without changing its HTML renderer or visibility. */
+    public LCTableColumnDef<T> setCellExporter(Function<? super T, LCTable.Export.Value> cellExporter) {
+        return setCellExporter(columnDisplayName, cellExporter);
+    }
+
+    /** Allows an export-specific heading (e.g. a shorter heading than the screen column). */
+    public LCTableColumnDef<T> setCellExporter(LCTableText heading, Function<? super T, LCTable.Export.Value> cellExporter) {
+        this.exportHeading = Objects.requireNonNull(heading, "heading");
+        this.cellExporter = Objects.requireNonNull(cellExporter, "cellExporter");
+        return this;
+    }
 
     public LCTableColumnDef<T> setTestAttributes(Function<T, Map<String, String>> testAttributes) {
         this.testAttributes = Objects.requireNonNull(testAttributes, "testAttributes");
