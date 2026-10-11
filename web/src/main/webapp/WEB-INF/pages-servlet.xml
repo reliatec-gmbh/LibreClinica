@@ -34,14 +34,16 @@
     	<property name="dataSource" ref="dataSource"/>
     </bean>
 
+    <!-- Interceptor protecting Spring MVC controllers API that should be restricted for admin use from specified IP addresses -->
+    <bean id="adminApiIpInterceptor"
+          class="org.akaza.openclinica.controller.helper.AdminApiIpInterceptor"
+          init-method="init" />
+
     <bean name="sdvFactory" class="org.akaza.openclinica.web.table.sdv.SubjectIdSDVFactory">
     	<property name="dataSource" ref="dataSource"/>
     </bean>
-   
-   
-       <bean name="scheduledJobTableFactory" class="org.akaza.openclinica.web.table.scheduledjobs.ScheduledJobTableFactory">
-    </bean>
-                 
+
+    <bean name="scheduledJobTableFactory" class="org.akaza.openclinica.web.table.scheduledjobs.ScheduledJobTableFactory" />
 	
     <bean id="castorMarshaller" class="org.springframework.oxm.castor.CastorMarshaller" >
         <property name="mappingLocation" value="classpath:properties/mappingMarshaller.xml" />
@@ -71,7 +73,16 @@
             </util:list>
         </property>
     </bean>
-    
+
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/accounts/**" />
+            <!-- Do allow login via API for third parties that are using this endpoint -->
+            <mvc:exclude-mapping path="/accounts/login" />
+            <ref bean="adminApiIpInterceptor" />
+        </mvc:interceptor>
+    </mvc:interceptors>
+
     <!-- This tag registers the DefaultAnnotationHandlerMapping and AnnotationMethodHandlerAdapter 
          beans that are required for Spring MVC to dispatch requests to @Controllers.
          KK - commented this out and manually created the beans to configure converters. 
@@ -79,12 +90,9 @@
     --> 
 	
 	<bean class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping"/>
-	
-    
+
     <!-- Resolves logical view names to JSP views -->
     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver" id="internalViewResolver"
           p:prefix="/WEB-INF/jsp/" p:suffix=".jsp" />
-         
-     
 
 </beans>
