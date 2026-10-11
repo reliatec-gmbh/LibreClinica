@@ -20,8 +20,16 @@
 <!-- move the alert message to the sidebar-->
 <jsp:include page="../include/sideAlert.jsp"/>
 
-<link type="text/css" href="includes/jmesa/jmesa.css"  rel="stylesheet">    
+<c:choose>
+    <c:when test="${tableRenderingMode == 'jmesa'}">
+        <link type="text/css" href="includes/jmesa/jmesa.css" rel="stylesheet">
+    </c:when>
+    <c:otherwise>
+        <link type="text/css" href="includes/lctable/lctable.css" rel="stylesheet">
+    </c:otherwise>
+</c:choose>
 
+<c:if test="${tableRenderingMode == 'jmesa'}">
 <script type="text/javascript" language="JavaScript" src="includes/jmesa/jquery.min.js"></script>
 <script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jquery.jmesa.js"></script>
 <script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jmesa.js"></script>
@@ -44,6 +52,7 @@
         location.href = '${pageContext.request.contextPath}/ViewRuleAssignment?'+ parameterString;
     }
 </script>
+</c:if>
 
 
 <!-- then instructions-->
@@ -74,13 +83,24 @@
 
 
 <div id="ruleAssignmentsDiv">
-    <form  action="${pageContext.request.contextPath}/ViewRuleAssignment">
-        <input type="hidden" name="module" value="admin">
-        ${ruleAssignmentsHtml}
-    </form>
+    <c:choose>
+        <c:when test="${tableRenderingMode == 'jmesa'}">
+            <form action="${pageContext.request.contextPath}/ViewRuleAssignment">
+                <input type="hidden" name="module" value="admin">
+                ${ruleAssignmentsHtml}
+            </form>
+        </c:when>
+        <c:otherwise>${ruleAssignmentsHtml}</c:otherwise>
+    </c:choose>
 </div>
 
+<c:if test="${tableRenderingMode == 'jmesa'}">
 <script>$j("img[title*='PDF']").attr('title', '<fmt:message key="view_rules_download_xml" bundle="${resword}"/>' );</script>
+</c:if>
+
+<c:if test="${tableRenderingMode != 'jmesa'}">
+    <jsp:include page="../include/useLCTable.jsp"/>
+</c:if>
 
 
 <br>

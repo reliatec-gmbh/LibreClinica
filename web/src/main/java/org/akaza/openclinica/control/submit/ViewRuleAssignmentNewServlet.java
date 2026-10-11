@@ -5,7 +5,7 @@
  * For details see: https://libreclinica.org/license
  * copyright (C) 2003 - 2011 Akaza Research
  * copyright (C) 2003 - 2019 OpenClinica
- * copyright (C) 2020 - 2024 LibreClinica
+ * copyright (C) 2020 - 2006 LibreClinica
  */
 package org.akaza.openclinica.control.submit;
 
@@ -71,8 +71,23 @@ public class ViewRuleAssignmentNewServlet extends SecureController {
         } else {
             showMoreLink = Boolean.parseBoolean(fp.getString("showMoreLink"));
         }
-        createTable();
-
+        if ("jmesa".equalsIgnoreCase(System.getenv("LC_TABLE_RENDERING"))) {
+            request.setAttribute("tableRenderingMode", "jmesa");
+            createTable();
+        } else {
+            request.setAttribute("tableRenderingMode", "htmlflow");
+            String html = new ViewRuleAssignmentsTable(getRuleSetService(), getItemFormMetadataDAO(), currentStudy, locale).render(request);
+            response.addHeader("Vary", "HX-Request");
+            if (request.getHeader("HX-Request") != null) {
+                response.setContentType("text/html;charset=UTF-8");
+                response.getWriter().write(html);
+                response.getWriter().flush();
+            } else {
+                request.setAttribute("ruleAssignmentsHtml", html);
+                createStudyEventForInfoPanel();
+                forwardPage(Page.VIEW_RULE_SETS2);
+            }
+        }
     }
 
     private void createStudyEventForInfoPanel() {
