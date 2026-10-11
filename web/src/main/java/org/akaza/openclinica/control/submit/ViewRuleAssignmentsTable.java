@@ -13,8 +13,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.io.IOException;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.akaza.openclinica.bean.managestudy.StudyBean;
 import org.akaza.openclinica.bean.submit.ItemFormMetadataBean;
@@ -42,6 +46,7 @@ import org.akaza.openclinica.lctable.LCTableContext;
 import org.akaza.openclinica.lctable.LCTableData;
 import org.akaza.openclinica.lctable.LCTableFilterDef;
 import org.akaza.openclinica.lctable.LCTableParams;
+import org.akaza.openclinica.lctable.SafeUrl;
 import org.akaza.openclinica.service.rule.RuleSetServiceInterface;
 import org.akaza.openclinica.service.rule.expression.ExpressionService;
 import org.xmlet.htmlapifaster.Div;
@@ -52,8 +57,9 @@ import static org.akaza.openclinica.lctable.LCTableText.key;
 import static org.akaza.openclinica.lctable.LCTableUtil.actionLink;
 import static org.akaza.openclinica.lctable.SafeUrl.url;
 
-/** Request-scoped, database-paged rule assignments table. Bulk exports remain on the JMesa path. */
+/** Request-scoped rule assignments table with paged display and filtered CSV/XLS downloads. */
 public final class ViewRuleAssignmentsTable {
+    public static final String EXPORT_PARAM = "export";
     private final RuleSetServiceInterface service;
     private final ItemFormMetadataDAO metadataDao;
     private final StudyBean study;
@@ -82,6 +88,18 @@ public final class ViewRuleAssignmentsTable {
         table = new LCTable<>("ruleAssignments", columns(), this::fetchData);
         table.setRowTestAttributes(row -> Map.of("rule-assignment", String.valueOf(row.assignment.getId())));
         table.addCustomToolbarControl(this::testRuleControl);
+        table.addCustomToolbarControl((container, ctx) -> exportControl(container, ctx, "csv", "table/csv.gif"));
+        table.addCustomToolbarControl((container, ctx) -> exportControl(container, ctx, "xls", "table/excel.gif"));
+    }
+
+    private void exportControl(Div<?> container, LCTableContext<AssignmentRow> ctx, String format, String icon) {
+        SafeUrl href = url(ctx.entityPath).param(EXPORT_PARAM, format);
+        ctx.filters.forEach((name, value) -> href.param(LCTableParams.PARAM_FILTER_PREFIX + name, value));
+        if (!ctx.sortProp.isEmpty()) {
+            href.param(LCTableParams.PARAM_SORT_PROP, ctx.sortProp).param(LCTableParams.PARAM_SORT_DIR, ctx.sortDir);
+        }
+        container.of(actionLink("ruleAssignments-export-" + format,
+            ctx.words.getString("download") + " " + format.toUpperCase(Locale.ROOT), href, icon, "export-" + format));
     }
 
     private void testRuleControl(Div<?> container, LCTableContext<AssignmentRow> ctx) {
@@ -137,10 +155,45 @@ public final class ViewRuleAssignmentsTable {
             NOT_SORTABLE, new LCTableFilterDef.Text(), this::renderSummary));
         cols.add(customTdCol("actions", key("actions"), "actions", 0, NOT_SORTABLE,
             new LCTableFilterDef.ClearFilter(), this::renderActions));
+        for (LCTableColumnDef<AssignmentRow> col : cols) {
+            Function<AssignmentRow, String> exporter;
+            switch (col.columnName) {
+                case "ruleSetRunSchedule": exporter = row -> String.valueOf(row.set.isRunSchedule()); break;
+                case "ruleSetRunTime": exporter = row -> row.set.getRunTime(); break;
+                case "targetValue": exporter = row -> row.set.getTarget().getValue(); break;
+                case "studyEventDefinitionName": exporter = row -> row.set.getStudyEventDefinitionName(); break;
+                case "crfName": exporter = row -> row.set.getCrfName(); break;
+                case "crfVersionName": exporter = row -> row.set.getCrfVersionName(); break;
+                case "groupLabel": exporter = row -> row.set.getGroupLabel(); break;
+                case "itemName": exporter = row -> row.set.getItemName(); break;
+                case "ruleName": exporter = row -> row.assignment.getRuleBean().getName(); break;
+                case "ruleOid": exporter = row -> row.assignment.getRuleBean().getOid(); break;
+                case "ruleSetRuleStatus": exporter = row -> row.assignment.getStatus().getI18nDescription(locale); break;
+                case "ruleDescription": exporter = row -> row.assignment.getRuleBean().getDescription(); break;
+                case "ruleExpressionValue": exporter = row -> row.assignment.getRuleBean().getExpression().getValue(); break;
+                case "validations": exporter = row -> row.set.getItem() == null && row.set.getCrfVersion() == null
+                    && row.set.getCrf() == null ? null : row.validation; break;
+                case "actionExecuteOn": exporter = row -> joinActions(row, " - ", action -> String.valueOf(action.getExpressionEvaluatesTo())); break;
+                case "actionType": exporter = row -> joinActions(row, " ; ", action -> action.getActionType().getDescription()); break;
+                case "actionSummary": exporter = row -> joinActions(row, " ; ", action -> String.valueOf(action.getSummary())); break;
+                default: continue; // Actions are display-only.
+            }
+            col.setCellExporter(row -> LCTable.Export.Value.text(exporter.apply(row)));
+            if ("crfName".equals(col.columnName)) {
+                // Preserve the heading found in the supplied legacy workbook, including its literal padding.
+                col.setCellExporter(org.akaza.openclinica.lctable.LCTableText.literal(
+                    words.getString("view_rule_assignment_crf") + "&#160;&#160;&#160;&#160;&#160;"),
+                    row -> LCTable.Export.Value.text(exporter.apply(row)));
+            }
+        }
         return cols;
     }
 
-    private LCTableData<AssignmentRow> fetchData(LCTableParams params) {
+    private static String joinActions(AssignmentRow row, String delimiter, Function<RuleActionBean, String> value) {
+        return row.assignment.getActions().stream().map(value).collect(Collectors.joining(delimiter));
+    }
+
+    private ViewRuleAssignmentFilter filterFor(LCTableParams params) {
         ViewRuleAssignmentFilter filter = new ViewRuleAssignmentFilter();
         // Column names are declared by the table; only actual legacy DAO filter properties are forwarded.
         params.filters.forEach((property, value) -> {
@@ -169,12 +222,26 @@ public final class ViewRuleAssignmentsTable {
             }
         });
         filter.addFilter("studyId", study.getId());
+        return filter;
+    }
+
+    private ViewRuleAssignmentSort sortFor(LCTableParams params) {
         ViewRuleAssignmentSort sort = new ViewRuleAssignmentSort();
         sort.addSort(params.sortProp.isEmpty() ? "itemName" : params.sortProp,
             params.sortProp.isEmpty() ? "asc" : params.sortDir);
+        return sort;
+    }
+
+    private LCTableData<AssignmentRow> fetchData(LCTableParams params) {
+        ViewRuleAssignmentFilter filter = filterFor(params);
+        ViewRuleAssignmentSort sort = sortFor(params);
         int total = service.getCountWithFilter(filter);
         int start = params.page * params.maxRows;
-        List<RuleSetRuleBean> assignments = service.getWithFilterAndSort(filter, sort, start, start + params.maxRows);
+        return new LCTableData<>(fetchRows(filter, sort, start, params.maxRows), total);
+    }
+
+    private List<AssignmentRow> fetchRows(ViewRuleAssignmentFilter filter, ViewRuleAssignmentSort sort, int offset, int limit) {
+        List<RuleSetRuleBean> assignments = service.getWithFilterAndSort(filter, sort, offset, offset + limit);
         Map<Integer, RuleSetBean> enriched = new HashMap<>();
         List<AssignmentRow> rows = new ArrayList<>();
         for (RuleSetRuleBean assignment : assignments) {
@@ -186,7 +253,36 @@ public final class ViewRuleAssignmentsTable {
             RuleSetBean pageSet = enriched.get(set.getId());
             rows.add(new AssignmentRow(assignment, pageSet, validationFor(pageSet)));
         }
-        return new LCTableData<>(rows, total);
+        return rows;
+    }
+
+    /** Writes a normal download response; called before either full-page or HTMX rendering. */
+    public void export(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String format = request.getParameter(EXPORT_PARAM);
+        if (!"csv".equals(format) && !"xls".equals(format)) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unsupported rule-assignment export format. Use csv or xls.");
+            return;
+        }
+        LCTableParams params = new LCTableParams(request.getQueryString(), table);
+        ViewRuleAssignmentFilter filter = filterFor(params);
+        ViewRuleAssignmentSort sort = sortFor(params);
+        int total = service.getCountWithFilter(filter);
+        if ("xls".equals(format) && total > LCTable.Export.XLS_MAX_DATA_ROWS) {
+            response.setStatus(422);
+            response.setContentType("text/plain;charset=UTF-8");
+            response.getWriter().write("XLS export supports at most 65,535 data rows. The current filters select "
+                + total + " rows. Narrow the filters or download CSV instead.");
+            return;
+        }
+        String filename = "rules" + study.getOid() + "-" + System.currentTimeMillis() + ("csv".equals(format) ? ".txt" : ".xls");
+        response.setContentType("csv".equals(format) ? "text/plain;charset=UTF-8" : "application/vnd.ms-excel;charset=UTF-8");
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+        response.setHeader("Cache-Control", "no-store");
+        LCTable.Export<AssignmentRow> export = table.export().orElseThrow();
+        LCTable.Export.Rows<AssignmentRow> rows = (offset, limit) -> fetchRows(filter, sort, offset, limit);
+        if ("csv".equals(format)) export.toCsv(total, rows, response.getOutputStream());
+        else export.toXls(total, rows, words, locale, response.getOutputStream());
+        response.getOutputStream().flush();
     }
 
     private String validationFor(RuleSetBean set) {

@@ -60,6 +60,10 @@ public class ViewRuleAssignmentNewServlet extends SecureController {
 
     @Override
     public void processRequest() throws Exception {
+        if (request.getParameter(ViewRuleAssignmentsTable.EXPORT_PARAM) != null) {
+            new ViewRuleAssignmentsTable(getRuleSetService(), getItemFormMetadataDAO(), currentStudy, locale).export(request, response);
+            return;
+        }
         FormProcessor fp = new FormProcessor(request);
         if (fp.getString("designer").equals("")) {
             isDesigner = false;
