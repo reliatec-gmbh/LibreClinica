@@ -9,6 +9,7 @@ package org.akaza.openclinica.control.submit;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -57,7 +58,7 @@ import static org.akaza.openclinica.lctable.LCTableText.key;
 import static org.akaza.openclinica.lctable.LCTableUtil.actionLink;
 import static org.akaza.openclinica.lctable.SafeUrl.url;
 
-/** Request-scoped rule assignments table with paged display and filtered CSV/XLS downloads. */
+/** Request-scoped rule assignments table with paged display and filtered CSV/XLS/XML downloads. */
 public final class ViewRuleAssignmentsTable {
     public static final String EXPORT_PARAM = "export";
     private final RuleSetServiceInterface service;
@@ -90,6 +91,7 @@ public final class ViewRuleAssignmentsTable {
         table.addCustomToolbarControl(this::testRuleControl);
         table.addCustomToolbarControl((container, ctx) -> exportControl(container, ctx, "csv", "table/csv.gif"));
         table.addCustomToolbarControl((container, ctx) -> exportControl(container, ctx, "xls", "table/excel.gif"));
+        table.addCustomToolbarControl((container, ctx) -> exportControl(container, ctx, "xml", "bt_Download.gif"));
     }
 
     private void exportControl(Div<?> container, LCTableContext<AssignmentRow> ctx, String format, String icon) {
@@ -259,14 +261,18 @@ public final class ViewRuleAssignmentsTable {
     /** Writes a normal download response; called before either full-page or HTMX rendering. */
     public void export(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String format = request.getParameter(EXPORT_PARAM);
-        if (!"csv".equals(format) && !"xls".equals(format)) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unsupported rule-assignment export format. Use csv or xls.");
+        if (!"csv".equals(format) && !"xls".equals(format) && !"xml".equals(format)) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unsupported rule-assignment export format. Use csv, xls or xml.");
             return;
         }
         LCTableParams params = new LCTableParams(request.getQueryString(), table);
         ViewRuleAssignmentFilter filter = filterFor(params);
         ViewRuleAssignmentSort sort = sortFor(params);
         int total = service.getCountWithFilter(filter);
+        if ("xml".equals(format)) {
+            exportXml(filter, sort, total, response);
+            return;
+        }
         if ("xls".equals(format) && total > LCTable.Export.XLS_MAX_DATA_ROWS) {
             response.setStatus(422);
             response.setContentType("text/plain;charset=UTF-8");
@@ -283,6 +289,39 @@ public final class ViewRuleAssignmentsTable {
         if ("csv".equals(format)) export.toCsv(total, rows, response.getOutputStream());
         else export.toXls(total, rows, words, locale, response.getOutputStream());
         response.getOutputStream().flush();
+    }
+
+    private void exportXml(ViewRuleAssignmentFilter filter, ViewRuleAssignmentSort sort, int total,
+                           HttpServletResponse response) throws IOException {
+        List<RuleSetRuleBean> assignments = new ArrayList<>();
+        HashSet<Integer> ids = new HashSet<>();
+        for (int offset = 0; offset < total;) {
+            int limit = Math.min(256, total - offset);
+            // XML needs domain objects, not display enrichment or the scalar export projection.
+            List<RuleSetRuleBean> batch = service.getWithFilterAndSort(filter, sort, offset, offset + limit);
+            if (batch == null || batch.size() != limit) {
+                throw new IOException("Rule-assignment selection changed during XML export. Retry the download.");
+            }
+            for (RuleSetRuleBean assignment : batch) {
+                if (assignment == null || assignment.getId() == null || !ids.add(assignment.getId())) {
+                    throw new IOException("Invalid or repeated assignment in XML export. Retry the download.");
+                }
+            }
+            assignments.addAll(batch);
+            offset += limit;
+        }
+        RuleAssignmentsXmlWriter writer;
+        try {
+            writer = new RuleAssignmentsXmlWriter(assignments, study.getId());
+        } catch (SecurityException e) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Rule assignment does not belong to the current study.");
+            return;
+        }
+        response.setContentType("text/xml;charset=UTF-8");
+        response.setHeader("Content-Disposition", "attachment; filename=\"rules" + study.getOid()
+            + "-" + System.currentTimeMillis() + ".xml\"");
+        response.setHeader("Cache-Control", "no-store");
+        writer.write(response.getOutputStream());
     }
 
     private String validationFor(RuleSetBean set) {

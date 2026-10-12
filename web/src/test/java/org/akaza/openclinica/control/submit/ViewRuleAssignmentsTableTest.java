@@ -67,7 +67,7 @@ public class ViewRuleAssignmentsTableTest extends TestCase {
         when(service.getCountWithFilter(any(ViewRuleAssignmentFilter.class))).thenReturn(0);
         String html = new ViewRuleAssignmentsTable(service, metadata, study, Locale.ENGLISH).render(
             request("page=3&maxRows=15&q.crfName=A%26B&q.ruleSetRuleStatus=5&sortProp=ruleName&sortDir=desc"));
-        for (String format : List.of("csv", "xls")) {
+        for (String format : List.of("csv", "xls", "xml")) {
             int start = html.indexOf("id=\"ruleAssignments-export-" + format + "\"");
             assertTrue(start >= 0);
             String anchor = html.substring(html.lastIndexOf("<a", start), html.indexOf("</a>", start));
@@ -81,7 +81,6 @@ public class ViewRuleAssignmentsTableTest extends TestCase {
             assertFalse(anchor.contains("page="));
             assertFalse(anchor.contains("maxRows="));
         }
-        assertFalse(html.contains("export=xml"));
     }
 
     public void testCsvExportsAllFilteredRowsInBatchesInsteadOfRequestedPage() throws Exception {
@@ -199,16 +198,90 @@ public class ViewRuleAssignmentsTableTest extends TestCase {
         table.export(exportRequest("xls", ""), xls.response);
         HSSFWorkbook book = new HSSFWorkbook(new ByteArrayInputStream(xls.bytes.toByteArray()));
         assertEquals(1, book.getSheetAt(0).getPhysicalNumberOfRows());
+        Download xml = new Download();
+        table.export(exportRequest("xml", ""), xml.response);
+        assertTrue(xml.text().contains("<RuleImport/>"));
         Download unknown = new Download();
-        table.export(exportRequest("xml", ""), unknown.response);
+        table.export(exportRequest("pdf", ""), unknown.response);
         verify(unknown.response).sendError(eq(400), anyString());
         verify(unknown.response, never()).getOutputStream();
-        verify(service, times(2)).getCountWithFilter(any(ViewRuleAssignmentFilter.class));
+        verify(service, times(3)).getCountWithFilter(any(ViewRuleAssignmentFilter.class));
         verify(service, never()).getWithFilterAndSort(any(ViewRuleAssignmentFilter.class), any(ViewRuleAssignmentSort.class), anyInt(), anyInt());
     }
 
+    public void testXmlExportsAllFilteredAssignmentsWithoutDisplayEnrichment() throws Exception {
+        List<RuleSetRuleBean> rules = new java.util.ArrayList<>();
+        for (int id = 1; id <= 300; id++) {
+            RuleSetRuleBean rule = assignment(Status.DELETED);
+            rule.setId(id);
+            rule.getRuleBean().setId(id);
+            rule.getRuleBean().setOid("R_" + id);
+            rule.getRuleBean().setDescription("雪 & <description>");
+            rules.add(rule);
+        }
+        when(service.getCountWithFilter(any(ViewRuleAssignmentFilter.class))).thenReturn(300);
+        when(service.getWithFilterAndSort(any(ViewRuleAssignmentFilter.class), any(ViewRuleAssignmentSort.class), eq(0), eq(256)))
+            .thenReturn(rules.subList(0, 256));
+        when(service.getWithFilterAndSort(any(ViewRuleAssignmentFilter.class), any(ViewRuleAssignmentSort.class), eq(256), eq(300)))
+            .thenReturn(rules.subList(256, 300));
+        Download download = new Download();
+        new ViewRuleAssignmentsTable(service, metadata, study, Locale.ENGLISH).export(exportRequest("xml",
+            "page=8&maxRows=15&q.crfName=CRF_A&q.ruleSetRuleStatus=5&q.studyId=999&sortProp=ruleName&sortDir=desc&ruleSetRuleIds=999"), download.response);
+        javax.xml.parsers.DocumentBuilderFactory factory = javax.xml.parsers.DocumentBuilderFactory.newInstance();
+        org.w3c.dom.Document xml = factory.newDocumentBuilder().parse(new ByteArrayInputStream(download.bytes.toByteArray()));
+        assertEquals("RuleImport", xml.getDocumentElement().getNodeName());
+        assertEquals(1, xml.getElementsByTagName("RuleAssignment").getLength());
+        assertEquals(300, xml.getElementsByTagName("RuleRef").getLength());
+        assertEquals(300, xml.getElementsByTagName("RuleDef").getLength());
+        assertEquals("雪 & <description>", xml.getElementsByTagName("Description").item(0).getTextContent());
+        org.mockito.ArgumentCaptor<ViewRuleAssignmentFilter> filters = org.mockito.ArgumentCaptor.forClass(ViewRuleAssignmentFilter.class);
+        org.mockito.ArgumentCaptor<ViewRuleAssignmentSort> sort = org.mockito.ArgumentCaptor.forClass(ViewRuleAssignmentSort.class);
+        verify(service).getWithFilterAndSort(filters.capture(), sort.capture(), eq(0), eq(256));
+        verify(service).getWithFilterAndSort(any(ViewRuleAssignmentFilter.class), any(ViewRuleAssignmentSort.class), eq(256), eq(300));
+        assertTrue(filters.getValue().execute("").contains("rs.study_id = 37"));
+        assertTrue(filters.getValue().execute("").contains("rsr.status_id = 5"));
+        assertTrue(filters.getValue().execute("").contains("CRF_A"));
+        assertFalse(filters.getValue().execute("").contains("999"));
+        assertTrue(sort.getValue().execute("").contains("rname desc"));
+        verify(service, never()).getObjects(any(RuleSetBean.class));
+        verify(download.response).setContentType("text/xml;charset=UTF-8");
+        verify(download.response).setHeader(eq("Content-Disposition"), org.mockito.Matchers.matches("attachment; filename=\"rulesS_TEST-[0-9]+\\.xml\""));
+        verify(download.response).setHeader("Cache-Control", "no-store");
+        verify(download.response, never()).getWriter();
+    }
+
+    public void testXmlRejectsCrossStudyAssignmentsBeforeResponseOutput() throws Exception {
+        RuleSetRuleBean rule = assignment(Status.AVAILABLE);
+        rule.getRuleSetBean().setStudyId(999);
+        when(service.getCountWithFilter(any(ViewRuleAssignmentFilter.class))).thenReturn(1);
+        when(service.getWithFilterAndSort(any(ViewRuleAssignmentFilter.class), any(ViewRuleAssignmentSort.class), anyInt(), anyInt()))
+            .thenReturn(List.of(rule));
+        Download download = new Download();
+        new ViewRuleAssignmentsTable(service, metadata, study, Locale.ENGLISH).export(exportRequest("xml", ""), download.response);
+        verify(download.response).sendError(eq(403), anyString());
+        verify(download.response, never()).setHeader(eq("Content-Disposition"), anyString());
+        verify(download.response, never()).getOutputStream();
+    }
+
+    public void testXmlRejectsRepeatedOrIncompleteBatchesBeforeResponseOutput() throws Exception {
+        RuleSetRuleBean rule = assignment(Status.AVAILABLE);
+        when(service.getCountWithFilter(any(ViewRuleAssignmentFilter.class))).thenReturn(2);
+        for (List<RuleSetRuleBean> batch : List.of(List.of(rule, rule), List.of(rule))) {
+            when(service.getWithFilterAndSort(any(ViewRuleAssignmentFilter.class), any(ViewRuleAssignmentSort.class), anyInt(), anyInt()))
+                .thenReturn(batch);
+            Download download = new Download();
+            try {
+                new ViewRuleAssignmentsTable(service, metadata, study, Locale.ENGLISH).export(exportRequest("xml", ""), download.response);
+                fail("Invalid selection should fail before XML delivery");
+            } catch (java.io.IOException expected) {
+                verify(download.response, never()).getOutputStream();
+                verify(download.response, never()).setHeader(eq("Content-Disposition"), anyString());
+            }
+        }
+    }
+
     public void testServletDownloadBypassesHtmlEvenForHtmxRequest() throws Exception {
-        HttpServletRequest downloadRequest = exportRequest("csv", "");
+        HttpServletRequest downloadRequest = exportRequest("xml", "");
         when(downloadRequest.getHeader("HX-Request")).thenReturn("true");
         Download download = new Download();
         class DownloadServlet extends ViewRuleAssignmentNewServlet {
@@ -224,7 +297,7 @@ public class ViewRuleAssignmentsTableTest extends TestCase {
         DownloadServlet servlet = new DownloadServlet();
         servlet.initialize();
         servlet.processRequest();
-        verify(download.response).setContentType("text/plain;charset=UTF-8");
+        verify(download.response).setContentType("text/xml;charset=UTF-8");
         verify(download.response, never()).getWriter();
         verify(downloadRequest, never()).setAttribute(anyString(), any());
     }
@@ -339,6 +412,7 @@ public class ViewRuleAssignmentsTableTest extends TestCase {
     private static RuleSetRuleBean assignment(Status status) {
         RuleSetBean set = new RuleSetBean();
         set.setId(10);
+        set.setStudyId(37);
         ExpressionBean target = new ExpressionBean();
         target.setValue("I_ITEM");
         set.setTarget(target);
@@ -356,7 +430,7 @@ public class ViewRuleAssignmentsTableTest extends TestCase {
         DiscrepancyNoteActionBean action = new DiscrepancyNoteActionBean();
         action.setMessage("Check");
         action.setRuleSetRule(rule);
-        rule.setActions(List.of(action));
+        rule.setActions(new java.util.ArrayList<>(List.of(action)));
         return rule;
     }
 }
