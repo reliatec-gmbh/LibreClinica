@@ -34,7 +34,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletOutputStream;
@@ -93,20 +92,9 @@ public class DownloadRuleSetXmlServlet extends SecureController {
         }
     }
 
-    private RulesPostImportContainer prepareRulesPostImportRuleSetRuleContainer(String ruleSetRuleIds) {
-        List<RuleSetRuleBean> ruleSetRules = new ArrayList<RuleSetRuleBean>();
+    private RulesPostImportContainer prepareRulesPostImportRuleSetRuleContainer(List<RuleSetRuleBean> ruleSetRules) {
         RulesPostImportContainer rpic = new RulesPostImportContainer();
-
-        if (ruleSetRuleIds !="") {
-        String[] splitExpression = ruleSetRuleIds.split(",");
-
-        for (String string : splitExpression) {
-            RuleSetRuleBean rsr = getRuleSetService().getRuleSetRuleDao().findById(Integer.valueOf(string));
-            ruleSetRules.add(rsr);
-        }
         rpic.populate(ruleSetRules);
-        
-        } 
         return rpic;
     }
 
@@ -116,11 +104,20 @@ public class DownloadRuleSetXmlServlet extends SecureController {
         // String ruleSetId = request.getParameter("ruleSetId");
         String ruleSetRuleIds = request.getParameter("ruleSetRuleIds");
 
+        List<RuleSetRuleBean> ruleSetRules;
+        try {
+            ruleSetRules = new RuleAssignmentAccess(currentStudy).rules(ruleSetRuleIds,
+                id -> getRuleSetService().getRuleSetRuleDao().findById(id));
+        } catch (IllegalArgumentException | java.util.NoSuchElementException | org.springframework.security.access.AccessDeniedException e) {
+            RuleAssignmentAccess.sendFailure(response, e);
+            return;
+        }
+
         String dir = SQLInitServlet.getField("filePath") + "rules" + File.separator;
         Long time = System.currentTimeMillis();
         File f = new File(dir + "rules" + currentStudy.getOid() + "-" + time + ".xml");
         FileWriter writer = new FileWriter(f);
-        handleLoadCastor(writer, prepareRulesPostImportRuleSetRuleContainer(ruleSetRuleIds));
+        handleLoadCastor(writer, prepareRulesPostImportRuleSetRuleContainer(ruleSetRules));
 
         response.setHeader("Content-disposition", "attachment; filename=\"" + "rules" + currentStudy.getOid() + "-" + time + ".xml" + "\";");
         response.setContentType("text/xml");
