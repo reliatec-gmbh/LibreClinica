@@ -5,7 +5,7 @@
  * For details see: https://libreclinica.org/license
  * copyright (C) 2003 - 2011 Akaza Research
  * copyright (C) 2003 - 2019 OpenClinica
- * copyright (C) 2020 - 2024 LibreClinica
+ * copyright (C) 2020 - 2026 LibreClinica
  */
 package org.akaza.openclinica.domain.rule.action;
 
@@ -43,6 +43,10 @@ public class ShowActionProcessor implements ActionProcessor {
             }
         }
         case SAVE: {
+            // Batch and import runs leave a locked, signed or stopped event alone, like the import itself (#481).
+            if (ruleRunnerMode != RuleRunnerMode.DATA_ENTRY && getItemMetadataService().isInClosedStudyEvent(itemDataBean)) {
+                return null;
+            }
             if (ruleRunnerMode == RuleRunnerMode.DATA_ENTRY) {
                 return saveAndReturnMessage(ruleAction, itemDataBean, itemData, currentStudy, ub);
             }else  if (ruleRunnerMode == RuleRunnerMode.RUN_ON_SCHEDULE) {

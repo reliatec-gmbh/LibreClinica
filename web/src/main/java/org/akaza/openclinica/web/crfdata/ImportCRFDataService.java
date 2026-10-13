@@ -5,7 +5,7 @@
  * For details see: https://libreclinica.org/license
  * copyright (C) 2003 - 2011 Akaza Research
  * copyright (C) 2003 - 2019 OpenClinica
- * copyright (C) 2020 - 2024 LibreClinica
+ * copyright (C) 2020 - 2026 LibreClinica
  */
 package org.akaza.openclinica.web.crfdata;
 
@@ -128,9 +128,7 @@ public class ImportCRFDataService {
                 // @pgawade 16-March-2011 Do not allow the data import
                 // if event status is one of the - stopped, signed,
                 // locked
-                if (studyEventBean.getSubjectEventStatus().equals(SubjectEventStatus.LOCKED)
-                        || studyEventBean.getSubjectEventStatus().equals(SubjectEventStatus.SIGNED)
-                        || studyEventBean.getSubjectEventStatus().equals(SubjectEventStatus.STOPPED)) {
+                if (studyEventBean.getSubjectEventStatus().isClosedForImport()) {
                     return null;
                 }
                 for (FormDataBean formDataBean : formDataBeans) {
@@ -231,9 +229,7 @@ public class ImportCRFDataService {
                 // @pgawade 16-March-2011 Do not allow the data import
                 // if event status is one of the - stopped, signed,
                 // locked
-                if (studyEventBean.getSubjectEventStatus().equals(SubjectEventStatus.LOCKED)
-                        || studyEventBean.getSubjectEventStatus().equals(SubjectEventStatus.SIGNED)
-                        || studyEventBean.getSubjectEventStatus().equals(SubjectEventStatus.STOPPED)) {
+                if (studyEventBean.getSubjectEventStatus().isClosedForImport()) {
                     return true;
                 }
                 for (FormDataBean formDataBean : formDataBeans) {

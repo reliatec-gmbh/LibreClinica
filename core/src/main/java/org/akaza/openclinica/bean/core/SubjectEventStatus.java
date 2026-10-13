@@ -5,7 +5,7 @@
  * For details see: https://libreclinica.org/license
  * copyright (C) 2003 - 2011 Akaza Research
  * copyright (C) 2003 - 2019 OpenClinica
- * copyright (C) 2020 - 2024 LibreClinica
+ * copyright (C) 2020 - 2026 LibreClinica
  */
 package org.akaza.openclinica.bean.core;
 
@@ -104,6 +104,15 @@ public class SubjectEventStatus extends Term implements Comparable<SubjectEventS
 
     public boolean isSigned() {
         return this == SubjectEventStatus.SIGNED;
+    }
+
+    /**
+     * Locked, signed or stopped: ODM import writes no data into such an event, and rules run in batch
+     * or on import leave it alone as well (#481).
+     */
+    public boolean isClosedForImport() {
+        // equals, not ==: getFromMap() returns new instances
+        return equals(LOCKED) || equals(SIGNED) || equals(STOPPED);
     }
 
     private SubjectEventStatus(int id, String name) {
