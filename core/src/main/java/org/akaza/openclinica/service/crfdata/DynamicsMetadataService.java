@@ -393,21 +393,41 @@ public class DynamicsMetadataService implements MetadataServiceInterface {
             ItemGroupMetadataBean itemGroupMetadataBeanB, EventCRFBean eventCrfBeanB, UserAccountBean ub, Integer ordinal) {
         ordinal = ordinal == null ? 1 : ordinal;
         ItemDataBean oidBasedItemData = getItemData(itemBeanB, eventCrfBeanB, ordinal);
-
-        int ownerId = oidBasedItemData.getOwnerId();
-        UserAccountBean updater;
         if (oidBasedItemData.getId() == 0) {
             oidBasedItemData = createItemData(oidBasedItemData, itemBeanB, ordinal, eventCrfBeanB, ub);
-            updater = uadao.findByPK(ownerId);
-            oidBasedItemData.setUpdater(updater);
-        } else {
-            if (oidBasedItemData.getUpdaterId() == 0) {
-                updater = uadao.findByPK(ownerId);
-                oidBasedItemData.setUpdater(updater);
-            }
         }
-            
         return oidBasedItemData;
+    }
+
+    private void saveRuleValue(ItemDataBean itemData, String value, Status status, UserAccountBean ub, String dateFormat) {
+        getItemDataDAO().updateValue(prepareRuleValue(itemData, value, status, ub), dateFormat);
+    }
+
+    /**
+     * Sets the value a rule writes and its author. The audit trigger logs a value change only, so the author
+     * changes only with the value; an unchanged row keeps its update_id and stays consistent with the audit trail.
+     */
+    ItemDataBean prepareRuleValue(ItemDataBean itemData, String value, Status status, UserAccountBean ub) {
+        boolean changed = !java.util.Objects.equals(itemData.getValue(), value);
+        itemData.setValue(value);
+        if (status != null) {
+            itemData.setStatus(status);
+        }
+        return attributeTo(itemData, changed ? ub : null);
+    }
+
+    /**
+     * The value a rule writes is saved with this bean's updater as update_id, which the audit trail records
+     * as the author. Attribute it to the user whose save ran the rule; previously a new row got user 0
+     * (the owner id was read before the row existed) and an existing row kept its previous editor.
+     */
+    ItemDataBean attributeTo(ItemDataBean itemData, UserAccountBean ub) {
+        if (ub != null && ub.getId() > 0) {
+            itemData.setUpdater(ub);
+        } else if (itemData.getUpdaterId() == 0) {
+            itemData.setUpdater(uadao.findByPK(itemData.getOwnerId()));
+        }
+        return itemData;
     }
 
     private ItemDataBean createItemData(ItemDataBean oidBasedItemData, ItemBean itemBeanB, int ordinal, EventCRFBean eventCrfBeanA, UserAccountBean ub) {
@@ -557,19 +577,16 @@ public class DynamicsMetadataService implements MetadataServiceInterface {
                 ItemDataBean oidBasedItemData =
                     oneToOne(itemDataBeanA, eventCrfBeanA, itemGroupMetadataBeanA, itemBeanB, itemGroupMetadataBeanB, eventCrfBeanB, ub, 1);
 
-                oidBasedItemData.setValue(getValue(propertyBean, ruleSet, eventCrfBeanA,stratificationFactorBeans));
-
-                if(itemDataStatus != null) oidBasedItemData.setStatus(itemDataStatus);
-                getItemDataDAO().updateValue(oidBasedItemData, getDateFormat(propertyBean));
+                saveRuleValue(oidBasedItemData, getValue(propertyBean, ruleSet, eventCrfBeanA, stratificationFactorBeans),
+                        itemDataStatus, ub, getDateFormat(propertyBean));
             }
             // If A is not repeating group & B is a repeating group with no index selected
             if (!isGroupARepeating && isGroupBRepeating && itemGroupBOrdinal.equals("")) {
                 List<ItemDataBean> oidBasedItemDatas =
                     oneToMany(itemDataBeanA, eventCrfBeanA, itemGroupMetadataBeanA, itemBeanB, itemGroupBeanB, itemGroupMetadataBeanB, eventCrfBeanB, ub);
                 for (ItemDataBean oidBasedItemData : oidBasedItemDatas) {
-                    oidBasedItemData.setValue(getValue(propertyBean, ruleSet, eventCrfBeanA,stratificationFactorBeans));
-                    if(itemDataStatus != null) oidBasedItemData.setStatus(itemDataStatus);
-                    getItemDataDAO().updateValue(oidBasedItemData, getDateFormat(propertyBean));
+                    saveRuleValue(oidBasedItemData, getValue(propertyBean, ruleSet, eventCrfBeanA, stratificationFactorBeans),
+                            itemDataStatus, ub, getDateFormat(propertyBean));
                 }
             }
             // If A is not repeating group & B is a repeating group with index selected
@@ -577,35 +594,31 @@ public class DynamicsMetadataService implements MetadataServiceInterface {
                 ItemDataBean oidBasedItemData =
                     oneToIndexedMany(itemDataBeanA, eventCrfBeanA, itemGroupMetadataBeanA, itemBeanB, itemGroupBeanB, itemGroupMetadataBeanB, eventCrfBeanB,
                             ub, Integer.parseInt(itemGroupBOrdinal));
-                oidBasedItemData.setValue(getValue(propertyBean, ruleSet, eventCrfBeanA,stratificationFactorBeans));
-                if(itemDataStatus != null) oidBasedItemData.setStatus(itemDataStatus);
-                getItemDataDAO().updateValue(oidBasedItemData, getDateFormat(propertyBean));
+                saveRuleValue(oidBasedItemData, getValue(propertyBean, ruleSet, eventCrfBeanA, stratificationFactorBeans),
+                        itemDataStatus, ub, getDateFormat(propertyBean));
             }
             // If A is repeating/ non repeating group & B is a repeating group with index selected as END
             if (isGroupBRepeating && itemGroupBOrdinal.equals("END")) {
                 ItemDataBean oidBasedItemData =
                     oneToEndMany(itemDataBeanA, eventCrfBeanA, itemGroupMetadataBeanA, itemBeanB, itemGroupBeanB, itemGroupMetadataBeanB, eventCrfBeanB, ub);
-                oidBasedItemData.setValue(getValue(propertyBean, ruleSet, eventCrfBeanA,stratificationFactorBeans));
-                if(itemDataStatus != null) oidBasedItemData.setStatus(itemDataStatus);
-                getItemDataDAO().updateValue(oidBasedItemData, getDateFormat(propertyBean));
+                saveRuleValue(oidBasedItemData, getValue(propertyBean, ruleSet, eventCrfBeanA, stratificationFactorBeans),
+                        itemDataStatus, ub, getDateFormat(propertyBean));
             }
             // If A is repeating group with index & B is a repeating group with index selected
             if (isGroupARepeating && isGroupBRepeating && !itemGroupBOrdinal.equals("") && !itemGroupBOrdinal.equals("END")) {
                 ItemDataBean oidBasedItemData =
                     oneToIndexedMany(itemDataBeanA, eventCrfBeanA, itemGroupMetadataBeanA, itemBeanB, itemGroupBeanB, itemGroupMetadataBeanB, eventCrfBeanB,
                             ub, Integer.parseInt(itemGroupBOrdinal));
-                oidBasedItemData.setValue(getValue(propertyBean, ruleSet, eventCrfBeanA,stratificationFactorBeans));
-                if(itemDataStatus != null) oidBasedItemData.setStatus(itemDataStatus);
-                getItemDataDAO().updateValue(oidBasedItemData, getDateFormat(propertyBean));
+                saveRuleValue(oidBasedItemData, getValue(propertyBean, ruleSet, eventCrfBeanA, stratificationFactorBeans),
+                        itemDataStatus, ub, getDateFormat(propertyBean));
             }
             // If A is repeating group with index & B is a repeating group with no index selected
             if (isGroupARepeating && isGroupBRepeating && itemGroupBOrdinal.equals("")) {
                 ItemDataBean oidBasedItemData =
                     oneToIndexedMany(itemDataBeanA, eventCrfBeanA, itemGroupMetadataBeanA, itemBeanB, itemGroupBeanB, itemGroupMetadataBeanB, eventCrfBeanB,
                             ub, Integer.parseInt(itemGroupAOrdinal));
-                oidBasedItemData.setValue(getValue(propertyBean, ruleSet, eventCrfBeanA,stratificationFactorBeans));
-                if(itemDataStatus != null) oidBasedItemData.setStatus(itemDataStatus);
-                getItemDataDAO().updateValue(oidBasedItemData, getDateFormat(propertyBean));
+                saveRuleValue(oidBasedItemData, getValue(propertyBean, ruleSet, eventCrfBeanA, stratificationFactorBeans),
+                        itemDataStatus, ub, getDateFormat(propertyBean));
             }
 //            // If A is repeating group with index & B is none-repeating group
 //            if (isGroupARepeating && !isGroupBRepeating ) {
