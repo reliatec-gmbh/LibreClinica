@@ -51,16 +51,21 @@ import org.akaza.openclinica.lctable.SafeUrl;
 import org.akaza.openclinica.service.rule.RuleSetServiceInterface;
 import org.akaza.openclinica.service.rule.expression.ExpressionService;
 import org.xmlet.htmlapifaster.Div;
+import org.xmlet.htmlapifaster.EnumTypeInputType;
 import org.xmlet.htmlapifaster.Td;
 
 import static org.akaza.openclinica.lctable.LCTableColumnDef.*;
 import static org.akaza.openclinica.lctable.LCTableText.key;
 import static org.akaza.openclinica.lctable.LCTableUtil.actionLink;
+import static org.akaza.openclinica.lctable.LCTableUtil.hxGetAttrs;
+import static org.akaza.openclinica.lctable.LCTableUtil.NO_HX_INCLUDE;
+import static org.akaza.openclinica.lctable.LCTableUtil.NO_HX_TRIGGER;
 import static org.akaza.openclinica.lctable.SafeUrl.url;
 
 /** Request-scoped rule assignments table with paged display and filtered CSV/XLS/XML downloads. */
 public final class ViewRuleAssignmentsTable {
     public static final String EXPORT_PARAM = "export";
+    private static final String STATUS_FILTER = "ruleSetRuleStatus";
     private final RuleSetServiceInterface service;
     private final ItemFormMetadataDAO metadataDao;
     private final StudyBean study;
@@ -88,10 +93,44 @@ public final class ViewRuleAssignmentsTable {
         this.words = ResourceBundleProvider.getWordsBundle(locale);
         table = new LCTable<>("ruleAssignments", columns(), this::fetchData);
         table.setRowTestAttributes(row -> Map.of("rule-assignment", String.valueOf(row.assignment.getId())));
+        table.addCustomToolbarControl(this::statusControl);
         table.addCustomToolbarControl(this::testRuleControl);
         table.addCustomToolbarControl((container, ctx) -> exportControl(container, ctx, "csv", "table/csv.gif"));
         table.addCustomToolbarControl((container, ctx) -> exportControl(container, ctx, "xls", "table/excel.gif"));
         table.addCustomToolbarControl((container, ctx) -> exportControl(container, ctx, "xml", "bt_Download.gif"));
+    }
+
+    /** Normalize the view mode before either rendering or export constructs its selection. */
+    private LCTableParams paramsFor(HttpServletRequest request) {
+        LCTableParams params = new LCTableParams(request.getQueryString(), table);
+        if (!"5".equals(params.filters.get(STATUS_FILTER))) {
+            params.filters.put(STATUS_FILTER, "1");
+        }
+        return params;
+    }
+
+    private void statusControl(Div<?> container, LCTableContext<AssignmentRow> ctx) {
+        String status = ctx.filters.get(STATUS_FILTER);
+        // NO_FILTER has no widget; retain the mode when other filters/page size submit the form.
+        container.input().attrType(EnumTypeInputType.HIDDEN)
+            .attrName(LCTableParams.PARAM_FILTER_PREFIX + STATUS_FILTER).attrValue(status).__();
+        SafeUrl href = url(ctx.entityPath).param(LCTableParams.PARAM_PAGE, 1)
+            .param(LCTableParams.PARAM_MAX_ROWS, ctx.maxRows);
+        ctx.filters.forEach((name, value) -> {
+            if (!STATUS_FILTER.equals(name)) href.param(LCTableParams.PARAM_FILTER_PREFIX + name, value);
+        });
+        boolean removed = "5".equals(status);
+        href.param(LCTableParams.PARAM_FILTER_PREFIX + STATUS_FILTER, removed ? "1" : "5");
+        if (!ctx.sortProp.isEmpty()) {
+            href.param(LCTableParams.PARAM_SORT_PROP, ctx.sortProp).param(LCTableParams.PARAM_SORT_DIR, ctx.sortDir);
+        }
+        if (ctx.showHiddenCols) href.param(LCTableParams.PARAM_SHOW_HIDDEN_COLS, true);
+        String target = href.toUriString();
+        container.a().attrId("ruleAssignments-toggle-status").attrClass("text-btn").attrHref(target)
+            .addAttr("data-test-action", removed ? "show-available-rules" : "show-removed-rules")
+            .of(hxGetAttrs(target, NO_HX_INCLUDE, "#ruleAssignments-panel", NO_HX_TRIGGER))
+            .text(ctx.words.getString(removed ? "view_rule_assignment_show_available" : "view_rule_assignment_show_removed"))
+            .__();
     }
 
     private void exportControl(Div<?> container, LCTableContext<AssignmentRow> ctx, String format, String icon) {
@@ -134,9 +173,8 @@ public final class ViewRuleAssignmentsTable {
             row -> row.assignment.getRuleBean().getName()));
         cols.add(textCol("ruleOid", key("view_rule_assignment_rule_oid"), "rule-oid", 0,
             row -> row.assignment.getRuleBean().getOid()));
-        cols.add(enumColHidden("ruleSetRuleStatus", key("view_rule_assignment_rule_status"), "status", 0,
-            row -> row.assignment.getStatus(), List.of(Status.AVAILABLE, Status.DELETED),
-            status -> status.getI18nDescription(locale), status -> status.getCode().toString()));
+        cols.add(textCol(STATUS_FILTER, key("view_rule_assignment_rule_status"), "status", 0,
+            VISIBLE, SORTABLE, NO_FILTER, row -> row.assignment.getStatus(), status -> status.getI18nDescription(locale)));
         cols.add(textColHidden("ruleDescription", key("view_rule_assignment_rule_description"), "description", 0,
             row -> row.assignment.getRuleBean().getDescription()));
         cols.add(textCol("ruleExpressionValue", key("view_rule_assignment_expression"), "expression", 0,
@@ -265,7 +303,7 @@ public final class ViewRuleAssignmentsTable {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unsupported rule-assignment export format. Use csv, xls or xml.");
             return;
         }
-        LCTableParams params = new LCTableParams(request.getQueryString(), table);
+        LCTableParams params = paramsFor(request);
         ViewRuleAssignmentFilter filter = filterFor(params);
         ViewRuleAssignmentSort sort = sortFor(params);
         int total = service.getCountWithFilter(filter);
@@ -444,7 +482,7 @@ public final class ViewRuleAssignmentsTable {
     }
 
     public String render(HttpServletRequest request) {
-        LCTableParams params = new LCTableParams(request.getQueryString(), table);
+        LCTableParams params = paramsFor(request);
         return table.render(request.getRequestURI(), params, request.getContextPath(), LocaleResolver.getLocale(request));
     }
 }

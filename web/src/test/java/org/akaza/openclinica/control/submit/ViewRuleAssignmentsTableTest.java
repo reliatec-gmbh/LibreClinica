@@ -321,7 +321,7 @@ public class ViewRuleAssignmentsTableTest extends TestCase {
         String text() { return new String(bytes.toByteArray(), StandardCharsets.UTF_8); }
     }
 
-    public void testStatusIsUnfilteredByDefaultAndActionsIncludeSingleXml() {
+    public void testStatusDefaultsToAvailableAndActionsIncludeSingleXml() {
         RuleSetRuleBean rule = assignment(Status.AVAILABLE);
         when(service.getCountWithFilter(any(ViewRuleAssignmentFilter.class))).thenReturn(1);
         when(service.getWithFilterAndSort(any(ViewRuleAssignmentFilter.class), any(ViewRuleAssignmentSort.class), anyInt(), anyInt()))
@@ -337,11 +337,11 @@ public class ViewRuleAssignmentsTableTest extends TestCase {
         assertTrue(html.contains("aria-label=\"Run\""));
         assertFalse(html.contains("ruleAssignments-download-all"));
         assertTrue(html.contains("data-test-action=\"show-more\""));
-        assertFalse(html.contains("data-test-column=\"status\""));
+        assertTrue(html.contains("data-test-column=\"status\""));
         verify(service).getObjects(rule.getRuleSetBean());
         org.mockito.ArgumentCaptor<ViewRuleAssignmentFilter> selected = org.mockito.ArgumentCaptor.forClass(ViewRuleAssignmentFilter.class);
         verify(service).getCountWithFilter(selected.capture());
-        assertFalse(selected.getValue().execute("").contains("rsr.status_id"));
+        assertTrue(selected.getValue().execute("").contains("rsr.status_id = 1"));
     }
 
     public void testDeletedRuleOffersRestoreNotRun() {
@@ -349,7 +349,7 @@ public class ViewRuleAssignmentsTableTest extends TestCase {
         when(service.getCountWithFilter(any(ViewRuleAssignmentFilter.class))).thenReturn(1);
         when(service.getWithFilterAndSort(any(ViewRuleAssignmentFilter.class), any(ViewRuleAssignmentSort.class), anyInt(), anyInt()))
             .thenReturn(List.of(rule));
-        String html = new ViewRuleAssignmentsTable(service, metadata, study, Locale.ENGLISH).render(request("showHiddenCols=true"));
+        String html = new ViewRuleAssignmentsTable(service, metadata, study, Locale.ENGLISH).render(request("showHiddenCols=true&q.ruleSetRuleStatus=5"));
         assertTrue(html.contains("data-test-action=\"restore\""));
         assertFalse(html.contains("data-test-action=\"run\""));
         assertTrue(html.contains("data-test-column=\"status\""));
@@ -369,6 +369,64 @@ public class ViewRuleAssignmentsTableTest extends TestCase {
         assertTrue(filters.getValue().execute("").contains("CRF_A"));
         assertTrue(sort.getValue().execute("").contains("rname desc"));
         assertTrue(html.contains("No results"));
+    }
+
+    public void testMissingBlankAndInvalidStatusAlwaysNormalizeToAvailable() {
+        when(service.getCountWithFilter(any(ViewRuleAssignmentFilter.class))).thenReturn(0);
+        for (String query : List.of("", "q.ruleSetRuleStatus=", "q.ruleSetRuleStatus=2", "q.ruleSetRuleStatus=all",
+            "q.ruleSetRuleStatus=1", "q.ruleSetRuleStatus=5&q.ruleSetRuleStatus=1")) {
+            String html = new ViewRuleAssignmentsTable(service, metadata, study, Locale.ENGLISH).render(request(query));
+            String expected = query.startsWith("q.ruleSetRuleStatus=5") ? "5" : "1";
+            assertTrue(html.contains("name=\"q.ruleSetRuleStatus\" value=\"" + expected + "\""));
+            assertFalse(html.contains("<select name=\"q.ruleSetRuleStatus\""));
+            assertEquals(1, html.split("name=\"q.ruleSetRuleStatus\"", -1).length - 1);
+        }
+        org.mockito.ArgumentCaptor<ViewRuleAssignmentFilter> selected = org.mockito.ArgumentCaptor.forClass(ViewRuleAssignmentFilter.class);
+        verify(service, times(6)).getCountWithFilter(selected.capture());
+        for (int i = 0; i < 6; i++) {
+            assertTrue(selected.getAllValues().get(i).execute("").contains("rsr.status_id = " + (i == 5 ? "5" : "1")));
+        }
+    }
+
+    public void testStatusToggleRetainsOtherStateAndResetsPage() {
+        when(service.getCountWithFilter(any(ViewRuleAssignmentFilter.class))).thenReturn(50);
+        for (String status : List.of("1", "5")) {
+            String html = new ViewRuleAssignmentsTable(service, metadata, study, Locale.ENGLISH).render(request(
+                "page=3&maxRows=20&q.ruleSetRuleStatus=" + status + "&q.crfName=A%26B&sortProp=ruleName&sortDir=desc&showHiddenCols=true"));
+            int start = html.indexOf("id=\"ruleAssignments-toggle-status\"");
+            String anchor = html.substring(html.lastIndexOf("<a", start), html.indexOf("</a>", start));
+            String next = "1".equals(status) ? "5" : "1";
+            assertTrue(anchor.contains("q.ruleSetRuleStatus=" + next));
+            assertFalse(anchor.contains("q.ruleSetRuleStatus=" + status));
+            assertTrue(anchor.contains("page=1"));
+            assertTrue(anchor.contains("maxRows=20"));
+            assertTrue(anchor.contains("q.crfName=A%26B"));
+            assertTrue(anchor.contains("sortProp=ruleName"));
+            assertTrue(anchor.contains("sortDir=desc"));
+            assertTrue(anchor.contains("showHiddenCols=true"));
+            assertTrue(anchor.contains("hx-target=\"#ruleAssignments-panel\""));
+            assertTrue(anchor.contains("hx-push-url=\"true\""));
+            assertTrue(anchor.contains("1".equals(status) ? "Show Removed Rules" : "Show Available Rules"));
+            // The existing Clear Filter intentionally omits status; normalization resets it to Available.
+            int clearStart = html.indexOf("id=\"ruleAssignments-clear-filter-actions\"");
+            String clear = html.substring(html.lastIndexOf("<a", clearStart), html.indexOf("</a>", clearStart));
+            assertFalse(clear.contains("q.ruleSetRuleStatus"));
+        }
+    }
+
+    public void testEveryExportUsesNormalizedStatusMode() throws Exception {
+        when(service.getCountWithFilter(any(ViewRuleAssignmentFilter.class))).thenReturn(0);
+        for (String format : List.of("csv", "xls", "xml")) {
+            for (String status : List.of("", "2", "5")) {
+                new ViewRuleAssignmentsTable(service, metadata, study, Locale.ENGLISH).export(
+                    exportRequest(format, "q.ruleSetRuleStatus=" + status), new Download().response);
+            }
+        }
+        org.mockito.ArgumentCaptor<ViewRuleAssignmentFilter> selected = org.mockito.ArgumentCaptor.forClass(ViewRuleAssignmentFilter.class);
+        verify(service, times(9)).getCountWithFilter(selected.capture());
+        for (int i = 0; i < 9; i++) {
+            assertTrue(selected.getAllValues().get(i).execute("").contains("rsr.status_id = " + (i % 3 == 2 ? "5" : "1")));
+        }
     }
 
     public void testEscapesRuleAndActionDataWithoutEscapingTheNestedSummaryTable() {
