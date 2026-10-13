@@ -39,7 +39,7 @@ public class ShowActionProcessor implements ActionProcessor {
             if (ruleRunnerMode == RuleRunnerMode.DATA_ENTRY || ruleRunnerMode == RuleRunnerMode.RUN_ON_SCHEDULE) {
                 return null;
             } else {
-                dryRun(ruleAction, itemDataBean, itemData, currentStudy, ub);
+                return dryRun(ruleAction, itemDataBean, itemData, currentStudy, ub);
             }
         }
         case SAVE: {
