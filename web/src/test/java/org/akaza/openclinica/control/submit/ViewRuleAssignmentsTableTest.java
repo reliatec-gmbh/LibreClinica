@@ -115,7 +115,7 @@ public class ViewRuleAssignmentsTableTest extends TestCase {
         verify(download.response).setHeader("Cache-Control", "no-store");
     }
 
-    public void testXlsHasSeventeenLegacyStringColumnsIncludingHiddenAndMissingValues() throws Exception {
+    public void testXlsHasEighteenLegacyStringColumnsIncludingEmptyActions() throws Exception {
         RuleSetRuleBean rule = assignment(Status.AVAILABLE);
         rule.getRuleBean().setDescription(null);
         DiscrepancyNoteActionBean first = new DiscrepancyNoteActionBean();
@@ -134,9 +134,9 @@ public class ViewRuleAssignmentsTableTest extends TestCase {
         assertEquals("JMesa Export", book.getSheetName(0));
         HSSFRow header = book.getSheetAt(0).getRow(0);
         HSSFRow data = book.getSheetAt(0).getRow(1);
-        assertEquals(17, header.getPhysicalNumberOfCells());
-        assertEquals(17, data.getPhysicalNumberOfCells());
-        assertEquals("CRF&#160;&#160;&#160;&#160;&#160;", header.getCell((short) 4).toString().trim());
+        assertEquals(18, header.getPhysicalNumberOfCells());
+        assertEquals(18, data.getPhysicalNumberOfCells());
+        assertEquals("CRF", header.getCell((short) 4).toString().trim());
         assertEquals("CRF Validations", header.getCell((short) 13).toString().trim());
         assertEquals("", data.getCell((short) 1).toString());
         assertEquals("I_ITEM", data.getCell((short) 2).toString());
@@ -148,7 +148,8 @@ public class ViewRuleAssignmentsTableTest extends TestCase {
         assertEquals("true - false", data.getCell((short) 14).toString());
         assertEquals(first.getActionType().getDescription() + " ; " + second.getActionType().getDescription(), data.getCell((short) 15).toString());
         assertEquals(first.getSummary() + " ; " + second.getSummary(), data.getCell((short) 16).toString());
-        assertNull(data.getCell((short) 17));
+        assertEquals("Actions", header.getCell((short) 17).toString());
+        assertEquals("", data.getCell((short) 17).toString());
         verify(download.response).setContentType("application/vnd.ms-excel;charset=UTF-8");
         verify(download.response).setHeader(eq("Content-Disposition"), org.mockito.Matchers.matches("attachment; filename=\"rulesS_TEST-[0-9]+\\.xls\""));
     }
@@ -167,7 +168,7 @@ public class ViewRuleAssignmentsTableTest extends TestCase {
         Download download = new Download();
         new ViewRuleAssignmentsTable(service, metadata, study, Locale.ENGLISH).export(exportRequest("csv", ""), download.response);
         String csv = download.text();
-        assertEquals(17, csv.substring(0, csv.length() - 2).split(",", -1).length);
+        assertEquals(18, csv.substring(0, csv.length() - 2).split(",", -1).length);
         assertTrue(csv.contains("\"null\""));
         assertTrue(csv.contains("\"yes\""));
         assertFalse(csv.contains("<a"));

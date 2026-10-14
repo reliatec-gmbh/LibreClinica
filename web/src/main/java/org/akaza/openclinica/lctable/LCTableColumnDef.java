@@ -77,7 +77,7 @@ public class LCTableColumnDef<T> {
     /** Closure that writes the cell content for a given row bean into the HtmlFlow row element. */
     public CellRenderer<T> cellRenderer;
 
-    /** Optional scalar projection for downloads; null means this column is excluded from exports. */
+    /** Optional scalar projection for downloads; null renders as a missing CSV value and an empty XLS cell. */
     Function<? super T, LCTable.Export.Value> cellExporter;
     LCTableText exportHeading;
 

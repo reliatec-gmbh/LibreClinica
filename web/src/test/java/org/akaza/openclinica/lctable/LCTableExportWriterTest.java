@@ -37,7 +37,7 @@ public class LCTableExportWriterTest extends TestCase {
         Row(String value, Integer amount) { this.value = value; this.amount = amount; }
     }
 
-    public void testExportIsOptInOrderedAndSeparateFromHtml() throws Exception {
+    public void testDownloadsIncludeUnconfiguredColumnsWithFormatSpecificMissingValues() throws Exception {
         LCTableColumnDef<Row> hidden = LCTableColumnDef.textColHidden("hidden", literal("HTML heading"), "hidden", 0,
             row -> "HTML:" + row.value);
         LCTableColumnDef<Row> amount = textCol("amount", literal("Number"), "amount", 0,
@@ -50,15 +50,16 @@ public class LCTableExportWriterTest extends TestCase {
         amount.setCellExporter(row -> number(row.amount));
         StringWriter csv = new StringWriter();
         table.export().orElseThrow().toCsv(1, (offset, limit) -> List.of(new Row("abc", 4)), csv);
-        assertEquals("\"abc\",\"4\"\r\n", csv.toString());
+        assertEquals("\"abc\",\"null\",\"4\"\r\n", csv.toString());
         assertFalse(csv.toString().contains("HTML:"));
         ByteArrayOutputStream xls = new ByteArrayOutputStream();
-        table.export().orElseThrow().toXls(0, (offset, limit) -> List.of(),
+        table.export().orElseThrow().toXls(1, (offset, limit) -> List.of(new Row("abc", 4)),
             ResourceBundleProvider.getWordsBundle(Locale.ENGLISH), Locale.ENGLISH, xls);
         HSSFWorkbook book = new HSSFWorkbook(new ByteArrayInputStream(xls.toByteArray()));
         assertEquals("Subject", book.getSheetAt(0).getRow(0).getCell((short) 0).toString().trim());
-        assertEquals("Number", book.getSheetAt(0).getRow(0).getCell((short) 1).toString());
-        assertNull(book.getSheetAt(0).getRow(0).getCell((short) 2));
+        assertEquals("Actions", book.getSheetAt(0).getRow(0).getCell((short) 1).toString());
+        assertEquals("Number", book.getSheetAt(0).getRow(0).getCell((short) 2).toString());
+        assertEquals("", book.getSheetAt(0).getRow(1).getCell((short) 1).toString());
     }
 
     private static <T> LCTable<T> table(List<LCTableColumnDef<T>> columns) {

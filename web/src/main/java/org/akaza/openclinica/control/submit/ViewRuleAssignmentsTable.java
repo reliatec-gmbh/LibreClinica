@@ -219,12 +219,6 @@ public final class ViewRuleAssignmentsTable {
                 default: continue; // Actions are display-only.
             }
             col.setCellExporter(row -> LCTable.Export.Value.text(exporter.apply(row)));
-            if ("crfName".equals(col.columnName)) {
-                // Preserve the heading found in the supplied legacy workbook, including its literal padding.
-                col.setCellExporter(org.akaza.openclinica.lctable.LCTableText.literal(
-                    words.getString("view_rule_assignment_crf") + "&#160;&#160;&#160;&#160;&#160;"),
-                    row -> LCTable.Export.Value.text(exporter.apply(row)));
-            }
         }
         return cols;
     }

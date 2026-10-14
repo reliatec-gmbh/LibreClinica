@@ -131,22 +131,22 @@ public class LCTable<T>  {
     }
     public List<String> getStickyParamNames() { return stickyParamNames; }
 
-    /** Empty for ordinary tables; hidden columns are included when explicitly configured. */
+    /** Empty for ordinary tables; an explicit exporter enables downloads, which include all declared columns. */
     public java.util.Optional<Export<T>> export() {
         List<LCTableColumnDef<T>> selected = columns.stream()
             .filter(col -> col.cellExporter != null).collect(Collectors.toList());
-        return selected.isEmpty() ? java.util.Optional.empty() : java.util.Optional.of(new Export<>(selected));
+        return selected.isEmpty() ? java.util.Optional.empty() : java.util.Optional.of(new Export<>(columns));
     }
 
-    /** Optional tabular projection in screen-column order, independent of HTML and page visibility. */
+    /** Download projection independent of HTML and page visibility; downloads retain the complete screen-column order. */
     public static final class Export<T> {
         public static final int BATCH_SIZE = 256;
         public static final int XLS_MAX_DATA_ROWS = 65535;
 
-        private final List<LCTableColumnDef<T>> columns;
+        private final List<LCTableColumnDef<T>> allColumns;
 
-        private Export(List<LCTableColumnDef<T>> columns) {
-            this.columns = List.copyOf(columns);
+        private Export(List<LCTableColumnDef<T>> allColumns) {
+            this.allColumns = List.copyOf(allColumns);
         }
 
         /** The caller supplies authorized, filtered, sorted rows in bounded, zero-based batches. */
@@ -195,10 +195,10 @@ public class LCTable<T>  {
             Objects.requireNonNull(writer, "writer");
             forEachBatch(total, rows, (offset, batch) -> {
                 for (T row : batch) {
-                    for (int i = 0; i < columns.size(); i++) {
+                    for (int i = 0; i < allColumns.size(); i++) {
                         if (i > 0) writer.write(',');
                         writer.write('"');
-                        Value cell = Objects.requireNonNull(columns.get(i).cellExporter.apply(row), "export value");
+                        Value cell = exportValue(allColumns.get(i), row);
                         String value = cell.kind() == Value.Kind.NUMBER
                             ? cell.asText() : safeSpreadsheetText(cell.asText());
                         writer.write(value.replace("\"", "\"\""));
@@ -218,23 +218,25 @@ public class LCTable<T>  {
             if (total > XLS_MAX_DATA_ROWS) {
                 throw new IllegalArgumentException("XLS supports at most " + XLS_MAX_DATA_ROWS + " data rows");
             }
-            if (columns.size() > 256) {
+            if (allColumns.size() > 256) {
                 throw new IllegalArgumentException("XLS supports at most 256 columns");
             }
             HSSFWorkbook book = new HSSFWorkbook();
             HSSFSheet sheet = book.createSheet("JMesa Export");
             HSSFRow header = sheet.createRow(0);
-            for (int i = 0; i < columns.size(); i++) {
+            for (int i = 0; i < allColumns.size(); i++) {
+                LCTableColumnDef<T> column = allColumns.get(i);
                 header.createCell((short) i).setCellValue(new HSSFRichTextString(
-                    columns.get(i).exportHeading.resolve(words, locale)));
+                    (column.exportHeading == null ? column.columnDisplayName
+                        : column.exportHeading).resolve(words, locale)));
             }
             forEachBatch(total, rows, (offset, batch) -> {
                 for (int index = 0; index < batch.size(); index++) {
                     HSSFRow excelRow = sheet.createRow(offset + index + 1);
                     T row = batch.get(index);
-                    for (int i = 0; i < columns.size(); i++) {
+                    for (int i = 0; i < allColumns.size(); i++) {
                         HSSFCell cell = excelRow.createCell((short) i);
-                        Value value = Objects.requireNonNull(columns.get(i).cellExporter.apply(row), "export value");
+                        Value value = exportValue(allColumns.get(i), row);
                         if (value.kind() == Value.Kind.NUMBER) {
                             double number = value.asDouble();
                             if (!Double.isFinite(number)) throw new IllegalArgumentException("Non-finite XLS number");
@@ -247,6 +249,12 @@ public class LCTable<T>  {
             });
             book.write(output);
         }
+
+        private static <T> Value exportValue(LCTableColumnDef<T> column, T row) {
+            return column.cellExporter == null ? Value.missing()
+                : Objects.requireNonNull(column.cellExporter.apply(row), "export value");
+        }
+
 
         private static String safeSpreadsheetText(String text) {
             int i = 0;
