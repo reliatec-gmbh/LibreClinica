@@ -152,6 +152,63 @@ function isValidPartialTimestamp(value) {
 
 
 /*
+ * History snapshots serialize HTML attributes, not live input values. Idiomorph deliberately leaves
+ * the focused text filter's value attribute unchanged, so normalize detached snapshots from their
+ * applied-filter URL instead of copying drafts from the live controls. Repair both newly created
+ * items and older cached items before HTMX initializes restored inputs (including its changed guard).
+ */
+(function () {
+    // Body history restoration can execute this script again; keep exactly one pair of handlers.
+    var registration = Symbol.for('LibreClinica.LCTable.historyFilters');
+    if (document[registration]) return;
+
+    function normalizeHistoryItem(item, path, historyElt) {
+        var fragment = document.createElement('template');
+        // Template parsing is inert and preserves table fragments, unlike parsing into a document body.
+        fragment.innerHTML = item.content;
+        var withinTable = historyElt && historyElt.closest('.lctable');
+        var selector = 'input.filter-input[name^="q."], select.filter-select[name^="q."]';
+        var controls = fragment.content.querySelectorAll(withinTable ? selector
+            : '.lctable input.filter-input[name^="q."], .lctable select.filter-select[name^="q."]');
+        if (controls.length === 0) return;
+        var params = new URL(path, location.origin).searchParams;
+        var changed = false;
+        controls.forEach(function (control) {
+            // Like LCTableParams.readFilters(), use the first value without trimming or double decoding.
+            var value = params.get(control.name) || '';
+            if (control.matches('input')) {
+                if (control.getAttribute('value') !== value) {
+                    control.setAttribute('value', value);
+                    changed = true;
+                }
+            } else {
+                var options = Array.from(control.options);
+                if (!options.some(function (option) { return option.value === value; })) value = '';
+                options.forEach(function (option) {
+                    var selected = option.value === value;
+                    if (option.hasAttribute('selected') !== selected) {
+                        option.toggleAttribute('selected', selected);
+                        changed = true;
+                    }
+                });
+            }
+        });
+        if (changed) item.content = fragment.innerHTML;
+    }
+
+    document.addEventListener('htmx:historyItemCreated', function (event) {
+        var historyElt = document.querySelector('[hx-history-elt], [data-hx-history-elt]') || document.body;
+        normalizeHistoryItem(event.detail.item, event.detail.item.url, historyElt);
+    });
+    document.addEventListener('htmx:historyCacheHit', function (event) {
+        normalizeHistoryItem(event.detail.item, event.detail.path, event.detail.historyElt);
+    });
+    document[registration] = true;
+})();
+
+
+
+/*
  * Strip empty-valued request parameters from LCTable-issued HTMX requests.
  *
  * LCTable.java's own URL builder (LCTable.url(), used for pagination/sort/"Show More" links) already
