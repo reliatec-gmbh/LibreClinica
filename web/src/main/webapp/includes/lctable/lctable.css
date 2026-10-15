@@ -305,6 +305,23 @@
     visibility: visible;
 }
 
+.lc-tooltip.lc-tooltip-filters {
+    background: #fff;
+    color: #222;
+    white-space: normal;
+    max-width: calc(100vw - 24px);
+    max-height: calc(100vh - 24px);
+    overflow-y: auto;
+}
+
+.lc-filter-section + .lc-filter-section { margin-top: 8px; }
+.lc-filter-section ul { margin: 4px 0 0; padding-left: 20px; }
+.lc-active-filters { cursor: help; color: black; font-weight: normal; }
+.lc-active-filters.lc-active-filters-active { font-weight: bold; }
+.lc-active-filters-warning { color: #b00020; font-weight: bold; }
+.lc-active-filters.lc-active-filters-warning { color: #b00020; font-weight: bold; }
+.lc-active-filters:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+
 /* Prevent inline-baseline gap below images in table cells */
 .lctable .odd td img, .lctable .even td img,
 .lctable .highlight td img {

@@ -76,6 +76,81 @@
     }, true);
 })();
 
+
+/** Validate the five supported partial timestamp formats without timezone-dependent Date objects. */
+function isValidPartialTimestamp(value) {
+    var parts = /^(\d{4})(?:-(\d{2})(?:-(\d{2})(?: (\d{2})(?::(\d{2}))?)?)?)?$/.exec(value);
+    var valid = value === '';
+    if (parts && parts[0] === value) {
+        var year = Number(parts[1]);
+        var month = parts[2] === undefined ? 1 : Number(parts[2]);
+        var day = parts[3] === undefined ? 1 : Number(parts[3]);
+        var hour = parts[4] === undefined ? 0 : Number(parts[4]);
+        var minute = parts[5] === undefined ? 0 : Number(parts[5]);
+        var leapYear = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+        var daysInMonth = [31, leapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+        valid = year >= 1 && month >= 1 && month <= 12 && day >= 1 && day <= daysInMonth[month - 1]
+            && hour <= 23 && minute <= 59;
+    }
+    return valid;
+}
+
+(function () {
+    // Stable keys are shared with LCTableFilterDef.ClientValidator; never evaluate attribute values as code.
+    var validators = { 'partial-timestamp': isValidPartialTimestamp };
+    var selector = 'input[data-lctable-validator]';
+
+    function validateTextFilter(input) {
+        var key = input.getAttribute('data-lctable-validator');
+        var message = input.getAttribute('data-lctable-validation-message');
+        if (!Object.prototype.hasOwnProperty.call(validators, key)) {
+            console.error('Unknown LCTable client validator: ' + key);
+            input.setCustomValidity(message);
+            return;
+        }
+        // Optional empty filters pass custom validation; native required/pattern constraints remain independent.
+        var valid = input.value === '' || validators[key](input.value);
+        input.setCustomValidity(valid ? '' : message);
+    }
+
+    function validateAll(root) {
+        if (root.matches && root.matches(selector)) validateTextFilter(root);
+        if (root.querySelectorAll) root.querySelectorAll(selector).forEach(validateTextFilter);
+    }
+
+    document.addEventListener('input', function (event) {
+        if (event.target.matches(selector)) validateTextFilter(event.target);
+    }, true);
+    // Capture before HTMX's per-input guard; also validate included custom-validated fields for page-size/select requests.
+    document.addEventListener('htmx:beforeRequest', function (event) {
+        var target = event.target;
+        if (!target.closest || !target.closest('.lctable')) return;
+        var form = target.closest('form');
+        if (!form) return;
+        validateAll(form);
+        var includeSource = target.closest('[hx-include]');
+        if (!includeSource || includeSource.getAttribute('hx-include') !== 'closest form') return;
+        var included = event.detail.requestConfig && event.detail.requestConfig.parameters;
+        form.querySelectorAll(selector).forEach(function (input) {
+            // Clear-filter and navigation links omit form fields; do not block them on an unsent draft value.
+            if (included && Object.prototype.hasOwnProperty.call(included, input.name) && !input.validity.valid) {
+                event.preventDefault();
+            }
+        });
+    }, true);
+    document.addEventListener('htmx:load', function (event) { validateAll(event.target); });
+    document.addEventListener('htmx:afterSettle', function (event) { validateAll(event.target); });
+    document.addEventListener('htmx:historyRestore', function () { validateAll(document); });
+    window.addEventListener('pageshow', function () { validateAll(document); });
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () { validateAll(document); });
+    } else {
+        validateAll(document);
+    }
+})();
+
+
+
 /*
  * Strip empty-valued request parameters from LCTable-issued HTMX requests.
  *
@@ -143,12 +218,14 @@ document.body.addEventListener('htmx:configRequest', function (event) {
  */
 (function () {
     var tooltipEl = null;
+    var tooltipSelector = '[data-tooltip], [data-tooltip-source]';
 
     function getTooltipEl() {
         if (!tooltipEl) {
             tooltipEl = document.createElement('div');
             tooltipEl.className = 'lc-tooltip';
             tooltipEl.setAttribute('id', 'lc-tooltip');
+            tooltipEl.setAttribute('role', 'tooltip');
             document.body.appendChild(tooltipEl);
         }
         return tooltipEl;
@@ -176,9 +253,15 @@ document.body.addEventListener('htmx:configRequest', function (event) {
 
     function showTooltip(target) {
         var text = target.getAttribute('data-tooltip');
-        if (!text) return;
+        var sourceId = target.getAttribute('data-tooltip-source');
+        var source = sourceId ? document.getElementById(sourceId) : null;
+        if (!text && !source) return;
         var el = getTooltipEl();
-        el.textContent = text;
+        el.textContent = source ? '' : text;
+        el.classList.toggle('lc-tooltip-filters', !!source);
+        if (source) {
+            Array.from(source.childNodes).forEach(function (node) { el.appendChild(node.cloneNode(true)); });
+        }
         el.classList.add('lc-tooltip-visible');
         positionTooltip(target, el);
     }
@@ -188,23 +271,23 @@ document.body.addEventListener('htmx:configRequest', function (event) {
     }
 
     document.addEventListener('mouseover', function (event) {
-        var target = event.target.closest('[data-tooltip]');
+        var target = event.target.closest(tooltipSelector);
         if (target) showTooltip(target);
     }, true);
 
     document.addEventListener('mouseout', function (event) {
-        var target = event.target.closest('[data-tooltip]');
+        var target = event.target.closest(tooltipSelector);
         // don't hide if the pointer merely moved onto a descendant of the same tooltipped element
         if (target && (!event.relatedTarget || !target.contains(event.relatedTarget))) hideTooltip();
     }, true);
 
     document.addEventListener('focusin', function (event) {
-        var target = event.target.closest('[data-tooltip]');
+        var target = event.target.closest(tooltipSelector);
         if (target) showTooltip(target);
     }, true);
 
     document.addEventListener('focusout', function (event) {
-        var target = event.target.closest('[data-tooltip]');
+        var target = event.target.closest(tooltipSelector);
         if (target) hideTooltip();
     }, true);
 
@@ -212,6 +295,9 @@ document.body.addEventListener('htmx:configRequest', function (event) {
     // event-detail popup's internal body) while it is visible, just hide it rather than letting it
     // float, stale, over unrelated content.
     window.addEventListener('scroll', hideTooltip, true);
+    window.addEventListener('resize', hideTooltip);
+    document.addEventListener('keydown', function (event) { if (event.key === 'Escape') hideTooltip(); });
+    document.addEventListener('htmx:beforeSwap', hideTooltip);
 })();
 
 

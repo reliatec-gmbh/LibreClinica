@@ -446,12 +446,57 @@ public class LCTable<T>  {
                 // Custom, non-tabular controls (see addCustomToolbarControl), in the order they were added --
                 // each preceded by the same separator used between the built-in controls above, but only when
                 // the control actually has something to render for this request (see CustomToolbarControl).
-                customToolbarControls.forEach(control -> {
+                boolean hasPreviousControl = paginationMode == PaginationMode.PAGINATED;
+                if (paginationMode == PaginationMode.PAGINATED || hasFilterableColumns() || !activeFilterColumns(ctx).isEmpty()) {
+                    if (hasPreviousControl) container.div().attrClass("toolbar-separator").__();
+                    renderActiveFilters(container, ctx);
+                    hasPreviousControl = true;
+                }
+                for (CustomToolbarControl<T> control : customToolbarControls) {
                     if (control.hasContent.test(ctx)) {
-                        if (paginationMode == PaginationMode.PAGINATED) container.div().attrClass("toolbar-separator").__();
+                        if (hasPreviousControl) container.div().attrClass("toolbar-separator").__();
                         control.render.accept(container, ctx);
+                        hasPreviousControl = true;
                     }
-                });
+                }
+            }).__();
+    }
+
+    private List<LCTableColumnDef<T>> activeFilterColumns(LCTableContext<T> ctx) {
+        return columns.stream().filter(col -> {
+            String value = ctx.filters.get(col.columnName);
+            return value != null && !value.isBlank();
+        }).collect(Collectors.toList());
+    }
+
+    private void renderActiveFilters(Div<?> container, LCTableContext<T> ctx) {
+        List<LCTableColumnDef<T>> active = activeFilterColumns(ctx);
+        List<LCTableColumnDef<T>> visible = active.stream().filter(col -> shouldRenderColumn(col, ctx)).collect(Collectors.toList());
+        List<LCTableColumnDef<T>> hidden = active.stream().filter(col -> !shouldRenderColumn(col, ctx)).collect(Collectors.toList());
+        String sourceId = panelId + "-active-filters-tooltip";
+        String indicatorClass = "lc-active-filters"
+            + (active.isEmpty() ? "" : " lc-active-filters-active")
+            + (hidden.isEmpty() ? "" : " lc-active-filters-warning");
+        container.span().attrClass(indicatorClass)
+            .addAttr("tabindex", "0").addAttr("data-testid", "active-filters-indicator")
+            .addAttr("data-tooltip-source", sourceId).addAttr("aria-describedby", "lc-tooltip")
+            .text(new MessageFormat(ctx.words.getString("lctable_active_filters"), ctx.locale).format(new Integer[] { active.size() })).__();
+        container.div().attrId(sourceId).addAttr("hidden", "hidden").of(source -> {
+            renderFilterSection(source, ctx, visible, false);
+            renderFilterSection(source, ctx, hidden, true);
+        }).__();
+    }
+
+    private void renderFilterSection(Div<?> source, LCTableContext<T> ctx, List<LCTableColumnDef<T>> filters, boolean hidden) {
+        String category = hidden ? "hidden" : "visible";
+        String key = "lctable_" + (filters.isEmpty() ? "no_" + category + "_filters"
+            : category + (filters.size() == 1 ? "_filter" : "_filters"));
+        source.div().attrClass(hidden && !filters.isEmpty() ? "lc-filter-section lc-active-filters-warning" : "lc-filter-section")
+            .of(section -> {
+                section.div().text(new MessageFormat(ctx.words.getString(key), ctx.locale).format(new Integer[] { filters.size() })).__();
+                if (!filters.isEmpty()) {
+                    section.ul().of(list -> filters.forEach(col -> list.li().text(col.columnDisplayName.resolve(ctx.words, ctx.locale)).__())).__();
+                }
             }).__();
     }
 
@@ -472,7 +517,7 @@ public class LCTable<T>  {
             thead.tr().attrClass("lctable-title-row").addAttr("data-testid", "lctable-title-row")
                 .th().attrColspan((int) renderedColumnCount(ctx)).text(title.resolve(ctx.words, ctx.locale)).__().__();
         }
-        if (paginationMode == PaginationMode.PAGINATED || !customToolbarControls.isEmpty()) {
+        if (paginationMode == PaginationMode.PAGINATED || !customToolbarControls.isEmpty() || hasFilterableColumns() || !activeFilterColumns(ctx).isEmpty()) {
             thead.tr().attrClass("header").addAttr("data-testid", "lctable-toolbar").of(tr -> renderToolbar(tr, ctx)).__();
         }
         thead.tr().attrClass("header").addAttr("data-testid", "lctable-column-header-row").of(tr -> renderColumnNames(tr, ctx)).__();
