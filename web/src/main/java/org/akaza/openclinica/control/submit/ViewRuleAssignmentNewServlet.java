@@ -36,6 +36,7 @@ import org.akaza.openclinica.service.rule.RuleSetServiceInterface;
 import org.akaza.openclinica.service.rule.RulesPostImportContainerService;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
+import org.akaza.openclinica.lctable.HtmxResponseSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,10 +82,7 @@ public class ViewRuleAssignmentNewServlet extends SecureController {
         } else {
             request.setAttribute("tableRenderingMode", "htmlflow");
             String html = new ViewRuleAssignmentsTable(getRuleSetService(), getItemFormMetadataDAO(), currentStudy, locale).render(request);
-            response.addHeader("Vary", "HX-Request");
-            if (request.getHeader("HX-Request") != null) {
-                response.setContentType("text/html;charset=UTF-8");
-                response.getWriter().write(html);
+            if (HtmxResponseSupport.writeFragmentIfRequested(request, response, html)) {
                 response.getWriter().flush();
             } else {
                 request.setAttribute("ruleAssignmentsHtml", html);

@@ -30,6 +30,7 @@ import org.akaza.openclinica.lctable.LCTableToolbarControls;
 import org.akaza.openclinica.lctable.LCTableUtil;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
+import org.akaza.openclinica.lctable.HtmxResponseSupport;
 import org.jmesa.facade.TableFacade;
 import org.jmesa.view.editor.DateCellEditor;
 import org.jmesa.view.html.component.HtmlColumn;
@@ -79,10 +80,7 @@ public class AuditDatabaseServlet extends SecureController {
         } else {
             request.setAttribute("tableRenderingMode", "htmlflow");
             String auditDatabaseHtml = renderAuditDatabaseLCTable(databaseChangeLogs);
-            response.addHeader("Vary", "HX-Request");
-            if (request.getHeader("HX-Request") != null) {
-                response.setContentType("text/html;charset=UTF-8");
-                response.getWriter().write(auditDatabaseHtml);
+            if (HtmxResponseSupport.writeFragmentIfRequested(request, response, auditDatabaseHtml)) {
                 response.getWriter().flush();
             } else {
                 request.setAttribute("auditDatabaseHtml", auditDatabaseHtml);

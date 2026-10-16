@@ -5,7 +5,7 @@
  * For details see: https://libreclinica.org/license
  * copyright (C) 2003 - 2011 Akaza Research
  * copyright (C) 2003 - 2019 OpenClinica
- * copyright (C) 2020 - 2024 LibreClinica
+ * copyright (C) 2020 - 2026 LibreClinica
  */
 package org.akaza.openclinica.control.submit;
 
@@ -31,6 +31,7 @@ import org.akaza.openclinica.dao.submit.SubjectGroupMapDAO;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
+import org.akaza.openclinica.lctable.HtmxResponseSupport;
 import static org.akaza.openclinica.core.util.ClassCastHelper.*;
 /**
  * Servlet for creating a table.
@@ -162,22 +163,18 @@ public class ListStudySubjectsServlet extends SecureController {
                 getStudyParameterValueDAO(), currentStudy, currentRole, ub, locale, session);
             String findSubjectsHtml = table.render(request);
             // HTMX partial handling
-            response.addHeader("Vary", "HX-Request");
-            String hxReq = request.getHeader("HX-Request");
-            if (hxReq != null) {
-                // HTMX request: only return the table HTML fragment
-                try {
-                    response.setContentType("text/html;charset=UTF-8");
-                    response.getWriter().write(findSubjectsHtml);
+            try {
+                if (HtmxResponseSupport.writeFragmentIfRequested(request, response, findSubjectsHtml)) {
                     response.getWriter().flush();
-                } catch (java.io.IOException e) {
-                    logger.error("Error writing findSubjects HTMX partial response: ", e);
+                    return;
                 }
-            } else {
-                // Non-HTMX request: embed into JSP and forward
-                request.setAttribute("findSubjectsHtml", findSubjectsHtml);
-                forwardPage(Page.LIST_STUDY_SUBJECTS);
+            } catch (java.io.IOException e) {
+                logger.error("Error writing findSubjects HTMX partial response: ", e);
+                return;
             }
+            // Non-HTMX request: embed into JSP and forward
+            request.setAttribute("findSubjectsHtml", findSubjectsHtml);
+            forwardPage(Page.LIST_STUDY_SUBJECTS);
         }
 
     }
