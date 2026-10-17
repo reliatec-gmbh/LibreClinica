@@ -62,7 +62,7 @@ public class AuditUserLoginTable {
     private static final List<LCTableColumnDef<AuditUserLoginBean>> COLUMNS = Arrays.asList(
         textCol("userName",         key("username2"),    "user-name", 5, AuditUserLoginBean::getUserName),
         textCol("loginAttemptDate", key("attempt_date"), "login-attempt-date", 7,
-            textFilter(TIMESTAMP_FILTER_FOR_HTML_VALIDATION, TIMESTAMP_FILTER_MESSAGE),
+            timestampFilter(),
             AuditUserLoginBean::getLoginAttemptDate, LCTableUtil::timestampToString
         ),
         enumCol("loginStatus",      key("status"),       "login-status", 7,

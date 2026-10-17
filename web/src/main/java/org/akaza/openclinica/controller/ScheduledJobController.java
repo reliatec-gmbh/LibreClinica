@@ -29,6 +29,7 @@ import org.akaza.openclinica.bean.extract.ExtractPropertyBean;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
 import org.akaza.openclinica.service.extract.XsltTriggerService;
+import org.akaza.openclinica.lctable.HtmxResponseSupport;
 import org.akaza.openclinica.web.table.scheduledjobs.ScheduledJobTable;
 import org.akaza.openclinica.web.table.scheduledjobs.ScheduledJobTableFactory;
 import org.akaza.openclinica.web.table.scheduledjobs.ScheduledJobs;
@@ -195,10 +196,7 @@ public class ScheduledJobController {
         request.setAttribute("tableRenderingMode", "htmlflow");
         ScheduledJobTable table = new ScheduledJobTable(jobsScheduled, locale, request.getContextPath());
         String tableHtml = table.render(requestParams, request.getRequestURI());
-        response.addHeader("Vary", "HX-Request");
-        if (request.getHeader("HX-Request") != null) {
-            response.setContentType("text/html;charset=UTF-8");
-            response.getWriter().write(tableHtml);
+        if (HtmxResponseSupport.writeFragmentIfRequested(request, response, tableHtml)) {
             response.getWriter().flush();
             return null;
         }

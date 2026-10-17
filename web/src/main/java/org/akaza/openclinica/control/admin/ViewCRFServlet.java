@@ -28,6 +28,7 @@ import org.akaza.openclinica.dao.submit.CRFVersionDAO;
 import org.akaza.openclinica.dao.submit.ItemDAO;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
+import org.akaza.openclinica.lctable.HtmxResponseSupport;
 import org.akaza.openclinica.web.table.sdv.SDVUtil;
 import org.jmesa.facade.TableFacade;
 import org.jmesa.view.html.component.HtmlColumn;
@@ -114,10 +115,7 @@ public class ViewCRFServlet extends SecureController {
                 } else {
                     request.setAttribute("tableRenderingMode", "htmlflow");
                     String studyHtml = renderStudiesLCTable(studyBeans);
-                    response.addHeader("Vary", "HX-Request");
-                    if (request.getHeader("HX-Request") != null) {
-                        response.setContentType("text/html;charset=UTF-8");
-                        response.getWriter().write(studyHtml);
+                    if (HtmxResponseSupport.writeFragmentIfRequested(request, response, studyHtml)) {
                         response.getWriter().flush();
                         return;
                     }

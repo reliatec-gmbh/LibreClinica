@@ -170,7 +170,7 @@ public class ListSubjectTableTest extends TestCase {
         assertTrue("Unclosed date filter input for " + columnName, inputEnd >= 0);
         String input = html.substring(inputStart, inputEnd);
         assertTrue(input.contains("pattern=\"(?:\\d{4}|(?:0[1-9]|[12]\\d|3[01])-[A-Za-z]{3}-\\d{4})\""));
-        assertTrue(input.contains("title=\"Enter a year (YYYY) or a date (DD-MMM-YYYY)\""));
+        assertTrue(input.contains("title=\"Please enter a year (yyyy) or date in dd-MMM-yyyy format\""));
         assertTrue(input.contains("hx-on:htmx:before-request=\"if(!this.validity.valid){event.preventDefault();}\""));
     }
 

@@ -19,6 +19,7 @@ import org.akaza.openclinica.dao.submit.SubjectDAO;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
+import org.akaza.openclinica.lctable.HtmxResponseSupport;
 
 /**
  * @author thickerson
@@ -76,10 +77,7 @@ public class StudyAuditLogServlet extends SecureController {
                 subdao, sdao, uadao, currentStudy, LocaleResolver.getLocale(request));
             String auditLogsHtml = table.render(request);
 
-            response.addHeader("Vary", "HX-Request");
-            if (request.getHeader("HX-Request") != null) {
-                response.setContentType("text/html;charset=UTF-8");
-                response.getWriter().write(auditLogsHtml);
+            if (HtmxResponseSupport.writeFragmentIfRequested(request, response, auditLogsHtml)) {
                 response.getWriter().flush();
             } else {
                 request.setAttribute("auditLogsHtml", auditLogsHtml);
