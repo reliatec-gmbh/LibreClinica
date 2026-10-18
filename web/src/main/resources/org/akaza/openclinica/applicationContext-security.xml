@@ -31,7 +31,8 @@
     <security:intercept-url pattern="/pages/odmk/**" access="permitAll"/>
     <security:intercept-url pattern="/pages/openrosa/**" access="permitAll"/>
     <security:intercept-url pattern="/pages/accounts/**" access="permitAll"/>
-    <security:intercept-url pattern="/pages/itemdata/**" access="permitAll"/>
+    <!-- IdtViewController: item data of any study, no study check, unused by the old UI, new SDV module not implemented -->
+    <security:intercept-url pattern="/pages/auth/api/itemdata/**" access="denyAll"/>
     <security:intercept-url pattern="/pages/auth/api/v1/studies/**" access="permitAll"/>
     <security:intercept-url pattern="/pages/odmss/**" access="permitAll"/>
     <security:intercept-url pattern="/pages/healthcheck/**" access="permitAll"/>
