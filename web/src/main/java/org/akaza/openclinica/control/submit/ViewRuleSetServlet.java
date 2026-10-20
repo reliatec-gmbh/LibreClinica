@@ -65,7 +65,14 @@ public class ViewRuleSetServlet extends SecureController {
             addPageMessage(respage.getString("please_choose_a_CRF_to_view"));
             forwardPage(Page.CRF_LIST);
         } else {
-            RuleSetBean ruleSetBean = getRuleSetService().getRuleSetById(currentStudy, ruleSetId);
+            RuleSetBean ruleSetBean;
+            try {
+                ruleSetBean = new RuleAssignmentAccess(currentStudy).ruleSet(ruleSetId,
+                    id -> getRuleSetService().getRuleSetById(currentStudy, String.valueOf(id)));
+            } catch (IllegalArgumentException | java.util.NoSuchElementException | org.springframework.security.access.AccessDeniedException e) {
+                RuleAssignmentAccess.sendFailure(response, e);
+                return;
+            }
             Boolean firstTime = true;
             String validRuleSetRuleIds = "";
             for (int j = 0; j < ruleSetBean.getRuleSetRules().size(); j++) {
