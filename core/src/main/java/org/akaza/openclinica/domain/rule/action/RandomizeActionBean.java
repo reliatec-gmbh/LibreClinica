@@ -24,6 +24,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Transient;
 
 @Entity
@@ -121,9 +122,17 @@ public class RandomizeActionBean extends RuleActionBean {
         return true;
     }
 
-    
+
+    // The factors are sent to the randomization module as question1..N in the order of this
+    // list, so the order has to be stable. Without @OrderBy it is whatever order the database
+    // returns the rows in. The rows are only ever created by a rule import, which saves them in
+    // the order of the StratificationFactor elements in the rule XML, so the id order is the
+    // order of the rule as it was imported. That last step relies on how castor and Hibernate
+    // currently behave (document order when reading the XML, ids assigned in list order on the
+    // cascaded save); re-check it when upgrading either library.
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "rule_action_id", nullable = true)
+    @OrderBy("id")
     public List<StratificationFactorBean> getStratificationFactors() {
         return stratificationFactors;
     }

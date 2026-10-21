@@ -21,6 +21,10 @@
  *     present (the LibreClinica fork kept the stratificationFactorBeans seam
  *     but removed the body). Added randomizeService field + accessors;
  *     date: 2026-03-11 - 2026-03-12.
+ *   - getValue(): a RANDOMIZE action without stratification factors now also
+ *     calls RandomizeService (simple randomization). The hook restored above
+ *     required the factor list to be non-empty, which OpenClinica does not, so
+ *     such a rule wrote nothing and never reached the module; date: 2026-10-20.
  *
  * License selection:
  *   The OpenClinica original was licensed under LGPL v2.1 or later.
@@ -455,12 +459,13 @@ public class DynamicsMetadataService implements MetadataServiceInterface {
 
     private String getValue(PropertyBean property, RuleSetBean ruleSet, EventCRFBean eventCrfBean,List<StratificationFactorBean> stratificationFactorBeans) {
         String value = null;
-        // Randomization hook: when stratification factors are present the value to be
-        // written is the allocation code obtained from the external randomization
-        // service via a live HTTP call. Null-guarded so that an unwired
-        // randomizeService bean degrades gracefully instead of throwing.
-        if (stratificationFactorBeans != null && !stratificationFactorBeans.isEmpty()
-                && getRandomizeService() != null) {
+        // Randomization hook: for a RANDOMIZE action the value to be written is the
+        // allocation code obtained from the external randomization service via a live
+        // HTTP call. Only the RANDOMIZE action passes a factor list (INSERT passes null),
+        // and the list is empty, not null, for a rule without factors, which must still
+        // be randomised (simple randomization), as in OpenClinica. Null-guarded in case
+        // the randomizeService bean is not wired; no allocation code is written then.
+        if (stratificationFactorBeans != null && getRandomizeService() != null) {
             return getRandomizeService().getRandomizationCode(eventCrfBean, stratificationFactorBeans, ruleSet);
         }
         if (property.getValue() != null && property.getValue().length() > 0) {
