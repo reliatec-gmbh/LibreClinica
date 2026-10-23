@@ -34,6 +34,7 @@ package org.akaza.openclinica.service;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -163,16 +164,24 @@ public class RandomizeService extends RandomizationRegistrar {
         }
     }
 
-    private String getExpressionValue(String expr, EventCRFBean eventCrfBean, RuleSetBean ruleSet) {
+    String getExpressionValue(String expr, EventCRFBean eventCrfBean, RuleSetBean ruleSet) {
+        // the factor's item OID does not resolve (e.g. CRF version replaced) → empty factor, see below; a bare OID
+        // is checked before expansion, which looks the item up and dereferences it
+        if (expr != null && !expr.isEmpty() && !expr.contains(".") && getExpressionService().getItemFromExpression(expr) == null)
+            return unresolvedFactor(expr);
         String expression = getExpressionService().constructFullExpressionIfPartialProvided(expr, ruleSet.getTarget().getValue());
         ItemDataBean itemData = null;
         if (expression != null && !expression.isEmpty()) {
             ItemBean itemBean = getExpressionService().getItemBeanFromExpression(expression);
+            if (itemBean == null)
+                return unresolvedFactor(expression);
             String itemGroupBOrdinal = getExpressionService().getGroupOrdninalCurated(expression);
             itemData = getItemDataDAO().findByItemIdAndEventCRFIdAndOrdinal(itemBean.getId(), eventCrfBean.getId(),
                     itemGroupBOrdinal == "" ? 1 : Integer.valueOf(itemGroupBOrdinal));
         }
-        return itemData.getValue();
+        // missing item data → empty factor, which the randomisation module refuses (previously an NPE that
+        // printStackTrace swallowed: the CRF was saved with an empty code and nobody was alerted)
+        return itemData == null || itemData.getValue() == null ? "" : itemData.getValue();
     }
 
     private String getStudySubjectAttrValue(String expr, EventCRFBean eventCrfBean, RuleSetBean ruleSet) {
@@ -189,13 +198,12 @@ public class RandomizeService extends RandomizationRegistrar {
         String prefix = "STUDYGROUPCLASSLIST";
         String param = expr.split("\\.", -1)[1].trim();
 
+        // A blank registry value must reach the module as blank, so the module can refuse it: a subject saved
+        // without gender (SubjectDAO maps it to ' ') used to arrive as "Female", one without a date of birth as an NPE.
         if (param.equalsIgnoreCase("BIRTHDATE")) {
-            value = subjectBean.getDateOfBirth().toString();
+            value = birthDateValue(subjectBean.getDateOfBirth());
         } else if (param.equalsIgnoreCase("SEX")) {
-            if (String.valueOf(subjectBean.getGender()).equals("m"))
-                value = "Male";
-            else
-                value = "Female";
+            value = sexValue(subjectBean.getGender());
         } else if (param.startsWith(prefix)) {
             String gcName = param.substring(21, param.indexOf("\"]"));
             StudyGroupBean sgBean = sgdao.findSubjectStudyGroup(ssBean.getId(), gcName);
@@ -203,6 +211,19 @@ public class RandomizeService extends RandomizationRegistrar {
                 value = sgBean.getName();
         }
         return value;
+    }
+
+    private String unresolvedFactor(String expression) {
+        logger.warn("Stratification factor item not found for expression {}", expression);
+        return "";
+    }
+
+    static String birthDateValue(Date dateOfBirth) {
+        return dateOfBirth == null ? "" : dateOfBirth.toString();
+    }
+
+    static String sexValue(char gender) {
+        return gender == 'm' ? "Male" : gender == 'f' ? "Female" : "";
     }
 
     // Modified: return JsonNode instead of JSONObject
