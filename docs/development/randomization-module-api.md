@@ -95,7 +95,11 @@ Auth: Basic. Content type: `application/x-www-form-urlencoded`.
 | `identifier` | Study-subject OID |
 | `siteIdentifier` | Study OID |
 | `user` | Username of the operator who triggered the action |
-| `question1` … `questionN` | Allocation factors, in the order the rule defines them |
+| `question1` … `questionN` | Allocation factors, in the order of the rule's `StratificationFactor` elements when the rule was imported. No `questionN` parameter is sent when the rule has no factors. |
+
+The factor order is the order in which the factors were stored when the rule
+was imported. Re-importing a rule that differs only in the order of its factors
+is treated as the same rule and does not change the order.
 
 Allocation factors are resolved as follows: a factor expression starting with
 `SS.` is taken from subject attributes (`SS.SEX` → `Male`/`Female`,
