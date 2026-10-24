@@ -47,6 +47,7 @@ import org.akaza.openclinica.controller.helper.SdvFilterDataBean;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
 import org.akaza.openclinica.view.StudyInfoPanel;
+import org.akaza.openclinica.lctable.HtmxResponseSupport;
 import org.akaza.openclinica.web.table.sdv.EventCRFSDVTable;
 import org.akaza.openclinica.web.table.sdv.SDVUtil;
 import org.akaza.openclinica.web.table.sdv.SubjectAggregateSDVTable;
@@ -191,10 +192,7 @@ public class SDVController {
                 new StudyDAO(dataSource), new StudyGroupDAO(dataSource), new StudyEventDAO(dataSource),
                 new EventDefinitionCRFDAO(dataSource), new CRFDAO(dataSource), studyId,
                 LocaleResolver.getLocale(request)).render(request);
-            response.addHeader("Vary", "HX-Request");
-            if (request.getHeader("HX-Request") != null) {
-                response.setContentType("text/html;charset=UTF-8");
-                response.getWriter().write(sdvMatrix);
+            if (HtmxResponseSupport.writeFragmentIfRequested(request, response, sdvMatrix)) {
                 return null;
             }
         }
@@ -296,10 +294,7 @@ public class SDVController {
                 new StudyEventDAO(dataSource), new StudyEventDefinitionDAO(dataSource), new SubjectDAO(dataSource),
                 new StudyDAO(dataSource), new EventDefinitionCRFDAO(dataSource), new CRFVersionDAO(dataSource),
                 new CRFDAO(dataSource), studyId, LocaleResolver.getLocale(request)).render(request);
-            response.addHeader("Vary", "HX-Request");
-            if (request.getHeader("HX-Request") != null) {
-                response.setContentType("text/html;charset=UTF-8");
-                response.getWriter().write(sdvMatrix);
+            if (HtmxResponseSupport.writeFragmentIfRequested(request, response, sdvMatrix)) {
                 return null;
             }
         }

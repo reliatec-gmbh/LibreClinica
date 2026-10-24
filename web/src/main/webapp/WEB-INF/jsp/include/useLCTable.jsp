@@ -22,6 +22,7 @@ if (!document.querySelector('meta[name="htmx-config"]'))
 <!-- Small LCTable client-side helpers, currently:
          - viewport-edge-aware popup positioning
          - custom tooltips for icon-only action links
+         - applied-filter normalization of new and restored HTMX history snapshots
          - stripping of empty-value request parameters from LCTable-issued HTMX requests -->
 <script src="${pageContext.request.contextPath}/includes/lctable/lctable.js"></script>
 

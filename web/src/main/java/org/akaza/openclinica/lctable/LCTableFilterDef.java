@@ -15,8 +15,10 @@ import static org.akaza.openclinica.lctable.LCTableUtil.*;
 import org.xmlet.htmlapifaster.Element;
 import org.xmlet.htmlapifaster.EnumTypeInputType;
 import org.xmlet.htmlapifaster.Tr;
+import org.springframework.web.util.HtmlUtils;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -24,10 +26,27 @@ import java.util.function.Function;
 public abstract class LCTableFilterDef {
     protected LCTableFilterDef() {}
 
+    /** Supported client validators with explicit, stable JavaScript registry keys. */
+    public enum ClientValidator {
+        PARTIAL_TIMESTAMP("partial-timestamp");
+
+        public final String key;
+
+        ClientValidator(String key) {
+            this.key = key;
+        }
+    }
+
     /*** Factory methods for creating a text filter definition. */
     public static Text textFilter() { return new Text(); }
     public static Text textFilter(String pattern) { return new Text(pattern, null); }
     public static Text textFilter(String pattern, LCTableText message) { return new Text(pattern, message); }
+    public static Text textFilter(String pattern, LCTableText message, ClientValidator validator) {
+        return new Text(pattern, message, validator);
+    }
+
+    /** Timestamp partial-date filter validated by the delegated JavaScript validator, without an HTML pattern. */
+    public static Text timestampFilter() { return textFilter(null, TIMESTAMP_FILTER_MESSAGE, ClientValidator.PARTIAL_TIMESTAMP); }
 
     /*** Factory methods for creating a select filter definition. */
     public static <T> Select<T> selectFilter(List<T> values, Function<T, String> valueToString) {
@@ -46,15 +65,21 @@ public abstract class LCTableFilterDef {
     public static final class Text extends LCTableFilterDef {
         public final String pattern;   // Regex pattern for HTML5 validation
         public final LCTableText message;   // Tooltip message displaying requested format
+        public final ClientValidator validator;   // Optional delegated client validation
 
         public Text() {
-            this.pattern = null;
-            this.message = null;
+            this(null, null);
         }
 
         public Text(String pattern, LCTableText message) {
+            this(pattern, message, null);
+        }
+
+        public Text(String pattern, LCTableText message, ClientValidator validator) {
             this.pattern = pattern;
-            this.message = message;
+            this.message = validator == null ? message
+                : Objects.requireNonNull(message, "message is required for a configured validator");
+            this.validator = validator;
         }
 
         @Override
@@ -77,12 +102,19 @@ public abstract class LCTableFilterDef {
                     .attrSize(1L)
                     .attrId(table.tableName + "-text-filter-" + col.columnName);
 
-                // If a pattern is provided, add HTML5 validation and HTMX event filter
+                // Native pattern and custom validation are independent; their shared title is emitted once.
                 if (this.pattern != null) {
                     input.attrPattern(this.pattern);
-                    if (this.message != null) {
-                        input.attrTitle(this.message.resolve(ctx.words, ctx.locale));
+                }
+                if (this.message != null && (this.pattern != null || this.validator != null)) {
+                    String validationMessage = HtmlUtils.htmlEscape(this.message.resolve(ctx.words, ctx.locale));
+                    if (this.validator != null) {
+                        input.addAttr("data-lctable-validator", this.validator.key);
+                        input.addAttr("data-lctable-validation-message", validationMessage);
                     }
+                    input.attrTitle(validationMessage);
+                }
+                if (this.pattern != null || this.validator != null) {
                     // Cancel the debounced request if the value is no longer valid by the time it actually fires.
                     input.addAttr("hx-on:htmx:before-request", "if(!this.validity.valid){event.preventDefault();}");
                 }

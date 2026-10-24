@@ -221,7 +221,15 @@
 <span class="title_Manage" style="font-weight: bold;"><fmt:message key="rule_rules" bundle="${resword}"/></span>
 <div>&nbsp;</div>
 <div class="homebox_bullets"><a href="RunRule?crfId=<c:out value="${crf.id}"/>&action=dryRun"><fmt:message key="rule_crf_run_all" bundle="${resword}"/></a></div><br/>
-<div class="homebox_bullets"><a href="ViewRuleAssignment?ruleAssignments_f_crfName=<c:out value="${crfName}"/>"><fmt:message key="rule_crf_view_rules_for_this_crf" bundle="${resword}"/></a></div><br/>
+<c:choose>
+    <c:when test="${tableRenderingMode == 'jmesa'}">
+        <c:url var="ruleAssignmentsCrfUrl" value="ViewRuleAssignment"><c:param name="ruleAssignments_f_crfName" value="${crfName}"/></c:url>
+    </c:when>
+    <c:otherwise>
+        <c:url var="ruleAssignmentsCrfUrl" value="ViewRuleAssignment"><c:param name="q.crfName" value="${crfName}"/></c:url>
+    </c:otherwise>
+</c:choose>
+<div class="homebox_bullets"><a href="<c:out value="${ruleAssignmentsCrfUrl}"/>"><fmt:message key="rule_crf_view_rules_for_this_crf" bundle="${resword}"/></a></div><br/>
 <br/>
 <input type="button" onclick="confirmExit('ListCRF?module=<c:out value="${module}"/>');"  name="exit" value="<fmt:message key="exit" bundle="${resword}"/>   " class="button_medium"/>
 

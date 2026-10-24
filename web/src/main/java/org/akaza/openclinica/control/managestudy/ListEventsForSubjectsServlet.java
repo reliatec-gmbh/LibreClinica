@@ -30,6 +30,7 @@ import org.akaza.openclinica.dao.submit.SubjectGroupMapDAO;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
+import org.akaza.openclinica.lctable.HtmxResponseSupport;
 
 import java.util.Locale;
 
@@ -147,25 +148,20 @@ public class ListEventsForSubjectsServlet extends SecureController {
                 getEventDefinitionCRFDAO(), getCrfDAO(), getCRFVersionDAO(), currentStudy, currentRole, ub, selectedStudyEventDefinition, locale,
                 request.getContextPath());
             String listEventsForSubjectsHtml = table.render(request);
-            // HTMX partial handling
-            response.addHeader("Vary", "HX-Request");
-            String hxReq = request.getHeader("HX-Request");
-            if (hxReq != null) {
-                // HTMX request: only return the table HTML fragment
-                try {
-                    response.setContentType("text/html;charset=UTF-8");
-                    response.getWriter().write(listEventsForSubjectsHtml);
+            try {
+                if (HtmxResponseSupport.writeFragmentIfRequested(request, response, listEventsForSubjectsHtml)) {
                     response.getWriter().flush();
-                } catch (java.io.IOException e) {
-                    logger.error("Error writing listEventsForSubjects HTMX partial response: ", e);
+                } else {
+                    // Non-HTMX request: embed into JSP and forward
+                    request.setAttribute("listEventsForSubjectsHtml", listEventsForSubjectsHtml);
+                    forwardPage(Page.LIST_EVENTS_FOR_SUBJECTS);
                 }
-            } else {
-                // Non-HTMX request: embed into JSP and forward
-                request.setAttribute("listEventsForSubjectsHtml", listEventsForSubjectsHtml);
-                forwardPage(Page.LIST_EVENTS_FOR_SUBJECTS);
+                // HTMX request handling complete
+            } catch (java.io.IOException e) {
+                logger.error("Error writing listEventsForSubjects HTMX partial response: ", e);
+                // note: exception must have occurred in HTMX branch, as forwardPage handles its own exceptions internally
             }
         }
-
     }
 
     public StudyEventDefinitionDAO getStudyEventDefinitionDao() {

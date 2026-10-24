@@ -17,6 +17,7 @@ import org.akaza.openclinica.dao.hibernate.AuditUserLoginDao;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
+import org.akaza.openclinica.lctable.HtmxResponseSupport;
 
 import javax.servlet.ServletException;
 
@@ -74,12 +75,8 @@ public class AuditUserActivityServlet extends SecureController {
             request.setAttribute("tableRenderingMode", "htmlflow");
             String auditUserLoginHtml = auditUserLoginTable.render(request);
             // HTMX partial handling
-            response.addHeader("Vary", "HX-Request");
-            String hxReq = request.getHeader("HX-Request");
-            if (hxReq != null) {
+            if (HtmxResponseSupport.writeFragmentIfRequested(request, response, auditUserLoginHtml)) {
                 // HTMX request: only return the table HTML fragment
-                response.setContentType("text/html;charset=UTF-8");
-                response.getWriter().write(auditUserLoginHtml);
                 response.getWriter().flush();
             } else {
                 // Non-HTMX request: embed into JSP and forward

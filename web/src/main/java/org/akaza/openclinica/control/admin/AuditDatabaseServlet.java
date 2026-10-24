@@ -11,10 +11,8 @@ package org.akaza.openclinica.control.admin;
 
 import static org.jmesa.facade.TableFacadeFactory.createTableFacade;
 import static org.akaza.openclinica.lctable.LCTableColumnDef.textCol;
-import static org.akaza.openclinica.lctable.LCTableFilterDef.textFilter;
+import static org.akaza.openclinica.lctable.LCTableFilterDef.timestampFilter;
 import static org.akaza.openclinica.lctable.LCTableText.key;
-import static org.akaza.openclinica.lctable.LCTableUtil.TIMESTAMP_FILTER_FOR_HTML_VALIDATION;
-import static org.akaza.openclinica.lctable.LCTableUtil.TIMESTAMP_FILTER_MESSAGE;
 
 import java.util.List;
 import java.util.Locale;
@@ -32,6 +30,7 @@ import org.akaza.openclinica.lctable.LCTableToolbarControls;
 import org.akaza.openclinica.lctable.LCTableUtil;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
+import org.akaza.openclinica.lctable.HtmxResponseSupport;
 import org.jmesa.facade.TableFacade;
 import org.jmesa.view.editor.DateCellEditor;
 import org.jmesa.view.html.component.HtmlColumn;
@@ -81,10 +80,7 @@ public class AuditDatabaseServlet extends SecureController {
         } else {
             request.setAttribute("tableRenderingMode", "htmlflow");
             String auditDatabaseHtml = renderAuditDatabaseLCTable(databaseChangeLogs);
-            response.addHeader("Vary", "HX-Request");
-            if (request.getHeader("HX-Request") != null) {
-                response.setContentType("text/html;charset=UTF-8");
-                response.getWriter().write(auditDatabaseHtml);
+            if (HtmxResponseSupport.writeFragmentIfRequested(request, response, auditDatabaseHtml)) {
                 response.getWriter().flush();
             } else {
                 request.setAttribute("auditDatabaseHtml", auditDatabaseHtml);
@@ -100,7 +96,7 @@ public class AuditDatabaseServlet extends SecureController {
             textCol("author",       key("author"),        "author",        0, DatabaseChangeLogBean::getAuthor),
             textCol("fileName",     key("file_name"),     "file-name",     0, DatabaseChangeLogBean::getFileName),
             textCol("dataExecuted", key("date_executed"), "date-executed", 0,
-                textFilter(TIMESTAMP_FILTER_FOR_HTML_VALIDATION, TIMESTAMP_FILTER_MESSAGE),
+                timestampFilter(),
                 DatabaseChangeLogBean::getDataExecuted, LCTableUtil::timestampToString),
             textCol("md5Sum",       key("md5_sum"),       "md5-sum",       0, DatabaseChangeLogBean::getMd5Sum),
             textCol("description",  key("description"),   "description",   0, DatabaseChangeLogBean::getDescription),

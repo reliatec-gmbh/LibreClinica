@@ -46,6 +46,7 @@ import org.akaza.openclinica.service.DiscrepancyNotesSummary;
 import org.akaza.openclinica.service.managestudy.ViewNotesService;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
+import org.akaza.openclinica.lctable.HtmxResponseSupport;
 import org.jmesa.facade.TableFacade;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 /**
@@ -252,12 +253,8 @@ public class ViewNotesServlet extends SecureController {
                 forwardPage(Page.VIEW_DISCREPANCY_NOTES_IN_STUDY_PRINT);
             } else {
                 // HTMX partial handling
-                response.addHeader("Vary", "HX-Request");
-                String hxReq = request.getHeader("HX-Request");
-                if (hxReq != null) {
+                if (HtmxResponseSupport.writeFragmentIfRequested(request, response, viewNotesHtml)) {
                     // HTMX request: only return the table HTML fragment
-                    response.setContentType("text/html;charset=UTF-8");
-                    response.getWriter().write(viewNotesHtml);
                     response.getWriter().flush();
                 } else {
                     // Non-HTMX request: embed into JSP and forward

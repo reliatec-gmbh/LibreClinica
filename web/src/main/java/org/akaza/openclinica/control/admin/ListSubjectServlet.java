@@ -5,7 +5,7 @@
  * For details see: https://libreclinica.org/license
  * copyright (C) 2003 - 2011 Akaza Research
  * copyright (C) 2003 - 2019 OpenClinica
- * copyright (C) 2020 - 2024 LibreClinica
+ * copyright (C) 2020 - 2026 LibreClinica
  */
 package org.akaza.openclinica.control.admin;
 
@@ -17,6 +17,7 @@ import org.akaza.openclinica.dao.submit.SubjectDAO;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
+import org.akaza.openclinica.lctable.HtmxResponseSupport;
 
 import java.util.Locale;
 
@@ -74,10 +75,7 @@ public class ListSubjectServlet extends SecureController {
                 sdao, subdao, uadao, studyDao, currentStudy, LocaleResolver.getLocale(request));
             String listSubjectsHtml = table.render(request);
 
-            response.addHeader("Vary", "HX-Request");
-            if (request.getHeader("HX-Request") != null) {
-                response.setContentType("text/html;charset=UTF-8");
-                response.getWriter().write(listSubjectsHtml);
+            if (HtmxResponseSupport.writeFragmentIfRequested(request, response, listSubjectsHtml)) {
                 response.getWriter().flush();
             } else {
                 request.setAttribute("listSubjectsHtml", listSubjectsHtml);

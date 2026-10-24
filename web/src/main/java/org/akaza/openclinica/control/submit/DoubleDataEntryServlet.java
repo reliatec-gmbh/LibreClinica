@@ -5,7 +5,7 @@
  * For details see: https://libreclinica.org/license
  * copyright (C) 2003 - 2011 Akaza Research
  * copyright (C) 2003 - 2019 OpenClinica
- * copyright (C) 2020 - 2024 LibreClinica
+ * copyright (C) 2020 - 2026 LibreClinica
  */
 package org.akaza.openclinica.control.submit;
 
@@ -23,6 +23,7 @@ import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.managestudy.EventDefinitionCRFBean;
 import org.akaza.openclinica.bean.submit.DisplayItemBean;
 import org.akaza.openclinica.bean.submit.DisplayItemGroupBean;
+import org.akaza.openclinica.bean.submit.DisplayTableOfContentsBean;
 import org.akaza.openclinica.bean.submit.EventCRFBean;
 import org.akaza.openclinica.bean.submit.ItemDataBean;
 import org.akaza.openclinica.bean.submit.ResponseOptionBean;
@@ -74,6 +75,19 @@ public class DoubleDataEntryServlet extends DataEntryServlet {
         locale = LocaleResolver.getLocale(request);
 
         getInputBeans(request);
+
+        // Double data entry is only valid between initial completion and final completion.
+        // Without this check DoubleDataEntry?eventCRFId=N saved changes to a completed CRF
+        // and bypassed the Reason for Change required by administrative editing.
+        // The table of contents already maps the CRF stage to the servlet that may handle it.
+        DisplayTableOfContentsBean displayBean = (DisplayTableOfContentsBean) request.getAttribute(TOC_DISPLAY);
+        if (!displayBean.getActionServlet().equals("DoubleDataEntry")) {
+            session.setAttribute("mayProcessUploading", "false");
+            addPageMessage(respage.getString("not_perform_validation"), request);
+            throw new InsufficientPermissionException(Page.LIST_STUDY_SUBJECTS_SERVLET,
+                resexception.getString("using_double_data_entry_CRF_completed"), "1");
+        }
+
         EventCRFBean ecb = (EventCRFBean)request.getAttribute(INPUT_EVENT_CRF);
         FormProcessor fp = new FormProcessor(request);
         SectionBean sb = (SectionBean)request.getAttribute(SECTION_BEAN);

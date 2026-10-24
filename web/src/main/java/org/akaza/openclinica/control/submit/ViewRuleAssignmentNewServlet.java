@@ -5,7 +5,7 @@
  * For details see: https://libreclinica.org/license
  * copyright (C) 2003 - 2011 Akaza Research
  * copyright (C) 2003 - 2019 OpenClinica
- * copyright (C) 2020 - 2024 LibreClinica
+ * copyright (C) 2020 - 2026 LibreClinica
  */
 package org.akaza.openclinica.control.submit;
 
@@ -36,6 +36,7 @@ import org.akaza.openclinica.service.rule.RuleSetServiceInterface;
 import org.akaza.openclinica.service.rule.RulesPostImportContainerService;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
+import org.akaza.openclinica.lctable.HtmxResponseSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,6 +61,10 @@ public class ViewRuleAssignmentNewServlet extends SecureController {
 
     @Override
     public void processRequest() throws Exception {
+        if (request.getParameter(ViewRuleAssignmentsTable.EXPORT_PARAM) != null) {
+            new ViewRuleAssignmentsTable(getRuleSetService(), getItemFormMetadataDAO(), currentStudy, locale).export(request, response);
+            return;
+        }
         FormProcessor fp = new FormProcessor(request);
         if (fp.getString("designer").equals("")) {
             isDesigner = false;
@@ -71,8 +76,20 @@ public class ViewRuleAssignmentNewServlet extends SecureController {
         } else {
             showMoreLink = Boolean.parseBoolean(fp.getString("showMoreLink"));
         }
-        createTable();
-
+        if ("jmesa".equalsIgnoreCase(System.getenv("LC_TABLE_RENDERING"))) {
+            request.setAttribute("tableRenderingMode", "jmesa");
+            createTable();
+        } else {
+            request.setAttribute("tableRenderingMode", "htmlflow");
+            String html = new ViewRuleAssignmentsTable(getRuleSetService(), getItemFormMetadataDAO(), currentStudy, locale).render(request);
+            if (HtmxResponseSupport.writeFragmentIfRequested(request, response, html)) {
+                response.getWriter().flush();
+            } else {
+                request.setAttribute("ruleAssignmentsHtml", html);
+                createStudyEventForInfoPanel();
+                forwardPage(Page.VIEW_RULE_SETS2);
+            }
+        }
     }
 
     private void createStudyEventForInfoPanel() {
