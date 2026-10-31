@@ -23,6 +23,10 @@
  *   - org.json.JSONObject replaced with
  *     com.fasterxml.jackson.databind.JsonNode / ObjectMapper
  *     (spring-security-oauth2 1.x JSON removed in Spring 5 environment).
+ *   - SS.BIRTHDATE: send only the year when the (parent) study collects the
+ *     year of birth only (study parameter collectDob = 2). LibreClinica stores
+ *     1 January of that year, which was sent as if it were the real date of
+ *     birth; date: 2026-10-26.
  *
  * License selection:
  *   The OpenClinica original was licensed under LGPL v2.1 or later.
@@ -33,9 +37,11 @@
 package org.akaza.openclinica.service;
 
 import java.nio.charset.Charset;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import javax.sql.DataSource;
@@ -57,6 +63,7 @@ import org.akaza.openclinica.dao.managestudy.StudyEventDAO;
 import org.akaza.openclinica.dao.managestudy.StudyGroupClassDAO;
 import org.akaza.openclinica.dao.managestudy.StudyGroupDAO;
 import org.akaza.openclinica.dao.managestudy.StudySubjectDAO;
+import org.akaza.openclinica.dao.service.StudyParameterValueDAO;
 import org.akaza.openclinica.dao.submit.EventCRFDAO;
 import org.akaza.openclinica.dao.submit.ItemDAO;
 import org.akaza.openclinica.dao.submit.ItemDataDAO;
@@ -201,7 +208,7 @@ public class RandomizeService extends RandomizationRegistrar {
         // A blank registry value must reach the module as blank, so the module can refuse it: a subject saved
         // without gender (SubjectDAO maps it to ' ') used to arrive as "Female", one without a date of birth as an NPE.
         if (param.equalsIgnoreCase("BIRTHDATE")) {
-            value = birthDateValue(subjectBean.getDateOfBirth());
+            value = birthDateValue(subjectBean.getDateOfBirth(), isYearOfBirthOnly(ssBean, sdao));
         } else if (param.equalsIgnoreCase("SEX")) {
             value = sexValue(subjectBean.getGender());
         } else if (param.startsWith(prefix)) {
@@ -218,8 +225,21 @@ public class RandomizeService extends RandomizationRegistrar {
         return "";
     }
 
-    static String birthDateValue(Date dateOfBirth) {
-        return dateOfBirth == null ? "" : dateOfBirth.toString();
+    // collectDob = 2: Add Subject and the subject web service store 1 January of the year entered, which is not a
+    // date of birth. Decided by the study parameter, not subject.dobCollected (the web service sets it to true for a
+    // year of birth as well); a site uses its parent's value, as on Add Subject and in the ODM export (OdmExtractDAO).
+    boolean isYearOfBirthOnly(StudySubjectBean ssBean, StudyDAO studyDao) {
+        StudyBean study = (StudyBean) studyDao.findByPK(ssBean.getStudyId());
+        int parentStudyId = study.getParentStudyId() > 0 ? study.getParentStudyId() : study.getId();
+        return "2".equals(getStudyParameterValueDAO().findByHandleAndStudy(parentStudyId, "collectDob").getValue());
+    }
+
+    static String birthDateValue(Date dateOfBirth, boolean yearOfBirthOnly) {
+        if (dateOfBirth == null)
+            return "";
+        // Locale.ROOT: the Gregorian year in ASCII digits whatever the server locale (a Thai locale would give 2523);
+        // a full date stays yyyy-MM-dd (SubjectDAO reads a java.sql.Date)
+        return yearOfBirthOnly ? new SimpleDateFormat("yyyy", Locale.ROOT).format(dateOfBirth) : dateOfBirth.toString();
     }
 
     static String sexValue(char gender) {
@@ -330,6 +350,10 @@ public class RandomizeService extends RandomizationRegistrar {
 
     public void setItemDataDAO(ItemDataDAO itemDataDAO) {
         this.itemDataDAO = itemDataDAO;
+    }
+
+    StudyParameterValueDAO getStudyParameterValueDAO() {
+        return new StudyParameterValueDAO(ds);
     }
 
     private StudyBean getStudy(String oid) {

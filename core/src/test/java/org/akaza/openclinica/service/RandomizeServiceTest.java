@@ -20,11 +20,17 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Field;
-import java.util.Date;
+import java.sql.Date;
+import java.util.Locale;
 
+import org.akaza.openclinica.bean.managestudy.StudyBean;
+import org.akaza.openclinica.bean.managestudy.StudySubjectBean;
+import org.akaza.openclinica.bean.service.StudyParameterValueBean;
 import org.akaza.openclinica.bean.submit.EventCRFBean;
 import org.akaza.openclinica.bean.submit.ItemBean;
 import org.akaza.openclinica.bean.submit.ItemDataBean;
+import org.akaza.openclinica.dao.managestudy.StudyDAO;
+import org.akaza.openclinica.dao.service.StudyParameterValueDAO;
 import org.akaza.openclinica.dao.submit.ItemDataDAO;
 import org.akaza.openclinica.domain.rule.RuleSetBean;
 import org.akaza.openclinica.domain.rule.expression.ExpressionBean;
@@ -49,6 +55,10 @@ public class RandomizeServiceTest {
     private ExpressionService expressionService;
     @Mock
     private ItemDataDAO itemDataDAO;
+    @Mock
+    private StudyDAO studyDao;
+    @Mock
+    private StudyParameterValueDAO studyParameterValueDAO;
     private RandomizeService service;
     private EventCRFBean eventCrf;
     private RuleSetBean ruleSet;
@@ -63,6 +73,7 @@ public class RandomizeServiceTest {
         logger.set(service, LoggerFactory.getLogger(RandomizeService.class));
         doReturn(expressionService).when(service).getExpressionService();
         doReturn(itemDataDAO).when(service).getItemDataDAO();
+        doReturn(studyParameterValueDAO).when(service).getStudyParameterValueDAO();
 
         eventCrf = new EventCRFBean();
         eventCrf.setId(7);
@@ -87,13 +98,63 @@ public class RandomizeServiceTest {
 
     @Test
     public void testBirthDateValue_Missing() {
-        assertThat(RandomizeService.birthDateValue(null), is(""));
+        assertThat(RandomizeService.birthDateValue(null, false), is(""));
+        assertThat(RandomizeService.birthDateValue(null, true), is(""));
     }
 
     @Test
     public void testBirthDateValue_Present() {
-        Date dob = new Date(0);
-        assertThat(RandomizeService.birthDateValue(dob), is(dob.toString()));
+        // SubjectDAO reads the column with rs.getDate(), so the value is a java.sql.Date
+        assertThat(RandomizeService.birthDateValue(Date.valueOf("1980-05-12"), false), is("1980-05-12"));
+        assertThat(RandomizeService.birthDateValue(Date.valueOf("1980-01-01"), false), is("1980-01-01"));
+    }
+
+    @Test
+    public void testBirthDateValue_YearOfBirthOnly() {
+        // collectDob = 2 stores 1 January of the year entered; 31 December checks that the year does not shift
+        assertThat(RandomizeService.birthDateValue(Date.valueOf("1980-01-01"), true), is("1980"));
+        assertThat(RandomizeService.birthDateValue(Date.valueOf("1979-12-31"), true), is("1979"));
+    }
+
+    @Test
+    public void testBirthDateValue_YearOfBirthOnly_ServerLocale() {
+        // the Thai, Japanese imperial and Saudi locales format "yyyy" as 2523, 55 and (from Java 9) Arabic-Indic digits by default
+        Locale saved = Locale.getDefault();
+        try {
+            for (Locale locale : new Locale[] { new Locale("th", "TH"), new Locale("ja", "JP", "JP"), new Locale("ar", "SA") }) {
+                Locale.setDefault(locale);
+                assertThat(locale.toString(), RandomizeService.birthDateValue(Date.valueOf("1980-01-01"), true), is("1980"));
+            }
+        } finally {
+            Locale.setDefault(saved);
+        }
+    }
+
+    @Test
+    public void testIsYearOfBirthOnly_StudySubject() {
+        mockStudy(10, 0);
+        mockCollectDob(10, "2");
+
+        assertThat(service.isYearOfBirthOnly(subjectIn(10), studyDao), is(true));
+    }
+
+    @Test
+    public void testIsYearOfBirthOnly_SiteSubjectUsesParent() {
+        mockStudy(11, 10);
+        mockCollectDob(10, "2");
+
+        assertThat(service.isYearOfBirthOnly(subjectIn(11), studyDao), is(true));
+        verify(studyParameterValueDAO, never()).findByHandleAndStudy(11, "collectDob");
+    }
+
+    @Test
+    public void testIsYearOfBirthOnly_OtherValues() {
+        // 1 = full date, 3 = not used, "" = no parameter row (findByHandleAndStudy returns an empty bean)
+        mockStudy(10, 0);
+        for (String value : new String[] { "1", "3", "" }) {
+            mockCollectDob(10, value);
+            assertThat(value, service.isYearOfBirthOnly(subjectIn(10), studyDao), is(false));
+        }
     }
 
     @Test
@@ -160,6 +221,25 @@ public class RandomizeServiceTest {
         when(itemDataDAO.findByItemIdAndEventCRFIdAndOrdinal(42, 7, 1)).thenReturn(itemData);
 
         assertThat(service.getExpressionValue("I_FACTOR", eventCrf, ruleSet), is("1"));
+    }
+
+    private void mockStudy(int id, int parentStudyId) {
+        StudyBean study = new StudyBean();
+        study.setId(id);
+        study.setParentStudyId(parentStudyId);
+        when(studyDao.findByPK(id)).thenReturn(study);
+    }
+
+    private void mockCollectDob(int studyId, String value) {
+        StudyParameterValueBean collectDob = new StudyParameterValueBean();
+        collectDob.setValue(value);
+        when(studyParameterValueDAO.findByHandleAndStudy(studyId, "collectDob")).thenReturn(collectDob);
+    }
+
+    private static StudySubjectBean subjectIn(int studyId) {
+        StudySubjectBean studySubject = new StudySubjectBean();
+        studySubject.setStudyId(studyId);
+        return studySubject;
     }
 
     private void mockResolvedItem() {

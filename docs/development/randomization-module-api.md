@@ -108,6 +108,11 @@ resolved from the corresponding eCRF item value. The response must be a JSON
 object containing the allocation `code`, which LibreClinica writes back into
 the designated CRF item.
 
+`SS.BIRTHDATE` is sent as `yyyy-MM-dd`, or empty when the subject has no date of
+birth. When the study (for a site, its parent study) collects the year of birth
+only (study parameter `collectDob` = 2), only the year is sent (`yyyy`):
+LibreClinica stores 1 January of that year, which is not a date of birth.
+
 ## Activation gate
 
 A `RANDOMIZE` rule action runs the randomisation calls only when **all** of the
