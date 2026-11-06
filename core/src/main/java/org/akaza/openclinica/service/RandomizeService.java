@@ -27,6 +27,9 @@
  *     year of birth only (study parameter collectDob = 2). LibreClinica stores
  *     1 January of that year, which was sent as if it were the real date of
  *     birth; date: 2026-10-26.
+ *   - Basic authentication header encoded with java.util.Base64 instead of
+ *     commons-codec, which was removed from the core module's dependencies
+ *     (45d546161); date: 2026-11-06.
  *
  * License selection:
  *   The OpenClinica original was licensed under LGPL v2.1 or later.
@@ -39,6 +42,7 @@ package org.akaza.openclinica.service;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -77,7 +81,6 @@ import org.akaza.openclinica.domain.rule.action.StratificationFactorBean;
 import org.akaza.openclinica.service.pmanage.RandomizationRegistrar;
 import org.akaza.openclinica.service.pmanage.SeRandomizationDTO;
 import org.akaza.openclinica.service.rule.expression.ExpressionService;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -329,8 +332,7 @@ public class RandomizeService extends RandomizationRegistrar {
         return new HttpHeaders() {
             {
                 String auth = username + ":" + password;
-                byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(Charset.forName("US-ASCII")));
-                String authHeader = "Basic " + new String(encodedAuth);
+                String authHeader = "Basic " + Base64.getEncoder().encodeToString(auth.getBytes(Charset.forName("US-ASCII")));
                 set("Authorization", authHeader);
             }
         };
