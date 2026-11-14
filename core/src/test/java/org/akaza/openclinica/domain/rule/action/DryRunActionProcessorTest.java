@@ -3,7 +3,7 @@
  * GNU Lesser General Public License (GNU LGPL).
 
  * For details see: https://libreclinica.org/license
- * copyright (C) 2020 - 2024 LibreClinica
+ * copyright (C) 2026 LibreClinica
  */
 package org.akaza.openclinica.domain.rule.action;
 
