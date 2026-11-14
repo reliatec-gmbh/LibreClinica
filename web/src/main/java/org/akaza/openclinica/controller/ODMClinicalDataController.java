@@ -5,10 +5,9 @@
  * For details see: https://libreclinica.org/license
  * copyright (C) 2003 - 2011 Akaza Research
  * copyright (C) 2003 - 2019 OpenClinica
- * copyright (C) 2020 - 2024 LibreClinica
+ * copyright (C) 2020 - 2026 LibreClinica
  */
 package org.akaza.openclinica.controller;
-
 
 import java.util.Locale;
 
@@ -41,23 +40,26 @@ public class ODMClinicalDataController {
 	ODMClinicaDataResource odmClinicaDataResource;
 
 	@RequestMapping(value = "/json/view/{studyOID}/{studySubjectIdentifier}/{studyEventOID}/{formVersionOID}", method = RequestMethod.GET)
-	public @ResponseBody
-	JsonNode getClinicalData(
+	public @ResponseBody JsonNode getClinicalData(HttpServletRequest request,
 			@PathVariable("studyOID") String studyOID,
-			@PathVariable("formVersionOID") String formVersionOID,
-			@PathVariable("studyEventOID") String studyEventOID,
-			@PathVariable("studySubjectIdentifier") String studySubjectIdentifier,
+		  	@PathVariable("studySubjectIdentifier") String studySubjectIdentifier,
+		  	@PathVariable("studyEventOID") String studyEventOID,
+		  	@PathVariable("formVersionOID") String formVersionOID,
 			@RequestParam(value = "includeDNs", defaultValue = "n", required = false) String includeDns,
-			@RequestParam(value = "includeAudits", defaultValue = "n", required = false) String includeAudits,
-			HttpServletRequest request) throws Exception {
+			@RequestParam(value = "includeAudits", defaultValue = "n", required = false) String includeAudits) throws Exception {
 
 		ResourceBundleProvider.updateLocale(new Locale("en_US"));
-
-		String result = odmClinicaDataResource.getODMClinicaldata(
-				studyOID,formVersionOID,studyEventOID,studySubjectIdentifier,includeDns,includeAudits,request);
+		String result = odmClinicaDataResource.getODMClinicaldata(request,
+			studyOID,
+			studySubjectIdentifier,
+			studyEventOID,
+			formVersionOID,
+			includeDns,
+			includeAudits
+		);
 		ObjectMapper objectMapper = new ObjectMapper();
-		return objectMapper.readTree(result);
 
+		return objectMapper.readTree(result);
 	}
 
 }
