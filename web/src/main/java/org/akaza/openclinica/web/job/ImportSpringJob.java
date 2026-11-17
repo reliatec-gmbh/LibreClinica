@@ -5,7 +5,7 @@
  * For details see: https://libreclinica.org/license
  * copyright (C) 2003 - 2011 Akaza Research
  * copyright (C) 2003 - 2019 OpenClinica
- * copyright (C) 2020 - 2024 LibreClinica
+ * copyright (C) 2020 - 2026 LibreClinica
  */
 package org.akaza.openclinica.web.job;
 
@@ -473,7 +473,7 @@ public class ImportSpringJob extends QuartzJobBean {
                         msg.append(mf.format(arguments) + "<br/>");
                         auditMsg.append(mf.format(arguments) + "<br/>");
                         out.write(mf.format(arguments) + "<br/>");
-                        out.close();
+                        // keep the log open: permitted event CRFs of the same file are still imported
                         continue;
                     }
                 }
@@ -565,7 +565,6 @@ public class ImportSpringJob extends QuartzJobBean {
                 mf.applyPattern(respage.getString("problems_encountered_with_file"));
                 Object[] arguments = { f.getName(), msg.toString() };
                 msg = new StringBuffer(mf.format(arguments) + "<br/>");
-                out.close();
                 auditMsg.append("You can see the log file <a href='" + SQLInitServlet.getField("sysURL.base") + "ViewLogMessage?n=" + generalFileDir
                         + f.getName() + "&tn=" + triggerBean.getName() + "&gn=1'>here</a>.<br/>");
                 msg.append("You can see the log file <a href='" + SQLInitServlet.getField("sysURL.base") + "ViewLogMessage?n=" + generalFileDir + f.getName()
