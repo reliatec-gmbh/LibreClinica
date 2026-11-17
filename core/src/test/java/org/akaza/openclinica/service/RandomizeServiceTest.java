@@ -21,6 +21,7 @@ import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Field;
 import java.sql.Date;
+import java.util.Collections;
 import java.util.Locale;
 
 import org.akaza.openclinica.bean.managestudy.StudyBean;
@@ -221,6 +222,18 @@ public class RandomizeServiceTest {
         when(itemDataDAO.findByItemIdAndEventCRFIdAndOrdinal(42, 7, 1)).thenReturn(itemData);
 
         assertThat(service.getExpressionValue("I_FACTOR", eventCrf, ruleSet), is("1"));
+    }
+
+    @Test
+    public void testCreateHeaders_BasicAuthorization() {
+        // the example of RFC 7617 section 2, then one padding character and none, the '+' and '/' of the basic alphabet
+        // (not the URL-safe one), and a value longer than 76 characters without the line break of the MIME encoder (#503)
+        assertThat(service.createHeaders("Aladdin", "open sesame").getFirst("Authorization"), is("Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=="));
+        assertThat(service.createHeaders("us", "pa").getFirst("Authorization"), is("Basic dXM6cGE="));
+        assertThat(service.createHeaders("user", "pass").getFirst("Authorization"), is("Basic dXNlcjpwYXNz"));
+        assertThat(service.createHeaders("~~~", "???").getFirst("Authorization"), is("Basic fn5+Oj8/Pw=="));
+        assertThat(service.createHeaders("u", String.join("", Collections.nCopies(60, "p"))).getFirst("Authorization"),
+                is("Basic dTpwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHA="));
     }
 
     private void mockStudy(int id, int parentStudyId) {
