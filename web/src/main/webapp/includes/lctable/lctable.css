@@ -9,7 +9,7 @@
     display: inline-block;
     margin: 0px;
     vertical-align: top;
-    border: 1px solid #000; /* solid black border */
+    border: 1px solid #CCC; /* solid grey border */
     padding: 1px; /* small padding between border and table */
 }
 
@@ -24,7 +24,7 @@
 }
 
 .lctable .table {
-    /* remove inner silver border so the outer .lctable black border is visible
+    /* remove inner silver border so the outer .lctable grey border is visible
        padding on the wrapper (.lctable) provides the spacing between border and table
        Note: deliberately no "table-layout: fixed" here -- the default "auto" table layout is relied
        upon (together with the toolbar/header/action-column "no-wrap" rules below) to let the table grow
