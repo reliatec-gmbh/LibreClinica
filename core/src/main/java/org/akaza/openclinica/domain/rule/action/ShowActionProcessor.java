@@ -43,6 +43,10 @@ public class ShowActionProcessor implements ActionProcessor {
             }
         }
         case SAVE: {
+            // Batch and import runs leave a locked, signed or stopped event alone, like the import itself (#481).
+            if (ruleRunnerMode != RuleRunnerMode.DATA_ENTRY && getItemMetadataService().isInClosedStudyEvent(itemDataBean)) {
+                return null;
+            }
             if (ruleRunnerMode == RuleRunnerMode.DATA_ENTRY) {
                 return saveAndReturnMessage(ruleAction, itemDataBean, itemData, currentStudy, ub);
             }else  if (ruleRunnerMode == RuleRunnerMode.RUN_ON_SCHEDULE) {

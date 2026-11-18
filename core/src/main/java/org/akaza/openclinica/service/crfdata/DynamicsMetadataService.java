@@ -5,7 +5,7 @@
  * For details see: https://libreclinica.org/license
  * copyright (C) 2003 - 2011 Akaza Research
  * copyright (C) 2003 - 2019 OpenClinica
- * copyright (C) 2020 - 2024 LibreClinica
+ * copyright (C) 2020 - 2026 LibreClinica
  */
 package org.akaza.openclinica.service.crfdata;
 
@@ -17,6 +17,7 @@ import javax.sql.DataSource;
 import org.akaza.openclinica.bean.admin.CRFBean;
 import org.akaza.openclinica.bean.core.DataEntryStage;
 import org.akaza.openclinica.bean.core.Status;
+import org.akaza.openclinica.bean.core.SubjectEventStatus;
 import org.akaza.openclinica.bean.login.UserAccountBean;
 import org.akaza.openclinica.bean.managestudy.EventDefinitionCRFBean;
 import org.akaza.openclinica.bean.managestudy.StudyEventBean;
@@ -469,6 +470,21 @@ public class DynamicsMetadataService implements MetadataServiceInterface {
 
     public void insert(Integer itemDataId, List<PropertyBean> properties, UserAccountBean ub, RuleSetBean ruleSet,List<StratificationFactorBean> stratificationFactorBeans) {
         insert(itemDataId, properties, ub, ruleSet, null, stratificationFactorBeans);
+    }
+
+    /**
+     * True when the item's study event is closed for import ({@link SubjectEventStatus#isClosedForImport()}),
+     * the events ImportCRFDataService refuses to import into. Rules run in batch or on import leave such an event alone (#481). An Insert target is
+     * always looked up in the source item's event, so this one check covers the target too.
+     */
+    public boolean isInClosedStudyEvent(ItemDataBean itemDataBean) {
+        ItemDataBean stored = (ItemDataBean) getItemDataDAO().findByPK(itemDataBean.getId());
+        if (stored == null || stored.getEventCRFId() == 0) {
+            return false;
+        }
+        EventCRFBean eventCrf = getEventCRFDAO().findByPK(stored.getEventCRFId());
+        SubjectEventStatus status = getStudyEventDAO().findByPK(eventCrf.getStudyEventId()).getSubjectEventStatus();
+        return status != null && status.isClosedForImport();
     }
 
     private void insert(Integer itemDataId,
