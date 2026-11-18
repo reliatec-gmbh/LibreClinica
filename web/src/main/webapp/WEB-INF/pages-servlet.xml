@@ -77,9 +77,9 @@
     <mvc:interceptors>
         <mvc:interceptor>
             <mvc:mapping path="/accounts/**" />
+            <mvc:mapping path="/accounts*" />
             <mvc:mapping path="/auth/api/v1/createuseraccount/**" />
-            <!-- Do allow login via API for third parties that are using this endpoint -->
-            <mvc:exclude-mapping path="/accounts/login" />
+            <mvc:mapping path="/auth/api/v1/createuseraccount*" />
             <ref bean="adminApiIpInterceptor" />
         </mvc:interceptor>
     </mvc:interceptors>

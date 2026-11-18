@@ -5,7 +5,7 @@
  * For details see: https://libreclinica.org/license
  * copyright (C) 2003 - 2011 Akaza Research
  * copyright (C) 2003 - 2019 OpenClinica
- * copyright (C) 2020 - 2024 LibreClinica
+ * copyright (C) 2020 - 2026 LibreClinica
  */
 package org.akaza.openclinica.controller;
 
@@ -139,11 +139,10 @@ public class UserAccountController {
 		request.setAttribute("study_name", studyName);
 		request.setAttribute("role_name", roleName);
 
-		// UserAccountBean ownerUserAccount = getUserAccountByApiKey(apiKey);
 		UserAccountBean ownerUserAccount = (UserAccountBean) request.getSession().getAttribute("userBean");
-		if (!ownerUserAccount.isActive() && (!ownerUserAccount.isTechAdmin() || !ownerUserAccount.isSysAdmin())) {
+		if (!ownerUserAccount.isValidAdmin()) {
 			logger.info("The Owner User Account is not Valid Account or Does not have Admin user type");
-			System.out.println("The Owner User Account is not Valid Account or Does not have Admin user type");
+			//System.out.println("The Owner User Account is not Valid Account or Does not have Admin user type");
 			return new ResponseEntity<HashMap<String, Object>>(new HashMap<>(), org.springframework.http.HttpStatus.BAD_REQUEST);
 		}
 
