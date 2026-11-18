@@ -3,6 +3,9 @@ services:
     build: .
     ports:
       - "127.0.0.1:8080:8080"
+    volumes:
+      - libreclinica-data:/usr/local/tomcat/libreclinica.data
+      - libreclinica-logs:/usr/local/tomcat/logs
     depends_on:
       - db
     develop:
@@ -31,8 +34,18 @@ services:
       POSTGRES_PASSWORD: clinica
       POSTGRES_USER: clinica
       POSTGRES_DB: libreclinica
+    volumes:
+      - db-data:/var/lib/postgresql/data
 
   smtp:
     image: docker.io/marlonb/mailcrab:v1.1.0
     ports:
       - "127.0.0.1:1080:1080"
+
+# Named volumes keep the database, uploaded files and logs across
+# `docker compose down` / `up`. Note that `docker compose down -v`
+# removes them permanently.
+volumes:
+  db-data:
+  libreclinica-data:
+  libreclinica-logs:
