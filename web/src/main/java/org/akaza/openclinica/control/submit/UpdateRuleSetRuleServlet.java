@@ -63,8 +63,32 @@ public class UpdateRuleSetRuleServlet extends SecureController {
         String action = request.getParameter(ACTION);
         Status status = null;
         String pageMessage = "";
-        if (ruleSetRuleId != null) {
-            RuleSetRuleBean ruleSetRule = getRuleSetRuleDao().findById(Integer.valueOf(ruleSetRuleId));
+        if ((!"remove".equals(action) && !"restore".equals(action))
+                || (ruleSetRuleId == null && ruleSetId == null)
+                || (ruleSetRuleId == null && "restore".equals(action))) {
+            response.sendError(javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+        RuleAssignmentAccess access = new RuleAssignmentAccess(currentStudy);
+        RuleSetRuleBean ruleSetRule = null;
+        RuleSetBean rs = null;
+        try {
+            if (ruleSetRuleId != null) {
+                ruleSetRule = access.rule(ruleSetRuleId, id -> getRuleSetRuleDao().findById(id));
+                if (ruleSetId != null) {
+                    RuleSetBean requestedSet = access.ruleSet(ruleSetId, id -> getRuleSetDao().findById(id));
+                    if (!requestedSet.getId().equals(ruleSetRule.getRuleSetBean().getId())) {
+                        throw new IllegalArgumentException("Rule assignment and rule set do not match");
+                    }
+                }
+            } else if (ruleSetId != null) {
+                rs = access.ruleSet(ruleSetId, id -> getRuleSetDao().findById(id));
+            }
+        } catch (IllegalArgumentException | java.util.NoSuchElementException | org.springframework.security.access.AccessDeniedException e) {
+            RuleAssignmentAccess.sendFailure(response, e);
+            return;
+        }
+        if (ruleSetRule != null) {
             if (ruleSetRuleId != null && action.equals("remove")) {
                 status = Status.DELETED;
                 updateRuleSetRule(ruleSetRule, status);
@@ -76,8 +100,7 @@ public class UpdateRuleSetRuleServlet extends SecureController {
                 pageMessage = "view_rules_restore_confirmation";
             }
         }
-        if (ruleSetRuleId == null && ruleSetId != null && action.equals("remove")) {
-            RuleSetBean rs = getRuleSetDao().findById(Integer.valueOf(ruleSetId));
+        if (ruleSetRuleId == null && rs != null && action.equals("remove")) {
             for (RuleSetRuleBean theRuleSetRule : rs.getRuleSetRules()) {
                 if (theRuleSetRule.getStatus() != Status.DELETED) {
                     status = Status.DELETED;

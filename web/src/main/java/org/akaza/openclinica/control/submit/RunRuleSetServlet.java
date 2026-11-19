@@ -61,7 +61,18 @@ public class RunRuleSetServlet extends SecureController {
         String ruleId = request.getParameter(RULE_ID);
         String dryRun = request.getParameter("dryRun");
 
-        RuleSetBean ruleSetBean = getRuleSetBean(ruleSetId, ruleId);
+        if (ruleSetId == null) {
+            response.sendError(javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+
+        RuleSetBean ruleSetBean;
+        try {
+            ruleSetBean = getRuleSetBean(ruleSetId, ruleId);
+        } catch (IllegalArgumentException | java.util.NoSuchElementException | org.springframework.security.access.AccessDeniedException e) {
+            RuleAssignmentAccess.sendFailure(response, e);
+            return;
+        }
         if (ruleSetBean != null) {
             List<RuleSetBean> ruleSets = new ArrayList<RuleSetBean>();
             ruleSets.add(ruleSetBean);
@@ -92,15 +103,24 @@ public class RunRuleSetServlet extends SecureController {
 
     private RuleSetBean getRuleSetBean(String ruleSetId, String ruleId) {
         RuleSetBean ruleSetBean = null;
-        if (ruleId != null && ruleSetId != null && ruleId.length() > 0 && ruleSetId.length() > 0) {
-            ruleSetBean = getRuleSetService().getRuleSetById(currentStudy, ruleSetId);
-            ruleSetBean = ruleSetService.filterByRules(ruleSetBean, Integer.valueOf(ruleId));
-        } else if (ruleSetId != null && ruleSetId.length() > 0) {
-            // getRuleSetService().getRuleSetById(currentStudy, ruleSetId);
-            // ruleSetBean = getRuleSetService().getRuleSetById(currentStudy, ruleSetId, null);
-            ruleSetBean = getRuleSetService().getRuleSetById(currentStudy, ruleSetId);
+        if (ruleSetId != null) {
+            RuleAssignmentAccess access = new RuleAssignmentAccess(currentStudy);
+            ruleSetBean = access.ruleSet(ruleSetId, this::loadRuleSetForRun);
+            if (ruleId != null) {
+                // Verify the requested rule is in this set before filtering it.
+                RuleSetBean matchingSet = ruleSetBean;
+                access.rule(ruleId, id -> matchingSet.getRuleSetRules().stream()
+                    .filter(rsr -> rsr.getRuleBean() != null && rsr.getRuleBean().getId() != null
+                        && rsr.getRuleBean().getId().equals(id))
+                    .findFirst().orElse(null));
+                ruleSetBean = getRuleSetService().filterByRules(ruleSetBean, Integer.valueOf(ruleId));
+            }
         }
         return ruleSetBean;
+    }
+
+    RuleSetBean loadRuleSetForRun(int id) {
+        return getRuleSetService().getRuleSetById(currentStudy, String.valueOf(id));
     }
 
     @Override

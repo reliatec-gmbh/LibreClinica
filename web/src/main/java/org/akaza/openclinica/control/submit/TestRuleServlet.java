@@ -110,16 +110,26 @@ public class TestRuleServlet extends SecureController {
 
     @Override
     public void processRequest() throws Exception {
+        String requestedRuleId = request.getParameter("ruleSetRuleId");
+        RuleSetRuleBean requestedRule = null;
+        if (requestedRuleId != null) {
+            try {
+                requestedRule = new RuleAssignmentAccess(currentStudy).rule(requestedRuleId,
+                    id -> getRuleSetRuleDao().findById(id));
+            } catch (IllegalArgumentException | java.util.NoSuchElementException | org.springframework.security.access.AccessDeniedException e) {
+                RuleAssignmentAccess.sendFailure(response, e);
+                return;
+            }
+        }
         FormProcessor fp = new FormProcessor(request);
         String action = request.getParameter("action");
         Validator v = new Validator(request);
 
         if (action == null || action.trim().isEmpty()) {
             request.setAttribute("result", resword.getString("test_rule_default_result"));
-            Integer ruleSetRuleId = fp.getInt("ruleSetRuleId");
-
-            if (ruleSetRuleId != 0) { // If testing an existing ruleSetRule
-                RuleSetRuleBean rsr = getRuleSetRuleDao().findById(ruleSetRuleId);
+            if (requestedRule != null) { // If testing an existing ruleSetRule
+                RuleSetRuleBean rsr = requestedRule;
+                Integer ruleSetRuleId = rsr.getId();
                 rsr.getActions().size();
                 HashMap<String, Object> presetValues = new HashMap<>();
                 presetValues.put(TARGET, rsr.getRuleSetBean().getTarget().getValue());
