@@ -5,7 +5,7 @@
  * For details see: https://libreclinica.org/license
  * copyright (C) 2003 - 2011 Akaza Research
  * copyright (C) 2003 - 2019 OpenClinica
- * copyright (C) 2020 - 2024 LibreClinica
+ * copyright (C) 2020 - 2026 LibreClinica
  */
 package org.akaza.openclinica.control.admin;
 
@@ -28,6 +28,7 @@ import org.akaza.openclinica.dao.submit.CRFVersionDAO;
 import org.akaza.openclinica.dao.submit.ItemDAO;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
+import org.akaza.openclinica.lctable.HtmxResponseSupport;
 import org.akaza.openclinica.web.table.sdv.SDVUtil;
 import org.jmesa.facade.TableFacade;
 import org.jmesa.view.html.component.HtmlColumn;
@@ -107,9 +108,19 @@ public class ViewCRFServlet extends SecureController {
                 StudyDAO studyDAO = new StudyDAO(sm.getDataSource());
 
                 studyBeans = findStudiesForCRFId(crfId, studyDAO);
-                //Create the Jmesa table for the studies associated with the CRF
-                String studyHtml = renderStudiesTable(studyBeans);
-                request.setAttribute("studiesTableHTML", studyHtml);
+                String lcTableRendering = System.getenv("LC_TABLE_RENDERING");
+                if (lcTableRendering != null && lcTableRendering.equalsIgnoreCase("jmesa")) {
+                    request.setAttribute("tableRenderingMode", "jmesa");
+                    request.setAttribute("studiesTableHTML", renderStudiesTable(studyBeans));
+                } else {
+                    request.setAttribute("tableRenderingMode", "htmlflow");
+                    String studyHtml = renderStudiesLCTable(studyBeans);
+                    if (HtmxResponseSupport.writeFragmentIfRequested(request, response, studyHtml)) {
+                        response.getWriter().flush();
+                        return;
+                    }
+                    request.setAttribute("studiesTableHTML", studyHtml);
+                }
                 //>>
             }
              request.setAttribute(CRF, crf);
@@ -204,6 +215,10 @@ public class ViewCRFServlet extends SecureController {
         actions.setTitle("Actions");
 
         return tableFacade.render();
+    }
+
+    String renderStudiesLCTable(List<StudyBean> studyBeans) {
+        return new StudiesUsingCrfTable(studyBeans).render(request);
     }
 
     /*

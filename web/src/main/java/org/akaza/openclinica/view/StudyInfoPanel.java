@@ -5,7 +5,7 @@
  * For details see: https://libreclinica.org/license
  * copyright (C) 2003 - 2011 Akaza Research
  * copyright (C) 2003 - 2019 OpenClinica
- * copyright (C) 2020 - 2024 LibreClinica
+ * copyright (C) 2020 - 2026 LibreClinica
  */
 package org.akaza.openclinica.view;
 
@@ -41,6 +41,8 @@ import org.akaza.openclinica.bean.submit.ItemFormMetadataBean;
 import org.akaza.openclinica.bean.submit.SectionBean;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
+import org.akaza.openclinica.lctable.SafeUrl;
+import org.springframework.web.util.HtmlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -452,7 +454,8 @@ public class StudyInfoPanel {
                 this.setManageSubject(false);
             } else if (page.equals(Page.VIEW_RULE_SETS2)) {
 				HashMap<StudyEventDefinitionBean, ArrayList<? extends AuditableEntityBean>> eventlist = getAsEventList(request.getAttribute("eventlist"));
-                ArrayList<StudyInfoPanelLine> displayData = generateEventTree(eventlist, false);
+                ArrayList<StudyInfoPanelLine> displayData = generateEventTree(eventlist, false,
+                    !"jmesa".equals(request.getAttribute("tableRenderingMode")));
 
                 this.reset();
                 this.setUserOrderedData(displayData);
@@ -799,6 +802,11 @@ public class StudyInfoPanel {
     }
 
     private ArrayList<StudyInfoPanelLine> generateEventTree(HashMap<StudyEventDefinitionBean, ArrayList<? extends AuditableEntityBean>> eventlist, Boolean isExtractData) {
+        return generateEventTree(eventlist, isExtractData, false);
+        }
+
+        private ArrayList<StudyInfoPanelLine> generateEventTree(HashMap<StudyEventDefinitionBean, ArrayList<? extends AuditableEntityBean>> eventlist,
+            Boolean isExtractData, boolean lcRuleLinks) {
         ArrayList<StudyInfoPanelLine> displayData = new ArrayList<>();
 
         for(Map.Entry<StudyEventDefinitionBean, ArrayList<? extends AuditableEntityBean>> entry : eventlist.entrySet()) {
@@ -813,16 +821,14 @@ public class StudyInfoPanel {
                         displayData.add(new StudyInfoPanelLine("CRF", "<a href='SelectItems?crfId=" + crf.getId() + "&defId=" + sed.getId() + "'>"
                             + crf.getName() + "</a>", false, false));
                     } else {
-                        displayData.add(new StudyInfoPanelLine("CRF", "<a href='ViewRuleAssignment?ruleAssignments_f_crfName=" + crf.getName() + "'>"
-                            + crf.getName() + "</a>", false, false));
+                        displayData.add(new StudyInfoPanelLine("CRF", ruleAssignmentLink(sed.getName(), crf.getName(), false, lcRuleLinks), false, false));
                     }
                 } else {
                     if (isExtractData) {
                         displayData.add(new StudyInfoPanelLine("CRF", "<a href='SelectItems?crfId=" + crf.getId() + "&defId=" + sed.getId() + "'>"
                             + crf.getName() + "</a>", false, true));
                     } else {
-                        displayData.add(new StudyInfoPanelLine("CRF", "<a href='ViewRuleAssignment?ruleAssignments_f_studyEventDefinitionName=" + sed.getName()
-                            + "&ruleAssignments_f_crfName=" + crf.getName() + "'>" + crf.getName() + "</a>", false, true));
+                        displayData.add(new StudyInfoPanelLine("CRF", ruleAssignmentLink(sed.getName(), crf.getName(), true, lcRuleLinks), false, true));
                     }
 
                 }
@@ -832,6 +838,13 @@ public class StudyInfoPanel {
         // logger.info("how many definitions =" + count);
         return displayData;
 
+    }
+
+    private static String ruleAssignmentLink(String eventName, String crfName, boolean includeEvent, boolean lcRuleLinks) {
+        SafeUrl link = SafeUrl.url("ViewRuleAssignment");
+        if (includeEvent) link.param(lcRuleLinks ? "q.studyEventDefinitionName" : "ruleAssignments_f_studyEventDefinitionName", eventName);
+        link.param(lcRuleLinks ? "q.crfName" : "ruleAssignments_f_crfName", crfName);
+        return "<a href='" + HtmlUtils.htmlEscape(link.toUriString()) + "'>" + HtmlUtils.htmlEscape(crfName) + "</a>";
     }
 
     /**

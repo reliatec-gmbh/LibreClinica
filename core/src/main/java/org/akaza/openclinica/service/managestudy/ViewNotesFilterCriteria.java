@@ -5,7 +5,7 @@
  * For details see: https://libreclinica.org/license
  * copyright (C) 2003 - 2011 Akaza Research
  * copyright (C) 2003 - 2019 OpenClinica
- * copyright (C) 2020 - 2024 LibreClinica
+ * copyright (C) 2020 - 2026 LibreClinica
  */
 package org.akaza.openclinica.service.managestudy;
 
@@ -164,6 +164,20 @@ public class ViewNotesFilterCriteria {
 
     public Integer getPageSize() {
         return pageSize;
+    }
+
+    /**
+     * Sets pagination parameters (1-based page number and page size) on this filter criteria.
+     * Needed when using the {@link #buildFilterCriteria(Map, String, Map, Map)} builder, which -- unlike the
+     * {@code Limit}-based overload above -- has no jmesa {@code RowSelect} to derive pagination from
+     * (used by the LCTable-based "listNotes" table).
+     *
+     * @return {@code this}, for fluent chaining
+     */
+    public ViewNotesFilterCriteria withPagination(int pageNumber, int pageSize) {
+        this.pageNumber = pageNumber;
+        this.pageSize = pageSize;
+        return this;
     }
 
 

@@ -17,11 +17,20 @@
 
 <jsp:include page="include/sideAlert.jsp"/>
 
-<script type="text/JavaScript" src="includes/jmesa/jquery.jmesa.js"></script>
-<script type="text/JavaScript" src="includes/jmesa/jmesa.js"></script>
-<script type="text/javascript" src="includes/jmesa/jquery.blockUI.js"></script>
+<%-- Statistics remain LCTable-only; SDV and Subject Matrix select JMesa only when explicitly requested. --%>
+<c:set var="needsJmesaAssets" value="${tableRenderingMode == 'jmesa'}"/>
+<c:if test="${needsJmesaAssets}">
+    <script type="text/JavaScript" src="includes/jmesa/jquery.jmesa.js"></script>
+    <script type="text/JavaScript" src="includes/jmesa/jmesa.js"></script>
+    <link rel="stylesheet" href="includes/jmesa/jmesa.css" type="text/css">
+</c:if>
+<c:if test="${tableRenderingMode == 'htmlflow' || userRole.coordinator || userRole.director}">
+    <link rel="stylesheet" href="includes/lctable/lctable.css" type="text/css">
+</c:if>
 
-<link rel="stylesheet" href="includes/jmesa/jmesa.css" type="text/css">
+<!-- jquery.blockUI.js is needed unconditionally: jQuery/blockUI power the "Add New Subject" modal
+     overlay, unrelated to jmesa -->
+<script type="text/javascript" src="includes/jmesa/jquery.blockUI.js"></script>
 
 <!-- warning is study is frozen or locked -->
 <div id="box" class="dialog">
@@ -74,23 +83,27 @@
 </c:if>
 
 <span class="table_title_Admin" >
-	<a href="ViewNotes?module=submit&listNotes_f_discrepancyNoteBean.user=<c:out value='${userBean.name}' />">
+	<a href="ViewNotes?module=submit&q.discrepancyNoteBean.user=<c:out value='${userBean.name}' />">
 	<fmt:message key="notes_assigned_to_me" bundle="${restext}"/><span>${assignedDiscrepancies}</span>&nbsp;</a><br /><br />
 </span>
 
 <c:if test="${userRole.investigator || userRole.researchAssistant || userRole.researchAssistant2}"> <!-- if investigator, research assistant or ra2 -->
 	<div id="findSubjectsDiv">
-    <script type="text/javascript">
-    function onInvokeAction(id,action) {
-        if(id.indexOf('findSubjects') == -1)  {
-        setExportToLimit(id, '');
+    <c:if test="${tableRenderingMode == 'jmesa'}">
+        <script type="text/javascript">
+        function onInvokeAction(id,action) {
+            if(id.indexOf('findSubjects') == -1)  {
+            setExportToLimit(id, '');
+            }
+            createHiddenInputFieldsForLimitAndSubmit(id);
         }
-        createHiddenInputFieldsForLimitAndSubmit(id);
-    }
-    function onInvokeExportAction(id) {
-        var parameterString = createParameterStringForLimit(id);
-        location.href = '${pageContext.request.contextPath}/MainMenu?'+ parameterString;
-    }
+        function onInvokeExportAction(id) {
+            var parameterString = createParameterStringForLimit(id);
+            location.href = '${pageContext.request.contextPath}/MainMenu?'+ parameterString;
+        }
+        </script>
+    </c:if>
+    <script type="text/javascript">
     jQuery(document).ready(function() {
         jQuery('#addSubject').click(function() {
             jQuery.blockUI({ message: jQuery('#addSubjectForm'), css:{left: "300px", top:"10px" } });
@@ -102,10 +115,21 @@
         });
     });
     </script>
-    <form  action="${pageContext.request.contextPath}/ListStudySubjects">
-        <input type="hidden" name="module" value="admin">
-        ${findSubjectsHtml}
-    </form>
+    <%-- IMPORTANT: the LCTable (HtmlFlow) rendering path renders its own <form> around the whole
+         table (see LCTable.renderTableHtml()) -- it must NOT also be wrapped in a <form> here, or
+         the nested <form>s would collide (see managestudy/findSubjects.jsp for a full explanation).
+         Only the legacy JMesa rendering path needs a surrounding <form>. --%>
+    <c:choose>
+        <c:when test="${tableRenderingMode == 'jmesa'}">
+            <form  action="${pageContext.request.contextPath}/ListStudySubjects">
+                <input type="hidden" name="module" value="admin">
+                ${findSubjectsHtml}
+            </form>
+        </c:when>
+        <c:otherwise>
+            ${findSubjectsHtml}
+        </c:otherwise>
+    </c:choose>
 </div>
     <div id="addSubjectForm" style="display:none;">
          <c:import url="addSubjectMonitor.jsp"/>
@@ -113,51 +137,29 @@
 </c:if>
 
 <c:if test="${userRole.coordinator || userRole.director}">										<!-- datamanager / study director -->
-    <script type="text/javascript">
-	    function onInvokeAction(id,action) {
-	        if(id.indexOf('studySiteStatistics') == -1)  {
-	            setExportToLimit(id, '');
-	        }
-	        if(id.indexOf('subjectEventStatusStatistics') == -1)  {
-	            setExportToLimit(id, '');
-	        }
-	        if(id.indexOf('studySubjectStatusStatistics') == -1)  {
-	            setExportToLimit(id, '');
-	        }
-	        createHiddenInputFieldsForLimitAndSubmit(id);
-	    }
-    </script>
-
 	<table>
 		<tr>
 		    <td class="statistics_td">
-		    <form  action="${pageContext.request.contextPath}/MainMenu">
 		        ${studySiteStatistics}
-		    </form>
 		    </td>
 		    <td class="statistics_td">
-		    <form  action="${pageContext.request.contextPath}/MainMenu">
 		        ${studyStatistics}
-		    </form>
 		    </td>
 		</tr>
 		<tr>
     		<td class="statistics_td">
-    			<form  action="${pageContext.request.contextPath}/MainMenu">
         			${subjectEventStatusStatistics}
-    			</form>
     		</td>
 			<td class="statistics_td">
-				<form  action="${pageContext.request.contextPath}/MainMenu">
 					${studySubjectStatusStatistics}
-				</form>
 			</td>
 		</tr>
 	</table>
 </c:if>
 
 <c:if test="${userRole.monitor}">												<!-- monitor -->
-	<script type="text/javascript">
+  <c:if test="${tableRenderingMode == 'jmesa'}">
+  <script type="text/javascript">
 	    function onInvokeAction(id,action) {
 	        setExportToLimit(id, '');
 	        createHiddenInputFieldsForLimitAndSubmit(id);
@@ -165,16 +167,20 @@
 	    function onInvokeExportAction(id) {
 	        var parameterString = createParameterStringForLimit(id);
 	    }
-	    function prompt(formObj,crfId){
-	        var bool = confirm(
-	                "<fmt:message key="uncheck_sdv" bundle="${resmessages}"/>");
-	        if(bool){
-	            formObj.action='${pageContext.request.contextPath}/pages/handleSDVRemove';
-	            formObj.crfId.value=crfId;
-	            formObj.submit();
-	        }
-	    }
 	</script>
+  </c:if>
+  <script type="text/javascript">
+      function prompt(formObj,crfId){
+          var bool = confirm(
+                  "<fmt:message key="uncheck_sdv" bundle="${resmessages}"/>");
+          if(bool){
+              formObj.action='${pageContext.request.contextPath}/pages/handleSDVRemove';
+              <c:if test="${tableRenderingMode != 'jmesa'}">formObj.method='GET'; captureSdvTableState(formObj, 'sdv');</c:if>
+              formObj.crfId.value=crfId;
+              formObj.submit();
+          }
+      }
+  </script>
 
 	<div id="searchFilterSDV">
 	    <table>
@@ -194,22 +200,50 @@
 	   <script type="text/javascript"> HighlightTab(1);</script>
 	</div>
 	<div id="subjectSDV">
-	    <form name='sdvForm' action="${pageContext.request.contextPath}/pages/viewAllSubjectSDVtmp">
-	        <input type="hidden" name="studyId" value="${study.id}">
-	        <input type="hidden" name=imagePathPrefix value="">
-	        <%--This value will be set by an onclick handler associated with an SDV button --%>
-	        <input type="hidden" name="crfId" value="0">
-	        <%-- the destination JSP page after removal or adding SDV for an eventCRF --%>
-	        <input type="hidden" name="redirection" value="viewAllSubjectSDVtmp">
-	        ${sdvMatrix}
-	        <br />
-	        <c:if test="${!(study.status.locked)}">        
-	             <input type="submit" name="sdvAllFormSubmit" class="button_medium" value="<fmt:message key="submit" bundle="${resword}"/>" onclick="this.form.method='POST';this.form.action='${pageContext.request.contextPath}/pages/handleSDVPost';this.form.submit();"/>
-	             <input type="submit" name="sdvAllFormCancel" class="button_medium" value="<fmt:message key="cancel" bundle="${resword}"/>" onclick="this.form.action='${pageContext.request.contextPath}/pages/viewAllSubjectSDVtmp';this.form.submit();"/>
-	       </c:if>
-		</form>
-	</div>
+	    <c:choose>
+            <c:when test="${tableRenderingMode == 'jmesa'}">
+                <form name='sdvForm' action="${pageContext.request.contextPath}/pages/viewAllSubjectSDVtmp">
+                    <input type="hidden" name="studyId" value="${study.id}">
+                    <input type="hidden" name=imagePathPrefix value="">
+                    <%--This value will be set by an onclick handler associated with an SDV button --%>
+                    <input type="hidden" name="crfId" value="0">
+                    <%-- the destination JSP page after removal or adding SDV for an eventCRF --%>
+                    <input type="hidden" name="redirection" value="viewAllSubjectSDVtmp">
+                    ${sdvMatrix}
+                    <br />
+                    <c:if test="${!(study.status.locked)}">
+                         <input type="submit" name="sdvAllFormSubmit" class="button_medium" value="<fmt:message key="submit" bundle="${resword}"/>" onclick="this.form.method='POST';this.form.action='${pageContext.request.contextPath}/pages/handleSDVPost';this.form.submit();"/>
+                         <input type="submit" name="sdvAllFormCancel" class="button_medium" value="<fmt:message key="cancel" bundle="${resword}"/>" onclick="this.form.action='${pageContext.request.contextPath}/pages/viewAllSubjectSDVtmp';this.form.submit();"/>
+                   </c:if>
+                </form>
+            </c:when>
+            <c:otherwise>
+                <c:if test="${!(study.status.locked)}">
+                    <label><fmt:message key="select_all_on_page" bundle="${resword}"/>
+                        <input id="sdvSelectAllOnPage" type="checkbox" onclick="document.querySelectorAll('#sdv-panel input.sdvCheck').forEach(function(box) { box.checked = this.checked; }, this);">
+                        <br />
+                    </label>
+                </c:if>
+                ${sdvMatrix}
+                <br />
+                <form id="sdvForm" name="sdvForm" action="${pageContext.request.contextPath}/pages/handleSDVPost" method="post">
+                    <input type="hidden" name="studyId" value="<c:out value='${studyId}'/>">
+                    <input type="hidden" name="imagePathPrefix" value="">
+                    <input type="hidden" name="crfId" value="0">
+                    <input type="hidden" name="redirection" value="viewAllSubjectSDVtmp">
+                    <input type="hidden" name="sdvTableState" value="">
+                    <c:if test="${!(study.status.locked)}">
+                        <input type="submit" name="sdvAllFormSubmit" class="button_medium" value="<fmt:message key='sdv_all_checked' bundle='${resword}'/>">
+                    </c:if>
+                </form>
+            </c:otherwise>
+        </c:choose>
+    </div>
 </c:if>
+
+<!-- Include everything that is needed for proper use of HTMX with LCTable -->
+<c:if test="${userRole.monitor && tableRenderingMode != 'jmesa'}"><script src="${pageContext.request.contextPath}/js/sdv-lctable-state.js"></script><script>initSdvTableState('sdv');</script></c:if>
+<jsp:include page="include/useLCTable.jsp"/>
 
 <!-- end of menu.jsp -->
 <jsp:include page="include/footer.jsp"/>

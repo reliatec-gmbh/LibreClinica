@@ -5,7 +5,7 @@
  * For details see: https://libreclinica.org/license
  * copyright (C) 2003 - 2011 Akaza Research
  * copyright (C) 2003 - 2019 OpenClinica
- * copyright (C) 2020 - 2024 LibreClinica
+ * copyright (C) 2020 - 2026 LibreClinica
  */
 package org.akaza.openclinica.control.admin;
 
@@ -17,6 +17,7 @@ import org.akaza.openclinica.dao.submit.SubjectDAO;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
+import org.akaza.openclinica.lctable.HtmxResponseSupport;
 
 import java.util.Locale;
 
@@ -52,23 +53,35 @@ public class ListSubjectServlet extends SecureController {
     @Override
     public void processRequest() throws Exception {
         SubjectDAO sdao = new SubjectDAO(sm.getDataSource());
-
         StudySubjectDAO subdao = new StudySubjectDAO(sm.getDataSource());
         StudyDAO studyDao = new StudyDAO(sm.getDataSource());
         UserAccountDAO uadao = new UserAccountDAO(sm.getDataSource());
 
-        ListSubjectTableFactory factory = new ListSubjectTableFactory();
-        factory.setSubjectDao(sdao);
-        factory.setStudySubjectDao(subdao);
-        factory.setUserAccountDao(uadao);
-        factory.setStudyDao(studyDao);
-        factory.setCurrentStudy(currentStudy);
+        String lcTableRendering = System.getenv("LC_TABLE_RENDERING");
+        if (lcTableRendering != null && lcTableRendering.equalsIgnoreCase("jmesa")) {
+            request.setAttribute("tableRenderingMode", "jmesa");
+            ListSubjectTableFactory factory = new ListSubjectTableFactory();
+            factory.setSubjectDao(sdao);
+            factory.setStudySubjectDao(subdao);
+            factory.setUserAccountDao(uadao);
+            factory.setStudyDao(studyDao);
+            factory.setCurrentStudy(currentStudy);
 
+            request.setAttribute("listSubjectsHtml", factory.createTable(request, response).render());
+            forwardPage(Page.SUBJECT_LIST);
+        } else {
+            request.setAttribute("tableRenderingMode", "htmlflow");
+            ListSubjectTable table = new ListSubjectTable(
+                sdao, subdao, uadao, studyDao, currentStudy, LocaleResolver.getLocale(request));
+            String listSubjectsHtml = table.render(request);
 
-        String auditLogsHtml = factory.createTable(request, response).render();
-        request.setAttribute("listSubjectsHtml", auditLogsHtml);
-
-        forwardPage(Page.SUBJECT_LIST);
+            if (HtmxResponseSupport.writeFragmentIfRequested(request, response, listSubjectsHtml)) {
+                response.getWriter().flush();
+            } else {
+                request.setAttribute("listSubjectsHtml", listSubjectsHtml);
+                forwardPage(Page.SUBJECT_LIST);
+            }
+        }
     }
 
     @Override

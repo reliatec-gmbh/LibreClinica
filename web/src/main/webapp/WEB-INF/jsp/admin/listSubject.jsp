@@ -8,25 +8,33 @@
 
 <jsp:include page="../include/admin-header.jsp"/>
 
-<link rel="stylesheet" href="includes/jmesa/jmesa.css" type="text/css">
-<script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jquery.min.js"></script>
-<script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jquery.jmesa.js"></script>
-<script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jmesa.js"></script>
-<script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jquery-migrate-3.4.1.min.js"></script> 
+<c:choose>
+    <c:when test="${tableRenderingMode == 'jmesa'}">
+        <link rel="stylesheet" href="includes/jmesa/jmesa.css" type="text/css">
+    </c:when>
+    <c:otherwise>
+        <link rel="stylesheet" href="includes/lctable/lctable.css" type="text/css">
+    </c:otherwise>
+</c:choose>
+<c:if test="${tableRenderingMode == 'jmesa'}">
+    <script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jquery.min.js"></script>
+    <script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jquery.jmesa.js"></script>
+    <script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jmesa.js"></script>
+    <script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jquery-migrate-3.4.1.min.js"></script>
 
-
-<script type="text/javascript">
-    function onInvokeAction(id,action) {
-        if(id.indexOf('listSubjects') == -1)  {
-        setExportToLimit(id, '');
+    <script type="text/javascript">
+        function onInvokeAction(id,action) {
+            if(id.indexOf('listSubjects') == -1)  {
+                setExportToLimit(id, '');
+            }
+            createHiddenInputFieldsForLimitAndSubmit(id);
         }
-        createHiddenInputFieldsForLimitAndSubmit(id);
-    }
-    function onInvokeExportAction(id) {
-        var parameterString = createParameterStringForLimit(id);
-        location.href = '${pageContext.request.contextPath}/ListSubject?'+ parameterString;
-    }
-</script>
+        function onInvokeExportAction(id) {
+            var parameterString = createParameterStringForLimit(id);
+            location.href = '${pageContext.request.contextPath}/ListSubject?'+ parameterString;
+        }
+    </script>
+</c:if>
 
 
 <!-- move the alert message to the sidebar-->
@@ -62,9 +70,20 @@
 <jsp:useBean scope='request' id='table' class='org.akaza.openclinica.web.bean.EntityBeanTable'/>
 <h1><span class="title_manage"><fmt:message key="administer_subjects" bundle="${resworkflow}"/></span></h1>
 
-<form  action="${pageContext.request.contextPath}/ListSubject">
-        <input type="hidden" name="module" value="submit">
-        ${listSubjectsHtml}
-    </form>
+<div id="listSubjectsDiv">
+    <c:choose>
+        <c:when test="${tableRenderingMode == 'jmesa'}">
+            <form action="${pageContext.request.contextPath}/ListSubject">
+                <input type="hidden" name="module" value="submit">
+                ${listSubjectsHtml}
+            </form>
+        </c:when>
+        <c:otherwise>
+            ${listSubjectsHtml}
+        </c:otherwise>
+    </c:choose>
+</div>
+
+<jsp:include page="../include/useLCTable.jsp"/>
 
 <jsp:include page="../include/footer.jsp"/>

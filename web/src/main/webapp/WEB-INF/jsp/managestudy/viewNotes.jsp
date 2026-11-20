@@ -14,22 +14,34 @@
     </c:otherwise>
 </c:choose>
 
-<link rel="stylesheet" href="includes/jmesa/jmesa.css" type="text/css">
-<script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jquery.min.js"></script>
-<script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jquery.jmesa.js"></script>
-<script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jmesa.js"></script>
-<script type="text/javascript" language="JavaScript" src="includes/jmesa/jquery-migrate-3.4.1.min.js"></script>
-<script type="text/javascript">
-    function onInvokeAction(id,action) {
-        if(id.indexOf('listNotes') == -1)  {
-        setExportToLimit(id, '');
+<%-- JMesa scripts are only needed when the JMesa rendering path is active. --%>
+<c:choose>
+    <c:when test="${tableRenderingMode == 'jmesa'}">
+        <link rel="stylesheet" href="includes/jmesa/jmesa.css" type="text/css">
+    </c:when>
+    <c:otherwise>
+        <link rel="stylesheet" href="includes/lctable/lctable.css" type="text/css">
+    </c:otherwise>
+</c:choose>
+<c:if test="${tableRenderingMode == 'jmesa'}">
+    <script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jquery.min.js"></script>
+    <script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jquery.jmesa.js"></script>
+    <script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jmesa.js"></script>
+    <script type="text/javascript" language="JavaScript" src="includes/jmesa/jquery-migrate-3.4.1.min.js"></script>
+    <script type="text/javascript">
+        function onInvokeAction(id,action) {
+            if(id.indexOf('listNotes') == -1)  {
+            setExportToLimit(id, '');
+            }
+            createHiddenInputFieldsForLimitAndSubmit(id);
         }
-        createHiddenInputFieldsForLimitAndSubmit(id);
-    }
-    function onInvokeExportAction(id) {
-        var parameterString = createParameterStringForLimit(id);
-        location.href = '${pageContext.request.contextPath}/ViewNotes?'+ parameterString;
-    }
+        function onInvokeExportAction(id) {
+            var parameterString = createParameterStringForLimit(id);
+            location.href = '${pageContext.request.contextPath}/ViewNotes?'+ parameterString;
+        }
+    </script>
+</c:if>
+<script type="text/javascript">
     function openPopup() {
         openDocWindow(window.location.href +'&print=yes')
     }
@@ -160,10 +172,28 @@
     <!-- End Of New Summary -->
 </div>
 
-<form  action="${pageContext.request.contextPath}/ViewNotes" style="clear:left; float:left;">
-        <input type="hidden" name="module" value="submit">
-        ${viewNotesHtml}
-    </form>
+<%-- IMPORTANT: the LCTable (HtmlFlow) rendering path renders its own <form> around the whole
+     table (see LCTable.renderTableHtml()) -- it must NOT also be wrapped in a <form> here, or
+     the two nested <form>s would collide (nested <form>s are invalid HTML; the inner start tag
+     is simply dropped by the parser), causing this JSP's own hidden "module" input to collide
+     with LCTable's own "module" sticky-parameter hidden input once both are serialized together
+     by HTMX's "closest form" -- see LCTable's class-level javadoc for details, and see the
+     analogous fix in admin/auditUserActivity.jsp and managestudy/listEventsForSubjects.jsp.
+     Only the legacy JMesa rendering path (native form-based pagination/sort/filter resubmission,
+     via createHiddenInputFieldsForLimitAndSubmit()) actually needs a surrounding <form>. --%>
+<c:choose>
+    <c:when test="${tableRenderingMode == 'jmesa'}">
+        <form  action="${pageContext.request.contextPath}/ViewNotes" style="clear:left; float:left;">
+            <input type="hidden" name="module" value="submit">
+            ${viewNotesHtml}
+        </form>
+    </c:when>
+    <c:otherwise>
+        <div style="clear:left; float:left;">
+            ${viewNotesHtml}
+        </div>
+    </c:otherwise>
+</c:choose>
 <!-- EXPANDING WORKFLOW BOX -->
 
 <div style="clear:left">
@@ -251,4 +281,9 @@
 </div>
 
 <!-- END WORKFLOW BOX -->
+
+<!-- Include everything that is needed for proper use of HTMX with LCTable (only needed for the htmlflow path,
+     but harmless to include unconditionally since it's small and self-contained) -->
+<jsp:include page="../include/useLCTable.jsp"/>
+
 <jsp:include page="../include/footer.jsp"/>

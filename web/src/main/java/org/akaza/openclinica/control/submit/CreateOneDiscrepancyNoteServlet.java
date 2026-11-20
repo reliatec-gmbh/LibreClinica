@@ -5,7 +5,7 @@
  * For details see: https://libreclinica.org/license
  * copyright (C) 2003 - 2011 Akaza Research
  * copyright (C) 2003 - 2019 OpenClinica
- * copyright (C) 2020 - 2024 LibreClinica
+ * copyright (C) 2020 - 2026 LibreClinica
  */
 package org.akaza.openclinica.control.submit;
 
@@ -278,8 +278,8 @@ public class CreateOneDiscrepancyNoteServlet extends SecureController {
                     String alertEmail = assignedUser.getEmail();
                     message.append(MessageFormat.format(respage.getString("mailDNHeader"), assignedUser.getFirstName(),assignedUser.getLastName()));
                     message.append("<A HREF='" + SQLInitServlet.getField("sysURL.base")
-                            + "ViewNotes?module=submit&listNotes_f_discrepancyNoteBean.user=" + assignedUser.getName()
-                            + "&listNotes_f_entityName=" + dn.getEntityName()
+                            + "ViewNotes?module=submit&q.discrepancyNoteBean.user=" + assignedUser.getName()
+                            + "&q.entityName=" + dn.getEntityName()
                             + "'>" + SQLInitServlet.getField("sysURL.base") + "</A><BR/>");
                     message.append(respage.getString("you_received_this_from"));
                     StudyBean study = (StudyBean) studyDAO.findByPK(dn.getStudyId());

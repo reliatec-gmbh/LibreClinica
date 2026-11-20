@@ -17,25 +17,33 @@
     </c:otherwise>
 </c:choose>
 
-<link rel="stylesheet" href="includes/jmesa/jmesa.css" type="text/css">
-<script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jquery.min.js"></script>
-<script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jquery.jmesa.js"></script>
-<script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jmesa.js"></script>
-<script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jquery-migrate-3.4.1.min.js"></script> 
+<c:choose>
+    <c:when test="${tableRenderingMode == 'jmesa'}">
+        <link rel="stylesheet" href="includes/jmesa/jmesa.css" type="text/css">
+    </c:when>
+    <c:otherwise>
+        <link rel="stylesheet" href="includes/lctable/lctable.css" type="text/css">
+    </c:otherwise>
+</c:choose>
+<c:if test="${tableRenderingMode == 'jmesa'}">
+    <script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jquery.min.js"></script>
+    <script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jquery.jmesa.js"></script>
+    <script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jmesa.js"></script>
+    <script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jquery-migrate-3.4.1.min.js"></script>
 
-
-<script type="text/javascript">
-    function onInvokeAction(id,action) {
-        if(id.indexOf('studies') == -1)  {
-        setExportToLimit(id, '');
+    <script type="text/javascript">
+        function onInvokeAction(id,action) {
+            if(id.indexOf('studies') == -1)  {
+                setExportToLimit(id, '');
+            }
+            createHiddenInputFieldsForLimitAndSubmit(id);
         }
-        createHiddenInputFieldsForLimitAndSubmit(id);
-    }
-    function onInvokeExportAction(id) {
-        var parameterString = createParameterStringForLimit(id);
-        location.href = '${pageContext.request.contextPath}/ViewCRF?module=manage&crfId=' + '${crf.id}&' + parameterString;
-    }
-</script>
+        function onInvokeExportAction(id) {
+            var parameterString = createParameterStringForLimit(id);
+            location.href = '${pageContext.request.contextPath}/ViewCRF?module=manage&crfId=' + '${crf.id}&' + parameterString;
+        }
+    </script>
+</c:if>
 
 <!-- move the alert message to the sidebar-->
 <jsp:include page="../include/sideAlert.jsp"/>
@@ -189,24 +197,44 @@
                 </table>
                 </div></div></div></div></div></div></div></div></div></div>
 
+<c:if test="${module == 'admin'}">
+    <br/>
+    <span class="title_Manage" style="font-weight: bold;"><fmt:message key="studies_using_crf" bundle="${resword}"/></span>
 
-<br/>
-<span class="title_Manage" style="font-weight: bold;"><fmt:message key="studies_using_crf" bundle="${resword}"/></span>
-
-<div id="studiesDiv">
-    <form  action="${pageContext.request.contextPath}/ViewCRF">
-        <input type="hidden" name="module" value="admin">
-        <input type="hidden" name="crfId" value="${crf.id}">
-        ${studiesTableHTML}
-    </form>
-</div>
+    <div id="studiesDiv">
+        <c:choose>
+            <c:when test="${tableRenderingMode == 'jmesa'}">
+                <form action="${pageContext.request.contextPath}/ViewCRF">
+                    <input type="hidden" name="module" value="admin">
+                    <input type="hidden" name="crfId" value="${crf.id}">
+                    ${studiesTableHTML}
+                </form>
+            </c:when>
+            <c:otherwise>
+                ${studiesTableHTML}
+            </c:otherwise>
+        </c:choose>
+    </div>
+</c:if>
 
  <br/>
 <span class="title_Manage" style="font-weight: bold;"><fmt:message key="rule_rules" bundle="${resword}"/></span>
 <div>&nbsp;</div>
 <div class="homebox_bullets"><a href="RunRule?crfId=<c:out value="${crf.id}"/>&action=dryRun"><fmt:message key="rule_crf_run_all" bundle="${resword}"/></a></div><br/>
-<div class="homebox_bullets"><a href="ViewRuleAssignment?ruleAssignments_f_crfName=<c:out value="${crfName}"/>"><fmt:message key="rule_crf_view_rules_for_this_crf" bundle="${resword}"/></a></div><br/>
+<c:choose>
+    <c:when test="${tableRenderingMode == 'jmesa'}">
+        <c:url var="ruleAssignmentsCrfUrl" value="ViewRuleAssignment"><c:param name="ruleAssignments_f_crfName" value="${crfName}"/></c:url>
+    </c:when>
+    <c:otherwise>
+        <c:url var="ruleAssignmentsCrfUrl" value="ViewRuleAssignment"><c:param name="q.crfName" value="${crfName}"/></c:url>
+    </c:otherwise>
+</c:choose>
+<div class="homebox_bullets"><a href="<c:out value="${ruleAssignmentsCrfUrl}"/>"><fmt:message key="rule_crf_view_rules_for_this_crf" bundle="${resword}"/></a></div><br/>
 <br/>
 <input type="button" onclick="confirmExit('ListCRF?module=<c:out value="${module}"/>');"  name="exit" value="<fmt:message key="exit" bundle="${resword}"/>   " class="button_medium"/>
+
+<c:if test="${tableRenderingMode == 'htmlflow'}">
+    <jsp:include page="../include/useLCTable.jsp"/>
+</c:if>
 
 <jsp:include page="../include/footer.jsp"/>
