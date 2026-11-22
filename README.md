@@ -25,6 +25,24 @@ Recommended system software packages considering Ubuntu/Debian Linux based envir
 
 > **_NOTE:_** LibreClinica SOAP web API is legacy, not tested and not actively developed.
 
+### Container Image
+
+Multi-arch (`linux/amd64`, `linux/arm64`) images are published to GitHub Container Registry:
+
+```bash
+docker pull ghcr.io/mutexio/libreclinica:latest
+```
+
+| Tag | Description |
+|-----|-------------|
+| `latest` | Latest build from the default branch (`lc-develop`) |
+| `<branch>` | Latest build from a branch, e.g. `lc-develop` |
+| `<tag>` | Git tag, e.g. `v1.4.0rc1` |
+
+Images are built and pushed by the [Docker Publish workflow](.github/workflows/docker-publish.yml) on pushes to `lc-develop`, on any tag, and on manual workflow dispatch. After the first push, make sure the package visibility is set to **Public** in its GitHub package settings and that the package is connected to this repository.
+
+For a local build use `make ci PUSH=false` (builds the native platform and loads it into the local Docker daemon) or `docker compose build`. The default `make ci` builds both platforms and pushes to GHCR, so it requires `docker login ghcr.io` first.
+
 ### Development
 
 [LibreClinica Aims](https://libreclinica.org/goals.html) define main activities where community members can actively participate in the development process. In case of interest in contributing into the codebase, check out [LibreClinica Developer Documentation](https://libreclinica.org/documentation/development.html) to learn how to [set up the development workstation](https://libreclinica.org/documentation/development/docsify.html#/development/dev-machine) and understand the [branching strategy](https://libreclinica.org/documentation/development/docsify.html#/development/developer) that is used to control the contribution workflows.
