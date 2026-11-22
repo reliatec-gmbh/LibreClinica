@@ -36,10 +36,11 @@ docker pull ghcr.io/mutexio/libreclinica:latest
 | Tag | Description |
 |-----|-------------|
 | `latest` | Latest build from the default branch (`lc-develop`) |
-| `<branch>` | Latest build from a branch, e.g. `lc-develop` |
+| `<branch>` | Latest build from a branch, e.g. `AS-973` or `lc-develop` |
+| `dev-<branch>` | Prefixed alias for the same branch build, e.g. `dev-AS-973` |
 | `<tag>` | Git tag, e.g. `v1.4.0rc1` |
 
-Images are built and pushed by the [Docker Publish workflow](.github/workflows/docker-publish.yml) on pushes to `lc-develop`, on any tag, and on manual workflow dispatch. After the first push, make sure the package visibility is set to **Public** in its GitHub package settings and that the package is connected to this repository.
+Images are built and pushed by the [Docker Publish workflow](.github/workflows/docker-publish.yml) on pushes to dev-style branches (`lc-*`, `AS-*`, `3.14`, excluding `lc-release-*`), on any tag, and on manual workflow dispatch. After the first push, make sure the package visibility is set to **Public** in its GitHub package settings and that the package is connected to this repository.
 
 For a local build use `make ci PUSH=false` (builds the native platform and loads it into the local Docker daemon) or `docker compose build`. The default `make ci` builds both platforms and pushes to GHCR, so it requires `docker login ghcr.io` first.
 

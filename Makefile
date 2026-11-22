@@ -20,7 +20,9 @@ ci:
 		echo "Set IMAGE_NAME to continue"; \
 		exit 1; \
 	fi; \
-	TAGS="--tag $(REGISTRY)/$(IMAGE_NAME):$(BRANCH_NAME)"; \
+	TAG_NAME="$$(echo "$(BRANCH_NAME)" | tr / -)"; \
+	TAGS="--tag $(REGISTRY)/$(IMAGE_NAME):$$TAG_NAME"; \
+	TAGS="$$TAGS --tag $(REGISTRY)/$(IMAGE_NAME):dev-$$TAG_NAME"; \
 	if [ "$(BRANCH_NAME)" = "$(DEFAULT_BRANCH)" ]; then \
 		TAGS="$$TAGS --tag $(REGISTRY)/$(IMAGE_NAME):latest"; \
 	fi; \

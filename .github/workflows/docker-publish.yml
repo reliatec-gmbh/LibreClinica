@@ -4,7 +4,10 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - lc-develop
+      - 'lc-*'
+      - 'AS-*'
+      - '3.14'
+      - '!lc-release-*'
     tags:
       - '*'
 
@@ -42,10 +45,13 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          flavor: |
+            latest=false
           tags: |
+            type=ref,event=branch
+            type=ref,event=branch,prefix=dev-
             type=ref,event=tag
             type=raw,value=latest,enable={{is_default_branch}}
-            type=raw,value={{branch}},enable=${{ github.ref_type == 'branch' }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
