@@ -4,16 +4,7 @@ WORKDIR /app
 
 COPY . .
 
-RUN \
-    # cache downloaded dependencies
-    --mount=type=cache,target=/root/.m2 \
-    # build cache
-    --mount=type=cache,target=/app/core/target \
-    --mount=type=cache,target=/app/docs/target \
-    --mount=type=cache,target=/app/odm/target \
-    --mount=type=cache,target=/app/web/target \
-    --mount=type=cache,target=/app/ws/target \
-
+RUN --mount=type=cache,target=/root/.m2,sharing=locked \
     set -eux; \
     mvn package; \
     mv web/target/LibreClinica-web.war /;
