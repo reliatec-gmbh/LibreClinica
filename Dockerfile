@@ -7,7 +7,7 @@ COPY . .
 RUN --mount=type=cache,target=/root/.m2,sharing=locked \
     set -eux; \
     mvn package; \
-    mv web/target/LibreClinica-web.war /;
+    mv web/target/LibreClinica-web*.war /LibreClinica-web.war;
 
 ############################################################
 FROM tomcat:9-jdk11
