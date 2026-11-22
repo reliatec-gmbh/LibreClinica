@@ -5,7 +5,7 @@
  * For details see: https://libreclinica.org/license
  * copyright (C) 2003 - 2011 Akaza Research
  * copyright (C) 2003 - 2019 OpenClinica
- * copyright (C) 2020 - 2024 LibreClinica
+ * copyright (C) 2020 - 2026 LibreClinica
  */
 package org.akaza.openclinica.web.pform;
 
@@ -14,8 +14,8 @@ import java.net.URL;
 import java.security.MessageDigest;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Base64;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,7 +89,7 @@ public class EnketoAPI {
 
     private EnketoURLResponse getURL(URL url, String crfOID) {
         try {
-            String userPasswdCombo = new String(Base64.encodeBase64((token + ":").getBytes()));
+            String userPasswdCombo = Base64.getEncoder().encodeToString((token + ":").getBytes());
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.add("Authorization", "Basic " + userPasswdCombo);
@@ -126,7 +126,7 @@ public class EnketoAPI {
             String instanceId = new String(Hex.encode(digest.digest()));
 
             URL eURL = new URL(enketoURL + "/api/v1/instance/iframe");
-            String userPasswdCombo = new String(Base64.encodeBase64((token + ":").getBytes()));
+            String userPasswdCombo = Base64.getEncoder().encodeToString((token + ":").getBytes());
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
