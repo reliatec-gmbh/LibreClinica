@@ -361,6 +361,16 @@ public class UserAccountBean extends AuditableEntityBean {
         return techAdmin;
     }
 
+    /**
+     * @return Returns true when account is valid active, enabled, non-locked admin user type
+     */
+    public boolean isValidAdmin() {
+        return isActive() &&
+            Boolean.TRUE.equals(getEnabled()) &&
+            Boolean.TRUE.equals(getAccountNonLocked()) &&
+            (isTechAdmin() || isSysAdmin());
+    }
+
     public boolean hasUserType(UserType u) {
         Iterator<UserType> userTypesIt = userTypes.iterator();
 

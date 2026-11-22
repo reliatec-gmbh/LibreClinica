@@ -1008,11 +1008,6 @@
         <servlet-class>org.akaza.openclinica.control.managestudy.PrintCRFByIdServlet</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>ViewEventCRFContentServlet</servlet-name>
-        <display-name>ViewEventCRFContent</display-name>
-        <servlet-class>org.akaza.openclinica.control.managestudy.ViewEventCRFContentServlet</servlet-class>
-    </servlet>
-    <servlet>
         <servlet-name>ChangeDefinitionOrdinalServlet</servlet-name>
         <display-name>ChangeDefinitionOrdinal</display-name>
         <servlet-class>org.akaza.openclinica.control.managestudy.ChangeDefinitionOrdinalServlet</servlet-class>
@@ -2031,10 +2026,6 @@
     <servlet-mapping>
         <servlet-name>PrintCRFByIdServlet</servlet-name>
         <url-pattern>/PrintCRFById</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>ViewEventCRFContentServlet</servlet-name>
-        <url-pattern>/ViewEventCRFContent</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>ChangeDefinitionOrdinalServlet</servlet-name>

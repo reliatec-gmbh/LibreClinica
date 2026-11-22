@@ -5,7 +5,7 @@
  * For details see: https://libreclinica.org/license
  * copyright (C) 2003 - 2011 Akaza Research
  * copyright (C) 2003 - 2019 OpenClinica
- * copyright (C) 2020 - 2024 LibreClinica
+ * copyright (C) 2020 - 2026 LibreClinica
  */
 package org.akaza.openclinica.control.submit;
 
@@ -22,6 +22,7 @@ import org.akaza.openclinica.bean.core.Status;
 import org.akaza.openclinica.bean.managestudy.EventDefinitionCRFBean;
 import org.akaza.openclinica.bean.submit.DisplayItemBean;
 import org.akaza.openclinica.bean.submit.DisplayItemGroupBean;
+import org.akaza.openclinica.bean.submit.DisplayTableOfContentsBean;
 import org.akaza.openclinica.bean.submit.EventCRFBean;
 import org.akaza.openclinica.control.form.DiscrepancyValidator;
 import org.akaza.openclinica.control.form.FormProcessor;
@@ -72,6 +73,18 @@ public class InitialDataEntryServlet extends DataEntryServlet {
         // locale);
         
         getInputBeans(request);
+
+        // Initial data entry is only valid before the CRF is marked complete. Without this
+        // check InitialDataEntry?eventCRFId=N saved changes to a completed CRF and bypassed
+        // the Reason for Change required by administrative editing.
+        // The table of contents already maps the CRF stage to the servlet that may handle it.
+        DisplayTableOfContentsBean displayBean = (DisplayTableOfContentsBean) request.getAttribute(TOC_DISPLAY);
+        if (!displayBean.getActionServlet().equals("InitialDataEntry")) {
+            session.setAttribute("mayProcessUploading", "false");
+            addPageMessage(respage.getString("you_not_enter_data_initial_DE_completed"), request);
+            throw new InsufficientPermissionException(Page.LIST_STUDY_SUBJECTS_SERVLET,
+                resexception.getString("using_IDE_event_CRF_completed"), "1");
+        }
        
 //        Role r = currentRole.getRole();
 //
