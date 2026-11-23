@@ -174,7 +174,11 @@ public class CreateXformCRFVersionServlet extends SecureController {
         Document doc = null;
         try {
             InputStream stream = new ByteArrayInputStream(xform.getBytes(StandardCharsets.UTF_8));
-            doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(stream);
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            dbf.setXIncludeAware(false);
+            dbf.setExpandEntityReferences(false);
+            doc = dbf.newDocumentBuilder().parse(stream);
 
             NodeList instances = doc.getElementsByTagName("instance");
 
