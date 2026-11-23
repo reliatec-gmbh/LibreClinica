@@ -1,6 +1,8 @@
 services:
   libreclinica:
-    build: .
+    #    build: .
+    image: ghcr.io/mutexio/libreclinica:dev-AS-973
+    #image: ghcr.io/mutexio/libreclinica:v1.4.0
     ports:
       - "127.0.0.1:8080:8080"
     depends_on:
