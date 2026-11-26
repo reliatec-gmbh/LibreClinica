@@ -39,21 +39,29 @@
     </td>
 </tr>
 <jsp:include page="include/sideInfo.jsp"/>
-<link rel="stylesheet" href="../includes/jmesa/jmesa.css" type="text/css">
-<script type="text/JavaScript" language="JavaScript" src="../includes/jmesa/jquery.min.js"></script>
-<script type="text/JavaScript" language="JavaScript" src="../includes/jmesa/jmesa.js"></script>
-<script type="text/JavaScript" language="JavaScript" src="../includes/jmesa/jquery.jmesa.js"></script>
-  <script type="text/javascript" language="JavaScript" src="../includes/jmesa/jquery-migrate-3.4.1.min.js"></script>
-<script type="text/javascript">
-    function onInvokeAction(id,action) {
-        setExportToLimit(id, '');
-        createHiddenInputFieldsForLimitAndSubmit(id);
-    }
-    function onInvokeExportAction(id) {
-        var parameterString = createParameterStringForLimit(id);
-        //location.href = '${pageContext.request.contextPath}/ViewCRF?module=manage&crfId=' + '${crf.id}&' + parameterString;
-    }
-</script>
+<c:choose>
+    <c:when test="${tableRenderingMode == 'jmesa'}">
+        <link rel="stylesheet" href="../includes/jmesa/jmesa.css" type="text/css">
+    </c:when>
+    <c:otherwise>
+        <link rel="stylesheet" href="../includes/lctable/lctable.css" type="text/css">
+    </c:otherwise>
+</c:choose>
+<c:if test="${tableRenderingMode == 'jmesa'}">
+    <script type="text/JavaScript" language="JavaScript" src="../includes/jmesa/jquery.min.js"></script>
+    <script type="text/JavaScript" language="JavaScript" src="../includes/jmesa/jmesa.js"></script>
+    <script type="text/JavaScript" language="JavaScript" src="../includes/jmesa/jquery.jmesa.js"></script>
+    <script type="text/javascript" language="JavaScript" src="../includes/jmesa/jquery-migrate-3.4.1.min.js"></script>
+    <script type="text/javascript">
+        function onInvokeAction(id,action) {
+            setExportToLimit(id, '');
+            createHiddenInputFieldsForLimitAndSubmit(id);
+        }
+        function onInvokeExportAction(id) {
+            var parameterString = createParameterStringForLimit(id);
+        }
+    </script>
+</c:if>
 
 <h1><span class="title_manage">
 <fmt:message key="currently_executing_data_export_jobs" bundle="${resword}"/>
@@ -72,7 +80,9 @@
     }
 </script>
 <div id="subjectSDV">
-    <form name='scheduledJobsForm' action="${pageContext.request.contextPath}/pages/listCurrentScheduledJobs">
+    <c:choose>
+        <c:when test="${tableRenderingMode == 'jmesa'}">
+            <form name='scheduledJobsForm' action="${pageContext.request.contextPath}/pages/listCurrentScheduledJobs">
         <%--<fmt:message key="select_all_on_page" bundle="${resword}"/> <input type=checkbox name='checkSDVAll' onclick='selectAllChecks(this.form)'/>
         <br />--%>
         <input type="hidden" name="studyId" value="${param.studyId}">
@@ -85,14 +95,18 @@
         <%-- the destination JSP page after removal or adding SDV for an eventCRF --%>
         <input type="hidden" name="redirection" value="listCurrentScheduledJobs">
 
-  ${scheduledTableAttribute}
-        <br />
-       
-        <%--<input type="submit" name="sdvAllFormCancel" class="button_medium" value="Cancel" onclick="this.form.action='${pageContext.request.contextPath}/pages/viewSubjectAggregate';this.form.submit();"/>
-    </form>--%>
-    <script type="text/javascript">hideCols('s_sdv',[2,3,4])</script>
+            ${scheduledTableAttribute}
+            <br />
+            </form>
+            <script type="text/javascript">hideCols('s_sdv',[2,3,4])</script>
+        </c:when>
+        <c:otherwise>
+            ${scheduledTableAttribute}
+        </c:otherwise>
+    </c:choose>
 
 </div>
+<jsp:include page="include/useLCTable.jsp"/>
 <jsp:include page="include/footer.jsp"/>
 </body>
 </html>

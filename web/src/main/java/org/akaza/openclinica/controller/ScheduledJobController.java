@@ -5,7 +5,7 @@
  * For details see: https://libreclinica.org/license
  * copyright (C) 2003 - 2011 Akaza Research
  * copyright (C) 2003 - 2019 OpenClinica
- * copyright (C) 2020 - 2024 LibreClinica
+ * copyright (C) 2020 - 2026 LibreClinica
  */
 package org.akaza.openclinica.controller;
 
@@ -29,6 +29,8 @@ import org.akaza.openclinica.bean.extract.ExtractPropertyBean;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.i18n.util.ResourceBundleProvider;
 import org.akaza.openclinica.service.extract.XsltTriggerService;
+import org.akaza.openclinica.lctable.HtmxResponseSupport;
+import org.akaza.openclinica.web.table.scheduledjobs.ScheduledJobTable;
 import org.akaza.openclinica.web.table.scheduledjobs.ScheduledJobTableFactory;
 import org.akaza.openclinica.web.table.scheduledjobs.ScheduledJobs;
 import org.akaza.openclinica.web.table.sdv.SDVUtil;
@@ -47,9 +49,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.quartz.JobDetailFactoryBean;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.MultiValueMap;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 /**
  *
  * @author jnyayapathi
@@ -74,7 +78,8 @@ public class ScheduledJobController {
     private Scheduler scheduler;
 
     @RequestMapping("/listCurrentScheduledJobs")
-    public ModelMap listScheduledJobs(HttpServletRequest request, HttpServletResponse response) throws SchedulerException{
+    public ModelAndView listScheduledJobs(HttpServletRequest request, HttpServletResponse response,
+            @RequestParam MultiValueMap<String, String> requestParams) throws Exception {
         Locale locale = LocaleResolver.getLocale(request);
         ResourceBundleProvider.updateLocale(locale);
         ModelMap gridMap = new ModelMap();
@@ -167,19 +172,37 @@ public class ScheduledJobController {
                 jobs.setExportFileName(epBean.getExportFileName()[0]);
                 jobs.setAction(actions.toString());
                 jobs.setJobStatus(isExecuting ? "Currently Executing" : "Scheduled");
+                jobs.setJobName(jobKey.getName());
+                jobs.setJobGroupName(jobKey.getGroup());
+                // Preserve the legacy action parameters, which use the job key for trigger identity too.
+                jobs.setTriggerName(jobKey.getName());
+                jobs.setTriggerGroupName(jobKey.getGroup());
+                jobs.setCancellable(!isExecuting);
                 jobsScheduled.add(jobs);
             }
         }
         logger.debug("totalRows " + jobsScheduled.size());
 
-        request.setAttribute("totalJobs", jobsScheduled.size());
+        String lcTableRendering = System.getenv("LC_TABLE_RENDERING");
+        if (lcTableRendering != null && lcTableRendering.equalsIgnoreCase("jmesa")) {
+            request.setAttribute("tableRenderingMode", "jmesa");
+            request.setAttribute("totalJobs", jobsScheduled.size());
+            request.setAttribute("jobs", jobsScheduled);
+            TableFacade facade = scheduledJobTableFactory.createTable(request, response);
+            gridMap.addAttribute(SCHEDULED_TABLE_ATTRIBUTE, facade.render());
+            return new ModelAndView("listCurrentScheduledJobs", gridMap);
+        }
 
-        request.setAttribute("jobs", jobsScheduled);
+        request.setAttribute("tableRenderingMode", "htmlflow");
+        ScheduledJobTable table = new ScheduledJobTable(jobsScheduled, locale, request.getContextPath());
+        String tableHtml = table.render(requestParams, request.getRequestURI());
+        if (HtmxResponseSupport.writeFragmentIfRequested(request, response, tableHtml)) {
+            response.getWriter().flush();
+            return null;
+        }
 
-        TableFacade facade = scheduledJobTableFactory.createTable(request, response);
-        String sdvMatrix = facade.render();
-        gridMap.addAttribute(SCHEDULED_TABLE_ATTRIBUTE, sdvMatrix);
-        return gridMap;
+        gridMap.addAttribute(SCHEDULED_TABLE_ATTRIBUTE, tableHtml);
+        return new ModelAndView("listCurrentScheduledJobs", gridMap);
 
     }
 

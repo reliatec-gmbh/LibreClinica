@@ -5,7 +5,7 @@
  * For details see: https://libreclinica.org/license
  * copyright (C) 2003 - 2011 Akaza Research
  * copyright (C) 2003 - 2019 OpenClinica
- * copyright (C) 2020 - 2024 LibreClinica
+ * copyright (C) 2020 - 2026 LibreClinica
  */
 package org.akaza.openclinica.control.admin;
 
@@ -17,6 +17,9 @@ import org.akaza.openclinica.dao.hibernate.AuditUserLoginDao;
 import org.akaza.openclinica.i18n.core.LocaleResolver;
 import org.akaza.openclinica.view.Page;
 import org.akaza.openclinica.web.InsufficientPermissionException;
+import org.akaza.openclinica.lctable.HtmxResponseSupport;
+
+import javax.servlet.ServletException;
 
 /**
  * Servlet for creating a table.
@@ -28,6 +31,15 @@ public class AuditUserActivityServlet extends SecureController {
     private static final long serialVersionUID = 1L;
     private AuditUserLoginDao auditUserLoginDao;
     Locale locale;
+
+    private AuditUserLoginTable auditUserLoginTable;
+
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        // Initialized once when this specific Servlet instance is added to the pool
+        this.auditUserLoginTable = new AuditUserLoginTable(getAuditUserLoginDao());
+    }
 
     /*
      * (non-Javadoc)
@@ -48,12 +60,30 @@ public class AuditUserActivityServlet extends SecureController {
 
     @Override
     protected void processRequest() throws Exception {
-        AuditUserLoginTableFactory factory = new AuditUserLoginTableFactory();
-        factory.setAuditUserLoginDao(getAuditUserLoginDao());
-        String auditUserLoginHtml = factory.createTable(request, response).render();
-        request.setAttribute("auditUserLoginHtml", auditUserLoginHtml);
-        forwardPage(Page.AUDIT_USER_ACTIVITY);
-
+        String lcTableRendering = System.getenv("LC_TABLE_RENDERING");
+        // Use JMesa rendering only when LC_TABLE_RENDERING is explicitly set to "jmesa"
+        if (lcTableRendering != null && lcTableRendering.equalsIgnoreCase("jmesa")) {
+            // Legacy JMesa rendering path: unchanged behaviour (render and forward)
+            request.setAttribute("tableRenderingMode", "jmesa");
+            AuditUserLoginTableFactory factory = new AuditUserLoginTableFactory();
+            factory.setAuditUserLoginDao(getAuditUserLoginDao());
+            String auditUserLoginHtml = factory.createTable(request, response).render();
+            request.setAttribute("auditUserLoginHtml", auditUserLoginHtml);
+            forwardPage(Page.AUDIT_USER_ACTIVITY);
+        } else {
+            // HtmlFlow rendering path: supports HTMX partials (panel vs full page)
+            request.setAttribute("tableRenderingMode", "htmlflow");
+            String auditUserLoginHtml = auditUserLoginTable.render(request);
+            // HTMX partial handling
+            if (HtmxResponseSupport.writeFragmentIfRequested(request, response, auditUserLoginHtml)) {
+                // HTMX request: only return the table HTML fragment
+                response.getWriter().flush();
+            } else {
+                // Non-HTMX request: embed into JSP and forward
+                request.setAttribute("auditUserLoginHtml", auditUserLoginHtml);
+                forwardPage(Page.AUDIT_USER_ACTIVITY);
+            }
+        }
     }
 
     @Override

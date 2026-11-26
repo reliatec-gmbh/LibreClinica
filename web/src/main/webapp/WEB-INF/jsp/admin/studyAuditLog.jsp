@@ -11,26 +11,29 @@
 <jsp:include page="../include/sideAlert.jsp"/>
 <%--<jsp:include page="../include/sidebar.jsp"/>--%>
 
-<link rel="stylesheet" href="includes/jmesa/jmesa.css" type="text/css">
-<script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jquery.min.js"></script>
-<script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jquery.jmesa.js"></script>
-<script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jmesa.js"></script>
-<script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jquery-migrate-3.4.1.min.js"></script> 
+<c:choose>
+    <c:when test="${tableRenderingMode == 'jmesa'}">
+        <link rel="stylesheet" href="includes/jmesa/jmesa.css" type="text/css">
+    </c:when>
+    <c:otherwise>
+        <link rel="stylesheet" href="includes/lctable/lctable.css" type="text/css">
+    </c:otherwise>
+</c:choose>
+<c:if test="${tableRenderingMode == 'jmesa'}">
+    <script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jquery.min.js"></script>
+    <script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jquery.jmesa.js"></script>
+    <script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jmesa.js"></script>
+    <script type="text/JavaScript" language="JavaScript" src="includes/jmesa/jquery-migrate-3.4.1.min.js"></script>
 
-
-
-<script type="text/javascript">
-    function onInvokeAction(id,action) {
-        if(id.indexOf('studyAuditLogs') == -1)  {
-        setExportToLimit(id, '');
+    <script type="text/javascript">
+        function onInvokeAction(id,action) {
+            if(id.indexOf('studyAuditLogs') == -1)  {
+                setExportToLimit(id, '');
+            }
+            createHiddenInputFieldsForLimitAndSubmit(id);
         }
-        createHiddenInputFieldsForLimitAndSubmit(id);
-    }
-    function onInvokeExportAction(id) {
-        var parameterString = createParameterStringForLimit(id);
-        location.href = '${pageContext.request.contextPath}/StudyAuditLog?' + parameterString;
-    }
-</script>
+    </script>
+</c:if>
 
 <!-- then instructions-->
 <tr id="sidebar_Instructions_open" style="display: none">
@@ -63,12 +66,20 @@
 <fmt:message key="view_study_log_for" bundle="${resword}"/> <c:out value="${study.name}"/>
 </span></h1>
 
-<div id="findSubjectsDiv">
-    <form  action="${pageContext.request.contextPath}/StudyAuditLog">
-        <input type="hidden" name="module" value="submit">
-        ${auditLogsHtml}
-    </form>
+<div id="studyAuditLogsDiv">
+    <c:choose>
+        <c:when test="${tableRenderingMode == 'jmesa'}">
+            <form action="${pageContext.request.contextPath}/StudyAuditLog">
+                <input type="hidden" name="module" value="submit">
+                ${auditLogsHtml}
+            </form>
+        </c:when>
+        <c:otherwise>
+            ${auditLogsHtml}
+        </c:otherwise>
+    </c:choose>
 </div>
 
+<jsp:include page="../include/useLCTable.jsp"/>
 
 <jsp:include page="../include/footer.jsp"/>

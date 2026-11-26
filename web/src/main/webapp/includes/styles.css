@@ -48,6 +48,9 @@
 
    /* orange */
    --orange: #E46E16;
+
+   /* pale yellow (used for popups in subject matrix) */
+   --pale-yellow: #FFFFE5;
 }
 
 /*.sdvCheck{
@@ -1386,7 +1389,7 @@ div.login_BG {
 	overflow: scroll; 
 	background:#FFFFFF;
 }
-.ViewSubjectsPopup { background-color: #FFFFE5;
+.ViewSubjectsPopup { background-color: var(--pale-yellow);
 }
 
 .tab_L { 

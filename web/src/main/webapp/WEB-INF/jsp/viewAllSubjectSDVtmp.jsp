@@ -32,6 +32,8 @@
 
 <jsp:include page="include/sideInfo.jsp"/>
 
+<c:choose>
+    <c:when test="${tableRenderingMode == 'jmesa'}">
 <link rel="stylesheet" href="${pageContext.request.contextPath}/includes/jmesa/jmesa.css" type="text/css">
 <script type="text/JavaScript" src="${pageContext.request.contextPath}/includes/jmesa/jquery.min.js"></script>
 <script type="text/JavaScript" src="${pageContext.request.contextPath}/includes/jmesa/jmesa.js"></script>
@@ -48,6 +50,11 @@
         var parameterString = createParameterStringForLimit(id);
     }
 </script>
+    </c:when>
+    <c:otherwise>
+<link rel="stylesheet" href="${pageContext.request.contextPath}/includes/lctable/lctable.css" type="text/css">
+    </c:otherwise>
+</c:choose>
 
 <h1><span class="title_manage"><fmt:message key="sdv_sdv_for" bundle="${resword}"/> <c:out value="${study.name}"/></span></h1>
 
@@ -80,12 +87,14 @@
                 "<fmt:message key="uncheck_sdv" bundle="${resmessages}"/>");
         if(bool){
             formObj.action='${pageContext.request.contextPath}/pages/handleSDVRemove';
+            <c:if test="${tableRenderingMode != 'jmesa'}">formObj.method='GET'; captureSdvTableState(formObj, 'sdv');</c:if>
             formObj.crfId.value=crfId;
             formObj.submit();
         }
     }
 </script>
 <div id="subjectSDV">
+    <c:if test="${tableRenderingMode == 'jmesa'}">
     <form name='sdvForm' action="${pageContext.request.contextPath}/pages/viewAllSubjectSDVtmp">
         <input type="hidden" name="studyId" value="${param.studyId}">
         <input type="hidden" name=imagePathPrefix value="../">
@@ -100,7 +109,30 @@
            </c:if>        
         
     </form>
+    </c:if>
+    <c:if test="${tableRenderingMode != 'jmesa'}">
+    <c:if test="${!(study.status.locked)}">
+        <label><fmt:message key="select_all_on_page" bundle="${resword}"/>
+            <input id="sdvSelectAllOnPage" type="checkbox" onclick="document.querySelectorAll('#sdv-panel input.sdvCheck').forEach(function(box) { box.checked = this.checked; }, this);">
+            <br />
+        </label>
+    </c:if>
+    ${sdvTableAttribute}
+    <br />
+    <form id="sdvForm" name="sdvForm" action="${pageContext.request.contextPath}/pages/handleSDVPost" method="post">
+        <input type="hidden" name="studyId" value="<c:out value='${studyId}'/>">
+        <input type="hidden" name="imagePathPrefix" value="../">
+        <input type="hidden" name="crfId" value="0">
+        <input type="hidden" name="redirection" value="viewAllSubjectSDVtmp">
+        <input type="hidden" name="sdvTableState" value="">
+        <c:if test="${!(study.status.locked)}">
+            <input type="submit" name="sdvAllFormSubmit" class="button_medium" value="<fmt:message key='sdv_all_checked' bundle='${resword}'/>">
+        </c:if>
+    </form>
+    </c:if>
 </div>
 
 <!-- end of viewAllSubjectSDVtmp.jsp -->
+<c:if test="${tableRenderingMode != 'jmesa'}"><script src="${pageContext.request.contextPath}/js/sdv-lctable-state.js"></script><script>initSdvTableState('sdv');</script></c:if>
+<c:if test="${tableRenderingMode != 'jmesa'}"><jsp:include page="include/useLCTable.jsp"/></c:if>
 <jsp:include page="include/footer.jsp"/>

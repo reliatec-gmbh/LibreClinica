@@ -1,0 +1,726 @@
+/*
+ * derived from jmesa.css, adapted to fit LCTable needs
+ * (note: '.lctable' used to be '.jmesa')
+ */
+
+.lctable {
+    /* wrap tightly around the table: use inline-block so the div's width
+       follows the table width instead of the full page */
+    display: inline-block;
+    margin: 0px;
+    vertical-align: top;
+    border: 1px solid #CCC; /* solid grey border */
+    padding: 1px; /* small padding between border and table */
+}
+
+.lctable caption {
+    caption-side: top;
+    /*color: #444444;*/
+    color: #D4A718;
+    font-weight: bold;
+    font-size: 1em;
+    text-align: left;
+    padding-left: 5px;
+}
+
+.lctable .table {
+    /* remove inner silver border so the outer .lctable grey border is visible
+       padding on the wrapper (.lctable) provides the spacing between border and table
+       Note: deliberately no "table-layout: fixed" here -- the default "auto" table layout is relied
+       upon (together with the toolbar/header/action-column "no-wrap" rules below) to let the table grow
+       past the sum of its columns' own (explicit or content-based) widths whenever a row's content --
+       most notably the toolbar, see ".toolbar-container nav"'s "white-space: nowrap" above -- needs
+       more room than that, and to distribute any such extra width across columns roughly in
+       proportion to their own width. */
+    border: none;
+    padding: 0;
+}
+
+.lctable .toolbar table {
+    margin-right: auto;
+    margin-left: 0px;
+}
+
+.lctable .toolbar {
+    user-select: none;
+}
+
+.lctable .toolbar-container {
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+
+.lctable .toolbar-container nav {
+    /*
+     * Keep every navigation-bar button ("«" "‹" page numbers/ellipsis "›" "»") together, always on a
+     * single line, WITHOUT changing anything else about how they are laid out: a plain <nav> is a
+     * block box, and its children (the "text-btn" anchors/ellipsis spans, all "display: inline-block")
+     * are separated only by the ordinary single-space-worth of whitespace between them in the
+     * generated HTML -- exactly like the legacy jmesa toolbar's own row of pagination links. That
+     * whitespace is also the browser's only line-break opportunity between the buttons, so a plain
+     * "white-space: nowrap" here (rather than switching to "display: flex", which would collapse that
+     * whitespace and squeeze the buttons together with no gap at all) is enough to suppress it and
+     * keep the whole row on one line, with the exact same spacing as before -- see the ".table" width
+     * note further down for how this in turn grows the whole table when necessary.
+     */
+    white-space: nowrap;
+}
+
+
+.lctable .toolbar-separator {
+    border-left: 1px solid #c0c0c0;
+    height: 1.2em;
+    margin: 0 6px;
+}
+
+.lctable .dropdown-list {
+    margin: 0;
+}
+
+.lctable .dropdown-list label {
+    color: black;
+}
+
+.lctable .toolbar td {
+    padding: 0px 1px 0px 1px;
+}
+
+.lctable .toolbar select {
+    font-size: 11px;
+    border: solid 1px #c4c3c2;
+}
+
+.lctable .toolbar .pageNumber {
+    font-size: 13px;
+    font-weight: bold;
+    color: #c4634d;
+}
+
+.lctable .toolbar .pageNumber a {
+    font-size: 13px;
+    font-weight: normal;
+    color: black;
+}
+
+.lctable .toolbar img {
+    border:0px;
+}
+
+.lctable .filter td {
+    padding: 2px;
+}
+
+.lctable .filter .filter-wrapper {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+}
+
+/* Filter inputs and selects: fill the wrapper div (not the td directly) */
+.lctable .filter .filter-input,
+.lctable .filter .filter-select,
+.lctable .filter .select-input {
+    font-family: verdana, arial, helvetica, sans-serif;
+    font-size: 11px;
+    padding: 2px 3px;
+    margin: 0;
+    border: 1px solid #c0c0c0;
+    background-color: var(--gray-l30);
+    height: 17px;
+    box-sizing: border-box;
+    line-height: 1;
+    border-radius: 0;
+    width: 100%;
+    flex: 1;
+    min-width: 0;
+}
+
+/* Reset browser defaults for select to match input appearance */
+.lctable .filter .filter-select,
+.lctable .filter .select-input {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 3px center;
+    background-size: 12px;
+    padding-right: 18px;
+}
+
+/* Text input: show validation error with red border and background */
+.lctable .filter .filter-input:not(:placeholder-shown):invalid {
+    border-color: red;
+    background-color: #fff0f0;
+    color: red;
+}
+
+/* Soften validation transitions */
+.lctable .filter .filter-input {
+    transition: border-color 0.3s, background-color 0.3s;
+}
+
+
+.lctable .header {
+	height: 15px;
+	max-height:30px
+}
+
+/* Statistics panels opt out of pagination, filters and footer but retain the shared table renderer. */
+.statistics_td .lctable {
+    max-width: 100%;
+}
+
+.statistics_td .lctable .lctable-title-row th {
+    background: white;
+    border-bottom: 1px solid white;
+    color: grey;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 4px 3px;
+    text-align: center;
+}
+
+.lctable .header th {
+    white-space: nowrap;
+    background-color: var(--lightblue-d20);
+    color: white;
+    font-family: verdana, arial, helvetica, sans-serif;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 4px 3px 4px 3px;
+    border-right-style: solid;
+    border-right-width: 1px;
+    border-color: white;
+    background-image: none;
+    text-align: left;
+}
+
+.lctable .header td {
+    white-space: normal;
+    background-color: white;
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 4px 3px 4px 3px;
+    border-right-style: solid;
+    border-right-width: 1px;
+    border-color: white;
+    background-image: none;
+}
+
+.lctable .odd a, .lctable .even a {
+    color: black;
+}
+
+/*
+ * Icon action links (View/Remove/Restore/... in the Actions column, and the analogous links inside
+ * the event-detail popup). The global "a:hover, a:active { text-decoration: underline; }" rule
+ * (includes/styles.css) is not appropriate for these icon-only/icon+label links, so it is overridden
+ * here; a small right-margin also gives them a bit more breathing room than plain adjacency (loosely
+ * modelled on the legacy jmesa table's "&nbsp;&nbsp;&nbsp;" spacing between action links).
+ */
+.lctable .action-link {
+    text-decoration: none;
+    margin-right: 2px;
+}
+
+.lctable .action-link:last-child {
+    margin-right: 0;
+}
+
+.lctable .action-link:hover, .lctable .action-link:active {
+    text-decoration: none;
+}
+
+/*
+ * Button-style action links (e.g., "Cancel Job" in the Actions column of ScheduledJobs view).
+ * Styled to match the legacy jmesa input[type="submit"].button appearance.
+ */
+.lctable a.button, .lctable a.button:link, .lctable a.button:visited {
+    display: inline-block;
+    text-align: center;
+    text-decoration: none;
+    color: #FFFFFF !important;
+    padding: 0;
+    line-height: 17px;
+}
+
+.lctable a.button:hover, .lctable a.button:active {
+    text-decoration: none;
+}
+
+/*
+ * Every data cell is tagged by LCTableColumnDef with a "lc-col-<columnName>" class (see nullSafeCell()),
+ * so that a specific column's cells can be targeted generically by CSS. The "actions" column (its
+ * action-icon links, see ".action-link" above) is the one concrete case needed so far: keep all of a
+ * row's action icons together on a single line, never wrapped onto a second line, regardless of how
+ * tight the column's width gets.
+ */
+.lctable .lc-col-actions {
+    white-space: nowrap;
+}
+
+
+/*
+ * The hover/focus tooltip itself (shown only for icon-only action links, i.e. "data-tooltip" is set --
+ * see LCTableUtil.actionLink()) is implemented in lctable.js as a single reusable ".lc-tooltip" element
+ * appended directly to <body> and positioned with "position: fixed" from the hovered/focused element's
+ * getBoundingClientRect(), rather than as a pure-CSS "::after" bubble anchored to the link itself.
+ * This deliberately avoids two problems a "::after" bubble would have here:
+ *  - it would depend on the native browser per-window hover-timer machinery behaving consistently
+ *    (which -- for the native "title" attribute this replaces -- is known to stop reliably reappearing
+ *    once the browser window has lost and regained focus);
+ *  - being a descendant of the scrollable ".lc-popup-body", it would get silently clipped by that
+ *    ancestor's "overflow-y: auto" whenever there wasn't enough room below/above within the *scrollable
+ *    container* (which is exactly what happened for the last occurrence's actions, and the last action
+ *    in the non-repeating vertical layout: the tooltip had no clipped-free space left below them).
+ * A "position: fixed" element appended to <body> is not a descendant of that scrolling container at all,
+ * so it is never clipped by it, regardless of which row/action is hovered.
+ */
+.lc-tooltip {
+    position: fixed;
+    z-index: 10000;
+    background: var(--lightblue-d20);
+    color: #fff;
+    font-family: verdana, arial, helvetica, sans-serif;
+    font-size: 12px;
+    font-weight: normal;
+    padding: 5px 9px;
+    border: 2px solid #ffffff;
+    border-radius: 6px;
+    white-space: nowrap;
+    box-shadow: 1px 2px 5px rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.1s ease;
+}
+
+.lc-tooltip.lc-tooltip-visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.lc-tooltip.lc-tooltip-filters {
+    background: #fff;
+    color: #222;
+    white-space: normal;
+    max-width: calc(100vw - 24px);
+    max-height: calc(100vh - 24px);
+    overflow-y: auto;
+}
+
+.lc-filter-section + .lc-filter-section { margin-top: 8px; }
+.lc-filter-section ul { margin: 4px 0 0; padding-left: 20px; }
+.lc-active-filters { cursor: help; color: black; font-weight: normal; }
+.lc-active-filters.lc-active-filters-active { font-weight: bold; }
+.lc-active-filters-warning { color: #b00020; font-weight: bold; }
+.lc-active-filters.lc-active-filters-warning { color: #b00020; font-weight: bold; }
+.lc-active-filters:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+
+/* Prevent inline-baseline gap below images in table cells */
+.lctable .odd td img, .lctable .even td img,
+.lctable .highlight td img {
+    vertical-align: middle;
+}
+
+.lctable .odd td, .lctable .even td {
+	font-family: verdana, arial, helvetica, sans-serif;
+	font-size: 11px;
+	vertical-align: top;
+	line-height: 15px;
+	padding: 2px 3px 2px 3px;
+	white-space: nowrap;
+}
+
+.lctable .odd {
+    background-color: white;
+}
+
+.lctable .even {
+    background-color: var(--gray-l40);
+}
+
+.lctable .highlight td {
+	font-family: verdana, arial, helvetica, sans-serif;
+	font-size: 11px;
+	vertical-align: top;
+	line-height: 15px;
+	padding: 2px 3px 2px 3px;
+	background-color: var(--gray-l30);
+	white-space: nowrap;
+}
+
+.lctable .highlight a {
+    color: black;
+}
+
+.lctable .statusBar td {
+    font-family: verdana, arial, helvetica, sans-serif;
+    font-size: 11px;
+    border-top: 1px solid silver;
+    background-color: var(--gray-l30);
+    padding: 2px;
+}
+
+
+/* ---- additions for LCTable ---- */
+
+.lctable .text-btn {
+    display: inline-block;
+    white-space: nowrap;
+    padding: 2px 6px;
+    border: 1px solid #ddd;
+    border-radius: 0;
+    text-decoration: none;
+    color: #333;
+    background: #fff;
+    cursor: pointer;
+    font-size: 0.65rem;
+    min-width: 1.2em;
+    text-align: center;
+}
+
+.lctable .text-btn:hover              { background: #eee; }
+.lctable .text-btn.current            { background: var(--lightblue-d20); color: #fff; border-color: var(--lightblue-d20); }
+/* Grey darkened just enough to stay clearly readable on white (contrast ratio ~4.6:1, meeting WCAG AA)
+   while still being clearly distinguishable from an enabled button's black text. */
+.lctable .text-btn.disabled           { color: #909090; pointer-events: none; cursor: default; }
+.lctable .text-btn, .lctable .page-ellipsis    { user-select: none; }
+.lctable .page-ellipsis               { display: inline-block; min-width: 1.2em; padding: 2px 6px; color: #888; font-size: 0.65rem; text-align: center; }
+
+/* Sort header styling */
+.lctable .sort-header-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+}
+
+.lctable .sort-header-text {
+    flex: 1;
+    white-space: nowrap;
+}
+
+.lctable .sort-indicator {
+    display: block;
+    width: auto;
+    height: auto;
+    flex-shrink: 0;
+}
+
+/*
+ * The sort-indicator <img> is now always rendered (see LCTable#renderColumnName), even for columns
+ * that are not (yet) currently sorted: this reserves its width in the header's flex layout up front,
+ * so that a sortable column's header -- and hence the whole column -- never needs to grow when the
+ * indicator appears (sorting toggled on) nor shrink when it disappears (sorting toggled off/changed
+ * to another column). It is simply hidden, without being removed from the layout, until then.
+ */
+.lctable .sort-indicator-hidden {
+    visibility: hidden;
+}
+
+
+/*
+ * Event-detail hover/focus popup (findSubjects "Subject Matrix" table).
+ * Simplified, pure-CSS replacement for the legacy absolute-positioned <div> + inline-JS popup:
+ * all occurrences are always rendered, and only the popup *body* scrolls internally (the header,
+ * including the "add another occurrence" button, stays fixed at the top) -- no left/right occurrence
+ * "scroller", no onmouseover/onclick JS. The only JS involved (see lctable.js) flips the popup to
+ * right-align with its trigger when it would otherwise overflow past the right edge of the viewport.
+ *
+ * Trigger area sizing/highlighting is shared, generically, by every current trigger kind
+ * (".event-trigger" here, ".crf-trigger" further below): the clickable/hoverable/focusable area is
+ * always shrink-wrapped tightly around its own icon(s) -- never the whole table cell -- with a tiny bit
+ * of padding as breathing room, and is highlighted (a shade of grey slightly darker than the underlying
+ * hovered/focused row's own highlight, see ".lc-popup-trigger:hover"/"-focus-within" below) on
+ * hover/focus, exactly like the ".lc-popup-actions-vertical a" menu-item highlight further down.
+ */
+.lctable .event-trigger {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 1px 3px;
+    border-radius: 0;
+}
+
+/*
+ * CRF-status trigger (listEventsForSubjects CRF columns): same popup-trigger role as ".event-trigger"
+ * above, but flex block-level by default (rather than inline-flex) since it is only ever used stacked
+ * vertically, one per occurrence -- see the "listEventsForSubjects"-scoped rules further below.
+ * "width: fit-content" keeps the trigger shrink-wrapped around its own icon even though it is
+ * block-level (i.e. one per line): without it, a block box would stretch to fill its containing
+ * <td>, making the *whole cell* clickable/hoverable instead of just the icon -- exactly the
+ * inconsistency with ".event-trigger" (single-occurrence, findSubjects) that this is meant to avoid.
+ * "display: flex" (rather than plain "block") + "align-items/justify-content: center" is what actually
+ * centers the icon within this (already shrink-wrapped) box -- same reasoning/pattern as ".event-trigger".
+ */
+.lctable .crf-trigger {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+    cursor: pointer;
+    padding: 1px 3px;
+    border-radius: 0;
+}
+
+.lctable .lc-popup-badge {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 6px;
+}
+
+.lctable .lc-popup-badge:last-child {
+    margin-right: 0;
+}
+
+/* Generic show-on-hover/focus rule: matches any popup trigger (".event-trigger" and ".crf-trigger" alike). */
+.lctable .lc-popup-trigger:hover .lc-popup,
+.lctable .lc-popup-trigger:focus-within .lc-popup {
+    display: flex;
+}
+
+/* Visually clarify the trigger's own (icon-sized) hover/focus area  */
+.lctable .lc-popup-trigger:hover,
+.lctable .lc-popup-trigger:focus-within {
+    background-color: var(--pale-yellow);
+}
+
+
+.lctable .lc-popup {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 50;
+    flex-direction: column;
+    /*
+     * Explicit "width: max-content" (rather than leaving width as the "auto" default) is essential
+     * here: since this is an absolutely-positioned box whose containing block is the small
+     * ".event-trigger" (sized to fit just the status icon(s)), an "auto" width would be computed via
+     * the CSS2.1 shrink-to-fit algorithm using that tiny containing block as the "available width" --
+     * which clamps the box down near the trigger's own width regardless of max-width, making max-width
+     * changes appear to have no effect. "max-content" instead sizes the box to its own content's
+     * preferred (unwrapped) width, still properly clamped by min-width/max-width below.
+     */
+    width: max-content;
+    min-width: 220px;
+    max-width: 500px;
+    max-height: 260px;
+    overflow: hidden;
+    text-align: left;
+    white-space: normal;
+    box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Added by lctable.js when the popup would otherwise overflow past the right edge of the viewport. */
+.lctable .lc-popup.lc-popup-align-right {
+    left: auto;
+    right: 0;
+}
+
+
+.lctable .lc-popup-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    flex: 0 0 auto;
+}
+
+/* Prevent "Subject: ..."/"Event: ..." from wrapping onto a second line: since the popup has no
+   explicit width, letting this text wrap would shrink it below its natural (unwrapped) width. */
+.lctable .lc-popup-header-text {
+    white-space: nowrap;
+}
+
+.lctable .lc-popup-header .text-btn {
+    flex-shrink: 0;
+}
+
+.lctable .lc-popup-body {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+/*
+ * "Hybrid" per-occurrence row layouts (see ListStudySubjectTable#renderPopupBody and friends):
+ *  - non-repeating events (and events with no occurrence yet): "simple" layout, one action per line,
+ *    each with icon + text label -- ".lc-popup-item" without the "-compact" modifier.
+ *  - repeating events (with at least one occurrence): "compact" layout, two lines per occurrence
+ *    ("Occurrence #i of N · date · status" then "Actions: " + icon-only links) --
+ *    ".lc-popup-item.lc-popup-item-compact".
+ * In both cases, ".lc-popup-item" is the hoverable/highlightable unit (the "row" the user
+ * points at). A subtle border/box gives each occurrence a permanent, "passive" visual grouping (a bit
+ * more pronounced than the thin lines separating the 1-2 lines *within* one occurrence), on top of
+ * which hovering adds a slightly darker shade of the popup's pale-yellow background.
+ */
+.lctable .lc-popup-item {
+    margin: 3px 4px;
+    padding: 3px 4px;
+    border: 1px solid #E0D9A0;
+    border-radius: 3px;
+}
+
+.lctable .lc-popup-item:hover {
+    background-color: #F5EEA0;
+    border-color: #C9BC66;
+}
+
+/*
+ * Suppress the ".table_cell_left"/".table_cell" classes' own implicit "border-top: 1px solid #E6E6E6"
+ * (see styles.css) entirely within occurrence rows: relying on that border to visually separate two
+ * stacked status lines (e.g. EventStatusPopup's date line above its status line) looked inconsistent
+ * with the explicit ".lc-popup-row-separator" used between the status content and the actions menu
+ * (different colour/spacing), and, worse, produced *two* separator lines stacked on top of each other
+ * wherever both were present (e.g. CrfStatusPopup's "Event date: ..." / "Status: ..." pair). Every
+ * separator between two status-content lines is now rendered explicitly, via the same
+ * ".lc-popup-row-separator" div, in both EventStatusPopup and CrfStatusPopup -- see their
+ * renderSimpleStatus/renderStatus.
+ */
+.lctable .lc-popup-item .table_cell_left,
+.lctable .lc-popup-item .table_cell {
+    border: none;
+}
+
+.lctable .lc-popup-status-icon-inline {
+    vertical-align: middle;
+    margin: 0 2px;
+}
+
+/* Generic layout chrome (see LCPopup#renderItemRow, EventStatusPopup#renderSimpleStatus,
+   CrfStatusPopup's per-item renderStatus): a thin separator line, always the exact same one, between
+   any two adjacent "sections" of one occurrence row's content (date line / status line / actions menu). */
+.lctable .lc-popup-row-separator {
+    border-top: 1px solid #E0D9A0;
+    margin: 3px 0;
+}
+
+/* Simple (non-repeating) layout: one action per line, icon + text label, with a little breathing room
+   between lines (both visually clearer and easier to click precisely). */
+.lctable .lc-popup-actions-vertical a {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    white-space: nowrap;
+    margin-bottom: 4px;
+    border-radius: 3px;
+    padding: 1px 2px;
+}
+
+.lctable .lc-popup-actions-vertical a:last-child {
+    margin-bottom: 0;
+}
+
+/* Highlight the currently selected/hovered-over menu item: a third, still darker shade of the popup's
+   pale-yellow palette (popup background #FFFFE5, occurrence-row hover #F5EEA0, this one darker still) --
+   SIMPLE layout only (one action per line, plenty of room to highlight); COMPACT layout's icon-only
+   actions already have a tooltip and too little area to usefully highlight, so it is deliberately left
+   plain there. */
+.lctable .lc-popup-actions-vertical a:hover,
+.lctable .lc-popup-actions-vertical a:focus {
+    background-color: #E9DC78;
+}
+
+
+/* Compact (repeating) layout: "Actions: " label followed by icon-only links, all on one line. */
+.lctable .lc-popup-actions-compact {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.lctable .lc-popup-actions-compact a {
+    display: inline-flex;
+    align-items: center;
+}
+
+.lctable .lc-popup-item .lc-popup-actions img,
+.lctable .lc-popup-item .lc-popup-summary-line img {
+    vertical-align: middle;
+}
+
+/* Hover highlight for rows: match jmesa .highlight appearance exactly */
+.lctable .tbody tr:hover td {
+    font-family: verdana, arial, helvetica, sans-serif;
+    font-size: 11px;
+    vertical-align: top;
+    line-height: 15px;
+    padding: 2px 3px 2px 3px;
+    background-color: var(--gray-l30);
+}
+.lctable .tbody tr:hover a {
+    color: black;
+}
+
+/*
+ * "listEventsForSubjects" table only (event-definition-specific drill-down, one row per subject,
+ * with one icon/popup *per occurrence* of the selected event definition, stacked vertically inside
+ * the Event Status/Event Date/each CRF column -- see ListEventsForSubjectTable). Scoped with the
+ * table's own "#<tableName>-panel" wrapper id (see LCTable#panelId) rather than a shared class, so
+ * that none of this affects the "findSubjects" table (#findSubjects-panel), which reuses the very
+ * same ".event-trigger"/".lc-popup-badge" classes for its own -- horizontal, aggregate-per-cell --
+ * layout (multiple status badges side by side *within* a single trigger, one trigger per cell).
+ *
+ * Goal: the occurrences' rows in the Event Status, Event Date and CRF columns are meant to line up
+ * horizontally (same row height, same per-row vertical spacing in every column) -- see the caveats
+ * about this in ListEventsForSubjectTable's class javadoc.
+ */
+
+/* Event Status column: one ".event-trigger" per occurrence -- stack them vertically (block, not
+   inline-flex) instead of "findSubjects"'s single inline-flex trigger per cell. "width: fit-content"
+   keeps the trigger shrink-wrapped around its own icon despite now being block-level -- same reasoning,
+   same pattern, as ".crf-trigger"'s own "width: fit-content" (see further above): without it, the
+   trigger (and hence the hoverable/clickable/highlightable area) would stretch to fill the whole cell. */
+#listEventsForSubject-panel .event-trigger {
+    display: flex;
+    width: fit-content;
+}
+
+/*
+ * Same per-occurrence vertical rhythm in every event-related column: Event Status (".event-trigger"),
+ * Event Date (".event-occurrence-date-line") and every CRF column (".crf-trigger", plus its
+ * "no CRF data yet" placeholder ".crf-trigger-empty"). The *visible gap* between two stacked
+ * occurrences must come out the same in every column, regardless of which of the two box models is
+ * involved: ".event-occurrence-date-line" is a plain, unpadded div (occurrence height = content height
+ * + margin-bottom only), while ".event-trigger"/".crf-trigger" additionally carry their own
+ * "padding: 1px 3px" (added for the trigger-highlight's "tiny bit of margin around the icon", see
+ * above) -- so, at equal margin-bottom, their occurrence height would be 2px taller (1px top + 1px
+ * bottom padding) than the date line's, throwing off the vertical alignment between columns more and
+ * more with each occurrence. Giving the two trigger kinds a 2px-smaller margin-bottom than the
+ * plain/unpadded elements exactly cancels this out (their own padding "eats into" the margin rather
+ * than adding on top of it, per the user's explicit request), so every column's per-occurrence row
+ * ends up the same total height again.
+ */
+#listEventsForSubject-panel .event-trigger,
+#listEventsForSubject-panel .crf-trigger {
+    margin-bottom: 1px;
+}
+
+#listEventsForSubject-panel .crf-trigger-empty,
+#listEventsForSubject-panel .event-occurrence-date-line {
+    margin-bottom: 3px;
+}
+
+#listEventsForSubject-panel .event-trigger:last-child,
+#listEventsForSubject-panel .crf-trigger:last-child,
+#listEventsForSubject-panel .crf-trigger-empty:last-child,
+#listEventsForSubject-panel .event-occurrence-date-line:last-child {
+    margin-bottom: 0;
+}
+
+
